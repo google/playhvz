@@ -6,6 +6,18 @@
 <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-flex-layout/iron-flex-layout-classes.html">
 
+<!--
+TODO(SquirrelThief):
+- add "clear" button for dev to erase all chat messages
+- wrap message display so messages don't go off screen
+- autoscroll to bottom of chat
+- set max dashlet height
+- display user profile pic
+- split into two modules, one for chat-room and one for chat-page
+- add list of chat participants
+- add list of available chat rooms + add new chat room
+- display time of message
+-->
 
 
 <dom-module id="chat-app">
@@ -42,7 +54,7 @@
     </style>
 
     <script>
-// Not sure why this HTMLImports.whenReady is really needed.
+    // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
@@ -97,7 +109,7 @@
             * the text field.
             */
             checkForEnter_: function(e) {
-               if ((e.keyCode === 13 && !e.shiftKey) && this.$.messageInput.value) {
+             if ((e.keyCode === 13 && !e.shiftKey) && this.$.messageInput.value) {
                 e.preventDefault();
                 this.$.messageSend.click();
             }

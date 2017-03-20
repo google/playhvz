@@ -63,6 +63,12 @@
       });
     });
   </script>
+  <style>
+    .content {
+      display: block;
+      padding: 8px;
+    }
+  </style>
   <template>
   	<style>
       player-table {
@@ -81,13 +87,16 @@
 
       <ghvz-dashlet half>
         <div class="header">Next Mission</div>
-        (next mission goes here)
+        <div class="content">
+          (next mission goes here)
+        </div>
       </ghvz-dashlet>
 
       <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
         <ghvz-dashlet half>
           <div class="header">[[chatRoom.name]]</div>
           <chat-app
+              class="content"
               server-bridge="[[serverBridge]]"
               game-id="[[gameId]]"
               current-player-id="[[currentPlayerId]]"
