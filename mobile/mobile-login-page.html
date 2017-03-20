@@ -1,0 +1,81 @@
+
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-icon/iron-icon.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-icons/iron-icons.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-button/paper-button.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animated-pages.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animatable.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animations.html">
+
+<dom-module id="mobile-login-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'mobile-login-page',
+
+        properties: {
+          bridge: {
+            type: Object,
+          },
+        },
+
+        startedShowing: function() {
+        },
+
+        logIn_: function() {
+          if (!this.$.email.value) {
+            alert('Enter an email');
+            return;
+          }
+          this.bridge.sendLogInLink(this.$.email.value, null).then(
+              (result) => {
+                this.fire('mobile-login-page-logged-in');
+              },
+              (error) => {
+                alert('Error logging in: ' + error);
+              });
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        width: 100%;
+        height: 100%;
+      }
+      paper-toolbar {
+        @apply(--toolbar-theme);
+        padding: 0 16px;
+      }
+      #email {
+        margin: 8px;
+      }
+      #login {
+        background-color: #03a9f4;
+        color: white;
+        display: block;
+        text-align: center;
+        margin: 8px;
+      }
+    </style>
+
+    <paper-header-panel>
+      <paper-toolbar>
+        <div>Log In</div>
+      </paper-toolbar>
+
+      <paper-input id="email" label="email">
+        <iron-icon icon="mail" prefix></iron-icon>
+      </paper-input>
+      <paper-button raised id="login" on-tap="logIn_">
+        Log In
+      </paper-button>
+    </paper-header-panel>
+
+  </template>
+</dom-module>

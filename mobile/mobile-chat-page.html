@@ -1,0 +1,61 @@
+
+<dom-module id="mobile-chat-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'mobile-chat-page',
+
+        properties: {
+          serverBridge: Object,
+
+          gameId: String,
+
+          currentPlayerId: String,
+
+          chatRoomId: String,
+        },
+
+        startedShowing: function() {
+        },
+
+        handleBack_: function(e) {
+          this.fire('mobile-chat-page-back');
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        width: 100%;
+        height: 100%;
+      }
+      paper-toolbar {
+        @apply(--toolbar-theme);
+        background-color: #f44336;
+      }
+    </style>
+
+    <paper-header-panel>
+      <paper-toolbar>
+        <paper-icon-button icon="icons:arrow-back" on-tap="handleBack_"></paper-icon-button>
+        Chat!
+      </paper-toolbar>
+
+      <div class="fit">
+
+          <chat-app
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              current-player-id="[[currentPlayerId]]"
+              chat-room-id="[[chatRoomId]]">
+          </chat-app>
+
+      </div>
+    </paper-header-panel>
+
+  </template>
+</dom-module>

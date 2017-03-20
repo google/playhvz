@@ -1,0 +1,64 @@
+
+<dom-module id="ghvz-dashboard">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-dashboard',
+
+        created: function() {
+        },
+
+        attached: function() {
+          this.scopeSubtree(this.$.dashlets, true);
+          Polymer.dom(this.$.dashlets).observeNodes(function(info) {
+            for (var i = 0; i < info.addedNodes.length; i++) {
+              var node = info.addedNodes[i];
+              if (node.nodeType != Node.TEXT_NODE) {
+                console.log(node);
+                node.classList.add('dashlet');
+                if (node.hasAttribute('full')) {
+                  node.classList.add('full');
+                }
+                if (node.hasAttribute('half')) {
+                  node.classList.add('half');
+                }
+              }
+            }
+          });
+        },
+        // properties: {
+        //   players: {
+        //     type: Array,
+        //     value: function() { return []; },
+        //   },
+        // },
+      });
+    });
+  </script>
+  <template>
+  	<style>
+      #dashlets {
+        flex-wrap: wrap;
+        display: flex;
+        padding: 16px;
+      }
+      .dashlet {
+        box-sizing: border-box;
+        padding: 16px;
+        display: inline-block;
+      }
+      .dashlet.full {
+        width: 100%;
+      }
+      .dashlet.half {
+        width: 50%;
+      }
+  	</style>
+    <div id="dashlets">
+      <content/>
+    </div>
+  </template>
+</dom-module>

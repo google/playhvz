@@ -1,0 +1,152 @@
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-dialog/paper-dialog.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-input/paper-input.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-button/paper-button.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-fab/paper-fab.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-input/paper-textarea.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-flex-layout/iron-flex-layout-classes.html">
+
+
+
+<dom-module id="chat-app">
+    <style include="iron-flex iron-flex-alignment">
+        .message-from-other {
+            justify-content: flex-start;
+        }
+
+        .message-from-me {
+            justify-content: flex-end;
+        }
+
+        .my-name {
+            padding-left: 8px;
+            font-size: 10px;
+        }
+
+        .other-name {
+            padding-right: 8px;
+            font-size: 10px;
+        }
+
+        .display-message {
+            white-space: pre;
+        }
+
+        .textbox {
+            padding-top: 8px;
+        }
+
+        .textbox-input-field {
+            @apply(--layout-flex);
+        }
+    </style>
+
+    <script>
+// Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+    	Polymer({
+    		is: 'chat-app',
+
+    		properties: {
+                name: {
+                    type: String,
+                    value: "Derpette",
+                },
+                messages: {
+                    type: Array,
+                    value: [
+                    {name: "Sys", message: "hi", timestamp: "1489884747508"},
+                    {name: "Foobar", message: "Wazzup?", timestamp: "1489884747509"},
+                    {name: "Sys", message: "Not much", timestamp: "1489884747510"}
+                    ],
+                },
+            },
+
+            isMe_(senderName) {
+                return senderName === this.name;
+            },
+
+            formatName_(messageObject) {
+                if (messageObject.name === this.name) {
+                    return "message-from-me";
+                } else {
+                    return "message-from-other";
+                }
+                return "";
+            },
+
+            /**
+            * Builds a message object containing Player's name, Player's message, and 
+            * current time. Adds this message object to the local messages array for
+            * display.
+            * TODO(kshook): send message to server/firebase
+            */
+            onSendClicked_: function() {
+                var name = this.name;
+                var message = this.$.messageInput.value;
+                var timestamp = Date.now();
+                var messageToSend = {name: name, message: message, timestamp: timestamp};
+                this.push('messages', messageToSend);                
+                this.$.messageInput.value = "";
+            },
+
+            /**
+            * Submit text on 'enter', allow shift+enter to insert a new line in
+            * the text field.
+            */
+            checkForEnter_: function(e) {
+               if ((e.keyCode === 13 && !e.shiftKey) && this.$.messageInput.value) {
+                e.preventDefault();
+                this.$.messageSend.click();
+            }
+        },
+    });
+    });
+</script>
+
+<template>
+    <!-- Display messages -->
+    <template is="dom-repeat" items="[[messages]]">
+        <!-- Format message from me -->
+        <template is="dom-if" if="[[isMe_(item.name)]]">
+            <div class="layout horizontal message-from-me">
+                <div class="display-message">[[item.message]]</div>
+                <div class="my-name">[[item.name]]</div>
+            </div> 
+        </template>
+        <!-- Format message from another player -->
+        <template is="dom-if" if="[[!isMe_(item.name)]]">
+            <div class="layout horizontal message-from-other">
+                <div class="other-name">[[item.name]]</div>
+                <div class="display-message">[[item.message]]</div>
+            </div> 
+        </template>
+    </template>
+
+    <!-- Text Input -->
+    <div class="layout horizontal textbox">
+        <paper-textarea 
+        class="textbox-input-field"
+        id="messageInput"
+        autocorrect
+        autofocus
+        multiline
+        maxRows=3
+        label="message"
+        no-label-float
+        on-keydown="checkForEnter_">
+    </paper-textarea>
+    <paper-button
+    class="flex-0"
+    id="messageSend" 
+    raised 
+    style="background-color: #7e57c2; color: white" 
+    on-click="onSendClicked_">
+    ->
+</paper-button>
+</div>
+
+</template>
+</dom-module>

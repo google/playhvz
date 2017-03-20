@@ -1,0 +1,211 @@
+
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animated-pages.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animatable.html">
+<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animations.html">
+
+<dom-module id="auto-table">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'auto-table',
+
+        properties: {
+          delegate: {
+            type: Object,
+            value: {},
+          },
+
+          items: {
+            type: Array,
+            value: function() { return []; },
+          },
+        },
+
+        getPropertyName_: function(property) {
+          return this.delegate.getHeader(property);
+        },
+
+        getActions_: function() {
+          return this.delegate.getActions();
+        },
+
+        getActionName_: function(action) {
+          return this.delegate.getActionName(action);
+        },
+
+        getProperties_: function() {
+          return this.delegate.getSchema();
+        },
+
+        getPropertyValue_: function(item, propertyName) {
+          return item[propertyName];
+        },
+
+        getItemId_: function(item) {
+          return item.id;
+        },
+
+        onBulkActionTapped_: function(e) {
+          var matchingItems = [];
+          var rows = this.$.tbody.querySelectorAll('tr');
+          for (var i = 0; i < rows.length; i++) {
+            if (this.getSelected_(i)) {
+              matchingItems.push(this.items[i]);
+            }
+          }
+          for (var i = 0; i < matchingItems.length; i++) {
+            this.delegate.doAction(matchingItems[i], e.target.dataset.action);
+          }
+        },
+
+        onActionTapped_: function(e) {
+          this.delegate.doAction(this.getItemForId_(e.target.dataset.itemId), e.target.dataset.action);
+        },
+
+        getItemForId_: function(id) {
+          for (var i = 0; i < this.items.length; i++) {
+            if (this.getItemId_(this.items[i]) == id) {
+              return this.items[i];
+            }
+          }
+          console.error('Item not found for id:', id);
+        },
+
+        getIndexForId_: function(id) {
+          for (var i = 0; i < this.items.length; i++) {
+            if (this.getItemId_(this.items[i]) == id) {
+              return i;
+            }
+          }
+          console.error('Item index not found for id:', id);
+        },
+
+        onSelectChanged_: function(e) {
+          var row = e.target.closest('tr');
+          this.updateColor_(row, e.target.checked);
+
+          if (this.$.selectAll.checked && !e.target.checked) {
+            this.$.selectAll.checked = false;
+          }
+        },
+
+        onSelectAllChanged_: function(e) {
+          var rows = this.$.tbody.querySelectorAll('tr');
+          for (var i = 0; i < rows.length; i++) {
+            this.setSelected_(i, e.target.checked);
+          }
+        },
+
+        getSelected_: function(index) {
+          var row = this.$.tbody.querySelectorAll('tr')[index];
+          return row.querySelector('paper-checkbox').checked;
+        },
+
+        setSelected_: function(index, selected) {
+          var row = this.$.tbody.querySelectorAll('tr')[index];
+          row.querySelector('paper-checkbox').checked = selected;
+          this.updateColor_(row, selected);
+        },
+
+        updateColor_: function(row, selected) {
+          if (selected)
+            row.dataset.selected = "selected";
+          else
+            delete row.dataset.selected;
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      #table {
+        border-spacing: 0;
+        font-size: 13pt;
+        font-family: Roboto;
+        font-weight: regular;
+        color: rgba(0, 0, 0, .87);
+        width: 100%;
+      }
+      th {
+        font-size: 12pt;
+        font-weight: bold;
+        text-align: left;
+      }
+      .property-header {
+        color: rgba(0, 0, 0, .54);
+      }
+      tbody td {
+        border-top: 1px solid #d8d8d8;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      th {
+        border-bottom: 1px solid #f0f0f0;
+      }
+      th, td {
+        padding: 8px 16px;
+      }
+      .control-cell {
+        padding: 0 0 0 16px;
+      }
+      .control-cell paper-menu-button {
+        padding: 0;
+      }
+      tr[data-selected] {
+        background-color: rgba(0, 0, 0, .1);
+      }
+      tr[data-selected] td {
+        border-bottom: 1px solid #d8d8d8;
+      }
+    </style>
+    <table id="table">
+      <thead>
+        <tr id="headers">
+          <th class="control-cell">
+            <paper-checkbox id="selectAll" on-change="onSelectAllChanged_"></paper-checkbox>
+            <paper-menu-button>
+              <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+              <paper-menu class="dropdown-content">
+                <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
+                  <paper-item on-tap="onBulkActionTapped_" data-action$="[[action]]">[[getActionName_(action, delegate)]]</paper-item>
+                </template>
+              </paper-menu>
+            </paper-menu-button>
+          </th>
+          <template is="dom-repeat" items="[[getProperties_(delegate)]]">
+            <th class="property-header">
+              [[getPropertyName_(item, delegate)]]
+            </th>
+          </template>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <template is="dom-repeat" items="[[items]]">
+          <tr data-item-id$="[[getItemId_(item, delegate)]]">
+            <td class="control-cell">
+              <paper-checkbox
+                  data-item-id$="[[getItemId_(item, delegate)]]"
+                  on-change="onSelectChanged_">
+              </paper-checkbox>
+              <paper-menu-button>
+                <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+                <paper-menu class="dropdown-content">
+                  <template is="dom-repeat" items="[[getActions_()]]" as="action">
+                    <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action]]">[[getActionName_(action, delegate)]]</paper-item>
+                  </template>
+                </paper-menu>
+              </paper-menu-button>
+            </td>
+            <template is="dom-repeat" items="[[getProperties_(delegate)]]" as="propertyName">
+              <td>
+                [[getPropertyValue_(item, propertyName, delegate)]]
+              </td>
+            </template>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </template>
+</dom-module>

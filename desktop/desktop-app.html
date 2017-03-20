@@ -1,0 +1,101 @@
+
+<dom-module id="desktop-app">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'desktop-app',
+
+        properties: {
+          serverBridge: {
+            type: Object,
+            value: makeFakePrepopulatedServerBridge(),
+          },
+
+          chatRoomIds: {
+            type: Array,
+            value: undefined,
+          },
+
+          gameId: {
+            type: String,
+            value: undefined,
+          },
+
+          currentUserId: {
+            type: String,
+            value: undefined,
+          },
+
+          currentPlayerId: {
+            type: String,
+            value: undefined,
+          },
+        },
+
+        attached: function() {
+          this.serverBridge.logIn('authcodeforevanuserid')
+              .then((userId) => {
+                this.currentUserId = userId;
+                return this.serverBridge.findAllPlayerIdsForUserId(this.currentUserId);
+              })
+              .then((playerIds) => {
+                if (playerIds.length == 0) {
+                  alert('you should join a game');
+                } else if (playerIds.length == 1) {
+                  this.currentPlayerId = playerIds[0];
+                  this.serverBridge.findAllChatRoomIdsForPlayer(this.currentPlayerId)
+                      .then((chatRoomIds) => {
+                        console.log('lizard');
+                        this.chatRoomIds = chatRoomIds;
+                      });
+                  this.serverBridge.getPlayerById(this.currentPlayerId)
+                      .then((player) => {
+                        this.gameId = player.gameId;
+                      });
+                } else {
+                  alert('you should somehow choose a game');
+                }
+              });
+        },
+      });
+    });
+  </script>
+  <template>
+  	<style>
+      player-table {
+        width: 100%;
+      }
+  	</style>
+
+    <ghvz-dashboard>
+      <ghvz-dashlet full>
+        <div class="header">Players</div>
+        <player-table
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]">
+        </player-table>
+      </ghvz-dashlet>
+
+      <ghvz-dashlet half>
+        <div class="header">Next Mission</div>
+        (next mission goes here)
+      </ghvz-dashlet>
+
+      <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
+        <ghvz-dashlet half>
+          <div class="header">[[chatRoom.name]]</div>
+          <chat-app
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              current-player-id="[[currentPlayerId]]"
+              chat-room-id="[[chatRoomId]]">
+          </chat-app>
+        </ghvz-dashlet>
+      </template>
+    </ghvz-dashboard>
+
+  </template>
+</dom-module>
