@@ -1,5 +1,8 @@
 <html>
 <head>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">google.charts.load('current', {'packages':['corechart']});</script>
+
   <script src="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/webcomponentsjs/webcomponents-lite.min.js"></script>
   <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/polymer/polymer.html">
 
@@ -14,6 +17,9 @@
   <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-menu-button/paper-menu-button.html">
   <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/paper-styles/demo-pages.html">
+  <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animated-pages.html">
+  <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animatable.html">
+
 
   <script src="../serverbridge/serverbridge.js"></script>
   <script src="../serverbridge/remoteserverbridge.js"></script>
@@ -29,6 +35,8 @@
   <link rel="import" href="../dashboard/ghvz-dashboard.html">
   <link rel="import" href="../dashboard/ghvz-dashlet.html">
   <link rel="import" href="../chat/chat-app.html">
+  <link rel="import" href="../gamestats/population-current.html">
+  <link rel="import" href="../gamestats/population-over-time.html">
 
   <style>
     body {

@@ -1,0 +1,46 @@
+<dom-module id="population-over-time">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'population-over-time',
+      });
+    });
+  </script>
+  <script type="text/javascript">
+    google.charts.setOnLoadCallback(drawPopulationOverTimeChart);
+
+    function drawPopulationOverTimeChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Day', 'Human', 'Zed'],
+        ['0',  199,      1],
+        ['1',  190,      10],
+        ['2',  180,      20],
+        ['3',  150,      50],
+        ['4',  130,      70],
+        ['5',  60,       140],
+        ['6',  50,       150],
+        ['7',  0,      200]
+        ]);
+
+      var options = {
+        curveType: 'function',
+        legend: { position: 'bottom' }
+      };
+
+      var chart = new google.visualization.LineChart(
+        document.getElementById('population_over_time_chart'));
+
+      chart.draw(data, options);
+    }
+    
+    // The following makes Google Charts responsive and will resize the chart
+    // as the page is resized. 
+    window.onresize = drawPopulationOverTimeChart;
+  </script>
+  <template>
+    <div id="population_over_time_chart"></div>
+  </template>
+</dom-module>

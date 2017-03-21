@@ -1,0 +1,40 @@
+<dom-module id="population-current">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'population-current',
+      });
+    });
+  </script>
+  <script type="text/javascript">
+    google.charts.setOnLoadCallback(drawCurrentPopulationChart);
+
+    function drawCurrentPopulationChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Type', 'Number'],
+        ['Human',  20],
+        ['Zombie',  56],
+        ]);
+
+      var options = {
+        legend: { position: 'right' }
+      };
+
+      var chart = new google.visualization.PieChart(
+        document.getElementById('current_population_chart'));
+
+      chart.draw(data, options);
+    }
+
+    // TODO(SquirrelThief): why doesn't this work for the pie chart?
+    // The following makes Google Charts responsive and will resize the chart
+    // as the page is resized. 
+    window.onresize = drawCurrentPopulationChart;
+  </script>
+  <template>
+    <div id="current_population_chart" style="width: 100%, height: 100%"></div>
+  </template>
+</dom-module>
