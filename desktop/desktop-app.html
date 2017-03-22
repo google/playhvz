@@ -84,19 +84,7 @@
             game-id="[[gameId]]">
         </player-table>
       </ghvz-dashlet>
-
-      <ghvz-dashlet half>
-        <div class="header">Current Population</div>
-        <population-current class="content">
-        </population-current>
-      </ghvz-dashlet>
-
-      <ghvz-dashlet half>
-        <div class="header">Population Per Day</div>
-        <population-over-time class="content">
-        </population-over-time>
-      </ghvz-dashlet>
-
+      
       <ghvz-dashlet half>
         <div class="header">Next Mission</div>
         <div class="content">
@@ -116,6 +104,13 @@
           </chat-app>
         </ghvz-dashlet>
       </template>
+
+      <ghvz-dashlet half>
+        <div class="header">Game Stats</div>
+        <game-stat-summary class="content">
+        </game-stat-summary>
+      </ghvz-dashlet>
+
     </ghvz-dashboard>
 
   </template>

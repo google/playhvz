@@ -6,19 +6,21 @@
 <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/iron-flex-layout/iron-flex-layout-classes.html">
 
+<!-- TODO move these to index.html -->
+
 <dom-module id="game-stat-summary">
-    <style include="iron-flex iron-flex-alignment">
+  <style include="iron-flex iron-flex-alignment">
     neon-animated-pages {
-        width: 100%;
-        height: 100%;
-      }
-      neon-animatable {
-        width: 100%;
-        height: 100%;
-        background-color: white;
-      }
-    </style>
-    <script>
+      width: 100%;
+      height: 50%;
+    }
+    neon-animatable {
+      width: 100%;
+      height: 100%;
+      background-color: white;
+    }
+  </style>
+  <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
@@ -27,54 +29,54 @@
     		is: 'game-stat-summary',
 
     		properties: {
-                human: {
-                    type: Number,
-                    value: 20,
-                },
-                zombie: {
-                    type: Number,
-                    value: 56,
-                },
-            },
+          showing: {
+            type: Number,
+            value: 0,
+          },
+          lineGraphIcon: {
+            type: String,
+            value: "https://cdn0.iconfinder.com/data/icons/colicon/24/line_chart_analystic_report_10-128.png",
+          },
+          pieChartIcon: {
+            type: String,
+            value: "https://image.flaticon.com/icons/png/128/138/138338.png",
+          },
+          buttonIcon: {
+            type: String,
+            value: "https://cdn0.iconfinder.com/data/icons/colicon/24/line_chart_analystic_report_10-128.png",
+          },
+        },
 
-            getPercentHuman() {
-                return this.human / (this.human + this.zombie);
-            },
-
-            getPercentZombie() {
-                return this.zombie / (this.human + this.zombie);
-            },
-        });
+        onSwapClicked_: function() {
+          this.showing = !this.showing;
+          if (this.showing == 0) {
+            this.buttonIcon = this.lineGraphIcon;
+          } else {
+            this.buttonIcon = this.pieChartIcon;
+          }
+        },
+      });
     });
-</script>
+  </script>
 
-
-<template class="layout vertical">
-    <!-- <neon-animated-pages> requires its selected, entry-animation, and
-      exit-animation attributes to be set. You'd often see something like:
-      <neon-animated-pages
-          id="pages"
-          class="flex"
-          entry-animation="slide-from-left-animation"
-          exit-animation="slide-right-animation"
-          selected="0">
-          but we set those manually via javascript. -->
-    <neon-animated-pages 
-          id="game-stat-summary" 
-          class="flex" 
-          entry-animation="slide-from-left-animation"
-          exit-animation="slide-right-animation"
-          selected="0">
-          <neon-animatable>
-
-            <population-current/>
-
-        </neon-animatable>
-        <neon-animatable>
-
-            <population-over-time/>
-
-        </neon-animatable>
-    </neon-animated-pages>
+  <template class="layout vertical" style="height:300px">
+    <paper-icon-button
+    src="[[buttonIcon]]"
+    id="swap-gamestat-button" 
+    on-click="onSwapClicked_">
+  </paper-icon-button>
+  <neon-animated-pages 
+  id="game-stat-summary" 
+  class="flex" 
+  entry-animation="scale-up-animation"
+  exit-animation="fade-out-animation"
+  selected="[[showing]]">
+  <neon-animatable>
+    <population-current/>
+  </neon-animatable>
+  <neon-animatable>
+    <population-over-time/>
+  </neon-animatable>
+</neon-animated-pages>
 </template>
 </dom-module>
