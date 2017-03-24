@@ -9,6 +9,12 @@ function makeFakePrepopulatedServerBridge() {
   server.joinGame('evanuserid', 'thegameid', 'evanplayerid', 'Evanpocalypse');
   server.createChatRoom('humanchatroom', 'kimplayerid');
   server.addPlayerToChatRoom('humanchatroom', 'evanplayerid');
+  server.addMessageToChatRoom('humanchatroom', 'kimplayerid', 'hi');
+  server.createChatRoom('zedchatroom', 'evanplayerid');
+  server.addPlayerToChatRoom('zedchatroom', 'kimplayerid');
+  server.addMessageToChatRoom('zedchatroom', 'evanplayerid', 'zeds rule!');
+  server.addMessageToChatRoom('zedchatroom', 'kimplayerid', 'hoomans drool!');
+  server.addMessageToChatRoom('zedchatroom', 'kimplayerid', 'monkeys eat stool!');
   return new FakeServerBridge(server);
 }
 

@@ -21,39 +21,39 @@ TODO(SquirrelThief):
 
 
 <dom-module id="chat-app">
-    <style include="iron-flex iron-flex-alignment">
-        .message-from-other {
-            justify-content: flex-start;
-        }
+  <style include="iron-flex iron-flex-alignment">
+    .message-from-other {
+      justify-content: flex-start;
+    }
 
-        .message-from-me {
-            justify-content: flex-end;
-        }
+    .message-from-me {
+      justify-content: flex-end;
+    }
 
-        .my-name {
-            padding-left: 8px;
-            font-size: 10px;
-        }
+    .my-name {
+      padding-left: 8px;
+      font-size: 10px;
+    }
 
-        .other-name {
-            padding-right: 8px;
-            font-size: 10px;
-        }
+    .other-name {
+      padding-right: 8px;
+      font-size: 10px;
+    }
 
-        .display-message {
-            white-space: pre;
-        }
+    .display-message {
+      white-space: pre;
+    }
 
-        .textbox {
-            padding-top: 8px;
-        }
+    .textbox {
+      padding-top: 8px;
+    }
 
-        .textbox-input-field {
-            @apply(--layout-flex);
-        }
-    </style>
+    .textbox-input-field {
+      @apply(--layout-flex);
+    }
+  </style>
 
-    <script>
+  <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
@@ -62,92 +62,127 @@ TODO(SquirrelThief):
     		is: 'chat-app',
 
     		properties: {
-                name: {
-                    type: String,
-                    value: "Derpette",
-                },
-                messages: {
-                    type: Array,
-                    value: [
-                    {name: "Sys", message: "hi", timestamp: "1489884747508"},
-                    {name: "Foobar", message: "Wazzup?", timestamp: "1489884747509"},
-                    {name: "Sys", message: "Not much", timestamp: "1489884747510"}
-                    ],
-                },
-            },
+          serverBridge: Object,
 
-            isMe_(senderName) {
-                return senderName === this.name;
-            },
+          gameId: String,
 
-            formatName_(messageObject) {
-                if (messageObject.name === this.name) {
-                    return "message-from-me";
-                } else {
-                    return "message-from-other";
-                }
-                return "";
-            },
+          currentPlayerId: String,
 
-            /**
-            * Builds a message object containing Player's name, Player's message, and 
-            * current time. Adds this message object to the local messages array for
-            * display.
-            * TODO(kshook): send message to server/firebase
-            */
-            onSendClicked_: function() {
-                var name = this.name;
-                var message = this.$.messageInput.value;
-                var timestamp = Date.now();
-                var messageToSend = {name: name, message: message, timestamp: timestamp};
-                this.push('messages', messageToSend);                
-                this.$.messageInput.value = "";
-            },
+          chatRoomId: String,
+
+          player: {
+            type: Object,
+            value: function() { return {}; },
+          },
+
+          chatRoom: {
+            type: Object,
+            value: function() { return {}; },
+          },
+
+          playerIds: {
+            type: Array,
+            value: function() { return []; },
+          },
+        },
+
+        observers: [
+        "chatRoomReady_(serverBridge, chatRoomId)",
+        "currentPlayerIdReady_(serverBridge, currentPlayerId)",
+        ],
+        
+        chatRoomReady_: function(serverBridge, chatRoomId) {
+          serverBridge.getChatRoomById(chatRoomId)
+          .then((chatRoom) => {
+            this.chatRoom = chatRoom;
+          });
+        },
+
+        currentPlayerIdReady_: function(serverBridge, currentPlayerId) {
+          serverBridge.getPlayerById(currentPlayerId)
+          .then((player) => {
+            this.player = player;
+          });
+        },
+
+        isMe_(senderId, myId) {
+          return senderId === myId;
+        },
+
+        formatName_(messageObject) {
+          if (messageObject.playerId === this.currentPlayerId) {
+            return "message-from-me";
+          } else {
+            return "message-from-other";
+          }
+          return "";
+        },
+
+        /**
+        * Sends messages to the server and retrieves any messages since last 
+        * check. 
+        */
+        onSendClicked_: function() {
+          if (!this.$.messageInput.value) {
+            return;
+          }
+
+          this.serverBridge.addMessageToChatRoom(this.chatRoom.id, 
+            this.player.id, this.$.messageInput.value);
+          this.$.messageInput.value = "";  
+
+          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, 0)
+            .then((messages) => {
+              this.set('chatRoom.messages', []);
+              this.set('chatRoom.messages', messages);
+              this.notifyPath('chatRoom.messages')
+            });
+        },
 
             /**
             * Submit text on 'enter', allow shift+enter to insert a new line in
             * the text field.
             */
             checkForEnter_: function(e) {
-             if ((e.keyCode === 13 && !e.shiftKey) && this.$.messageInput.value) {
-                e.preventDefault();
-                this.$.messageSend.click();
+             if (e.keyCode === 13 && !e.shiftKey) {
+              e.preventDefault();
+              this.$.messageSend.click();
             }
-        },
+          },
+        });
     });
-    });
-</script>
+  </script>
 
-<template>
+  <template>
     <!-- Display messages -->
-    <template is="dom-repeat" items="[[messages]]">
-        <!-- Format message from me -->
-        <template is="dom-if" if="[[isMe_(item.name)]]">
-            <div class="layout horizontal message-from-me">
-                <div class="display-message">[[item.message]]</div>
-                <div class="my-name">[[item.name]]</div>
-            </div> 
-        </template>
-        <!-- Format message from another player -->
-        <template is="dom-if" if="[[!isMe_(item.name)]]">
-            <div class="layout horizontal message-from-other">
-                <div class="other-name">[[item.name]]</div>
-                <div class="display-message">[[item.message]]</div>
-            </div> 
-        </template>
+    <template is="dom-repeat" items="[[chatRoom.messages]]">
+      <!-- Format message from me -->
+      <template is="dom-if" if="[[isMe_(item.playerId, player.id)]]">
+        <div class="layout horizontal message-from-me">
+          <div class="display-message">[[item.message]]</div>
+          <div class="my-name">[[item.playerId]]</div>
+        </div> 
+      </template>
+      <!-- Format message from another player -->
+      <template is="dom-if" if="[[!isMe_(item.playerId, player.id)]]">
+        <div class="layout horizontal message-from-other">
+          <div class="other-name">[[item.playerId]]</div>
+          <div class="display-message">[[item.message]]</div>
+        </div> 
+      </template>
     </template>
 
     <!-- Text Input -->
     <div class="layout horizontal textbox">
-        <paper-textarea 
-        class="textbox-input-field"
-        id="messageInput"
-        autocorrect
-        multiline
-        maxRows=3
-        label="message"
-        no-label-float
-        on-keydown="checkForEnter_">
+      <paper-textarea 
+      class="textbox-input-field"
+      id="messageInput"
+      autocorrect
+      multiline
+      max-rows=3
+      label="message"
+      no-label-float
+      on-keydown="checkForEnter_">
     </paper-textarea>
     <paper-button
     class="flex-0"
@@ -156,7 +191,7 @@ TODO(SquirrelThief):
     style="background-color: #7e57c2; color: white" 
     on-click="onSendClicked_">
     ->
-</paper-button>
+  </paper-button>
 </div>
 
 </template>

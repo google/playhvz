@@ -108,13 +108,11 @@ class FakeServer {
   findMessagesForChatRoom(chatRoomId, afterTime) {
     this.expectChatRoomExists_(chatRoomId);
     var results = [];
-    for (var chatRoomId in this.chatRoomsById) {
-      var chatRoom = this.chatRoomsById[chatRoomId];
-      for (var i = 0; i < chatRoom.messages.length; i++) {
-        var message = chatRoom.messages[i];
-        if (message.time > afterTime) {
-          resuts.push(message);
-        }
+    var chatRoom = this.chatRoomsById[chatRoomId];
+    for (var i = 0; i < chatRoom.messages.length; i++) {
+      var message = chatRoom.messages[i];
+      if (message.time > afterTime) {
+        results.push(message);
       }
     }
     return results;
