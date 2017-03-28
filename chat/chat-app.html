@@ -90,9 +90,9 @@ TODO(SquirrelThief):
             this.player.id, this.$.messageInput.value);
           this.$.messageInput.value = "";  
 
-          var lastMessageTime = this.chatRoom.messages.slice(-1)[0].time;
+          var afterId = this.chatRoom.messages.slice(-1)[0].id;
 
-          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, lastMessageTime)
+          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
           .then((messages) => {
             for (var index in messages) {
               this.push('chatRoom.messages', messages[index]);

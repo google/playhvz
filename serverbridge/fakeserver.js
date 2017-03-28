@@ -1,186 +1,75 @@
+'use strict';
 
 class FakeServer {
   constructor() {
-    this.usersById = {};
-    this.gamesById = {};
-    this.playersById = {};
+    this.fakeDatabase = new FakeDatabase();
     this.chatRoomsById = {};
   }
   
   register(userId, userEmail) {
-    this.expectUserNotExists_(userId);
-    this.usersById[userId] = {
-      userId: userId,
-      email: userEmail,
-    };
+    var user = new User(userId, userEmail);
+    this.fakeDatabase.createUser(user);
   }
   getUserById(userId) {
-    this.expectUserExists_(userId);
-    var user = this.usersById[userId];
-    return {
-      id: user.id,
-    };
+    return this.fakeDatabase.getUserById(userId);
   }
   createGame(gameId, adminUserId) {
-    this.expectGameNotExists_(gameId);
-    this.expectUserExists_(adminUserId);
-    this.gamesById[gameId] = {
-      id: gameId,
-      adminUserId: adminUserId,
-    };
+    var game = new Game(gameId, adminUserId);
+    this.fakeDatabase.createGame(game);
   }
   getGameById(gameId) {
-    this.expectGameExists_(gameId);
     return this.gamesById[gameId];
   }
   joinGame(userId, gameId, playerId, name) {
-    this.expectUserExists_(userId);
-    this.expectGameExists_(gameId);
-    this.expectPlayerNotExists_(playerId);
-    this.playersById[playerId] = {
-      gameId: gameId,
-      userId: userId,
-      id: playerId,
-      name: name,
-    };
+    var player = new Player(playerId, name, gameId, userId);
+    this.fakeDatabase.createPlayer(player);
   }
   getPlayerById(playerId) {
-    this.expectPlayerExists_(playerId);
-    var player = this.playersById[playerId];
-    return {
-      id: player.id,
-      name: player.name,
-      gameId: player.gameId,
-      userId: player.userId,
-    };
+    return this.fakeDatabase.getPlayerById(playerId);
   }
   findAllPlayersForGameId(gameId) {
-    this.expectGameExists_(gameId);
-    var result = [];
-    for (var playerId in this.playersById) {
-      if (this.playersById[playerId].gameId == gameId) {
-        result.push(this.getPlayerById(playerId));
-      }
-    }
-    return result;
-  }
-  findAllPlayerIdsForGameId(gameId) {
-    this.expectGameExists_(gameId);
-    var result = [];
-    for (var playerId in this.playersById) {
-      if (this.playersById[playerId].gameId == gameId) {
-        result.push(playerId);
-      }
-    }
-    return result;
+    return this.fakeDatabase.findAllPlayersForGameId(gameId);
   }
   findAllPlayerIdsForUserId(userId) {
-    this.expectUserExists_(userId);
-    var result = [];
-    for (var playerId in this.playersById) {
-      if (this.playersById[playerId].userId == userId) {
-        result.push(playerId);
-      }
-    }
-    return result;
+    return this.fakeDatabase.findAllPlayerIdsForUserId(userId);
   }
   findPlayerIdByGameAndName(gameId, name) {
-    this.expectGameExists_(gameId);
-    var result = [];
-    for (var playerId in this.playersById) {
-      var player = this.playersById[playerId];
-      if (player.gameId == gameId && player.name == name) {
-        result.push(player.id);
-      }
-    }
-    return result;
+    this.fakeDatabase.findPlayerIdByGameAndName(gameId, name);
   }
   createChatRoom(chatRoomId, firstPlayerId) {
-    this.expectChatRoomNotExists_(chatRoomId);
-    this.expectPlayerExists_(firstPlayerId);
-    this.chatRoomsById[chatRoomId] = {
-      id: chatRoomId,
-      playerIds: [],
-      messages: [],
-    };
-    this.addPlayerToChatRoom(chatRoomId, firstPlayerId);
+    var chatRoom = new ChatRoom(chatRoomId);
+    this.fakeDatabase.createChatRoom(chatRoom, firstPlayerId);
   }
-  findMessagesForChatRoom(chatRoomId, afterTime) {
-    this.expectChatRoomExists_(chatRoomId);
+  /*
+  * Returns all messages after the given id, not including the given id.
+  * To get all messages, set afterId to -1.
+  */
+  findMessagesForChatRoom(chatRoomId, afterId) {
+    var messages = this.fakeDatabase.findMessagesForChatRoom(chatRoomId);
     var results = [];
-    var chatRoom = this.chatRoomsById[chatRoomId];
-    for (var i = 0; i < chatRoom.messages.length; i++) {
-      var message = chatRoom.messages[i];
-      if (message.time > afterTime) {
-        results.push(message);
-      }
+    var startIndex = afterId < 0 ? 0 : afterId + 1;
+    for (var i = startIndex; i < messages.length; i++) {
+      var message = messages[i];
+      message.id = i;
+      results.push(message);
     }
     return results;
   }
   getChatRoomById(chatRoomId) {
-    this.expectChatRoomExists_(chatRoomId);
-    return this.chatRoomsById[chatRoomId];
+    var chatRoom = this.fakeDatabase.getChatRoomById(chatRoomId);
+    for (var i = 0; i < chatRoom.messages.length; i++) {
+      chatRoom.messages[i].id = i;
+    }
+    return chatRoom;
   }
   addMessageToChatRoom(chatRoomId, playerId, message) {
-    this.expectChatRoomExists_(chatRoomId);
-    this.expectPlayerExists_(playerId);
-    this.chatRoomsById[chatRoomId].messages.push({
-      time: new Date().getTime(),
-      playerId: playerId,
-      message: message,
-    });
+    return this.fakeDatabase.addMessageToChatRoom(chatRoomId, playerId, message);
   }
   addPlayerToChatRoom(chatRoomId, playerId) {
-    this.expectChatRoomExists_(chatRoomId);
-    this.expectPlayerExists_(playerId);
-    if (this.chatRoomsById[chatRoomId].playerIds.indexOf(playerId) >= 0) {
-      throw 'Player already in chat room';
-    }
-    this.chatRoomsById[chatRoomId].playerIds.push(playerId);
+    return this.fakeDatabase.addPlayerToChatRoom(chatRoomId, playerId);
   }
   findAllChatRoomIdsForPlayer(playerId) {
-    this.expectPlayerExists_(playerId);
-    var result = [];
-    for (var chatRoomId in this.chatRoomsById) {
-      var chatRoom = this.chatRoomsById[chatRoomId];
-      if (chatRoom.playerIds.indexOf(playerId) >= 0) {
-        result.push(chatRoomId);
-      }
-    }
-    return result;
-  }
-
-  expectUserExists_(userId) {
-    if (!(userId in this.usersById))
-      throw 'User id doesnt exist: ' + userId;
-  }
-  expectUserNotExists_(userId) {
-    if (userId in this.usersById)
-      throw 'User id already taken: ' + userId;
-  }
-  expectGameExists_(gameId) {
-    if (!(gameId in this.gamesById))
-      throw 'Game id doesnt exist: ' + gameId;
-  }
-  expectGameNotExists_(gameId) {
-    if (gameId in this.gamesById)
-      throw 'Game id already taken: ' + gameId;
-  }
-  expectPlayerExists_(playerId) {
-    if (!(playerId in this.playersById))
-      throw 'Player id doesnt exist: ' + playerId;
-  }
-  expectPlayerNotExists_(playerId) {
-    if (playerId in this.playersById)
-      throw 'Player id already taken: ' + playerId;
-  }
-  expectChatRoomExists_(chatRoomId) {
-    if (!(chatRoomId in this.chatRoomsById))
-      throw 'Chat room id doesnt exist: ' + chatRoomId;
-  }
-  expectChatRoomNotExists_(chatRoomId) {
-    if (chatRoomId in this.chatRoomsById)
-      throw 'Chat room id already taken: ' + chatRoomId;
+    return this.fakeDatabase.findAllChatRoomIdsForPlayer(playerId);
   }
 }
 
