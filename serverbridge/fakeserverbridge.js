@@ -26,14 +26,14 @@ function FakeServerBridge(server) {
     this.inner = server;
 }
 
-FakeServerBridge.delayed_ = function(callbackThatReturnsAPromise) {
+FakeServerBridge.fakeServerMethod_ = function(callbackThatReturnsAPromise) {
   return function() {
     var args = arguments;
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         callbackThatReturnsAPromise.apply(this, args).then(
-            (value) => setTimeout(() => resolve(value), 100),
-            (value) => setTimeout(() => reject(value), 100));
+            (value) => setTimeout(() => resolve(value && JSON.parse(JSON.stringify(value))), 100),
+            (value) => setTimeout(() => reject(value && JSON.parse(JSON.stringify(value))), 100));
       }, 100);
     });
   }
@@ -51,7 +51,7 @@ FakeServerBridge.loginProtected_ = function(callbackThatReturnsAPromise) {
 }
 
 FakeServerBridge.prototype.logIn =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         function(authcode) {
           try {
             var userId = authcode.slice('authcodefor'.length);
@@ -64,7 +64,7 @@ FakeServerBridge.prototype.logIn =
           }
         });
 FakeServerBridge.prototype.register =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         function(userId, userEmail) {
           try {
             return Promise.resolve(this.inner.register(userId, userEmail));
@@ -73,7 +73,7 @@ FakeServerBridge.prototype.register =
           }
         });
 FakeServerBridge.prototype.getUserById =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(userId) {
               try {
@@ -85,7 +85,7 @@ FakeServerBridge.prototype.getUserById =
               }
             }));
 FakeServerBridge.prototype.createGame =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(gameId, adminUserId) {
               try {
@@ -95,7 +95,7 @@ FakeServerBridge.prototype.createGame =
               }
             }));
 FakeServerBridge.prototype.getGameById =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(gameId) {
               try {
@@ -105,7 +105,7 @@ FakeServerBridge.prototype.getGameById =
               }
             }));
 FakeServerBridge.prototype.joinGame =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(userId, gameId, playerId, name) {
               try {
@@ -115,7 +115,7 @@ FakeServerBridge.prototype.joinGame =
               }
             }));
 FakeServerBridge.prototype.getPlayerById =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(playerId) {
               try {
@@ -125,7 +125,7 @@ FakeServerBridge.prototype.getPlayerById =
               }
             }));
 FakeServerBridge.prototype.findAllPlayerIdsForGameId =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(gameId) {
               try {
@@ -135,7 +135,7 @@ FakeServerBridge.prototype.findAllPlayerIdsForGameId =
               }
             }));
 FakeServerBridge.prototype.findAllPlayersForGameId =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(gameId) {
               try {
@@ -145,7 +145,7 @@ FakeServerBridge.prototype.findAllPlayersForGameId =
               }
             }));
 FakeServerBridge.prototype.findAllPlayerIdsForUserId =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(userId) {
               try {
@@ -155,7 +155,7 @@ FakeServerBridge.prototype.findAllPlayerIdsForUserId =
               }
             }));
 FakeServerBridge.prototype.findPlayerIdByGameAndName =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(gameId, name) {
               try {
@@ -165,7 +165,7 @@ FakeServerBridge.prototype.findPlayerIdByGameAndName =
               }
             }));
 FakeServerBridge.prototype.createChatRoom =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(chatRoomId, firstPlayerId) {
               try {
@@ -175,7 +175,7 @@ FakeServerBridge.prototype.createChatRoom =
               }
             }));
 FakeServerBridge.prototype.findMessagesForChatRoom =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(chatRoomId, afterTime) {
               try {
@@ -185,7 +185,7 @@ FakeServerBridge.prototype.findMessagesForChatRoom =
               }
             }));
 FakeServerBridge.prototype.getChatRoomById =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(chatRoomId) {
               try {
@@ -195,7 +195,7 @@ FakeServerBridge.prototype.getChatRoomById =
               }
             }));
 FakeServerBridge.prototype.addMessageToChatRoom =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(chatRoomId, playerId, message) {
             try {
@@ -205,7 +205,7 @@ FakeServerBridge.prototype.addMessageToChatRoom =
                 }
             }));
 FakeServerBridge.prototype.addPlayerToChatRoom =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(chatRoomId, playerId) {
             try {
@@ -215,7 +215,7 @@ FakeServerBridge.prototype.addPlayerToChatRoom =
                 }
             }));
 FakeServerBridge.prototype.findAllChatRoomIdsForPlayer =
-    FakeServerBridge.delayed_(
+    FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(playerId) {
             try {

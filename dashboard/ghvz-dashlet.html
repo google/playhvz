@@ -19,6 +19,17 @@
   </script>
   <template>
   	<style>
+      :host {
+        box-sizing: border-box;
+        padding: 16px;
+        display: inline-block;
+      }
+      :host[full] {
+        width: 100%;
+      }
+      :host[half] {
+        width: 50%;
+      }
       paper-material {
         background-color: white;
         display: block;

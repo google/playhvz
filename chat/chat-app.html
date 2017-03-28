@@ -11,48 +11,16 @@ TODO(SquirrelThief):
 - add "clear" button for dev to erase all chat messages
 - wrap message display so messages don't go off screen
 - autoscroll to bottom of chat
-- set max dashlet height
 - display user profile pic
 - split into two modules, one for chat-room and one for chat-page
 - add list of chat participants
-- add list of available chat rooms + add new chat room
+- add list of available chat rooms
+- create a new chat room
 - display time of message
 -->
 
 
 <dom-module id="chat-app">
-  <style include="iron-flex iron-flex-alignment">
-    .message-from-other {
-      justify-content: flex-start;
-    }
-
-    .message-from-me {
-      justify-content: flex-end;
-    }
-
-    .my-name {
-      padding-left: 8px;
-      font-size: 10px;
-    }
-
-    .other-name {
-      padding-right: 8px;
-      font-size: 10px;
-    }
-
-    .display-message {
-      white-space: pre;
-    }
-
-    .textbox {
-      padding-top: 8px;
-    }
-
-    .textbox-input-field {
-      @apply(--layout-flex);
-    }
-  </style>
-
   <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
@@ -105,17 +73,8 @@ TODO(SquirrelThief):
           });
         },
 
-        isMe_(senderId, myId) {
-          return senderId === myId;
-        },
-
-        formatName_(messageObject) {
-          if (messageObject.playerId === this.currentPlayerId) {
-            return "message-from-me";
-          } else {
-            return "message-from-other";
-          }
-          return "";
+        computeMessageDisplayClass_(senderId, myId) {
+          return senderId === myId ? 'message-from-me' : 'message-from-other';
         },
 
         /**
@@ -131,67 +90,97 @@ TODO(SquirrelThief):
             this.player.id, this.$.messageInput.value);
           this.$.messageInput.value = "";  
 
-          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, 0)
-            .then((messages) => {
-              this.set('chatRoom.messages', []);
-              this.set('chatRoom.messages', messages);
-              this.notifyPath('chatRoom.messages')
-            });
+          var lastMessageTime = this.chatRoom.messages.slice(-1)[0].time;
+
+          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, lastMessageTime)
+          .then((messages) => {
+            for (var index in messages) {
+              this.push('chatRoom.messages', messages[index]);
+            }
+          });
         },
 
-            /**
-            * Submit text on 'enter', allow shift+enter to insert a new line in
-            * the text field.
-            */
-            checkForEnter_: function(e) {
-             if (e.keyCode === 13 && !e.shiftKey) {
-              e.preventDefault();
-              this.$.messageSend.click();
-            }
-          },
-        });
+        /**
+        * Submit text on 'enter', allow shift+enter to insert a new line in
+        * the text field.
+        */
+        checkForEnter_: function(e) {
+         if (e.keyCode === 13 && !e.shiftKey) {
+          e.preventDefault();
+          this.$.messageSend.click();
+        }
+      },
+    });
     });
   </script>
 
   <template>
-    <!-- Display messages -->
-    <template is="dom-repeat" items="[[chatRoom.messages]]">
-      <!-- Format message from me -->
-      <template is="dom-if" if="[[isMe_(item.playerId, player.id)]]">
-        <div class="layout horizontal message-from-me">
-          <div class="display-message">[[item.message]]</div>
-          <div class="my-name">[[item.playerId]]</div>
-        </div> 
-      </template>
-      <!-- Format message from another player -->
-      <template is="dom-if" if="[[!isMe_(item.playerId, player.id)]]">
-        <div class="layout horizontal message-from-other">
-          <div class="other-name">[[item.playerId]]</div>
-          <div class="display-message">[[item.message]]</div>
-        </div> 
-      </template>
-    </template>
+   <style include="iron-flex iron-flex-alignment">
+    .player-name {
+      font-size: 10px;
+    }
 
-    <!-- Text Input -->
-    <div class="layout horizontal textbox">
-      <paper-textarea 
-      class="textbox-input-field"
-      id="messageInput"
-      autocorrect
-      multiline
-      max-rows=3
-      label="message"
-      no-label-float
-      on-keydown="checkForEnter_">
-    </paper-textarea>
-    <paper-button
-    class="flex-0"
-    id="messageSend" 
-    raised 
-    style="background-color: #7e57c2; color: white" 
-    on-click="onSendClicked_">
-    ->
-  </paper-button>
+    .message-from-other {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .message-from-me {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message-from-me > .player-name {
+      padding-left: 8px;
+      order: 3;
+    }
+
+    .message-from-other > .player-name {
+      padding-right: 8px;
+      order: 1;
+    }
+
+    .display-message {
+      white-space: pre;
+      order: 2;
+    }
+
+    .textbox {
+      padding-top: 8px;
+    }
+
+    .textbox-input-field {
+      @apply(--layout-flex);
+    }
+  </style>
+  <!-- Display messages -->
+  <template is="dom-repeat" items="[[chatRoom.messages]]">
+    <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, player.id)]]">
+      <div class="display-message">[[item.message]]</div>
+      <div class="player-name">[[item.playerId]]</div>
+    </div> 
+  </template>
+
+  <!-- Text Input -->
+  <div class="layout horizontal textbox">
+    <paper-textarea 
+    class="textbox-input-field"
+    id="messageInput"
+    autocorrect
+    multiline
+    max-rows=3
+    label="message"
+    no-label-float
+    on-keydown="checkForEnter_">
+  </paper-textarea>
+  <paper-button
+  class="flex-0"
+  id="messageSend" 
+  raised 
+  style="background-color: #7e57c2; color: white" 
+  on-click="onSendClicked_">
+  ->
+</paper-button>
 </div>
 
 </template>

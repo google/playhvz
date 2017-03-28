@@ -12,22 +12,6 @@
         },
 
         attached: function() {
-          this.scopeSubtree(this.$.dashlets, true);
-          Polymer.dom(this.$.dashlets).observeNodes(function(info) {
-            for (var i = 0; i < info.addedNodes.length; i++) {
-              var node = info.addedNodes[i];
-              if (node.nodeType != Node.TEXT_NODE) {
-                console.log(node);
-                node.classList.add('dashlet');
-                if (node.hasAttribute('full')) {
-                  node.classList.add('full');
-                }
-                if (node.hasAttribute('half')) {
-                  node.classList.add('half');
-                }
-              }
-            }
-          });
         },
         // properties: {
         //   players: {
@@ -44,17 +28,6 @@
         flex-wrap: wrap;
         display: flex;
         padding: 16px;
-      }
-      .dashlet {
-        box-sizing: border-box;
-        padding: 16px;
-        display: inline-block;
-      }
-      .dashlet.full {
-        width: 100%;
-      }
-      .dashlet.half {
-        width: 50%;
       }
   	</style>
     <div id="dashlets">

@@ -9,39 +9,42 @@
       });
     });
   </script>
-  <script type="text/javascript">
-    google.charts.setOnLoadCallback(drawPopulationOverTimeChart);
 
-    function drawPopulationOverTimeChart() {
-      var data = google.visualization.arrayToDataTable([
-        ['Day', 'Human', 'Zed'],
-        ['0',  199,      1],
-        ['1',  190,      10],
-        ['2',  180,      20],
-        ['3',  150,      50],
-        ['4',  130,      70],
-        ['5',  60,       140],
-        ['6',  50,       150],
-        ['7',  0,      200]
-        ]);
+  <template>
+    <script type="text/javascript">
+      var component = document.currentScript.parentElement;
 
-      var options = {
-        title: "Population Over Time",
-        curveType: 'function',
-        legend: { position: 'bottom' }
-      };
+      var drawPopulationOverTimeChart = function() {
+        var data = google.visualization.arrayToDataTable([
+          ['Day', 'Human', 'Zed'],
+          ['0',  199,      1],
+          ['1',  190,      10],
+          ['2',  180,      20],
+          ['3',  150,      50],
+          ['4',  130,      70],
+          ['5',  60,       140],
+          ['6',  50,       150],
+          ['7',  0,      200]
+          ]);
 
-      var chart = new google.visualization.LineChart(
-        document.getElementById('population_over_time_chart'));
+        var options = {
+          title: "Population Over Time",
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
 
-      chart.draw(data, options);
-    }
-    
+        var chart = new google.visualization.LineChart(
+          this.$.population_over_time_chart);
+
+        chart.draw(data, options);
+      }.bind(component);
+
+      google.charts.setOnLoadCallback(drawPopulationOverTimeChart);
+
     // The following makes Google Charts responsive and will resize the chart
     // as the page is resized. 
     window.addEventListener('resize', drawPopulationOverTimeChart);
   </script>
-  <template>
-    <div id="population_over_time_chart"></div>
-  </template>
+  <div id="population_over_time_chart"></div>
+</template>
 </dom-module>

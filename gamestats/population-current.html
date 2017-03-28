@@ -9,32 +9,34 @@
       });
     });
   </script>
-  <script type="text/javascript">
-    google.charts.setOnLoadCallback(drawCurrentPopulationChart);
-
-    function drawCurrentPopulationChart() {
-      var data = google.visualization.arrayToDataTable([
-        ['Type', 'Number'],
-        ['Human',  20],
-        ['Zombie',  56],
-        ]);
-
-      var options = {
-        title: "Current Population",
-        legend: { position: 'right' }
-      };
-
-      var chart = new google.visualization.PieChart(
-        document.getElementById('current_population_chart'));
-
-      chart.draw(data, options);
-    }
-
-    // The following makes Google Charts responsive and will resize the chart
-    // as the page is resized. 
-    window.addEventListener('resize', drawCurrentPopulationChart);
-  </script>
   <template>
+    <script type="text/javascript">
+      var component = document.currentScript.parentElement;
+
+      var drawCurrentPopulationChart = function() {
+        var data = google.visualization.arrayToDataTable([
+          ['Type', 'Number'],
+          ['Human',  20],
+          ['Zombie',  56],
+          ]);
+
+        var options = {
+          title: "Current Population",
+          legend: { position: 'right' }
+        };
+
+        var chart = new google.visualization.PieChart(
+          this.$.current_population_chart);
+
+        chart.draw(data, options);
+      }.bind(component);
+
+      google.charts.setOnLoadCallback(drawCurrentPopulationChart);
+
+      // The following makes Google Charts responsive and will resize the chart
+      // as the page is resized. 
+      window.addEventListener('resize', drawCurrentPopulationChart);
+    </script>
     <div id="current_population_chart" style="width: 100%, height: 100%"></div>
   </template>
 </dom-module>
