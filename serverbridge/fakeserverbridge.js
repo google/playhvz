@@ -1,29 +1,37 @@
 'use strict';
 
 function makeFakePrepopulatedServerBridge() {
+  var kimUserId = Utils.generateId("user");
+  var evanUserId = Utils.generateId("user");
+  var kimPlayerId = Utils.generateId("player");
+  var evanPlayerId = Utils.generateId("player");
+  var gameId = Utils.generateId("game");
+  var humanChatRoom = Utils.generateId("chat");
+  var zedChatRoom = Utils.generateId("chat");
   var server = new FakeServer();
-  server.register('kimuserid', 'kimikimkim@kim.com');
-  server.register('evanuserid', 'verdagon@evan.com');
-  server.createGame('thegameid', 'kimuserid');
-  server.joinGame('kimuserid', 'thegameid', 'kimplayerid', 'Kim the Ultimate', {});
-  server.joinGame('evanuserid', 'thegameid', 'evanplayerid', 'Evanpocalypse', {});
-  server.createChatRoom('humanchatroom', 'kimplayerid');
-  server.addPlayerToChatRoom('humanchatroom', 'evanplayerid');
-  server.addMessageToChatRoom('humanchatroom', 'kimplayerid', 'hi');
-  server.createChatRoom('zedchatroom', 'evanplayerid');
-  server.addPlayerToChatRoom('zedchatroom', 'kimplayerid');
-  server.addMessageToChatRoom('zedchatroom', 'evanplayerid', 'zeds rule!');
-  server.addMessageToChatRoom('zedchatroom', 'kimplayerid', 'hoomans drool!');
-  server.addMessageToChatRoom('zedchatroom', 'kimplayerid', 'monkeys eat stool!');
-  return new FakeServerBridge(server);
+  server.register(kimUserId, 'kimikimkim@kim.com');
+  server.register(evanUserId, 'verdagon@evan.com');
+  server.createGame(gameId, kimUserId);
+  server.joinGame(kimUserId, gameId, kimPlayerId, 'Kim the Ultimate', {});
+  server.joinGame(evanUserId, gameId, evanPlayerId, 'Evanpocalypse', {});
+  server.createChatRoom(humanChatRoom, kimPlayerId);
+  server.addPlayerToChatRoom(humanChatRoom, evanPlayerId);
+  server.addMessageToChatRoom(humanChatRoom, kimPlayerId, 'hi');
+  server.createChatRoom(zedChatRoom, evanPlayerId);
+  server.addPlayerToChatRoom(zedChatRoom, kimPlayerId);
+  server.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
+  server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
+  server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
+  return new FakeServerBridge(server, evanUserId);
 }
 
 // This is a class that wraps FakeServer, makes it asynchronous (all the
 // methods of this class return promises), and does some checking to
 // make sure the user is logged in.
-function FakeServerBridge(server) {
-    this.loggedInUserId = null;
-    this.inner = server;
+function FakeServerBridge(server, fakeLoggedInUserId) {
+  this.fakeLoggedInUserId = fakeLoggedInUserId;
+  this.loggedInUserId = null;
+  this.inner = server;
 }
 
 FakeServerBridge.fakeServerMethod_ = function(callbackThatReturnsAPromise) {
@@ -107,9 +115,9 @@ FakeServerBridge.prototype.getGameById =
 FakeServerBridge.prototype.joinGame =
     FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
-            function(userId, gameId, playerId, name) {
+            function(userId, gameId, playerId, name, preferences) {
               try {
-                return Promise.resolve(this.inner.joinGame(userId, gameId, playerId, name));
+                return Promise.resolve(this.inner.joinGame(userId, gameId, playerId, name, preferences));
               } catch (errorString) {
                 return Promise.reject(errorString);
               }
@@ -120,6 +128,16 @@ FakeServerBridge.prototype.getPlayerById =
             function(playerId) {
               try {
                 return Promise.resolve(this.inner.getPlayerById(playerId));
+              } catch (errorString) {
+                return Promise.reject(errorString);
+              }
+            }));
+FakeServerBridge.prototype.getMultiplePlayersById =
+    FakeServerBridge.fakeServerMethod_(
+        FakeServerBridge.loginProtected_(
+            function(playerIds) {
+              try {
+                return Promise.resolve(this.inner.getMultiplePlayersById(playerIds));
               } catch (errorString) {
                 return Promise.reject(errorString);
               }

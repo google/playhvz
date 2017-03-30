@@ -52,17 +52,29 @@ TODO(SquirrelThief):
             type: Array,
             value: function() { return []; },
           },
+
+          playersInChat: {
+            type: Array,
+            value: function() { return[]; },
+          }
         },
 
         observers: [
         "chatRoomReady_(serverBridge, chatRoomId)",
         "currentPlayerIdReady_(serverBridge, currentPlayerId)",
         ],
-        
+
         chatRoomReady_: function(serverBridge, chatRoomId) {
           serverBridge.getChatRoomById(chatRoomId)
           .then((chatRoom) => {
-            this.chatRoom = chatRoom;
+            // Get player names for all the playerIds in the chatRoom
+            this.serverBridge.getMultiplePlayersById(chatRoom.playerIds)
+            .then((playersInChat) => {
+              this.playersInChat = playersInChat;
+              // Only update chat messages once we finished getting player
+              // names, otherwise the elements redraw and we don't have names
+              this.chatRoom = chatRoom;
+            });
           });
         },
 
@@ -110,76 +122,110 @@ TODO(SquirrelThief):
           this.$.messageSend.click();
         }
       },
-    });
-    });
-  </script>
 
-  <template>
-   <style include="iron-flex iron-flex-alignment">
-    .player-name {
-      font-size: 10px;
-    }
+      getName_(playerId) {
+        var name = this.playersInChat[playerId].name;
+        return (name) ? name : "Anon";
+      },
 
-    .message-from-other {
-      display: flex;
-      justify-content: flex-start;
-    }
+       /* get unknown player names
+       var playerIds = {};
+            for (var index in messages) {
+              var message = messages[index];
+              if (!(message.playerId in playerIds) 
+                && !(message.playerId in this.playersInChat)) {
+                playerIds[message.playerId] = null;
+            }
+          }
 
-    .message-from-me {
-      display: flex;
-      justify-content: flex-end;
-    }
+          if (!playerIds) {
+            // No new players, just update messages
+            for (var index in messages) {
+              this.push('chatRoom.messages', messages[index]);
+            }
+          } else {
+            // New players, get new player names and update messages
+            this.serverBridge.getMultiplePlayersById(playerIds)
+            .then((playersInChat) => {
+              console.log(playersInChat);
+              for (var index in playersInChat) {
+                console.log(index);
+                this.playersInChat[index] = playersInChat[index];
+              }
+              for (var index in messages) {
+                this.push('chatRoom.messages', messages[index]);
+              }
+            });*/
+          });
+});
+</script>
 
-    .message-from-me > .player-name {
-      padding-left: 8px;
-      order: 3;
-    }
+<template>
+ <style include="iron-flex iron-flex-alignment">
+  .player-name {
+    font-size: 10px;
+  }
 
-    .message-from-other > .player-name {
-      padding-right: 8px;
-      order: 1;
-    }
+  .message-from-other {
+    display: flex;
+    justify-content: flex-start;
+  }
 
-    .display-message {
-      white-space: pre;
-      order: 2;
-    }
+  .message-from-me {
+    display: flex;
+    justify-content: flex-end;
+  }
 
-    .textbox {
-      padding-top: 8px;
-    }
+  .message-from-me > .player-name {
+    padding-left: 8px;
+    order: 3;
+  }
 
-    .textbox-input-field {
-      @apply(--layout-flex);
-    }
-  </style>
-  <!-- Display messages -->
-  <template is="dom-repeat" items="[[chatRoom.messages]]">
-    <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, player.id)]]">
-      <div class="display-message">[[item.message]]</div>
-      <div class="player-name">[[item.playerId]]</div>
-    </div> 
-  </template>
+  .message-from-other > .player-name {
+    padding-right: 8px;
+    order: 1;
+  }
 
-  <!-- Text Input -->
-  <div class="layout horizontal textbox">
-    <paper-textarea 
-    class="textbox-input-field"
-    id="messageInput"
-    autocorrect
-    multiline
-    max-rows=3
-    label="message"
-    no-label-float
-    on-keydown="checkForEnter_">
-  </paper-textarea>
-  <paper-button
-  class="flex-0"
-  id="messageSend" 
-  raised 
-  style="background-color: #7e57c2; color: white" 
-  on-click="onSendClicked_">
-  ->
+  .display-message {
+    white-space: pre;
+    order: 2;
+  }
+
+  .textbox {
+    padding-top: 8px;
+  }
+
+  .textbox-input-field {
+    @apply(--layout-flex);
+  }
+</style>
+<!-- Display messages -->
+<template is="dom-repeat" items="[[chatRoom.messages]]">
+  <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, player.id)]]">
+    <div class="display-message">[[item.message]]</div>
+    <div class="player-name">[[getName_(item.playerId)]]</div>
+  </div> 
+</template>
+
+<!-- Text Input -->
+<div class="layout horizontal textbox">
+  <paper-textarea 
+  class="textbox-input-field"
+  id="messageInput"
+  autocorrect
+  multiline
+  max-rows=3
+  label="message"
+  no-label-float
+  on-keydown="checkForEnter_">
+</paper-textarea>
+<paper-button
+class="flex-0"
+id="messageSend" 
+raised 
+style="background-color: #7e57c2; color: white" 
+on-click="onSendClicked_">
+->
 </paper-button>
 </div>
 

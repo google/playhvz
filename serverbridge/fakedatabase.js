@@ -13,12 +13,12 @@ class Game {
 }
 
 class Player {
-	constructor(playerId, name, gameId, userId) {
+	constructor(playerId, name, gameId, userId, preferences) {
 		this.id = playerId || "";
 		this.name = name || "";
     this.gameId = gameId || "";
     this.userId = userId || "";
-    this.preferences = {};
+    this.preferences = Utils.copyOf(preferences) || {};
 	}
 }
 
@@ -47,35 +47,33 @@ class FakeDatabase {
     this.playersById = {};
     this.chatRoomsById = {};
   }
-  copyOf(value) {
-    return value && JSON.parse(JSON.stringify(value));
-  }
+  
   createUser(user) {
   	this.expectUserNotExists_(user.userId);
-  	this.usersById[user.userId] = this.copyOf(user);
+  	this.usersById[user.userId] = Utils.copyOf(user);
   }
   getUserById(userId) {
   	this.expectUserExists_(userId);
-  	return this.copyOf(this.usersById[userId]);
+  	return Utils.copyOf(this.usersById[userId]);
   }
   createGame(game) {
     this.expectGameNotExists_(game.id);
     this.expectUserExists_(game.adminUserId);
-    this.gamesById[game.id] = this.copyOf(game);
+    this.gamesById[game.id] = Utils.copyOf(game);
   }
   getGameById(gameId) {
     this.expectGameExists_(gameId);
-    return this.copyOf(this.gamesById[gameId]);
+    return Utils.copyOf(this.gamesById[gameId]);
   }
   createPlayer(player) {
     this.expectUserExists_(player.userId);
     this.expectGameExists_(player.gameId);
     this.expectPlayerNotExists_(player.id);
-    this.playersById[player.id] = this.copyOf(player);
+    this.playersById[player.id] = Utils.copyOf(player);
   }
   getPlayerById(playerId) {
     this.expectPlayerExists_(playerId);
-    return this.copyOf(this.playersById[playerId]);
+    return Utils.copyOf(this.playersById[playerId]);
   }
   findAllPlayersForGameId(gameId) {
     this.expectGameExists_(gameId);
@@ -85,7 +83,7 @@ class FakeDatabase {
         result.push(this.getPlayerById(playerId));
       }
     }
-    return this.copyOf(result);
+    return Utils.copyOf(result);
   }
   findAllPlayerIdsForUserId(userId) {
     this.expectUserExists_(userId);
@@ -95,7 +93,7 @@ class FakeDatabase {
         result.push(playerId);
       }
     }
-    return this.copyOf(result);
+    return Utils.copyOf(result);
   }
   findPlayerIdByGameAndName(gameId, name) {
     this.expectGameExists_(gameId);
@@ -106,21 +104,21 @@ class FakeDatabase {
         result.push(player.id);
       }
     }
-    return this.copyOf(result);
+    return Utils.copyOf(result);
   }
   createChatRoom(chatRoom, firstPlayerId) {
     this.expectChatRoomNotExists_(chatRoom.id);
     this.expectPlayerExists_(firstPlayerId);
-    this.chatRoomsById[chatRoom.id] = this.copyOf(chatRoom);
+    this.chatRoomsById[chatRoom.id] = Utils.copyOf(chatRoom);
     this.addPlayerToChatRoom(chatRoom.id, firstPlayerId);
   }
   findMessagesForChatRoom(chatRoomId) {
     this.expectChatRoomExists_(chatRoomId);
-    return this.copyOf(this.chatRoomsById[chatRoomId].messages);
+    return Utils.copyOf(this.chatRoomsById[chatRoomId].messages);
   }
   getChatRoomById(chatRoomId) {
     this.expectChatRoomExists_(chatRoomId);
-    return this.copyOf(this.chatRoomsById[chatRoomId]);
+    return Utils.copyOf(this.chatRoomsById[chatRoomId]);
   }
   addMessageToChatRoom(chatRoomId, playerId, message) {
     this.expectChatRoomExists_(chatRoomId);
@@ -145,7 +143,7 @@ class FakeDatabase {
         result.push(chatRoomId);
       }
     }
-    return this.copyOf(result);
+    return Utils.copyOf(result);
   }
 
 

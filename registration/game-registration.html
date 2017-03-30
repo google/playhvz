@@ -13,31 +13,30 @@
           currentUserId: String,
         },
 
-        observers: [
-        "serverBridgeReady_(serverBridge, gameId, currentUserId)",
-        ],
-
-        serverBridgeReady_: function(serverBridge, gameId, currentUserId) {
-          this.serverBridge = serverBridge;
-          this.gameId = gameId;
-          this.currentUserId = currentUserId;
-          console.log(serverBridge);
-        },
-
         ready() {
           this.$.form.addEventListener('iron-form-presubmit', function(event) {
-            this.request.params['gameId'] = this.gameId;
-            this.request.params['userId'] = this.currentUserId;
-          });
+            this.$.form.request.params['gameId'] = this.gameId;
+            this.$.form.request.params['userId'] = this.currentUserId;
+          }.bind(this));
 
           this.$.form.addEventListener('iron-form-submit', function(event) {
             Polymer.dom(this.root).querySelector('.output').innerHTML = JSON.stringify(event.detail);
-            console.log(event.detail);
-            var preferences = {};
-            var playerId = "blah!";
-            console.log(this.serverBridge);
-            this.serverBridge.joinGame(event.detail.userId, event.detail.gameId, playerId, event.detail.name, preferences);
-          });
+
+            var preferences = {
+              needGun: event.detail.needGun,
+              startAsZombie: event.detail.startAsZombie,
+              beSecretZombie: event.detail.beSecretZombie,
+              volunteer: event.detail.volunteer,
+            };
+            var playerId = Utils.generateId("player");
+
+            this.serverBridge.joinGame(
+              event.detail.userId, 
+              event.detail.gameId, 
+              playerId, 
+              event.detail.playerName, 
+              preferences);
+          }.bind(this));
         },
 
         submit_: function(event) {
@@ -103,13 +102,13 @@
           <div class="subtext">
             Start the game as a zombie! The starting zombies may get pool noodles to extend their reach, and shields to block darts. Starting zombies have the option to revive later on in the game. So, fight the resistance while you're outnumbered, and then resist the horde while you're outnumbered, the best way to play!
           </div>
-          <paper-radio-button name="startingZombie" value="yes" class="radio-style">
+          <paper-radio-button name="startAsZombie" value="yes" class="radio-style">
             Graahhh braiiinnnnsss! Glory to the horde!
           </paper-radio-button>
-          <paper-radio-button name="startingZombie" value="maybe"class="radio-style">
+          <paper-radio-button name="startAsZombie" value="maybe"class="radio-style">
             If there aren't enough in the first mission, then I'm willing to help and jump in as a starting zombie.
           </paper-radio-button>
-          <paper-radio-button name="startingZombie" value="no"class="radio-style">
+          <paper-radio-button name="startAsZombie" value="no"class="radio-style">
             Nope, viva la Humanoids
           </paper-radio-button>
         </div>
@@ -121,13 +120,13 @@
           <div class="subtext">
             The secret zombie is a powerful leader of the horde, hidden among the humans. Depending on play style, the secret zombie can either stealthily infect humans, or just spy on them to relay intel to the rest of the horde. See the rules for details!
           </div>
-          <paper-radio-button name="secretZombie" value="yes" class="radio-style">
+          <paper-radio-button name="beSecretZombie" value="yes" class="radio-style">
             Yes
           </paper-radio-button>
-          <paper-radio-button name="secretZombie" value="no" class="radio-style">
+          <paper-radio-button name="beSecretZombie" value="no" class="radio-style">
             No
           </paper-radio-button>
-          <paper-radio-button name="secretZombie" value="maybe" class="radio-style">
+          <paper-radio-button name="beSecretZombie" value="maybe" class="radio-style">
            I'm interested, tell me more...
            </paper-radio-button>
         </div>

@@ -22,14 +22,19 @@ class FakeServer {
   }
   joinGame(userId, gameId, playerId, name, preferences) {
     var player = new Player(playerId, name, gameId, userId);
-    player.needGun = preferences.needGun;
-    player.preferences.startZed = preferences.startZed;
-    player.preferences.isSecretZed = preferences.isSecretZombie;
-    player.volunteer = preferences.volunteer;
+    player.preferences = Utils.copyOf(preferences);
     this.fakeDatabase.createPlayer(player);
   }
   getPlayerById(playerId) {
     return this.fakeDatabase.getPlayerById(playerId);
+  }
+  getMultiplePlayersById(playerIds) {
+    var value = {};
+    for (var index in playerIds) {
+      var playerId = playerIds[index];
+      value[playerId] = this.fakeDatabase.getPlayerById(playerId);
+    }
+    return Utils.copyOf(value);
   }
   findAllPlayersForGameId(gameId) {
     return this.fakeDatabase.findAllPlayersForGameId(gameId);

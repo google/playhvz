@@ -36,7 +36,8 @@
         },
 
         attached: function() {
-          this.serverBridge.logIn('authcodeforevanuserid')
+          var fakeLoggedInUserId = this.serverBridge.fakeLoggedInUserId;
+          this.serverBridge.logIn('authcodefor' + fakeLoggedInUserId)
               .then((userId) => {
                 this.currentUserId = userId;
                 return this.serverBridge.findAllPlayerIdsForUserId(this.currentUserId);
@@ -91,7 +92,8 @@
         <game-registration
               class="content"
               server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]">
+              game-id="[[gameId]]"
+              current-user-id="[[currentUserId]]">
         </game-registration>
       </ghvz-dashlet>
 
