@@ -18,6 +18,7 @@ class Player {
 		this.name = name || "";
     this.gameId = gameId || "";
     this.userId = userId || "";
+    this.preferences = {};
 	}
 }
 

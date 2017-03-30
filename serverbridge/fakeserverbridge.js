@@ -5,8 +5,8 @@ function makeFakePrepopulatedServerBridge() {
   server.register('kimuserid', 'kimikimkim@kim.com');
   server.register('evanuserid', 'verdagon@evan.com');
   server.createGame('thegameid', 'kimuserid');
-  server.joinGame('kimuserid', 'thegameid', 'kimplayerid', 'Kim the Ultimate');
-  server.joinGame('evanuserid', 'thegameid', 'evanplayerid', 'Evanpocalypse');
+  server.joinGame('kimuserid', 'thegameid', 'kimplayerid', 'Kim the Ultimate', {});
+  server.joinGame('evanuserid', 'thegameid', 'evanplayerid', 'Evanpocalypse', {});
   server.createChatRoom('humanchatroom', 'kimplayerid');
   server.addPlayerToChatRoom('humanchatroom', 'evanplayerid');
   server.addMessageToChatRoom('humanchatroom', 'kimplayerid', 'hi');

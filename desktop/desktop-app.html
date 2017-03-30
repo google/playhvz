@@ -81,10 +81,20 @@
         <div class="header">Players</div>
         <player-table
             server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]">
+            game-id="[[gameId]]"
+            current-user-id="[[currentUserId]]">
         </player-table>
       </ghvz-dashlet>
       
+      <ghvz-dashlet half>
+        <div class="header">Join A Game</div>
+        <game-registration
+              class="content"
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]">
+        </game-registration>
+      </ghvz-dashlet>
+
       <ghvz-dashlet half>
         <div class="header">Next Mission</div>
         <div class="content">

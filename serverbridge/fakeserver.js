@@ -20,8 +20,12 @@ class FakeServer {
   getGameById(gameId) {
     return this.gamesById[gameId];
   }
-  joinGame(userId, gameId, playerId, name) {
+  joinGame(userId, gameId, playerId, name, preferences) {
     var player = new Player(playerId, name, gameId, userId);
+    player.needGun = preferences.needGun;
+    player.preferences.startZed = preferences.startZed;
+    player.preferences.isSecretZed = preferences.isSecretZombie;
+    player.volunteer = preferences.volunteer;
     this.fakeDatabase.createPlayer(player);
   }
   getPlayerById(playerId) {
