@@ -23,7 +23,7 @@ function makeFakePrepopulatedServerBridge() {
   server.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
   server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
   server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
-  server.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/missions/first-mission.html");
+  server.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
   return new FakeServerBridge(server, evanUserId);
 }
 
