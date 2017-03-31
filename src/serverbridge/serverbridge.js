@@ -14,7 +14,7 @@
 // getChatRoomById(chatRoomId)
 // addMessageToChatRoom(chatRoomId, playerId, message)
 // addPlayerToChatRoom(chatRoomId, playerId)
-// findAllChatRoomIdsForPlayer(playerId)
+// findAllChatRoomIdsForPlayerId(playerId)
 // addMission(gameId, missionId, beginTime, endTime, url)
 
 class ServerBridge {
@@ -39,7 +39,7 @@ class ServerBridge {
   //
   findAllPlayerIdsForGameId(gameId) { console.log("Called abstract method!"); }
   // only current player can see his or her chat rooms
-  findAllChatRoomIdsForPlayer(playerId) { console.log("Called abstract method!"); }
+  findAllChatRoomIdsForPlayerId(playerId) { console.log("Called abstract method!"); }
   // case and whitespace dont matter
   findPlayerIdByGameAndName(gameId, name) { console.log("Called abstract method!"); }
   //

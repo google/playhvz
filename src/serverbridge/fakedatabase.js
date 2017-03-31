@@ -144,11 +144,10 @@ class FakeDatabase {
     }
     this.chatRoomsById.get(chatRoomId).playerIds.push(playerId);
   }
-  findAllChatRoomIdsForPlayer(playerId) {
+  findAllChatRoomIdsForPlayerId(playerId) {
     this.expectPlayerExists_(playerId);
     var result = [];
-    for (var chatRoomId in this.chatRoomsById) {
-      var chatRoom = this.chatRoomsById.get(chatRoomId);
+    for (var [chatRoomId, chatRoom] of this.chatRoomsById) {
       if (chatRoom.playerIds.indexOf(playerId) >= 0) {
         result.push(chatRoomId);
       }

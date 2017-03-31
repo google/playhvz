@@ -234,12 +234,12 @@ FakeServerBridge.prototype.addPlayerToChatRoom =
                 return Promise.reject(errorString);
               }
             }));
-FakeServerBridge.prototype.findAllChatRoomIdsForPlayer =
+FakeServerBridge.prototype.findAllChatRoomIdsForPlayerId =
     FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(playerId) {
               try {
-                return Promise.resolve(this.inner.findAllChatRoomIdsForPlayer(playerId));
+                return Promise.resolve(this.inner.findAllChatRoomIdsForPlayerId(playerId));
               } catch (errorString) {
                 return Promise.reject(errorString);
               }
