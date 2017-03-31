@@ -8,6 +8,7 @@ function makeFakePrepopulatedServerBridge() {
   var gameId = Utils.generateId("game");
   var humanChatRoom = Utils.generateId("chat");
   var zedChatRoom = Utils.generateId("chat");
+  var firstMissionId = Utils.generateId("mission");
   var server = new FakeServer();
   server.register(kimUserId, 'kimikimkim@kim.com');
   server.register(evanUserId, 'verdagon@evan.com');
@@ -22,6 +23,7 @@ function makeFakePrepopulatedServerBridge() {
   server.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
   server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
   server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
+  server.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/missions/first-mission.html");
   return new FakeServerBridge(server, evanUserId);
 }
 
@@ -216,29 +218,49 @@ FakeServerBridge.prototype.addMessageToChatRoom =
     FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(chatRoomId, playerId, message) {
-            try {
+              try {
                 return Promise.resolve(this.inner.addMessageToChatRoom(chatRoomId, playerId, message));
-                } catch (errorString) {
-                  return Promise.reject(errorString);
-                }
+              } catch (errorString) {
+                return Promise.reject(errorString);
+              }
             }));
 FakeServerBridge.prototype.addPlayerToChatRoom =
     FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(chatRoomId, playerId) {
-            try {
+              try {
                 return Promise.resolve(this.inner.addPlayerToChatRoom(chatRoomId, playerId));
-                } catch (errorString) {
-                  return Promise.reject(errorString);
-                }
+              } catch (errorString) {
+                return Promise.reject(errorString);
+              }
             }));
 FakeServerBridge.prototype.findAllChatRoomIdsForPlayer =
     FakeServerBridge.fakeServerMethod_(
         FakeServerBridge.loginProtected_(
             function(playerId) {
-            try {
+              try {
                 return Promise.resolve(this.inner.findAllChatRoomIdsForPlayer(playerId));
-                } catch (errorString) {
-                  return Promise.reject(errorString);
-                }
+              } catch (errorString) {
+                return Promise.reject(errorString);
+              }
+            }));
+FakeServerBridge.prototype.addMission =
+    FakeServerBridge.fakeServerMethod_(
+        FakeServerBridge.loginProtected_(
+            function(gameId, missionId, beginTime, endTime, url) {
+              try {
+                return Promise.resolve(this.inner.addMission(gameId, missionId, beginTime, endTime, url));
+              } catch (errorString) {
+                return Promise.reject(errorString);
+              }
+            }));
+FakeServerBridge.prototype.findAllMissionsForPlayerId =
+    FakeServerBridge.fakeServerMethod_(
+        FakeServerBridge.loginProtected_(
+            function(playerId) {
+              try {
+                return Promise.resolve(this.inner.findAllMissionsForPlayerId(playerId));
+              } catch (errorString) {
+                return Promise.reject(errorString);
+              }
             }));

@@ -1,0 +1,81 @@
+
+<dom-module id="ghvz-next-mission">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-next-mission',
+
+        properties: {
+          serverBridge: Object,
+
+          gameId: String,
+
+          playerId: String,
+
+          noMissions: {
+            type: Boolean,
+            value: false,
+          },
+
+          nextMissionUrl: String,
+
+          response: Object,
+        },
+
+        observers: [
+          "ready_(serverBridge, gameId, playerId)",
+        ],
+
+        assembleParams() {
+          return null;
+        },
+
+        ready_: function(serverBridge, gameId, playerId) {
+          serverBridge.findAllMissionsForPlayerId(playerId)
+              .then((missions) => {
+                let nextMission;
+                for (const mission of missions) {
+                  if (new Date().getTime() < mission.endTime) {
+                    nextMission = mission;
+                    break;
+                  }
+                }
+                if (nextMission) {
+                  this.nextMissionUrl = nextMission.url;
+                  this.noMissions = false;
+                } else {
+                  this.noMissions = true;
+                }
+              });
+        },
+
+        handleResponse(response) {
+          this.$.mission.textContent = this.$.ajax.lastResponse.body.textContent;
+        }
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        padding: 16px;
+        display: block;
+      }
+    </style>
+    <iron-ajax
+        id="ajax"
+        auto
+        url="[[nextMissionUrl]]"
+        params="[[assembleParams(nextMissionUrl)]]"
+        handle-as="document"
+        on-response="handleResponse"
+        debounce-duration="300"></iron-ajax>
+    <div id="mission"></div>
+    <div hidden$="[[!noMissions]]">
+      The next mission's details will be posted here.
+    </div>
+  </template>
+</dom-module>

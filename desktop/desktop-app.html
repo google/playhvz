@@ -24,12 +24,12 @@
             value: undefined,
           },
 
-          currentUserId: {
+          userId: {
             type: String,
             value: undefined,
           },
 
-          currentPlayerId: {
+          playerId: {
             type: String,
             value: undefined,
           },
@@ -39,20 +39,20 @@
           var fakeLoggedInUserId = this.serverBridge.fakeLoggedInUserId;
           this.serverBridge.logIn('authcodefor' + fakeLoggedInUserId)
               .then((userId) => {
-                this.currentUserId = userId;
-                return this.serverBridge.findAllPlayerIdsForUserId(this.currentUserId);
+                this.userId = userId;
+                return this.serverBridge.findAllPlayerIdsForUserId(this.userId);
               })
               .then((playerIds) => {
                 if (playerIds.length == 0) {
                   alert('you should join a game');
                 } else if (playerIds.length == 1) {
-                  this.currentPlayerId = playerIds[0];
-                  this.serverBridge.findAllChatRoomIdsForPlayer(this.currentPlayerId)
+                  this.playerId = playerIds[0];
+                  this.serverBridge.findAllChatRoomIdsForPlayer(this.playerId)
                       .then((chatRoomIds) => {
                         console.log('lizard');
                         this.chatRoomIds = chatRoomIds;
                       });
-                  this.serverBridge.getPlayerById(this.currentPlayerId)
+                  this.serverBridge.getPlayerById(this.playerId)
                       .then((player) => {
                         this.gameId = player.gameId;
                       });
@@ -83,7 +83,7 @@
         <player-table
             server-bridge="[[serverBridge]]"
             game-id="[[gameId]]"
-            current-user-id="[[currentUserId]]">
+            current-user-id="[[userId]]">
         </player-table>
       </ghvz-dashlet>
       
@@ -93,15 +93,17 @@
               class="content"
               server-bridge="[[serverBridge]]"
               game-id="[[gameId]]"
-              current-user-id="[[currentUserId]]">
+              current-user-id="[[userId]]">
         </game-registration>
       </ghvz-dashlet>
 
       <ghvz-dashlet half>
         <div class="header">Next Mission</div>
-        <div class="content">
-          (next mission goes here)
-        </div>
+        <ghvz-next-mission
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]"
+            player-id="[[playerId]]">
+        </ghvz-next-mission>
       </ghvz-dashlet>
 
       <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
@@ -111,7 +113,7 @@
               class="content"
               server-bridge="[[serverBridge]]"
               game-id="[[gameId]]"
-              current-player-id="[[currentPlayerId]]"
+              current-player-id="[[playerId]]"
               chat-room-id="[[chatRoomId]]">
           </chat-app>
         </ghvz-dashlet>

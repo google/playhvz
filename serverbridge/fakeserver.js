@@ -80,6 +80,25 @@ class FakeServer {
   findAllChatRoomIdsForPlayer(playerId) {
     return this.fakeDatabase.findAllChatRoomIdsForPlayer(playerId);
   }
+  addMission(gameId, missionId, beginTime, endTime, url) {
+    var mission = new Mission(missionId, gameId, beginTime, endTime, url);
+    return this.fakeDatabase.addMission(mission);
+  }
+  getMissionById(missionId) {
+    return Utils.copyOf(this.fakeDatabase.getMissionById(missionId));
+  }
+  findAllMissionIdsForGameId(gameId) {
+    return this.fakeDatabase.findAllMissionIdsForGameId(gameId);
+  }
+  findAllMissionsForPlayerId(playerId) {
+    var gameId = this.getPlayerById(playerId).gameId;
+    var missionIds = this.findAllMissionIdsForGameId(gameId);
+    var missions = [];
+    for (const missionId of missionIds) {
+      missions.push(this.getMissionById(missionId));
+    }
+    return missions;
+  }
 }
 
 

@@ -15,6 +15,7 @@
 // addMessageToChatRoom(chatRoomId, playerId, message)
 // addPlayerToChatRoom(chatRoomId, playerId)
 // findAllChatRoomIdsForPlayer(playerId)
+// addMission(gameId, missionId, beginTime, endTime, url)
 
 class ServerBridge {
   // also sends login link in email
@@ -51,4 +52,8 @@ class ServerBridge {
   addMessageToChatRoom(chatRoomId, playerId, message) { console.log("Called abstract method!"); }
   //
   findMessagesForChatRoom(chatRoomId, afterTime) { console.log("Called abstract method!"); }
+  // url is preferably relative like "/missions/first-mission.html"
+  addMission(gameId, missionId, beginTime, endTime, url) { console.log("Called abstract method!"); }
+  //
+  findAllMissionsForPlayerId(playerId) { console.log("Called abstract method!"); }
 }
