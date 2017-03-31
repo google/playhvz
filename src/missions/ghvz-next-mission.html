@@ -53,7 +53,7 @@
         },
 
         handleResponse(response) {
-          this.$.mission.textContent = this.$.ajax.lastResponse.body.textContent;
+          this.$.mission.innerHTML = this.$.ajax.lastResponse;
         }
       });
     });
@@ -70,7 +70,7 @@
         auto
         url="[[nextMissionUrl]]"
         params="[[assembleParams(nextMissionUrl)]]"
-        handle-as="document"
+        handle-as="text"
         on-response="handleResponse"
         debounce-duration="300"></iron-ajax>
     <div id="mission"></div>
