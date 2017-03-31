@@ -69,6 +69,16 @@
           }
           this.splice('players', 1);
         },
+
+        refresh: function() {
+          this.serverBridge.findAllPlayersForGameId(this.gameId)
+              .then((players) => {
+                if (players) {
+                  this.players = [];
+                  this.players = players;
+                }
+              });
+        },
       });
     });
   </script>

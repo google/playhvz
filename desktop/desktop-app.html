@@ -61,6 +61,12 @@
                 }
               });
         },
+
+        refresh: function(event) {
+          var moduleId = event.currentTarget.dataset.moduleId;
+          var iconAction = event.currentTarget.dataset.iconAction;
+          this.$[moduleId][iconAction]();
+        },
       });
     });
   </script>
@@ -80,23 +86,21 @@
     <ghvz-dashboard>
       <ghvz-dashlet full>
         <div class="header">Players</div>
+        <paper-icon-button 
+          class="header-button" 
+          icon="icons:refresh" 
+          on-tap="refresh" 
+          data-icon-action="refresh"
+          data-module-id="playerTableModule">
+        </paper-icon-button>
         <player-table
+            id="playerTableModule"
             server-bridge="[[serverBridge]]"
             game-id="[[gameId]]"
             current-user-id="[[currentUserId]]">
         </player-table>
       </ghvz-dashlet>
       
-      <ghvz-dashlet half>
-        <div class="header">Join A Game</div>
-        <game-registration
-              class="content"
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]"
-              current-user-id="[[currentUserId]]">
-        </game-registration>
-      </ghvz-dashlet>
-
       <ghvz-dashlet half>
         <div class="header">Next Mission</div>
         <div class="content">
@@ -121,6 +125,16 @@
         <div class="header">Game Stats</div>
         <game-stat-summary class="content">
         </game-stat-summary>
+      </ghvz-dashlet>
+
+      <ghvz-dashlet half>
+        <div class="header">Join A Game</div>
+        <game-registration
+              class="content"
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              current-user-id="[[currentUserId]]">
+        </game-registration>
       </ghvz-dashlet>
 
     </ghvz-dashboard>
