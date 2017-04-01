@@ -34,8 +34,8 @@ function getAllFuncNames(originalObj) {
 }
 
 /*
-* Takes the array, and subtracts the given things.
-* subtract([15, 3, 10, 2, 4], 3, 4) would be [15, 10, 2]
+* Takes the array, and subtracts all occurrences of the given things.
+* subtract([15, 4, 3, 10, 2, 4], 3, 4) would be [15, 10, 2]
 */
 function subtract(array, ...thingsToSubtract) {
   return array.filter((value) => thingsToSubtract.indexOf(value) == -1);

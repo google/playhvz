@@ -42,6 +42,7 @@ function DelayingWrapper(inner, funcNames) {
             const result = inner[funcName](...args);
             setTimeout(() => resolve(result));
           } catch (error) {
+            console.error(error);
             setTimeout(() => reject(error));
           }
         }, 100);

@@ -20,6 +20,8 @@
 // findAllPlayersForGameId(playerId)
 // findAllMissionsForPlayerId(playerId)
 // getMultiplePlayersById(playersIds)
+// infect(infectorPlayerId, infecteePlayerId, infecteeLifeCode)
+// revive(playerId)
 
 const SERVER_METHODS = [
   'logIn',
@@ -42,4 +44,6 @@ const SERVER_METHODS = [
   'findAllPlayersForGameId',
   'findAllMissionsForPlayerId',
   'getMultiplePlayersById',
+  'infect',
+  'revive',
 ];

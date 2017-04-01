@@ -41,7 +41,10 @@
         },
 
         getPropertyValue_: function(item, propertyName) {
-          return item[propertyName];
+          let value = this.delegate.create(item, propertyName);
+          if (value === undefined)
+            value = item[propertyName];
+          return value;
         },
 
         getItemId_: function(item) {

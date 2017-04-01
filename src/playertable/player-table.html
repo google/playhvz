@@ -22,12 +22,12 @@
             type: Object,
             value: function() {
               return {
-                getSchema: (() => ["id", "name"]),
-                getHeader: ((key) => ({id: 'ID', name: 'Name'}[key])),
+                getSchema: (() => ["number", "name", "species", "lifeCode"]),
+                getHeader: ((key) => ({"number": 'Number', "name": 'Name', 'species': 'Allegiance', 'lifeCode': 'Life Code'}[key])),
                 getActions: (() => ["delete", "infect", "revive", "ban"]),
                 getActionName: ((action) => ({delete: "Delete", infect: "Infect", revive: "Revive", ban: "Ban"}[action])),
-                create: this.createPlayerTableContents_.bind(this),
-                update: this.updatePlayerTableContents_.bind(this),
+                create: this.getPlayerTableContents_.bind(this),
+                update: this.getPlayerTableContents_.bind(this),
                 doAction: this.doTableAction_.bind(this),
               };
             },
@@ -57,12 +57,25 @@
           }
         },
 
-        createPlayerTableContents_: function(player, key) {
+        getPlayerTableContents_: function(player, propertyName) {
+          if (propertyName == 'lifeCode') {
+            if (player.species == 'human') {
+              if (player.lives.length) {
+                return player.lives[player.lives.length - 1].lifeCode;
+              }
+            }
+            return "";
+          }
+          if (propertyName == 'species') {
+            if (player.species == 'human') {
+              return 'Resistance';
+            } else if (player.species == 'zombie') {
+              return 'Horde';
+            } else {
+              return player.species;
+            }
+          }
           // if we dont return anything, auto-table will just by default create the text node
-        },
-
-        updatePlayerTableContents_: function(element, player, propertyName, propertyPath, value) {
-          //return document.createTextNode(player[key]);
         },
 
         onDeletePlayer_: function(player) {

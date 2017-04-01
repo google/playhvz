@@ -13,12 +13,15 @@ class Game {
 }
 
 class Player {
-	constructor(playerId, name, gameId, userId, preferences) {
+	constructor(playerId, number, name, gameId, userId, preferences) {
 		this.id = playerId || "";
+    this.number = number || 0;
 		this.name = name || "";
     this.gameId = gameId || "";
     this.userId = userId || "";
     this.preferences = Utils.copyOf(preferences) || {};
+    this.infections = [];
+    this.lives = [];
 	}
 }
 
@@ -86,12 +89,12 @@ class FakeDatabase {
     this.expectPlayerExists_(playerId);
     return Utils.copyOf(this.playersById.get(playerId));
   }
-  findAllPlayersForGameId(gameId) {
+  findAllPlayerIdsForGameId(gameId) {
     this.expectGameExists_(gameId);
     var result = [];
     for (var [playerId, player] of this.playersById) {
       if (this.playersById.get(playerId).gameId == gameId) {
-        result.push(this.getPlayerById(playerId));
+        result.push(playerId);
       }
     }
     return Utils.copyOf(result);
@@ -130,17 +133,17 @@ class FakeDatabase {
     this.expectChatRoomExists_(chatRoomId);
     return Utils.copyOf(this.chatRoomsById.get(chatRoomId));
   }
-  addMessageToChatRoom(chatRoomId, playerId, message) {
+  addMessageToChatRoom(chatRoomId, playerId, message, time) {
     this.expectChatRoomExists_(chatRoomId);
     this.expectPlayerExists_(playerId);
     this.chatRoomsById.get(chatRoomId).messages.push(
-    	new Message(new Date().getTime(), playerId, message));
+    	new Message(time, playerId, message));
   }
   addPlayerToChatRoom(chatRoomId, playerId) {
     this.expectChatRoomExists_(chatRoomId);
     this.expectPlayerExists_(playerId);
     if (this.chatRoomsById.get(chatRoomId).playerIds.indexOf(playerId) >= 0) {
-      throw 'Player already in chat room';
+      this.throwError('Player already in chat room');
     }
     this.chatRoomsById.get(chatRoomId).playerIds.push(playerId);
   }
@@ -172,46 +175,68 @@ class FakeDatabase {
     }
     return result;
   }
-
+  addInfection(infecteePlayerId, infectorPlayerId, time) {
+    this.expectPlayerExists_(infecteePlayerId);
+    this.expectPlayerExists_(infectorPlayerId);
+    let player = this.playersById.get(infecteePlayerId);
+    player.infections.push({
+      infectorPlayerId: infectorPlayerId,
+      time: time,
+    });
+  }
+  addLife(playerId, lifeCode, time) {
+    this.expectPlayerExists_(playerId);
+    let player = this.playersById.get(playerId);
+    player.lives.push({
+      time: time,
+      lifeCode: lifeCode,
+    });
+  }
 
   expectUserExists_(userId) {
     if (!this.usersById.has(userId))
-      throw 'User id doesnt exist: ' + userId;
+      this.throwError('User id doesnt exist: ' + userId);
   }
   expectUserNotExists_(userId) {
     if (this.usersById.has(userId))
-      throw 'User id already taken: ' + userId;
+      this.throwError('User id already taken: ' + userId);
   }
   expectGameExists_(gameId) {
     if (!this.gamesById.has(gameId))
-      throw 'Game id doesnt exist: ' + gameId;
+      this.throwError('Game id doesnt exist: ' + gameId);
   }
   expectGameNotExists_(gameId) {
     if (this.gamesById.has(gameId))
-      throw 'Game id already taken: ' + gameId;
+      this.throwError('Game id already taken: ' + gameId);
   }
   expectPlayerExists_(playerId) {
     if (!this.playersById.has(playerId))
-      throw 'Player id doesnt exist: ' + playerId;
+      this.throwError('Player id doesnt exist: ' + playerId);
   }
   expectPlayerNotExists_(playerId) {
     if (this.playersById.has(playerId))
-      throw 'Player id already taken: ' + playerId;
+      this.throwError('Player id already taken: ' + playerId);
   }
   expectChatRoomExists_(chatRoomId) {
     if (!this.chatRoomsById.has(chatRoomId))
-      throw 'Chat room id doesnt exist: ' + chatRoomId;
+      this.throwError('Chat room id doesnt exist: ' + chatRoomId);
   }
   expectChatRoomNotExists_(chatRoomId) {
     if (this.chatRoomsById.has(chatRoomId))
-      throw 'Chat room id already taken: ' + chatRoomId;
+      this.throwError('Chat room id already taken: ' + chatRoomId);
   }
   expectMissionExists_(missionId) {
     if (!this.missionsById.has(missionId))
-      throw 'Mission id doesnt exist: ' + missionId;
+      this.throwError('Mission id doesnt exist: ' + missionId);
   }
   expectMissionNotExists_(missionId) {
     if (this.missionsById.has(missionId))
-      throw 'Mission id already taken: ' + missionId;
+      this.throwError('Mission id already taken: ' + missionId);
+  }
+
+  throwError(message) {
+    console.error(message);
+    debugger;
+    throw message;
   }
 }

@@ -97,6 +97,15 @@
       </ghvz-dashlet>
 
       <ghvz-dashlet half>
+        <div class="header">Infect</div>
+        <ghvz-infect
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]"
+            player-id="[[playerId]]">
+        </ghvz-infect>
+      </ghvz-dashlet>
+
+      <ghvz-dashlet half>
         <div class="header">Next Mission</div>
         <ghvz-next-mission
             server-bridge="[[serverBridge]]"

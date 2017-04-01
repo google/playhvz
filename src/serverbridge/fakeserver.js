@@ -21,12 +21,19 @@ class FakeServer {
     return this.gamesById[gameId];
   }
   joinGame(userId, gameId, playerId, name, preferences) {
-    var player = new Player(playerId, name, gameId, userId);
+    const numExistingPlayers = this.findAllPlayersForGameId(gameId).length;
+    // First player will be number 1
+    const number = 1 + numExistingPlayers;
+    var player = new Player(playerId, number, name, gameId, userId);
     player.preferences = Utils.copyOf(preferences);
     this.fakeDatabase.createPlayer(player);
+
+    this.fakeDatabase.addLife(playerId, this.generateLifeCode_(player), new Date().getTime());
   }
   getPlayerById(playerId) {
-    return this.fakeDatabase.getPlayerById(playerId);
+    let player = this.fakeDatabase.getPlayerById(playerId);
+    player.species = this.isHuman_(player) ? 'human' : 'zombie';
+    return player;
   }
   getMultiplePlayersById(playerIds) {
     var value = {};
@@ -37,7 +44,8 @@ class FakeServer {
     return Utils.copyOf(value);
   }
   findAllPlayersForGameId(gameId) {
-    return this.fakeDatabase.findAllPlayersForGameId(gameId);
+    return this.fakeDatabase.findAllPlayerIdsForGameId(gameId)
+        .map((playerId) => this.getPlayerById(playerId));
   }
   findAllPlayerIdsForUserId(userId) {
     return this.fakeDatabase.findAllPlayerIdsForUserId(userId);
@@ -72,7 +80,7 @@ class FakeServer {
     return chatRoom;
   }
   addMessageToChatRoom(chatRoomId, playerId, message) {
-    return this.fakeDatabase.addMessageToChatRoom(chatRoomId, playerId, message);
+    return this.fakeDatabase.addMessageToChatRoom(chatRoomId, playerId, message, new Date().getTime());
   }
   addPlayerToChatRoom(chatRoomId, playerId) {
     return this.fakeDatabase.addPlayerToChatRoom(chatRoomId, playerId);
@@ -98,6 +106,28 @@ class FakeServer {
       missions.push(this.getMissionById(missionId));
     }
     return missions;
+  }
+  infect(infectorPlayerId, infecteePlayerId, infecteeLifeCode) {
+    const infectee = this.getPlayerById(infecteePlayerId);
+    if (!this.isHuman_(infectee)) {
+      throw 'Cannot infect, infectee is not human!';
+    }
+    const currentLife = infectee.lives[infectee.lives.length - 1];
+    if (currentLife.lifeCode != infecteeLifeCode) {
+      throw 'Cannot infect, incorrect life code!';
+    }
+    this.fakeDatabase.addInfection(infecteePlayerId, infectorPlayerId, new Date().getTime());
+  }
+  revive(playerId) {
+    let player = this.fakeDatabase.getPlayerById(playerId);
+    const newLifeCode = this.generateLifeCode_(player)
+    this.fakeDatabase.addLife(playerId, newLifeCode, new Date().getTime());
+  }
+  isHuman_(player) {
+    return player.lives.length > player.infections.length;
+  }
+  generateLifeCode_(player) {
+    return 'lifecode-' + player.number + '-' + (player.lives.length + 1);
   }
 }
 
