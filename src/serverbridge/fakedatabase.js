@@ -18,6 +18,7 @@ class Player {
 		this.name = name || "";
     this.gameId = gameId || "";
     this.userId = userId || "";
+    this.points = 0;
     this.preferences = Utils.copyOf(preferences) || {};
 	}
 }
@@ -115,6 +116,12 @@ class FakeDatabase {
       }
     }
     return Utils.copyOf(result);
+  }
+  awardPoints(playerId, points) {
+    this.expectPlayerExists_(playerId);
+    var player = this.playersById.get(playerId);
+    player.points += points;
+    this.playersById.set(player.id, Utils.copyOf(player));
   }
   createChatRoom(chatRoom, firstPlayerId) {
     this.expectChatRoomNotExists_(chatRoom.id);

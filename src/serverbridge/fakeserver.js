@@ -45,6 +45,9 @@ class FakeServer {
   findPlayerIdByGameAndName(gameId, name) {
     this.fakeDatabase.findPlayerIdByGameAndName(gameId, name);
   }
+  awardPoints(playerId, points) {
+    this.fakeDatabase.awardPoints(playerId, points);
+  }
   createChatRoom(chatRoomId, firstPlayerId) {
     var chatRoom = new ChatRoom(chatRoomId);
     this.fakeDatabase.createChatRoom(chatRoom, firstPlayerId);
