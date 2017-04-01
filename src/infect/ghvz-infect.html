@@ -1,0 +1,80 @@
+<dom-module id="ghvz-infect">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-infect',
+
+        properties: {
+          serverBridge: Object,
+          playerId: String,
+          gameId: String,
+          playerValue: {
+            type: String,
+            notify: true,
+          },
+          matchingPlayer: Object,
+          lifeCode: String,
+          requested: {
+            type: Boolean,
+            value: false,
+          },
+        },
+
+        computeButtonEnabled_: function(matchingPlayer, lifeCode, requested) {
+          return matchingPlayer && lifeCode && !requested;
+        },
+
+        reset_: function() {
+          this.playerValue = "";
+          this.lifeCode = "";
+          this.requested = false;
+        },
+
+        infect_: function() {
+          this.requested = true;
+          this.serverBridge.infect(this.playerId, this.matchingPlayer.id, this.lifeCode)
+              .then(
+                  () => this.reset_(),
+                  (error) => alert('Error infecting: '+ error));
+        },
+      });
+    });
+  </script>
+
+  <template class="layout vertical" style="height:300px">
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        padding: 0 16px 16px 16px;
+        display: block;
+      }
+      paper-button {
+        background-color: #03A9F4;
+        color: white;
+        font-weight: bold;
+        display: block;
+        margin: 8px 0 0 0;
+        text-align: center;
+      }
+    </style>
+    <ghvz-player-lookup
+        server-bridge="[[serverBridge]]"
+        game-id="[[gameId]]"
+        value="{{playerValue}}"
+        matching-player="{{matchingPlayer}}">
+    </ghvz-player-lookup>
+    <paper-input
+        label="Human's life code"
+        value="{{lifeCode}}">
+    </paper-input>
+    <paper-button
+        id="infect"
+        raised
+        disabled="[[!computeButtonEnabled_(matchingPlayer, lifeCode, requested)]]"
+        on-tap="infect_">
+      Infect!
+    </paper-button>
+  </template>
+</dom-module>
