@@ -10,13 +10,13 @@
         properties: {
           serverBridge: Object,
           gameId: String,
-          currentUserId: String,
+          userId: String,
         },
 
         ready() {
           this.$.form.addEventListener('iron-form-presubmit', function(event) {
             this.$.form.request.params['gameId'] = this.gameId;
-            this.$.form.request.params['userId'] = this.currentUserId;
+            this.$.form.request.params['userId'] = this.userId;
           }.bind(this));
 
           this.$.form.addEventListener('iron-form-submit', function(event) {
@@ -87,12 +87,14 @@
           <div class="subtext">
             We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href="http://www.walmart.com/ip/22866794?wl3=40330218152&wl4=pla-78287872112&wl5=9031923&wl9=pla&wl10=8175035&wl12=22866794&wl13=&veh=sem">Strongarm</a> tried-and-true and only $13, most players will have them.
           </div>
-          <paper-radio-button name="needGun" value="yes" class="radio-style">
-            Yes! I can bring/buy/steal/3D print my own nerf gun!
-          </paper-radio-button>
-          <paper-radio-button name="needGun" value="no" class="radio-style">
-            No D^: I need a nerf gun and can't get one before the game, save one for me please!
-          </paper-radio-button>
+          <paper-radio-group attr-for-selected="value">
+            <paper-radio-button name="needGun" value="yes" class="radio-style">
+              Yes! I can bring/buy/steal/3D print my own nerf gun!
+            </paper-radio-button>
+            <paper-radio-button name="needGun" value="no" class="radio-style">
+              No D^: I need a nerf gun and can't get one before the game, save one for me please!
+            </paper-radio-button>
+          </paper-radio-group>
         </div>
 
         <div class="section">
@@ -102,15 +104,17 @@
           <div class="subtext">
             Start the game as a zombie! The starting zombies may get pool noodles to extend their reach, and shields to block darts. Starting zombies have the option to revive later on in the game. So, fight the resistance while you're outnumbered, and then resist the horde while you're outnumbered, the best way to play!
           </div>
-          <paper-radio-button name="startAsZombie" value="yes" class="radio-style">
-            Graahhh braiiinnnnsss! Glory to the horde!
-          </paper-radio-button>
-          <paper-radio-button name="startAsZombie" value="maybe"class="radio-style">
-            If there aren't enough in the first mission, then I'm willing to help and jump in as a starting zombie.
-          </paper-radio-button>
-          <paper-radio-button name="startAsZombie" value="no"class="radio-style">
-            Nope, viva la Humanoids
-          </paper-radio-button>
+          <paper-radio-group attr-for-selected="value">
+            <paper-radio-button name="startAsZombie" value="yes" class="radio-style">
+              Graahhh braiiinnnnsss! Glory to the horde!
+            </paper-radio-button>
+            <paper-radio-button name="startAsZombie" value="maybe"class="radio-style">
+              If there aren't enough in the first mission, then I'm willing to help and jump in as a starting zombie.
+            </paper-radio-button>
+            <paper-radio-button name="startAsZombie" value="no"class="radio-style">
+              Nope, viva la Humanoids
+            </paper-radio-button>
+          </paper-radio-group>
         </div>
         
         <div class="section">
@@ -120,39 +124,43 @@
           <div class="subtext">
             The secret zombie is a powerful leader of the horde, hidden among the humans. Depending on play style, the secret zombie can either stealthily infect humans, or just spy on them to relay intel to the rest of the horde. See the rules for details!
           </div>
-          <paper-radio-button name="beSecretZombie" value="yes" class="radio-style">
-            Yes
-          </paper-radio-button>
-          <paper-radio-button name="beSecretZombie" value="no" class="radio-style">
-            No
-          </paper-radio-button>
-          <paper-radio-button name="beSecretZombie" value="maybe" class="radio-style">
-           I'm interested, tell me more...
+          <paper-radio-group attr-for-selected="value">
+            <paper-radio-button name="beSecretZombie" value="yes" class="radio-style">
+              Yes
+            </paper-radio-button>
+            <paper-radio-button name="beSecretZombie" value="no" class="radio-style">
+              No
+            </paper-radio-button>
+            <paper-radio-button name="beSecretZombie" value="maybe" class="radio-style">
+             I'm interested, tell me more...
            </paper-radio-button>
-        </div>
+         </paper-radio-group>
+       </div>
 
-        <div class="section">
-          <div class="maintext">
-            Interested in helping out?
-          </div>
+       <div class="section">
+        <div class="maintext">
+          Interested in helping out?
+        </div>
+        <paper-radio-group attr-for-selected="value">
           <paper-radio-button name="volunteer" value="yes" class="radio-style">
             Yeah! I'm awesome :^D
           </paper-radio-button>
-          <paper-radio-button name="volunteer" value="yes" class="radio-style">
-             Sorry, nope!
-          </paper-radio-button>
-        </div>
-      </div>
+          <paper-radio-button name="volunteer" value="no" class="radio-style">
+           Sorry, nope!
+         </paper-radio-button>
+       </paper-radio-group>
+     </div>
+   </div>
 
-      <div class="section">
-        <paper-button raised on-click="submit_">
-          Submit
-        </paper-button>
-        <paper-button raised on-click="reset_">
-          Reset
-        </paper-button>
-      </div>
-      <div class="output"></div>
-    </form>
-  </template>
+   <div class="section">
+    <paper-button raised on-click="submit_">
+      Submit
+    </paper-button>
+    <paper-button raised on-click="reset_">
+      Reset
+    </paper-button>
+  </div>
+  <div class="output"></div>
+</form>
+</template>
 </dom-module>
