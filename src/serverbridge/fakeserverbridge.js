@@ -90,11 +90,11 @@ function makeFakePrepopulatedServerBridge() {
   const promisifiedClonifiedServer =
       new Promisifier(clonifiedServer, SERVER_METHODS);
 
-  const protectifiedClonifiedPromisifiedServer =
+  const protectifiedPromisifiedClonifiedServer =
       new Protectifier(
           promisifiedClonifiedServer,
           (() => !!loggedInUserId),
           subtract(SERVER_METHODS, "logIn", "register"));
 
-  return protectifiedClonifiedPromisifiedServer;
+  return protectifiedPromisifiedClonifiedServer;
 }
