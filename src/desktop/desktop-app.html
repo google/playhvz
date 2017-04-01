@@ -36,8 +36,7 @@
         },
 
         attached: function() {
-          var fakeLoggedInUserId = this.serverBridge.fakeLoggedInUserId;
-          this.serverBridge.logIn('authcodefor' + fakeLoggedInUserId)
+          this.serverBridge.logIn('firstuserauthcode')
               .then((userId) => {
                 this.userId = userId;
                 return this.serverBridge.findAllPlayerIdsForUserId(this.userId);

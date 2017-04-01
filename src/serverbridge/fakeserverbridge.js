@@ -30,60 +30,17 @@ function makeFakePrepopulatedServerBridge() {
 // This is a class that wraps FakeServer, makes it asynchronous (all the
 // methods of this class return promises), and does some checking to
 // make sure the user is logged in.
-class FakeServerBridge {
-  constructor(server, fakeLoggedInUserId) {
-    this.fakeLoggedInUserId = fakeLoggedInUserId;
-    this.loggedInUserId = null;
-    this.inner = server;
-  }
+function FakeServerBridge(server, firstUserId) {
+  var loggedInUserId = null;
 
-  logIn(authcode) {
-    return this.fakeServerCall_(false, [], () => {
-      var userId = authcode.slice('authcodefor'.length);
-      // To check it exists
-      this.inner.getUserById(userId);
-      this.loggedInUserId = userId;
-      return userId;
-    });
-  }
-  register() { return this.fakeServerCall_(false, arguments, 'register'); }
-  getUserById() {
-    return this.fakeServerCall_(false, arguments, () => {
-      if (this.loggedInUserId != userId)
-        throw 'Cant get other user';
-      return this.inner.getUserById.apply(this.inner, arguments);
-    });
-  }
-  createGame() { return this.fakeServerCall_(true, arguments, 'createGame'); }
-  joinGame() { return this.fakeServerCall_(true, arguments, 'joinGame'); }
-  findAllPlayerIdsForGameId() { return this.fakeServerCall_(true, arguments, 'findAllPlayerIdsForGameId'); }
-  findAllPlayerIdsForUserId() { return this.fakeServerCall_(true, arguments, 'findAllPlayerIdsForUserId'); }
-  findPlayerByGameAndName() { return this.fakeServerCall_(true, arguments, 'findPlayerByGameAndName'); }
-  createChatRoom() { return this.fakeServerCall_(true, arguments, 'createChatRoom'); }
-  findMessagesForChatRoom() { return this.fakeServerCall_(true, arguments, 'findMessagesForChatRoom'); }
-  getChatRoomById() { return this.fakeServerCall_(true, arguments, 'getChatRoomById'); }
-  addMessageToChatRoom() { return this.fakeServerCall_(true, arguments, 'addMessageToChatRoom'); }
-  addPlayerToChatRoom() { return this.fakeServerCall_(true, arguments, 'addPlayerToChatRoom'); }
-  findAllChatRoomIdsForPlayerId() { return this.fakeServerCall_(true, arguments, 'findAllChatRoomIdsForPlayerId'); }
-  addMission() { return this.fakeServerCall_(true, arguments, 'addMission'); }
-  getPlayerById() { return this.fakeServerCall_(true, arguments, 'getPlayerById'); }
-  findAllPlayersForGameId() { return this.fakeServerCall_(true, arguments, 'findAllPlayersForGameId'); }
-  findAllMissionsForPlayerId() { return this.fakeServerCall_(true, arguments, 'findAllMissionsForPlayerId'); }
-  getMultiplePlayersById() { return this.fakeServerCall_(true, arguments, 'getMultiplePlayersById'); }
-
-  fakeServerCall_(loginProtected, args, method) {
+  this.fakeServerCall_ = (loginProtected, method) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         try {
-          if (loginProtected && !this.loggedInUserId) {
+          if (loginProtected && !loggedInUserId) {
             throw "Not logged in!";
           }
-          let successResult;
-          if (typeof method == 'string') {
-            successResult = this.inner[method].apply(this.inner, args);
-          } else {
-            successResult = method.apply(this, args);
-          }
+          let successResult = method();
           setTimeout(() => resolve(Utils.copyOf(successResult)), 100);
         } catch (error) {
           console.error(error);
@@ -91,5 +48,59 @@ class FakeServerBridge {
         }
       }, 100);
     });
+  };
+
+  this.logIn = (authcode) => {
+    return this.fakeServerCall_(false, () => {
+      if (authcode != 'firstuserauthcode') {
+        throw "Couldnt find auth code";
+      }
+      var userId = firstUserId;
+      // To check it exists
+      server.getUserById(userId);
+      loggedInUserId = userId;
+      return userId;
+    });
+  };
+
+  this.register = () => {
+    var args = arguments;
+    return this.fakeServerCall_(false, () => server.register.apply(server, arguments));
+  };
+
+  this.getUserById = (userId) => {
+    return this.fakeServerCall_(false, () => {
+      if (loggedInUserId != userId)
+        throw 'Cant get other user';
+      return server.getUserById(userId);
+    });
+  }
+
+  var restOfMethods = [
+    'createGame',
+    'getGameById',
+    'joinGame',
+    'findAllPlayerIdsForGameId',
+    'findAllPlayerIdsForUserId',
+    'findPlayerByGameAndName',
+    'createChatRoom',
+    'findMessagesForChatRoom',
+    'getChatRoomById',
+    'addMessageToChatRoom',
+    'addPlayerToChatRoom',
+    'findAllChatRoomIdsForPlayerId',
+    'addMission',
+    'getPlayerById',
+    'findAllPlayersForGameId',
+    'findAllMissionsForPlayerId',
+    'getMultiplePlayersById',
+  ];
+  for (var method of restOfMethods) {
+    ((method) => {
+      this[method] = function() {
+        var args = arguments;
+        return this.fakeServerCall_(true, () => server[method].apply(server, args));
+      };
+    })(method);
   }
 }
