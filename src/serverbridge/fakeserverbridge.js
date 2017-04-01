@@ -34,7 +34,7 @@ function Protectifier(inner, isLoggedIn, funcNames) {
       if (!isLoggedIn()) {
         throw "Not logged in! Can't call " + funcName;
       }
-      return inner[funcName];
+      return inner[funcName](...args);
     }
   }
 }
