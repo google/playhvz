@@ -50,6 +50,16 @@ function FakeServerBridge(server, firstUserId) {
     });
   };
 
+  for (var method of SERVER_METHODS) {
+    ((method) => {
+      this[method] = function() {
+        var args = arguments;
+        return this.fakeServerCall_(true, () => server[method].apply(server, args));
+      };
+    })(method);
+  }
+
+  // overwrites this.logIn
   this.logIn = (authcode) => {
     return this.fakeServerCall_(false, () => {
       if (authcode != 'firstuserauthcode') {
@@ -63,44 +73,18 @@ function FakeServerBridge(server, firstUserId) {
     });
   };
 
+  // overwrites this.register
   this.register = () => {
     var args = arguments;
     return this.fakeServerCall_(false, () => server.register.apply(server, arguments));
   };
 
+  // overwrites this.getUserById
   this.getUserById = (userId) => {
     return this.fakeServerCall_(false, () => {
       if (loggedInUserId != userId)
         throw 'Cant get other user';
       return server.getUserById(userId);
     });
-  }
-
-  var restOfMethods = [
-    'createGame',
-    'getGameById',
-    'joinGame',
-    'findAllPlayerIdsForGameId',
-    'findAllPlayerIdsForUserId',
-    'findPlayerByGameAndName',
-    'createChatRoom',
-    'findMessagesForChatRoom',
-    'getChatRoomById',
-    'addMessageToChatRoom',
-    'addPlayerToChatRoom',
-    'findAllChatRoomIdsForPlayerId',
-    'addMission',
-    'getPlayerById',
-    'findAllPlayersForGameId',
-    'findAllMissionsForPlayerId',
-    'getMultiplePlayersById',
-  ];
-  for (var method of restOfMethods) {
-    ((method) => {
-      this[method] = function() {
-        var args = arguments;
-        return this.fakeServerCall_(true, () => server[method].apply(server, args));
-      };
-    })(method);
   }
 }
