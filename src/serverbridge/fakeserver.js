@@ -1,37 +1,34 @@
 'use strict';
 
 class FakeServer {
-  constructor(requestContext, ) {
+  constructor() {
     this.fakeDatabase = new FakeDatabase();
     this.chatRoomsById = {};
   }
   
-  register(requestContext, userId, userEmail) {
+  register(userId, userEmail) {
     var user = new User(userId, userEmail);
     this.fakeDatabase.createUser(user);
   }
-  getUserById(requestContext, userId) {
-    if (requestContext.loggedInUserId != userId) {
-      throw "Permission denied: can't access other users.";
-    }
+  getUserById(userId) {
     return this.fakeDatabase.getUserById(userId);
   }
-  createGame(requestContext, gameId, adminUserId) {
+  createGame(gameId, adminUserId) {
     var game = new Game(gameId, adminUserId);
     this.fakeDatabase.createGame(game);
   }
-  getGameById(requestContext, gameId) {
+  getGameById(gameId) {
     return this.gamesById[gameId];
   }
-  joinGame(requestContext, userId, gameId, playerId, name, preferences) {
+  joinGame(userId, gameId, playerId, name, preferences) {
     var player = new Player(playerId, name, gameId, userId);
     player.preferences = Utils.copyOf(preferences);
     this.fakeDatabase.createPlayer(player);
   }
-  getPlayerById(requestContext, playerId) {
+  getPlayerById(playerId) {
     return this.fakeDatabase.getPlayerById(playerId);
   }
-  getMultiplePlayersById(requestContext, playerIds) {
+  getMultiplePlayersById(playerIds) {
     var value = {};
     for (var index in playerIds) {
       var playerId = playerIds[index];
@@ -39,16 +36,16 @@ class FakeServer {
     }
     return Utils.copyOf(value);
   }
-  findAllPlayersForGameId(requestContext, gameId) {
+  findAllPlayersForGameId(gameId) {
     return this.fakeDatabase.findAllPlayersForGameId(gameId);
   }
-  findAllPlayerIdsForUserId(requestContext, userId) {
+  findAllPlayerIdsForUserId(userId) {
     return this.fakeDatabase.findAllPlayerIdsForUserId(userId);
   }
-  findPlayerIdByGameAndName(requestContext, gameId, name) {
+  findPlayerIdByGameAndName(gameId, name) {
     this.fakeDatabase.findPlayerIdByGameAndName(gameId, name);
   }
-  createChatRoom(requestContext, chatRoomId, firstPlayerId) {
+  createChatRoom(chatRoomId, firstPlayerId) {
     var chatRoom = new ChatRoom(chatRoomId);
     this.fakeDatabase.createChatRoom(chatRoom, firstPlayerId);
   }
@@ -56,7 +53,7 @@ class FakeServer {
   * Returns all messages after the given id, not including the given id.
   * To get all messages, set afterId to -1.
   */
-  findMessagesForChatRoom(requestContext, chatRoomId, afterId) {
+  findMessagesForChatRoom(chatRoomId, afterId) {
     var messages = this.fakeDatabase.findMessagesForChatRoom(chatRoomId);
     var results = [];
     var startIndex = afterId < 0 ? 0 : afterId + 1;
@@ -67,33 +64,33 @@ class FakeServer {
     }
     return results;
   }
-  getChatRoomById(requestContext, chatRoomId) {
+  getChatRoomById(chatRoomId) {
     var chatRoom = this.fakeDatabase.getChatRoomById(chatRoomId);
     for (var i = 0; i < chatRoom.messages.length; i++) {
       chatRoom.messages[i].id = i;
     }
     return chatRoom;
   }
-  addMessageToChatRoom(requestContext, chatRoomId, playerId, message) {
+  addMessageToChatRoom(chatRoomId, playerId, message) {
     return this.fakeDatabase.addMessageToChatRoom(chatRoomId, playerId, message);
   }
-  addPlayerToChatRoom(requestContext, chatRoomId, playerId) {
+  addPlayerToChatRoom(chatRoomId, playerId) {
     return this.fakeDatabase.addPlayerToChatRoom(chatRoomId, playerId);
   }
-  findAllChatRoomIdsForPlayerId(requestContext, playerId) {
+  findAllChatRoomIdsForPlayerId(playerId) {
     return this.fakeDatabase.findAllChatRoomIdsForPlayerId(playerId);
   }
-  addMission(requestContext, gameId, missionId, beginTime, endTime, url) {
+  addMission(gameId, missionId, beginTime, endTime, url) {
     var mission = new Mission(missionId, gameId, beginTime, endTime, url);
     return this.fakeDatabase.addMission(mission);
   }
-  getMissionById(requestContext, missionId) {
+  getMissionById(missionId) {
     return Utils.copyOf(this.fakeDatabase.getMissionById(missionId));
   }
-  findAllMissionIdsForGameId(requestContext, gameId) {
+  findAllMissionIdsForGameId(gameId) {
     return this.fakeDatabase.findAllMissionIdsForGameId(gameId);
   }
-  findAllMissionsForPlayerId(requestContext, playerId) {
+  findAllMissionsForPlayerId(playerId) {
     var gameId = this.getPlayerById(playerId).gameId;
     var missionIds = this.findAllMissionIdsForGameId(gameId);
     var missions = [];
@@ -106,47 +103,47 @@ class FakeServer {
 
 
 
-//   infectPlayer(requestContext, killerId, victimId) {
+//   infectPlayer(killerId, victimId) {
 //     this.infections.push({
 //       time: new Date().getTime(),
 //       killerId: killerId,
 //       victimId: victimId,
 //     });
 //   }
-//   revivePlayer(requestContext, playerId) {
-//     assert(requestContext, playerId in this.playersById);
+//   revivePlayer(playerId) {
+//     assert(playerId in this.playersById);
 //     var player = this.playersById[playerId];
 //     player.revives.push({
 //       time: new Date().getTime(),
 //     });
 //   }
-//   addGun(requestContext, gunId) {
-//     assert(requestContext, !(gunId in this.gunsById));
+//   addGun(gunId) {
+//     assert(!(gunId in this.gunsById));
 //     this.gunsById[gunId] = {
 //       id: gunId,
 //       playerId: null,
 //     };
 //   }
-//   lendGun(requestContext, gunId, playerId) {
-//     assert(requestContext, gunId in this.gunsById);
-//     assert(requestContext, playerId in this.playersById);
+//   lendGun(gunId, playerId) {
+//     assert(gunId in this.gunsById);
+//     assert(playerId in this.playersById);
 //     var gun = this.gunsById[gunId];
-//     assert(requestContext, gun.playerId == null);
+//     assert(gun.playerId == null);
 //     gun.playerId = playerId;
 //   }
-//   transferGun(requestContext, gunId, fromplayerId, toplayerId) {
-//     assert(requestContext, gunId in this.gunsById);
-//     assert(requestContext, fromplayerId in this.playersById);
-//     assert(requestContext, toplayerId in this.playersById);
+//   transferGun(gunId, fromplayerId, toplayerId) {
+//     assert(gunId in this.gunsById);
+//     assert(fromplayerId in this.playersById);
+//     assert(toplayerId in this.playersById);
 //     var gun = this.gunsById[gunId];
-//     assert(requestContext, gun.playerId == fromplayerId);
+//     assert(gun.playerId == fromplayerId);
 //     gun.playerId = toplayerId;
 //   }
-//   returnGun(requestContext, gunId, playerId) {
-//     assert(requestContext, gunId in this.gunsById);
-//     assert(requestContext, playerId in this.playersById);
+//   returnGun(gunId, playerId) {
+//     assert(gunId in this.gunsById);
+//     assert(playerId in this.playersById);
 //     var gun = this.gunsById[gunId];
-//     assert(requestContext, gun.playerId == fromplayerId);
+//     assert(gun.playerId == fromplayerId);
 //     gun.playerId = null;
 //   }
 // }

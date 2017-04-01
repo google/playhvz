@@ -33,6 +33,23 @@ function makeFakePrepopulatedServerBridge() {
 function FakeServerBridge(server, firstUserId) {
   var loggedInUserId = null;
 
+  this.fakeServerCall_ = (loginProtected, method) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          if (loginProtected && !loggedInUserId) {
+            throw "Not logged in!";
+          }
+          let successResult = method();
+          setTimeout(() => resolve(Utils.copyOf(successResult)), 100);
+        } catch (error) {
+          console.error(error);
+          setTimeout(() => reject(Utils.copyOf(error)), 100);
+        }
+      }, 100);
+    });
+  };
+
   this.logIn = (authcode) => {
     return this.fakeServerCall_(false, () => {
       if (authcode != 'firstuserauthcode') {
@@ -51,10 +68,17 @@ function FakeServerBridge(server, firstUserId) {
     return this.fakeServerCall_(false, () => server.register.apply(server, arguments));
   };
 
+  this.getUserById = (userId) => {
+    return this.fakeServerCall_(false, () => {
+      if (loggedInUserId != userId)
+        throw 'Cant get other user';
+      return server.getUserById(userId);
+    });
+  }
+
   var restOfMethods = [
     'createGame',
     'getGameById',
-    'getUserById',
     'joinGame',
     'findAllPlayerIdsForGameId',
     'findAllPlayerIdsForUserId',
@@ -74,28 +98,9 @@ function FakeServerBridge(server, firstUserId) {
   for (var method of restOfMethods) {
     ((method) => {
       this[method] = function() {
-        var requestContext = {loggedInUserId: loggedInUserId};
         var args = arguments;
-        Array.prototype.unshift.call(args, requestContext);
         return this.fakeServerCall_(true, () => server[method].apply(server, args));
       };
     })(method);
   }
-
-  this.fakeServerCall_ = (loginProtected, method) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        try {
-          if (loginProtected && !loggedInUserId) {
-            throw "Not logged in!";
-          }
-          let successResult = method();
-          setTimeout(() => resolve(Utils.copyOf(successResult)), 100);
-        } catch (error) {
-          console.error(error);
-          setTimeout(() => reject(Utils.copyOf(error)), 100);
-        }
-      }, 100);
-    });
-  };
 }
