@@ -1,5 +1,44 @@
 'use strict';
 
+function Promisifier(inner, funcNames) {
+  this.__proto__ = inner;
+  for (const funcName of funcNames) {
+    this[funcName] = function(...args) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          try {
+            const result = inner[funcName](...args);
+            setTimeout(() => resolve(result));
+          } catch (error) {
+            setTimeout(() => reject(error));
+          }
+        }, 100);
+      });
+    };
+  }
+}
+
+function Clonifier(inner, funcNames) {
+  this.__proto__ = inner;
+  for (const funcName of funcNames) {
+    this[funcName] = function(...args) {
+      return Utils.copyOf(inner[funcName](...args.map(Utils.copyOf)));
+    }
+  }
+}
+
+function Protectifier(inner, isLoggedIn, funcNames) {
+  this.__proto__ = inner;
+  for (const funcName of funcNames) {
+    this[funcName] = function(...args) {
+      if (!isLoggedIn()) {
+        throw "Not logged in! Can't call " + funcName;
+      }
+      return inner[funcName];
+    }
+  }
+}
+
 function makeFakePrepopulatedServerBridge() {
   var kimUserId = Utils.generateId("user");
   var evanUserId = Utils.generateId("user");
@@ -9,82 +48,53 @@ function makeFakePrepopulatedServerBridge() {
   var humanChatRoom = Utils.generateId("chat");
   var zedChatRoom = Utils.generateId("chat");
   var firstMissionId = Utils.generateId("mission");
-  var server = new FakeServer();
-  server.register(kimUserId, 'kimikimkim@kim.com');
-  server.register(evanUserId, 'verdagon@evan.com');
-  server.createGame(gameId, kimUserId);
-  server.joinGame(kimUserId, gameId, kimPlayerId, 'Kim the Ultimate', {});
-  server.joinGame(evanUserId, gameId, evanPlayerId, 'Evanpocalypse', {});
-  server.createChatRoom(humanChatRoom, kimPlayerId);
-  server.addPlayerToChatRoom(humanChatRoom, evanPlayerId);
-  server.addMessageToChatRoom(humanChatRoom, kimPlayerId, 'hi');
-  server.createChatRoom(zedChatRoom, evanPlayerId);
-  server.addPlayerToChatRoom(zedChatRoom, kimPlayerId);
-  server.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
-  server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
-  server.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
-  server.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
-  return new FakeServerBridge(server, evanUserId);
-}
+  var innerServer = new FakeServer();
+  innerServer.register(kimUserId, 'kimikimkim@kim.com');
+  innerServer.register(evanUserId, 'verdagon@evan.com');
+  innerServer.createGame(gameId, kimUserId);
+  innerServer.joinGame(kimUserId, gameId, kimPlayerId, 'Kim the Ultimate', {});
+  innerServer.joinGame(evanUserId, gameId, evanPlayerId, 'Evanpocalypse', {});
+  innerServer.createChatRoom(humanChatRoom, kimPlayerId);
+  innerServer.addPlayerToChatRoom(humanChatRoom, evanPlayerId);
+  innerServer.addMessageToChatRoom(humanChatRoom, kimPlayerId, 'hi');
+  innerServer.createChatRoom(zedChatRoom, evanPlayerId);
+  innerServer.addPlayerToChatRoom(zedChatRoom, kimPlayerId);
+  innerServer.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
+  innerServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
+  innerServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
+  innerServer.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
 
-// This is a class that wraps FakeServer, makes it asynchronous (all the
-// methods of this class return promises), and does some checking to
-// make sure the user is logged in.
-function FakeServerBridge(server, firstUserId) {
   var loggedInUserId = null;
 
-  this.fakeServerCall_ = (loginProtected, method) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        try {
-          if (loginProtected && !loggedInUserId) {
-            throw "Not logged in!";
-          }
-          let successResult = method();
-          setTimeout(() => resolve(Utils.copyOf(successResult)), 100);
-        } catch (error) {
-          console.error(error);
-          setTimeout(() => reject(Utils.copyOf(error)), 100);
-        }
-      }, 100);
-    });
+
+  innerServer.logIn = function(authcode) {
+    if (authcode != 'firstuserauthcode') {
+      throw "Couldnt find auth code";
+    }
+    var userId = kimUserId;
+    // To check it exists. this.__proto__ to skip the security check
+    this.__proto__.getUserById.call(this, userId);
+    loggedInUserId = userId;
+    return userId;
   };
 
-  for (var method of SERVER_METHODS) {
-    ((method) => {
-      this[method] = function() {
-        var args = arguments;
-        return this.fakeServerCall_(true, () => server[method].apply(server, args));
-      };
-    })(method);
-  }
-
-  // overwrites this.logIn
-  this.logIn = (authcode) => {
-    return this.fakeServerCall_(false, () => {
-      if (authcode != 'firstuserauthcode') {
-        throw "Couldnt find auth code";
-      }
-      var userId = firstUserId;
-      // To check it exists
-      server.getUserById(userId);
-      loggedInUserId = userId;
-      return userId;
-    });
+  innerServer.getUserById = function(userId) {
+    if (loggedInUserId != userId)
+      throw 'Cant get other user';
+    return this.__proto__.getUserById.call(this, userId);
   };
 
-  // overwrites this.register
-  this.register = () => {
-    var args = arguments;
-    return this.fakeServerCall_(false, () => server.register.apply(server, arguments));
-  };
+  const clonifiedServer =
+      new Clonifier(innerServer, SERVER_METHODS);
 
-  // overwrites this.getUserById
-  this.getUserById = (userId) => {
-    return this.fakeServerCall_(false, () => {
-      if (loggedInUserId != userId)
-        throw 'Cant get other user';
-      return server.getUserById(userId);
-    });
-  }
+  const promisifiedClonifiedServer =
+      new Promisifier(clonifiedServer, SERVER_METHODS);
+
+  const protectifiedClonifiedPromisifiedServer =
+      new Protectifier(
+          promisifiedClonifiedServer,
+          (() => !!loggedInUserId),
+          subtract(SERVER_METHODS, "logIn", "register"));
+
+  return protectifiedClonifiedPromisifiedServer;
 }

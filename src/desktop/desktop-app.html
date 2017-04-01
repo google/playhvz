@@ -48,7 +48,6 @@
                   this.playerId = playerIds[0];
                   this.serverBridge.findAllChatRoomIdsForPlayerId(this.playerId)
                       .then((chatRoomIds) => {
-                        console.log('lizard');
                         this.chatRoomIds = chatRoomIds;
                       });
                   this.serverBridge.getPlayerById(this.playerId)
