@@ -1,12 +1,13 @@
 'use strict';
 
-// this.__proto__ = inner; is if we ever want to completely
+// this.__proto__ = inner; would be if we ever want to completely
 // opt out of a layer for a certain function. like if we ever
 // had a getAllGames method, we'd just completely opt it out of
 // the securing layer.
+// However, that would accidentally bring properties in, and call
+// functions on the wrong scopes, so lets stick to doing it manually
 
-function Securifier(inner, isLoggedIn, funcNames) {
-  this.__proto__ = inner;
+function SecuringWrapper(inner, isLoggedIn, funcNames) {
   for (const funcName of funcNames) {
     this[funcName] = function(...args) {
       if (!isLoggedIn()) {
@@ -17,8 +18,7 @@ function Securifier(inner, isLoggedIn, funcNames) {
   }
 }
 
-function Clonifier(inner, funcNames) {
-  this.__proto__ = inner;
+function CloningWrapper(inner, funcNames) {
   for (const funcName of funcNames) {
     this[funcName] = function(...args) {
       return Utils.copyOf(inner[funcName](...args.map(Utils.copyOf)));
@@ -26,8 +26,7 @@ function Clonifier(inner, funcNames) {
   }
 }
 
-function Delayifier(inner, funcNames) {
-  this.__proto__ = inner;
+function DelayingWrapper(inner, funcNames) {
   for (const funcName of funcNames) {
     this[funcName] = function(...args) {
       return new Promise((resolve, reject) => {
@@ -71,12 +70,12 @@ function makeFakePrepopulatedServerBridge() {
 
   var loggedInUserId = null;
 
-  const securifiedServer =
-      new Securifier(
+  const securedServer =
+      new SecuringWrapper(
           innerServer,
           (() => !!loggedInUserId),
-          subtract(SERVER_METHODS, "logIn", "register"));
-  securifiedServer.logIn = function(authcode) {
+          subtract(SERVER_METHODS, "logIn", "register", "getUserById"));
+  securedServer.logIn = (authcode) => {
     if (authcode != 'firstuserauthcode') {
       throw "Couldnt find auth code";
     }
@@ -86,17 +85,18 @@ function makeFakePrepopulatedServerBridge() {
     loggedInUserId = userId;
     return userId;
   };
-  securifiedServer.getUserById = function(userId) {
+  securedServer.register = (...args) => innerServer.register(...args);
+  securedServer.getUserById = (userId) => {
     if (loggedInUserId != userId)
       throw 'Cant get other user';
     return innerServer.getUserById(userId);
   };
 
-  const clonifiedSecurifiedServer =
-      new Clonifier(securifiedServer, SERVER_METHODS);
+  const cloningSecuredServer =
+      new CloningWrapper(securedServer, SERVER_METHODS);
 
-  const delayifiedClonifiedSecurifiedServer =
-      new Delayifier(clonifiedSecurifiedServer, SERVER_METHODS);
+  const delayingCloningSecuredSever =
+      new DelayingWrapper(cloningSecuredServer, SERVER_METHODS);
 
-  return delayifiedClonifiedSecurifiedServer;
+  return delayingCloningSecuredSever;
 }
