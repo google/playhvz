@@ -30,237 +30,66 @@ function makeFakePrepopulatedServerBridge() {
 // This is a class that wraps FakeServer, makes it asynchronous (all the
 // methods of this class return promises), and does some checking to
 // make sure the user is logged in.
-function FakeServerBridge(server, fakeLoggedInUserId) {
-  this.fakeLoggedInUserId = fakeLoggedInUserId;
-  this.loggedInUserId = null;
-  this.inner = server;
-}
+class FakeServerBridge {
+  constructor(server, fakeLoggedInUserId) {
+    this.fakeLoggedInUserId = fakeLoggedInUserId;
+    this.loggedInUserId = null;
+    this.inner = server;
+  }
 
-FakeServerBridge.fakeServerMethod_ = function(callbackThatReturnsAPromise) {
-  return function() {
-    var args = arguments;
+  logIn(authcode) {
+    return this.fakeServerCall_(false, [], () => {
+      var userId = authcode.slice('authcodefor'.length);
+      // To check it exists
+      this.inner.getUserById(userId);
+      this.loggedInUserId = userId;
+      return userId;
+    });
+  }
+  getUserById() {
+    return this.fakeServerCall_(false, arguments, () => {
+      if (this.loggedInUserId != userId)
+        throw 'Cant get other user';
+      return this.inner.getUserById.apply(this.inner, arguments);
+    });
+  }
+  register() { return this.fakeUnprotectedServerCall_(arguments, 'register'); }
+  createGame() { return this.fakeServerCall_(true, arguments, 'createGame'); }
+  joinGame() { return this.fakeServerCall_(true, arguments, 'joinGame'); }
+  findAllPlayerIdsForGameId() { return this.fakeServerCall_(true, arguments, 'findAllPlayerIdsForGameId'); }
+  findAllPlayerIdsForUserId() { return this.fakeServerCall_(true, arguments, 'findAllPlayerIdsForUserId'); }
+  findPlayerByGameAndName() { return this.fakeServerCall_(true, arguments, 'findPlayerByGameAndName'); }
+  createChatRoom() { return this.fakeServerCall_(true, arguments, 'createChatRoom'); }
+  findMessagesForChatRoom() { return this.fakeServerCall_(true, arguments, 'findMessagesForChatRoom'); }
+  getChatRoomById() { return this.fakeServerCall_(true, arguments, 'getChatRoomById'); }
+  addMessageToChatRoom() { return this.fakeServerCall_(true, arguments, 'addMessageToChatRoom'); }
+  addPlayerToChatRoom() { return this.fakeServerCall_(true, arguments, 'addPlayerToChatRoom'); }
+  findAllChatRoomIdsForPlayerId() { return this.fakeServerCall_(true, arguments, 'findAllChatRoomIdsForPlayerId'); }
+  addMission() { return this.fakeServerCall_(true, arguments, 'addMission'); }
+  getPlayerById() { return this.fakeServerCall_(true, arguments, 'getPlayerById'); }
+  findAllPlayersForGameId() { return this.fakeServerCall_(true, arguments, 'findAllPlayersForGameId'); }
+  findAllMissionsForPlayerId() { return this.fakeServerCall_(true, arguments, 'findAllMissionsForPlayerId'); }
+  getMultiplePlayersById() { return this.fakeServerCall_(true, arguments, 'getMultiplePlayersById'); }
+
+  fakeServerCall_(loginProtected, args, method) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        callbackThatReturnsAPromise.apply(this, args).then(
-            (value) => setTimeout(() => resolve(value && JSON.parse(JSON.stringify(value))), 100),
-            (value) => setTimeout(() => reject(value && JSON.parse(JSON.stringify(value))), 100));
+        try {
+          if (loginProtected && !this.loggedInUserId) {
+            throw "Not logged in!";
+          }
+          let successResult;
+          if (typeof method == 'string') {
+            successResult = this.inner[method].apply(this.inner, args);
+          } else {
+            successResult = method.apply(this, args);
+          }
+          setTimeout(() => resolve(Utils.copyOf(successResult)), 100);
+        } catch (error) {
+          console.error(error);
+          setTimeout(() => reject(Utils.copyOf(error)), 100);
+        }
       }, 100);
     });
   }
 }
-
-FakeServerBridge.loginProtected_ = function(callbackThatReturnsAPromise) {
-  return function() {
-    var args = arguments;
-    if (this.loggedInUserId) {
-      return callbackThatReturnsAPromise.apply(this, args);
-    } else {
-      return Promise.reject('Not logged in');
-    }
-  }
-}
-
-FakeServerBridge.prototype.logIn =
-    FakeServerBridge.fakeServerMethod_(
-        function(authcode) {
-          try {
-            var userId = authcode.slice('authcodefor'.length);
-            // To check it exists
-            this.inner.getUserById(userId);
-            this.loggedInUserId = userId;
-            return Promise.resolve(userId);
-          } catch (errorString) {
-            return Promise.reject(errorString);
-          }
-        });
-FakeServerBridge.prototype.register =
-    FakeServerBridge.fakeServerMethod_(
-        function(userId, userEmail) {
-          try {
-            return Promise.resolve(this.inner.register(userId, userEmail));
-          } catch (errorString) {
-            return Promise.reject(errorString);
-          }
-        });
-FakeServerBridge.prototype.getUserById =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(userId) {
-              try {
-                if (this.loggedInUserId != userId)
-                  throw 'Cant get other user';
-                return Promise.resolve(this.inner.getUserById(userId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.createGame =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(gameId, adminUserId) {
-              try {
-                return Promise.resolve(this.inner.createGame(gameId, adminUserId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.getGameById =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(gameId) {
-              try {
-                return Promise.resolve(this.inner.getGameById(gameId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.joinGame =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(userId, gameId, playerId, name, preferences) {
-              try {
-                return Promise.resolve(this.inner.joinGame(userId, gameId, playerId, name, preferences));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.getPlayerById =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(playerId) {
-              try {
-                return Promise.resolve(this.inner.getPlayerById(playerId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.getMultiplePlayersById =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(playerIds) {
-              try {
-                return Promise.resolve(this.inner.getMultiplePlayersById(playerIds));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.findAllPlayerIdsForGameId =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(gameId) {
-              try {
-                return Promise.resolve(this.inner.findAllPlayerIdsForGameId(gameId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.findAllPlayersForGameId =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(gameId) {
-              try {
-                return Promise.resolve(this.inner.findAllPlayersForGameId(gameId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.findAllPlayerIdsForUserId =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(userId) {
-              try {
-                return Promise.resolve(this.inner.findAllPlayerIdsForUserId(userId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.findPlayerIdByGameAndName =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(gameId, name) {
-              try {
-                return Promise.resolve(this.inner.findPlayerByGameAndName(gameId, name));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.createChatRoom =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(chatRoomId, firstPlayerId) {
-              try {
-                return Promise.resolve(this.inner.createChatRoom(chatRoomId, firstPlayerId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.findMessagesForChatRoom =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(chatRoomId, afterTime) {
-              try {
-                return Promise.resolve(this.inner.findMessagesForChatRoom(chatRoomId, afterTime));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.getChatRoomById =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(chatRoomId) {
-              try {
-                return Promise.resolve(this.inner.getChatRoomById(chatRoomId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.addMessageToChatRoom =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(chatRoomId, playerId, message) {
-              try {
-                return Promise.resolve(this.inner.addMessageToChatRoom(chatRoomId, playerId, message));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.addPlayerToChatRoom =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(chatRoomId, playerId) {
-              try {
-                return Promise.resolve(this.inner.addPlayerToChatRoom(chatRoomId, playerId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.findAllChatRoomIdsForPlayerId =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(playerId) {
-              try {
-                return Promise.resolve(this.inner.findAllChatRoomIdsForPlayerId(playerId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.addMission =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(gameId, missionId, beginTime, endTime, url) {
-              try {
-                return Promise.resolve(this.inner.addMission(gameId, missionId, beginTime, endTime, url));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
-FakeServerBridge.prototype.findAllMissionsForPlayerId =
-    FakeServerBridge.fakeServerMethod_(
-        FakeServerBridge.loginProtected_(
-            function(playerId) {
-              try {
-                return Promise.resolve(this.inner.findAllMissionsForPlayerId(playerId));
-              } catch (errorString) {
-                return Promise.reject(errorString);
-              }
-            }));
