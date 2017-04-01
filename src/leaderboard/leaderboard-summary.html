@@ -1,0 +1,87 @@
+
+<dom-module id="leaderboard-summary">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+     Polymer({
+        is: 'leaderboard-summary',
+
+        properties: {
+          serverBridge: Object,
+          gameId: String,
+          players: {
+            type: Array,
+            value: function() { return []; },
+          },
+
+          leaderboardDelegate: {
+            type: Object,
+            value: function() {
+              return {
+                getSchema: (() => ["id", "name"]),
+                getHeader: ((key) => ({id: 'ID', name: 'Name'}[key])),
+                getActions: (() => ["delete", "infect", "revive", "ban"]),
+                getActionName: ((action) => ({delete: "Delete", infect: "Infect", revive: "Revive", ban: "Ban"}[action])),
+                create: this.createLeaderboardContents_.bind(this),
+                update: this.updateLeaderboardContents_.bind(this),
+                doAction: this.doTableAction_.bind(this),
+              };
+            },
+          },
+        },
+
+        observers: [
+          "ready_(serverBridge, gameId)",
+        ],
+
+        ready_: function(serverBridge, gameId) {
+          console.log("ready");
+          serverBridge.findAllPlayersForGameId(gameId)
+              .then((players) => {
+                this.players = players;
+              });
+        },
+
+        doTableAction_: function(player, action) {
+          console.log('do action', action, ' on player', player);
+          if (action == "delete") {
+            var index = this.players.indexOf(player);
+            this.splice('players', index, 1);
+          }
+        },
+
+        createLeaderboardContents_: function(player, key) {
+          // if we dont return anything, auto-table will just by default create the text node
+        },
+
+        updateLeaderboardContents_: function(element, player, propertyName, propertyPath, value) {
+          //return document.createTextNode(player[key]);
+        },
+
+        onDeletePlayer_: function(player) {
+          var index = this.players.indexOf(player);
+          if (index < 0) {
+            console.error('Cant delete player, player not in list:', player);
+            return;
+          }
+          this.splice('players', 1);
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      auto-table {
+        display: block;
+      }
+    </style>
+    <div>hi</div>
+   <!-- <auto-table
+    id="leaderboardTable"
+    delegate="[[leaderboardDelegate]]"
+    items="[[players]]">
+  </auto-table> --> 
+</template>
+</dom-module>
