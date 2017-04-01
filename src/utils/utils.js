@@ -23,7 +23,7 @@ Utils.copyOf = function(value) {
 * enumerable or not. All functions are included. Inspired by
 * http://stackoverflow.com/questions/31054910/get-functions-methods-of-a-class
 */
-function getAllFuncNames(originalObj) {
+Utils.getAllFuncNames = function(originalObj) {
   var props = [];
   for (let obj = originalObj; obj; obj = Object.getPrototypeOf(obj)) {
     props = props.concat(Object.getOwnPropertyNames(obj));
@@ -37,6 +37,14 @@ function getAllFuncNames(originalObj) {
 * Takes the array, and subtracts all occurrences of the given things.
 * subtract([15, 4, 3, 10, 2, 4], 3, 4) would be [15, 10, 2]
 */
-function subtract(array, ...thingsToSubtract) {
+Utils.subtract = function(array, ...thingsToSubtract) {
   return array.filter((value) => thingsToSubtract.indexOf(value) == -1);
+}
+
+/*
+* Function that can be passed to playerArray.sort() to sort players in descending
+* order by points. 
+*/
+Utils.byPoints = function(player1, player2) {
+  return parseFloat(player2.points) - parseFloat(player1.points);
 }

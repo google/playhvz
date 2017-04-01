@@ -15,6 +15,10 @@
           type: Array,
           value: function() { return []; },
         },
+        numToShow: {
+          type: Number,
+          value: 3,
+        },
 
         leaderboardDelegate: {
           type: Object,
@@ -32,36 +36,46 @@
         },
       },
 
+      attached: function() {
+        this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
+      },
+
       observers: [
       "ready_(serverBridge, gameId)",
       ],
 
       ready_: function(serverBridge, gameId) {
-        console.log("ready");
         serverBridge.findAllPlayersForGameId(gameId)
         .then((players) => {
-          this.players = players;
+          players.sort(Utils.byPoints);
+          this.players = players.slice(0, this.numToShow);
         });
       },
 
       doTableAction_: function(player, action) {
         console.log('do action', action, ' on player', player);
-        if (action == "delete") {
-          var index = this.players.indexOf(player);
-          this.splice('players', index, 1);
+        if (action == "view") {
+          console.log("view");
         }
       },
 
       createLeaderboardContents_: function(player, key) {
-          // if we dont return anything, auto-table will just by default create the text node
-        },
+        // if we dont return anything, auto-table will just by default create the text node
+      },
 
-        updateLeaderboardContents_: function(element, player, propertyName, propertyPath, value) {
+      updateLeaderboardContents_: function(element, player, propertyName, propertyPath, value) {
           //return document.createTextNode(player[key]);
         },
 
-        onViewPlayer_: function(player) {
-          console.log("view");
+        refresh_: function() {
+          this.serverBridge.findAllPlayersForGameId(this.gameId)
+          .then((players) => {
+            if (players) {
+              this.players = [];
+              players.sort(Utils.byPoints);
+              this.players = players.slice(0, this.numToShow);
+            }
+          });
         },
       });
    });
@@ -72,6 +86,11 @@
       display: block;
     }
   </style>
+  <paper-icon-button
+      id="refresh"
+      icon="icons:refresh"
+      on-tap="refresh_">
+  </paper-icon-button>
   <auto-table
   id="leaderboardTable"
   delegate="[[leaderboardDelegate]]"

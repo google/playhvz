@@ -82,7 +82,7 @@ function makeFakePrepopulatedServerBridge() {
       new SecuringWrapper(
           fakeServer,
           (() => !!loggedInUserId),
-          subtract(SERVER_METHODS, "logIn", "register", "getUserById"));
+          Utils.subtract(SERVER_METHODS, "logIn", "register", "getUserById"));
   securedFakeServer.logIn = (authcode) => {
     if (authcode != 'firstuserauthcode') {
       throw "Couldnt find auth code";

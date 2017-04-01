@@ -34,6 +34,7 @@ const SERVER_METHODS = [
   'findAllPlayerIdsForUserId',
   'findPlayerByGameAndName',
   'createChatRoom',
+  'awardPoints',
   'findMessagesForChatRoom',
   'getChatRoomById',
   'addMessageToChatRoom',

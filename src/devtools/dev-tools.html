@@ -24,6 +24,7 @@
             var playerId = Utils.generateId("player");
             var name = event.detail.playerName;
             var userId = this.userId;
+            var points = Math.floor(Math.random() * 100);
             if (!name) {
               name = Math.random().toString(36).substring(4, 8);
             }
@@ -40,6 +41,8 @@
               playerId, 
               name, 
               this.generateRandomPreferences_());
+            
+            this.serverBridge.awardPoints(playerId, points);
 
             this.serverBridge.getPlayerById(playerId)
             .then((player) => {
