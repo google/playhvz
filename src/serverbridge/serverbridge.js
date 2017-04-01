@@ -20,3 +20,26 @@
 // findAllPlayersForGameId(playerId)
 // findAllMissionsForPlayerId(playerId)
 // getMultiplePlayersById(playersIds)
+
+const SERVER_METHODS = [
+  'logIn',
+  'register',
+  'getUserById',
+  'createGame',
+  'getGameById',
+  'joinGame',
+  'findAllPlayerIdsForGameId',
+  'findAllPlayerIdsForUserId',
+  'findPlayerByGameAndName',
+  'createChatRoom',
+  'findMessagesForChatRoom',
+  'getChatRoomById',
+  'addMessageToChatRoom',
+  'addPlayerToChatRoom',
+  'findAllChatRoomIdsForPlayerId',
+  'addMission',
+  'getPlayerById',
+  'findAllPlayersForGameId',
+  'findAllMissionsForPlayerId',
+  'getMultiplePlayersById',
+];
