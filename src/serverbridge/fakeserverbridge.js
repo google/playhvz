@@ -46,6 +46,7 @@ class FakeServerBridge {
       return userId;
     });
   }
+  register() { return this.fakeServerCall_(false, arguments, 'register'); }
   getUserById() {
     return this.fakeServerCall_(false, arguments, () => {
       if (this.loggedInUserId != userId)
@@ -53,7 +54,6 @@ class FakeServerBridge {
       return this.inner.getUserById.apply(this.inner, arguments);
     });
   }
-  register() { return this.fakeUnprotectedServerCall_(arguments, 'register'); }
   createGame() { return this.fakeServerCall_(true, arguments, 'createGame'); }
   joinGame() { return this.fakeServerCall_(true, arguments, 'joinGame'); }
   findAllPlayerIdsForGameId() { return this.fakeServerCall_(true, arguments, 'findAllPlayerIdsForGameId'); }
