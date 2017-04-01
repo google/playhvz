@@ -64,6 +64,9 @@
         headerAction: function(event) {
           var moduleId = event.currentTarget.dataset.moduleId;
           var iconAction = event.currentTarget.dataset.iconAction;
+          console.log(moduleId);
+          console.log(iconAction);
+          console.log(this.$[moduleId]);
           this.$[moduleId][iconAction]();
         },
       });
@@ -121,18 +124,10 @@
 
       <ghvz-dashlet half>
         <div class="header">Leaderboard</div>
-        <paper-icon-button 
-          class="header-button" 
-          icon="icons:fullscreen" 
-          on-tap="headerAction" 
-          data-icon-action="fullscreen"
-          data-module-id="leaderboardModule">
-        </paper-icon-button>
         <leaderboard-summary
-            id="leaderboardModule"
+            class="content"
             server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]"
-            current-user-id="[[userId]]">
+            game-id="[[gameId]]">
         </leaderboard-summary>
       </ghvz-dashlet>
 

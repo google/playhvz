@@ -5,14 +5,12 @@
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
-      Polymer({
+     Polymer({
         is: 'leaderboard-summary',
 
         properties: {
           serverBridge: Object,
-
           gameId: String,
-
           players: {
             type: Array,
             value: function() { return []; },
@@ -22,10 +20,10 @@
             type: Object,
             value: function() {
               return {
-                getSchema: (() => ["name"]),
-                getHeader: ((key) => ({name: 'Name'}[key])),
-                getActions: (() => ["view", "grrr"]),
-                getActionName: ((action) => ({view: "View", grrr: "Grrr"}[action])),
+                getSchema: (() => ["id", "name"]),
+                getHeader: ((key) => ({id: 'ID', name: 'Name'}[key])),
+                getActions: (() => ["delete", "infect", "revive", "ban"]),
+                getActionName: ((action) => ({delete: "Delete", infect: "Infect", revive: "Revive", ban: "Ban"}[action])),
                 create: this.createLeaderboardContents_.bind(this),
                 update: this.updateLeaderboardContents_.bind(this),
                 doAction: this.doTableAction_.bind(this),
@@ -35,18 +33,23 @@
         },
 
         observers: [
-        "ready_(serverBridge, gameId)",
+          "ready_(serverBridge, gameId)",
         ],
 
         ready_: function(serverBridge, gameId) {
+          console.log("ready");
           serverBridge.findAllPlayersForGameId(gameId)
-          .then((players) => {
-            this.players = players;
-          });
+              .then((players) => {
+                this.players = players;
+              });
         },
 
         doTableAction_: function(player, action) {
           console.log('do action', action, ' on player', player);
+          if (action == "delete") {
+            var index = this.players.indexOf(player);
+            this.splice('players', index, 1);
+          }
         },
 
         createLeaderboardContents_: function(player, key) {
@@ -57,8 +60,13 @@
           //return document.createTextNode(player[key]);
         },
 
-        fullscreen: function() {
-          console.log("Tried to open fullscreen on leaderboard!");
+        onDeletePlayer_: function(player) {
+          var index = this.players.indexOf(player);
+          if (index < 0) {
+            console.error('Cant delete player, player not in list:', player);
+            return;
+          }
+          this.splice('players', 1);
         },
       });
     });
@@ -69,10 +77,11 @@
         display: block;
       }
     </style>
-    <auto-table
+    <div>hi</div>
+   <!-- <auto-table
     id="leaderboardTable"
     delegate="[[leaderboardDelegate]]"
     items="[[players]]">
-  </auto-table>
+  </auto-table> --> 
 </template>
 </dom-module>
