@@ -1,5 +1,31 @@
 'use strict';
 
+// this.__proto__ = inner; is if we ever want to completely
+// opt out of a layer for a certain function. like if we ever
+// had a getAllGames method, we'd just completely opt it out of
+// the securing layer.
+
+function Securifier(inner, isLoggedIn, funcNames) {
+  this.__proto__ = inner;
+  for (const funcName of funcNames) {
+    this[funcName] = function(...args) {
+      if (!isLoggedIn()) {
+        throw "Not logged in! Can't call " + funcName;
+      }
+      return inner[funcName](...args);
+    }
+  }
+}
+
+function Clonifier(inner, funcNames) {
+  this.__proto__ = inner;
+  for (const funcName of funcNames) {
+    this[funcName] = function(...args) {
+      return Utils.copyOf(inner[funcName](...args.map(Utils.copyOf)));
+    }
+  }
+}
+
 function Promisifier(inner, funcNames) {
   this.__proto__ = inner;
   for (const funcName of funcNames) {
@@ -15,27 +41,6 @@ function Promisifier(inner, funcNames) {
         }, 100);
       });
     };
-  }
-}
-
-function Clonifier(inner, funcNames) {
-  this.__proto__ = inner;
-  for (const funcName of funcNames) {
-    this[funcName] = function(...args) {
-      return Utils.copyOf(inner[funcName](...args.map(Utils.copyOf)));
-    }
-  }
-}
-
-function Protectifier(inner, isLoggedIn, funcNames) {
-  this.__proto__ = inner;
-  for (const funcName of funcNames) {
-    this[funcName] = function(...args) {
-      if (!isLoggedIn()) {
-        throw "Not logged in! Can't call " + funcName;
-      }
-      return inner[funcName](...args);
-    }
   }
 }
 
@@ -66,12 +71,12 @@ function makeFakePrepopulatedServerBridge() {
 
   var loggedInUserId = null;
 
-  const protectifiedServer =
-      new Protectifier(
+  const securifiedServer =
+      new Securifier(
           innerServer,
           (() => !!loggedInUserId),
           subtract(SERVER_METHODS, "logIn", "register"));
-  protectifiedServer.logIn = function(authcode) {
+  securifiedServer.logIn = function(authcode) {
     if (authcode != 'firstuserauthcode') {
       throw "Couldnt find auth code";
     }
@@ -81,17 +86,17 @@ function makeFakePrepopulatedServerBridge() {
     loggedInUserId = userId;
     return userId;
   };
-  protectifiedServer.getUserById = function(userId) {
+  securifiedServer.getUserById = function(userId) {
     if (loggedInUserId != userId)
       throw 'Cant get other user';
     return innerServer.getUserById(userId);
   };
 
-  const clonifiedProtectifiedServer =
-      new Clonifier(protectifiedServer, SERVER_METHODS);
+  const clonifiedSecurifiedServer =
+      new Clonifier(securifiedServer, SERVER_METHODS);
 
-  const promisifiedClonifiedProtectifiedServer =
-      new Promisifier(clonifiedProtectifiedServer, SERVER_METHODS);
+  const promisifiedClonifiedSecurifiedServer =
+      new Promisifier(clonifiedSecurifiedServer, SERVER_METHODS);
 
-  return promisifiedClonifiedProtectifiedServer;
+  return promisifiedClonifiedSecurifiedServer;
 }
