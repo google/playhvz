@@ -59,15 +59,6 @@
                 }
               });
         },
-
-        headerAction: function(event) {
-          var moduleId = event.currentTarget.dataset.moduleId;
-          var iconAction = event.currentTarget.dataset.iconAction;
-          console.log(moduleId);
-          console.log(iconAction);
-          console.log(this.$[moduleId]);
-          this.$[moduleId][iconAction]();
-        },
       });
     });
   </script>
@@ -87,13 +78,6 @@
     <ghvz-dashboard>
       <ghvz-dashlet full>
         <div class="header">Players</div>
-        <paper-icon-button 
-          class="header-button" 
-          icon="icons:refresh" 
-          on-tap="headerAction" 
-          data-icon-action="refresh"
-          data-module-id="playerTableModule">
-        </paper-icon-button>
         <player-table
             id="playerTableModule"
             server-bridge="[[serverBridge]]"

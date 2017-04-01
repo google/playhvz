@@ -7,6 +7,12 @@
 // However, that would accidentally bring properties in, and call
 // functions on the wrong scopes, so lets stick to doing it manually
 
+// note to self, dont call superclass methods by saying
+// this.__proto__.someMethod.call(this, stuff)
+// because this.__proto__ is the base class of the leaf class.
+// if you call it from a base class, it's still the base class of
+// the leaf class.
+
 function SecuringWrapper(inner, isLoggedIn, funcNames) {
   for (const funcName of funcNames) {
     this[funcName] = function(...args) {
@@ -21,6 +27,7 @@ function SecuringWrapper(inner, isLoggedIn, funcNames) {
 function CloningWrapper(inner, funcNames) {
   for (const funcName of funcNames) {
     this[funcName] = function(...args) {
+      // console.log('Calling', funcName, 'with args', ...args);
       return Utils.copyOf(inner[funcName](...args.map(Utils.copyOf)));
     }
   }

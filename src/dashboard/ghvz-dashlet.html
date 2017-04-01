@@ -8,12 +8,20 @@
       Polymer({
         is: 'ghvz-dashlet',
 
+        listeners: {
+          'ghvz-dashlet-add-toolbar-button': 'addToolbarButton_'
+        },
+
         // properties: {
         //   players: {
         //     type: Array,
         //     value: function() { return []; },
         //   },
         // },
+
+        addToolbarButton_: function(event) {
+          this.$.buttons.appendChild(event.detail.button);
+        }
       });
     });
   </script>
@@ -42,8 +50,11 @@
         height: 48px;
         padding-right: 4px;
       }
-      .header > .button {
+      #buttons {
         flex-grow: 0;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: row-reverse;
       }
       .header > .text {
         padding: 16px;
@@ -60,8 +71,10 @@
         <paper-icon-button class="button" icon="icons:chevron-right"></paper-icon-button> -->
         <!-- <paper-icon-button class="header-button" icon="icons:refresh">
         </paper-icon-button> -->
-        <div class="button"><content select=".header-button"></div>
-        <paper-icon-button class="button" icon="icons:fullscreen"></paper-icon-button>
+        <div id="buttons">
+          <content select=".header-button">
+          <paper-icon-button class="button" icon="icons:fullscreen"></paper-icon-button>
+        </div>
         
         <!-- <paper-icon-button class="button" icon="icons:more-vert">
         </paper-icon-button> -->
