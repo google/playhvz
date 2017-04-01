@@ -52,51 +52,51 @@ function makeFakePrepopulatedServerBridge() {
   var humanChatRoom = Utils.generateId("chat");
   var zedChatRoom = Utils.generateId("chat");
   var firstMissionId = Utils.generateId("mission");
-  var innerServer = new FakeServer();
-  innerServer.register(kimUserId, 'kimikimkim@kim.com');
-  innerServer.register(evanUserId, 'verdagon@evan.com');
-  innerServer.createGame(gameId, kimUserId);
-  innerServer.joinGame(kimUserId, gameId, kimPlayerId, 'Kim the Ultimate', {});
-  innerServer.joinGame(evanUserId, gameId, evanPlayerId, 'Evanpocalypse', {});
-  innerServer.createChatRoom(humanChatRoom, kimPlayerId);
-  innerServer.addPlayerToChatRoom(humanChatRoom, evanPlayerId);
-  innerServer.addMessageToChatRoom(humanChatRoom, kimPlayerId, 'hi');
-  innerServer.createChatRoom(zedChatRoom, evanPlayerId);
-  innerServer.addPlayerToChatRoom(zedChatRoom, kimPlayerId);
-  innerServer.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
-  innerServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
-  innerServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
-  innerServer.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
+  var fakeServer = new FakeServer();
+  fakeServer.register(kimUserId, 'kimikimkim@kim.com');
+  fakeServer.register(evanUserId, 'verdagon@evan.com');
+  fakeServer.createGame(gameId, kimUserId);
+  fakeServer.joinGame(kimUserId, gameId, kimPlayerId, 'Kim the Ultimate', {});
+  fakeServer.joinGame(evanUserId, gameId, evanPlayerId, 'Evanpocalypse', {});
+  fakeServer.createChatRoom(humanChatRoom, kimPlayerId);
+  fakeServer.addPlayerToChatRoom(humanChatRoom, evanPlayerId);
+  fakeServer.addMessageToChatRoom(humanChatRoom, kimPlayerId, 'hi');
+  fakeServer.createChatRoom(zedChatRoom, evanPlayerId);
+  fakeServer.addPlayerToChatRoom(zedChatRoom, kimPlayerId);
+  fakeServer.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
+  fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
+  fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
+  fakeServer.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
 
   var loggedInUserId = null;
 
-  const securedServer =
+  const securedFakeServer =
       new SecuringWrapper(
-          innerServer,
+          fakeServer,
           (() => !!loggedInUserId),
           subtract(SERVER_METHODS, "logIn", "register", "getUserById"));
-  securedServer.logIn = (authcode) => {
+  securedFakeServer.logIn = (authcode) => {
     if (authcode != 'firstuserauthcode') {
       throw "Couldnt find auth code";
     }
     var userId = kimUserId;
     // To check it exists. this.__proto__ to skip the security check
-    innerServer.getUserById(userId);
+    fakeServer.getUserById(userId);
     loggedInUserId = userId;
     return userId;
   };
-  securedServer.register = (...args) => innerServer.register(...args);
-  securedServer.getUserById = (userId) => {
+  securedFakeServer.register = (...args) => fakeServer.register(...args);
+  securedFakeServer.getUserById = (userId) => {
     if (loggedInUserId != userId)
       throw 'Cant get other user';
-    return innerServer.getUserById(userId);
+    return fakeServer.getUserById(userId);
   };
 
-  const cloningSecuredServer =
-      new CloningWrapper(securedServer, SERVER_METHODS);
+  const cloningSecuredFakeServer =
+      new CloningWrapper(securedFakeServer, SERVER_METHODS);
 
-  const delayingCloningSecuredSever =
-      new DelayingWrapper(cloningSecuredServer, SERVER_METHODS);
+  const delayingCloningSecuredFakeServer =
+      new DelayingWrapper(cloningSecuredFakeServer, SERVER_METHODS);
 
-  return delayingCloningSecuredSever;
+  return delayingCloningSecuredFakeServer;
 }
