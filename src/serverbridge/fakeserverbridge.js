@@ -26,7 +26,7 @@ function Clonifier(inner, funcNames) {
   }
 }
 
-function Promisifier(inner, funcNames) {
+function Delayifier(inner, funcNames) {
   this.__proto__ = inner;
   for (const funcName of funcNames) {
     this[funcName] = function(...args) {
@@ -95,8 +95,8 @@ function makeFakePrepopulatedServerBridge() {
   const clonifiedSecurifiedServer =
       new Clonifier(securifiedServer, SERVER_METHODS);
 
-  const promisifiedClonifiedSecurifiedServer =
-      new Promisifier(clonifiedSecurifiedServer, SERVER_METHODS);
+  const delayifiedClonifiedSecurifiedServer =
+      new Delayifier(clonifiedSecurifiedServer, SERVER_METHODS);
 
-  return promisifiedClonifiedSecurifiedServer;
+  return delayifiedClonifiedSecurifiedServer;
 }
