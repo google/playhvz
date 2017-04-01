@@ -66,35 +66,32 @@ function makeFakePrepopulatedServerBridge() {
 
   var loggedInUserId = null;
 
-
-  innerServer.logIn = function(authcode) {
+  const protectifiedServer =
+      new Protectifier(
+          innerServer,
+          (() => !!loggedInUserId),
+          subtract(SERVER_METHODS, "logIn", "register"));
+  protectifiedServer.logIn = function(authcode) {
     if (authcode != 'firstuserauthcode') {
       throw "Couldnt find auth code";
     }
     var userId = kimUserId;
     // To check it exists. this.__proto__ to skip the security check
-    this.__proto__.getUserById.call(this, userId);
+    innerServer.getUserById(userId);
     loggedInUserId = userId;
     return userId;
   };
-
-  innerServer.getUserById = function(userId) {
+  protectifiedServer.getUserById = function(userId) {
     if (loggedInUserId != userId)
       throw 'Cant get other user';
-    return this.__proto__.getUserById.call(this, userId);
+    return innerServer.getUserById(userId);
   };
 
-  const clonifiedServer =
-      new Clonifier(innerServer, SERVER_METHODS);
+  const clonifiedProtectifiedServer =
+      new Clonifier(protectifiedServer, SERVER_METHODS);
 
-  const promisifiedClonifiedServer =
-      new Promisifier(clonifiedServer, SERVER_METHODS);
+  const promisifiedClonifiedProtectifiedServer =
+      new Promisifier(clonifiedProtectifiedServer, SERVER_METHODS);
 
-  const protectifiedPromisifiedClonifiedServer =
-      new Protectifier(
-          promisifiedClonifiedServer,
-          (() => !!loggedInUserId),
-          subtract(SERVER_METHODS, "logIn", "register"));
-
-  return protectifiedPromisifiedClonifiedServer;
+  return promisifiedClonifiedProtectifiedServer;
 }
