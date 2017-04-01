@@ -1,0 +1,78 @@
+
+<dom-module id="leaderboard-summary">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'leaderboard-summary',
+
+        properties: {
+          serverBridge: Object,
+
+          gameId: String,
+
+          players: {
+            type: Array,
+            value: function() { return []; },
+          },
+
+          leaderboardDelegate: {
+            type: Object,
+            value: function() {
+              return {
+                getSchema: (() => ["name"]),
+                getHeader: ((key) => ({name: 'Name'}[key])),
+                getActions: (() => ["view", "grrr"]),
+                getActionName: ((action) => ({view: "View", grrr: "Grrr"}[action])),
+                create: this.createLeaderboardContents_.bind(this),
+                update: this.updateLeaderboardContents_.bind(this),
+                doAction: this.doTableAction_.bind(this),
+              };
+            },
+          },
+        },
+
+        observers: [
+        "ready_(serverBridge, gameId)",
+        ],
+
+        ready_: function(serverBridge, gameId) {
+          serverBridge.findAllPlayersForGameId(gameId)
+          .then((players) => {
+            this.players = players;
+          });
+        },
+
+        doTableAction_: function(player, action) {
+          console.log('do action', action, ' on player', player);
+        },
+
+        createLeaderboardContents_: function(player, key) {
+          // if we dont return anything, auto-table will just by default create the text node
+        },
+
+        updateLeaderboardContents_: function(element, player, propertyName, propertyPath, value) {
+          //return document.createTextNode(player[key]);
+        },
+
+        fullscreen: function() {
+          console.log("Tried to open fullscreen on leaderboard!");
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      auto-table {
+        display: block;
+      }
+    </style>
+    <auto-table
+    id="leaderboardTable"
+    delegate="[[leaderboardDelegate]]"
+    items="[[players]]">
+  </auto-table>
+</template>
+</dom-module>

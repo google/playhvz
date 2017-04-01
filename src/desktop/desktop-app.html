@@ -62,7 +62,7 @@
               });
         },
 
-        refresh: function(event) {
+        headerAction: function(event) {
           var moduleId = event.currentTarget.dataset.moduleId;
           var iconAction = event.currentTarget.dataset.iconAction;
           this.$[moduleId][iconAction]();
@@ -89,7 +89,7 @@
         <paper-icon-button 
           class="header-button" 
           icon="icons:refresh" 
-          on-tap="refresh" 
+          on-tap="headerAction" 
           data-icon-action="refresh"
           data-module-id="playerTableModule">
         </paper-icon-button>
@@ -118,6 +118,23 @@
             game-id="[[gameId]]"
             player-id="[[playerId]]">
         </ghvz-next-mission>
+      </ghvz-dashlet>
+
+      <ghvz-dashlet half>
+        <div class="header">Leaderboard</div>
+        <paper-icon-button 
+          class="header-button" 
+          icon="icons:fullscreen" 
+          on-tap="headerAction" 
+          data-icon-action="fullscreen"
+          data-module-id="leaderboardModule">
+        </paper-icon-button>
+        <leaderboard-summary
+            id="leaderboardModule"
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]"
+            current-user-id="[[userId]]">
+        </leaderboard-summary>
       </ghvz-dashlet>
 
       <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
