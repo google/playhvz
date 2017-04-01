@@ -18,3 +18,5 @@
 // addMission(gameId, missionId, beginTime, endTime, url)
 // getPlayerById(playerId)
 // findAllPlayersForGameId(playerId)
+// findAllMissionsForPlayerId(playerId)
+// getMultiplePlayersById(playersIds)
