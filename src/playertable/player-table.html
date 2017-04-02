@@ -59,8 +59,7 @@
         pollPlayers_: function() {
           this.serverBridge.findAllPlayersForGameId(this.gameId)
             .then((players) => {
-              players.sort(Utils.byPoints);
-              this.players = players.slice(0, this.numToShow);
+              this.players = players;
             });
         },
 
