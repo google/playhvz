@@ -86,7 +86,7 @@
         </player-table>
       </ghvz-dashlet>
       
-      <ghvz-dashlet half>
+      <ghvz-dashlet half left>
         <div class="header">Dev Tools</div>
         <dev-tools
             class="content"
@@ -96,7 +96,7 @@
         </dev-tools>
       </ghvz-dashlet>
 
-      <ghvz-dashlet half>
+      <ghvz-dashlet half left>
         <div class="header">Infect</div>
         <ghvz-infect
             server-bridge="[[serverBridge]]"
@@ -105,7 +105,7 @@
         </ghvz-infect>
       </ghvz-dashlet>
 
-      <ghvz-dashlet half>
+      <ghvz-dashlet half left>
         <div class="header">Rewards</div>
         <ghvz-claim-reward
             server-bridge="[[serverBridge]]"
@@ -114,7 +114,7 @@
         </ghvz-next-mission>
       </ghvz-dashlet>
 
-      <ghvz-dashlet padded half>
+      <ghvz-dashlet padded half left>
         <div class="header">Next Mission</div>
         <ghvz-next-mission
             server-bridge="[[serverBridge]]"
@@ -123,7 +123,7 @@
         </ghvz-next-mission>
       </ghvz-dashlet>
 
-      <ghvz-dashlet half>
+      <ghvz-dashlet half right>
         <div class="header">Leaderboard</div>
         <leaderboard-summary
             class="content"
@@ -133,7 +133,7 @@
       </ghvz-dashlet>
 
       <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
-        <ghvz-dashlet half>
+        <ghvz-dashlet half right>
           <div class="header">[[chatRoom.name]]</div>
           <chat-app
               class="content"
@@ -145,13 +145,13 @@
         </ghvz-dashlet>
       </template>
 
-      <ghvz-dashlet half>
+      <ghvz-dashlet half left>
         <div class="header">Game Stats</div>
         <game-stat-summary class="content">
         </game-stat-summary>
       </ghvz-dashlet>
 
-      <ghvz-dashlet half>
+      <ghvz-dashlet half right>
         <div class="header">Join A Game</div>
         <game-registration
               class="content"
