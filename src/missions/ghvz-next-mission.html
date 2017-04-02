@@ -45,7 +45,6 @@
   <template>
     <style>
       :host {
-        padding: 16px;
         display: block;
       }
     </style>
@@ -57,7 +56,7 @@
           mission-id="[[nextMissionId]]">
       </ghvz-mission>
     </template>
-    <div hidden$="[[!!missionId]]">
+    <div hidden$="[[nextMissionId]]">
       The next mission's details will be posted here.
     </div>
   </template>

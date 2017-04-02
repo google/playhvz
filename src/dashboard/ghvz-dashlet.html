@@ -38,6 +38,9 @@
       :host[half] {
         width: 50%;
       }
+      :host[padded] #contents {
+        padding: 16px;
+      }
       paper-material {
         background-color: white;
         display: block;
@@ -79,7 +82,9 @@
         <!-- <paper-icon-button class="button" icon="icons:more-vert">
         </paper-icon-button> -->
       </div>
-      <content/>
+      <div id="contents">
+        <content/>
+      </div>
     </paper-material>
 
   </template>
