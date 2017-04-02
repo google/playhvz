@@ -62,6 +62,8 @@ function makeFakePrepopulatedServerBridge() {
   var firstMissionId = Utils.generateId("mission");
   var rewardCategoryId = Utils.generateId("rewardCategory");
   var rewardId = Utils.generateId("reward");
+  var otherRewardId = Utils.generateId("reward");
+  var thirdRewardId = Utils.generateId("reward");
   var fakeServer = new FakeServer();
   fakeServer.register(kimUserId, 'kimikimkim@kim.com');
   fakeServer.register(evanUserId, 'verdagon@evan.com');
@@ -79,7 +81,9 @@ function makeFakePrepopulatedServerBridge() {
   fakeServer.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
   fakeServer.addRewardCategory(rewardCategoryId, gameId, "signed up!", 2);
   fakeServer.addReward(rewardId, rewardCategoryId, "flarklebark");
-  fakeServer.claimReward(gameId, kimPlayerId, "flarklebark");
+  fakeServer.addReward(otherRewardId, rewardCategoryId, "shooplewop");
+  fakeServer.addReward(thirdRewardId, rewardCategoryId, "lololol");
+  fakeServer.claimReward(gameId, evanPlayerId, "flarklebark");
   window.fakeServer = fakeServer;
 
   var loggedInUserId = null;

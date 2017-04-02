@@ -37,9 +37,7 @@ class FakeServer {
     let player = this.fakeDatabase.getPlayerById(playerId);
     player.species = this.isHuman_(player) ? 'human' : 'zombie';
     player.rewardCategoryIds =
-        this.fakeDatabase.findRewardIdsForPlayerId(playerId)
-            .map(rewardId => this.fakeDatabase.getRewardById(rewardId))
-            .map(reward => reward.rewardCategoryId);
+        this.fakeDatabase.findRewardCategoryIdsForPlayerId(playerId);
     return player;
   }
   getMultiplePlayersById(playerIds) {
@@ -152,12 +150,16 @@ class FakeServer {
     const rewardIdOrNull =
         this.fakeDatabase.findRewardIdOrNullByGameIdAndRewardCode(gameId, rewardCode);
     if (rewardIdOrNull == null) {
-      debugger;
       throw 'No reward with that code found for this game!';
     }
     const reward = this.getRewardById(rewardIdOrNull);
     if (reward.playerIdOrNull != null) {
       throw 'Reward already claimed!';
+    }
+    const rewardCategoryIdsAlreadyClaimedByPlayer =
+        this.fakeDatabase.findRewardCategoryIdsForPlayerId(playerId);
+    if (rewardCategoryIdsAlreadyClaimedByPlayer.includes(reward.rewardCategoryId)) {
+      throw 'Another reward of this category already claimed!';
     }
     this.fakeDatabase.claimReward(playerId, reward.id);
   }

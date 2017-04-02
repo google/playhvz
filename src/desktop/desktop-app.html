@@ -89,10 +89,10 @@
       <ghvz-dashlet half>
         <div class="header">Dev Tools</div>
         <dev-tools
-              class="content"
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]"
-              user-id="[[userId]]">
+            class="content"
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]"
+            user-id="[[userId]]">
         </dev-tools>
       </ghvz-dashlet>
 
@@ -103,6 +103,15 @@
             game-id="[[gameId]]"
             player-id="[[playerId]]">
         </ghvz-infect>
+      </ghvz-dashlet>
+
+      <ghvz-dashlet half>
+        <div class="header">Rewards</div>
+        <ghvz-claim-reward
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]"
+            player-id="[[playerId]]">
+        </ghvz-next-mission>
       </ghvz-dashlet>
 
       <ghvz-dashlet padded half>

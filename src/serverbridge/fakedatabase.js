@@ -278,6 +278,10 @@ class FakeDatabase {
     }
     return result;
   }
+  findRewardCategoryIdsForPlayerId(playerId) {
+    return this.findRewardIdsForPlayerId(playerId)
+        .map(rewardId => this.getRewardById(rewardId).rewardCategoryId);
+  }
 
   expectUserExists_(id) { assert(id && this.usersById.has(id), 'User id doesnt exist: ' + id); }
   expectUserNotExists_(id) { assert(id && !this.usersById.has(id), 'User id already taken: ' + id); }
