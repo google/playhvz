@@ -29,10 +29,23 @@
             type: Object,
             value: function() {
               return {
-                getSchema: (() => ["number", "name", "species", "lifeCode", "rewards"]),
-                getHeader: ((key) => ({"number": 'Number', "name": 'Name', 'species': 'Allegiance', 'lifeCode': 'Life Code', "rewards": "Rewards"}[key])),
-                getActions: (() => ["delete", "infect", "revive", "ban"]),
-                getActionName: ((action) => ({delete: "Delete", infect: "Infect", revive: "Revive", ban: "Ban"}[action])),
+                getSchema: (() => {
+                  return [
+                    ["number", "Number"],
+                    ["name", "Name"],
+                    ["species", "Allegiance"],
+                    ["lifeCode", "Life Code"],
+                    ["rewards", "Rewards"]
+                  ];
+                }),
+                getActions: (() => {
+                  return [
+                    ["delete", "Delete"],
+                    ["infect", "Infect"],
+                    ["revive", "Revive"],
+                    ["ban", "Ban"]
+                  ];
+                }),
                 create: this.getPlayerTableContents_.bind(this),
                 update: this.getPlayerTableContents_.bind(this),
                 doAction: this.doTableAction_.bind(this),

@@ -28,10 +28,18 @@
           type: Object,
           value: function() {
             return {
-              getSchema: (() => ["name", "points"]),
-              getHeader: ((key) => ({name: 'Name', points: 'Points'}[key])),
-              getActions: (() => ["view", "grr"]),
-              getActionName: ((action) => ({view: "View", grr: "Grr"}[action])),
+              getSchema: (() => {
+                return [
+                  ["name", "Name"],
+                  ["points", "Points"],
+                ];
+              }),
+              getActions: (() => {
+                return [
+                  ["view", "View"],
+                  ["grr", "Grr"],
+                ];
+              }),
               create: this.createLeaderboardContents_.bind(this),
               update: this.updateLeaderboardContents_.bind(this),
               doAction: this.doTableAction_.bind(this),

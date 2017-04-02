@@ -24,20 +24,12 @@
           },
         },
 
-        getPropertyName_: function(property) {
-          return this.delegate.getHeader(property);
+        getProperties_: function() {
+          return this.delegate.getSchema();
         },
 
         getActions_: function() {
           return this.delegate.getActions();
-        },
-
-        getActionName_: function(action) {
-          return this.delegate.getActionName(action);
-        },
-
-        getProperties_: function() {
-          return this.delegate.getSchema();
         },
 
         getPropertyValue_: function(item, propertyName) {
@@ -172,14 +164,14 @@
               <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
               <paper-menu class="dropdown-content">
                 <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
-                  <paper-item on-tap="onBulkActionTapped_" data-action$="[[action]]">[[getActionName_(action, delegate)]]</paper-item>
+                  <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.0]]">[[action.1]]</paper-item>
                 </template>
               </paper-menu>
             </paper-menu-button>
           </th>
           <template is="dom-repeat" items="[[getProperties_(delegate)]]">
             <th class="property-header">
-              [[getPropertyName_(item, delegate)]]
+              [[item.1]]
             </th>
           </template>
         </tr>
@@ -201,9 +193,9 @@
                 </paper-menu>
               </paper-menu-button>
             </td>
-            <template is="dom-repeat" items="[[getProperties_(delegate)]]" as="propertyName">
+            <template is="dom-repeat" items="[[getProperties_(delegate)]]" as="property">
               <td>
-                [[getPropertyValue_(item, propertyName, delegate)]]
+                [[getPropertyValue_(item, property.0, delegate)]]
               </td>
             </template>
           </tr>
