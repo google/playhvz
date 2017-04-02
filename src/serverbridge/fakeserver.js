@@ -98,6 +98,9 @@ class FakeServer {
   findAllChatRoomIdsForPlayerId(playerId) {
     return this.fakeDatabase.findAllChatRoomIdsForPlayerId(playerId);
   }
+  findAllPlayerIdsForChatRoomId(chatRoomId) {
+    return this.fakeDatabase.findAllPlayerIdsForChatRoomId(chatRoomId);
+  }
   addMission(gameId, missionId, beginTime, endTime, url) {
     var mission = new Mission(missionId, gameId, beginTime, endTime, url);
     return this.fakeDatabase.addMission(mission);
