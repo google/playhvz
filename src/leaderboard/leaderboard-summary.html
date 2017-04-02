@@ -19,6 +19,10 @@
           type: Number,
           value: 3,
         },
+        pollInterval: { //in seconds
+          type: Number,
+          value: 10,
+        },
 
         leaderboardDelegate: {
           type: Object,
@@ -46,6 +50,16 @@
 
       ready_: function(serverBridge, gameId) {
         serverBridge.findAllPlayersForGameId(gameId)
+        .then((players) => {
+          players.sort(Utils.byPoints);
+          this.players = players.slice(0, this.numToShow);
+        });
+
+        setInterval(this.pollPlayers_.bind(this), this.pollInterval * 1000);
+      },
+
+      pollPlayers_: function() {
+        this.serverBridge.findAllPlayersForGameId(this.gameId)
         .then((players) => {
           players.sort(Utils.byPoints);
           this.players = players.slice(0, this.numToShow);
@@ -87,14 +101,14 @@
     }
   </style>
   <paper-icon-button
-      id="refresh"
-      icon="icons:refresh"
-      on-tap="refresh_">
-  </paper-icon-button>
-  <auto-table
-  id="leaderboardTable"
-  delegate="[[leaderboardDelegate]]"
-  items="[[players]]">
+  id="refresh"
+  icon="icons:refresh"
+  on-tap="refresh_">
+</paper-icon-button>
+<auto-table
+id="leaderboardTable"
+delegate="[[leaderboardDelegate]]"
+items="[[players]]">
 </auto-table>
 </template>
 </dom-module>

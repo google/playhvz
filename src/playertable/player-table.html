@@ -18,6 +18,11 @@
             value: function() { return []; },
           },
 
+          pollInterval: {
+            type: Number,
+            value: 1,  // in seconds
+          },
+
           playersTableDelegate: {
             type: Object,
             value: function() {
@@ -47,6 +52,16 @@
               .then((players) => {
                 this.players = players;
               });
+
+          setInterval(this.pollPlayers_.bind(this), this.pollInterval * 1000);
+        },
+
+        pollPlayers_: function() {
+          this.serverBridge.findAllPlayersForGameId(this.gameId)
+            .then((players) => {
+              players.sort(Utils.byPoints);
+              this.players = players.slice(0, this.numToShow);
+            });
         },
 
         doTableAction_: function(player, action) {

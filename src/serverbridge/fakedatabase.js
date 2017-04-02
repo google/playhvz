@@ -20,6 +20,7 @@ class Player {
     this.gameId = gameId || "";
     this.userId = userId || "";
     this.points = 0;
+    this.profilePic = 'https://goo.gl/photos/iDXDUt1AtWeECXYa8'
     this.preferences = Utils.copyOf(preferences) || {};
     this.infections = [];
     this.lives = [];
