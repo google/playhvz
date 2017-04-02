@@ -30,14 +30,14 @@
             return {
               getSchema: (() => {
                 return [
-                  ["name", "Name"],
-                  ["points", "Points"],
+                  {property: "name", name: "Name"},
+                  {property: "points", name: "Points"},
                 ];
               }),
               getActions: (() => {
                 return [
-                  ["view", "View"],
-                  ["grr", "Grr"],
+                  {action: "view", name: "View"},
+                  {action: "grr", name: "Grr"},
                 ];
               }),
               create: this.createLeaderboardContents_.bind(this),

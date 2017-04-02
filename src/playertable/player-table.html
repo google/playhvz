@@ -31,19 +31,19 @@
               return {
                 getSchema: (() => {
                   return [
-                    ["number", "Number"],
-                    ["name", "Name"],
-                    ["species", "Allegiance"],
-                    ["lifeCode", "Life Code"],
-                    ["rewards", "Rewards"]
+                    {property: "number", name: "Number"},
+                    {property: "name", name: "Name"},
+                    {property: "species", name: "Allegiance"},
+                    {property: "lifeCode", name: "Life Code"},
+                    {property: "rewards", name: "Rewards"},
                   ];
                 }),
                 getActions: (() => {
                   return [
-                    ["delete", "Delete"],
-                    ["infect", "Infect"],
-                    ["revive", "Revive"],
-                    ["ban", "Ban"]
+                    {action: "delete", name: "Delete"},
+                    {action: "infect", name: "Infect"},
+                    {action: "revive", name: "Revive"},
+                    {action: "ban", name: "Ban"},
                   ];
                 }),
                 create: this.getPlayerTableContents_.bind(this),

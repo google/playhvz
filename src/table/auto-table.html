@@ -24,7 +24,7 @@
           },
         },
 
-        getProperties_: function() {
+        getColumns_: function() {
           return this.delegate.getSchema();
         },
 
@@ -164,14 +164,14 @@
               <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
               <paper-menu class="dropdown-content">
                 <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
-                  <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.0]]">[[action.1]]</paper-item>
+                  <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.action]]">[[action.name]]</paper-item>
                 </template>
               </paper-menu>
             </paper-menu-button>
           </th>
-          <template is="dom-repeat" items="[[getProperties_(delegate)]]">
+          <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
             <th class="property-header">
-              [[item.1]]
+              [[column.name]]
             </th>
           </template>
         </tr>
@@ -193,9 +193,9 @@
                 </paper-menu>
               </paper-menu-button>
             </td>
-            <template is="dom-repeat" items="[[getProperties_(delegate)]]" as="property">
+            <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
               <td>
-                [[getPropertyValue_(item, property.0, delegate)]]
+                [[getPropertyValue_(item, column.property, delegate)]]
               </td>
             </template>
           </tr>
