@@ -40,6 +40,7 @@ const SERVER_METHODS = [
   'addMessageToChatRoom',
   'addPlayerToChatRoom',
   'findAllChatRoomIdsForPlayerId',
+  'findAllPlayerIdsForChatRoomId',
   'addMission',
   'getPlayerById',
   'findAllPlayersForGameId',

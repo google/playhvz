@@ -165,6 +165,10 @@ class FakeDatabase {
     }
     return Utils.copyOf(result);
   }
+  findAllPlayerIdsForChatRoomId(chatRoomId) {
+    this.expectChatRoomExists_(chatRoomId);
+    return Utils.copyOf(this.chatRoomsById.get(chatRoomId).playerIds);
+  }
   addMission(mission) {
     this.expectGameExists_(mission.gameId);
     this.expectMissionNotExists_(mission.missionId);

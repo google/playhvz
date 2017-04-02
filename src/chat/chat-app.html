@@ -56,7 +56,12 @@ TODO(SquirrelThief):
           playersInChat: {
             type: Array,
             value: function() { return[]; },
-          }
+          },
+
+          pollInterval: {
+            type: Number,
+            value: 1,  // in seconds
+          },
         },
 
         observers: [
@@ -74,6 +79,31 @@ TODO(SquirrelThief):
               // Only update chat messages once we finished getting player
               // names, otherwise the elements redraw and we don't have names
               this.chatRoom = chatRoom;
+            });
+          });
+
+          setInterval(this.pollPlayers_.bind(this), this.pollInterval * 1000);
+          setInterval(this.pollMessages_.bind(this), this.pollInterval * 1000);
+        },
+
+        pollMessages_: function() {
+          var afterId = this.chatRoom.messages.slice(-1)[0].id;
+          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
+          .then((messages) => {
+            for (var index in messages) {
+              this.push('chatRoom.messages', messages[index]);
+            }
+          });
+        },
+
+        pollPlayers_: function() {
+          this.serverBridge.findAllPlayerIdsForChatRoomId(this.chatRoomId)
+          .then((playerIds) => {
+            this.chatRoom.playerIds = playerIds;
+            // Get player names for all the playerIds in the chatRoom
+            this.serverBridge.getMultiplePlayersById(playerIds)
+            .then((playersInChat) => {
+              this.playersInChat = playersInChat;
             });
           });
         },
@@ -125,38 +155,17 @@ TODO(SquirrelThief):
 
       getName_(playerId) {
         var name = this.playersInChat[playerId].name;
-        return (name) ? name : "Anon";
-      },
-
-       /* get unknown player names
-       var playerIds = {};
-            for (var index in messages) {
-              var message = messages[index];
-              if (!(message.playerId in playerIds) 
-                && !(message.playerId in this.playersInChat)) {
-                playerIds[message.playerId] = null;
-            }
-          }
-
-          if (!playerIds) {
-            // No new players, just update messages
-            for (var index in messages) {
-              this.push('chatRoom.messages', messages[index]);
-            }
-          } else {
-            // New players, get new player names and update messages
-            this.serverBridge.getMultiplePlayersById(playerIds)
-            .then((playersInChat) => {
-              console.log(playersInChat);
-              for (var index in playersInChat) {
-                console.log(index);
-                this.playersInChat[index] = playersInChat[index];
-              }
-              for (var index in messages) {
-                this.push('chatRoom.messages', messages[index]);
-              }
-            });*/
+        if (!this.playersInChat[playerId]) {
+          this.serverBridge.getPlayerById(playerId)
+          .then((player) => {
+            this.playersInChat[playerId] = player;
+            return this.playersInChat[playerId].name;
           });
+        } else {
+          return this.playersInChat[playerId].name;
+        }
+      },
+    });
 });
 </script>
 
