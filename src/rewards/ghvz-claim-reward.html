@@ -1,0 +1,68 @@
+<dom-module id="ghvz-infect">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-infect',
+
+        properties: {
+          serverBridge: Object,
+          playerId: String,
+          gameId: String,
+          rewardCode: String,
+          requested: {
+            type: Boolean,
+            value: false,
+          },
+        },
+
+        claimButtonEnabled_: function(rewardCode, requested) {
+          return rewardCode && !requested;
+        },
+
+        reset_: function() {
+          this.rewardCode = "";
+          this.requested = false;
+        },
+
+        claim_: function() {
+          this.requested = true;
+          this.serverBridge.claimReward(this.playerId, this.rewardCode)
+              .then(
+                  () => this.reset_(),
+                  (error) => alert('Error claiming: '+ error));
+        },
+      });
+    });
+  </script>
+
+  <template class="layout vertical" style="height:300px">
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        padding: 0 16px 16px 16px;
+        display: block;
+      }
+      paper-button {
+        background-color: #03A9F4;
+        color: white;
+        font-weight: bold;
+        display: block;
+        margin: 8px 0 0 0;
+        text-align: center;
+      }
+    </style>
+    <paper-input
+        label="Reward code"
+        value="{{rewardCode}}">
+    </paper-input>
+    <paper-button
+        id="infect"
+        raised
+        disabled="[[!computeButtonEnabled_(rewardCode, requested)]]"
+        on-tap="claim_">
+      Infect!
+    </paper-button>
+  </template>
+</dom-module>
