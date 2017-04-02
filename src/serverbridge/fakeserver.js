@@ -3,7 +3,6 @@
 class FakeServer {
   constructor() {
     this.fakeDatabase = new FakeDatabase();
-    this.chatRoomsById = {};
   }
   
   register(userId, userEmail) {
@@ -18,7 +17,11 @@ class FakeServer {
     this.fakeDatabase.createGame(game);
   }
   getGameById(gameId) {
-    return this.gamesById[gameId];
+    const game = Utils.copyOf(this.fakeDatabase.getGameById(gameId));
+    game.rewardCategories =
+        this.fakeDatabase.findRewardCategoryIdsForGameId(gameId)
+            .map(rewardCategoryId => this.fakeDatabase.getRewardCategoryById(rewardCategoryId));
+    return game;
   }
   joinGame(userId, gameId, playerId, name, preferences) {
     const numExistingPlayers = this.findAllPlayersForGameId(gameId).length;
@@ -33,6 +36,10 @@ class FakeServer {
   getPlayerById(playerId) {
     let player = this.fakeDatabase.getPlayerById(playerId);
     player.species = this.isHuman_(player) ? 'human' : 'zombie';
+    player.rewardCategoryIds =
+        this.fakeDatabase.findRewardIdsForPlayerId(playerId)
+            .map(rewardId => this.fakeDatabase.getRewardById(rewardId))
+            .map(reward => reward.rewardCategoryId);
     return player;
   }
   getMultiplePlayersById(playerIds) {
@@ -131,6 +138,31 @@ class FakeServer {
   }
   generateLifeCode_(player) {
     return 'lifecode-' + player.number + '-' + (player.lives.length + 1);
+  }
+  addRewardCategory(rewardCategoryId, gameId, name, points) {
+    this.fakeDatabase.addRewardCategory(rewardCategoryId, gameId, name, points);
+  }
+  addReward(rewardId, rewardCategoryId, rewardCode) {
+    this.fakeDatabase.addReward(rewardId, rewardCategoryId, rewardCode);
+  }
+  claimReward(gameId, playerId, rewardCode) {
+    const rewardIdOrNull =
+        this.fakeDatabase.findRewardIdOrNullByGameIdAndRewardCode(gameId, rewardCode);
+    if (rewardIdOrNull == null) {
+      debugger;
+      throw 'No reward with that code found for this game!';
+    }
+    const reward = this.getRewardById(rewardIdOrNull);
+    if (reward.playerIdOrNull != null) {
+      throw 'Reward already claimed!';
+    }
+    this.fakeDatabase.claimReward(playerId, reward.id);
+  }
+  getRewardById(rewardId) {
+    return this.fakeDatabase.getRewardById(rewardId);
+  }
+  getRewardCategoryById(rewardCategoryId) {
+    return this.fakeDatabase.getRewardCategoryById(rewardCategoryId);
   }
 }
 

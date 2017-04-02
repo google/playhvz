@@ -13,6 +13,8 @@
 
           gameId: String,
 
+          game: Object,
+
           players: {
             type: Array,
             value: function() { return []; },
@@ -22,8 +24,8 @@
             type: Object,
             value: function() {
               return {
-                getSchema: (() => ["number", "name", "species", "lifeCode"]),
-                getHeader: ((key) => ({"number": 'Number', "name": 'Name', 'species': 'Allegiance', 'lifeCode': 'Life Code'}[key])),
+                getSchema: (() => ["number", "name", "species", "lifeCode", "rewards"]),
+                getHeader: ((key) => ({"number": 'Number', "name": 'Name', 'species': 'Allegiance', 'lifeCode': 'Life Code', "rewards": "Rewards"}[key])),
                 getActions: (() => ["delete", "infect", "revive", "ban"]),
                 getActionName: ((action) => ({delete: "Delete", infect: "Infect", revive: "Revive", ban: "Ban"}[action])),
                 create: this.getPlayerTableContents_.bind(this),
@@ -43,7 +45,11 @@
         ],
 
         ready_: function(serverBridge, gameId) {
-          serverBridge.findAllPlayersForGameId(gameId)
+          serverBridge.getGameById(gameId)
+              .then((game) => {
+                this.game = game;
+                return this.serverBridge.findAllPlayersForGameId(game.id);
+              })
               .then((players) => {
                 this.players = players;
               });
@@ -65,6 +71,15 @@
               }
             }
             return "";
+          }
+          if (propertyName == 'rewards') {
+            let rewardNames = [];
+            var rewardNamesByCategoryId = new Map();
+            for (const rewardCategory of this.game.rewardCategories)
+              rewardNamesByCategoryId.set(rewardCategory.id, rewardCategory.name);
+            for (const rewardCategoryId of player.rewardCategoryIds)
+              rewardNames.push(rewardNamesByCategoryId.get(rewardCategoryId));
+            return rewardNames.join(", ");
           }
           if (propertyName == 'species') {
             if (player.species == 'human') {
@@ -88,7 +103,7 @@
         },
 
         refresh_: function() {
-          this.serverBridge.findAllPlayersForGameId(this.gameId)
+          this.serverBridge.findAllPlayersForGameId(this.game.id)
               .then((players) => {
                 if (players) {
                   this.players = [];

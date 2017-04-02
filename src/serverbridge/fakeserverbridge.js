@@ -60,6 +60,8 @@ function makeFakePrepopulatedServerBridge() {
   var humanChatRoom = Utils.generateId("chat");
   var zedChatRoom = Utils.generateId("chat");
   var firstMissionId = Utils.generateId("mission");
+  var rewardCategoryId = Utils.generateId("rewardCategory");
+  var rewardId = Utils.generateId("reward");
   var fakeServer = new FakeServer();
   fakeServer.register(kimUserId, 'kimikimkim@kim.com');
   fakeServer.register(evanUserId, 'verdagon@evan.com');
@@ -75,6 +77,10 @@ function makeFakePrepopulatedServerBridge() {
   fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
   fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
   fakeServer.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
+  fakeServer.addRewardCategory(rewardCategoryId, gameId, "signed up!", 2);
+  fakeServer.addReward(rewardId, rewardCategoryId, "flarklebark");
+  fakeServer.claimReward(gameId, kimPlayerId, "flarklebark");
+  window.fakeServer = fakeServer;
 
   var loggedInUserId = null;
 

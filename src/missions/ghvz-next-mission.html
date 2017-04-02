@@ -15,23 +15,12 @@
 
           playerId: String,
 
-          noMissions: {
-            type: Boolean,
-            value: false,
-          },
-
-          nextMissionUrl: String,
-
-          response: Object,
+          nextMissionId: String,
         },
 
         observers: [
           "ready_(serverBridge, gameId, playerId)",
         ],
-
-        assembleParams() {
-          return null;
-        },
 
         ready_: function(serverBridge, gameId, playerId) {
           serverBridge.findAllMissionsForPlayerId(playerId)
@@ -44,17 +33,12 @@
                   }
                 }
                 if (nextMission) {
-                  this.nextMissionUrl = nextMission.url;
-                  this.noMissions = false;
+                  this.nextMissionId = nextMission.id;
                 } else {
-                  this.noMissions = true;
+                  this.nextMissionId = null;
                 }
               });
         },
-
-        handleResponse(response) {
-          this.$.mission.innerHTML = this.$.ajax.lastResponse;
-        }
       });
     });
   </script>
@@ -65,16 +49,15 @@
         display: block;
       }
     </style>
-    <iron-ajax
-        id="ajax"
-        auto
-        url="[[nextMissionUrl]]"
-        params="[[assembleParams(nextMissionUrl)]]"
-        handle-as="text"
-        on-response="handleResponse"
-        debounce-duration="300"></iron-ajax>
-    <div id="mission"></div>
-    <div hidden$="[[!noMissions]]">
+    <template is="dom-if" if="[[nextMissionId]]">
+      <ghvz-mission
+          server-bridge="[[serverBridge]]"
+          game-id="[[gameId]]"
+          player-id="[[playerId]]"
+          mission-id="[[nextMissionId]]">
+      </ghvz-mission>
+    </template>
+    <div hidden$="[[!!missionId]]">
       The next mission's details will be posted here.
     </div>
   </template>

@@ -1,6 +1,6 @@
 class User {
 	constructor(userId, userEmail) {
-	  this.userId = userId || "";
+	  this.id = userId || "";
     this.email = userEmail || "";
   }
 }
@@ -46,11 +46,30 @@ class Message {
 
 class Mission {
   constructor(missionId, gameId, beginTime, endTime, url) {
-    this.missionId = missionId;
+    this.id = missionId;
     this.gameId = gameId;
     this.beginTime = beginTime;
     this.endTime = endTime;
     this.url = url;
+  }
+}
+
+class RewardCategory {
+  constructor(rewardCategoryId, gameId, name, points) {
+    this.id = rewardCategoryId;
+    this.gameId = gameId;
+    this.name = name;
+    this.points = points;
+    this.rewardsById = new Map();
+  }
+}
+
+class Reward {
+  constructor(rewardId, rewardCategoryId, rewardCode) {
+    this.id = rewardId;
+    this.rewardCategoryId = rewardCategoryId;
+    this.rewardCode = rewardCode;
+    this.playerIdOrNull = null;
   }
 }
 
@@ -61,11 +80,13 @@ class FakeDatabase {
     this.playersById = new Map();
     this.chatRoomsById = new Map();
     this.missionsById = new Map();
+    this.rewardsById = new Map();
+    this.rewardCategoriesById = new Map();
   }
   
   createUser(user) {
-  	this.expectUserNotExists_(user.userId);
-  	this.usersById.set(user.userId, Utils.copyOf(user));
+  	this.expectUserNotExists_(user.id);
+  	this.usersById.set(user.id, Utils.copyOf(user));
   }
   getUserById(userId) {
   	this.expectUserExists_(userId);
@@ -150,7 +171,7 @@ class FakeDatabase {
     this.expectChatRoomExists_(chatRoomId);
     this.expectPlayerExists_(playerId);
     if (this.chatRoomsById.get(chatRoomId).playerIds.indexOf(playerId) >= 0) {
-      this.throwError('Player already in chat room');
+      throwError('Player already in chat room');
     }
     this.chatRoomsById.get(chatRoomId).playerIds.push(playerId);
   }
@@ -166,8 +187,8 @@ class FakeDatabase {
   }
   addMission(mission) {
     this.expectGameExists_(mission.gameId);
-    this.expectMissionNotExists_(mission.missionId);
-    this.missionsById.set(mission.missionId, Utils.copyOf(mission));
+    this.expectMissionNotExists_(mission.id);
+    this.missionsById.set(mission.id, Utils.copyOf(mission));
   }
   getMissionById(missionId) {
     this.expectMissionExists_(missionId);
@@ -177,7 +198,7 @@ class FakeDatabase {
     let result = [];
     for (let [missionId, mission] of this.missionsById) {
       if (mission.gameId == gameId) {
-        result.push(mission.missionId);
+        result.push(mission.id);
       }
     }
     return result;
@@ -199,49 +220,78 @@ class FakeDatabase {
       lifeCode: lifeCode,
     });
   }
+  addRewardCategory(rewardCategoryId, gameId, name, points) {
+    this.expectRewardCategoryNotExists_(rewardCategoryId);
+    let category = new RewardCategory(rewardCategoryId, gameId, name, points);
+    this.rewardCategoriesById.set(rewardCategoryId, category);
+  }
+  findRewardCategoryIdsForGameId(gameId) {
+    let result = [];
+    for (const [rewardCategoryId, rewardCategory] of this.rewardCategoriesById) {
+      if (rewardCategory.gameId == gameId) {
+        result.push(rewardCategoryId);
+      }
+    }
+    return result;
+  }
+  getRewardCategoryById(rewardCategoryId) {
+    this.expectRewardCategoryExists_(rewardCategoryId);
+    return Utils.copyOf(this.rewardCategoriesById.get(rewardCategoryId));
+  }
+  addReward(rewardId, rewardCategoryId, rewardCode) {
+    this.expectRewardCategoryExists_(rewardCategoryId);
+    this.expectRewardNotExists_(rewardId);
+    let reward = new Reward(rewardId, rewardCategoryId, rewardCode);
+    this.rewardsById.set(rewardId, reward);
+  }
+  findRewardIdOrNullByGameIdAndRewardCode(gameId, rewardCode) {
+    for (const [rewardId, reward] of this.rewardsById) {
+      if (this.getRewardCategoryById(reward.rewardCategoryId).gameId == gameId &&
+          reward.rewardCode == rewardCode) {
+        return rewardId;
+      }
+    }
+    return null;
+  }
+  claimReward(playerId, rewardId) {
+    this.expectPlayerExists_(playerId);
+    this.expectRewardExists_(rewardId);
+    let reward = this.rewardsById.get(rewardId);
+    assert(reward.playerIdOrNull == null, 'Reward already claimed!');
+    reward.playerIdOrNull = playerId;
+  }
+  getRewardById(rewardId) {
+    this.expectRewardExists_(rewardId);
+    return Utils.copyOf(this.rewardsById.get(rewardId));
+  }
+  findRewardIdsForPlayerId(playerId) {
+    let result = [];
+    for (const [rewardId, reward] of this.rewardsById) {
+      if (reward.playerIdOrNull == playerId) {
+        result.push(rewardId);
+      }
+    }
+    return result;
+  }
 
-  expectUserExists_(userId) {
-    if (!this.usersById.has(userId))
-      this.throwError('User id doesnt exist: ' + userId);
-  }
-  expectUserNotExists_(userId) {
-    if (this.usersById.has(userId))
-      this.throwError('User id already taken: ' + userId);
-  }
-  expectGameExists_(gameId) {
-    if (!this.gamesById.has(gameId))
-      this.throwError('Game id doesnt exist: ' + gameId);
-  }
-  expectGameNotExists_(gameId) {
-    if (this.gamesById.has(gameId))
-      this.throwError('Game id already taken: ' + gameId);
-  }
-  expectPlayerExists_(playerId) {
-    if (!this.playersById.has(playerId))
-      this.throwError('Player id doesnt exist: ' + playerId);
-  }
-  expectPlayerNotExists_(playerId) {
-    if (this.playersById.has(playerId))
-      this.throwError('Player id already taken: ' + playerId);
-  }
-  expectChatRoomExists_(chatRoomId) {
-    if (!this.chatRoomsById.has(chatRoomId))
-      this.throwError('Chat room id doesnt exist: ' + chatRoomId);
-  }
-  expectChatRoomNotExists_(chatRoomId) {
-    if (this.chatRoomsById.has(chatRoomId))
-      this.throwError('Chat room id already taken: ' + chatRoomId);
-  }
-  expectMissionExists_(missionId) {
-    if (!this.missionsById.has(missionId))
-      this.throwError('Mission id doesnt exist: ' + missionId);
-  }
-  expectMissionNotExists_(missionId) {
-    if (this.missionsById.has(missionId))
-      this.throwError('Mission id already taken: ' + missionId);
-  }
+  expectUserExists_(id) { assert(id && this.usersById.has(id), 'User id doesnt exist: ' + id); }
+  expectUserNotExists_(id) { assert(id && !this.usersById.has(id), 'User id already taken: ' + id); }
+  expectGameExists_(id) { assert(id && this.gamesById.has(id), 'Game id doesnt exist: ' + id); }
+  expectGameNotExists_(id) { assert(id && !this.gamesById.has(id), 'Game id already taken: ' + id); }
+  expectPlayerExists_(id) { assert(id && this.playersById.has(id), 'Player id doesnt exist: ' + id); }
+  expectPlayerNotExists_(id) { assert(id && !this.playersById.has(id), 'Player id already taken: ' + id); }
+  expectChatRoomExists_(id) { assert(id && this.chatRoomsById.has(id), 'ChatRoom id doesnt exist: ' + id); }
+  expectChatRoomNotExists_(id) { assert(id && !this.chatRoomsById.has(id), 'ChatRoom id already taken: ' + id); }
+  expectMissionExists_(id) { assert(id && this.missionsById.has(id), 'Mission id doesnt exist: ' + id); }
+  expectMissionNotExists_(id) { assert(id && !this.missionsById.has(id), 'Mission id already taken: ' + id); }
+  expectRewardCategoryExists_(id) { assert(id && this.rewardCategoriesById.has(id), 'RewardCategory id doesnt exist: ' + id); }
+  expectRewardCategoryNotExists_(id) { assert(id && !this.rewardCategoriesById.has(id), 'RewardCategory id already taken: ' + id); }
+  expectRewardExists_(id) { assert(id && this.rewardsById.has(id), 'Reward id doesnt exist: ' + id); }
+  expectRewardNotExists_(id) { assert(id && !this.rewardsById.has(id), 'Reward id already taken: ' + id); }
+}
 
-  throwError(message) {
+function assert(condition, message) {
+  if (!condition) {
     console.error(message);
     debugger;
     throw message;
