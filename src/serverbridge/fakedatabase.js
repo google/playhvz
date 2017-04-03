@@ -20,7 +20,7 @@ class Player {
     this.gameId = gameId || "";
     this.userId = userId || "";
     this.points = 0;
-    this.profilePic = 'https://goo.gl/photos/iDXDUt1AtWeECXYa8'
+    this.profileImageUrl = "";
     this.preferences = Utils.copyOf(preferences) || {};
     this.infections = [];
     this.lives = [];
@@ -106,6 +106,12 @@ class FakeDatabase {
     this.expectUserExists_(player.userId);
     this.expectGameExists_(player.gameId);
     this.expectPlayerNotExists_(player.id);
+    this.playersById.set(player.id, Utils.copyOf(player));
+  }
+  setPlayerProfileImageUrl(playerId, imageUrl) {
+    this.expectPlayerExists_(playerId);
+    var player = this.playersById.get(playerId);
+    player.profileImageUrl = imageUrl;
     this.playersById.set(player.id, Utils.copyOf(player));
   }
   getPlayerById(playerId) {

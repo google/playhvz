@@ -33,6 +33,9 @@ class FakeServer {
 
     this.fakeDatabase.addLife(playerId, this.generateLifeCode_(player), new Date().getTime());
   }
+  setPlayerProfileImageUrl(playerId, imageUrl) {
+    this.fakeDatabase.setPlayerProfileImageUrl(playerId, imageUrl);
+  }
   getPlayerById(playerId) {
     let player = this.fakeDatabase.getPlayerById(playerId);
     player.species = this.isHuman_(player) ? 'human' : 'zombie';

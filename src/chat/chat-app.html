@@ -127,7 +127,6 @@ TODO(SquirrelThief):
           if (!this.$.messageInput.value) {
             return;
           }
-
           this.serverBridge.addMessageToChatRoom(this.chatRoom.id, 
             this.player.id, this.$.messageInput.value);
           this.$.messageInput.value = "";  
@@ -154,7 +153,6 @@ TODO(SquirrelThief):
       },
 
       getName_(playerId) {
-        var name = this.playersInChat[playerId].name;
         if (!this.playersInChat[playerId]) {
           this.serverBridge.getPlayerById(playerId)
           .then((player) => {
@@ -165,6 +163,15 @@ TODO(SquirrelThief):
           return this.playersInChat[playerId].name;
         }
       },
+
+      getProfilePic_(playerId) {
+        var imageUrl = this.playersInChat[playerId].profileImageUrl;
+        return imageUrl;
+      },
+
+      openPlayerProfile_(e) {
+        console.log(e);
+      }
     });
 });
 </script>
@@ -173,6 +180,20 @@ TODO(SquirrelThief):
  <style include="iron-flex iron-flex-alignment">
   .player-name {
     font-size: 10px;
+  }
+
+  iron-image {
+    border-radius: 50%;
+    border: 2px solid green;
+    width: 40px;
+    height:40px;
+  }
+
+  paper-button.send {
+    background-color: rgba(135, 206, 250, .5);
+    color: darkslategrey;
+    font-size: small;
+    font-weight: bold;
   }
 
   .message-from-other {
@@ -206,14 +227,24 @@ TODO(SquirrelThief):
 
   .textbox-input-field {
     @apply(--layout-flex);
+    padding-right: 16px;
   }
 </style>
 <!-- Display messages -->
 <template is="dom-repeat" items="[[chatRoom.messages]]">
   <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, player.id)]]">
+
     <div class="display-message">[[item.message]]</div>
-    <div class="player-name">[[getName_(item.playerId)]]</div>
-  </div> 
+    <div class="player-name layout vertical">
+      <iron-image
+      src="[[getProfilePic_(item.playerId)]]"
+      id="profile-pic" 
+      sizing="cover"
+      on-click="openPlayerProfile_">
+    </iron-image>
+    <div>[[getName_(item.playerId)]]</div>
+  </div>
+</div> 
 </template>
 
 <!-- Text Input -->
@@ -228,13 +259,12 @@ TODO(SquirrelThief):
   no-label-float
   on-keydown="checkForEnter_">
 </paper-textarea>
-<paper-button
-class="flex-0"
-id="messageSend" 
-raised 
-style="background-color: #7e57c2; color: white" 
-on-click="onSendClicked_">
-->
+<paper-button 
+  class="send"
+  id="messageSend" 
+  raised
+  on-click="onSendClicked_">
+  SEND
 </paper-button>
 </div>
 
