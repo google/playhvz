@@ -12,13 +12,6 @@
           'ghvz-dashlet-add-toolbar-button': 'addToolbarButton_'
         },
 
-        // properties: {
-        //   players: {
-        //     type: Array,
-        //     value: function() { return []; },
-        //   },
-        // },
-
         addToolbarButton_: function(event) {
           this.$.buttons.appendChild(event.detail.button);
         }
@@ -29,7 +22,7 @@
   	<style>
       :host {
         box-sizing: border-box;
-        padding: 8px;
+        padding: 12px;
         display: block;
       }
       :host[padded] #contents {

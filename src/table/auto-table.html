@@ -22,6 +22,24 @@
             type: Array,
             value: function() { return []; },
           },
+
+          hasActions: {
+            type: Boolean,
+            computed: 'computeHasActions_(delegate)',
+          },
+
+          selectable: {
+            type: Boolean,
+            value: true,
+          },
+        },
+
+        computeHasActions_: function(delegate) {
+          return delegate.getActions().length;
+        },
+
+        computeHasControlCell_: function(selectable, hasActions) {
+          return selectable || hasActions;
         },
 
         getColumns_: function() {
@@ -158,17 +176,19 @@
     <table id="table">
       <thead>
         <tr id="headers">
-          <th class="control-cell">
-            <paper-checkbox id="selectAll" on-change="onSelectAllChanged_"></paper-checkbox>
-            <paper-menu-button>
-              <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
-              <paper-menu class="dropdown-content">
-                <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
-                  <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.action]]">[[action.name]]</paper-item>
-                </template>
-              </paper-menu>
-            </paper-menu-button>
-          </th>
+          <template is="dom-if" if="computeHasControlCell_(selectable, hasActions)">
+            <th class="control-cell">
+              <paper-checkbox id="selectAll" on-change="onSelectAllChanged_"></paper-checkbox>
+              <paper-menu-button>
+                <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+                <paper-menu class="dropdown-content">
+                  <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
+                    <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.action]]">[[action.name]]</paper-item>
+                  </template>
+                </paper-menu>
+              </paper-menu-button>
+            </th>
+          </template>
           <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
             <th class="property-header">
               [[column.name]]
