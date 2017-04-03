@@ -155,7 +155,7 @@
 
         addCategory_: function() {
           this.serverBridge.addRewardCategory(
-              Utils.generateId("rewardCategory"), this.newCategoryName, this.newCategoryPoints);
+              Utils.generateId("rewardCategory"), this.gameId, this.newCategoryName, this.newCategoryPoints);
           this.newCategoryName = "";
           this.newCategoryPoints = "";
           this.refresh_();
