@@ -25,6 +25,7 @@
             var name = event.detail.playerName;
             var userId = this.userId;
             var points = Math.floor(Math.random() * 100);
+            var imageUrl = 'https://goo.gl/Nr0e8Y';
             if (!name) {
               name = Math.random().toString(36).substring(4, 8);
             }
@@ -43,6 +44,8 @@
               this.generateRandomPreferences_());
             
             this.serverBridge.awardPoints(playerId, points);
+
+            this.serverBridge.setPlayerProfileImageUrl(playerId, imageUrl);
 
             this.serverBridge.getPlayerById(playerId)
             .then((player) => {
