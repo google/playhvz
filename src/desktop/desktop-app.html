@@ -62,16 +62,11 @@
       });
     });
   </script>
-  <style>
-    .content {
-      display: block;
-      padding: 8px;
-    }
-  </style>
   <template>
   	<style>
-      player-table {
-        width: 100%;
+      .content {
+        display: block;
+        margin: 16px;
       }
   	</style>
 
@@ -126,7 +121,6 @@
       <ghvz-dashlet half right>
         <div class="header">Leaderboard</div>
         <leaderboard-summary
-            class="content"
             server-bridge="[[serverBridge]]"
             game-id="[[gameId]]">
         </leaderboard-summary>
