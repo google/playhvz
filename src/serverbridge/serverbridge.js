@@ -35,6 +35,7 @@ const SERVER_METHODS = [
   'createGame',
   'getGameById',
   'joinGame',
+  'setPlayerProfileImageUrl',
   'findAllPlayerIdsForGameId',
   'findAllPlayerIdsForUserId',
   'findPlayerByGameAndName',
