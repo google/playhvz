@@ -56,8 +56,10 @@ const SERVER_METHODS = [
   'revive',
   'addRewardCategory',
   'addReward',
+  'addRewards',
   'claimReward',
   'findRewardsForPlayerId',
   'getMissionById',
   'findRewardsForRewardCategoryId',
+  'setRewardCategoryName',
 ];

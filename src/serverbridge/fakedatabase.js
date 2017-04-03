@@ -56,11 +56,12 @@ class Mission {
 }
 
 class RewardCategory {
-  constructor(rewardCategoryId, gameId, name, points) {
+  constructor(rewardCategoryId, gameId, name, points, seed) {
     this.id = rewardCategoryId;
     this.gameId = gameId;
     this.name = name;
     this.points = points;
+    this.seed = seed;
   }
 }
 
@@ -230,9 +231,9 @@ class FakeDatabase {
       lifeCode: lifeCode,
     });
   }
-  addRewardCategory(rewardCategoryId, gameId, name, points) {
+  addRewardCategory(rewardCategoryId, gameId, name, points, seed) {
     this.expectRewardCategoryNotExists_(rewardCategoryId);
-    let category = new RewardCategory(rewardCategoryId, gameId, name, points);
+    let category = new RewardCategory(rewardCategoryId, gameId, name, points, seed);
     this.rewardCategoriesById.set(rewardCategoryId, category);
   }
   findRewardCategoryIdsForGameId(gameId) {
@@ -275,6 +276,7 @@ class FakeDatabase {
     return Utils.copyOf(this.rewardsById.get(rewardId));
   }
   findRewardIdsForPlayerId(playerId) {
+    this.expectPlayerExists_(playerId);
     let result = [];
     for (const [rewardId, reward] of this.rewardsById) {
       if (reward.playerIdOrNull == playerId) {
@@ -284,6 +286,7 @@ class FakeDatabase {
     return result;
   }
   findRewardIdsForRewardCategoryId(rewardCategoryId) {
+    this.expectRewardCategoryExists_(rewardCategoryId);
     let result = [];
     for (const [rewardId, reward] of this.rewardsById) {
       if (reward.rewardCategoryId == rewardCategoryId) {
@@ -293,8 +296,13 @@ class FakeDatabase {
     return result;
   }
   findRewardCategoryIdsForPlayerId(playerId) {
+    this.expectPlayerExists_(playerId);
     return this.findRewardIdsForPlayerId(playerId)
         .map(rewardId => this.getRewardById(rewardId).rewardCategoryId);
+  }
+  setRewardCategoryName(rewardCategoryId, newName) {
+    this.expectRewardCategoryExists_(rewardCategoryId);
+    this.rewardCategoriesById.get(rewardCategoryId).name = newName;
   }
 
   expectUserExists_(id) { assert(id && this.usersById.has(id), 'User id doesnt exist: ' + id); }
