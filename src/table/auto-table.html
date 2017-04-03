@@ -30,7 +30,7 @@
 
           selectable: {
             type: Boolean,
-            value: true,
+            value: false,
           },
         },
 
@@ -176,9 +176,11 @@
     <table id="table">
       <thead>
         <tr id="headers">
-          <template is="dom-if" if="computeHasControlCell_(selectable, hasActions)">
+          <template is="dom-if" if="[[computeHasControlCell_(selectable, hasActions)]]">
             <th class="control-cell">
-              <paper-checkbox id="selectAll" on-change="onSelectAllChanged_"></paper-checkbox>
+              <template is="dom-if" if="[[selectable]]">
+                <paper-checkbox id="selectAll" on-change="onSelectAllChanged_"></paper-checkbox>
+              </template>
               <paper-menu-button>
                 <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
                 <paper-menu class="dropdown-content">
@@ -199,20 +201,26 @@
       <tbody id="tbody">
         <template is="dom-repeat" items="[[items]]">
           <tr data-item-id$="[[getItemId_(item, delegate)]]">
-            <td class="control-cell">
-              <paper-checkbox
-                  data-item-id$="[[getItemId_(item, delegate)]]"
-                  on-change="onSelectChanged_">
-              </paper-checkbox>
-              <paper-menu-button>
-                <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
-                <paper-menu class="dropdown-content">
-                  <template is="dom-repeat" items="[[getActions_()]]" as="action">
-                    <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action]]">[[getActionName_(action, delegate)]]</paper-item>
-                  </template>
-                </paper-menu>
-              </paper-menu-button>
-            </td>
+            <template is="dom-if" if="[[computeHasControlCell_(selectable, hasActions)]]">
+              <td class="control-cell">
+                <template is="dom-if" if="[[selectable]]">
+                  <paper-checkbox
+                      data-item-id$="[[getItemId_(item, delegate)]]"
+                      on-change="onSelectChanged_">
+                  </paper-checkbox>
+                </template>
+                <template is="dom-if" if="[[hasActions]]">
+                  <paper-menu-button>
+                    <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+                    <paper-menu class="dropdown-content">
+                      <template is="dom-repeat" items="[[getActions_()]]" as="action">
+                        <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action]]">[[getActionName_(action, delegate)]]</paper-item>
+                      </template>
+                    </paper-menu>
+                  </paper-menu-button>
+                </template>
+              </td>
+            </template>
             <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
               <td>
                 [[getPropertyValue_(item, column.property, delegate)]]
