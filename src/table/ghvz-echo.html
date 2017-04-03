@@ -14,7 +14,16 @@
           },
         },
 
+        observers: ['changed_(value.*)'],
+
         attached: function() {
+          this.changed_();
+        },
+
+        changed_: function(changeRecord) {
+          while (this.childNodes.length) {
+            this.removeChild(this.childNodes[0]);
+          }
           if (this.value instanceof HTMLElement) {
             this.appendChild(this.value);
           } else {

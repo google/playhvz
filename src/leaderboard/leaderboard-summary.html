@@ -41,7 +41,6 @@
                 ];
               }),
               create: this.createLeaderboardContents_.bind(this),
-              update: this.updateLeaderboardContents_.bind(this),
               doAction: this.doTableAction_.bind(this),
             };
           },
@@ -96,17 +95,12 @@
         // if we dont return anything, auto-table will just by default create the text node
       },
 
-      updateLeaderboardContents_: function(element, player, propertyName, propertyPath, value) {
-          //return document.createTextNode(player[key]);
-        },
-
         refresh_: function() {
           this.serverBridge.findAllPlayersForGameId(this.gameId)
           .then((players) => {
             if (players) {
-              this.players = [];
               players.sort(Utils.byPoints);
-              setTimeout(() => this.players = players.slice(0, this.numToShow), 0);
+              this.players = players.slice(0, this.numToShow);
             }
           });
         },

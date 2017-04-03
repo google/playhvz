@@ -30,8 +30,6 @@
           },
         },
 
-        observers: ['render(items.*)'],
-
         computeHasActions_: function(delegate) {
           return delegate.getActions().length;
         },
@@ -127,10 +125,6 @@
           else
             delete row.dataset.selected;
         },
-
-        render: function() {
-          setTimeout(() => this.$.repeater.render(), 500);
-        }
       });
     });
   </script>
@@ -214,7 +208,7 @@
         </tr>
       </thead>
       <tbody id="tbody">
-        <template id="repeater" is="dom-repeat" items="[[items]]" as="item">
+        <template is="dom-repeat" items="[[items]]">
           <tr data-item-id$="[[getItemId_(item, delegate)]]">
             <template is="dom-if" if="[[computeHasControlCell_(selectable, hasActions)]]">
               <td class="control-cell">
