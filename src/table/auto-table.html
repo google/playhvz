@@ -223,7 +223,9 @@
             </template>
             <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
               <td>
-                [[getPropertyValue_(item, column.property, delegate)]]
+                <ghvz-echo
+                    value="[[getPropertyValue_(item, column.property, delegate)]]">
+                </ghvz-echo>
               </td>
             </template>
           </tr>

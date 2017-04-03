@@ -91,6 +91,16 @@
         },
 
         getPlayerTableContents_: function(player, propertyName) {
+          if (propertyName == "name") {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(player.name));
+            var iconButton = document.createElement('paper-icon-button');
+            iconButton.style.opacity = ".5";
+            iconButton.icon = "icons:open-in-new";
+            iconButton.dataset.playerId = player.id;
+            div.appendChild(iconButton);
+            return div;
+          }
           if (propertyName == 'lifeCode') {
             if (player.species == 'human') {
               if (player.lives.length) {

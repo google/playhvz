@@ -81,7 +81,17 @@
         }
       },
 
-      createLeaderboardContents_: function(player, key) {
+      createLeaderboardContents_: function(player, propertyName) {
+        if (propertyName == "name") {
+          var div = document.createElement('div');
+          div.appendChild(document.createTextNode(player.name));
+          var iconButton = document.createElement('paper-icon-button');
+          iconButton.style.opacity = ".5";
+          iconButton.icon = "icons:open-in-new";
+          iconButton.dataset.playerId = player.id;
+          div.appendChild(iconButton);
+          return div;
+        }
         // if we dont return anything, auto-table will just by default create the text node
       },
 
