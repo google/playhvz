@@ -72,14 +72,7 @@
                 this.players = players;
               });
 
-          setInterval(this.pollPlayers_.bind(this), this.pollInterval * 1000);
-        },
-
-        pollPlayers_: function() {
-          this.serverBridge.findAllPlayersForGameId(this.gameId)
-            .then((players) => {
-              this.players = players;
-            });
+          setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
         },
 
         doTableAction_: function(player, action) {
