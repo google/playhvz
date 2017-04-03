@@ -106,7 +106,7 @@
             if (players) {
               this.players = [];
               players.sort(Utils.byPoints);
-              this.players = players.slice(0, this.numToShow);
+              setTimeout(() => this.players = players.slice(0, this.numToShow), 0);
             }
           });
         },

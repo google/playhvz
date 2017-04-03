@@ -1,8 +1,4 @@
 
-<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animated-pages.html">
-<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animatable.html">
-<link rel="import" href="https://cdn.rawgit.com/download/polymer-cdn/1.7.0.2/lib/neon-animation/neon-animations.html">
-
 <dom-module id="auto-table">
   <script>
     // Not sure why this HTMLImports.whenReady is really needed.
@@ -33,6 +29,8 @@
             value: false,
           },
         },
+
+        observers: ['render(items.*)'],
 
         computeHasActions_: function(delegate) {
           return delegate.getActions().length;
@@ -129,6 +127,10 @@
           else
             delete row.dataset.selected;
         },
+
+        render: function() {
+          setTimeout(() => this.$.repeater.render(), 500);
+        }
       });
     });
   </script>
@@ -212,7 +214,7 @@
         </tr>
       </thead>
       <tbody id="tbody">
-        <template is="dom-repeat" items="[[items]]">
+        <template id="repeater" is="dom-repeat" items="[[items]]" as="item">
           <tr data-item-id$="[[getItemId_(item, delegate)]]">
             <template is="dom-if" if="[[computeHasControlCell_(selectable, hasActions)]]">
               <td class="control-cell">
