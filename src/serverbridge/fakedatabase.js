@@ -61,7 +61,6 @@ class RewardCategory {
     this.gameId = gameId;
     this.name = name;
     this.points = points;
-    this.rewardsById = new Map();
   }
 }
 
@@ -273,6 +272,15 @@ class FakeDatabase {
     let result = [];
     for (const [rewardId, reward] of this.rewardsById) {
       if (reward.playerIdOrNull == playerId) {
+        result.push(rewardId);
+      }
+    }
+    return result;
+  }
+  findRewardIdsForRewardCategoryId(rewardCategoryId) {
+    let result = [];
+    for (const [rewardId, reward] of this.rewardsById) {
+      if (reward.rewardCategoryId == rewardCategoryId) {
         result.push(rewardId);
       }
     }

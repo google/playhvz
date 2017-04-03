@@ -22,7 +22,7 @@
 // getMultiplePlayersById(playersIds)
 // infect(infectorPlayerId, infecteePlayerId, infecteeLifeCode)
 // revive(playerId)
-// addRewardCategory(rewardCategoryId, name, points)
+// addRewardCategory(rewardCategoryId, gameId, name, points)
 // addReward(rewardId, rewardCategoryId, rewardCode)
 // claimReward(playerId, rewardCode)
 // findRewardsForPlayerId(playerId)
@@ -58,4 +58,5 @@ const SERVER_METHODS = [
   'claimReward',
   'findRewardsForPlayerId',
   'getMissionById',
+  'findRewardsForRewardCategoryId',
 ];

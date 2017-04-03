@@ -134,6 +134,9 @@
   </script>
   <template>
     <style>
+      :host {
+        display: block;
+      }
       #table {
         border-spacing: 0;
         font-size: 13pt;
@@ -141,6 +144,9 @@
         font-weight: regular;
         color: rgba(0, 0, 0, .87);
         width: 100%;
+      }
+      thead {
+        background-color: #F0F0F0;
       }
       th {
         font-size: 12pt;
@@ -158,7 +164,14 @@
         border-bottom: 1px solid #f0f0f0;
       }
       th, td {
-        padding: 8px 16px;
+        padding: 0 16px;
+        min-height: 40px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      td {
+        @apply(--ghvz-auto-table-td);
       }
       .control-cell {
         padding: 0 0 0 16px;
@@ -214,7 +227,7 @@
                     <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
                     <paper-menu class="dropdown-content">
                       <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
-                        <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action]]">[[action.name]]</paper-item>
+                        <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action.action]]">[[action.name]]</paper-item>
                       </template>
                     </paper-menu>
                   </paper-menu-button>

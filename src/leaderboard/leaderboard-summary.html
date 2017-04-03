@@ -86,10 +86,11 @@
           var div = document.createElement('div');
           div.appendChild(document.createTextNode(player.name));
           var iconButton = document.createElement('paper-icon-button');
-          iconButton.style.opacity = ".5";
+          iconButton.classList.add("player-icon");
           iconButton.icon = "icons:open-in-new";
           iconButton.dataset.playerId = player.id;
           div.appendChild(iconButton);
+          this.scopeSubtree(div); // So we can style it from our <style>
           return div;
         }
         // if we dont return anything, auto-table will just by default create the text node
@@ -116,6 +117,9 @@
   <style>
     auto-table {
       display: block;
+    }
+    .player-icon {
+      opacity: .5;
     }
   </style>
   <paper-icon-button

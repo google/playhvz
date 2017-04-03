@@ -70,6 +70,8 @@
       }
   	</style>
 
+    DONT POST CONFIDENTIAL INFO, COBFLABBIT!
+
     <ghvz-dashboard>
       <ghvz-dashlet full>
         <div class="header">Players</div>
@@ -89,6 +91,14 @@
             game-id="[[gameId]]"
             user-id="[[userId]]">
         </dev-tools>
+      </ghvz-dashlet>
+
+      <ghvz-dashlet half left>
+        <div class="header">Rewards</div>
+        <ghvz-rewards
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]">
+        </ghvz-rewards>
       </ghvz-dashlet>
 
       <ghvz-dashlet half left>
@@ -159,3 +169,25 @@
 
   </template>
 </dom-module>
+
+<style>
+  /* whoever designed the default iron-menu needs to be shot */
+  desktop-app paper-menu {
+    padding: 0 !important;
+  }
+  desktop-app paper-menu .iron-selected {
+    font-weight: inherit !important;
+  }
+  desktop-app paper-menu paper-item {
+    min-height: 36px !important;
+    white-space: nowrap;
+  }
+  desktop-app paper-menu paper-item::before,
+  desktop-app paper-menu paper-item::after {
+    display: none;
+  }
+  desktop-app paper-menu paper-item:hover {
+    background-color: #F0F0F0 !important;
+    cursor: pointer;
+  }
+</style>

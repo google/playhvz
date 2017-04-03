@@ -20,7 +20,7 @@ class FakeServer {
     const game = Utils.copyOf(this.fakeDatabase.getGameById(gameId));
     game.rewardCategories =
         this.fakeDatabase.findRewardCategoryIdsForGameId(gameId)
-            .map(rewardCategoryId => this.fakeDatabase.getRewardCategoryById(rewardCategoryId));
+            .map(rewardCategoryId => this.getRewardCategoryById(rewardCategoryId));
     return game;
   }
   joinGame(userId, gameId, playerId, name, preferences) {
@@ -166,8 +166,20 @@ class FakeServer {
   getRewardById(rewardId) {
     return this.fakeDatabase.getRewardById(rewardId);
   }
+  findRewardsForRewardCategoryId(rewardCategoryId) {
+    return this.fakeDatabase.findRewardIdsForRewardCategoryId(rewardCategoryId)
+        .map(rewardId => this.getRewardById(rewardId));
+  }
   getRewardCategoryById(rewardCategoryId) {
-    return this.fakeDatabase.getRewardCategoryById(rewardCategoryId);
+    var category =
+        Utils.copyOf(this.fakeDatabase.getRewardCategoryById(rewardCategoryId));
+    var rewards =
+        this.fakeDatabase.findRewardIdsForRewardCategoryId(rewardCategoryId)
+            .map(rewardId => this.fakeDatabase.getRewardById(rewardId));
+    category.total = rewards.length;
+    category.claimed =
+        rewards.filter(reward => reward.playerIdOrNull != null).length;
+    return category;
   }
 }
 
