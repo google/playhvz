@@ -49,7 +49,7 @@
 
             this.serverBridge.getPlayerById(playerId)
             .then((player) => {
-              Polymer.dom(this.root).querySelector('.output').innerHTML = JSON.stringify(player);
+              console.log(player);
             });
           }.bind(this));
         },
@@ -120,7 +120,6 @@
         Generate Player
       </paper-button>
     </div>
-    <div class="output"></div>
   </form>
 </template>
 </dom-module>
