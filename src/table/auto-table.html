@@ -213,8 +213,8 @@
                   <paper-menu-button>
                     <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
                     <paper-menu class="dropdown-content">
-                      <template is="dom-repeat" items="[[getActions_()]]" as="action">
-                        <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action]]">[[getActionName_(action, delegate)]]</paper-item>
+                      <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
+                        <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action]]">[[action.name]]</paper-item>
                       </template>
                     </paper-menu>
                   </paper-menu-button>
