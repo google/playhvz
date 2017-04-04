@@ -11,70 +11,107 @@
           serverBridge: Object,
           playerId: String,
           gameId: String,
-          playerValue: {
-            type: String,
-            notify: true,
-          },
-          matchingPlayer: Object,
           lifeCode: String,
-          requested: {
+          requesting: {
             type: Boolean,
             value: false,
           },
+          infectedPlayer: {
+            type: Object,
+            value: null,
+          },
         },
 
-        computeButtonEnabled_: function(matchingPlayer, lifeCode, requested) {
-          return matchingPlayer && lifeCode && !requested;
+        computeButtonEnabled_: function(lifeCode, requesting) {
+          return !!lifeCode && !requesting;
         },
 
         reset_: function() {
-          this.playerValue = "";
           this.lifeCode = "";
-          this.requested = false;
+          this.requesting = false;
+          this.infectedPlayer = null;
         },
 
         infect_: function() {
-          this.requested = true;
-          this.serverBridge.infect(this.playerId, this.matchingPlayer.id, this.lifeCode)
+          this.requesting = true;
+          this.serverBridge.infect(this.playerId, this.lifeCode)
               .then(
-                  () => this.reset_(),
-                  (error) => alert('Error infecting: '+ error));
+                  (player) => {
+                    this.infectedPlayer = player;
+                    this.requesting = false;
+                  },
+                  (error) => {
+                    alert('Error infecting: '+ error);
+                    this.reset_();
+                  });
         },
       });
     });
   </script>
 
-  <template class="layout vertical" style="height:300px">
+  <template>
     <style include="iron-flex iron-flex-alignment">
       :host {
-        padding: 0 16px 16px 16px;
         display: block;
+      }
+      paper-input {
+        padding: 0 16px 16px 16px;
       }
       paper-button {
         background-color: #03A9F4;
         color: white;
         font-weight: bold;
         display: block;
-        margin: 8px 0 0 0;
         text-align: center;
+        margin: 0;
+      }
+      #infecting,
+      #infected {
+        display: flex;
+      }
+      #infecting paper-input,
+      #infectedMessage {
+        flex: 1;
+      }
+      #infectedMessage {
+        margin: 16px;
+      }
+      #infectContainer,
+      #doneContainer {
+        flex: 0;
+        display: flex;
+        align-items: center;
+        margin: 8px 16px 8px 0;
       }
     </style>
-    <ghvz-player-lookup
-        server-bridge="[[serverBridge]]"
-        game-id="[[gameId]]"
-        value="{{playerValue}}"
-        matching-player="{{matchingPlayer}}">
-    </ghvz-player-lookup>
-    <paper-input
-        label="Human's life code"
-        value="{{lifeCode}}">
-    </paper-input>
-    <paper-button
-        id="infect"
-        raised
-        disabled="[[!computeButtonEnabled_(matchingPlayer, lifeCode, requested)]]"
-        on-tap="infect_">
-      Infect!
-    </paper-button>
+    <div id="infecting" hidden$="[[infectedPlayer]]">
+      <paper-input
+          label="Human's life code"
+          value="{{lifeCode}}">
+      </paper-input>
+      <div id="infectContainer">
+        <paper-button
+            id="infect"
+            raised
+            disabled="[[!computeButtonEnabled_(lifeCode, requesting)]]"
+            on-tap="infect_">
+          Infect!
+        </paper-button>
+      </div>
+    </div>
+    <div id="infected" hidden$="[[!infectedPlayer]]">
+      <div id="infectedMessage">
+        <div>Congratulations, you've infected <b>[[infectedPlayer.name]]</b>!</div>
+        <div>Glory to the horde!</div>
+      </div>
+      <div id="doneContainer">
+        <paper-button
+            id="done"
+            raised
+            on-tap="reset_">
+          Done
+        </paper-button>
+      </div>
+    </div>
   </template>
 </dom-module>

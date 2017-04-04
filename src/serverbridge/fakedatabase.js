@@ -347,6 +347,18 @@ class FakeDatabase {
     }
     return null;
   }
+  findPlayerIdOrNullByLifeCode(gameId, lifeCode) {
+    this.expectGameExists_(gameId);
+    for (var [playerId, player] of this.playersById) {
+      if (player.gameId == gameId) {
+        const currentLife = player.lives[player.lives.length - 1];
+        if (currentLife.lifeCode == lifeCode) {
+          return playerId;
+        }
+      }
+    }
+    return null;
+  }
 
   expectUserExists_(id) { assert(id && this.usersById.has(id), 'User id doesnt exist: ' + id); }
   expectUserNotExists_(id) { assert(id && !this.usersById.has(id), 'User id already taken: ' + id); }
@@ -364,7 +376,6 @@ class FakeDatabase {
   expectRewardNotExists_(id) { assert(id && !this.rewardsById.has(id), 'Reward id already taken: ' + id); }
   expectGunExists_(id) { assert(id && this.gunsById.has(id), 'Gun id doesnt exist: ' + id); }
   expectGunNotExists_(id) { assert(id && !this.gunsById.has(id), 'Gun id already taken: ' + id); }
-  
 }
 
 function assert(condition, message) {

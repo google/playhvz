@@ -121,16 +121,19 @@ class FakeServer {
     }
     return missions;
   }
-  infect(infectorPlayerId, infecteePlayerId, infecteeLifeCode) {
+  infect(infectorPlayerId, infecteeLifeCode) {
+    const gameId = this.fakeDatabase.getPlayerById(infectorPlayerId).gameId;
+    const infecteePlayerIdOrNull = this.fakeDatabase.findPlayerIdOrNullByLifeCode(gameId, infecteeLifeCode);
+    if (!infecteePlayerIdOrNull) {
+      throw 'Cannot infect, no human with that life code found!';
+    }
+    const infecteePlayerId = infecteePlayerIdOrNull;
     const infectee = this.getPlayerById(infecteePlayerId);
     if (!this.isHuman_(infectee)) {
       throw 'Cannot infect, infectee is not human!';
     }
-    const currentLife = infectee.lives[infectee.lives.length - 1];
-    if (currentLife.lifeCode != infecteeLifeCode) {
-      throw 'Cannot infect, incorrect life code!';
-    }
     this.fakeDatabase.addInfection(infecteePlayerId, infectorPlayerId, new Date().getTime());
+    return this.getPlayerById(infecteePlayerId);
   }
   revive(playerId) {
     let player = this.fakeDatabase.getPlayerById(playerId);
@@ -175,6 +178,7 @@ class FakeServer {
       throw 'Another reward of this category already claimed!';
     }
     this.fakeDatabase.claimReward(playerId, reward.id);
+    return this.getRewardCategoryById(reward.rewardCategoryId);
   }
   getRewardById(rewardId) {
     return this.fakeDatabase.getRewardById(rewardId);
