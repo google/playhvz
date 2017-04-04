@@ -216,7 +216,7 @@ class FakeServer {
   }
   findAllMissionsForGameId(gameId) {
     return this.fakeDatabase.findAllMissionIdsForGameId(gameId)
-        .map(missionId => this.getMissionById(gameId));
+        .map(missionId => this.getMissionById(missionId));
   }
   updateMission(missionId, updates) {
     this.fakeDatabase.updateMission(missionId, updates);

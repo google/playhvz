@@ -31,6 +31,12 @@
 // addGun(gunId, gunNumber)
 // setGunPlayer(gunId, playerIdOrNull)
 // getGunById(gunId)
+// addRewards(rewardCategoryId, numNewRewards)
+// awardPoints(playerId, points)
+// findRewardsForRewardCategoryId(rewardCategoryId)
+// getAllMissions(gameId)
+// setPlayerProfileImageUrl(playerId, imageUrl)
+// updateMission(missionId, updates)
 
 const SERVER_METHODS = [
   'logIn',
@@ -72,5 +78,4 @@ const SERVER_METHODS = [
   'getGunById',
   'findAllMissionsForGameId',
   'updateMission',
-  'getMissionById',
 ];

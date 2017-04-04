@@ -80,7 +80,7 @@ function makeFakePrepopulatedServerBridge() {
   fakeServer.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
   fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
   fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
-  fakeServer.addMission(gameId, firstMissionId, new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
+  fakeServer.addMission(firstMissionId, gameId, "first mission!", new Date().getTime() - 1000, new Date().getTime() + 1000 * 60 * 60, "/firstgame/missions/first-mission.html");
   fakeServer.addRewardCategory(rewardCategoryId, gameId, "signed up!", 2, "derp");
   fakeServer.addReward(rewardId, rewardCategoryId, "flarklebark");
   fakeServer.addReward(otherRewardId, rewardCategoryId, "shooplewop");

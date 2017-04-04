@@ -44,10 +44,10 @@
         },
 
         observers: [
-          "ready_(serverBridge, missionId)",
+          "ready_(serverBridge, gameId)",
         ],
 
-        ready_: function(serverBridge, missionId) {
+        ready_: function(serverBridge, gameId) {
           this.refresh_();
         },
 
@@ -73,33 +73,37 @@
         },
 
         refresh_: function() {
-          this.serverBridge.getAllGuns()
-              .then((guns) => {
-                this.guns = guns;
+          this.serverBridge.findAllMissionsForGameId(this.gameId)
+              .then((missions) => {
+                this.missions = missions;
               });
         },
+
+        computeAddMissionButtonEnabled_(newMissionName, newMissionBeginTime, newMissionEndTime, newMissionUrl) {
+          return newMissionName && newMissionBeginTime && newMissionEndTime && newMissionUrl;
+        }
       });
     });
   </script>
   <template>
     <style>
-      #newGun {
-        display: flex;
+      #newMission {
         margin: 8px;
       }
 
       .wide-input-row {
-        margin: 0 8px;
       }
       .input-row {
         display: flex;
       }
       .input-row paper-input {
         min-width: 100px;
+        flex: 1;
       }
       .input-description {
+        flex: 1;
         display: flex;
-        align-items: flex-end;
+        align-items: center;
       }
       #addReward,
       #addCategory {
@@ -107,11 +111,13 @@
         white-space: nowrap;
       }
       .input-row paper-input {
-        margin: 0 8px;
+        margin-right: 8px;
       }
       .add-container {
         display: flex;
         align-items: flex-end;
+        justify-content: flex-end;
+        margin: 8px 0;
       }
     </style>
 
@@ -128,7 +134,7 @@
     </auto-table>
 
     <div id="newMission">
-      <div class="input-row">
+      <div class="wide-input-row">
         <paper-input
             id="newMissionName"
             label="Mission name"
@@ -165,6 +171,10 @@
           Url of the page describing the mission, example /firstgame/missions/first-mission.html
         </div>
       </div>
+      <div>
+        For timestamps, use <a href="https://www.epochconverter.com/">epochconverter</a>.
+        Timestamps are in seconds, not milliseconds.
+      </div>
       <div class="add-container">
         <paper-button
             raised
@@ -173,8 +183,6 @@
           Add Mission
         </paper-button>
       </div>
-      For timestamps, use <a href="https://www.epochconverter.com/">epochconverter</a>.
-      Timestamps are in seconds, not milliseconds.
     </div>
   </template>
 </dom-module>
