@@ -143,8 +143,18 @@ class FakeServer {
   generateLifeCode_(player) {
     return 'lifecode-' + player.number + '-' + (player.lives.length + 1);
   }
-  addRewardCategory(rewardCategoryId, gameId, name, points) {
-    this.fakeDatabase.addRewardCategory(rewardCategoryId, gameId, name, points);
+  addRewardCategory(rewardCategoryId, gameId, name, points, seed) {
+    this.fakeDatabase.addRewardCategory(rewardCategoryId, gameId, name, points, seed);
+  }
+  addRewards(rewardCategoryId, numNewRewards) {
+    var category = this.fakeDatabase.getRewardCategoryById(rewardCategoryId);
+    var numExistingRewards = this.fakeDatabase.findRewardIdsForRewardCategoryId(rewardCategoryId).length;
+
+    for (let i = 0; i < numNewRewards; i++) {
+      let newRewardCode = "" + category.seed + "-random" + (numExistingRewards + i);
+      let newRewardId = Utils.generateId('reward');
+      this.fakeDatabase.addReward(newRewardId, rewardCategoryId, newRewardCode);
+    }
   }
   addReward(rewardId, rewardCategoryId, rewardCode) {
     this.fakeDatabase.addReward(rewardId, rewardCategoryId, rewardCode);
@@ -183,6 +193,22 @@ class FakeServer {
     category.claimed =
         rewards.filter(reward => reward.playerIdOrNull != null).length;
     return category;
+  }
+  setRewardCategoryName(rewardCategoryId, newName) {
+    this.fakeDatabase.setRewardCategoryName(rewardCategoryId, newName);
+  }
+  getAllGuns() {
+    return this.fakeDatabase.getAllGunIds()
+        .map(gunId => this.getGunById(gunId));
+  }
+  addGun(gunId, gunNumber) {
+    this.fakeDatabase.addGun(gunId, gunNumber);
+  }
+  setGunPlayer(gunId, playerIdOrNull) {
+    this.fakeDatabase.setGunPlayer(gunId, playerIdOrNull);
+  }
+  getGunById(gunId) {
+    return this.fakeDatabase.getGunById(gunId);
   }
 }
 

@@ -63,14 +63,7 @@
         ],
 
         ready_: function(serverBridge, gameId) {
-          serverBridge.getGameById(gameId)
-              .then((game) => {
-                this.game = game;
-                return this.serverBridge.findAllPlayersForGameId(game.id);
-              })
-              .then((players) => {
-                this.players = players;
-              });
+          this.refresh_();
 
           setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
         },
@@ -134,12 +127,13 @@
         },
 
         refresh_: function() {
-          this.serverBridge.findAllPlayersForGameId(this.game.id)
+          this.serverBridge.getGameById(this.gameId)
+              .then((game) => {
+                this.game = game;
+                return this.serverBridge.findAllPlayersForGameId(this.gameId);
+              })
               .then((players) => {
-                if (players) {
-                  this.players = [];
-                  this.players = players;
-                }
+                this.players = players;
               });
         },
       });

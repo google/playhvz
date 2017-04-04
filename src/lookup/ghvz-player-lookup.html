@@ -14,11 +14,15 @@
             type: Array,
             value: [],
           },
+          label: {
+            type: String,
+            value: null,
+          },
           value: {
             type: String,
             notify: true,
           },
-          matchingPlayer: {
+          matchingPlayerOrNull: {
             type: Object,
             notify: true,
           },
@@ -73,16 +77,11 @@
     </style>
     <ghvz-lookup
         delegate="[[lookupDelegate]]"
-        label="Human's player number or name"
+        label="[[label]]"
         items="[[players]]"
         value="{{value}}"
-        matching-item="{{matchingPlayer}}">
-      <div
-          id="matchingPlayer"
-          suffix
-          hidden$="[[!matchingPlayer]]">
-        Player [[matchingPlayer.number]]
-      </div>
+        matching-item-or-null="{{matchingPlayerOrNull}}">
+      <content/>
     </ghvz-lookup>
   </template>
 </dom-module>

@@ -132,6 +132,7 @@
     <style>
       :host {
         display: block;
+        overflow-x: auto;
       }
       #table {
         border-spacing: 0;
@@ -140,6 +141,7 @@
         font-weight: regular;
         color: rgba(0, 0, 0, .87);
         width: 100%;
+        border-bottom: 1px solid #C0C0C0;
       }
       thead {
         background-color: #F0F0F0;
@@ -181,6 +183,11 @@
       tr[data-selected] td {
         border-bottom: 1px solid #d8d8d8;
       }
+      .property-header > div {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+      }
     </style>
     <table id="table">
       <thead>
@@ -202,7 +209,9 @@
           </template>
           <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
             <th class="property-header">
-              [[column.name]]
+              <div>
+                [[column.name]]
+              </div>
             </th>
           </template>
         </tr>

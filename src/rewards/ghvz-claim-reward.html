@@ -42,7 +42,11 @@
     <style include="iron-flex iron-flex-alignment">
       :host {
         padding: 0 16px 16px 16px;
-        display: block;
+        display: flex;
+      }
+      paper-input {
+        flex: 1;
+        margin-right: 16px;
       }
       paper-button {
         background-color: #03A9F4;
@@ -52,17 +56,23 @@
         margin: 8px 0 0 0;
         text-align: center;
       }
+      #buttonContainer {
+        display: flex;
+        align-items: center;
+      }
     </style>
     <paper-input
         label="Reward code"
         value="{{rewardCode}}">
     </paper-input>
-    <paper-button
-        id="infect"
-        raised
-        disabled="[[!computeButtonEnabled_(rewardCode, requested)]]"
-        on-tap="claim_">
-      Claim!
-    </paper-button>
+    <div id="buttonContainer">
+      <paper-button
+          id="infect"
+          raised
+          disabled="[[!computeButtonEnabled_(rewardCode, requested)]]"
+          on-tap="claim_">
+        Claim!
+      </paper-button>
+    </div>
   </template>
 </dom-module>

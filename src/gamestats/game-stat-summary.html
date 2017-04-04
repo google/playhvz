@@ -3,14 +3,25 @@
 
 <dom-module id="game-stat-summary">
   <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+      position: relative;
+      height: 200px;
+    }
     neon-animated-pages {
       width: 100%;
-      height: 50%;
+      height: 100%;
     }
     neon-animatable {
       width: 100%;
       height: 100%;
       background-color: white;
+    }
+    #swap-gamestat-button {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
     }
   </style>
   <script>

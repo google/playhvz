@@ -46,6 +46,13 @@
             value: "",
           },
 
+          newCategorySeed: {
+            type: String,
+            value: "",
+          },
+
+          categoryNewName: String,
+
           categoriesTableDelegate: {
             type: Object,
             value: function() {
@@ -56,6 +63,7 @@
                     {property: "points", name: "Points"},
                     {property: "total", name: "# Total"},
                     {property: "claimed", name: "# Claimed"},
+                    {property: "seed", name: "Seed"},
                   ];
                 }),
                 getActions: (() => {
@@ -66,7 +74,6 @@
                   ];
                 }),
                 create: this.getCategoriesTableContents_.bind(this),
-                update: this.getCategoriesTableContents_.bind(this),
                 doAction: this.doCategoriesTableAction_.bind(this),
               };
             },
@@ -88,7 +95,6 @@
                   ];
                 }),
                 create: this.getRewardsTableContents_.bind(this),
-                update: this.getRewardsTableContents_.bind(this),
                 doAction: this.doRewardsTableAction_.bind(this),
               };
             },
@@ -110,6 +116,15 @@
         doCategoriesTableAction_: function(category, action) {
           if (action == 'show') {
             this.rewardCategoryId = category.id;
+          } else if (action == 'setname') {
+            Utils.showDialog("Enter the new name of the category:", "name", category.name, null)
+                .then(
+                    (newName) => {
+                      if (newName) {
+                        this.serverBridge.setRewardCategoryName(category.id, newName);
+                        this.refresh_();
+                      }
+                    });
           }
         },
 
@@ -155,39 +170,51 @@
 
         addCategory_: function() {
           this.serverBridge.addRewardCategory(
-              Utils.generateId("rewardCategory"), this.gameId, this.newCategoryName, this.newCategoryPoints);
+              Utils.generateId("rewardCategory"), this.gameId, this.newCategoryName, this.newCategoryPoints, this.newCategorySeed);
           this.newCategoryName = "";
           this.newCategoryPoints = "";
+          this.newCategorySeed = "";
           this.refresh_();
         },
 
-        addReward_: function() {
-          this.serverBridge.addReward(
-              Utils.generateId("reward"), this.rewardCategoryId, this.newRewardCode);
-          this.newRewardCode = "";
+        addRewards_: function() {
+          this.serverBridge.addRewards(this.rewardCategoryId, this.numNewRewards);
+          this.numNewRewards = "";
           this.refreshRewardsTable_();
+        },
+
+        enableAddCategory_(newCategoryName, newCategoryPoints, newCategorySeed) {
+          return newCategoryName && newCategoryPoints && newCategorySeed;
         },
       });
     });
   </script>
   <template>
     <style>
+      paper-input {
+        --paper-input-container: {
+          padding: 0;
+        }
+      }
       #rewards {
         margin-top: 16px;
       }
       #rewardsTable {
       }
-      #newReward,
-      #newCategory {
-        display: flex;
-      }
       #rewardCodeInput {
         flex: 1;
         margin: 0 8px;
       }
-      #addRewardContainer,
-      #addCategoryContainer {
-        flex: 0;
+      .wide-input-row {
+        margin: 0 8px;
+      }
+      .input-row {
+        display: flex;
+      }
+      .input-row paper-input {
+        min-width: 100px;
+      }
+      .input-description {
         display: flex;
         align-items: flex-end;
       }
@@ -196,13 +223,23 @@
         margin: 8px;
         white-space: nowrap;
       }
-      #categoryNameInput {
-        flex-grow: 2;
+      .input-row paper-input {
         margin: 0 8px;
       }
-      #categoryPointsInput {
-        flex-grow: 1;
-        margin: 0 8px;
+
+      #newReward {
+        display: flex;
+      }
+      #addCategoryContainer {
+        display: flex;
+        justify-content: flex-end;
+      }
+      #addRewardContainer {
+        display: flex;
+        align-items: flex-end;
+      }
+      #newCategoryNameInput {
+        margin-bottom: 8px;
       }
     </style>
     <paper-icon-button
@@ -218,21 +255,43 @@
           items="[[game.rewardCategories]]">
       </auto-table>
       <div id="newCategory">
-        <paper-input
-            id="categoryNameInput"
-            label="Name"
-            value="{{newCategoryName}}">
-        </paper-input>
-        <paper-input
-            id="categoryPointsInput"
-            label="Points"
-            value="{{newCategoryPoints}}">
-        </paper-input>
+        <div class="wide-input-row">
+          <paper-input
+              id="newCategoryNameInput"
+              label="Name"
+              value="{{newCategoryName}}">
+          </paper-input>
+          Title of the category. Users will see this next to the icon in their
+          profile and when they hover over the icon.
+        </div>
+        <div class="input-row">
+          <paper-input
+              id="newCategoryPointsInput"
+              type="number"
+              label="Points"
+              value="{{newCategoryPoints}}">
+          </paper-input>
+          <div class="input-description">
+            Num points gained by claiming one of this category's rewards.
+            0 is a valid value (for example for vaccines).
+          </div>
+        </div>
+        <div class="input-row">
+          <paper-input
+              id="newCategorySeedInput"
+              label="Seed"
+              value="{{newCategorySeed}}">
+          </paper-input>
+          <div class="input-description">
+            A word to prefix codes with. Must be unique. Also
+            used as a random seed for generating the codes. Example: derp.
+          </div>
+        </div>
         <div id="addCategoryContainer">
           <paper-button
               id="addCategory"
               raised
-              disabled="[[!newCategoryName]]"
+              disabled="[[!enableAddCategory_(newCategoryName, newCategoryPoints, newCategorySeed)]]"
               on-tap="addCategory_">
             Add Category
           </paper-button>
@@ -244,16 +303,16 @@
       <div id="newReward">
         <paper-input
             id="rewardCodeInput"
-            label="Code"
-            value="{{newRewardCode}}">
+            label="Num rewards to generate"
+            value="{{numNewRewards}}">
         </paper-input>
         <div id="addRewardContainer">
           <paper-button
               id="addReward"
               raised
-              disabled="[[!newRewardCode]]"
-              on-tap="addReward_">
-            Add Reward
+              disabled="[[!numNewRewards]]"
+              on-tap="addRewards_">
+            Add Rewards
           </paper-button>
         </div>
       </div>

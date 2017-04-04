@@ -56,11 +56,12 @@ class Mission {
 }
 
 class RewardCategory {
-  constructor(rewardCategoryId, gameId, name, points) {
+  constructor(rewardCategoryId, gameId, name, points, seed) {
     this.id = rewardCategoryId;
     this.gameId = gameId;
     this.name = name;
     this.points = points;
+    this.seed = seed;
   }
 }
 
@@ -69,6 +70,14 @@ class Reward {
     this.id = rewardId;
     this.rewardCategoryId = rewardCategoryId;
     this.rewardCode = rewardCode;
+    this.playerIdOrNull = null;
+  }
+}
+
+class Gun {
+  constructor(gunId, gunNumber) {
+    this.id = gunId;
+    this.gunNumber = gunNumber;
     this.playerIdOrNull = null;
   }
 }
@@ -82,6 +91,7 @@ class FakeDatabase {
     this.missionsById = new Map();
     this.rewardsById = new Map();
     this.rewardCategoriesById = new Map();
+    this.gunsById = new Map();
   }
   
   createUser(user) {
@@ -230,9 +240,9 @@ class FakeDatabase {
       lifeCode: lifeCode,
     });
   }
-  addRewardCategory(rewardCategoryId, gameId, name, points) {
+  addRewardCategory(rewardCategoryId, gameId, name, points, seed) {
     this.expectRewardCategoryNotExists_(rewardCategoryId);
-    let category = new RewardCategory(rewardCategoryId, gameId, name, points);
+    let category = new RewardCategory(rewardCategoryId, gameId, name, points, seed);
     this.rewardCategoriesById.set(rewardCategoryId, category);
   }
   findRewardCategoryIdsForGameId(gameId) {
@@ -275,6 +285,7 @@ class FakeDatabase {
     return Utils.copyOf(this.rewardsById.get(rewardId));
   }
   findRewardIdsForPlayerId(playerId) {
+    this.expectPlayerExists_(playerId);
     let result = [];
     for (const [rewardId, reward] of this.rewardsById) {
       if (reward.playerIdOrNull == playerId) {
@@ -284,6 +295,7 @@ class FakeDatabase {
     return result;
   }
   findRewardIdsForRewardCategoryId(rewardCategoryId) {
+    this.expectRewardCategoryExists_(rewardCategoryId);
     let result = [];
     for (const [rewardId, reward] of this.rewardsById) {
       if (reward.rewardCategoryId == rewardCategoryId) {
@@ -293,8 +305,47 @@ class FakeDatabase {
     return result;
   }
   findRewardCategoryIdsForPlayerId(playerId) {
+    this.expectPlayerExists_(playerId);
     return this.findRewardIdsForPlayerId(playerId)
         .map(rewardId => this.getRewardById(rewardId).rewardCategoryId);
+  }
+  setRewardCategoryName(rewardCategoryId, newName) {
+    this.expectRewardCategoryExists_(rewardCategoryId);
+    this.rewardCategoriesById.get(rewardCategoryId).name = newName;
+  }
+
+  getAllGunIds() {
+    var result = [];
+    for (let key of this.gunsById.keys())
+      result.push(key);
+    return result;
+  }
+  addGun(gunId, gunNumber) {
+    this.expectGunNotExists_(gunId);
+    var gun = new Gun(gunId, gunNumber);
+    this.gunsById.set(gunId, gun);
+  }
+  setGunPlayer(gunId, playerIdOrNull) {
+    this.expectGunExists_(gunId);
+    if (playerIdOrNull)
+      this.expectPlayerExists_(playerIdOrNull);
+    this.gunsById.get(gunId).playerIdOrNull = playerIdOrNull;
+  }
+  returnGun(gunId) {
+    this.expectGunExists_(gunId);
+    this.gunsById.get(gunId).playerIdOrNull = null;
+  }
+  getGunById(gunId) {
+    this.expectGunExists_(gunId);
+    return this.gunsById.get(gunId);
+  }
+  findGunIdOrNullByNumber(gunNumber) {
+    for (let [gunId, gun] of this.gunsById) {
+      if (gun.number == gunNumber) {
+        return gunId;
+      }
+    }
+    return null;
   }
 
   expectUserExists_(id) { assert(id && this.usersById.has(id), 'User id doesnt exist: ' + id); }
@@ -311,6 +362,9 @@ class FakeDatabase {
   expectRewardCategoryNotExists_(id) { assert(id && !this.rewardCategoriesById.has(id), 'RewardCategory id already taken: ' + id); }
   expectRewardExists_(id) { assert(id && this.rewardsById.has(id), 'Reward id doesnt exist: ' + id); }
   expectRewardNotExists_(id) { assert(id && !this.rewardsById.has(id), 'Reward id already taken: ' + id); }
+  expectGunExists_(id) { assert(id && this.gunsById.has(id), 'Gun id doesnt exist: ' + id); }
+  expectGunNotExists_(id) { assert(id && !this.gunsById.has(id), 'Gun id already taken: ' + id); }
+  
 }
 
 function assert(condition, message) {

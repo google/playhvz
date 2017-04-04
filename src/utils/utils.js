@@ -48,3 +48,40 @@ Utils.subtract = function(array, ...thingsToSubtract) {
 Utils.byPoints = function(player1, player2) {
   return parseFloat(player2.points) - parseFloat(player1.points);
 }
+
+Utils.showDialog = function(description, label, initialValue, valueIfCanceled) {
+  var dialog = document.createElement('paper-dialog');
+  var descriptionDiv = document.createElement('div');
+  descriptionDiv.appendChild(document.createTextNode(description));
+  Polymer.dom(dialog).appendChild(descriptionDiv);
+  var input = document.createElement('paper-input');
+  if (label)
+    input.label = label;
+  if (typeof initialValue == 'number')
+    input.type = 'number';
+  input.value = initialValue;
+  Polymer.dom(dialog).appendChild(input);
+  var buttonsDiv = document.createElement('div');
+  var cancelButton = document.createElement('paper-button');
+  cancelButton.setAttribute('dialog-dismiss', '');
+  cancelButton.appendChild(document.createTextNode('Cancel'));
+  buttonsDiv.appendChild(cancelButton);
+  var acceptButton = document.createElement('paper-button');
+  acceptButton.setAttribute('dialog-confirm', '');
+  acceptButton.setAttribute('autofocus', '');
+  acceptButton.appendChild(document.createTextNode('Accept'));
+  buttonsDiv.appendChild(acceptButton);
+  Polymer.dom(dialog).appendChild(buttonsDiv);
+  document.body.appendChild(dialog);
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      dialog.addEventListener('iron-overlay-closed', (e) => {
+        if (e.detail.canceled)
+          resolve(valueIfCanceled);
+        else
+          resolve(input.value);
+      });
+      dialog.open();
+    });
+  });
+}

@@ -33,6 +33,11 @@
             type: String,
             value: undefined,
           },
+
+          isAdmin: {
+            type: Boolean,
+            value: false,
+          },
         },
 
         attached: function() {
@@ -59,6 +64,14 @@
                 }
               });
         },
+
+        becomeAdmin_: function() {
+          this.isAdmin = true;
+        },
+
+        becomeNotAdmin_: function() {
+          this.isAdmin = false;
+        },
       });
     });
   </script>
@@ -68,37 +81,82 @@
         display: block;
         margin: 16px;
       }
+      #admin paper-button {
+        background-color: #03A9F4;
+        color: white;
+      }
   	</style>
 
     DONT POST CONFIDENTIAL INFO, COBFLABBIT!
+    <div id="admin">
+      <paper-button on-tap="becomeAdmin_" hidden$="[[isAdmin]]">
+        Become Admin
+      </paper-button>
+      <paper-button on-tap="becomeNotAdmin_" hidden$="[[!isAdmin]]">
+        Become Regular Player
+      </paper-button>
+    </div>
 
     <ghvz-dashboard>
-      <ghvz-dashlet full>
-        <div class="header">Players</div>
-        <player-table
-            id="playerTableModule"
+      <template is="dom-if" if="[[isAdmin]]">
+        <ghvz-dashlet admin full>
+          <div class="header">Players</div>
+          <player-table
+              id="playerTableModule"
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              current-user-id="[[userId]]">
+          </player-table>
+        </ghvz-dashlet>
+        
+        <ghvz-dashlet admin half left>
+          <div class="header">Dev Tools</div>
+          <dev-tools
+              class="content"
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              user-id="[[userId]]">
+          </dev-tools>
+        </ghvz-dashlet>
+
+        <ghvz-dashlet admin half right>
+          <div class="header">Guns</div>
+          <ghvz-guns
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]">
+          </ghvz-guns>
+        </ghvz-dashlet>
+
+        <ghvz-dashlet admin half right>
+          <div class="header">Rewards</div>
+          <ghvz-rewards
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]">
+          </ghvz-rewards>
+        </ghvz-dashlet>
+      </template>
+
+      <ghvz-dashlet padded half left>
+        <div class="header">Next Mission</div>
+        <ghvz-next-mission
             server-bridge="[[serverBridge]]"
             game-id="[[gameId]]"
-            current-user-id="[[userId]]">
-        </player-table>
-      </ghvz-dashlet>
-      
-      <ghvz-dashlet half left>
-        <div class="header">Dev Tools</div>
-        <dev-tools
-            class="content"
-            server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]"
-            user-id="[[userId]]">
-        </dev-tools>
+            player-id="[[playerId]]">
+        </ghvz-next-mission>
       </ghvz-dashlet>
 
       <ghvz-dashlet half left>
-        <div class="header">Rewards</div>
-        <ghvz-rewards
+        <div class="header">Leaderboard</div>
+        <leaderboard-summary
             server-bridge="[[serverBridge]]"
             game-id="[[gameId]]">
-        </ghvz-rewards>
+        </leaderboard-summary>
+      </ghvz-dashlet>
+
+      <ghvz-dashlet half left>
+        <div class="header">Game Stats</div>
+        <game-stat-summary>
+        </game-stat-summary>
       </ghvz-dashlet>
 
       <ghvz-dashlet half left>
@@ -119,23 +177,6 @@
         </ghvz-next-mission>
       </ghvz-dashlet>
 
-      <ghvz-dashlet padded half left>
-        <div class="header">Next Mission</div>
-        <ghvz-next-mission
-            server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]"
-            player-id="[[playerId]]">
-        </ghvz-next-mission>
-      </ghvz-dashlet>
-
-      <ghvz-dashlet half right>
-        <div class="header">Leaderboard</div>
-        <leaderboard-summary
-            server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]">
-        </leaderboard-summary>
-      </ghvz-dashlet>
-
       <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
         <ghvz-dashlet half right>
           <div class="header">[[chatRoom.name]]</div>
@@ -149,21 +190,17 @@
         </ghvz-dashlet>
       </template>
 
-      <ghvz-dashlet half left>
-        <div class="header">Game Stats</div>
-        <game-stat-summary class="content">
-        </game-stat-summary>
-      </ghvz-dashlet>
-
-      <ghvz-dashlet half right>
-        <div class="header">Join A Game</div>
-        <game-registration
-              class="content"
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]"
-              user-id="[[userId]]">
-        </game-registration>
-      </ghvz-dashlet>
+      <template is="dom-if" if="[[isRegistering]]">
+        <ghvz-dashlet half right>
+          <div class="header">Join A Game</div>
+          <game-registration
+                class="content"
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]"
+                user-id="[[userId]]">
+          </game-registration>
+        </ghvz-dashlet>
+      </template>
 
     </ghvz-dashboard>
 
@@ -189,5 +226,9 @@
   desktop-app paper-menu paper-item:hover {
     background-color: #F0F0F0 !important;
     cursor: pointer;
+  }
+
+  paper-input-container {
+    padding: 0 !important;
   }
 </style>
