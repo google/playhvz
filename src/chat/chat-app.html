@@ -51,6 +51,11 @@ TODO(SquirrelThief):
             value: function() { return[]; },
           },
 
+          previousMessagePlayerId: {
+            type: String,
+            value: "",
+          },
+
           pollInterval: {
             type: Number,
             value: 1,  // in seconds
@@ -145,6 +150,16 @@ TODO(SquirrelThief):
         }
       },
 
+      displaySenderInfo(playerId) {
+        console.log("check previous message playerId");
+        if (playerId != this.previousMessagePlayerId) {
+          this.previousMessagePlayerId = playerId;
+          return 'display-sender';
+        } else {
+          return 'hide-sender';
+        }
+      },
+
       getName_(playerId) {
         if (!this.playersInChat[playerId]) {
           this.serverBridge.getPlayerById(playerId)
@@ -164,7 +179,7 @@ TODO(SquirrelThief):
 
       openPlayerProfile_(e) {
         console.log(e);
-      }
+      },
     });
 });
 </script>
@@ -200,18 +215,43 @@ TODO(SquirrelThief):
   }
 
   .message-from-me > .player-name {
-    padding-left: 8px;
+    align-self: flex-end;
     order: 3;
   }
 
   .message-from-other > .player-name {
-    padding-right: 8px;
+    align-self: flex-start;
     order: 1;
   }
 
-  .display-message {
+  .message-text {
+    align-self: center;
+    background-color: lightgrey;
+    padding: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+    border-radius: 25px;
     white-space: pre;
+  }
+
+  .message-from-me > .message-text {
+    align-self: flex-end;
+  }
+
+  .message-from-other > .message-text {
+    align-self: flex-start;
+  }
+  
+  .display-message {
     order: 2;
+  }
+
+  .display-sender {
+    visibility: visible;
+  }
+
+  .hide-sender {
+    visibility: hidden;
   }
 
   .textbox {
@@ -227,15 +267,18 @@ TODO(SquirrelThief):
 <template is="dom-repeat" items="[[chatRoom.messages]]">
   <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, player.id)]]">
 
-    <div class="display-message">[[item.message]]</div>
-    <div class="player-name layout vertical">
+    <div class="layout vertical display-message">
+      <div class="message-text">[[item.message]]</div>
+      <div class="player-name">[[getName_(item.playerId)]]</div>
+    </div>
+    <div class$="layout vertical player-name [[displaySenderInfo(item.playerId)]]">
+      <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
       <iron-image
       src="[[getProfilePic_(item.playerId)]]"
       id="profile-pic" 
       sizing="cover"
       on-click="openPlayerProfile_">
     </iron-image>
-    <div>[[getName_(item.playerId)]]</div>
   </div>
 </div> 
 </template>
@@ -253,11 +296,11 @@ TODO(SquirrelThief):
   on-keydown="checkForEnter_">
 </paper-textarea>
 <paper-button 
-  class="send"
-  id="messageSend" 
-  raised
-  on-click="onSendClicked_">
-  SEND
+class="send"
+id="messageSend" 
+raised
+on-click="onSendClicked_">
+SEND
 </paper-button>
 </div>
 
