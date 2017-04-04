@@ -93,6 +93,14 @@
         </dev-tools>
       </ghvz-dashlet>
 
+      <ghvz-dashlet half right>
+        <div class="header">Guns</div>
+        <ghvz-guns
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]">
+        </ghvz-guns>
+      </ghvz-dashlet>
+
       <ghvz-dashlet half left>
         <div class="header">Rewards</div>
         <ghvz-rewards
@@ -189,5 +197,9 @@
   desktop-app paper-menu paper-item:hover {
     background-color: #F0F0F0 !important;
     cursor: pointer;
+  }
+
+  paper-input-container {
+    padding: 0 !important;
   }
 </style>

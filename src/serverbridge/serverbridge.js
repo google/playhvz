@@ -27,6 +27,10 @@
 // claimReward(playerId, rewardCode)
 // findRewardsForPlayerId(playerId)
 // getMissionById(missionId)
+// getAllGuns()
+// addGun(gunId, gunNumber)
+// setGunPlayer(gunId, playerIdOrNull)
+// getGunById(gunId)
 
 const SERVER_METHODS = [
   'logIn',
@@ -62,4 +66,8 @@ const SERVER_METHODS = [
   'getMissionById',
   'findRewardsForRewardCategoryId',
   'setRewardCategoryName',
+  'getAllGuns',
+  'addGun',
+  'setGunPlayer',
+  'getGunById',
 ];

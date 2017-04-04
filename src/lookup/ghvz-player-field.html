@@ -1,0 +1,118 @@
+<dom-module id="ghvz-player-field">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-player-field',
+
+        properties: {
+          serverBridge: Object,
+          gameId: String,
+          players: {
+            type: Array,
+            value: [],
+          },
+          label: {
+            type: String,
+          },
+          value: {
+            type: String,
+            notify: true,
+          },
+          editing: {
+            type: Boolean,
+            value: false,
+          },
+          playerIdOrNull: {
+            type: String,
+          },
+          playerOrNull: {
+            type: Object,
+          },
+          matchingPlayerOrNull: {
+            type: Object,
+            notify: true,
+          },
+        },
+
+        observers: ["onPlayerSet_(serverBridge, playerIdOrNull)"],
+
+        onPlayerSet_: function(serverBridge, playerIdOrNull) {
+          if (playerIdOrNull) {
+            this.serverBridge.getPlayerById(playerIdOrNull)
+                .then((player) => {
+                  this.playerOrNull = player;
+                });
+          } else {
+            this.playerOrNull = null;
+          }
+        },
+
+        editPlayer_: function() {
+          this.editing = true;
+        },
+
+        computeSetButtonEnabled_(matchingPlayerOrNull) {
+          return !!matchingPlayerOrNull;
+        },
+
+        setPlayer_() {
+          this.fire('set-player', {
+            playerOrNull: this.matchingPlayerOrNull
+          });
+        },
+      });
+    });
+  </script>
+
+  <template class="layout vertical" style="height:300px">
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+      #setButton {
+        color: white;
+        background-color: #03A9F4;
+        padding: 4px 16px;
+        min-width: auto;
+      }
+      #setButton[disabled] {
+        background-color: #C0C0C0;
+        opacity: .5;
+      }
+      #player {
+        display: flex;
+        align-items: center;
+      }
+    </style>
+    <div id="player" hidden$="[[editing]]">
+      <div hidden$="[[playerIdOrNull]]">
+        (none)
+      </div>
+      <div hidden$="[[!playerIdOrNull]]">
+        [[playerOrNull.number]]: [[playerOrNull.name]]
+      </div>
+      <paper-icon-button
+          id="editButton"
+          icon="icons:create"
+          on-tap="editPlayer_">
+      </paper-icon-button>
+    </div>
+    <ghvz-player-lookup
+        server-bridge="[[serverBridge]]"
+        game-id="[[gameId]]"
+        matching-player-or-null="{{matchingPlayerOrNull}}"
+        hidden$="[[!editing]]">
+      <paper-button
+          id="setButton"
+          icon="icons:check"
+          disabled="[[!computeSetButtonEnabled_(matchingPlayerOrNull)]]"
+          on-tap="setPlayer_"
+          suffix>
+        Set
+      </paper-button>
+    </ghvz-player-lookup>
+  </template>
+</dom-module>

@@ -197,6 +197,19 @@ class FakeServer {
   setRewardCategoryName(rewardCategoryId, newName) {
     this.fakeDatabase.setRewardCategoryName(rewardCategoryId, newName);
   }
+  getAllGuns() {
+    return this.fakeDatabase.getAllGunIds()
+        .map(gunId => this.getGunById(gunId));
+  }
+  addGun(gunId, gunNumber) {
+    this.fakeDatabase.addGun(gunId, gunNumber);
+  }
+  setGunPlayer(gunId, playerIdOrNull) {
+    this.fakeDatabase.setGunPlayer(gunId, playerIdOrNull);
+  }
+  getGunById(gunId) {
+    return this.fakeDatabase.getGunById(gunId);
+  }
 }
 
 

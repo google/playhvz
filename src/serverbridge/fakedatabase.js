@@ -74,6 +74,14 @@ class Reward {
   }
 }
 
+class Gun {
+  constructor(gunId, gunNumber) {
+    this.id = gunId;
+    this.gunNumber = gunNumber;
+    this.playerIdOrNull = null;
+  }
+}
+
 class FakeDatabase {
 	 constructor() {
     this.usersById = new Map();
@@ -83,6 +91,7 @@ class FakeDatabase {
     this.missionsById = new Map();
     this.rewardsById = new Map();
     this.rewardCategoriesById = new Map();
+    this.gunsById = new Map();
   }
   
   createUser(user) {
@@ -305,6 +314,40 @@ class FakeDatabase {
     this.rewardCategoriesById.get(rewardCategoryId).name = newName;
   }
 
+  getAllGunIds() {
+    var result = [];
+    for (let key of this.gunsById.keys())
+      result.push(key);
+    return result;
+  }
+  addGun(gunId, gunNumber) {
+    this.expectGunNotExists_(gunId);
+    var gun = new Gun(gunId, gunNumber);
+    this.gunsById.set(gunId, gun);
+  }
+  setGunPlayer(gunId, playerIdOrNull) {
+    this.expectGunExists_(gunId);
+    if (playerIdOrNull)
+      this.expectPlayerExists_(playerIdOrNull);
+    this.gunsById.get(gunId).playerIdOrNull = playerIdOrNull;
+  }
+  returnGun(gunId) {
+    this.expectGunExists_(gunId);
+    this.gunsById.get(gunId).playerIdOrNull = null;
+  }
+  getGunById(gunId) {
+    this.expectGunExists_(gunId);
+    return this.gunsById.get(gunId);
+  }
+  findGunIdOrNullByNumber(gunNumber) {
+    for (let [gunId, gun] of this.gunsById) {
+      if (gun.number == gunNumber) {
+        return gunId;
+      }
+    }
+    return null;
+  }
+
   expectUserExists_(id) { assert(id && this.usersById.has(id), 'User id doesnt exist: ' + id); }
   expectUserNotExists_(id) { assert(id && !this.usersById.has(id), 'User id already taken: ' + id); }
   expectGameExists_(id) { assert(id && this.gamesById.has(id), 'Game id doesnt exist: ' + id); }
@@ -319,6 +362,9 @@ class FakeDatabase {
   expectRewardCategoryNotExists_(id) { assert(id && !this.rewardCategoriesById.has(id), 'RewardCategory id already taken: ' + id); }
   expectRewardExists_(id) { assert(id && this.rewardsById.has(id), 'Reward id doesnt exist: ' + id); }
   expectRewardNotExists_(id) { assert(id && !this.rewardsById.has(id), 'Reward id already taken: ' + id); }
+  expectGunExists_(id) { assert(id && this.gunsById.has(id), 'Gun id doesnt exist: ' + id); }
+  expectGunNotExists_(id) { assert(id && !this.gunsById.has(id), 'Gun id already taken: ' + id); }
+  
 }
 
 function assert(condition, message) {

@@ -14,14 +14,14 @@
           delegate: Object,
           label: {
             type: String,
-            value: "",
+            value: null,
           },
           items: Array,
           filteredItems: {
             type: Array,
             computed: 'computeFilteredItems_(items, value)',
           },
-          matchingItem: {
+          matchingItemOrNull: {
             type: Object,
             computed: 'computeMatchingItem_(items, value)',
             notify: true,
@@ -133,6 +133,7 @@
         tabindex="0"
         label="[[label]]"
         value="{{value}}"
+        no-label-float="[[!label]]"
         on-keyup="onKeyUp_"
         on-focus="onFocus_"
         on-focusout="onFocusOut_">
