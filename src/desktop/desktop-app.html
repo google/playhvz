@@ -99,7 +99,7 @@
 
     <ghvz-dashboard>
       <template is="dom-if" if="[[isAdmin]]">
-        <ghvz-dashlet full>
+        <ghvz-dashlet admin full>
           <div class="header">Players</div>
           <player-table
               id="playerTableModule"
@@ -109,7 +109,7 @@
           </player-table>
         </ghvz-dashlet>
         
-        <ghvz-dashlet half left>
+        <ghvz-dashlet admin half left>
           <div class="header">Dev Tools</div>
           <dev-tools
               class="content"
@@ -119,7 +119,7 @@
           </dev-tools>
         </ghvz-dashlet>
 
-        <ghvz-dashlet half right>
+        <ghvz-dashlet admin half right>
           <div class="header">Guns</div>
           <ghvz-guns
               server-bridge="[[serverBridge]]"
@@ -127,7 +127,7 @@
           </ghvz-guns>
         </ghvz-dashlet>
 
-        <ghvz-dashlet half right>
+        <ghvz-dashlet admin half right>
           <div class="header">Rewards</div>
           <ghvz-rewards
               server-bridge="[[serverBridge]]"
