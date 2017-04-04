@@ -47,6 +47,9 @@
       :host {
         display: block;
       }
+      #comingSoon {
+        margin: 16px;
+      }
     </style>
     <template is="dom-if" if="[[nextMissionId]]">
       <ghvz-mission
@@ -56,10 +59,8 @@
           mission-id="[[nextMissionId]]">
       </ghvz-mission>
     </template>
-    <div hidden$="[[nextMissionId]]">
-      <p>
-        The next mission's details will be posted here.
-      </p>
+    <div id="comingSoon" hidden$="[[nextMissionId]]">
+      The next mission's details will be posted here.
     </div>
   </template>
 </dom-module>

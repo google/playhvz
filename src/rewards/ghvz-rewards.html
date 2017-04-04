@@ -61,8 +61,7 @@
                   return [
                     {property: "name", name: "Name"},
                     {property: "points", name: "Points"},
-                    {property: "total", name: "# Total"},
-                    {property: "claimed", name: "# Claimed"},
+                    {property: "claimed", name: "Claimed"},
                     {property: "seed", name: "Seed"},
                   ];
                 }),
@@ -132,6 +131,9 @@
         },
 
         getCategoriesTableContents_: function(category, propertyName) {
+          if (propertyName == 'claimed') {
+            return category.claimed + '/' + category.total;
+          }
         },
 
         getRewardsTableContents_: function(reward, propertyName) {
