@@ -38,6 +38,11 @@
             type: Boolean,
             value: false,
           },
+
+          isZombie: {
+            type: Boolean,
+            value: false,
+          }
         },
 
         attached: function() {
@@ -77,24 +82,37 @@
   </script>
   <template>
   	<style>
+      ghvz-dashboard {
+        padding-top: 32px;
+      }
       .content {
         display: block;
         margin: 16px;
       }
-      #admin paper-button {
-        background-color: #03A9F4;
-        color: white;
+      #viewControls {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 8px;
+      }
+      #viewControls paper-checkbox {
+        margin-left: 16px;
+      }
+      #confidential {
+        margin: 8px;
+        position: absolute;
+        top: 0;
+        left: 0;
       }
   	</style>
 
-    DONT POST CONFIDENTIAL INFO, COBFLABBIT!
-    <div id="admin">
-      <paper-button on-tap="becomeAdmin_" hidden$="[[isAdmin]]">
-        Become Admin
-      </paper-button>
-      <paper-button on-tap="becomeNotAdmin_" hidden$="[[!isAdmin]]">
-        Become Regular Player
-      </paper-button>
+    <div id="confidential">
+      DONT POST CONFIDENTIAL INFO, COBFLABBIT!
+    </div>
+
+    <div id="viewControls">
+      <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
+      <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
     </div>
 
     <ghvz-dashboard>
@@ -136,6 +154,19 @@
         </ghvz-dashlet>
       </template>
 
+
+      <template is="dom-if" if="[[isZombie]]">
+        <ghvz-dashlet half left>
+          <div class="header">Infect</div>
+          <ghvz-infect
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              player-id="[[playerId]]">
+          </ghvz-infect>
+        </ghvz-dashlet>
+      </template>
+
+
       <ghvz-dashlet half left>
         <div class="header">Next Mission</div>
         <ghvz-next-mission
@@ -157,15 +188,6 @@
         <div class="header">Game Stats</div>
         <game-stat-summary>
         </game-stat-summary>
-      </ghvz-dashlet>
-
-      <ghvz-dashlet half left>
-        <div class="header">Infect</div>
-        <ghvz-infect
-            server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]"
-            player-id="[[playerId]]">
-        </ghvz-infect>
       </ghvz-dashlet>
 
       <ghvz-dashlet half left>
