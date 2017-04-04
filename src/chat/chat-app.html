@@ -76,7 +76,9 @@ TODO(SquirrelThief):
               this.playersInChat = playersInChat;
               // Only update chat messages once we finished getting player
               // names, otherwise the elements redraw and we don't have names
+              chatRoom.messages = this.processMessages_(chatRoom.messages);
               this.chatRoom = chatRoom;
+              console.log(chatRoom.messages);
             });
           });
 
@@ -88,6 +90,7 @@ TODO(SquirrelThief):
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
           this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
           .then((messages) => {
+            //messages = this.processMessages_(messages);
             for (var index in messages) {
               this.push('chatRoom.messages', messages[index]);
             }
@@ -111,6 +114,22 @@ TODO(SquirrelThief):
           .then((player) => {
             this.player = player;
           });
+        },
+
+        processMessages_: function(messages) {
+          var processed = [];
+          var previousPlayerId = "";
+          for (var index in messages) {
+            console.log(previousPlayerId);
+            processed.push(messages[index]);
+            processed[index].showName = false;
+            if (processed[index].playerId != previousPlayerId) {
+              previousPlayerId = processed[index].playerId;
+              var previousIndex = Math.max(index - 1, 0);
+              processed[previousIndex].showName = true;
+            }
+          }
+          return processed;
         },
 
         computeMessageDisplayClass_(senderId, myId) {
@@ -151,7 +170,6 @@ TODO(SquirrelThief):
       },
 
       displaySenderInfo(playerId) {
-        console.log("check previous message playerId");
         if (playerId != this.previousMessagePlayerId) {
           this.previousMessagePlayerId = playerId;
           return 'display-sender';
@@ -214,36 +232,45 @@ TODO(SquirrelThief):
     justify-content: flex-end;
   }
 
-  .message-from-me > .player-name {
+  .message-from-me .player-name {
     align-self: flex-end;
     order: 3;
   }
 
-  .message-from-other > .player-name {
+  .message-from-other .player-name {
     align-self: flex-start;
     order: 1;
   }
 
   .message-text {
-    align-self: center;
-    background-color: lightgrey;
+    border-radius: 25px;
     padding: 4px;
     padding-right: 8px;
     padding-left: 8px;
-    border-radius: 25px;
     white-space: pre;
   }
 
-  .message-from-me > .message-text {
+  .message-from-me .message-text {
     align-self: flex-end;
+    background-color: rgba(135, 206, 250, .4);
   }
 
-  .message-from-other > .message-text {
+  .message-from-other .message-text {
     align-self: flex-start;
+    background-color: lightgrey;
   }
   
   .display-message {
+    align-self: center;
     order: 2;
+  }
+
+  .message-from-me > .display-message {
+    padding-right: 8px;
+  }
+
+  .message-from-other > .display-message {
+    padding-left: 8px;
   }
 
   .display-sender {
@@ -269,7 +296,9 @@ TODO(SquirrelThief):
 
     <div class="layout vertical display-message">
       <div class="message-text">[[item.message]]</div>
-      <div class="player-name">[[getName_(item.playerId)]]</div>
+      <template is="dom-if" if="[[item.message.showName]]">
+        <div class="player-name">[[getName_(item.playerId)]]</div>
+      </template>
     </div>
     <div class$="layout vertical player-name [[displaySenderInfo(item.playerId)]]">
       <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
