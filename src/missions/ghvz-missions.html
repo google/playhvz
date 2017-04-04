@@ -1,0 +1,180 @@
+
+<dom-module id="ghvz-missions">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-missions',
+
+        properties: {
+          serverBridge: Object,
+
+          gameId: String,
+
+          missions: Array,
+
+          tableDelegate: {
+            type: Object,
+            value: function() {
+              return {
+                getSchema: (() => {
+                  return [
+                    {property: "name", name: "name"},
+                    {property: "beginTime", name: "Begin"},
+                    {property: "endTime", name: "End"},
+                    {property: "url", name: "Url"},
+                  ];
+                }),
+                getActions: (() => {
+                  return [
+                    //{action: "delete", name: "Delete"},
+                  ];
+                }),
+                create: this.getTableContents_.bind(this),
+                doAction: this.doTableAction_.bind(this),
+              };
+            },
+          },
+        },
+
+        attached: function() {
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
+        },
+
+        observers: [
+          "ready_(serverBridge, missionId)",
+        ],
+
+        ready_: function(serverBridge, missionId) {
+          this.refresh_();
+        },
+
+        doTableAction_: function(gun, action) {
+        },
+
+        addMission_: function() {
+          this.serverBridge.addMission(
+              Utils.generateId("mission"),
+              this.gameId,
+              this.newMissionBeginTime,
+              this.newMissionEndTime,
+              this.newMissionName,
+              this.newMissionUrl);
+          this.newMissionBeginTime = "";
+          this.newMissionEndTime = "";
+          this.newMissionName = "";
+          this.newMissionUrl = "";
+          this.refresh_();
+        },
+
+        getTableContents_: function(gun, propertyName) {
+        },
+
+        refresh_: function() {
+          this.serverBridge.getAllGuns()
+              .then((guns) => {
+                this.guns = guns;
+              });
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      #newGun {
+        display: flex;
+        margin: 8px;
+      }
+
+      .wide-input-row {
+        margin: 0 8px;
+      }
+      .input-row {
+        display: flex;
+      }
+      .input-row paper-input {
+        min-width: 100px;
+      }
+      .input-description {
+        display: flex;
+        align-items: flex-end;
+      }
+      #addReward,
+      #addCategory {
+        margin: 8px;
+        white-space: nowrap;
+      }
+      .input-row paper-input {
+        margin: 0 8px;
+      }
+      .add-container {
+        display: flex;
+        align-items: flex-end;
+      }
+    </style>
+
+    <paper-icon-button
+        id="refresh"
+        icon="icons:refresh"
+        on-tap="refresh_">
+    </paper-icon-button>
+
+    <auto-table
+        id="table"
+        delegate="[[tableDelegate]]"
+        items="[[missions]]">
+    </auto-table>
+
+    <div id="newMission">
+      <div class="input-row">
+        <paper-input
+            id="newMissionName"
+            label="Mission name"
+            value="{{newMissionName}}">
+        </paper-input>
+      </div>
+      <div class="input-row">
+        <paper-input
+            id="newMissionBeginTime"
+            label="Mission begin timestamp"
+            value="{{newMissionBeginTime}}">
+        </paper-input>
+        <div class="input-description">
+          Start timestamp, in seconds.
+        </div>
+      </div>
+      <div class="input-row">
+        <paper-input
+            id="newMissionEndTime"
+            label="Mission end timestamp"
+            value="{{newMissionEndTime}}">
+        </paper-input>
+        <div class="input-description">
+          End timestamp, in seconds.
+        </div>
+      </div>
+      <div class="input-row">
+        <paper-input
+            id="newMissionUrl"
+            label="Mission page url"
+            value="{{newMissionUrl}}">
+        </paper-input>
+        <div class="input-description">
+          Url of the page describing the mission, example /firstgame/missions/first-mission.html
+        </div>
+      </div>
+      <div class="add-container">
+        <paper-button
+            raised
+            disabled="[[!computeAddMissionButtonEnabled_(newMissionName, newMissionBeginTime, newMissionEndTime, newMissionUrl)]]"
+            on-tap="addMission_">
+          Add Mission
+        </paper-button>
+      </div>
+      For timestamps, use <a href="https://www.epochconverter.com/">epochconverter</a>.
+      Timestamps are in seconds, not milliseconds.
+    </div>
+  </template>
+</dom-module>
