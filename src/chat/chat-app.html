@@ -88,8 +88,11 @@ TODO(SquirrelThief):
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
           this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
           .then((messages) => {
+            var afterId = this.chatRoom.messages.slice(-1)[0].id;
             for (var index in messages) {
-              this.push('chatRoom.messages', messages[index]);
+              if(messages[index].id > afterId) {
+                this.push('chatRoom.messages', messages[index]);
+              }
             }
           });
         },
@@ -152,8 +155,11 @@ TODO(SquirrelThief):
 
           this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
           .then((messages) => {
+            var afterId = this.chatRoom.messages.slice(-1)[0].id;
             for (var index in messages) {
-              this.push('chatRoom.messages', messages[index]);
+              if(messages[index].id > afterId) {
+                this.push('chatRoom.messages', messages[index]);
+              }
             }
           });
         },
@@ -206,8 +212,8 @@ TODO(SquirrelThief):
         var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         var date = new Date(time);
         return days[date.getDay()] + " " + 
-          ("0" + date.getHours()).slice(-2) + ":" + 
-          ("0" + date.getMinutes()).slice(-2);
+        ("0" + date.getHours()).slice(-2) + ":" + 
+        ("0" + date.getMinutes()).slice(-2);
       },
     });
 });
