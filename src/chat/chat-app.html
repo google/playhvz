@@ -76,7 +76,7 @@ TODO(SquirrelThief):
               this.playersInChat = playersInChat;
               // Only update chat messages once we finished getting player
               // names, otherwise the elements redraw and we don't have names
-              chatRoom.messages = this.processMessages_(chatRoom.messages);
+              chatRoom.messages = this.setShowNameOnMessage_(chatRoom.messages);
               this.chatRoom = chatRoom;
               console.log(chatRoom.messages);
             });
@@ -90,11 +90,17 @@ TODO(SquirrelThief):
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
           this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
           .then((messages) => {
-            //messages = this.processMessages_(messages);
-            for (var index in messages) {
-              this.push('chatRoom.messages', messages[index]);
-            }
-          });
+            if (messages.length == 0) { return; }
+            messages = this.setShowNameOnMessage_(messages);
+            if (messages[0].playerId == 
+              this.chatRoom.messages.slice(-1)[0].playerId) {
+              this.chatRoom.messages.slice(-1)[0].showName = false;
+          }
+
+          for (var index in messages) {
+            this.push('chatRoom.messages', messages[index]);
+          }
+        });
         },
 
         pollPlayers_: function() {
@@ -116,17 +122,20 @@ TODO(SquirrelThief):
           });
         },
 
-        processMessages_: function(messages) {
+        setShowNameOnMessage_: function(messages) {
+          if (!messages) { return []; }
           var processed = [];
           var previousPlayerId = "";
-          for (var index in messages) {
-            console.log(previousPlayerId);
-            processed.push(messages[index]);
-            processed[index].showName = false;
-            if (processed[index].playerId != previousPlayerId) {
-              previousPlayerId = processed[index].playerId;
-              var previousIndex = Math.max(index - 1, 0);
+          for (var i = 0; i < messages.length; i++) {
+            processed.push(messages[i]);
+            processed[i].showName = false;
+            if (processed[i].playerId != previousPlayerId) {
+              previousPlayerId = processed[i].playerId;
+              var previousIndex = Math.max(i - 1, 0);
               processed[previousIndex].showName = true;
+            }
+            if (i == messages.length - 1) {
+              processed[i].showName = true;
             }
           }
           return processed;
@@ -197,6 +206,12 @@ TODO(SquirrelThief):
 
       openPlayerProfile_(e) {
         console.log(e);
+      },
+
+      getTime_(time) {
+        var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        var date = new Date(time);
+        return days[date.getDay()] + " " + date.getHours() + ":" + date.getMinutes();
       },
     });
 });
@@ -296,7 +311,8 @@ TODO(SquirrelThief):
 
     <div class="layout vertical display-message">
       <div class="message-text">[[item.message]]</div>
-      <template is="dom-if" if="[[item.message.showName]]">
+      <paper-tooltip position="top">[[getTime_(item.time)]]</paper-tooltip>
+      <template is="dom-if" if="{{item.showName}}">
         <div class="player-name">[[getName_(item.playerId)]]</div>
       </template>
     </div>
