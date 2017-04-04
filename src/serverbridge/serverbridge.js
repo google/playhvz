@@ -15,7 +15,7 @@
 // addMessageToChatRoom(chatRoomId, playerId, message)
 // addPlayerToChatRoom(chatRoomId, playerId)
 // findAllChatRoomIdsForPlayerId(playerId)
-// addMission(gameId, missionId, beginTime, endTime, url)
+// addMission(missionId, gameId, beginTime, endTime, name, url)
 // getPlayerById(playerId)
 // findAllPlayersForGameId(playerId)
 // findAllMissionsForPlayerId(playerId)
@@ -70,4 +70,7 @@ const SERVER_METHODS = [
   'addGun',
   'setGunPlayer',
   'getGunById',
+  'findAllMissionsForGameId',
+  'updateMission',
+  'getMissionById',
 ];

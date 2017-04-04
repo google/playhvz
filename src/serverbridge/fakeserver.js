@@ -102,8 +102,8 @@ class FakeServer {
   findAllPlayerIdsForChatRoomId(chatRoomId) {
     return this.fakeDatabase.findAllPlayerIdsForChatRoomId(chatRoomId);
   }
-  addMission(gameId, missionId, beginTime, endTime, url) {
-    var mission = new Mission(missionId, gameId, beginTime, endTime, url);
+  addMission(missionId, gameId, beginTime, endTime, name, url) {
+    var mission = new Mission(missionId, gameId, beginTime, endTime, name, url);
     return this.fakeDatabase.addMission(mission);
   }
   getMissionById(missionId) {
@@ -213,6 +213,13 @@ class FakeServer {
   }
   getGunById(gunId) {
     return this.fakeDatabase.getGunById(gunId);
+  }
+  findAllMissionsForGameId(gameId) {
+    return this.fakeDatabase.findAllMissionIdsForGameId(gameId)
+        .map(missionId => this.getMissionById(gameId));
+  }
+  updateMission(missionId, updates) {
+    this.fakeDatabase.updateMission(missionId, updates);
   }
 }
 

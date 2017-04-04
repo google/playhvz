@@ -46,11 +46,12 @@ class Message {
 }
 
 class Mission {
-  constructor(missionId, gameId, beginTime, endTime, url) {
+  constructor(missionId, gameId, beginTime, endTime, name, url) {
     this.id = missionId;
     this.gameId = gameId;
     this.beginTime = beginTime;
     this.endTime = endTime;
+    this.name = name;
     this.url = url;
   }
 }
