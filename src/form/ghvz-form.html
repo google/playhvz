@@ -1,0 +1,106 @@
+
+<dom-module id="ghvz-form">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-form',
+
+        properties: {
+          doneLabel: {
+            type: String,
+            value: true,
+          },
+
+          openLabel: {
+            type: String,
+            value: true,
+          },
+
+          closeLabel: {
+            type: String,
+            value: true,
+          },
+
+          doneEnabled: {
+            type: Boolean,
+            value: true,
+          },
+
+          open: {
+            type: Boolean,
+            value: false,
+          },
+
+          corner: {
+            type: Boolean,
+            value: false,
+            observer: 'cornerChanged_',
+          },
+
+          maxWidth: {
+            type: Number,
+            value: null,
+            observer: 'maxWidthChanged_',
+          }
+        },
+
+        cornerChanged_: function(corner) {
+          if (corner)
+            this.classList.add("corner");
+          else
+            this.classList.remove("corner");
+        },
+
+        maxWidthChanged_: function(maxWidth) {
+          return maxWidth ? 'max-width: ' + maxWidth : '';
+        },
+
+        open_() {
+          this.$.dialog.open();
+        },
+
+        closed_(e) {
+          if (e.detail.confirmed)
+            this.fire('ghvz-form-done');
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        margin: 8px;
+      }
+      #contents {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .button-container {
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        margin: 8px;
+      }
+      paper-button {
+        background-color: #9C27B0;
+        color: white;
+      }
+    </style>
+
+    <div class="button-container">
+      <paper-button raised on-tap="open_">[[openLabel]]</paper-button>
+    </div>
+    <paper-dialog id="dialog" modal on-iron-overlay-closed="closed_">
+      <div id="contents">
+        <content></content>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>[[closeLabel]]</paper-button>
+        <paper-button dialog-confirm autofocus>[[doneLabel]]</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>

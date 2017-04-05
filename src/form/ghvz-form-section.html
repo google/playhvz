@@ -1,0 +1,48 @@
+
+<dom-module id="ghvz-form-section">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-form-section',
+
+        properties: {
+          description: {
+            type: String,
+            value: "",
+          },
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        width: 100%;
+        display: block;
+      }
+      :host[left] {
+        width: 50%;
+        padding-right: 8px;
+        box-sizing: border-box;
+      }
+      :host[right] {
+        width: 50%;
+        box-sizing: border-box;
+        padding-left: 8px;
+      }
+      :host[spaced] {
+        margin-top: 8px;
+      }
+      .description {
+        color: #606060;
+      }
+    </style>
+    <content></content>
+    <div class="description">
+      [[description]]
+    </div>
+  </template>
+</dom-module>
