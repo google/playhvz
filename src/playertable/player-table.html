@@ -22,17 +22,26 @@
 
           pollInterval: {
             type: Number,
-            value: 30,  // in seconds
+            value: undefined,  // in seconds
+            observer: 'pollIntervalChanged_',
           },
         },
 
         attached: function() {
+          this.pollIntervalId = null;
+
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
         },
 
         observers: [
           "ready_(serverBridge, gameId)",
         ],
+
+        pollIntervalChanged_(pollInterval) {
+          clearInterval(this.pollIntervalId);
+          this.pollIntervalId =
+              setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
+        },
 
         makeTableBlueprint_: function() {
           return {
@@ -49,15 +58,10 @@
                 filterable: true,
                 getModel: player => player.name,
                 getView: (player) => {
-                  var div = document.createElement('div');
-                  div.appendChild(document.createTextNode(player.name));
-                  var iconButton = document.createElement('paper-icon-button');
-                  iconButton.classList.add("player-icon");
-                  iconButton.icon = "icons:open-in-new";
-                  iconButton.dataset.playerId = player.id;
-                  div.appendChild(iconButton);
-                  this.scopeSubtree(div); // So we can style it from our <style>
-                  return div;
+                  var el = document.createElement('ghvz-player-label');
+                  el.serverBridge = this.serverBridge;
+                  el.playerIdOrNull = player.id;
+                  return el;
                 }
               },
               {
@@ -129,8 +133,6 @@
 
         ready_: function(serverBridge, gameId) {
           this.refresh_();
-
-          setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
         },
 
         onDeletePlayer_: function(player) {

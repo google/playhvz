@@ -24,7 +24,7 @@
           while (this.childNodes.length) {
             this.removeChild(this.childNodes[0]);
           }
-          if (this.value instanceof HTMLElement) {
+          if (this.value instanceof Node) {
             this.appendChild(this.value);
           } else {
             this.appendChild(document.createTextNode("" + this.value));

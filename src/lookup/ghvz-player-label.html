@@ -1,0 +1,50 @@
+<dom-module id="ghvz-player-label">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-player-label',
+
+        properties: {
+          serverBridge: Object,
+          playerIdOrNull: String,
+          playerOrNull: Object,
+        },
+
+        observers: ["ready_(serverBridge, playerIdOrNull)"],
+
+        ready_: function(serverBridge, playerIdOrNull) {
+          if (playerIdOrNull) {
+            this.serverBridge.getPlayerById(playerIdOrNull)
+                .then((player) => {
+                  this.playerOrNull = player;
+                });
+          } else {
+            this.playerOrNull = null;
+          }
+        },
+      });
+    });
+  </script>
+  <template>
+    <style include="iron-flex iron-flex-alignment">
+      button[is=paper-icon-button-light] {
+        width: 32px;
+        height: 32px;
+        padding: 4px;
+        margin: 0px;
+      }
+      button[is=paper-icon-button-light] > img {
+        width: 24px;
+        height: 24px;
+      }
+    </style>
+    [[playerOrNull.name]]
+    <button is="paper-icon-button-light" class="palyer-icon" data-player-id="[[playerOrNull.id]]">
+      <iron-icon icon="icons:open-in-new"></iron-icon>
+    </button>
+  </template>
+</dom-module>
+
