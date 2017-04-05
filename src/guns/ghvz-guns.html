@@ -13,32 +13,14 @@
 
           gameId: String,
 
-          guns: Array,
+          playersById: Array,
 
-          tableDelegate: {
-            type: Object,
-            value: function() {
-              return {
-                getSchema: (() => {
-                  return [
-                    {property: "gunNumber", name: "Number"},
-                    {property: "player", name: "Player"},
-                  ];
-                }),
-                getActions: (() => {
-                  return [
-                    //{action: "delete", name: "Delete"},
-                  ];
-                }),
-                create: this.getTableContents_.bind(this),
-                doAction: this.doTableAction_.bind(this),
-              };
-            },
-          },
+          guns: Array,
         },
 
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
         },
 
         observers: [
@@ -49,35 +31,61 @@
           this.refresh_();
         },
 
-        doTableAction_: function(gun, action) {
-        },
-
         addGun_: function() {
           this.serverBridge.addGun(Utils.generateId("gun"), this.newGunNumber);
           this.newGunNumber = "";
           this.refresh_();
         },
 
-        getTableContents_: function(gun, propertyName) {
-          if (propertyName == 'player') {
-            var field = document.createElement('ghvz-player-field');
-            field.serverBridge = this.serverBridge;
-            field.gameId = this.gameId;
-            field.playerIdOrNull = gun.playerIdOrNull;
-            field.label = null;
-            field.addEventListener('set-player', (e) => {
-              let playerOrNull = e.detail.playerOrNull;
-              this.serverBridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
-              this.refresh_();
-            });
-            return field;
-          }
+        makeTableBlueprint_: function() {
+          return {
+            columns: [
+              {
+                property: "gunNumber",
+                name: "Number",
+                filterable: true,
+                sortable: true,
+              },
+              {
+                name: "Player",
+                filterable: true,
+                sortable: true,
+                getModel: (gun) => {
+                  if (gun.playerIdOrNull) {
+                    return this.playersById.get(gun.playerIdOrNull).name;
+                  }
+                },
+                getView: (gun) => {
+                  var field = document.createElement('ghvz-player-field');
+                  field.serverBridge = this.serverBridge;
+                  field.gameId = this.gameId;
+                  field.playerIdOrNull = gun.playerIdOrNull;
+                  field.label = null;
+                  field.addEventListener('set-player', (e) => {
+                    let playerOrNull = e.detail.playerOrNull;
+                    this.serverBridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
+                    this.refresh_();
+                  });
+                  return field;
+                },
+              },
+            ],
+            actions: [],
+          };
         },
 
         refresh_: function() {
-          this.serverBridge.getAllGuns()
-              .then((guns) => {
-                this.guns = guns;
+          this.serverBridge.findAllPlayersForGameId(this.gameId)
+              .then((players) => {
+                let playersById = new Map();
+                for (let player of players)
+                  playersById.set(player.id, player);
+                this.playersById = playersById;
+
+                this.serverBridge.getAllGuns()
+                    .then((guns) => {
+                      this.guns = guns;
+                    });
               });
         },
       });
@@ -113,25 +121,24 @@
 
     <auto-table
         id="table"
-        delegate="[[tableDelegate]]"
+        blueprint="[[makeTableBlueprint_()]]"
         items="[[guns]]">
     </auto-table>
 
-    <div id="newGun">
-      <paper-input
-          id="newGunNumber"
-          label="New gun's number"
-          value="{{newGunNumber}}">
-      </paper-input>
-      <div id="addGunContainer">
-        <paper-button
-            id="addGun"
-            raised
-            disabled="[[!newGunNumber]]"
-            on-tap="addGun_">
-          Add Gun
-        </paper-button>
-      </div>
-    </div>
+    <ghvz-form
+        id="add"
+        title="Add Gun"
+        open-icon="icons:add"
+        close-label="Cancel"
+        done-label="Add"
+        done-enabled="[[newGunNumber]]"
+        on-ghvz-form-done="addGun_">
+      <ghvz-form-section>
+        <paper-input
+            label="New gun's number"
+            value="{{newGunNumber}}">
+        </paper-input>
+      </ghvz-form-section>
+    </ghvz-form>
   </template>
 </dom-module>

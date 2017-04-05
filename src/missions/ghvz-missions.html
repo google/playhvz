@@ -15,32 +15,45 @@
 
           missions: Array,
 
-          tableDelegate: {
+          newMission: {
             type: Object,
-            value: function() {
-              return {
-                getSchema: (() => {
-                  return [
-                    {property: "name", name: "name"},
-                    {property: "beginTime", name: "Begin"},
-                    {property: "endTime", name: "End"},
-                    {property: "url", name: "Url"},
-                  ];
-                }),
-                getActions: (() => {
-                  return [
-                    //{action: "delete", name: "Delete"},
-                  ];
-                }),
-                create: this.getTableContents_.bind(this),
-                doAction: this.doTableAction_.bind(this),
-              };
-            },
+            value: () => ({
+              name: "",
+              beginTime: "",
+              endTime: "",
+              url: "",
+            }),
           },
+        },
+
+        makeTableBlueprint_: function() {
+          return {
+            columns: [
+              {
+                property: "name",
+                name: "name"
+              },
+              {
+                property: "beginTime",
+                name: "Begin"
+              },
+              {
+                property: "endTime",
+                name: "End"
+              },
+              {
+                property: "url",
+                name: "Url"
+              },
+            ],
+            actions: [
+            ],
+          };
         },
 
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
         },
 
         observers: [
@@ -51,27 +64,6 @@
           this.refresh_();
         },
 
-        doTableAction_: function(gun, action) {
-        },
-
-        addMission_: function() {
-          this.serverBridge.addMission(
-              Utils.generateId("mission"),
-              this.gameId,
-              this.newMissionBeginTime,
-              this.newMissionEndTime,
-              this.newMissionName,
-              this.newMissionUrl);
-          this.newMissionBeginTime = "";
-          this.newMissionEndTime = "";
-          this.newMissionName = "";
-          this.newMissionUrl = "";
-          this.refresh_();
-        },
-
-        getTableContents_: function(gun, propertyName) {
-        },
-
         refresh_: function() {
           this.serverBridge.findAllMissionsForGameId(this.gameId)
               .then((missions) => {
@@ -79,45 +71,38 @@
               });
         },
 
+        addMission_: function() {
+          this.serverBridge.addMission(
+              Utils.generateId("mission"),
+              this.gameId,
+              this.newMission.beginTime,
+              this.newMission.endTime,
+              this.newMission.name,
+              this.newMission.url);
+          this.newMission = {
+            name: "",
+            beginTime: "",
+            endTime: "",
+            url: "",
+          };
+          this.refresh_();
+        },
+
         computeAddMissionButtonEnabled_(newMissionName, newMissionBeginTime, newMissionEndTime, newMissionUrl) {
           return newMissionName && newMissionBeginTime && newMissionEndTime && newMissionUrl;
-        }
+        },
       });
     });
   </script>
   <template>
     <style>
-      #newMission {
-        margin: 8px;
-      }
-
-      .wide-input-row {
-      }
-      .input-row {
-        display: flex;
-      }
-      .input-row paper-input {
-        min-width: 100px;
-        flex: 1;
-      }
-      .input-description {
-        flex: 1;
-        display: flex;
-        align-items: center;
-      }
-      #addReward,
-      #addCategory {
-        margin: 8px;
-        white-space: nowrap;
-      }
-      .input-row paper-input {
-        margin-right: 8px;
-      }
-      .add-container {
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-end;
-        margin: 8px 0;
+      paper-input {
+        display: block;
+        width: 100%;
+        --paper-input-container-underline: {
+          border-bottom-color: #C0C0C0;
+        }
+        margin-bottom: 4px;
       }
     </style>
 
@@ -129,60 +114,46 @@
 
     <auto-table
         id="table"
-        delegate="[[tableDelegate]]"
+        blueprint="[[makeTableBlueprint_()]]"
         items="[[missions]]">
     </auto-table>
 
-    <div id="newMission">
-      <div class="wide-input-row">
+    <ghvz-form
+        id="add"
+        title="Add Mission"
+        open-icon="icons:add"
+        close-label="Cancel"
+        done-label="Add"
+        done-enabled="[[computeAddMissionButtonEnabled_(newMission.name, newMission.beginTime, newMission.endTime, newMission.url)]]"
+        on-ghvz-form-done="addMission_">
+      <ghvz-form-section>
         <paper-input
-            id="newMissionName"
             label="Mission name"
-            value="{{newMissionName}}">
+            value="{{newMission.name}}">
         </paper-input>
-      </div>
-      <div class="input-row">
+      </ghvz-form-section>
+      <ghvz-form-section left description="(in seconds)">
         <paper-input
-            id="newMissionBeginTime"
             label="Mission begin timestamp"
-            value="{{newMissionBeginTime}}">
+            value="{{newMission.beginTime}}">
         </paper-input>
-        <div class="input-description">
-          Start timestamp, in seconds.
-        </div>
-      </div>
-      <div class="input-row">
+      </ghvz-form-section>
+      <ghvz-form-section right description="(in seconds)">
         <paper-input
-            id="newMissionEndTime"
             label="Mission end timestamp"
-            value="{{newMissionEndTime}}">
+            value="{{newMission.endTime}}">
         </paper-input>
-        <div class="input-description">
-          End timestamp, in seconds.
-        </div>
-      </div>
-      <div class="input-row">
+      </ghvz-form-section>
+      <ghvz-form-section description="Url of the page describing the mission, example /firstgame/missions/first-mission.html">
         <paper-input
-            id="newMissionUrl"
             label="Mission page url"
-            value="{{newMissionUrl}}">
+            value="{{newMission.url}}">
         </paper-input>
-        <div class="input-description">
-          Url of the page describing the mission, example /firstgame/missions/first-mission.html
-        </div>
-      </div>
-      <div>
+      </ghvz-form-section>
+      <ghvz-form-section spaced>
         For timestamps, use <a href="https://www.epochconverter.com/">epochconverter</a>.
         Timestamps are in seconds, not milliseconds.
-      </div>
-      <div class="add-container">
-        <paper-button
-            raised
-            disabled="[[!computeAddMissionButtonEnabled_(newMissionName, newMissionBeginTime, newMissionEndTime, newMissionUrl)]]"
-            on-tap="addMission_">
-          Add Mission
-        </paper-button>
-      </div>
-    </div>
+      </ghvz-form-section>
+    </ghvz-form>
   </template>
 </dom-module>

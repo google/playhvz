@@ -23,28 +23,6 @@
           type: Number,
           value: 60,  // in seconds
         },
-
-        leaderboardDelegate: {
-          type: Object,
-          value: function() {
-            return {
-              getSchema: (() => {
-                return [
-                  {property: "name", name: "Name"},
-                  {property: "points", name: "Points"},
-                ];
-              }),
-              getActions: (() => {
-                return [
-                  {action: "view", name: "View"},
-                  {action: "grr", name: "Grr"},
-                ];
-              }),
-              create: this.createLeaderboardContents_.bind(this),
-              doAction: this.doTableAction_.bind(this),
-            };
-          },
-        },
       },
 
       attached: function() {
@@ -65,39 +43,53 @@
         setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
       },
 
-      doTableAction_: function(player, action) {
-        console.log('do action', action, ' on player', player);
-        if (action == "view") {
-          console.log("view");
-        }
+      makeTableBlueprint_: function() {
+        return {
+          columns: [
+            {
+              name: "Name",
+              getModel: (player) => player.name,
+              getValue: (player) => {
+                var div = document.createElement('div');
+                div.appendChild(document.createTextNode(player.name));
+                var iconButton = document.createElement('paper-icon-button');
+                iconButton.classList.add("player-icon");
+                iconButton.icon = "icons:open-in-new";
+                iconButton.dataset.playerId = player.id;
+                div.appendChild(iconButton);
+                this.scopeSubtree(div); // So we can style it from our <style>
+                return div;
+              },
+            },
+            {
+              property: "points",
+              name: "Points"
+            },
+          ],
+          actions: [
+            {
+              action: "view",
+              name: "View",
+            },
+            {
+              action: "grr",
+              name: "Grr",
+            },
+          ]
+        };
       },
 
-      createLeaderboardContents_: function(player, propertyName) {
-        if (propertyName == "name") {
-          var div = document.createElement('div');
-          div.appendChild(document.createTextNode(player.name));
-          var iconButton = document.createElement('paper-icon-button');
-          iconButton.classList.add("player-icon");
-          iconButton.icon = "icons:open-in-new";
-          iconButton.dataset.playerId = player.id;
-          div.appendChild(iconButton);
-          this.scopeSubtree(div); // So we can style it from our <style>
-          return div;
-        }
-        // if we dont return anything, auto-table will just by default create the text node
+      refresh_: function() {
+        this.serverBridge.findAllPlayersForGameId(this.gameId)
+        .then((players) => {
+          if (players) {
+            players.sort(Utils.byPoints);
+            this.players = players.slice(0, this.numToShow);
+          }
+        });
       },
-
-        refresh_: function() {
-          this.serverBridge.findAllPlayersForGameId(this.gameId)
-          .then((players) => {
-            if (players) {
-              players.sort(Utils.byPoints);
-              this.players = players.slice(0, this.numToShow);
-            }
-          });
-        },
-      });
-   });
+    });
+  });
  </script>
  <template>
   <style>
@@ -115,7 +107,7 @@
 </paper-icon-button>
 <auto-table
 id="leaderboardTable"
-delegate="[[leaderboardDelegate]]"
+blueprint="[[makeTableBlueprint_()]]"
 items="[[players]]">
 </auto-table>
 </template>

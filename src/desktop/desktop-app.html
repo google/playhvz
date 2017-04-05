@@ -118,6 +118,14 @@
     <ghvz-dashboard>
       <template is="dom-if" if="[[isAdmin]]">
         <ghvz-dashlet admin full>
+          <div class="header">Missions</div>
+          <ghvz-missions
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]">
+          </ghvz-missions>
+        </ghvz-dashlet>
+
+        <ghvz-dashlet admin full>
           <div class="header">Players</div>
           <player-table
               id="playerTableModule"
@@ -135,14 +143,6 @@
               game-id="[[gameId]]"
               user-id="[[userId]]">
           </dev-tools>
-        </ghvz-dashlet>
-
-        <ghvz-dashlet admin half left>
-          <div class="header">Missions</div>
-          <ghvz-missions
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]">
-          </ghvz-missions>
         </ghvz-dashlet>
 
         <ghvz-dashlet admin half right>

@@ -24,34 +24,6 @@
             type: Number,
             value: 30,  // in seconds
           },
-
-          playersTableDelegate: {
-            type: Object,
-            value: function() {
-              return {
-                getSchema: (() => {
-                  return [
-                    {property: "number", name: "Number", sortable: true, filterable: true},
-                    {property: "name", name: "Name", sortable: true, filterable: true},
-                    {property: "species", name: "Allegiance", sortable: true, filterable: true},
-                    {property: "lifeCode", name: "Life Code", sortable: true, filterable: true},
-                    {property: "rewards", name: "Rewards", sortable: true, filterable: true},
-                  ];
-                }),
-                getActions: (() => {
-                  return [
-                    {action: "delete", name: "Delete"},
-                    {action: "infect", name: "Infect"},
-                    {action: "revive", name: "Revive"},
-                    {action: "ban", name: "Ban"},
-                  ];
-                }),
-                create: this.getPlayerTableContents_.bind(this),
-                update: this.getPlayerTableContents_.bind(this),
-                doAction: this.doTableAction_.bind(this),
-              };
-            },
-          },
         },
 
         attached: function() {
@@ -62,59 +34,103 @@
           "ready_(serverBridge, gameId)",
         ],
 
+        makeTableBlueprint_: function() {
+          return {
+            columns: [
+              {
+                property: "number",
+                name: "Number",
+                sortable: true,
+                filterable: true
+              },
+              {
+                name: "Name",
+                sortable: true,
+                filterable: true,
+                getModel: player => player.name,
+                getView: (player) => {
+                  var div = document.createElement('div');
+                  div.appendChild(document.createTextNode(player.name));
+                  var iconButton = document.createElement('paper-icon-button');
+                  iconButton.classList.add("player-icon");
+                  iconButton.icon = "icons:open-in-new";
+                  iconButton.dataset.playerId = player.id;
+                  div.appendChild(iconButton);
+                  this.scopeSubtree(div); // So we can style it from our <style>
+                  return div;
+                }
+              },
+              {
+                name: "Allegiance",
+                sortable: true,
+                filterable: true,
+                getModel: (player) => {
+                  if (player.species == 'human') {
+                    return 'Resistance';
+                  } else if (player.species == 'zombie') {
+                    return 'Horde';
+                  } else {
+                    return player.species;
+                  }
+                },
+              },
+              {
+                name: "Life Code",
+                sortable: true,
+                filterable: true,
+                getModel: (player) => {
+                  if (player.species == 'human') {
+                    if (player.lives.length) {
+                      return player.lives[player.lives.length - 1].lifeCode;
+                    }
+                  }
+                  return "";
+                },
+              },
+              {
+                name: "Rewards",
+                sortable: true,
+                filterable: true,
+                getModel: (player) => {
+                  let rewardNames = [];
+                  var rewardNamesByCategoryId = new Map();
+                  for (const rewardCategory of this.game.rewardCategories)
+                    rewardNamesByCategoryId.set(rewardCategory.id, rewardCategory.name);
+                  for (const rewardCategoryId of player.rewardCategoryIds)
+                    rewardNames.push(rewardNamesByCategoryId.get(rewardCategoryId));
+                  return rewardNames.join(", ");
+                }
+              },
+            ],
+            actions: [
+              {
+                action: "delete",
+                name: "Delete",
+                handler: (player) => {
+                  var index = this.players.indexOf(player);
+                  this.splice('players', index, 1);
+                }
+              },
+              {
+                action: "infect",
+                name: "Infect"
+              },
+              {
+                action: "revive",
+                name: "Revive"
+              },
+              {
+                action: "ban",
+                name: "Ban"
+              },
+            ],
+          };
+        },
+
         ready_: function(serverBridge, gameId) {
           this.refresh_();
 
           setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
-        },
-
-        doTableAction_: function(player, action) {
-          console.log('do action', action, ' on player', player);
-          if (action == "delete") {
-            var index = this.players.indexOf(player);
-            this.splice('players', index, 1);
-          }
-        },
-
-        getPlayerTableContents_: function(player, propertyName) {
-          if (propertyName == "name") {
-            var div = document.createElement('div');
-            div.appendChild(document.createTextNode(player.name));
-            var iconButton = document.createElement('paper-icon-button');
-            iconButton.classList.add("player-icon");
-            iconButton.icon = "icons:open-in-new";
-            iconButton.dataset.playerId = player.id;
-            div.appendChild(iconButton);
-            this.scopeSubtree(div); // So we can style it from our <style>
-            return div;
-          }
-          if (propertyName == 'lifeCode') {
-            if (player.species == 'human') {
-              if (player.lives.length) {
-                return player.lives[player.lives.length - 1].lifeCode;
-              }
-            }
-            return "";
-          }
-          if (propertyName == 'rewards') {
-            let rewardNames = [];
-            var rewardNamesByCategoryId = new Map();
-            for (const rewardCategory of this.game.rewardCategories)
-              rewardNamesByCategoryId.set(rewardCategory.id, rewardCategory.name);
-            for (const rewardCategoryId of player.rewardCategoryIds)
-              rewardNames.push(rewardNamesByCategoryId.get(rewardCategoryId));
-            return rewardNames.join(", ");
-          }
-          if (propertyName == 'species') {
-            if (player.species == 'human') {
-              return 'Resistance';
-            } else if (player.species == 'zombie') {
-              return 'Horde';
-            } else {
-              return player.species;
-            }
-          }
-          // if we dont return anything, auto-table will just by default create the text node
         },
 
         onDeletePlayer_: function(player) {
@@ -156,7 +172,7 @@
     <auto-table
         id="playersTable"
         selectable
-        delegate="[[playersTableDelegate]]"
+        blueprint="[[makeTableBlueprint_()]]"
         items="[[players]]">
     </auto-table>
   </template>

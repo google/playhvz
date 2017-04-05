@@ -52,56 +52,11 @@
           },
 
           categoryNewName: String,
-
-          categoriesTableDelegate: {
-            type: Object,
-            value: function() {
-              return {
-                getSchema: (() => {
-                  return [
-                    {property: "name", name: "Name"},
-                    {property: "points", name: "Points"},
-                    {property: "claimed", name: "Claimed"},
-                    {property: "seed", name: "Seed"},
-                  ];
-                }),
-                getActions: (() => {
-                  return [
-                    {action: "show", name: "Show Rewards"},
-                    {action: "setpoints", name: "Set Points"},
-                    {action: "setname", name: "Set Name"},
-                  ];
-                }),
-                create: this.getCategoriesTableContents_.bind(this),
-                doAction: this.doCategoriesTableAction_.bind(this),
-              };
-            },
-          },
-
-          rewardsTableDelegate: {
-            type: Object,
-            value: function() {
-              return {
-                getSchema: (() => {
-                  return [
-                    {property: "rewardCode", name: "Code"},
-                    {property: "claimer", name: "Claimer"},
-                  ];
-                }),
-                getActions: (() => {
-                  return [
-                    {action: "delete", name: "Delete"},
-                  ];
-                }),
-                create: this.getRewardsTableContents_.bind(this),
-                doAction: this.doRewardsTableAction_.bind(this),
-              };
-            },
-          },
         },
 
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.addCategory });
         },
 
         observers: [
@@ -112,39 +67,79 @@
           this.refresh_();
         },
 
-        doCategoriesTableAction_: function(category, action) {
-          if (action == 'show') {
-            this.rewardCategoryId = category.id;
-          } else if (action == 'setname') {
-            Utils.showDialog("Enter the new name of the category:", "name", category.name, null)
-                .then(
-                    (newName) => {
-                      if (newName) {
-                        this.serverBridge.setRewardCategoryName(category.id, newName);
-                        this.refresh_();
-                      }
-                    });
-          }
+        makeCategoriesTableBlueprint_: function() {
+          return {
+            columns: [
+              {
+                property: "name",
+                name: "Name",
+              },
+              {
+                property: "points",
+                name: "Points",
+              },
+              {
+                property: "claimed",
+                name: "Claimed",
+                getModel: (category) => category.claimed + '/' + category.total,
+              },
+              {
+                property: "seed",
+                name: "Seed",
+              },
+            ],
+            actions: [
+              {
+                name: "Show Rewards",
+                handler: (category) => this.rewardCategoryId = category.id,
+              },
+              {
+                name: "Set Points"
+              },
+              {
+                name: "Set Name",
+                handler: (category) => {
+                  Utils.showDialog("Enter the new name of the category:", "name", category.name, null)
+                      .then(
+                          (newName) => {
+                            if (newName) {
+                              this.serverBridge.setRewardCategoryName(category.id, newName);
+                              this.refresh_();
+                            }
+                          });
+                },
+              },
+            ],
+          };
         },
 
-        doRewardsTableAction_: function(player, action) {
-        },
-
-        getCategoriesTableContents_: function(category, propertyName) {
-          if (propertyName == 'claimed') {
-            return category.claimed + '/' + category.total;
-          }
-        },
-
-        getRewardsTableContents_: function(reward, propertyName) {
-          if (propertyName == 'claimer') {
-            if (reward.playerIdOrNull == null) {
-              return "(unclaimed)";
-            } else {
-              var player = this.playersById.get(reward.playerIdOrNull);
-              return player ? player.name : "(unknown!)";
-            }
-          }
+        makeRewardsTableBlueprint_: function() {
+          return {
+            columns: [
+              {
+                property: "rewardCode",
+                name: "Code",
+              },
+              {
+                property: "claimer",
+                name: "Claimer",
+                getModel: (reward) => {
+                  if (reward.playerIdOrNull == null) {
+                    return "(unclaimed)";
+                  } else {
+                    var player = this.playersById.get(reward.playerIdOrNull);
+                    return player ? player.name : "(unknown!)";
+                  }
+                },
+              },
+            ],
+            actions: [
+              {
+                action: "delete",
+                name: "Delete"
+              },
+            ]
+          };
         },
 
         refresh_: function() {
@@ -220,8 +215,7 @@
         display: flex;
         align-items: flex-end;
       }
-      #addReward,
-      #addCategory {
+      #addReward {
         margin: 8px;
         white-space: nowrap;
       }
@@ -232,16 +226,9 @@
       #newReward {
         display: flex;
       }
-      #addCategoryContainer {
-        display: flex;
-        justify-content: flex-end;
-      }
       #addRewardContainer {
         display: flex;
         align-items: flex-end;
-      }
-      #newCategoryNameInput {
-        margin-bottom: 8px;
       }
     </style>
     <paper-icon-button
@@ -253,53 +240,42 @@
     <div id="categories">
       <auto-table
           id="categoriesTable"
-          delegate="[[categoriesTableDelegate]]"
+          blueprint="[[makeCategoriesTableBlueprint_()]]"
           items="[[game.rewardCategories]]">
       </auto-table>
-      <div id="newCategory">
-        <div class="wide-input-row">
+
+
+    <ghvz-form
+        id="addCategory"
+        title="Add Reward Category"
+        open-icon="icons:add"
+        close-label="Cancel"
+        done-label="Add"
+        done-enabled="[[enableAddCategory_(newCategoryName, newCategoryPoints, newCategorySeed)]]"
+        on-ghvz-form-done="addCategory_">
+      <ghvz-form-section description="Title of the category. Users will see this next to the icon in their profile and when they hover over the icon.">
           <paper-input
               id="newCategoryNameInput"
               label="Name"
               value="{{newCategoryName}}">
           </paper-input>
-          Title of the category. Users will see this next to the icon in their
-          profile and when they hover over the icon.
-        </div>
-        <div class="input-row">
+      </ghvz-form-section>
+      <ghvz-form-section left description="Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).">
           <paper-input
               id="newCategoryPointsInput"
               type="number"
               label="Points"
               value="{{newCategoryPoints}}">
           </paper-input>
-          <div class="input-description">
-            Num points gained by claiming one of this category's rewards.
-            0 is a valid value (for example for vaccines).
-          </div>
-        </div>
-        <div class="input-row">
+      </ghvz-form-section>
+      <ghvz-form-section right description="A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.">
           <paper-input
               id="newCategorySeedInput"
               label="Seed"
               value="{{newCategorySeed}}">
           </paper-input>
-          <div class="input-description">
-            A word to prefix codes with. Must be unique. Also
-            used as a random seed for generating the codes. Example: derp.
-          </div>
-        </div>
-        <div id="addCategoryContainer">
-          <paper-button
-              id="addCategory"
-              raised
-              disabled="[[!enableAddCategory_(newCategoryName, newCategoryPoints, newCategorySeed)]]"
-              on-tap="addCategory_">
-            Add Category
-          </paper-button>
-        </div>
-      </div>
-    </div>
+      </ghvz-form-section>
+    </ghvz-form>
 
     <div id="rewards" hidden="[[!rewardCategoryId]]">
       <div id="newReward">
@@ -321,7 +297,7 @@
 
       <auto-table
           id="rewardsTable"
-          delegate="[[rewardsTableDelegate]]"
+          blueprint="[[makeRewardsTableBlueprint_()]]"
           items="[[rewards]]">
       </auto-table>
     </div>

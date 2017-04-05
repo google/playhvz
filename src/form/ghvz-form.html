@@ -9,53 +9,35 @@
         is: 'ghvz-form',
 
         properties: {
-          doneLabel: {
+          title: {
             type: String,
-            value: true,
+            value: ""
           },
 
           openLabel: {
             type: String,
-            value: true,
+            value: "",
+          },
+
+          openIcon: {
+            type: String,
+            value: "",
           },
 
           closeLabel: {
             type: String,
-            value: true,
+            value: "",
+          },
+
+          doneLabel: {
+            type: String,
+            value: "",
           },
 
           doneEnabled: {
             type: Boolean,
             value: true,
           },
-
-          open: {
-            type: Boolean,
-            value: false,
-          },
-
-          corner: {
-            type: Boolean,
-            value: false,
-            observer: 'cornerChanged_',
-          },
-
-          maxWidth: {
-            type: Number,
-            value: null,
-            observer: 'maxWidthChanged_',
-          }
-        },
-
-        cornerChanged_: function(corner) {
-          if (corner)
-            this.classList.add("corner");
-          else
-            this.classList.remove("corner");
-        },
-
-        maxWidthChanged_: function(maxWidth) {
-          return maxWidth ? 'max-width: ' + maxWidth : '';
         },
 
         open_() {
@@ -72,11 +54,13 @@
   <template>
     <style>
       :host {
-        margin: 8px;
+        display: inline-block;
       }
       #contents {
         display: flex;
         flex-wrap: wrap;
+        margin-top: 0;
+        padding-top: 0;
       }
       .button-container {
         display: flex;
@@ -88,12 +72,28 @@
         background-color: #9C27B0;
         color: white;
       }
+      #title {
+        margin-top: 0;
+        color: white;
+        background-color: #9C27B0;
+        font-size: 13pt;
+        padding: 16px;
+        font-weight: bold;
+      }
     </style>
 
-    <div class="button-container">
+    <template is="dom-if" if="[[openLabel]]">
       <paper-button raised on-tap="open_">[[openLabel]]</paper-button>
-    </div>
+    </template>
+    <template is="dom-if" if="[[openIcon]]">
+      <paper-icon-button icon="[[openIcon]]" on-tap="open_"></paper-icon-button>
+    </template>
     <paper-dialog id="dialog" modal on-iron-overlay-closed="closed_">
+      <template is="dom-if" if="[[title]]">
+        <div id="title">
+          [[title]]
+        </div>
+      </template>
       <div id="contents">
         <content></content>
       </div>

@@ -9,7 +9,7 @@
         is: 'auto-table',
 
         properties: {
-          delegate: {
+          blueprint: {
             type: Object,
             value: {},
           },
@@ -42,11 +42,13 @@
 
         attached: function() {
           var columns = [];
-          for (let column of this.delegate.getSchema()) {
+          for (let column of this.blueprint.columns) {
             columns.push({
               index: columns.length,
               property: column.property,
               name: column.name,
+              getModel: column.getModel,
+              getView: column.getView,
               sortable: column.sortable,
               filterable: column.filterable,
               sorting: false,
@@ -54,12 +56,13 @@
               ascending: false,
               filtering: false,
               filterText: "", // "" means show everything
+              filter: column.filter,
             });
           }
           this.columns = columns;
 
           var actions = [];
-          for (let action of this.delegate.getActions()) {
+          for (let action of this.blueprint.actions) {
             actions.push({
               index: action.length,
               action: action.action,
@@ -74,11 +77,32 @@
           return selectable || numActions;
         },
 
-        getPropertyValue_: function(item, propertyName) {
-          let value = this.delegate.create(item, propertyName);
-          if (value === undefined)
-            value = item[propertyName];
-          return value;
+        getModel_: function(item, columnIndex) {
+          let column = this.columns[columnIndex];
+          if (column.getModel) {
+            let result = column.getModel(item, column.property);
+            if (result !== undefined) {
+              return result;
+            }
+          } else if (column.property) {
+            return item[column.property];
+          } else {
+            return null;
+          }
+        },
+
+        getView_: function(item, columnIndex) {
+          let model = this.getModel_(item, columnIndex);
+
+          let column = this.columns[columnIndex];
+          if (column.getView) {
+            let result = column.getView(item, column.property, model);
+            if (result !== undefined) {
+              return result;
+            }
+          } else {
+            return model;
+          }
         },
 
         getItemId_: function(item) {
@@ -99,6 +123,8 @@
         },
 
         onActionTapped_: function(e) {
+          let action = e.model.action;
+          debugger;
           this.delegate.doAction(this.getItemForId_(e.target.dataset.itemId), e.target.dataset.action);
         },
 
@@ -141,8 +167,8 @@
               if (diff)
                 return diff * (column.ascending ? 1 : -1);
             } else {
-              const aValue = this.getPropertyValue_(a, column.property);
-              const bValue = this.getPropertyValue_(b, column.property);
+              const aValue = this.getModel_(a, column.index);
+              const bValue = this.getModel_(b, column.index);
               const diff = Utils.compare(aValue, bValue);
               if (diff)
                 return diff * (column.ascending ? 1 : -1);
@@ -172,9 +198,15 @@
         filter_: function(player) {
           for (let column of this.columns) {
             if (column.filtering && column.filterText) {
-              const value = this.getPropertyValue_(player, column.property);
-              if (!Utils.filter(value, column.filterText)) {
-                return false;
+              if (column.filter) {
+                if (!column.filter(player, column.filterText)) {
+                  return false;
+                }
+              } else {
+                const value = this.getModel_(player, column.index);
+                if (!Utils.filter(value, column.filterText)) {
+                  return false;
+                }
               }
             }
           }
@@ -273,7 +305,7 @@
         border-bottom: 1px solid #f0f0f0;
       }
       th, td {
-        padding: 0 4px;
+        padding: 0 8px;
         min-height: 40px;
         white-space: nowrap;
         overflow: hidden;
@@ -302,7 +334,6 @@
       .column-header {
         min-height: 40px;
         display: flex;
-        align-items: center;
         flex-wrap: wrap;
         flex-direction: column;
         justify-content: center;
@@ -310,16 +341,6 @@
       }
       .column-header-top {
         display: flex;
-      }
-      .column-header-bottom {
-        height: 28px; /* enough room for filter-input */
-      }
-      .filter-input {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 28px;
       }
       .column-name {
         order: 1;
@@ -339,7 +360,15 @@
         height: 24px;
         padding: 0px;
       }
+      .column-header-bottom {
+        height: 28px; /* enough room for filter-input */
+      }
       .filter-input {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 28px;
       }
       .action-menu-button {
         padding: 0;
@@ -425,7 +454,7 @@
                     <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
                     <paper-menu class="dropdown-content">
                       <template is="dom-repeat" items="[[actions]]" as="action">
-                        <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action.action]]">[[action.name]]</paper-item>
+                        <paper-item on-tap="onActionTapped_">[[action.name]]</paper-item>
                       </template>
                     </paper-menu>
                   </paper-menu-button>
@@ -435,7 +464,7 @@
             <template is="dom-repeat" items="[[columns]]" as="column">
               <td>
                 <ghvz-echo
-                    value="[[getPropertyValue_(item, column.property, delegate)]]">
+                    value="[[getView_(item, column.index)]]">
                 </ghvz-echo>
               </td>
             </template>
