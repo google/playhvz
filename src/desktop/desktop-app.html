@@ -46,6 +46,10 @@
         },
 
         attached: function() {
+          this.$.auth.signInWithPopup()
+              .then(function(response) {
+                debugger;
+              });
           this.serverBridge.logIn('firstuserauthcode')
               .then((userId) => {
                 this.userId = userId;
@@ -105,6 +109,17 @@
         left: 0;
       }
   	</style>
+
+  projectId: "zeds-dbe0f",
+  <firebase-app
+      auth-domain="zeds-dbe0f.firebaseapp.com"
+      database-url="https://zeds-dbe0f.firebaseio.com"
+      api-key="AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs"
+      storage-bucket="zeds-dbe0f.appspot.com"
+      messaging-sender-id="721599614458">
+  </firebase-app>
+  <firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError">
+  </firebase-auth>
 
     <div id="confidential">
       DONT POST CONFIDENTIAL INFO, COBFLABBIT!
