@@ -85,3 +85,47 @@ Utils.showDialog = function(description, label, initialValue, valueIfCanceled) {
     });
   });
 }
+
+Utils.filter = function(value, filter) {
+  if (value instanceof HTMLElement)
+    value = value.textContent;
+  if (typeof value == 'boolean') {
+    filter = (filter.localeCompare("true") == 0);
+    return value == filter;
+  }
+  if (typeof value == 'number') {
+    filter = +filter;
+    return value == filter;
+  }
+  value = ("" + value).toLocaleLowerCase();
+  filter = ("" + filter).toLocaleLowerCase();
+  return value.indexOf(filter) >= 0;
+}
+
+Utils.compare = function(aValue, bValue) {
+  const aBoolish = (typeof aValue == 'boolean');
+  const bBoolish = (typeof bValue == 'boolean');
+  if (aBoolish && bBoolish) {
+    return (a ? 1 : 0) - (b ? 1 : 0);
+  }
+  const aIntish = (+aValue == aValue);
+  const bIntish = (+bValue == bValue);
+  if (aIntish && bIntish) {
+    const diff = +aValue - +bValue;
+    if (diff)
+      return diff;
+    else
+      return 0;
+  }
+  if (aValue instanceof HTMLElement)
+    aValue = aValue.textContent;
+  if (bValue instanceof HTMLElement)
+    bValue = bValue.textContent;
+  const aString = "" + aValue;
+  const bString = "" + bValue;
+  const diff = aString.localeCompare(bString);
+  if (diff)
+    return diff;
+  else
+    return 0;
+}

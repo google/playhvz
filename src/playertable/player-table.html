@@ -31,11 +31,11 @@
               return {
                 getSchema: (() => {
                   return [
-                    {property: "number", name: "Number"},
-                    {property: "name", name: "Name"},
-                    {property: "species", name: "Allegiance"},
-                    {property: "lifeCode", name: "Life Code"},
-                    {property: "rewards", name: "Rewards"},
+                    {property: "number", name: "Number", sortable: true, filterable: true},
+                    {property: "name", name: "Name", sortable: true, filterable: true},
+                    {property: "species", name: "Allegiance", sortable: true, filterable: true},
+                    {property: "lifeCode", name: "Life Code", sortable: true, filterable: true},
+                    {property: "rewards", name: "Rewards", sortable: true, filterable: true},
                   ];
                 }),
                 getActions: (() => {

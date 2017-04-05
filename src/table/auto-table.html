@@ -14,14 +14,24 @@
             value: {},
           },
 
+          columns: {
+            type: Array,
+            value: undefined,
+          },
+
+          actions: {
+            type: Array,
+            value: [],
+          },
+
           items: {
             type: Array,
             value: function() { return []; },
           },
 
-          hasActions: {
-            type: Boolean,
-            computed: 'computeHasActions_(delegate)',
+          sortingColumns: {
+            type: Array,
+            value: () => [],
           },
 
           selectable: {
@@ -30,20 +40,38 @@
           },
         },
 
-        computeHasActions_: function(delegate) {
-          return delegate.getActions().length;
+        attached: function() {
+          var columns = [];
+          for (let column of this.delegate.getSchema()) {
+            columns.push({
+              index: columns.length,
+              property: column.property,
+              name: column.name,
+              sortable: column.sortable,
+              filterable: column.filterable,
+              sorting: false,
+              comparator: column.comparator,
+              ascending: false,
+              filtering: false,
+              filterText: "", // "" means show everything
+            });
+          }
+          this.columns = columns;
+
+          var actions = [];
+          for (let action of this.delegate.getActions()) {
+            actions.push({
+              index: action.length,
+              action: action.action,
+              name: action.name,
+              handler: action.handler,
+            });
+          }
+          this.actions = actions;
         },
 
-        computeHasControlCell_: function(selectable, hasActions) {
-          return selectable || hasActions;
-        },
-
-        getColumns_: function() {
-          return this.delegate.getSchema();
-        },
-
-        getActions_: function() {
-          return this.delegate.getActions();
+        computeHasControlCell_: function(selectable, numActions) {
+          return selectable || numActions;
         },
 
         getPropertyValue_: function(item, propertyName) {
@@ -74,6 +102,89 @@
           this.delegate.doAction(this.getItemForId_(e.target.dataset.itemId), e.target.dataset.action);
         },
 
+        computeSortIcon_: function(sorting, ascending) {
+          if (!sorting) {
+            return "icons:swap-vert";
+          } else {
+            return ascending ? "icons:arrow-upward" : "icons:arrow-downward";
+          }
+        },
+
+        onSortButtonTapped_: function(e) {
+          const columnIndex = e.currentTarget.dataset.columnIndex;
+          const column = this.columns[columnIndex];
+          const sortingPath = 'columns.' + columnIndex + '.sorting';
+          const ascendingPath = 'columns.' + columnIndex + '.ascending';
+          if (!column.sorting) {
+            this.set(sortingPath, true);
+            this.set(ascendingPath, true);
+          } else if (column.sorting && column.ascending) {
+            this.set(sortingPath, true);
+            this.set(ascendingPath, false);
+          } else if (column.sorting && !column.ascending) {
+            this.set(sortingPath, false);
+            this.set(ascendingPath, false);
+          }
+
+          this.sortingColumns = this.sortingColumns.filter(c => c != column);
+          if (column.sorting) {
+            this.sortingColumns.push(column);
+          }
+          this.$.itemsRepeater.sort =
+              this.sortingColumns.length ? this.sort_.bind(this) : null;
+        },
+
+        sort_: function(a, b) {
+          for (const column of this.sortingColumns) {
+            if (column.comparator) {
+              const diff = column.comparator(a, b);
+              if (diff)
+                return diff * (column.ascending ? 1 : -1);
+            } else {
+              const aValue = this.getPropertyValue_(a, column.property);
+              const bValue = this.getPropertyValue_(b, column.property);
+              const diff = Utils.compare(aValue, bValue);
+              if (diff)
+                return diff * (column.ascending ? 1 : -1);
+            }
+          }
+          return 0;
+        },
+
+        onFilterButtonTapped_: function(e) {
+          const columnIndex = e.currentTarget.dataset.columnIndex;
+          const column = this.columns[columnIndex];
+          const filteringPath = 'columns.' + columnIndex + '.filtering';
+          const filterTextPath = 'columns.' + columnIndex + '.filterText';
+          if (column.filtering) {
+            this.set(filteringPath, false);
+            this.set(filterTextPath, "");
+          } else {
+            this.set(filterTextPath, "");
+            this.set(filteringPath, true);
+          }
+
+          const anyFiltering = !!this.columns.filter(c => c.filtering).length;
+          this.$.itemsRepeater.filter =
+              anyFiltering ? this.filter_.bind(this) : null;
+        },
+
+        filter_: function(player) {
+          for (let column of this.columns) {
+            if (column.filtering && column.filterText) {
+              const value = this.getPropertyValue_(player, column.property);
+              if (!Utils.filter(value, column.filterText)) {
+                return false;
+              }
+            }
+          }
+          return true;
+        },
+
+        filterKeyUp_: function() {
+          this.$.itemsRepeater.render();
+        },
+
         getItemForId_: function(id) {
           for (var i = 0; i < this.items.length; i++) {
             if (this.getItemId_(this.items[i]) == id) {
@@ -96,8 +207,8 @@
           var row = e.target.closest('tr');
           this.updateColor_(row, e.target.checked);
 
-          if (this.$.selectAll.checked && !e.target.checked) {
-            this.$.selectAll.checked = false;
+          if (this.$$("#selectAll").checked && !e.target.checked) {
+            this.$$("#selectAll").checked = false;
           }
         },
 
@@ -162,7 +273,7 @@
         border-bottom: 1px solid #f0f0f0;
       }
       th, td {
-        padding: 0 16px;
+        padding: 0 4px;
         min-height: 40px;
         white-space: nowrap;
         overflow: hidden;
@@ -172,7 +283,7 @@
         @apply(--ghvz-auto-table-td);
       }
       .control-cell {
-        padding: 0 0 0 16px;
+        padding: 0 0 0 8px;
       }
       .control-cell paper-menu-button {
         padding: 0;
@@ -188,55 +299,132 @@
         min-height: 40px;
         align-items: center;
       }
-      .property-header > div {
+      .column-header {
         min-height: 40px;
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        flex-direction: column;
+        justify-content: center;
+        position: relative; /* for filter-input's absolute to grab width from */
+      }
+      .column-header-top {
+        display: flex;
+      }
+      .column-header-bottom {
+        height: 28px; /* enough room for filter-input */
+      }
+      .filter-input {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 28px;
+      }
+      .column-name {
+        order: 1;
+        margin-right: 4px;
+      }
+      .sort-button {
+        flex-shrink: 0;
+        order: 2;
+        width: 24px;
+        height: 24px;
+        padding: 0px;
+      }
+      .filter-button {
+        flex-shrink: 0;
+        order: 3;
+        width: 24px;
+        height: 24px;
+        padding: 0px;
+      }
+      .filter-input {
+      }
+      .action-menu-button {
+        padding: 0;
+        width: 24px;
+        height: 24px;
+      }
+      .select-checkbox {
+        --paper-checkbox-label: {
+          padding: 0;
+        }
       }
     </style>
     <table id="table">
       <thead>
         <tr id="headers">
-          <template is="dom-if" if="[[computeHasControlCell_(selectable, hasActions)]]">
+          <template is="dom-if" if="[[computeHasControlCell_(selectable, actions.length)]]">
             <th class="control-cell">
               <template is="dom-if" if="[[selectable]]">
-                <paper-checkbox id="selectAll" on-change="onSelectAllChanged_"></paper-checkbox>
+                <paper-checkbox id="selectAll" class="select-checkbox" on-change="onSelectAllChanged_"></paper-checkbox>
               </template>
               <paper-menu-button>
-                <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+                <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
                 <paper-menu class="dropdown-content">
-                  <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
+                  <template is="dom-repeat" items="[[actions]]" as="action">
                     <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.action]]">[[action.name]]</paper-item>
                   </template>
                 </paper-menu>
               </paper-menu-button>
             </th>
           </template>
-          <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
+          <template is="dom-repeat" items="[[columns]]" as="column">
             <th class="property-header">
-              <div>
-                [[column.name]]
+              <div class="column-header">
+                <div class="column-header-top">
+                  <div class="column-name">
+                    [[column.name]]
+                  </div>
+                  <template is="dom-if" if="[[column.sortable]]">
+                    <paper-icon-button
+                        class="sort-button"
+                        icon="[[computeSortIcon_(column.sorting, column.ascending)]]"
+                        data-column-index$="[[column.index]]"
+                        on-tap="onSortButtonTapped_">
+                    </paper-icon-button>
+                  </template>
+                  <template is="dom-if" if="[[column.filterable]]">
+                    <paper-icon-button
+                        class="filter-button"
+                        icon="icons:search"
+                        data-column-index$="[[column.index]]"
+                        on-tap="onFilterButtonTapped_">
+                    </paper-icon-button>
+                  </template>
+                </div>
+                <template is="dom-if" if="[[column.filtering]]">
+                  <div class="column-header-bottom">
+                    <paper-input
+                        no-label-float
+                        class="filter-input"
+                        on-keyup="filterKeyUp_"
+                        value={{column.filterText}}></paper-input>
+                  </div>
+                </template>
               </div>
             </th>
           </template>
         </tr>
       </thead>
       <tbody id="tbody">
-        <template is="dom-repeat" items="[[items]]">
+        <template id="itemsRepeater" is="dom-repeat" items="[[items]]">
           <tr data-item-id$="[[getItemId_(item, delegate)]]">
-            <template is="dom-if" if="[[computeHasControlCell_(selectable, hasActions)]]">
+            <template is="dom-if" if="[[computeHasControlCell_(selectable, actions.length)]]">
               <td class="control-cell">
                 <template is="dom-if" if="[[selectable]]">
                   <paper-checkbox
+                      class="select-checkbox"
                       data-item-id$="[[getItemId_(item, delegate)]]"
                       on-change="onSelectChanged_">
                   </paper-checkbox>
                 </template>
-                <template is="dom-if" if="[[hasActions]]">
+                <template is="dom-if" if="[[actions.length]]">
                   <paper-menu-button>
-                    <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+                    <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
                     <paper-menu class="dropdown-content">
-                      <template is="dom-repeat" items="[[getActions_(delegate)]]" as="action">
+                      <template is="dom-repeat" items="[[actions]]" as="action">
                         <paper-item on-tap="onActionTapped_" data-item-id$="[[getItemId_(item, delegate)]]" data-action$="[[action.action]]">[[action.name]]</paper-item>
                       </template>
                     </paper-menu>
@@ -244,7 +432,7 @@
                 </template>
               </td>
             </template>
-            <template is="dom-repeat" items="[[getColumns_(delegate)]]" as="column">
+            <template is="dom-repeat" items="[[columns]]" as="column">
               <td>
                 <ghvz-echo
                     value="[[getPropertyValue_(item, column.property, delegate)]]">
