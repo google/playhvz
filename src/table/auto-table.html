@@ -38,6 +38,11 @@
             type: Boolean,
             value: false,
           },
+
+          initialCount: {
+            type: Number,
+            value: undefined,
+          },
         },
 
         attached: function() {
@@ -438,7 +443,7 @@
         </tr>
       </thead>
       <tbody id="tbody">
-        <template id="itemsRepeater" is="dom-repeat" items="[[items]]">
+        <template id="itemsRepeater" is="dom-repeat" items="[[items]]" initial-count="[[initialCount]]">
           <tr data-item-id$="[[getItemId_(item, delegate)]]">
             <template is="dom-if" if="[[computeHasControlCell_(selectable, actions.length)]]">
               <td class="control-cell">

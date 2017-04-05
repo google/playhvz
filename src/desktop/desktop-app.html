@@ -125,7 +125,7 @@
           </ghvz-missions>
         </ghvz-dashlet>
 
-        <ghvz-dashlet admin full>
+        <ghvz-dashlet scrolling admin full>
           <div class="header">Players</div>
           <player-table
               id="playerTableModule"
@@ -145,7 +145,7 @@
           </dev-tools>
         </ghvz-dashlet>
 
-        <ghvz-dashlet admin half right>
+        <ghvz-dashlet scrolling admin half right>
           <div class="header">Guns</div>
           <ghvz-guns
               server-bridge="[[serverBridge]]"
@@ -153,7 +153,7 @@
           </ghvz-guns>
         </ghvz-dashlet>
 
-        <ghvz-dashlet admin half right>
+        <ghvz-dashlet scrolling admin half right>
           <div class="header">Rewards</div>
           <ghvz-rewards
               server-bridge="[[serverBridge]]"
@@ -204,7 +204,7 @@
             server-bridge="[[serverBridge]]"
             game-id="[[gameId]]"
             player-id="[[playerId]]">
-        </ghvz-next-mission>
+        </ghvz-claim-reward>
       </ghvz-dashlet>
 
       <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
