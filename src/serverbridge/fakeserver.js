@@ -102,7 +102,7 @@ class FakeServer {
   findAllPlayerIdsForChatRoomId(chatRoomId) {
     return this.fakeDatabase.findAllPlayerIdsForChatRoomId(chatRoomId);
   }
-  addMission(missionId, gameId, beginTime, endTime, name, url) {
+  addMission(missionId, gameId, {beginTime, endTime, name, url}) {
     var mission = new Mission(missionId, gameId, beginTime, endTime, name, url);
     return this.fakeDatabase.addMission(mission);
   }
@@ -146,7 +146,7 @@ class FakeServer {
   generateLifeCode_(player) {
     return 'lifecode-' + player.number + '-' + (player.lives.length + 1);
   }
-  addRewardCategory(rewardCategoryId, gameId, name, points, seed) {
+  addRewardCategory(rewardCategoryId, gameId, {name, points, seed}) {
     this.fakeDatabase.addRewardCategory(rewardCategoryId, gameId, name, points, seed);
   }
   addRewards(rewardCategoryId, numNewRewards) {
@@ -205,8 +205,8 @@ class FakeServer {
     return this.fakeDatabase.getAllGunIds()
         .map(gunId => this.getGunById(gunId));
   }
-  addGun(gunId, gunNumber) {
-    this.fakeDatabase.addGun(gunId, gunNumber);
+  addGun(gunId, {number}) {
+    this.fakeDatabase.addGun(gunId, number);
   }
   setGunPlayer(gunId, playerIdOrNull) {
     this.fakeDatabase.setGunPlayer(gunId, playerIdOrNull);

@@ -106,25 +106,17 @@
 
         startAddingCategory_: function() {
           this.$.categoryForm.openForAdding()
-              .then((category) => {
+              .then((properties) => {
                 this.serverBridge.addRewardCategory(
                     Utils.generateId("rewardCategory"),
                     this.gameId,
-                    category.name,
-                    category.points,
-                    category.seed);
+                    properties);
                 this.refresh_();
               });
         },
 
         startEditingCategory_: function(category) {
-          this.$.categoryForm.openForEditing(
-              category.id,
-              {
-                name: category.name,
-                points: category.points,
-                seed: category.seed,
-              })
+          this.$.categoryForm.openForEditing(category)
               .then((newProperties) => {
                 this.serverBridge.updateRewardCategory(
                     category.id,
@@ -235,9 +227,7 @@
     <ghvz-super-form
         id="categoryForm"
         type-name="Reward Category"
-        blueprint="[[makeCategoryFormBlueprint_()]]"
-        on-ghvz-super-form-done-adding="doneAddingCategory_"
-        on-ghvz-super-form-done-editing="doneEditingCategory_">
+        blueprint="[[makeCategoryFormBlueprint_()]]">
     </ghvz-super-form>
 
     <div id="rewards" hidden="[[!rewardCategoryId]]">

@@ -129,3 +129,15 @@ Utils.compare = function(aValue, bValue) {
   else
     return 0;
 }
+
+Utils.formatTime = function(timestampInSeconds) {
+  var date = new Date(timestampInSeconds * 1000);
+  var result = "";
+  var months = [null, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
+  result += months[date.getMonth()] + ' ';
+  result += date.getDay() + ' ';
+  var am = date.getHours() <= 12;
+  result += (am ? date.getHours() : date.getHours() - 12);
+  result += ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (am ? 'am' : 'pm');
+  return result;
+}

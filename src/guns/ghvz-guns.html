@@ -31,17 +31,11 @@
           this.refresh_();
         },
 
-        addGun_: function() {
-          this.serverBridge.addGun(Utils.generateId("gun"), this.newGunNumber);
-          this.newGunNumber = "";
-          this.refresh_();
-        },
-
         makeTableBlueprint_: function() {
           return {
             columns: [
               {
-                property: "gunNumber",
+                property: "number",
                 name: "Number",
                 filterable: true,
                 sortable: true,
@@ -70,7 +64,12 @@
                 },
               },
             ],
-            actions: [],
+            actions: [
+              {
+                name:"Edit",
+                handler: this.editGun_.bind(this),
+              },
+            ],
           };
         },
 
@@ -88,36 +87,46 @@
                     });
               });
         },
+
+
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "number",
+                label: "Number",
+                description: "Number on the gun, example 1404.",
+              },
+            ],
+          };
+        },
+
+        addGun_: function() {
+          this.$.gunForm.openForAdding()
+              .then((properties) => {
+                this.serverBridge.addGun(Utils.generateId("gun"), properties);
+                this.refresh_();
+              });
+        },
+
+        editGun_: function(gun) {
+          this.$.gunForm.openForEditing(gun)
+              .then((properties) => {
+                this.serverBridge.updateGun(gun.id, properties);
+                this.refresh_();
+              });
+        },
       });
     });
   </script>
   <template>
     <style>
-      #newGun {
-        display: flex;
-        margin: 8px;
-      }
-
-      #newGunNumber {
-        flex: 1;
-      }
-
-      #addGunContainer {
-        display: flex;
-        align-items: center;
-      }
     </style>
 
-    <paper-icon-button
-        id="refresh"
-        icon="icons:refresh"
-        on-tap="refresh_">
+    <paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
     </paper-icon-button>
-
-    <ghvz-player-lookup-dialog
-        server-bridge="[[serverBridge]]"
-        game-id="[[gameId]]">
-    </ghvz-player-lookup-dialog>
+    <paper-icon-button id="add" icon="icons:add" on-tap="addGun_">
+    </paper-icon-button>
 
     <auto-table
         id="table"
@@ -125,20 +134,10 @@
         items="[[guns]]">
     </auto-table>
 
-    <ghvz-form
-        id="add"
-        title="Add Gun"
-        open-icon="icons:add"
-        close-label="Cancel"
-        done-label="Add"
-        done-enabled="[[newGunNumber]]"
-        on-ghvz-form-done="addGun_">
-      <ghvz-form-section>
-        <paper-input
-            label="New gun's number"
-            value="{{newGunNumber}}">
-        </paper-input>
-      </ghvz-form-section>
-    </ghvz-form>
+    <ghvz-super-form
+        id="gunForm"
+        type-name="Gun"
+        blueprint="[[makeFormBlueprint_()]]">
+    </ghvz-super-form>
   </template>
 </dom-module>

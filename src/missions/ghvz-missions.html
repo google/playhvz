@@ -31,22 +31,34 @@
             columns: [
               {
                 property: "name",
-                name: "name"
+                name: "Name",
+                sortable: true,
+                filterable: true,
               },
               {
                 property: "beginTime",
-                name: "Begin"
+                name: "Begin",
+                sortable: true,
+                getView: (mission, prop, time) => Utils.formatTime(time),
               },
               {
                 property: "endTime",
-                name: "End"
+                name: "End",
+                sortable: true,
+                getView: (mission, prop, time) => Utils.formatTime(time),
               },
               {
                 property: "url",
-                name: "Url"
+                name: "Url",
+                sortable: true,
+                filterable: true,
               },
             ],
             actions: [
+              {
+                name: "Edit",
+                handler: this.editMission_.bind(this),
+              },
             ],
           };
         },
@@ -71,25 +83,51 @@
               });
         },
 
-        addMission_: function() {
-          this.serverBridge.addMission(
-              Utils.generateId("mission"),
-              this.gameId,
-              this.newMission.beginTime,
-              this.newMission.endTime,
-              this.newMission.name,
-              this.newMission.url);
-          this.newMission = {
-            name: "",
-            beginTime: "",
-            endTime: "",
-            url: "",
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "name",
+                label: "Name",
+              },
+              {
+                property: "beginTime",
+                label: "Begin timestamp",
+                left: true,
+                description: "(in seconds)",
+                type: "number",
+              },
+              {
+                property: "endTime",
+                label: "End timestamp",
+                right: true,
+                description: "(in seconds)",
+                type: "number",
+              },
+              {
+                property: "url",
+                label: "Mission page url",
+                description: "Url of the page describing the mission, example /firstgame/missions/first-mission.html",
+              },
+            ],
           };
-          this.refresh_();
         },
 
-        computeAddMissionButtonEnabled_(newMissionName, newMissionBeginTime, newMissionEndTime, newMissionUrl) {
-          return newMissionName && newMissionBeginTime && newMissionEndTime && newMissionUrl;
+        addMission_: function() {
+          this.$.missionForm.openForAdding()
+              .then((properties) => {
+                this.serverBridge.addMission(
+                    Utils.generateId("mission"), this.gameId, properties);
+                this.refresh_();
+              });
+        },
+
+        editMission_: function(mission) {
+          this.$.missionForm.openForEditing(mission)
+              .then((properties) => {
+                this.serverBridge.updateMission(mission.id, properties);
+                this.refresh_();
+              });
         },
       });
     });
@@ -106,10 +144,9 @@
       }
     </style>
 
-    <paper-icon-button
-        id="refresh"
-        icon="icons:refresh"
-        on-tap="refresh_">
+    <paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
+    </paper-icon-button>
+    <paper-icon-button id="add" icon="icons:add" on-tap="addMission_">
     </paper-icon-button>
 
     <auto-table
@@ -118,42 +155,14 @@
         items="[[missions]]">
     </auto-table>
 
-    <ghvz-form
-        id="add"
-        title="Add Mission"
-        open-icon="icons:add"
-        close-label="Cancel"
-        done-label="Add"
-        done-enabled="[[computeAddMissionButtonEnabled_(newMission.name, newMission.beginTime, newMission.endTime, newMission.url)]]"
-        on-ghvz-form-done="addMission_">
-      <ghvz-form-section>
-        <paper-input
-            label="Mission name"
-            value="{{newMission.name}}">
-        </paper-input>
-      </ghvz-form-section>
-      <ghvz-form-section left description="(in seconds)">
-        <paper-input
-            label="Mission begin timestamp"
-            value="{{newMission.beginTime}}">
-        </paper-input>
-      </ghvz-form-section>
-      <ghvz-form-section right description="(in seconds)">
-        <paper-input
-            label="Mission end timestamp"
-            value="{{newMission.endTime}}">
-        </paper-input>
-      </ghvz-form-section>
-      <ghvz-form-section description="Url of the page describing the mission, example /firstgame/missions/first-mission.html">
-        <paper-input
-            label="Mission page url"
-            value="{{newMission.url}}">
-        </paper-input>
-      </ghvz-form-section>
+    <ghvz-super-form
+        id="missionForm"
+        type-name="Mission"
+        blueprint="[[makeFormBlueprint_()]]">
       <ghvz-form-section spaced>
         For timestamps, use <a href="https://www.epochconverter.com/">epochconverter</a>.
         Timestamps are in seconds, not milliseconds.
       </ghvz-form-section>
-    </ghvz-form>
+    </ghvz-super-form>
   </template>
 </dom-module>

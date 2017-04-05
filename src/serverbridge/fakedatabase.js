@@ -76,9 +76,9 @@ class Reward {
 }
 
 class Gun {
-  constructor(gunId, gunNumber) {
+  constructor(gunId, number) {
     this.id = gunId;
-    this.gunNumber = gunNumber;
+    this.number = number;
     this.playerIdOrNull = null;
   }
 }
@@ -314,11 +314,19 @@ class FakeDatabase {
   updateRewardCategory(rewardCategoryId, updates) {
     this.expectRewardCategoryExists_(rewardCategoryId);
     var rewardCategory = this.rewardCategoriesById.get(rewardCategoryId);
+    this.update_(rewardCategory, updates);
+  }
+  updateMission(missionId, updates) {
+    this.expectMissionExists_(missionId);
+    var mission = this.missionsById.get(missionId);
+    this.update_(mission, updates);
+  }
+  update_(destination, updates) {
     for (let propertyName in updates) {
-      if (rewardCategory.hasOwnProperty(propertyName)) {
-        rewardCategory[propertyName] = updates[propertyName];
+      if (destination.hasOwnProperty(propertyName)) {
+        destination[propertyName] = updates[propertyName];
       } else {
-        assert(false, 'Reward category has no property named ' + propertyName);
+        assert(false, 'Database entity has no property named ' + propertyName);
       }
     }
   }
@@ -329,9 +337,9 @@ class FakeDatabase {
       result.push(key);
     return result;
   }
-  addGun(gunId, gunNumber) {
+  addGun(gunId, number) {
     this.expectGunNotExists_(gunId);
-    var gun = new Gun(gunId, gunNumber);
+    var gun = new Gun(gunId, number);
     this.gunsById.set(gunId, gun);
   }
   setGunPlayer(gunId, playerIdOrNull) {
@@ -348,9 +356,9 @@ class FakeDatabase {
     this.expectGunExists_(gunId);
     return this.gunsById.get(gunId);
   }
-  findGunIdOrNullByNumber(gunNumber) {
+  findGunIdOrNullByNumber(number) {
     for (let [gunId, gun] of this.gunsById) {
-      if (gun.number == gunNumber) {
+      if (gun.number == number) {
         return gunId;
       }
     }

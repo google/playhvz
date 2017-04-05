@@ -18,14 +18,14 @@
             value: "",
           },
 
-          existingId: {
+          editing: {
             type: String,
             value: null,
           },
 
           fields: {
             type: Object,
-            value: null,
+            value: [],
           },
 
           doneEnabled: {
@@ -33,6 +33,10 @@
             value: true,
           },
         },
+
+        observers: [
+          'updateDoneEnabled_(fields.*)',
+        ],
 
         attached: function() {
           this.resolveDonePromise = null;
@@ -44,7 +48,7 @@
               property: field.property,
               type: field.type || "string",
               label: field.label || "",
-              required: field.required == null ? field.required : true,
+              required: field.required == null ? true : field.required,
               left: !!field.left,
               right: !!field.right,
               description: field.description || "",
@@ -65,12 +69,11 @@
 
         populate_(values) {
           for (let field of this.fields) {
-            this.set('fields.' + field.index + '.value', "");
-          }
-          for (var property in values) {
-            this.set(
-                'fields.' + this.getFieldIndexByProperty(property) + '.value',
-                values[property]);
+            if (field.property in values) {
+              this.set('fields.' + field.index + '.value', values[field.property]);
+            } else {
+              this.set('fields.' + field.index + '.value', "");
+            }
           }
         },
 
@@ -83,7 +86,7 @@
         },
 
         openForAdding: function(opt_initialValues) {
-          this.existingId = null;
+          this.editing = false;
           this.populate_(opt_initialValues || {});
           this.$.form.open();
           return new Promise((resolve, reject) => {
@@ -91,8 +94,8 @@
           });
         },
 
-        openForEditing: function(existingId, values) {
-          this.existingId = existingId;
+        openForEditing: function(values) {
+          this.editing = true;
           this.populate_(values);
           this.$.form.open();
           return new Promise((resolve, reject) => {
@@ -100,8 +103,8 @@
           });
         },
 
-        computeTitle_(existingId, typeName) {
-          return (existingId ? "Edit " : "New ") + typeName;
+        computeTitle_(editing, typeName) {
+          return (editing ? "Edit " : "New ") + typeName;
         },
 
         done_: function() {
@@ -127,7 +130,7 @@
     </style>
     <ghvz-form
         id="form"
-        title="[[computeTitle_(existingId, typeName)]]"
+        title="[[computeTitle_(editing, typeName)]]"
         close-label="Cancel"
         done-label="Done"
         done-enabled="[[doneEnabled]]"
@@ -141,6 +144,7 @@
           </paper-input>
         </ghvz-form-section>
       </template>
+      <content></content>
     </ghvz-form>
   </template>
 </dom-module>
