@@ -198,8 +198,8 @@ class FakeServer {
         rewards.filter(reward => reward.playerIdOrNull != null).length;
     return category;
   }
-  setRewardCategoryName(rewardCategoryId, newName) {
-    this.fakeDatabase.setRewardCategoryName(rewardCategoryId, newName);
+  updateRewardCategory(rewardCategoryId, updates) {
+    this.fakeDatabase.updateRewardCategory(rewardCategoryId, updates);
   }
   getAllGuns() {
     return this.fakeDatabase.getAllGunIds()

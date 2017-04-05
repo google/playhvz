@@ -310,9 +310,17 @@ class FakeDatabase {
     return this.findRewardIdsForPlayerId(playerId)
         .map(rewardId => this.getRewardById(rewardId).rewardCategoryId);
   }
-  setRewardCategoryName(rewardCategoryId, newName) {
+  
+  updateRewardCategory(rewardCategoryId, updates) {
     this.expectRewardCategoryExists_(rewardCategoryId);
-    this.rewardCategoriesById.get(rewardCategoryId).name = newName;
+    var rewardCategory = this.rewardCategoriesById.get(rewardCategoryId);
+    for (let propertyName in updates) {
+      if (rewardCategory.hasOwnProperty(propertyName)) {
+        rewardCategory[propertyName] = updates[propertyName];
+      } else {
+        assert(false, 'Reward category has no property named ' + propertyName);
+      }
+    }
   }
 
   getAllGunIds() {

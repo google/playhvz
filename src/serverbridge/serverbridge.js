@@ -37,6 +37,7 @@
 // getAllMissions(gameId)
 // setPlayerProfileImageUrl(playerId, imageUrl)
 // updateMission(missionId, updates)
+// updateRewardCategory(rewardCategoryId, updates)
 
 const SERVER_METHODS = [
   'logIn',
@@ -71,7 +72,7 @@ const SERVER_METHODS = [
   'findRewardsForPlayerId',
   'getMissionById',
   'findRewardsForRewardCategoryId',
-  'setRewardCategoryName',
+  'updateRewardCategory',
   'getAllGuns',
   'addGun',
   'setGunPlayer',

@@ -40,7 +40,7 @@
           },
         },
 
-        open_() {
+        open() {
           this.$.dialog.open();
         },
 
@@ -82,12 +82,6 @@
       }
     </style>
 
-    <template is="dom-if" if="[[openLabel]]">
-      <paper-button raised on-tap="open_">[[openLabel]]</paper-button>
-    </template>
-    <template is="dom-if" if="[[openIcon]]">
-      <paper-icon-button icon="[[openIcon]]" on-tap="open_"></paper-icon-button>
-    </template>
     <paper-dialog id="dialog" modal on-iron-overlay-closed="closed_">
       <template is="dom-if" if="[[title]]">
         <div id="title">

@@ -1,0 +1,149 @@
+
+<dom-module id="ghvz-super-form">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-super-form',
+
+        properties: {
+          blueprint: {
+            type: Object,
+          },
+
+          typeName: {
+            type: String,
+            value: "",
+          },
+
+          existingId: {
+            type: String,
+            value: null,
+          },
+
+          fields: {
+            type: Object,
+            value: null,
+          },
+
+          doneEnabled: {
+            type: Boolean,
+            value: true,
+          },
+        },
+
+        attached: function() {
+          this.resolveDonePromise = null;
+
+          let fields = [];
+          for (let field of this.blueprint.fields) {
+            fields.push({
+              index: fields.length,
+              property: field.property,
+              type: field.type || "string",
+              label: field.label || "",
+              required: field.required == null ? field.required : true,
+              left: !!field.left,
+              right: !!field.right,
+              description: field.description || "",
+              value: "",
+            });
+          }
+          this.fields = fields;
+        },
+
+        getFieldIndexByProperty(property) {
+          for (let i = 0; i < this.fields.length; i++) {
+            if (this.fields[i].property == property) {
+              return i;
+            }
+          }
+          return null;
+        },
+
+        populate_(values) {
+          for (let field of this.fields) {
+            this.set('fields.' + field.index + '.value', "");
+          }
+          for (var property in values) {
+            this.set(
+                'fields.' + this.getFieldIndexByProperty(property) + '.value',
+                values[property]);
+          }
+        },
+
+        assembleValues_() {
+          let values = {};
+          for (let field of this.fields) {
+            values[field.property] = field.value;
+          }
+          return values;
+        },
+
+        openForAdding: function(opt_initialValues) {
+          this.existingId = null;
+          if (opt_initialValues)
+            this.populate_(opt_initialValues);
+          this.$.form.open();
+          return new Promise((resolve, reject) => {
+            this.resolveDonePromise = resolve;
+          });
+        },
+
+        openForEditing: function(existingId, values) {
+          this.existingId = existingId;
+          this.populate_(values);
+          this.$.form.open();
+          return new Promise((resolve, reject) => {
+            this.resolveDonePromise = resolve;
+          });
+        },
+
+        computeTitle_(existingId, typeName) {
+          return (existingId ? "Edit " : "New ") + typeName;
+        },
+
+        done_: function() {
+          this.resolveDonePromise(this.assembleValues_());
+        },
+
+        updateDoneEnabled_() {
+          for (let field of this.fields) {
+            if (field.required) {
+              if (field.value == "" || field.value == null) {
+                this.doneEnabled = false;
+                return;
+              }
+            }
+          }
+          this.doneEnabled = true;
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+    </style>
+    <ghvz-form
+        id="form"
+        title="[[computeTitle_(existingId, typeName)]]"
+        close-label="Cancel"
+        done-label="Done"
+        done-enabled="[[doneEnabled]]"
+        on-ghvz-form-done="done_">
+      <template is="dom-repeat" items="[[fields]]" as="field">
+        <ghvz-form-section
+            left$="[[field.left]]"
+            right$="[[field.right]]"
+            description="[[field.description]]">
+          <paper-input
+              label="[[field.label]]"
+              value="{{field.value}}">
+          </paper-input>
+        </ghvz-form-section>
+      </template>
+    </ghvz-form>
+  </template>
+</dom-module>

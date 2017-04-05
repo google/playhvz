@@ -30,33 +30,11 @@
             type: Object,
             value: () => new Map(),
           },
-
-          newRewardCode: {
-            type: String,
-            value: "",
-          },
-
-          newCategoryName: {
-            type: String,
-            value: "",
-          },
-
-          newCategoryPoints: {
-            type: String,
-            value: "",
-          },
-
-          newCategorySeed: {
-            type: String,
-            value: "",
-          },
-
-          categoryNewName: String,
         },
 
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
-          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.addCategory });
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
         },
 
         observers: [
@@ -79,13 +57,13 @@
                 name: "Points",
               },
               {
+                property: "seed",
+                name: "Seed",
+              },
+              {
                 property: "claimed",
                 name: "Claimed",
                 getModel: (category) => category.claimed + '/' + category.total,
-              },
-              {
-                property: "seed",
-                name: "Seed",
               },
             ],
             actions: [
@@ -94,20 +72,8 @@
                 handler: (category) => this.rewardCategoryId = category.id,
               },
               {
-                name: "Set Points"
-              },
-              {
-                name: "Set Name",
-                handler: (category) => {
-                  Utils.showDialog("Enter the new name of the category:", "name", category.name, null)
-                      .then(
-                          (newName) => {
-                            if (newName) {
-                              this.serverBridge.setRewardCategoryName(category.id, newName);
-                              this.refresh_();
-                            }
-                          });
-                },
+                name: "Edit",
+                handler: this.startEditingCategory_.bind(this),
               },
             ],
           };
@@ -144,6 +110,31 @@
           };
         },
 
+        makeCategoryFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "name",
+                label: "Name",
+                description: "Title of the category. Users will see this next to the icon in their profile and when they hover over the icon.",
+              },
+              {
+                property: "points",
+                type: "number",
+                label: "Name",
+                left: true,
+                description: "Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).",
+              },
+              {
+                property: "seed",
+                label: "Seed",
+                right: true,
+                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
+              },
+            ],
+          };
+        },
+
         refresh_: function() {
           this.serverBridge.getGameById(this.gameId)
               .then((game) => {
@@ -167,23 +158,39 @@
           }
         },
 
-        addCategory_: function() {
-          this.serverBridge.addRewardCategory(
-              Utils.generateId("rewardCategory"), this.gameId, this.newCategoryName, this.newCategoryPoints, this.newCategorySeed);
-          this.newCategoryName = "";
-          this.newCategoryPoints = "";
-          this.newCategorySeed = "";
-          this.refresh_();
-        },
-
         addRewards_: function() {
           this.serverBridge.addRewards(this.rewardCategoryId, this.numNewRewards);
           this.numNewRewards = "";
           this.refreshRewardsTable_();
         },
 
-        enableAddCategory_(newCategoryName, newCategoryPoints, newCategorySeed) {
-          return newCategoryName && newCategoryPoints && newCategorySeed;
+        startAddingCategory_: function() {
+          this.$.categoryForm.openForAdding()
+              .then((category) => {
+                this.serverBridge.addRewardCategory(
+                    Utils.generateId("rewardCategory"),
+                    this.gameId,
+                    category.name,
+                    category.points,
+                    category.seed);
+                this.refresh_();
+              });
+        },
+
+        startEditingCategory_: function(category) {
+          this.$.categoryForm.openForEditing(
+              category.id,
+              {
+                name: category.name,
+                points: category.points,
+                seed: category.seed,
+              })
+              .then((newProperties) => {
+                this.serverBridge.updateRewardCategory(
+                    category.id,
+                    newProperties);
+                this.refresh_();
+              });
         },
       });
     });
@@ -233,51 +240,24 @@
         align-items: flex-end;
       }
     </style>
-    <paper-icon-button
-        id="refresh"
-        icon="icons:refresh"
-        on-tap="refresh_">
+    <paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
+    </paper-icon-button>
+    <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
     </paper-icon-button>
 
-    <div id="categories">
-      <auto-table
-          id="categoriesTable"
-          blueprint="[[makeCategoriesTableBlueprint_()]]"
-          items="[[game.rewardCategories]]">
-      </auto-table>
+    <auto-table
+        id="categoriesTable"
+        blueprint="[[makeCategoriesTableBlueprint_()]]"
+        items="[[game.rewardCategories]]">
+    </auto-table>
 
-
-    <ghvz-form
-        id="addCategory"
-        title="Add Reward Category"
-        open-icon="icons:add"
-        close-label="Cancel"
-        done-label="Add"
-        done-enabled="[[enableAddCategory_(newCategoryName, newCategoryPoints, newCategorySeed)]]"
-        on-ghvz-form-done="addCategory_">
-      <ghvz-form-section description="Title of the category. Users will see this next to the icon in their profile and when they hover over the icon.">
-          <paper-input
-              id="newCategoryNameInput"
-              label="Name"
-              value="{{newCategoryName}}">
-          </paper-input>
-      </ghvz-form-section>
-      <ghvz-form-section left description="Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).">
-          <paper-input
-              id="newCategoryPointsInput"
-              type="number"
-              label="Points"
-              value="{{newCategoryPoints}}">
-          </paper-input>
-      </ghvz-form-section>
-      <ghvz-form-section right description="A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.">
-          <paper-input
-              id="newCategorySeedInput"
-              label="Seed"
-              value="{{newCategorySeed}}">
-          </paper-input>
-      </ghvz-form-section>
-    </ghvz-form>
+    <ghvz-super-form
+        id="categoryForm"
+        type-name="Reward Category"
+        blueprint="[[makeCategoryFormBlueprint_()]]"
+        on-ghvz-super-form-done-adding="doneAddingCategory_"
+        on-ghvz-super-form-done-editing="doneEditingCategory_">
+    </ghvz-super-form>
 
     <div id="rewards" hidden="[[!rewardCategoryId]]">
       <div id="newReward">
