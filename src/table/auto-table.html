@@ -124,8 +124,8 @@
 
         onActionTapped_: function(e) {
           let action = e.model.action;
-          debugger;
-          this.delegate.doAction(this.getItemForId_(e.target.dataset.itemId), e.target.dataset.action);
+          let item = e.model.dataHost.item;
+          action.handler(item);
         },
 
         computeSortIcon_: function(sorting, ascending) {
@@ -453,7 +453,9 @@
                   <paper-menu-button>
                     <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
                     <paper-menu class="dropdown-content">
-                      <template is="dom-repeat" items="[[actions]]" as="action">
+                      <!-- Using item="[[item]]" to access outer dom-repeat's thing, see
+                          https://github.com/Polymer/polymer/issues/1919 use of outer-index. -->
+                      <template is="dom-repeat" items="[[actions]]" as="action" item="[[item]]">
                         <paper-item on-tap="onActionTapped_">[[action.name]]</paper-item>
                       </template>
                     </paper-menu>
