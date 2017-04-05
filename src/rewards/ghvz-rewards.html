@@ -79,6 +79,74 @@
           };
         },
 
+        makeCategoryFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "name",
+                label: "Name",
+                description: "Title of the category. Users will see this next to the icon in their profile and when they hover over the icon.",
+              },
+              {
+                property: "points",
+                type: "number",
+                label: "Points",
+                left: true,
+                description: "Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).",
+              },
+              {
+                property: "seed",
+                label: "Seed",
+                right: true,
+                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
+              },
+            ],
+          };
+        },
+
+        startAddingCategory_: function() {
+          this.$.categoryForm.openForAdding()
+              .then((category) => {
+                this.serverBridge.addRewardCategory(
+                    Utils.generateId("rewardCategory"),
+                    this.gameId,
+                    category.name,
+                    category.points,
+                    category.seed);
+                this.refresh_();
+              });
+        },
+
+        startEditingCategory_: function(category) {
+          this.$.categoryForm.openForEditing(
+              category.id,
+              {
+                name: category.name,
+                points: category.points,
+                seed: category.seed,
+              })
+              .then((newProperties) => {
+                this.serverBridge.updateRewardCategory(
+                    category.id,
+                    newProperties);
+                this.refresh_();
+              });
+        },
+
+        refresh_: function() {
+          this.serverBridge.getGameById(this.gameId)
+              .then((game) => {
+                this.game = game;
+              })
+          this.serverBridge.findAllPlayersForGameId(this.gameId)
+              .then((players) => {
+                this.playersById = new Map();
+                for (let player of players)
+                  this.playersById.set(player.id, player);
+              });
+          this.refreshRewardsTable_();
+        },
+
         makeRewardsTableBlueprint_: function() {
           return {
             columns: [
@@ -110,45 +178,6 @@
           };
         },
 
-        makeCategoryFormBlueprint_: function() {
-          return {
-            fields: [
-              {
-                property: "name",
-                label: "Name",
-                description: "Title of the category. Users will see this next to the icon in their profile and when they hover over the icon.",
-              },
-              {
-                property: "points",
-                type: "number",
-                label: "Name",
-                left: true,
-                description: "Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).",
-              },
-              {
-                property: "seed",
-                label: "Seed",
-                right: true,
-                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
-              },
-            ],
-          };
-        },
-
-        refresh_: function() {
-          this.serverBridge.getGameById(this.gameId)
-              .then((game) => {
-                this.game = game;
-              })
-          this.serverBridge.findAllPlayersForGameId(this.gameId)
-              .then((players) => {
-                this.playersById = new Map();
-                for (let player of players)
-                  this.playersById.set(player.id, player);
-              });
-          this.refreshRewardsTable_();
-        },
-
         refreshRewardsTable_: function() {
           if (this.rewardCategoryId) {
             this.serverBridge.findRewardsForRewardCategoryId(this.rewardCategoryId)
@@ -163,35 +192,6 @@
           this.numNewRewards = "";
           this.refreshRewardsTable_();
         },
-
-        startAddingCategory_: function() {
-          this.$.categoryForm.openForAdding()
-              .then((category) => {
-                this.serverBridge.addRewardCategory(
-                    Utils.generateId("rewardCategory"),
-                    this.gameId,
-                    category.name,
-                    category.points,
-                    category.seed);
-                this.refresh_();
-              });
-        },
-
-        startEditingCategory_: function(category) {
-          this.$.categoryForm.openForEditing(
-              category.id,
-              {
-                name: category.name,
-                points: category.points,
-                seed: category.seed,
-              })
-              .then((newProperties) => {
-                this.serverBridge.updateRewardCategory(
-                    category.id,
-                    newProperties);
-                this.refresh_();
-              });
-        },
       });
     });
   </script>
@@ -205,31 +205,9 @@
       #rewards {
         margin-top: 16px;
       }
-      #rewardsTable {
-      }
-      #rewardCodeInput {
-        flex: 1;
-        margin: 0 8px;
-      }
-      .wide-input-row {
-        margin: 0 8px;
-      }
-      .input-row {
-        display: flex;
-      }
-      .input-row paper-input {
-        min-width: 100px;
-      }
-      .input-description {
-        display: flex;
-        align-items: flex-end;
-      }
       #addReward {
         margin: 8px;
         white-space: nowrap;
-      }
-      .input-row paper-input {
-        margin: 0 8px;
       }
 
       #newReward {
