@@ -13,22 +13,14 @@
 
           gameId: String,
 
-          playersById: Array,
-
           guns: Array,
+
+          playersById: Array,
         },
 
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
-        },
-
-        observers: [
-          "ready_(serverBridge, gameId)",
-        ],
-
-        ready_: function(serverBridge, gameId) {
-          this.refresh_();
         },
 
         makeTableBlueprint_: function() {
@@ -40,29 +32,29 @@
                 filterable: true,
                 sortable: true,
               },
-              {
-                name: "Player",
-                filterable: true,
-                sortable: true,
-                getModel: (gun) => {
-                  if (gun.playerIdOrNull) {
-                    return this.playersById.get(gun.playerIdOrNull).name;
-                  }
-                },
-                getView: (gun) => {
-                  var field = document.createElement('ghvz-player-field');
-                  field.serverBridge = this.serverBridge;
-                  field.gameId = this.gameId;
-                  field.playerIdOrNull = gun.playerIdOrNull;
-                  field.label = null;
-                  field.addEventListener('set-player', (e) => {
-                    let playerOrNull = e.detail.playerOrNull;
-                    this.serverBridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
-                    this.refresh_();
-                  });
-                  return field;
-                },
-              },
+              // {
+              //   name: "Player",
+              //   filterable: true,
+              //   sortable: true,
+              //   getModel: (gun) => {
+              //     if (gun.playerId) {
+              //       return this.playersById.get(gun.playerId).name;
+              //     }
+              //   },
+              //   getView: (gun) => {
+              //     var field = document.createElement('ghvz-player-field');
+              //     field.serverBridge = this.serverBridge;
+              //     field.gameId = this.gameId;
+              //     field.playerId = gun.playerId;
+              //     field.label = null;
+              //     field.addEventListener('set-player', (e) => {
+              //       let playerOrNull = e.detail.playerOrNull;
+              //       this.serverBridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
+              //       this.refresh_();
+              //     });
+              //     return field;
+              //   },
+              // },
             ],
             actions: [
               {
@@ -72,22 +64,6 @@
             ],
           };
         },
-
-        refresh_: function() {
-          this.serverBridge.findAllPlayersForGameId(this.gameId)
-              .then((players) => {
-                let playersById = new Map();
-                for (let player of players)
-                  playersById.set(player.id, player);
-                this.playersById = playersById;
-
-                this.serverBridge.getAllGuns()
-                    .then((guns) => {
-                      this.guns = guns;
-                    });
-              });
-        },
-
 
         makeFormBlueprint_: function() {
           return {

@@ -45,6 +45,22 @@
           },
         },
 
+        observers: [
+          'updateEchos(items.*)',
+        ],
+
+        updateEchos(changeRecord) {
+          console.log(changeRecord);
+          let match = /items.#(\d+).(.+)/.exec(changeRecord.path);
+          if (match) {
+            let key = match[1];
+            let property = match[2];
+            let index = this.items.indexOf(this.get(['items', key]));
+            console.log('notifying', 'items.' + index, this.items[index]);
+            this.notifyPath('items.' + index, this.items[index]);
+          }
+        },
+
         attached: function() {
           var columns = [];
           for (let column of this.blueprint.columns) {
@@ -69,7 +85,7 @@
           var actions = [];
           for (let action of this.blueprint.actions) {
             actions.push({
-              index: action.length,
+              index: actions.length,
               action: action.action,
               name: action.name,
               handler: action.handler,

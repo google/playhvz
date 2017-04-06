@@ -13,7 +13,9 @@
 
           gameId: String,
 
-          missions: Array,
+          missions: {
+            type: Array,
+          },
 
           newMission: {
             type: Object,
@@ -66,21 +68,6 @@
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
-        },
-
-        observers: [
-          "ready_(serverBridge, gameId)",
-        ],
-
-        ready_: function(serverBridge, gameId) {
-          this.refresh_();
-        },
-
-        refresh_: function() {
-          this.serverBridge.findAllMissionsForGameId(this.gameId)
-              .then((missions) => {
-                this.missions = missions;
-              });
         },
 
         makeFormBlueprint_: function() {

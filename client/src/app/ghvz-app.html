@@ -1,0 +1,361 @@
+<style>
+  body {
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* whoever designed the default paper-menu needs to be shot */
+  paper-menu,
+  paper-listbox {
+    padding: 0 !important;
+  }
+  paper-menu .iron-selected,
+  paper-listbox .iron-selected {
+    font-weight: inherit !important;
+  }
+  paper-menu paper-item,
+  paper-listbox paper-item {
+    min-height: 36px !important;
+    white-space: nowrap;
+  }
+  paper-listbox paper-item::before,
+  paper-listbox paper-item::after,
+  paper-menu paper-item::before,
+  paper-menu paper-item::after {
+    display: none;
+  }
+  paper-listbox paper-item:hover,
+  paper-menu paper-item:hover {
+    background-color: #F0F0F0 !important;
+    cursor: pointer;
+  }
+
+  paper-input-container {
+    padding: 0 !important;
+  }
+</style>
+
+<dom-module id="ghvz-app">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-app',
+
+        properties: {
+          firebaseUser: {
+            type: Object,
+            value: null,
+          },
+
+          isDesktop: {
+            type: Boolean,
+            value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
+          },
+
+          userId: {
+            type: String,
+            computed: 'computeUserId_(firebaseUser)',
+            observer: 'onUserIdChanged_',
+          },
+
+          firebaseRoot: {
+            type: Object,
+            computed: 'computeFirebaseRoot_(firebaseUser)',
+          },
+
+          games: {
+            type: Array,
+            value: () => ([]),
+          },
+
+          gamesById: {
+            value: Object,
+            value: () => ({}),
+          },
+
+          gameId: {
+            type: String,
+            value: null,
+            observer: 'onGameIdChanged_',
+          },
+
+          game: {
+            type: Object,
+            value: null,
+          },
+
+          playerId: {
+            type: String,
+            value: null,
+            observer: 'onPlayerIdChanged_',
+          },
+
+          guns: {
+            type: Array,
+            value: () => ([]),
+          },
+
+          gunsById: {
+            type: Object,
+            value: () => ({}),
+          },
+        },
+
+        computeUserId_: function(firebaseUser) {
+          return firebaseUser && firebaseUser.uid;
+        },
+
+        computeFirebaseRoot_: function(firebaseUser) {
+          return this.$.app.app.database().ref().child('data');
+        },
+
+        addEntity_: function(arrayPath, mapPath, obj) {
+          console.log('this.push(', arrayPath, ',', obj, ')');
+          this.push(arrayPath, obj);
+          //console.log('this.set(', mapPath + '.' + obj.id, ',', obj, ')');
+          //this.set(mapPath + '.' + obj.id, obj);
+        },
+        setEntityProperty_: function(path, arrayPath, mapPath, entityId, property, value) {
+          if (path) {
+            console.log('this.set(', path + '.' + property, ',', value, ')');
+            this.set(path + '.' + property, value);
+            return;
+          } else if (arrayPath) {
+            let array = this.get(arrayPath);
+            for (let i = 0; i < array.length; i++) {
+              if (array[i].id == entityId) {
+                console.log('this.set(', arrayPath + '.' + i + '.' + property, ',', value, ')');
+                this.set(arrayPath + '.' + i + '.' + property, value);
+                // this.notifyPath(mapPath + '.' + entityId + '.' + property, value);
+                return;
+              }
+            }
+          } else {
+            debugger;
+          }
+          debugger;
+          console.error('Not found in ' + arrayPath);
+        },
+
+        getGameIndex_: function(gameId) {
+          let index = this.games.findIndex((game) => (game.id == gameId));
+          if (index < 0)
+            console.error('Game not found!', gameId);
+          return index;
+        },
+
+        getMissionsArrayPath_: function(gameId) {
+          return 'game.missions';
+        },
+        getMissionsMapPath_: function(gameId) {
+          return 'game.missionsById';
+        },
+
+        listenForSimplePropertyChanges_: function(collectionRef, path, arrayPath, mapPath, entityId, properties, subCollections) {
+          collectionRef.on('child_added', (change) => {
+            if (properties.includes(change.getKey())) {
+              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), change.val());
+            } else if (subCollections.includes(change.getKey())) {
+              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), []);
+            } else {
+              debugger;
+              console.log('Unexpected!', change.val(), change.getKey(), arguments);
+            }
+          });
+          collectionRef.on('child_changed', (change) => {
+            if (properties.includes(change.getKey())) {
+              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), change.val());
+            } else if (subCollections.includes(change.getKey())) {
+              // do nothing, covered elsewhere
+            } else {
+              debugger;
+              console.log('Unexpected!', change.val(), change.getKey(), arguments);
+            }
+          });
+          collectionRef.on('child_removed', (change) => {
+            if (properties.includes(change.getKey())) {
+              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), null);
+            } else if (subCollections.includes(change.getKey())) {
+              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), []);
+            } else {
+              debugger;
+              console.log('Unexpected!', change.val(), change.getKey(), arguments);
+            }
+          });
+        },
+
+        shallowListenToGames: function() {
+          this.firebaseRoot.child('games').on('child_added', (game) => {
+            let gameId = game.getKey();
+            this.addEntity_('games', 'gamesById', {
+              id: gameId,
+              name: game.val().name,
+              stunTimer: game.val().stunTimer,
+              rulesUrl: game.val().url,
+            });
+            this.listenForSimplePropertyChanges_(
+                game.ref, null, 'games', 'gamesById', gameId,
+                ['name', 'rulesUrl', 'stunTimer'],
+                ['missions', 'rewardCategories', 'chatRooms', 'players', 'adminUserIds', 'notificationCategories']);
+          });
+          this.firebaseRoot.child('games').on('child_removed', (snap) => {
+            for (let i = 0; i < this.games.length; i++) {
+              if (this.games[i].id == snap.getKey()) {
+                this.splice('games', i, 1);
+                delete this.get('gamesById')[snap.getKey()];
+              }
+            }
+            console.error('Couldnt find game');
+          });
+        },
+
+        listenToGuns: function() {
+          this.firebaseRoot.child('guns').on('child_added', (snap) => {
+            let gunId = snap.getKey();
+            this.addEntity_('guns', 'gunsById', {
+              id: gunId,
+              number: snap.val().number,
+              playerId: snap.val().playerId || null,
+            });
+            this.listenForSimplePropertyChanges_(
+                snap.ref, null, 'guns', 'gunsById', gunId,
+                ['number', 'playerId'],
+                []);
+          });
+        },
+
+        listenToMissions_: function(gameId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/missions');
+          ref.on('child_added', (mission) => {
+            let missionId = mission.getKey();
+            this.addEntity_(
+                this.getMissionsArrayPath_(gameId),
+                this.getMissionsMapPath_(gameId),
+                {
+                  id: missionId,
+                  name: mission.val().name,
+                  beginTime: mission.val().beginTime,
+                  endTime: mission.val().endTime,
+                  url: mission.val().url,
+                  allegianceFilter: mission.val().allegianceFilter,
+                });
+            this.listenForSimplePropertyChanges_(
+                mission.ref,
+                null,
+                this.getMissionsArrayPath_(gameId),
+                this.getMissionsMapPath_(gameId),
+                missionId,
+                ['name', 'beginTime', 'endTime', 'url', 'allegianceFilter'],
+                []);
+          });
+        },
+
+        listenToSpecificGame: function(gameId) {
+          this.firebaseRoot.child('games').on('child_added', (game) => {
+            if (game.getKey() == gameId) {
+              this.set('game', {
+                id: gameId,
+              });
+              this.listenForSimplePropertyChanges_(
+                  game.ref, 'game', null, null, null,
+                  ['name', 'rulesUrl', 'stunTimer'],
+                  ['missions', 'rewardCategories', 'chatRooms', 'players', 'adminUserIds', 'notificationCategories']);
+
+              this.listenToMissions_(gameId);
+            }
+          });
+          this.firebaseRoot.child('games').on('child_removed', (game) => {
+            if (game.getKey() == gameId) {
+              for (let i = 0; i < this.database.games.length; i++) {
+                if (this.database.games[i].id == snap.getKey()) {
+                  this.splice('database.games', i, 1);
+                  this.set('database.gamesById.' + snap.getKey(), null);
+                  return;
+                }
+              }
+              console.error('Couldnt find game');
+            }
+          });
+        },
+
+        firebaseSignIn_: function() {
+          this.$.auth.signInWithPopup();
+        },
+
+        onUserIdChanged_: function(userId, oldUserId) {
+          if (userId && oldUserId) {
+            throw 'Cannot user player once selected, must refresh!';
+          }
+          if (userId) {
+            this.shallowListenToGames();
+          }
+        },
+
+        onGameIdChanged_: function(gameId, oldGameId) {
+          if (gameId && oldGameId) {
+            throw 'Cannot change player once selected, must refresh!';
+          }
+          if (gameId) {
+            this.listenToSpecificGame(gameId);
+          }
+        },
+
+        onPlayerIdChanged_: function(playerId, oldPlayerId) {
+          if (playerId && oldPlayerId) {
+            throw 'Cannot change player once selected, must refresh!';
+          }
+          if (playerId) {
+            debugger;
+            this.deepListenToPlayer(this.gameId, playerId);
+          }
+        },
+      });
+    });
+  </script>
+  <template>
+    <firebase-app
+        id="app"
+        name="GoogleHvZ"
+        auth-domain="zeds-dbe0f.firebaseapp.com"
+        database-url="https://zeds-dbe0f.firebaseio.com"
+        api-key="AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs"
+        storage-bucket="zeds-dbe0f.appspot.com"
+        messaging-sender-id="721599614458">
+    </firebase-app>
+    <firebase-auth
+        id="auth"
+        app-name="GoogleHvZ"
+        user="{{firebaseUser}}"
+        provider="google"
+        on-error="handleError_">
+    </firebase-auth>
+    <template is="dom-if" if="[[!userId]]">
+      <paper-button on-tap="firebaseSignIn_">Sign In</paper-button>
+    </template>
+    <template is="dom-if" if="[[userId]]">
+      <template is="dom-if" if="[[isDesktop]]">
+        <ghvz-desktop-app
+            server-bridge="[[serverBridge]]"
+            user-id="[[userId]]"
+            games="[[games]]"
+            game-id="{{gameId}}"
+            player-id="{{playerId}}"
+            game="[[game]]"
+            guns="[[guns]]">
+        </ghvz-desktop-app>
+      </template>
+      <template is="dom-if" if="[[!isDesktop]]">
+        <ghvz-mobile-app
+            server-bridge="[[serverBridge]]"
+            user-id="[[userId]]"
+            database="[[data]]">
+        </ghvz-mobile-app>
+      </template>
+    </template>
+  </template>
+</dom-module>
