@@ -44,19 +44,19 @@
             value: true,
           },
 
-          firebaseUser: {
-            type: Object,
+          firebaseSignedIn: {
+            type: Boolean,
             value: null,
           },
 
-          firebaseData: {
+          database: {
             type: Object,
             value: undefined,
           },
         },
 
         firebaseSignIn_: function() {
-          this.$.auth.signInWithPopup();
+          this.$.firebase.signIn();
         },
 
         attached: function() {
@@ -124,41 +124,18 @@
       }
   	</style>
 
-    <firebase-app
-        name="GoogleHvZ"
-        auth-domain="zeds-dbe0f.firebaseapp.com"
-        database-url="https://zeds-dbe0f.firebaseio.com"
-        api-key="AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs"
-        storage-bucket="zeds-dbe0f.appspot.com"
-        messaging-sender-id="721599614458">
-    </firebase-app>
-    <firebase-auth
-        id="auth"
-        app-name="GoogleHvZ"
-        user="{{firebaseUser}}"
-        provider="google"
-        on-error="handleError_">
-    </firebase-auth>
+    <ghvz-firebase
+        id="firebase"
+        firebase-signed-in="{{firebaseSignedIn}}"
+        firebase-data="{{database}}">
+    </ghvz-firebase>
 
-    <!-- <firebase-query
-        id="query"
-        app-name="GoogleHvZ"
-        path="/path"
-        data="{{firebaseData}}">
-    </firebase-query> -->
+    [[database]]
 
-    <firebase-document
-        id="document"
-        app-name="GoogleHvZ"
-        path="path"
-        log
-        data="{{firebaseData}}">
-    </firebase-document>
-
-    <template is="dom-if" if="[[!firebaseUser]]">
+    <template is="dom-if" if="[[!firebaseSignedIn]]">
       <paper-button on-tap="firebaseSignIn_">Sign In</paper-button>
     </template>
-    <template is="dom-if" if="[[firebaseUser]]">
+    <template is="dom-if" if="[[firebaseSignedIn]]">
       <div id="confidential">
         DONT POST CONFIDENTIAL INFO, COBFLABBIT!
       </div>
