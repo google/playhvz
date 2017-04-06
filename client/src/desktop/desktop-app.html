@@ -42,14 +42,19 @@
           isZombie: {
             type: Boolean,
             value: true,
-          }
+          },
+
+          firebaseUser: {
+            type: Object,
+            value: null,
+          },
+        },
+
+        firebaseSignIn_: function() {
+          this.$.auth.signInWithPopup();
         },
 
         attached: function() {
-          this.$.auth.signInWithPopup()
-              .then(function(response) {
-                debugger;
-              });
           this.serverBridge.logIn('firstuserauthcode')
               .then((userId) => {
                 this.userId = userId;
@@ -81,6 +86,10 @@
         becomeNotAdmin_: function() {
           this.isAdmin = false;
         },
+
+        handleError_: function(e) {
+          debugger;
+        }
       });
     });
   </script>
@@ -110,145 +119,154 @@
       }
   	</style>
 
-  projectId: "zeds-dbe0f",
-  <firebase-app
-      auth-domain="zeds-dbe0f.firebaseapp.com"
-      database-url="https://zeds-dbe0f.firebaseio.com"
-      api-key="AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs"
-      storage-bucket="zeds-dbe0f.appspot.com"
-      messaging-sender-id="721599614458">
-  </firebase-app>
-  <firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError">
-  </firebase-auth>
+    <firebase-app
+        name="GoogleHvZ"
+        auth-domain="zeds-dbe0f.firebaseapp.com"
+        database-url="https://zeds-dbe0f.firebaseio.com"
+        api-key="AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs"
+        storage-bucket="zeds-dbe0f.appspot.com"
+        messaging-sender-id="721599614458">
+    </firebase-app>
+    <firebase-auth
+        id="auth"
+        app-name="GoogleHvZ"
+        user="{{firebaseUser}}"
+        provider="google"
+        on-error="handleError_">
+    </firebase-auth>
 
-    <div id="confidential">
-      DONT POST CONFIDENTIAL INFO, COBFLABBIT!
-    </div>
+    <template is="dom-if" if="[[!firebaseUser]]">
+      <paper-button on-tap="firebaseSignIn_">Sign In</paper-button>
+    </template>
+    <template is="dom-if" if="[[firebaseUser]]">
+      <div id="confidential">
+        DONT POST CONFIDENTIAL INFO, COBFLABBIT!
+      </div>
 
-    <div id="viewControls">
-      <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
-      <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
-    </div>
+      <div id="viewControls">
+        <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
+        <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
+      </div>
 
-    <ghvz-dashboard>
-      <template is="dom-if" if="[[isAdmin]]">
-        <ghvz-dashlet admin full>
-          <div class="header">Missions</div>
-          <ghvz-missions
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]">
-          </ghvz-missions>
-        </ghvz-dashlet>
+      <ghvz-dashboard>
+        <template is="dom-if" if="[[isAdmin]]">
+          <ghvz-dashlet admin full>
+            <div class="header">Missions</div>
+            <ghvz-missions
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]">
+            </ghvz-missions>
+          </ghvz-dashlet>
 
-        <ghvz-dashlet scrolling admin full>
-          <div class="header">Players</div>
-          <player-table
-              id="playerTableModule"
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]"
-              current-user-id="[[userId]]">
-          </player-table>
-        </ghvz-dashlet>
-        
-        <ghvz-dashlet admin half left>
-          <div class="header">Dev Tools</div>
-          <dev-tools
-              class="content"
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]"
-              user-id="[[userId]]">
-          </dev-tools>
-        </ghvz-dashlet>
-
-        <ghvz-dashlet scrolling admin half right>
-          <div class="header">Guns</div>
-          <ghvz-guns
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]">
-          </ghvz-guns>
-        </ghvz-dashlet>
-
-        <ghvz-dashlet scrolling admin half right>
-          <div class="header">Rewards</div>
-          <ghvz-rewards
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]">
-          </ghvz-rewards>
-        </ghvz-dashlet>
-      </template>
-
-
-      <template is="dom-if" if="[[isZombie]]">
-        <ghvz-dashlet half left>
-          <div class="header">Infect</div>
-          <ghvz-infect
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]"
-              player-id="[[playerId]]">
-          </ghvz-infect>
-        </ghvz-dashlet>
-      </template>
-
-
-      <ghvz-dashlet half left>
-        <div class="header">Next Mission</div>
-        <ghvz-next-mission
-            server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]"
-            player-id="[[playerId]]">
-        </ghvz-next-mission>
-      </ghvz-dashlet>
-
-      <ghvz-dashlet half right>
-        <div class="header">Leaderboard</div>
-        <leaderboard-summary
-            server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]">
-        </leaderboard-summary>
-      </ghvz-dashlet>
-
-      <ghvz-dashlet half right>
-        <div class="header">Game Stats</div>
-        <game-stat-summary>
-        </game-stat-summary>
-      </ghvz-dashlet>
-
-      <ghvz-dashlet half left>
-        <div class="header">Rewards</div>
-        <ghvz-claim-reward
-            server-bridge="[[serverBridge]]"
-            game-id="[[gameId]]"
-            player-id="[[playerId]]">
-        </ghvz-claim-reward>
-      </ghvz-dashlet>
-
-      <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
-        <ghvz-dashlet half right>
-          <div class="header">[[chatRoom.name]]</div>
-          <chat-app
-              class="content"
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]"
-              current-player-id="[[playerId]]"
-              chat-room-id="[[chatRoomId]]">
-          </chat-app>
-        </ghvz-dashlet>
-      </template>
-
-      <template is="dom-if" if="[[isRegistering]]">
-        <ghvz-dashlet half right>
-          <div class="header">Join A Game</div>
-          <game-registration
+          <ghvz-dashlet scrolling admin full>
+            <div class="header">Players</div>
+            <player-table
+                id="playerTableModule"
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]"
+                current-user-id="[[userId]]">
+            </player-table>
+          </ghvz-dashlet>
+          
+          <ghvz-dashlet admin half left>
+            <div class="header">Dev Tools</div>
+            <dev-tools
                 class="content"
                 server-bridge="[[serverBridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
-          </game-registration>
+            </dev-tools>
+          </ghvz-dashlet>
+
+          <ghvz-dashlet scrolling admin half right>
+            <div class="header">Guns</div>
+            <ghvz-guns
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]">
+            </ghvz-guns>
+          </ghvz-dashlet>
+
+          <ghvz-dashlet scrolling admin half right>
+            <div class="header">Rewards</div>
+            <ghvz-rewards
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]">
+            </ghvz-rewards>
+          </ghvz-dashlet>
+        </template>
+
+
+        <template is="dom-if" if="[[isZombie]]">
+          <ghvz-dashlet half left>
+            <div class="header">Infect</div>
+            <ghvz-infect
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]"
+                player-id="[[playerId]]">
+            </ghvz-infect>
+          </ghvz-dashlet>
+        </template>
+
+
+        <ghvz-dashlet half left>
+          <div class="header">Next Mission</div>
+          <ghvz-next-mission
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              player-id="[[playerId]]">
+          </ghvz-next-mission>
         </ghvz-dashlet>
-      </template>
 
-    </ghvz-dashboard>
+        <ghvz-dashlet half right>
+          <div class="header">Leaderboard</div>
+          <leaderboard-summary
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]">
+          </leaderboard-summary>
+        </ghvz-dashlet>
 
+        <ghvz-dashlet half right>
+          <div class="header">Game Stats</div>
+          <game-stat-summary>
+          </game-stat-summary>
+        </ghvz-dashlet>
+
+        <ghvz-dashlet half left>
+          <div class="header">Rewards</div>
+          <ghvz-claim-reward
+              server-bridge="[[serverBridge]]"
+              game-id="[[gameId]]"
+              player-id="[[playerId]]">
+          </ghvz-claim-reward>
+        </ghvz-dashlet>
+
+        <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
+          <ghvz-dashlet half right>
+            <div class="header">[[chatRoom.name]]</div>
+            <chat-app
+                class="content"
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]"
+                current-player-id="[[playerId]]"
+                chat-room-id="[[chatRoomId]]">
+            </chat-app>
+          </ghvz-dashlet>
+        </template>
+
+        <template is="dom-if" if="[[isRegistering]]">
+          <ghvz-dashlet half right>
+            <div class="header">Join A Game</div>
+            <game-registration
+                  class="content"
+                  server-bridge="[[serverBridge]]"
+                  game-id="[[gameId]]"
+                  user-id="[[userId]]">
+            </game-registration>
+          </ghvz-dashlet>
+        </template>
+
+      </ghvz-dashboard>
+    </template>
   </template>
 </dom-module>
 

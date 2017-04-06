@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "infections": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}
