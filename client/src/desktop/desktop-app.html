@@ -124,18 +124,6 @@
       }
   	</style>
 
-    <ghvz-firebase
-        id="firebase"
-        firebase-signed-in="{{firebaseSignedIn}}"
-        firebase-data="{{database}}">
-    </ghvz-firebase>
-
-    [[database]]
-
-    <template is="dom-if" if="[[!firebaseSignedIn]]">
-      <paper-button on-tap="firebaseSignIn_">Sign In</paper-button>
-    </template>
-    <template is="dom-if" if="[[firebaseSignedIn]]">
       <div id="confidential">
         DONT POST CONFIDENTIAL INFO, COBFLABBIT!
       </div>
@@ -264,7 +252,6 @@
 
       </ghvz-dashboard>
     </template>
-  </template>
 </dom-module>
 
 <style>
