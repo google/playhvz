@@ -48,6 +48,11 @@
             type: Object,
             value: null,
           },
+
+          firebaseData: {
+            type: Object,
+            value: undefined,
+          },
         },
 
         firebaseSignIn_: function() {
@@ -134,6 +139,21 @@
         provider="google"
         on-error="handleError_">
     </firebase-auth>
+
+    <!-- <firebase-query
+        id="query"
+        app-name="GoogleHvZ"
+        path="/path"
+        data="{{firebaseData}}">
+    </firebase-query> -->
+
+    <firebase-document
+        id="document"
+        app-name="GoogleHvZ"
+        path="path"
+        log
+        data="{{firebaseData}}">
+    </firebase-document>
 
     <template is="dom-if" if="[[!firebaseUser]]">
       <paper-button on-tap="firebaseSignIn_">Sign In</paper-button>
