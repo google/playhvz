@@ -62,6 +62,11 @@ TODO(SquirrelThief):
           },
         },
 
+        attached: function() {
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
+        },
+
         observers: [
         "chatRoomReady_(serverBridge, chatRoomId)",
         "currentPlayerIdReady_(serverBridge, currentPlayerId)",
@@ -215,6 +220,31 @@ TODO(SquirrelThief):
         ("0" + date.getHours()).slice(-2) + ":" + 
         ("0" + date.getMinutes()).slice(-2);
       },
+
+      refresh_: function() {
+        this.pollMessages_();
+      },
+
+      addPlayer_: function() {
+        this.$.addPlayerForm.openForAdding()
+        .then((properties) => {
+          console.log(properties);
+                //this.serverBridge.addGun(Utils.generateId("gun"), properties);
+                //this.refresh_();
+              });
+      },
+
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+          {
+            property: "playerId",
+            label: "Player",
+            description: "Player, example Kim the Ultimate.",
+          },
+          ],
+        };
+      },
     });
 });
 </script>
@@ -327,6 +357,15 @@ TODO(SquirrelThief):
     padding-right: 16px;
   }
 </style>
+<paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
+</paper-icon-button>
+<paper-icon-button id="add" icon="icons:add" on-tap="addPlayer_">
+</paper-icon-button>
+<ghvz-super-form
+id="addPlayerForm"
+type-name="Add Player"
+blueprint="[[makeFormBlueprint_()]]">
+</ghvz-super-form>
 <!-- Display messages -->
 <template is="dom-repeat" items="[[chatRoom.messages]]">
   <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, player.id)]] [[displaySenderInfo(item.playerId)]]">
@@ -376,6 +415,5 @@ on-click="onSendClicked_">
 SEND
 </paper-button>
 </div>
-
 </template>
 </dom-module>
