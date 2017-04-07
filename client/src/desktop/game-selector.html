@@ -1,0 +1,67 @@
+<dom-module id="ghvz-game-selector">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-game-selector',
+
+        properties: {
+          userId: {
+            type: String,
+          },
+
+          user: {
+            type: Object,
+          },
+
+          games: {
+            type: Array,
+          },
+
+          gameId: {
+            type: String,
+            notify: true,
+          },
+
+          playerId: {
+            type: String,
+            notify: true,
+          },
+        },
+
+        observers: [
+          'autoChooseGame_(userId, user.players, user.players.splices)',
+        ],
+
+
+        autoChooseGame_: function(userId, userPlayers) {
+          if (this.gameId == null && this.playerId == null) {
+            for (let userPlayer of userPlayers) {
+              // pick the first one
+              this.gameId = userPlayer.gameId;
+              this.playerId = userPlayer.playerId;
+              this.$.gameChooser.selected = userPlayers.indexOf(userPlayer);
+              break;
+            }
+          }
+        },
+
+        chooseGame_: function(e) {
+          let gameIndex = this.$.gameChooser.selected;
+          this.gameId = this.games[gameIndex].id;
+        },
+      });
+    });
+  </script>
+  <template>
+    <paper-dropdown-menu label="Game">
+      <paper-listbox id="gameChooser" class="dropdown-content" on-iron-select="chooseGame_">
+        <template is="dom-repeat" items="[[games]]" as="game">
+          <paper-item data-game-id$="[[game.id]]">[[game.name]]</paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+  </template>
+</dom-module>

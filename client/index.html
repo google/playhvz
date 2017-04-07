@@ -20,13 +20,11 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">google.charts.load('current', {'packages':['corechart']});</script>
 
+<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
+
 <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
 <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="bower_components/polymerfire/firebase-app.html">
-<link rel="import" href="bower_components/polymerfire/firebase-auth.html">
-<link rel="import" href="bower_components/polymerfire/firebase-document.html">
-<link rel="import" href="bower_components/polymerfire/polymerfire.html">
 
 <link rel="import" href="bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="bower_components/iron-form/iron-form.html">
@@ -60,6 +58,7 @@
 
 <script src="src/serverbridge/serverbridge.js"></script>
 <script src="src/serverbridge/remoteserverbridge.js"></script>
+<script src="src/serverbridge/firebasedatabase.js"></script>
 <script src="src/serverbridge/fakedatabase.js"></script>
 <script src="src/serverbridge/fakeserver.js"></script>
 <script src="src/serverbridge/fakeserverbridge.js"></script>
@@ -96,8 +95,8 @@
 <link rel="import" href="src/missions/ghvz-missions.html">
 <link rel="import" href="src/desktop/desktop-app.html">
 <link rel="import" href="src/mobile/mobile-app.html">
-<link rel="import" href="src/firebase/firebase.html">
 <link rel="import" href="src/app/ghvz-app.html">
+<link rel="import" href="src/desktop/game-selector.html">
 
 </head>
   <body>

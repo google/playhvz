@@ -141,3 +141,22 @@ Utils.formatTime = function(timestampInSeconds) {
   result += ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (am ? 'am' : 'pm');
   return result;
 }
+
+function throwError(...message) {
+  console.error(...message);
+  debugger;
+  throw message;
+}
+
+function assert(condition, ...message) {
+  if (!condition)
+    throwError(...message);
+  return condition;
+}
+
+Utils.findIndexById = function(collection, id) {
+  assert(collection, "Bad arg");
+  let index = collection.findIndex((obj) => (obj.id == id));
+  assert(index >= 0, "Not found!", collection, id);
+  return index;
+}

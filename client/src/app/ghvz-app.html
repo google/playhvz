@@ -47,42 +47,19 @@
         is: 'ghvz-app',
 
         properties: {
-          derp: {
-            type: Number,
-            value: 3,
-          },
-
-          self: {
-            type: Object,
-            computed: 'computeThis_(derp)',
-          },
-
           isDesktop: {
             type: Boolean,
             value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
           },
 
+          showSignInButton: Boolean,
+
           userId: {
             type: String,
           },
 
-          games: {
-            type: Array,
-            value: () => ([]),
-          },
-
-          gamesById: {
-            value: Object,
-            value: () => ({}),
-          },
-
           gameId: {
             type: String,
-            value: null,
-          },
-
-          game: {
-            type: Object,
             value: null,
           },
 
@@ -91,36 +68,53 @@
             value: null,
           },
 
-          guns: {
-            type: Array,
-            value: () => ([]),
-          },
+          firebaseDatabase: Object,
 
-          gunsById: {
+          database: {
             type: Object,
-            value: () => ({}),
+            value: () => ({
+              gunsById: {},
+              guns: [],
+              game: {},
+              games: [],
+              gamesById: {},
+              user: {},
+            }),
           },
         },
 
-        computeThis_: function() {
-          return this;
+        observers: [
+          'onGameIdChanged_(gameId, firebaseDatabase)',
+        ],
+
+        attached: function() {
+          this.firebaseDatabase = new FirebaseDatabase({
+            set: (path, value) => this.set(path, value),
+            push: (path, value) => this.push(path, value),
+            splice: (path, index, numToRemove, ...toInsert) => this.splice(path, index, numToRemove, ...toInsert),
+            get: (path) => this.get(path),
+            onUserSignedIn: (userId) => {
+              this.userId = userId;
+              this.showSignInButton = false;
+            },
+            onAutoSignInFailed: () => {
+              this.showSignInButton = true;
+            },
+          });
+        },
+
+        onGameIdChanged_: function(gameId) {
+          this.firebaseDatabase.setGameId(gameId);
         },
 
         firebaseSignIn_: function() {
-          this.$.firebase.signIn();
+          this.firebaseDatabase.signIn();
         },
       });
     });
   </script>
   <template>
-    <ghvz-firebase
-        id="firebase"
-        user-id="{{userId}}"
-        game-id="{{gameId}}"
-        player-id="{{playerId}}"
-        target="[[self]]">
-    </ghvz-firebase>
-    <template is="dom-if" if="[[!userId]]">
+    <template is="dom-if" if="[[showSignInButton]]">
       <paper-button on-tap="firebaseSignIn_">Sign In</paper-button>
     </template>
     <template is="dom-if" if="[[userId]]">
@@ -128,22 +122,18 @@
         <ghvz-desktop-app
             server-bridge="[[serverBridge]]"
             user-id="[[userId]]"
-            games="[[games]]"
             game-id="{{gameId}}"
             player-id="{{playerId}}"
-            game="[[game]]"
-            guns="[[guns]]">
+            database="[[database]]">
         </ghvz-desktop-app>
       </template>
       <template is="dom-if" if="[[!isDesktop]]">
         <ghvz-mobile-app
             server-bridge="[[serverBridge]]"
             user-id="[[userId]]"
-            games="[[games]]"
             game-id="{{gameId}}"
             player-id="{{playerId}}"
-            game="[[game]]"
-            guns="[[guns]]">
+            database="[[database]]">
         </ghvz-mobile-app>
       </template>
     </template>
