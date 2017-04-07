@@ -29,7 +29,7 @@ TODO(SquirrelThief):
 
           currentPlayerId: String,
 
-          chatRoomId: String,
+          playersById: Object,
 
           player: {
             type: Object,
@@ -39,16 +39,6 @@ TODO(SquirrelThief):
           chatRoom: {
             type: Object,
             value: function() { return {}; },
-          },
-
-          playerIds: {
-            type: Array,
-            value: function() { return []; },
-          },
-
-          playersInChat: {
-            type: Array,
-            value: function() { return[]; },
           },
 
           previousMessagePlayerId: {
@@ -67,28 +57,6 @@ TODO(SquirrelThief):
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
         },
 
-        observers: [
-        "chatRoomReady_(serverBridge, chatRoomId)",
-        "currentPlayerIdReady_(serverBridge, currentPlayerId)",
-        ],
-
-        chatRoomReady_: function(serverBridge, chatRoomId) {
-          serverBridge.getChatRoomById(chatRoomId)
-          .then((chatRoom) => {
-            // Get player names for all the playerIds in the chatRoom
-            this.serverBridge.getMultiplePlayersById(chatRoom.playerIds)
-            .then((playersInChat) => {
-              this.playersInChat = playersInChat;
-              // Only update chat messages once we finished getting player
-              // names, otherwise the elements redraw and we don't have names
-              this.chatRoom = chatRoom;
-            });
-          });
-
-          setInterval(this.pollPlayers_.bind(this), this.pollInterval * 1000);
-          setInterval(this.pollMessages_.bind(this), this.pollInterval * 1000);
-        },
-
         pollMessages_: function() {
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
           this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
@@ -99,25 +67,6 @@ TODO(SquirrelThief):
                 this.push('chatRoom.messages', messages[index]);
               }
             }
-          });
-        },
-
-        pollPlayers_: function() {
-          this.serverBridge.findAllPlayerIdsForChatRoomId(this.chatRoomId)
-          .then((playerIds) => {
-            this.chatRoom.playerIds = playerIds;
-            // Get player names for all the playerIds in the chatRoom
-            this.serverBridge.getMultiplePlayersById(playerIds)
-            .then((playersInChat) => {
-              this.playersInChat = playersInChat;
-            });
-          });
-        },
-
-        currentPlayerIdReady_: function(serverBridge, currentPlayerId) {
-          serverBridge.getPlayerById(currentPlayerId)
-          .then((player) => {
-            this.player = player;
           });
         },
 
@@ -153,7 +102,7 @@ TODO(SquirrelThief):
             return;
           }
           this.serverBridge.addMessageToChatRoom(this.chatRoom.id, 
-            this.player.id, this.$.messageInput.value);
+            this.playerId, this.$.messageInput.value);
           this.$.messageInput.value = "";  
 
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
@@ -190,19 +139,19 @@ TODO(SquirrelThief):
       },
 
       getName_(playerId) {
-        if (!this.playersInChat[playerId]) {
+        if (!this.playersById[playerId]) {
           this.serverBridge.getPlayerById(playerId)
           .then((player) => {
-            this.playersInChat[playerId] = player;
-            return this.playersInChat[playerId].name;
+            this.playersById[playerId] = player;
+            return this.playersById[playerId].name;
           });
         } else {
-          return this.playersInChat[playerId].name;
+          return this.playersById[playerId].name;
         }
       },
 
       getProfilePic_(playerId) {
-        var imageUrl = this.playersInChat[playerId].profileImageUrl;
+        var imageUrl = this.playersById[playerId].profileImageUrl;
         return imageUrl;
       },
 
@@ -368,7 +317,7 @@ blueprint="[[makeFormBlueprint_()]]">
 </ghvz-super-form>
 <!-- Display messages -->
 <template is="dom-repeat" items="[[chatRoom.messages]]">
-  <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, player.id)]] [[displaySenderInfo(item.playerId)]]">
+  <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, currentPlayerId)]] [[displaySenderInfo(item.playerId)]]">
     <!-- Display message text -->
     <div class="layout vertical display-message">
       <div class="player-name">

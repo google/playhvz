@@ -146,14 +146,12 @@
       <template is="dom-if" if="[[computeShowRegister_(gameId, playerId)]]">
         <ghvz-dashlet scrolling full>
           <div class="header">Join A Game</div>
-          <template is="dom-if" if="[[gameId]]">
-            <game-registration
-                  class="content"
-                  server-bridge="[[serverBridge]]"
-                  game-id="[[gameId]]"
-                  user-id="[[userId]]">
-            </game-registration>
-          </template>
+          <game-registration
+                class="content"
+                server-bridge="[[serverBridge]]"
+                game-id="[[gameId]]"
+                user-id="[[userId]]">
+          </game-registration>
         </ghvz-dashlet>
       </template>
 
@@ -168,11 +166,14 @@
             </ghvz-missions>
           </ghvz-dashlet>
 
-          <!-- <ghvz-dashlet scrolling admin full>
+          <ghvz-dashlet scrolling admin full>
             <div class="header">Players</div>
             <player-table
                 id="playerTableModule"
                 server-bridge="[[serverBridge]]"
+                reward-categories-by-id="[[game.rewardCategoriesById]]"
+                players="[[game.players]]"
+                players-by-id="[[game.playersById]]"
                 game-id="[[gameId]]"
                 current-user-id="[[userId]]">
             </player-table>
@@ -186,31 +187,34 @@
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
             </dev-tools>
-          </ghvz-dashlet> -->
+          </ghvz-dashlet>
 
-          <!-- <ghvz-dashlet scrolling admin half right>
+          <ghvz-dashlet scrolling admin half right>
             <div class="header">Guns</div>
             <ghvz-guns
                 server-bridge="[[serverBridge]]"
                 game-id="[[gameId]]"
-                guns="[[database.guns]]"
-                players-by-id="[[database.playersById]]">
+                guns="[[guns]]"
+                players="[[game.players]]"
+                players-by-id="[[game.playersById]]">
             </ghvz-guns>
-          </ghvz-dashlet> -->
+          </ghvz-dashlet>
 
-       <!--    <ghvz-dashlet scrolling admin half right>
+       <ghvz-dashlet scrolling admin half right>
             <div class="header">Rewards</div>
             <ghvz-rewards
                 server-bridge="[[serverBridge]]"
-                game-id="[[gameId]]">
+                players-by-id="[[game.playersById]]"
+                reward-categories="[[game.rewardCategories]]"
+                reward-categories-by-id="[[game.rewardCategoriesById]]">
             </ghvz-rewards>
-          </ghvz-dashlet> -->
+          </ghvz-dashlet>
         </template>
       </template>
 
-      <template is="dom-if" if="[[player]]">
+      <template is="dom-if" if="[[playerId]]">
 
-        <!-- <template is="dom-if" if="[[isZombie]]">
+        <template is="dom-if" if="[[isZombie]]">
           <ghvz-dashlet half left>
             <div class="header">Infect</div>
             <ghvz-infect
@@ -226,6 +230,7 @@
           <div class="header">Next Mission</div>
           <ghvz-next-mission
               server-bridge="[[serverBridge]]"
+              missions="[[game.missions]]"
               game-id="[[gameId]]"
               player-id="[[playerId]]">
           </ghvz-next-mission>
@@ -233,9 +238,7 @@
 
         <ghvz-dashlet half right>
           <div class="header">Leaderboard</div>
-          <leaderboard-summary
-              server-bridge="[[serverBridge]]"
-              game-id="[[gameId]]">
+          <leaderboard-summary players="[[game.players]]">
           </leaderboard-summary>
         </ghvz-dashlet>
 
@@ -254,21 +257,20 @@
           </ghvz-claim-reward>
         </ghvz-dashlet>
 
-        <template is="dom-repeat" items="[[chatRoomIds]]" as="chatRoomId">
+        <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
           <ghvz-dashlet half right>
             <div class="header">[[chatRoom.name]]</div>
             <chat-app
                 class="content"
                 server-bridge="[[serverBridge]]"
                 game-id="[[gameId]]"
-                current-player-id="[[playerId]]"
-                chat-room-id="[[chatRoomId]]">
+                players-by-id="[[game.playersById]]"
+                chat-room="[[chatRoom]]"
+                current-player-id="[[playerId]]">
             </chat-app>
           </ghvz-dashlet>
         </template>
       </template>
-
-       -->
 
     </ghvz-dashboard>
   </template>

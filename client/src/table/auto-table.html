@@ -14,6 +14,11 @@
             value: {},
           },
 
+          getItemId: {
+            type: Function,
+            value: null,
+          },
+
           columns: {
             type: Array,
             value: undefined,
@@ -45,23 +50,9 @@
           },
         },
 
-        observers: [
-          'updateEchos(items.*)',
-        ],
-
-        updateEchos(changeRecord) {
-          console.log(changeRecord);
-          let match = /items.#(\d+).(.+)/.exec(changeRecord.path);
-          if (match) {
-            let key = match[1];
-            let property = match[2];
-            let index = this.items.indexOf(this.get(['items', key]));
-            console.log('notifying', 'items.' + index, this.items[index]);
-            this.notifyPath('items.' + index, this.items[index]);
-          }
-        },
-
         attached: function() {
+          this.getItemId = this.blueprint.getItemId;
+
           var columns = [];
           for (let column of this.blueprint.columns) {
             columns.push({
@@ -127,7 +118,7 @@
         },
 
         getItemId_: function(item) {
-          return item.id;
+          return this.getItemId(item);
         },
 
         onBulkActionTapped_: function(e) {
@@ -240,7 +231,7 @@
 
         getItemForId_: function(id) {
           for (var i = 0; i < this.items.length; i++) {
-            if (this.getItemId_(this.items[i]) == id) {
+            if (this.getItemId(this.items[i]) == id) {
               return this.items[i];
             }
           }
@@ -249,7 +240,7 @@
 
         getIndexForId_: function(id) {
           for (var i = 0; i < this.items.length; i++) {
-            if (this.getItemId_(this.items[i]) == id) {
+            if (this.getItemId(this.items[i]) == id) {
               return i;
             }
           }
@@ -487,7 +478,7 @@
             <template is="dom-repeat" items="[[columns]]" as="column">
               <td>
                 <ghvz-echo
-                    value="[[getView_(item, column.index)]]">
+                    value="[[getView_(item, column.index, item.*)]]">
                 </ghvz-echo>
               </td>
             </template>

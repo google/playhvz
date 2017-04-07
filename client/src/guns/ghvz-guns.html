@@ -15,6 +15,8 @@
 
           guns: Array,
 
+          players: Array,
+
           playersById: Array,
         },
 
@@ -32,29 +34,29 @@
                 filterable: true,
                 sortable: true,
               },
-              // {
-              //   name: "Player",
-              //   filterable: true,
-              //   sortable: true,
-              //   getModel: (gun) => {
-              //     if (gun.playerId) {
-              //       return this.playersById.get(gun.playerId).name;
-              //     }
-              //   },
-              //   getView: (gun) => {
-              //     var field = document.createElement('ghvz-player-field');
-              //     field.serverBridge = this.serverBridge;
-              //     field.gameId = this.gameId;
-              //     field.playerId = gun.playerId;
-              //     field.label = null;
-              //     field.addEventListener('set-player', (e) => {
-              //       let playerOrNull = e.detail.playerOrNull;
-              //       this.serverBridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
-              //       this.refresh_();
-              //     });
-              //     return field;
-              //   },
-              // },
+              {
+                name: "Player",
+                filterable: true,
+                sortable: true,
+                getModel: (gun) => {
+                  return gun.playerId && this.playersById[gun.playerId].name;
+                },
+                getView: (gun) => {
+                  var field = document.createElement('ghvz-player-field');
+                  field.serverBridge = this.serverBridge;
+                  field.gameId = this.gameId;
+                  field.players = this.players;
+                  field.playersById = this.playersById;
+                  field.playerIdOrNull = gun.playerId;
+                  field.label = null;
+                  field.addEventListener('set-player', (e) => {
+                    let playerOrNull = e.detail.playerOrNull;
+                    this.serverBridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
+                    this.refresh_();
+                  });
+                  return field;
+                },
+              },
             ],
             actions: [
               {

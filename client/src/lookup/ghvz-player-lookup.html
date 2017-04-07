@@ -8,12 +8,8 @@
         is: 'ghvz-player-lookup',
 
         properties: {
-          serverBridge: Object,
-          gameId: String,
-          players: {
-            type: Array,
-            value: [],
-          },
+          players: Array,
+          playersById: Object,
           label: {
             type: String,
             value: null,
@@ -39,13 +35,6 @@
         },
 
         observers: ["ready_(serverBridge, gameId)"],
-
-        ready_: function(serverBridge, gameId) {
-          this.serverBridge.findAllPlayersForGameId(gameId)
-              .then((players) => {
-                this.players = players;
-              });
-        },
 
         playerStartsWith_: function(player, value) {
           const simplifiedValue = value.toLowerCase().replace(/ /g, "");

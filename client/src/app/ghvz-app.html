@@ -39,6 +39,69 @@
 
 <dom-module id="ghvz-app">
   <script>
+  function throwError(...message) {
+    console.error(...message);
+    debugger;
+    throw message;
+  }
+  function assert(condition, ...message) {
+    if (!condition)
+      throwError(...message);
+    return condition;
+  }
+  function findIndexById(collection, id) {
+    assert(collection, 'Bad arg');
+    let index = collection.findIndex((obj) => (obj.id == id));
+    assert(index >= 0, 'Not found!', collection, id);
+    return index;
+  }
+
+    const GUN_PROPERTIES = ['number', 'playerId'];
+    const GUN_COLLECTIONS = [];
+    const GAME_PROPERTIES = ['name', 'rulesUrl', 'stunTimer'];
+    const GAME_COLLECTIONS = [
+      {arrayName: 'missions', mapName: 'missionsById'},
+      {arrayName: 'rewardCategories', mapName: 'rewardCategoriesById'},
+      {arrayName: 'chatRooms', mapName: 'chatRoomsById'},
+      {arrayName: 'players', mapName: 'playersById'},
+      {arrayName: 'adminUserIds'},
+      {arrayName: 'notificationCategories', mapName: 'notificationCategoriesById'}
+    ];
+    const CHAT_ROOM_PROPERTIES = ['allegianceFilter', 'name'];
+    const CHAT_ROOM_COLLECTIONS = [
+      {arrayName: 'messages', mapName: 'messagesById'},
+      {arrayName: 'memberships', mapName: 'membershipsById'},
+    ];
+    const CHAT_ROOM_MEMBERSHIP_PROPERTIES = ['playerId'];
+    const CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
+    const CHAT_ROOM_MESSAGE_PROPERTIES = ['index', 'message', 'playerId', 'time'];
+    const CHAT_ROOM_MESSAGE_COLLECTIONS = [];
+    const MISSION_PROPERTIES = ['name', 'beginTime', 'endTime', 'url', 'allegianceFilter'];
+    const MISSION_COLLECTIONS = [];
+    const NOTIFICATION_CATEGORY_PROPERTIES = ['name'];
+    const NOTIFICATION_CATEGORY_COLLECTIONS = [];
+    const PLAYER_PROPERTIES = ['userId', 'number', 'allegiance', 'infectable', 'name', 'needGun', 'points', 'profileImageUrl', 'startAsZombie', 'volunteer'];
+    const PLAYER_COLLECTIONS = [
+      {arrayName: 'infections'},
+      {arrayName: 'lives'},
+      {arrayName: 'rewards'},
+      {arrayName: 'notifications'},
+    ];
+    const PLAYER_REWARD_PROPERTIES = ['time', 'rewardId', 'rewardCategoryId'];
+    const PLAYER_REWARD_COLLECTIONS = [];
+    const PLAYER_LIFE_PROPERTIES = ['time', 'code'];
+    const PLAYER_LIFE_COLLECTIONS = [];
+    const PLAYER_INFECTION_PROPERTIES = ['time', 'infectorId'];
+    const PLAYER_INFECTION_COLLECTIONS = [];
+    const PLAYER_NOTIFICATION_PROPERTIES = ['message', 'previewMessage', 'notificationCategoryId', 'seenTime', 'sendTime', 'sound', 'vibrate'];
+    const PLAYER_NOTIFICATION_COLLECTIONS = [];
+    const REWARD_CATEGORY_PROPERTIES = ['name', 'points', 'seed', 'claimed'];
+    const REWARD_CATEGORY_COLLECTIONS = [
+      {arrayName: 'rewards', mapName: 'rewardsById'}
+    ];
+    const REWARD_CATEGORY_REWARD_PROPERTIES = ['playerId', 'code'];
+    const REWARD_CATEGORY_REWARD_COLLECTIONS = [];
+
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
@@ -114,171 +177,308 @@
           return this.$.app.app.database().ref().child('data');
         },
 
-        addEntity_: function(arrayPath, mapPath, obj) {
-          console.log('this.push(', arrayPath, ',', obj, ')');
-          this.push(arrayPath, obj);
-          //console.log('this.set(', mapPath + '.' + obj.id, ',', obj, ')');
-          //this.set(mapPath + '.' + obj.id, obj);
-        },
-        setEntityProperty_: function(path, arrayPath, mapPath, entityId, property, value) {
-          if (path) {
-            console.log('this.set(', path + '.' + property, ',', value, ')');
-            this.set(path + '.' + property, value);
-            return;
-          } else if (arrayPath) {
-            let array = this.get(arrayPath);
-            for (let i = 0; i < array.length; i++) {
-              if (array[i].id == entityId) {
-                console.log('this.set(', arrayPath + '.' + i + '.' + property, ',', value, ')');
-                this.set(arrayPath + '.' + i + '.' + property, value);
-                // this.notifyPath(mapPath + '.' + entityId + '.' + property, value);
-                return;
-              }
-            }
-          } else {
+        getGunIndex_: function(id) { return findIndexById(this.guns, id); },
+        getGameIndex_: function(id) { return findIndexById(this.games, id); },
+        getNotificationCategoryIndex_: function(id) { return findIndexById(this.game.notificationCategories, id); },
+        getRewardCategoryIndex_: function(id) { return findIndexById(this.game.rewardCategories, id); },
+        getRewardCategoryRewardIndex_: function(rewardCategoryId, rewardCategoryRewardId) { return findIndexById(this.game.rewardCategoriesById[rewardCategoryId].rewards, rewardCategoryRewardId); },
+        getMissionIndex_: function(id) { return findIndexById(this.game.missions, id); },
+        getChatRoomIndex_: function(id) { return findIndexById(this.game.chatRooms, id); },
+        getPlayerIndex_: function(id) {
+          if (!this.game || !this.game.players) {
             debugger;
           }
-          debugger;
-          console.error('Not found in ' + arrayPath);
+          return findIndexById(this.game.players, id);
+        },
+        getPlayerRewardIndex_: function(playerId, playerRewardId) { return findIndexById(this.game.playersById[playerId].rewards, playerRewardId); },
+        getPlayerLifeIndex_: function(playerId, playerLifeId) { return findIndexById(this.game.playersById[playerId].lives, playerLifeId); },
+        getPlayerInfectionIndex_: function(playerId, playerInfectionId) { return findIndexById(this.game.playersById[playerId].infections, playerInfectionId); },
+        getPlayerNotificationIndex_: function(playerId, playerNotificationId) {
+          return findIndexById(this.game.playersById[playerId].notifications, playerNotificationId);
+        },
+        getChatRoomMembershipIndex_: function(chatRoomId, chatRoomMembershipId) {
+          return findIndexById(this.game.chatRoomsById[chatRoomId].memberships, chatRoomMembershipId);
+        },
+        getChatRoomMessageIndex_: function(chatRoomId, chatRoomMessageId) {
+          return findIndexById(this.game.chatRoomsById[chatRoomId].messages, chatRoomMessageId);
         },
 
-        getGameIndex_: function(gameId) {
-          let index = this.games.findIndex((game) => (game.id == gameId));
-          if (index < 0)
-            console.error('Game not found!', gameId);
-          return index;
-        },
-
-        getMissionsArrayPath_: function(gameId) {
-          return 'game.missions';
-        },
-        getMissionsMapPath_: function(gameId) {
-          return 'game.missionsById';
-        },
-
-        listenForSimplePropertyChanges_: function(collectionRef, path, arrayPath, mapPath, entityId, properties, subCollections) {
+        listenForPropertyChanges_: function(collectionRef, properties, collections, setCallback) {
           collectionRef.on('child_added', (change) => {
             if (properties.includes(change.getKey())) {
-              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), change.val());
-            } else if (subCollections.includes(change.getKey())) {
-              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), []);
+              setCallback(change.getKey(), change.val());
+            } else if (collections.find((col) => col.arrayName == change.getKey())) {
+              setCallback(change.getKey(), []);
             } else {
-              debugger;
-              console.log('Unexpected!', change.val(), change.getKey(), arguments);
+              throwError('Unexpected!', change.val(), change.getKey(), arguments);
             }
           });
           collectionRef.on('child_changed', (change) => {
             if (properties.includes(change.getKey())) {
-              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), change.val());
-            } else if (subCollections.includes(change.getKey())) {
+              setCallback(change.getKey(), change.val());
+            } else if (collections.find((col) => col.arrayName == change.getKey())) {
               // do nothing, covered elsewhere
             } else {
-              debugger;
-              console.log('Unexpected!', change.val(), change.getKey(), arguments);
+              throwError('Unexpected!', change.val(), change.getKey(), arguments);
             }
           });
           collectionRef.on('child_removed', (change) => {
             if (properties.includes(change.getKey())) {
-              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), null);
-            } else if (subCollections.includes(change.getKey())) {
-              this.setEntityProperty_(path, arrayPath, mapPath, entityId, change.getKey(), []);
+              setCallback(change.getKey(), null);
+            } else if (collections.find((col) => col.arrayName == change.getKey())) {
+              setCallback(change.getKey(), []);
             } else {
-              debugger;
-              console.log('Unexpected!', change.val(), change.getKey(), arguments);
+              throwError('Unexpected!', change.val(), change.getKey(), arguments);
             }
           });
         },
 
+        setupClientSideObject(id, snapshot, propertyNames, lists) {
+          let obj = {id: id};
+          let snapshotValue = snapshot.val();
+          for (let propertyName of propertyNames) {
+            obj[propertyName] = snapshotValue[propertyName] || null;
+          }
+          for (let {arrayName, mapName} of lists) {
+            obj[arrayName] = [];
+            obj[mapName] = {};
+          }
+          return obj;
+        },
+
         shallowListenToGames: function() {
-          this.firebaseRoot.child('games').on('child_added', (game) => {
-            let gameId = game.getKey();
-            this.addEntity_('games', 'gamesById', {
-              id: gameId,
-              name: game.val().name,
-              stunTimer: game.val().stunTimer,
-              rulesUrl: game.val().url,
-            });
-            this.listenForSimplePropertyChanges_(
-                game.ref, null, 'games', 'gamesById', gameId,
-                ['name', 'rulesUrl', 'stunTimer'],
-                ['missions', 'rewardCategories', 'chatRooms', 'players', 'adminUserIds', 'notificationCategories']);
+          this.firebaseRoot.child('games').on('child_added', (snap) => {
+            let gameId = snap.getKey();
+            let obj = this.setupClientSideObject(gameId, snap, GUN_PROPERTIES, GUN_COLLECTIONS);
+            this.push('games', obj);
+            this.set('gamesById. ' + gameId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
+                (property, value) => {
+                  this.set('games.' + this.getGameIndex_(gameId) + '.' + property, value);
+                });
           });
           this.firebaseRoot.child('games').on('child_removed', (snap) => {
-            for (let i = 0; i < this.games.length; i++) {
-              if (this.games[i].id == snap.getKey()) {
-                this.splice('games', i, 1);
-                delete this.get('gamesById')[snap.getKey()];
-              }
-            }
-            console.error('Couldnt find game');
+            this.splice('games', this.getGameIndex_(snap.getKey()), 1);
+            delete this.get('gamesById')[snap.getKey()];
           });
         },
 
         listenToGuns: function() {
           this.firebaseRoot.child('guns').on('child_added', (snap) => {
             let gunId = snap.getKey();
-            this.addEntity_('guns', 'gunsById', {
-              id: gunId,
-              number: snap.val().number,
-              playerId: snap.val().playerId || null,
-            });
-            this.listenForSimplePropertyChanges_(
-                snap.ref, null, 'guns', 'gunsById', gunId,
-                ['number', 'playerId'],
-                []);
+            let obj = this.setupClientSideObject(gunId, snap, GUN_PROPERTIES, GUN_COLLECTIONS);
+            this.push('guns', obj);
+            this.set('gunsById.' + gunId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS,
+                (property, value) => {
+                  this.set('guns.' + this.getGunIndex_(gunId) + '.' + property, value);
+                });
           });
         },
 
         listenToMissions_: function(gameId) {
           var ref = this.firebaseRoot.child('games/' + gameId + '/missions');
-          ref.on('child_added', (mission) => {
-            let missionId = mission.getKey();
-            this.addEntity_(
-                this.getMissionsArrayPath_(gameId),
-                this.getMissionsMapPath_(gameId),
-                {
-                  id: missionId,
-                  name: mission.val().name,
-                  beginTime: mission.val().beginTime,
-                  endTime: mission.val().endTime,
-                  url: mission.val().url,
-                  allegianceFilter: mission.val().allegianceFilter,
+          ref.on('child_added', (snap) => {
+            let missionId = snap.getKey();
+            let obj = this.setupClientSideObject(missionId, snap, MISSION_PROPERTIES, MISSION_COLLECTIONS);
+            this.push('game.missions', obj);
+            this.set('game.missionsById.' + missionId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.missions.' + this.getMissionIndex_(missionId) + '.' + property, value);
                 });
-            this.listenForSimplePropertyChanges_(
-                mission.ref,
-                null,
-                this.getMissionsArrayPath_(gameId),
-                this.getMissionsMapPath_(gameId),
-                missionId,
-                ['name', 'beginTime', 'endTime', 'url', 'allegianceFilter'],
-                []);
+          });
+        },
+
+        listenToChatRooms_: function(gameId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/chatRooms');
+          ref.on('child_added', (snap) => {
+            let chatRoomId = snap.getKey();
+            let obj = this.setupClientSideObject(chatRoomId, snap, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS);
+            this.push('game.chatRooms', obj);
+            this.set('game.chatRoomsById.' + chatRoomId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.chatRooms.' + this.getChatRoomIndex_(chatRoomId) + '.' + property, value);
+                });
+            this.listenToChatRoomMemberships_(gameId, chatRoomId);
+            this.listenToChatRoomMessages_(gameId, chatRoomId);
+          });
+        },
+
+        listenToChatRoomMemberships_: function(gameId, chatRoomId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/chatRooms/' + chatRoomId + '/memberships');
+          ref.on('child_added', (snap) => {
+            let chatRoomMembershipId = snap.getKey();
+            let obj = this.setupClientSideObject(chatRoomMembershipId, snap, CHAT_ROOM_MEMBERSHIP_PROPERTIES, CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
+            this.push('game.chatRooms.' + this.getChatRoomIndex_(chatRoomId) + '.memberships', obj);
+            this.set('game.chatRooms.' + this.getChatRoomIndex_(chatRoomId) + '.memberships.' + chatRoomMembershipId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, CHAT_ROOM_MEMBERSHIP_PROPERTIES, CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.chatRooms.' + this.getChatRoomIndex_(chatRoomId) + '.memberships.' + this.getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) + '.' + property, value);
+                });
+          });
+        },
+
+        listenToChatRoomMessages_: function(gameId, chatRoomId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/chatRooms/' + chatRoomId + '/messages');
+          ref.on('child_added', (snap) => {
+            let chatRoomMessageId = snap.getKey();
+            let obj = this.setupClientSideObject(chatRoomMessageId, snap, CHAT_ROOM_MESSAGE_PROPERTIES, CHAT_ROOM_MESSAGE_COLLECTIONS);
+            this.push('game.chatRooms.' + this.getChatRoomIndex_(chatRoomId) + '.messages', obj);
+            this.set('game.chatRooms.' + this.getChatRoomIndex_(chatRoomId) + '.messages.' + chatRoomMessageId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, CHAT_ROOM_MESSAGE_PROPERTIES, CHAT_ROOM_MESSAGE_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.chatRooms.' + this.getChatRoomIndex_(chatRoomId) + '.messages.' + this.getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) + '.' + property, value);
+                });
+          });
+        },
+
+        listenToPlayers_: function(gameId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/players');
+          ref.on('child_added', (snap) => {
+            let playerId = snap.getKey();
+            let obj = this.setupClientSideObject(playerId, snap, PLAYER_PROPERTIES, PLAYER_COLLECTIONS);
+            this.push('game.players', obj);
+            this.set('game.playersById.' + playerId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.players.' + this.getPlayerIndex_(playerId) + '.' + property, value);
+                });
+            this.listenToPlayerRewards_(gameId, playerId);
+            this.listenToPlayerLives_(gameId, playerId);
+            this.listenToPlayerInfections_(gameId, playerId);
+            this.listenToPlayerNotifications_(gameId, playerId);
+          });
+        },
+
+        listenToPlayerRewards_: function(gameId, playerId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/players/' + playerId + '/rewards');
+          ref.on('child_added', (snap) => {
+            let playerRewardId = snap.getKey();
+            let obj = this.setupClientSideObject(playerRewardId, snap, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS);
+            this.push('game.players.' + this.getPlayerIndex_(playerId) + '.rewards', obj);
+            this.listenForPropertyChanges_(
+                snap.ref, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.players.' + this.getPlayerIndex_(playerId) + '.rewards.' + this.getPlayerRewardIndex_(playerId, playerRewardId) + '.' + property, value);
+                });
+          });
+        },
+
+        listenToPlayerLives_: function(gameId, playerId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/players/' + playerId + '/lives');
+          ref.on('child_added', (snap) => {
+            let playerLifeId = snap.getKey();
+            let obj = this.setupClientSideObject(playerLifeId, snap, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS);
+            this.push('game.players.' + this.getPlayerIndex_(playerId) + '.lives', obj);
+            this.set('game.players.' + this.getPlayerIndex_(playerId) + '.lives.' + playerLifeId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.players.' + this.getPlayerIndex_(playerId) + '.lives.' + this.getPlayerLifeIndex_(playerId, playerLifeId) + '.' + property, value);
+                });
+          });
+        },
+
+        listenToPlayerInfections_: function(gameId, playerId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/players/' + playerId + '/infections');
+          ref.on('child_added', (snap) => {
+            let playerInfectionId = snap.getKey();
+            let obj = this.setupClientSideObject(playerInfectionId, snap, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS);
+            this.push('game.players.' + this.getPlayerIndex_(playerId) + '.infections', obj);
+            this.set('game.players.' + this.getPlayerIndex_(playerId) + '.infections.' + playerInfectionId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.players.' + this.getPlayerIndex_(playerId) + '.infections.' + this.getPlayerInfectionIndex_(playerId, playerInfectionId) + '.' + property, value);
+                });
+          });
+        },
+
+        listenToPlayerNotifications_: function(gameId, playerId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/players/' + playerId + '/notifications');
+          ref.on('child_added', (snap) => {
+            let playerNotificationId = snap.getKey();
+            let obj = this.setupClientSideObject(playerNotificationId, snap, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS);
+            this.push('game.players.' + this.getPlayerIndex_(playerId) + '.notifications', obj);
+            this.set('game.players.' + this.getPlayerIndex_(playerId) + '.notifications.' + playerNotificationId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.players.' + this.getPlayerIndex_(playerId) + '.notifications.' + this.getPlayerNotificationIndex_(playerId, playerNotificationId) + '.' + property, value);
+                });
+          });
+        },
+
+        listenToNotificationCategories_: function(gameId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/notificationCategories');
+          ref.on('child_added', (snap) => {
+            let notificationCategoryId = snap.getKey();
+            let obj = this.setupClientSideObject(notificationCategoryId, snap, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS);
+            this.push('game.notificationCategories', obj);
+            this.set('game.notificationCategoriesById.' + notificationCategoryId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.notificationCategories.' + this.getNotificationCategoryIndex_(notificationCategoryId) + '.' + property, value);
+                });
+          });
+        },
+
+        listenToRewardCategories_: function(gameId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/rewardCategories');
+          ref.on('child_added', (snap) => {
+            let rewardCategoryId = snap.getKey();
+            let obj = this.setupClientSideObject(rewardCategoryId, snap, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS);
+            this.push('game.rewardCategories', obj);
+            this.set('game.rewardCategoriesById.' + rewardCategoryId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.rewardCategories.' + this.getRewardCategoryIndex_(rewardCategoryId) + '.' + property, value);
+                });
+            this.listenToRewardCategoryRewards_(gameId, rewardCategoryId);
+          });
+        },
+
+        listenToRewardCategoryRewards_: function(gameId, rewardCategoryId) {
+          var ref = this.firebaseRoot.child('games/' + gameId + '/rewardCategories/' + rewardCategoryId + '/rewards');
+          ref.on('child_added', (snap) => {
+            let rewardCategoryRewardId = snap.getKey();
+            let obj = this.setupClientSideObject(rewardCategoryRewardId, snap, REWARD_CATEGORY_REWARD_PROPERTIES, REWARD_CATEGORY_REWARD_COLLECTIONS);
+            this.push('game.rewardCategories.' + this.getRewardCategoryIndex_(rewardCategoryId) + '.rewards', obj);
+            this.set('game.rewardCategories.' + this.getRewardCategoryIndex_(rewardCategoryId) + '.rewards.' + rewardCategoryRewardId, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, REWARD_CATEGORY_REWARD_PROPERTIES, REWARD_CATEGORY_REWARD_COLLECTIONS,
+                (property, value) => {
+                  this.set('game.rewardCategories.' + this.getRewardCategoryIndex_(rewardCategoryId) + '.rewards.' + this.getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) + '.' + property, value);
+                });
           });
         },
 
         listenToSpecificGame: function(gameId) {
-          this.firebaseRoot.child('games').on('child_added', (game) => {
-            if (game.getKey() == gameId) {
-              this.set('game', {
-                id: gameId,
-              });
-              this.listenForSimplePropertyChanges_(
-                  game.ref, 'game', null, null, null,
-                  ['name', 'rulesUrl', 'stunTimer'],
-                  ['missions', 'rewardCategories', 'chatRooms', 'players', 'adminUserIds', 'notificationCategories']);
-
+          this.firebaseRoot.child('games').on('child_added', (snap) => {
+            if (snap.getKey() == gameId) {
+              let obj = this.setupClientSideObject(gameId, snap, GAME_PROPERTIES, GAME_COLLECTIONS);
+              this.set('game', obj);
+              this.listenForPropertyChanges_(
+                  snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
+                  (property, value) => {
+                    this.set('game.' + property, value);
+                  });
               this.listenToMissions_(gameId);
-            }
-          });
-          this.firebaseRoot.child('games').on('child_removed', (game) => {
-            if (game.getKey() == gameId) {
-              for (let i = 0; i < this.database.games.length; i++) {
-                if (this.database.games[i].id == snap.getKey()) {
-                  this.splice('database.games', i, 1);
-                  this.set('database.gamesById.' + snap.getKey(), null);
-                  return;
-                }
-              }
-              console.error('Couldnt find game');
+              this.listenToChatRooms_(gameId);
+              this.listenToPlayers_(gameId);
+              this.listenToRewardCategories_(gameId);
+              this.listenToNotificationCategories_(gameId);
             }
           });
         },
@@ -292,26 +492,34 @@
             throw 'Cannot user player once selected, must refresh!';
           }
           if (userId) {
+            this.firebaseRoot.child('users/' + userId + '/players').on('child_added', (snap) => {
+              if (!this.gameId && !this.playerId) {
+                let gameId = snap.val().gameId;
+                let playerId = snap.val().playerId;
+                this.gameId = gameId;
+                this.playerId = playerId;
+              }
+            });
             this.shallowListenToGames();
+            this.listenToGuns();
           }
         },
 
         onGameIdChanged_: function(gameId, oldGameId) {
-          if (gameId && oldGameId) {
-            throw 'Cannot change player once selected, must refresh!';
-          }
-          if (gameId) {
-            this.listenToSpecificGame(gameId);
-          }
+          // So we know we're not inside our firebase code
+          this.async(() => {
+            if (gameId && oldGameId) {
+              throw 'Cannot change player once selected, must refresh!';
+            }
+            if (gameId) {
+              this.listenToSpecificGame(gameId);
+            }
+          });
         },
 
         onPlayerIdChanged_: function(playerId, oldPlayerId) {
           if (playerId && oldPlayerId) {
             throw 'Cannot change player once selected, must refresh!';
-          }
-          if (playerId) {
-            debugger;
-            this.deepListenToPlayer(this.gameId, playerId);
           }
         },
       });

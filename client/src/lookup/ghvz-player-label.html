@@ -8,22 +8,16 @@
         is: 'ghvz-player-label',
 
         properties: {
-          serverBridge: Object,
+          playersById: Object,
           playerIdOrNull: String,
-          playerOrNull: Object,
+          playerOrNull: {
+            type: Object,
+            computed: 'computePlayerOrNull_(playersById, playerIdOrNull)',
+          }
         },
 
-        observers: ["ready_(serverBridge, playerIdOrNull)"],
-
-        ready_: function(serverBridge, playerIdOrNull) {
-          if (playerIdOrNull) {
-            this.serverBridge.getPlayerById(playerIdOrNull)
-                .then((player) => {
-                  this.playerOrNull = player;
-                });
-          } else {
-            this.playerOrNull = null;
-          }
+        computePlayerOrNull_: function(playersById, playerIdOrNull) {
+          return playerIdOrNull && this.playersById[playerIdOrNull];
         },
       });
     });

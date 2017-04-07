@@ -8,11 +8,9 @@
         is: 'ghvz-player-field',
 
         properties: {
-          serverBridge: Object,
-          gameId: String,
-          players: {
-            type: Array,
-            value: [],
+          players: Array,
+          playersById: {
+            type: Object,
           },
           label: {
             type: String,
@@ -30,6 +28,7 @@
           },
           playerOrNull: {
             type: Object,
+            computed: 'computePlayerOrNull(playerIdOrNull, playersById)',
           },
           playerInputValue: {
             type: String,
@@ -40,17 +39,8 @@
           },
         },
 
-        observers: ["onPlayerSet_(serverBridge, playerIdOrNull)"],
-
-        onPlayerSet_: function(serverBridge, playerIdOrNull) {
-          if (playerIdOrNull) {
-            this.serverBridge.getPlayerById(playerIdOrNull)
-                .then((player) => {
-                  this.playerOrNull = player;
-                });
-          } else {
-            this.playerOrNull = null;
-          }
+        computePlayerOrNull(playerIdOrNull, playersById) {
+          return playerIdOrNull && this.playersById[playerIdOrNull];
         },
 
         editPlayer_: function() {
@@ -104,8 +94,8 @@
       </paper-icon-button>
     </div>
     <ghvz-player-lookup
-        server-bridge="[[serverBridge]]"
-        game-id="[[gameId]]"
+        players="[[players]]"
+        players-by-id="[[playersById]]"
         matching-player-or-null="{{matchingPlayerOrNull}}"
         value="{{playerInputValue}}"
         hidden$="[[!editing]]">

@@ -11,38 +11,25 @@
         properties: {
           serverBridge: Object,
 
-          gameId: String,
-
-          game: Object,
+          rewardCategories: Array,
+          rewardCategoriesById: Object,
+          playersById: Object,
 
           rewardCategoryId: {
             type: String,
             value: null,
-            observer: 'refreshRewardsTable_',
+            observer: 'onRewardCategoryIdChanged_',
           },
 
           rewards: {
             type: Array,
             value: () => [],
           },
-
-          playersById: {
-            type: Object,
-            value: () => new Map(),
-          },
         },
 
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
-        },
-
-        observers: [
-          "ready_(serverBridge, gameId)",
-        ],
-
-        ready_: function(serverBridge, gameId) {
-          this.refresh_();
         },
 
         makeCategoriesTableBlueprint_: function() {
@@ -63,7 +50,7 @@
               {
                 property: "claimed",
                 name: "Claimed",
-                getModel: (category) => category.claimed + '/' + category.total,
+                getModel: (category) => category.claimed + '/' + category.rewards.length,
               },
             ],
             actions: [
@@ -125,25 +112,11 @@
               });
         },
 
-        refresh_: function() {
-          this.serverBridge.getGameById(this.gameId)
-              .then((game) => {
-                this.game = game;
-              })
-          this.serverBridge.findAllPlayersForGameId(this.gameId)
-              .then((players) => {
-                this.playersById = new Map();
-                for (let player of players)
-                  this.playersById.set(player.id, player);
-              });
-          this.refreshRewardsTable_();
-        },
-
         makeRewardsTableBlueprint_: function() {
           return {
             columns: [
               {
-                property: "rewardCode",
+                property: "code",
                 name: "Code",
                 sortable: true,
                 filterable: true,
@@ -152,10 +125,10 @@
                 property: "claimer",
                 name: "Claimer",
                 getModel: (reward) => {
-                  if (reward.playerIdOrNull == null) {
+                  if (reward.playerId == null) {
                     return "(unclaimed)";
                   } else {
-                    var player = this.playersById.get(reward.playerIdOrNull);
+                    var player = this.playersById[reward.playerId];
                     return player ? player.name : "(unknown!)";
                   }
                 },
@@ -170,12 +143,11 @@
           };
         },
 
-        refreshRewardsTable_: function() {
+        onRewardCategoryIdChanged_: function() {
           if (this.rewardCategoryId) {
-            this.serverBridge.findRewardsForRewardCategoryId(this.rewardCategoryId)
-                .then((rewards) => {
-                  this.rewards = rewards;
-                });
+            this.rewards = this.rewardCategoriesById[this.rewardCategoryId].rewards;
+          } else {
+            this.rewards = [];
           }
         },
 
@@ -221,7 +193,7 @@
     <auto-table
         id="categoriesTable"
         blueprint="[[makeCategoriesTableBlueprint_()]]"
-        items="[[game.rewardCategories]]">
+        items="[[rewardCategories]]">
     </auto-table>
 
     <ghvz-super-form
