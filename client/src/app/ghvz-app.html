@@ -174,7 +174,7 @@
         },
 
         computeFirebaseRoot_: function(firebaseUser) {
-          return this.$.app.app.database().ref().child('data');
+          return this.$.app.app.database().ref();
         },
 
         getGunIndex_: function(id) { return findIndexById(this.guns, id); },
