@@ -29,16 +29,16 @@ public class Dashboard extends AppCompatActivity
         // Add WebViewClient so all links users click open in our WebView
         webView.setWebViewClient(new WebViewClient());
         // On mac, run ifconfig then look at en0->inet value
-        String localIp = "192.168.1.203";
+        String localIp = "192.168.1.164";
 
         String prodHVZ = "http://www.google.com";
-        String emulatorLocalHVZ = "http://10.0.2.2:8000/client/src/desktop";
-        String deviceLocalHVZ = "http://" + localIp + ":8000/client/src/desktop";
+        String emulatorLocalHVZ = "http://10.0.2.2:5000";
+        String deviceLocalHVZ = "http://" + localIp + ":5000";
 
 
         // App opens to default HVZ url, change this for dev work
         //webView.loadUrl(prodHVZ);
-        webView.loadUrl(prodHVZ);
+        webView.loadUrl(emulatorLocalHVZ);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
