@@ -114,12 +114,12 @@
       <template is="dom-if" if="[[computeShowRegister_(gameId, playerId)]]">
         <paper-material class="contents">
           <div class="header">Join A Game</div>
-          <game-registration
+          <ghvz-game-registration
                 class="content"
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
-          </game-registration>
+          </ghvz-game-registration>
           </paper-material>
       </template>
 
@@ -136,7 +136,7 @@
 
         <paper-material class="contents">
             <div class="header">Players</div>
-            <player-table
+            <ghvz-player-table
                 id="playerTableModule"
                 bridge="[[bridge]]"
                 reward-categories-by-id="[[database.game.rewardCategoriesById]]"
@@ -144,17 +144,17 @@
                 players-by-id="[[database.game.playersById]]"
                 game-id="[[gameId]]"
                 current-user-id="[[userId]]">
-            </player-table>
+            </ghvz-player-table>
             </paper-material>
           
         <paper-material class="contents">
             <div class="header">Dev Tools</div>
-            <dev-tools
+            <ghvz-dev-tools
                 class="content"
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
-            </dev-tools>
+            </ghvz-dev-tools>
             </paper-material>
 
         <paper-material class="contents">
@@ -206,14 +206,14 @@
 
         <paper-material class="contents">
           <div class="header">Leaderboard</div>
-          <leaderboard-summary players="[[database.game.players]]">
-          </leaderboard-summary>
+          <ghvz-leaderboard-summary players="[[database.game.players]]">
+          </ghvz-leaderboard-summary>
           </paper-material>
 
         <paper-material class="contents">
           <div class="header">Game Stats</div>
-          <game-stat-summary>
-          </game-stat-summary>
+          <ghvz-game-stat-summary>
+          </ghvz-game-stat-summary>
           </paper-material>
 
         <paper-material class="contents">
@@ -228,14 +228,14 @@
         <template is="dom-repeat" items="[[database.game.chatRooms]]" as="chatRoom">
         <paper-material class="contents">
             <div class="header">[[chatRoom.name]]</div>
-            <chat-app
+            <ghvz-chat-app
                 class="content"
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 players-by-id="[[database.game.playersById]]"
                 chat-room="[[chatRoom]]"
                 current-player-id="[[playerId]]">
-            </chat-app>
+            </ghvz-chat-app>
             </paper-material>
         </template>
       </template>

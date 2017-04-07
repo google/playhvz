@@ -1,12 +1,12 @@
 
-<dom-module id="player-table">
+<dom-module id="ghvz-player-table">
   <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
       Polymer({
-        is: 'player-table',
+        is: 'ghvz-player-table',
 
         properties: {
           bridge: Object,
@@ -148,11 +148,11 @@
         icon="icons:refresh"
         on-tap="refresh_">
     </paper-icon-button>
-    <auto-table
+    <ghvz-auto-table
         id="playersTable"
         selectable
         blueprint="[[makeTableBlueprint_()]]"
         items="[[players]]">
-    </auto-table>
+    </ghvz-auto-table>
   </template>
 </dom-module>

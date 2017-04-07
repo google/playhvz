@@ -1,7 +1,7 @@
 
 <!-- TODO move these to index.html -->
 
-<dom-module id="game-stat-summary">
+<dom-module id="ghvz-game-stat-summary">
   <style include="iron-flex iron-flex-alignment">
     :host {
       display: block;
@@ -30,7 +30,7 @@
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
     	Polymer({
-    		is: 'game-stat-summary',
+    		is: 'ghvz-game-stat-summary',
 
     		properties: {
           showing: {
@@ -76,10 +76,10 @@
   exit-animation="fade-out-animation"
   selected="[[showing]]">
   <neon-animatable>
-    <population-current/>
+    <ghvz-population-current/>
   </neon-animatable>
   <neon-animatable>
-    <population-over-time/>
+    <ghvz-population-over-time/>
   </neon-animatable>
 </neon-animated-pages>
 </template>

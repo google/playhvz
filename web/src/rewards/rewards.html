@@ -190,11 +190,11 @@
     <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
     </paper-icon-button>
 
-    <auto-table
+    <ghvz-auto-table
         id="categoriesTable"
         blueprint="[[makeCategoriesTableBlueprint_()]]"
         items="[[rewardCategories]]">
-    </auto-table>
+    </ghvz-auto-table>
 
     <ghvz-super-form
         id="categoryForm"
@@ -220,12 +220,12 @@
         </div>
       </div>
 
-      <auto-table
+      <ghvz-auto-table
           id="rewardsTable"
           blueprint="[[makeRewardsTableBlueprint_()]]"
           items="[[rewards]]"
           initial-count="1">
-      </auto-table>
+      </ghvz-auto-table>
     </div>
   </template>
 </dom-module>
