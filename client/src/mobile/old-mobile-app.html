@@ -1,0 +1,209 @@
+
+<dom-module id="mobile-app">
+  <script>
+    // All scripts should happen when imports are ready.
+    // TODO(verdagon): I think we're not supposed to need this...
+    HTMLImports.whenReady(() => {
+      // Calling Polymer will define our own component. Component is a fancy
+      // name for "Element with a bunch of listeners and properties attached".
+      Polymer({
+        // This means, "Any <mobile-app> tag that ever appears should be
+        // managed by the things I'm defining in this Polymer() call."
+        // This better match the 'id' attribute in the above <dom-module>.
+        is: 'mobile-app',
+
+        // Member variables for our element. These are added to the actual
+        // element, so make sure not to use any of html's built-in property
+        // names like 'id', 'name', 'src', or anything. Also avoid anything
+        // starting with 'on'.
+        properties: {
+          // Instance of a class we made for communicating with our server.
+          // See remoteserverbridge.js.
+          serverBridge: {
+            type: Object,
+            value: makeFakePrepopulatedServerBridge(),
+          },
+
+          localStorage: {
+            type: Object,
+            // When value is a function, that actually means "execute this
+            // function to get the initial value."
+            value: function() {
+              // Browser's persistent key-value store. See
+              // https://developer.mozilla.org/docs/Web/API/Window/localStorage
+              // We use it to remember the user's last email and password.
+              var ls = window.localStorage;
+              // Since we dont have a real server yet
+              ls.setItem('authCode', 'authcodeforevanuserid');
+              return ls;
+            },
+          },
+        },
+
+        // If our element has a created method, polymer calls it when our
+        // element is first created. However, this happens before any of our
+        // properties are initialized, so the created() method is generally
+        // not as useful as attached().
+        created: function() {
+        },
+
+        // If our element has an attached method, polymer calls it when our
+        // element is finally added to the document.
+        // All property bindings via html will have already happened (such as
+        // serverBridge in
+        // <my-element server-bridge="[[serverBridge]]">...</my-element>).
+        // attached usually accomplishes the same things a constructor would.
+        attached: function() {
+          this.showLoginPage_();
+
+          if (this.localStorage.getItem('authCode')) {
+            this.serverBridge.logIn(this.localStorage.getItem('authCode'))
+                .then((userId) => {
+                  this.showMainPage_();
+                  this.currentUserId = userId;
+                  return this.serverBridge.findAllPlayerIdsForUserId(this.currentUserId);
+                })
+                .then((playerIds) => {
+                  if (playerIds.length == 0) {
+                    alert('you should join a game');
+                  } else if (playerIds.length == 1) {
+                    this.currentPlayerId = playerIds[0];
+                    this.serverBridge.findAllChatRoomIdsForPlayer(this.currentPlayerId)
+                        .then((chatRoomIds) => {
+                          console.log('lizard');
+                          this.chatRoomIds = chatRoomIds;
+                        });
+                    this.serverBridge.getPlayerById(this.currentPlayerId)
+                        .then((player) => {
+                          this.gameId = player.gameId;
+                        });
+                  } else {
+                    alert('you should somehow choose a game');
+                  }
+                });
+          }
+        },
+
+        // Shorthand for listening to events. We could have just as easily have
+        // said (in our attached method preferably) something like this:
+        // this.addEventListener(
+        //     'mobile-me-page-back', this.showMainPage_.bind(this));
+        listeners: {
+          'mobile-main-page-show-chat-page': 'showChatPage_',
+          'mobile-chat-page-back': 'showMainPage_',
+          'mobile-login-page-logged-in': 'showMainPage_',
+        },
+
+        // Below this line is our own private methods. Our convention is to
+        // suffix them with an underscore.
+
+        showLoginPage_: function() {
+          // this.$ is an object populated with all the ID'd elements inside
+          // us. It's as if we said this.getElementById('loginPage').
+          this.$.pages.entryAnimation = '';
+          this.$.pages.exitAnimation = '';
+          // When the <neon-animated-pages> element sees its selected property
+          // change, it uses entryAnimation and exitAnimation and animates
+          // from the old selected page to the new selected page.
+          this.$.pages.selected = 0;
+          // IMO, polymer should have made a method that we could call like
+          //     pages.switchPage(0, '', 'slide-right-animation')
+          // but polymer's components are very property-happy.
+
+          this.$.loginPage.startedShowing();
+        },
+
+        showMainPage_: function(e) {
+          if (this.$.pages.selected == 0) {
+            // If we were just looking at the login page, then slide in
+            // the main page from the right.
+            this.$.pages.entryAnimation = 'slide-from-right-animation';
+            this.$.pages.exitAnimation = '';
+          } else {
+            // If we came from somewhere else, slide out whatever it was to
+            // the right.
+            this.$.pages.entryAnimation = '';
+            this.$.pages.exitAnimation = 'slide-right-animation';
+          }
+          this.$.pages.selected = 1;
+          this.$.mainPage.startedShowing();
+        },
+
+        showChatPage_: function(e) {
+          this.$.pages.entryAnimation = 'slide-from-right-animation';
+          this.$.pages.exitAnimation = '';
+          this.$.pages.selected = 2;
+          this.$.chatPage.startedShowing();
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      /* In a dom-module, all of our css rules are sandboxed; no CSS defined
+         here will affect anything else on the page. That's why it's safe to
+         use very general rules like below. */
+
+      /* :host just means "this element" */
+      :host {
+        --toolbar-theme: {
+          background-color: #03a9f4;
+          color: white;
+          font-size: 16px;
+          line-height: 48px;
+        };
+        width: 100%;
+        height: 100%;
+      }
+      neon-animated-pages {
+        width: 100%;
+        height: 100%;
+      }
+      neon-animatable {
+        width: 100%;
+        height: 100%;
+        background-color: white;
+      }
+    </style>
+
+    <!-- <neon-animated-pages> requires its selected, entry-animation, and
+      exit-animation attributes to be set. You'd often see something like:
+      <neon-animated-pages
+          id="pages"
+          class="flex"
+          entry-animation="slide-from-left-animation"
+          exit-animation="slide-right-animation"
+          selected="0">
+      but we set those manually via javascript. -->
+    <neon-animated-pages id="pages" class="flex">
+      <neon-animatable>
+
+        <!-- The [[serverBridge]] is a special Polymer thing meaning:
+          "The target element (in this case, <mobile-login-page>) has a
+          property named 'serverBridge'. After constructing but before attaching this
+          new <mobile-login-page> element to us, please set its serverBridge property
+          to our own 'serverBridge' property. Also, if our serverBridge property changes,
+          please change <mobile-login-page>'s serverBridge property as well." -->
+        <mobile-login-page id="loginPage" server-bridge="[[serverBridge]]"></mobile-login-page>
+
+      </neon-animatable>
+      <neon-animatable>
+
+        <mobile-main-page id="mainPage" server-bridge="[[serverBridge]]"></mobile-main-page>
+
+      </neon-animatable>
+      <neon-animatable>
+
+        <mobile-chat-page
+            id="chatPage"
+            server-bridge="[[serverBridge]]"
+            game-id="[[gameId]]"
+            current-player-id="[[currentPlayerId]]"
+            chat-room-id="[[chatRoomId]]">
+        </mobile-chat-page>
+
+      </neon-animatable>
+    </neon-animated-pages>
+
+  </template>
+</dom-module>

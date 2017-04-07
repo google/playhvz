@@ -1,28 +1,17 @@
 'use strict';
 
 // register(userId, userEmail)
-// getUserById(userId)
 // logIn(authcode)
 
 // createGame(gameId, adminUserId)
-//    getGameById(gameId)
 
 // joinGame(userId, gameId, playerId, name)
-//    getPlayerById(playerId)
-//    findAllPlayerIdsForGameId(gameId)
-//    findAllPlayerIdsForUserId(userId)
-//    findPlayerByGameAndName(gameId, name)
-//    getMultiplePlayersById(playersIds)
-//    findAllPlayersForGameId(playerId)
 // infect(infectorPlayerId, infecteePlayerId, infecteeLifeCode)
 // revive(playerId)
 // awardPoints(playerId, points)
 // setPlayerProfileImageUrl(playerId, imageUrl)
 
 // createChatRoom(chatRoomId, firstPlayerId)
-//    getChatRoomById(chatRoomId)
-//    findMessagesForChatRoom(chatRoomId, afterTime)
-//    findAllChatRoomIdsForPlayerId(playerId)
 // addMessageToChatRoom(chatRoomId, playerId, message)
 // addPlayerToChatRoom(chatRoomId, playerId)
 
@@ -31,22 +20,34 @@
 // addRewards(rewardCategoryId, numNewRewards)
 
 // addReward(rewardId, rewardCategoryId, rewardCode)
-//    findRewardsForPlayerId(playerId)
-//    findRewardsForRewardCategoryId(rewardCategoryId)
 // claimReward(playerId, rewardCode)
 
 // addGun(gunId, {number})
-//    getGunById(gunId)
-//    getAllGuns()
 // setGunPlayer(gunId, playerIdOrNull)
 
 // addMission(missionId, gameId, {beginTime, endTime, name, url})
-//    getAllMissions(gameId)
-//    getMissionById(missionId)
-//    findAllMissionsForPlayerId(playerId)
 // updateMission(missionId, {beginTime, endTime, name, url})
 
 // addNotification(gameId, allegianceFilter, message, vibrate, sound)
+
+//    getUserById(userId)
+//    getGameById(gameId)
+//    getPlayerById(playerId)
+//    findAllPlayerIdsForGameId(gameId)
+//    findAllPlayerIdsForUserId(userId)
+//    findPlayerByGameAndName(gameId, name)
+//    getMultiplePlayersById(playersIds)
+//    findAllPlayersForGameId(playerId)
+//    getChatRoomById(chatRoomId)
+//    findMessagesForChatRoom(chatRoomId, afterTime)
+//    findAllChatRoomIdsForPlayerId(playerId)
+//    findRewardsForPlayerId(playerId)
+//    findRewardsForRewardCategoryId(rewardCategoryId)
+//    getGunById(gunId)
+//    getAllGuns()
+//    getAllMissions(gameId)
+//    getMissionById(missionId)
+//    findAllMissionsForPlayerId(playerId)
 //    findAllNotificationsForPlayer
 
 
