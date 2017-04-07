@@ -1,0 +1,155 @@
+
+<dom-module id="ghvz-missions">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-missions',
+
+        properties: {
+          bridge: Object,
+
+          gameId: String,
+
+          missions: {
+            type: Array,
+          },
+
+          newMission: {
+            type: Object,
+            value: () => ({
+              name: "",
+              beginTime: "",
+              endTime: "",
+              url: "",
+            }),
+          },
+        },
+
+        makeTableBlueprint_: function() {
+          return {
+            columns: [
+              {
+                property: "name",
+                name: "Name",
+                sortable: true,
+                filterable: true,
+              },
+              {
+                property: "beginTime",
+                name: "Begin",
+                sortable: true,
+                getView: (mission, prop, time) => Utils.formatTime(time),
+              },
+              {
+                property: "endTime",
+                name: "End",
+                sortable: true,
+                getView: (mission, prop, time) => Utils.formatTime(time),
+              },
+              {
+                property: "url",
+                name: "Url",
+                sortable: true,
+                filterable: true,
+              },
+            ],
+            actions: [
+              {
+                name: "Edit",
+                handler: this.editMission_.bind(this),
+              },
+            ],
+          };
+        },
+
+        attached: function() {
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
+        },
+
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "name",
+                label: "Name",
+              },
+              {
+                property: "beginTime",
+                label: "Begin timestamp",
+                left: true,
+                description: "(in milliseconds)",
+                type: "number",
+              },
+              {
+                property: "endTime",
+                label: "End timestamp",
+                right: true,
+                description: "(in milliseconds)",
+                type: "number",
+              },
+              {
+                property: "url",
+                label: "Mission page url",
+                description: "Url of the page describing the mission, example /firstgame/missions/first-mission.html",
+              },
+            ],
+          };
+        },
+
+        addMission_: function() {
+          this.$.missionForm.openForAdding()
+              .then((properties) => {
+                this.bridge.addMission(
+                    Utils.generateId("mission"), this.gameId, properties);
+                this.refresh_();
+              });
+        },
+
+        editMission_: function(mission) {
+          this.$.missionForm.openForEditing(mission)
+              .then((properties) => {
+                this.bridge.updateMission(mission.id, properties);
+                this.refresh_();
+              });
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      paper-input {
+        display: block;
+        width: 100%;
+        --paper-input-container-underline: {
+          border-bottom-color: #C0C0C0;
+        }
+        margin-bottom: 4px;
+      }
+    </style>
+
+    <paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
+    </paper-icon-button>
+    <paper-icon-button id="add" icon="icons:add" on-tap="addMission_">
+    </paper-icon-button>
+
+    <auto-table
+        id="table"
+        blueprint="[[makeTableBlueprint_()]]"
+        items="[[missions]]">
+    </auto-table>
+
+    <ghvz-super-form
+        id="missionForm"
+        type-name="Mission"
+        blueprint="[[makeFormBlueprint_()]]">
+      <ghvz-form-section spaced>
+        For timestamps, use <a href="https://www.epochconverter.com/">epochconverter</a>.
+        Timestamps are in milliseconds.
+      </ghvz-form-section>
+    </ghvz-super-form>
+  </template>
+</dom-module>

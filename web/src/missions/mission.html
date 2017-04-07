@@ -1,0 +1,51 @@
+
+<dom-module id="ghvz-mission">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-mission',
+
+        properties: {
+          bridge: Object,
+
+          gameId: String,
+
+          playerId: String,
+
+          mission: String,
+
+          response: Object,
+        },
+
+        assembleParams() {
+          return null;
+        },
+
+        handleResponse(response) {
+          this.$.mission.innerHTML = this.$.ajax.lastResponse;
+        }
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin: 16px;
+      }
+    </style>
+    <iron-ajax
+        id="ajax"
+        auto
+        url="[[mission.url]]"
+        params="[[assembleParams(missionUrl)]]"
+        handle-as="text"
+        on-response="handleResponse"
+        debounce-duration="300">
+    </iron-ajax>
+    <div id="mission"></div>
+  </template>
+</dom-module>
