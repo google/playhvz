@@ -5,24 +5,24 @@
 // logIn(authcode)
 
 // createGame(gameId, adminUserId)
-// getGameById(gameId)
+//    getGameById(gameId)
 
 // joinGame(userId, gameId, playerId, name)
-// getPlayerById(playerId)
-// findAllPlayerIdsForGameId(gameId)
-// findAllPlayerIdsForUserId(userId)
-// findPlayerByGameAndName(gameId, name)
-// getMultiplePlayersById(playersIds)
-// findAllPlayersForGameId(playerId)
+//    getPlayerById(playerId)
+//    findAllPlayerIdsForGameId(gameId)
+//    findAllPlayerIdsForUserId(userId)
+//    findPlayerByGameAndName(gameId, name)
+//    getMultiplePlayersById(playersIds)
+//    findAllPlayersForGameId(playerId)
 // infect(infectorPlayerId, infecteePlayerId, infecteeLifeCode)
 // revive(playerId)
 // awardPoints(playerId, points)
 // setPlayerProfileImageUrl(playerId, imageUrl)
 
 // createChatRoom(chatRoomId, firstPlayerId)
-// getChatRoomById(chatRoomId)
-// findMessagesForChatRoom(chatRoomId, afterTime)
-// findAllChatRoomIdsForPlayerId(playerId)
+//    getChatRoomById(chatRoomId)
+//    findMessagesForChatRoom(chatRoomId, afterTime)
+//    findAllChatRoomIdsForPlayerId(playerId)
 // addMessageToChatRoom(chatRoomId, playerId, message)
 // addPlayerToChatRoom(chatRoomId, playerId)
 
@@ -31,20 +31,23 @@
 // addRewards(rewardCategoryId, numNewRewards)
 
 // addReward(rewardId, rewardCategoryId, rewardCode)
-// findRewardsForPlayerId(playerId)
-// findRewardsForRewardCategoryId(rewardCategoryId)
+//    findRewardsForPlayerId(playerId)
+//    findRewardsForRewardCategoryId(rewardCategoryId)
 // claimReward(playerId, rewardCode)
 
 // addGun(gunId, {number})
-// getGunById(gunId)
-// getAllGuns()
+//    getGunById(gunId)
+//    getAllGuns()
 // setGunPlayer(gunId, playerIdOrNull)
 
 // addMission(missionId, gameId, {beginTime, endTime, name, url})
-// getAllMissions(gameId)
+//    getAllMissions(gameId)
+//    getMissionById(missionId)
+//    findAllMissionsForPlayerId(playerId)
 // updateMission(missionId, {beginTime, endTime, name, url})
-// getMissionById(missionId)
-// findAllMissionsForPlayerId(playerId)
+
+// addNotification(gameId, allegianceFilter, message, vibrate, sound)
+//    findAllNotificationsForPlayer
 
 
 const SERVER_METHODS = [

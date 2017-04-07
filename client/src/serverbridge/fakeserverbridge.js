@@ -13,16 +13,16 @@
 // if you call it from a base class, it's still the base class of
 // the leaf class.
 
-function SecuringWrapper(inner, isLoggedIn, funcNames) {
-  for (const funcName of funcNames) {
-    this[funcName] = function(...args) {
-      if (!isLoggedIn()) {
-        throw "Not logged in! Can't call " + funcName;
-      }
-      return inner[funcName](...args);
-    }
-  }
-}
+// function SecuringWrapper(inner, isLoggedIn, funcNames) {
+//   for (const funcName of funcNames) {
+//     this[funcName] = function(...args) {
+//       if (!isLoggedIn()) {
+//         throw "Not logged in! Can't call " + funcName;
+//       }
+//       return inner[funcName](...args);
+//     }
+//   }
+// }
 
 function CloningWrapper(inner, funcNames) {
   for (const funcName of funcNames) {
@@ -86,7 +86,7 @@ function makeFakePrepopulatedServerBridge() {
   fakeServer.addMessageToChatRoom(zedChatRoom, evanPlayerId, 'zeds rule!');
   fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'hoomans drool!');
   fakeServer.addMessageToChatRoom(zedChatRoom, kimPlayerId, 'monkeys eat stool!');
-  fakeServer.addMission(firstMissionId, gameId, {beginTime: new Date().getTime() - 10, endTime: new Date().getTime() + 60 * 60, name: "first mission!", url: "/firstgame/missions/first-mission.html"});
+  fakeServer.addMission(firstMissionId, gameId, {beginTime: new Date().getTime() / 1000 - 10, endTime: new Date().getTime() / 1000 + 60 * 60, name: "first mission!", url: "/firstgame/missions/first-mission.html"});
   fakeServer.addRewardCategory(rewardCategoryId, gameId, {name: "signed up!", points: 2, seed: "derp"});
   fakeServer.addReward(rewardId, rewardCategoryId, "flarklebark");
   fakeServer.addReward(otherRewardId, rewardCategoryId, "shooplewop");
@@ -96,33 +96,33 @@ function makeFakePrepopulatedServerBridge() {
 
   var loggedInUserId = null;
 
-  const securedFakeServer =
-      new SecuringWrapper(
-          fakeServer,
-          (() => !!loggedInUserId),
-          Utils.subtract(SERVER_METHODS, "logIn", "register", "getUserById"));
-  securedFakeServer.logIn = (authcode) => {
-    if (authcode != 'firstuserauthcode') {
-      throw "Couldnt find auth code";
-    }
-    var userId = kimUserId;
-    // To check it exists. this.__proto__ to skip the security check
-    fakeServer.getUserById(userId);
-    loggedInUserId = userId;
-    return userId;
-  };
-  securedFakeServer.register = (...args) => fakeServer.register(...args);
-  securedFakeServer.getUserById = (userId) => {
-    if (loggedInUserId != userId)
-      throw 'Cant get other user';
-    return fakeServer.getUserById(userId);
-  };
+  // const securedFakeServer =
+  //     new SecuringWrapper(
+  //         fakeServer,
+  //         (() => !!loggedInUserId),
+  //         Utils.subtract(SERVER_METHODS, "logIn", "register", "getUserById"));
+  // securedFakeServer.logIn = (authcode) => {
+  //   if (authcode != 'firstuserauthcode') {
+  //     throw "Couldnt find auth code";
+  //   }
+  //   var userId = kimUserId;
+  //   // To check it exists. this.__proto__ to skip the security check
+  //   fakeServer.getUserById(userId);
+  //   loggedInUserId = userId;
+  //   return userId;
+  // };
+  // securedFakeServer.register = (...args) => fakeServer.register(...args);
+  // securedFakeServer.getUserById = (userId) => {
+  //   if (loggedInUserId != userId)
+  //     throw 'Cant get other user';
+  //   return fakeServer.getUserById(userId);
+  // };
 
-  const cloningSecuredFakeServer =
-      new CloningWrapper(securedFakeServer, SERVER_METHODS);
+  const cloningFakeServer =
+      new CloningWrapper(fakeServer, SERVER_METHODS);
 
-  const delayingCloningSecuredFakeServer =
-      new DelayingWrapper(cloningSecuredFakeServer, SERVER_METHODS);
+  const delayingCloningFakeServer =
+      new DelayingWrapper(cloningFakeServer, SERVER_METHODS);
 
-  return delayingCloningSecuredFakeServer;
+  return delayingCloningFakeServer;
 }

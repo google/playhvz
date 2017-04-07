@@ -9,8 +9,6 @@
       is: 'leaderboard-summary',
 
       properties: {
-        serverBridge: Object,
-        gameId: String,
         players: {
           type: Array,
           value: function() { return []; },
@@ -27,20 +25,6 @@
 
       attached: function() {
         this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
-      },
-
-      observers: [
-      "ready_(serverBridge, gameId)",
-      ],
-
-      ready_: function(serverBridge, gameId) {
-        serverBridge.findAllPlayersForGameId(gameId)
-        .then((players) => {
-          players.sort(Utils.byPoints);
-          this.players = players.slice(0, this.numToShow);
-        });
-
-        setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
       },
 
       makeTableBlueprint_: function() {
@@ -77,16 +61,6 @@
             },
           ]
         };
-      },
-
-      refresh_: function() {
-        this.serverBridge.findAllPlayersForGameId(this.gameId)
-        .then((players) => {
-          if (players) {
-            players.sort(Utils.byPoints);
-            this.players = players.slice(0, this.numToShow);
-          }
-        });
       },
     });
   });
