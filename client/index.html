@@ -37,6 +37,8 @@
 <link rel="import" href="bower_components/paper-input/paper-input.html">
 <link rel="import" href="bower_components/paper-material/paper-material.html">
 <link rel="import" href="bower_components/paper-item/paper-item.html">
+<link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
 <link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">
@@ -93,41 +95,10 @@
 <link rel="import" href="src/lookup/ghvz-player-label.html">
 <link rel="import" href="src/missions/ghvz-missions.html">
 <link rel="import" href="src/desktop/desktop-app.html">
+<link rel="import" href="src/app/ghvz-app.html">
 
-<style>
-  body {
-    font-family: 'Roboto', 'Noto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-</style>
 </head>
   <body>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        let desktopApp = document.createElement('desktop-app');
-        document.body.appendChild(desktopApp);
-
-        // // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // // The Firebase SDK is initialized and available here!
-        // //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref().child('path').on('child_added', snapshot => { });
-        // // firebase.messaging().requestPermission().then(() => { });
-        // // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // //
-        // // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-
-        // try {
-        //   let app = firebase.app();
-        //   let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
-        //   document.getElementById('load').innerHTML = `Firebase SDK loaded with ${features.join(', ')}`;
-        // } catch (e) {
-        //   console.error(e);
-        //   document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
-        // }
-      });
-    </script>
+    <ghvz-app></ghvz-app>
   </body>
 </html>

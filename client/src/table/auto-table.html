@@ -14,6 +14,11 @@
             value: {},
           },
 
+          getItemId: {
+            type: Function,
+            value: null,
+          },
+
           columns: {
             type: Array,
             value: undefined,
@@ -46,6 +51,8 @@
         },
 
         attached: function() {
+          this.getItemId = this.blueprint.getItemId;
+
           var columns = [];
           for (let column of this.blueprint.columns) {
             columns.push({
@@ -69,7 +76,7 @@
           var actions = [];
           for (let action of this.blueprint.actions) {
             actions.push({
-              index: action.length,
+              index: actions.length,
               action: action.action,
               name: action.name,
               handler: action.handler,
@@ -111,7 +118,7 @@
         },
 
         getItemId_: function(item) {
-          return item.id;
+          return this.getItemId(item);
         },
 
         onBulkActionTapped_: function(e) {
@@ -224,7 +231,7 @@
 
         getItemForId_: function(id) {
           for (var i = 0; i < this.items.length; i++) {
-            if (this.getItemId_(this.items[i]) == id) {
+            if (this.getItemId(this.items[i]) == id) {
               return this.items[i];
             }
           }
@@ -233,7 +240,7 @@
 
         getIndexForId_: function(id) {
           for (var i = 0; i < this.items.length; i++) {
-            if (this.getItemId_(this.items[i]) == id) {
+            if (this.getItemId(this.items[i]) == id) {
               return i;
             }
           }
@@ -471,7 +478,7 @@
             <template is="dom-repeat" items="[[columns]]" as="column">
               <td>
                 <ghvz-echo
-                    value="[[getView_(item, column.index)]]">
+                    value="[[getView_(item, column.index, item.*)]]">
                 </ghvz-echo>
               </td>
             </template>

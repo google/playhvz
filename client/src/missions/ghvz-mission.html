@@ -15,26 +15,13 @@
 
           playerId: String,
 
-          missionId: String,
-
-          missionUrl: String,
+          mission: String,
 
           response: Object,
         },
 
-        observers: [
-          "ready_(serverBridge, gameId, playerId, missionId)",
-        ],
-
         assembleParams() {
           return null;
-        },
-
-        ready_: function(serverBridge, gameId, playerId, missionId) {
-          serverBridge.getMissionById(missionId)
-              .then((mission) => {
-                this.missionUrl = mission.url;
-              });
         },
 
         handleResponse(response) {
@@ -53,7 +40,7 @@
     <iron-ajax
         id="ajax"
         auto
-        url="[[missionUrl]]"
+        url="[[mission.url]]"
         params="[[assembleParams(missionUrl)]]"
         handle-as="text"
         on-response="handleResponse"

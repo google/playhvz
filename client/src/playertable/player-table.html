@@ -13,11 +13,15 @@
 
           gameId: String,
 
-          game: Object,
+          rewardCategoriesById: Object,
 
           players: {
             type: Array,
             value: function() { return []; },
+          },
+
+          playersById: {
+            type: Object,
           },
 
           pollInterval: {
@@ -31,16 +35,6 @@
           this.pollIntervalId = null;
 
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
-        },
-
-        observers: [
-          "ready_(serverBridge, gameId)",
-        ],
-
-        pollIntervalChanged_(pollInterval) {
-          clearInterval(this.pollIntervalId);
-          this.pollIntervalId =
-              setInterval(this.refresh_.bind(this), this.pollInterval * 1000);
         },
 
         makeTableBlueprint_: function() {
@@ -59,7 +53,7 @@
                 getModel: player => player.name,
                 getView: (player) => {
                   var el = document.createElement('ghvz-player-label');
-                  el.serverBridge = this.serverBridge;
+                  el.playersById = this.playersById;
                   el.playerIdOrNull = player.id;
                   return el;
                 }
@@ -69,12 +63,12 @@
                 sortable: true,
                 filterable: true,
                 getModel: (player) => {
-                  if (player.species == 'human') {
+                  if (player.allegiance == 'resistance') {
                     return 'Resistance';
-                  } else if (player.species == 'zombie') {
+                  } else if (player.allegiance == 'horde') {
                     return 'Horde';
                   } else {
-                    return player.species;
+                    return player.allegiance;
                   }
                 },
               },
@@ -83,9 +77,9 @@
                 sortable: true,
                 filterable: true,
                 getModel: (player) => {
-                  if (player.species == 'human') {
+                  if (player.allegiance == 'resistance') {
                     if (player.lives.length) {
-                      return player.lives[player.lives.length - 1].lifeCode;
+                      return player.lives[player.lives.length - 1].code;
                     }
                   }
                   return "";
@@ -97,11 +91,9 @@
                 filterable: true,
                 getModel: (player) => {
                   let rewardNames = [];
-                  var rewardNamesByCategoryId = new Map();
-                  for (const rewardCategory of this.game.rewardCategories)
-                    rewardNamesByCategoryId.set(rewardCategory.id, rewardCategory.name);
-                  for (const rewardCategoryId of player.rewardCategoryIds)
-                    rewardNames.push(rewardNamesByCategoryId.get(rewardCategoryId));
+                  for (const reward of player.rewards) {
+                    rewardNames.push(this.rewardCategoriesById[reward.rewardCategoryId].name);
+                  }
                   return rewardNames.join(", ");
                 }
               },
@@ -131,10 +123,6 @@
           };
         },
 
-        ready_: function(serverBridge, gameId) {
-          this.refresh_();
-        },
-
         onDeletePlayer_: function(player) {
           var index = this.players.indexOf(player);
           if (index < 0) {
@@ -142,17 +130,6 @@
             return;
           }
           this.splice('players', 1);
-        },
-
-        refresh_: function() {
-          this.serverBridge.getGameById(this.gameId)
-              .then((game) => {
-                this.game = game;
-                return this.serverBridge.findAllPlayersForGameId(this.gameId);
-              })
-              .then((players) => {
-                this.players = players;
-              });
         },
       });
     });

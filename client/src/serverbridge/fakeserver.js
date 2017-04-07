@@ -31,7 +31,7 @@ class FakeServer {
     player.preferences = Utils.copyOf(preferences);
     this.fakeDatabase.createPlayer(player);
 
-    this.fakeDatabase.addLife(playerId, this.generateLifeCode_(player), new Date().getTime());
+    this.fakeDatabase.addLife(playerId, this.generateLifeCode_(player), new Date().getTime() / 1000);
   }
   setPlayerProfileImageUrl(playerId, imageUrl) {
     this.fakeDatabase.setPlayerProfileImageUrl(playerId, imageUrl);
@@ -91,7 +91,7 @@ class FakeServer {
     return chatRoom;
   }
   addMessageToChatRoom(chatRoomId, playerId, message) {
-    return this.fakeDatabase.addMessageToChatRoom(chatRoomId, playerId, message, new Date().getTime());
+    return this.fakeDatabase.addMessageToChatRoom(chatRoomId, playerId, message, new Date().getTime() / 1000);
   }
   addPlayerToChatRoom(chatRoomId, playerId) {
     return this.fakeDatabase.addPlayerToChatRoom(chatRoomId, playerId);
@@ -132,13 +132,13 @@ class FakeServer {
     if (!this.isHuman_(infectee)) {
       throw 'Cannot infect, infectee is not human!';
     }
-    this.fakeDatabase.addInfection(infecteePlayerId, infectorPlayerId, new Date().getTime());
+    this.fakeDatabase.addInfection(infecteePlayerId, infectorPlayerId, new Date().getTime() / 1000);
     return this.getPlayerById(infecteePlayerId);
   }
   revive(playerId) {
     let player = this.fakeDatabase.getPlayerById(playerId);
     const newLifeCode = this.generateLifeCode_(player)
-    this.fakeDatabase.addLife(playerId, newLifeCode, new Date().getTime());
+    this.fakeDatabase.addLife(playerId, newLifeCode, new Date().getTime() / 1000);
   }
   isHuman_(player) {
     return player.lives.length > player.infections.length;
