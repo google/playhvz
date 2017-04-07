@@ -9,10 +9,8 @@
         is: 'ghvz-desktop-app',
 
         properties: {
-          serverBridge: {
-            type: Object,
-            value: makeFakePrepopulatedServerBridge(),
-          },
+          bridge: Object,
+          database: Object,
 
           userId: {
             type: String,
@@ -28,10 +26,6 @@
             notify: true,
           },
 
-          database: {
-            type: Object,
-          },
-
           isAdmin: {
             type: Boolean,
             value: true,
@@ -44,21 +38,21 @@
         },
 
         attached: function() {
-          // this.serverBridge.logIn('firstuserauthcode')
+          // this.bridge.logIn('firstuserauthcode')
           //     .then((userId) => {
           //       this.userId = userId;
-          //       return this.serverBridge.findAllPlayerIdsForUserId(this.userId);
+          //       return this.bridge.findAllPlayerIdsForUserId(this.userId);
           //     })
           //     .then((playerIds) => {
           //       if (playerIds.length == 0) {
           //         alert('you should join a game');
           //       } else if (playerIds.length == 1) {
           //         this.playerId = playerIds[0];
-          //         this.serverBridge.findAllChatRoomIdsForPlayerId(this.playerId)
+          //         this.bridge.findAllChatRoomIdsForPlayerId(this.playerId)
           //             .then((chatRoomIds) => {
           //               this.chatRoomIds = chatRoomIds;
           //             });
-          //         this.serverBridge.getPlayerById(this.playerId)
+          //         this.bridge.getPlayerById(this.playerId)
           //             .then((player) => {
           //               this.gameId = player.gameId;
           //             });
@@ -106,7 +100,14 @@
         padding: 0 16px;
         align-items: center;
       }
+      #info {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 16px;
+        align-items: center;
+      }
       .info {
+        margin-left: 32px;
         text-align: center;
       }
   	</style>
@@ -124,6 +125,13 @@
         DONT POST CONFIDENTIAL INFO, COBFLABBIT!
       </div>
 
+      <div id="viewControls">
+        <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
+        <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
+      </div>
+    </div>
+
+    <div id="info">
       <div class="info">
         userId [[userId]]
       </div>
@@ -135,11 +143,6 @@
       <div class="info">
         playerId [[playerId]]
       </div>
-
-      <div id="viewControls">
-        <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
-        <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
-      </div>
     </div>
 
     <ghvz-dashboard>
@@ -148,7 +151,7 @@
           <div class="header">Join A Game</div>
           <game-registration
                 class="content"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
           </game-registration>
@@ -160,7 +163,7 @@
           <ghvz-dashlet admin full>
             <div class="header">Missions</div>
             <ghvz-missions
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 missions="[[database.game.missions]]">
             </ghvz-missions>
@@ -170,7 +173,7 @@
             <div class="header">Players</div>
             <player-table
                 id="playerTableModule"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 reward-categories-by-id="[[database.game.rewardCategoriesById]]"
                 players="[[database.game.players]]"
                 players-by-id="[[database.game.playersById]]"
@@ -183,7 +186,7 @@
             <div class="header">Dev Tools</div>
             <dev-tools
                 class="content"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
             </dev-tools>
@@ -192,7 +195,7 @@
           <ghvz-dashlet scrolling admin half right>
             <div class="header">Guns</div>
             <ghvz-guns
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 guns="[[database.guns]]"
                 players="[[database.game.players]]"
@@ -203,7 +206,7 @@
        <ghvz-dashlet scrolling admin half right>
             <div class="header">Rewards</div>
             <ghvz-rewards
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 players-by-id="[[database.game.playersById]]"
                 reward-categories="[[database.game.rewardCategories]]"
                 reward-categories-by-id="[[database.game.rewardCategoriesById]]">
@@ -218,7 +221,7 @@
           <ghvz-dashlet half left>
             <div class="header">Infect</div>
             <ghvz-infect
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 player-id="[[playerId]]">
             </ghvz-infect>
@@ -229,7 +232,7 @@
         <ghvz-dashlet half left>
           <div class="header">Next Mission</div>
           <ghvz-next-mission
-              server-bridge="[[serverBridge]]"
+              bridge="[[bridge]]"
               missions="[[database.game.missions]]"
               game-id="[[gameId]]"
               player-id="[[playerId]]">
@@ -251,7 +254,7 @@
         <ghvz-dashlet half left>
           <div class="header">Rewards</div>
           <ghvz-claim-reward
-              server-bridge="[[serverBridge]]"
+              bridge="[[bridge]]"
               game-id="[[gameId]]"
               player-id="[[playerId]]">
           </ghvz-claim-reward>
@@ -262,7 +265,7 @@
             <div class="header">[[chatRoom.name]]</div>
             <chat-app
                 class="content"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 players-by-id="[[database.game.playersById]]"
                 chat-room="[[chatRoom]]"

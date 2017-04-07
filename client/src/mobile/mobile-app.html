@@ -9,17 +9,11 @@
         is: 'ghvz-mobile-app',
 
         properties: {
-          serverBridge: {
-            type: Object,
-            value: makeFakePrepopulatedServerBridge(),
-          },
+          bridge: Object,
+          database: Object,
 
           userId: {
             type: String,
-          },
-
-          database: {
-            type: Array,
           },
 
           gameId: {
@@ -122,7 +116,7 @@
           <div class="header">Join A Game</div>
           <game-registration
                 class="content"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
           </game-registration>
@@ -134,7 +128,7 @@
         <paper-material class="contents">
             <div class="header">Missions</div>
             <ghvz-missions
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 missions="[[database.game.missions]]">
             </ghvz-missions>
@@ -144,7 +138,7 @@
             <div class="header">Players</div>
             <player-table
                 id="playerTableModule"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 reward-categories-by-id="[[database.game.rewardCategoriesById]]"
                 players="[[database.game.players]]"
                 players-by-id="[[database.game.playersById]]"
@@ -157,7 +151,7 @@
             <div class="header">Dev Tools</div>
             <dev-tools
                 class="content"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
             </dev-tools>
@@ -166,7 +160,7 @@
         <paper-material class="contents">
             <div class="header">Guns</div>
             <ghvz-guns
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 guns="[[database.guns]]"
                 players="[[database.game.players]]"
@@ -177,7 +171,7 @@
         <paper-material class="contents">
             <div class="header">Rewards</div>
             <ghvz-rewards
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 players-by-id="[[database.game.playersById]]"
                 reward-categories="[[database.game.rewardCategories]]"
                 reward-categories-by-id="[[database.game.rewardCategoriesById]]">
@@ -192,7 +186,7 @@
         <paper-material class="contents">
             <div class="header">Infect</div>
             <ghvz-infect
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 player-id="[[playerId]]">
             </ghvz-infect>
@@ -203,7 +197,7 @@
         <paper-material class="contents">
           <div class="header">Next Mission</div>
           <ghvz-next-mission
-              server-bridge="[[serverBridge]]"
+              bridge="[[bridge]]"
               missions="[[database.game.missions]]"
               game-id="[[gameId]]"
               player-id="[[playerId]]">
@@ -225,7 +219,7 @@
         <paper-material class="contents">
           <div class="header">Rewards</div>
           <ghvz-claim-reward
-              server-bridge="[[serverBridge]]"
+              bridge="[[bridge]]"
               game-id="[[gameId]]"
               player-id="[[playerId]]">
           </ghvz-claim-reward>
@@ -236,7 +230,7 @@
             <div class="header">[[chatRoom.name]]</div>
             <chat-app
                 class="content"
-                server-bridge="[[serverBridge]]"
+                bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 players-by-id="[[database.game.playersById]]"
                 chat-room="[[chatRoom]]"

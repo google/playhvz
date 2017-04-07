@@ -1,8 +1,10 @@
 'use strict';
 
 class FakeServer {
-  constructor() {
-    this.fakeDatabase = new FakeDatabase();
+  constructor(delegate) {
+    this.fakeDatabase = new FakeDatabase({
+      broadcastOperation: (operation) => delegate.broadcastDatabaseOperation(operation),
+    });
   }
   
   register(userId, userEmail) {

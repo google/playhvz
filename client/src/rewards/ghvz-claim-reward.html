@@ -8,7 +8,7 @@
         is: 'ghvz-claim-reward',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
           playerId: String,
           gameId: String,
           rewardCode: String,
@@ -34,7 +34,7 @@
 
         claim_: function() {
           this.requesting = true;
-          this.serverBridge.claimReward(this.gameId, this.playerId, this.rewardCode)
+          this.bridge.claimReward(this.gameId, this.playerId, this.rewardCode)
               .then(
                   (rewardCategory) => {
                     this.claimedRewardCategory = rewardCategory;

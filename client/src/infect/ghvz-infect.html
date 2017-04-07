@@ -8,7 +8,7 @@
         is: 'ghvz-infect',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
           playerId: String,
           gameId: String,
           lifeCode: String,
@@ -34,7 +34,7 @@
 
         infect_: function() {
           this.requesting = true;
-          this.serverBridge.infect(this.playerId, this.lifeCode)
+          this.bridge.infect(this.playerId, this.lifeCode)
               .then(
                   (player) => {
                     this.infectedPlayer = player;

@@ -9,7 +9,7 @@
         is: 'ghvz-rewards',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
 
           rewardCategories: Array,
           rewardCategoriesById: Object,
@@ -94,7 +94,7 @@
         startAddingCategory_: function() {
           this.$.categoryForm.openForAdding()
               .then((properties) => {
-                this.serverBridge.addRewardCategory(
+                this.bridge.addRewardCategory(
                     Utils.generateId("rewardCategory"),
                     this.gameId,
                     properties);
@@ -105,7 +105,7 @@
         startEditingCategory_: function(category) {
           this.$.categoryForm.openForEditing(category)
               .then((newProperties) => {
-                this.serverBridge.updateRewardCategory(
+                this.bridge.updateRewardCategory(
                     category.id,
                     newProperties);
                 this.refresh_();
@@ -152,7 +152,7 @@
         },
 
         addRewards_: function() {
-          this.serverBridge.addRewards(this.rewardCategoryId, this.numNewRewards);
+          this.bridge.addRewards(this.rewardCategoryId, this.numNewRewards);
           this.numNewRewards = "";
           this.refreshRewardsTable_();
         },

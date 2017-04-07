@@ -9,7 +9,7 @@
         is: 'ghvz-missions',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
 
           gameId: String,
 
@@ -103,7 +103,7 @@
         addMission_: function() {
           this.$.missionForm.openForAdding()
               .then((properties) => {
-                this.serverBridge.addMission(
+                this.bridge.addMission(
                     Utils.generateId("mission"), this.gameId, properties);
                 this.refresh_();
               });
@@ -112,7 +112,7 @@
         editMission_: function(mission) {
           this.$.missionForm.openForEditing(mission)
               .then((properties) => {
-                this.serverBridge.updateMission(mission.id, properties);
+                this.bridge.updateMission(mission.id, properties);
                 this.refresh_();
               });
         },

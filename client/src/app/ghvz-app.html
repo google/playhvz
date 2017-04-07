@@ -68,8 +68,6 @@
             value: null,
           },
 
-          firebaseDatabase: Object,
-
           database: {
             type: Object,
             value: () => ({
@@ -81,18 +79,33 @@
               user: {},
             }),
           },
+
+          bridge: {
+            type: Object,
+          },
         },
 
         observers: [
-          'onGameIdChanged_(gameId, firebaseDatabase)',
+          'onGameIdChanged_(gameId, bridge)',
         ],
 
         attached: function() {
-          this.firebaseDatabase = new FirebaseDatabase({
-            set: (path, value) => this.set(path, value),
-            push: (path, value) => this.push(path, value),
-            splice: (path, index, numToRemove, ...toInsert) => this.splice(path, index, numToRemove, ...toInsert),
-            get: (path) => this.get(path),
+          var fake = false;
+          this.bridge = fake ?
+              new FakeBridge(this.makeBridgeDelegate_()) :
+              new RemoteBridge(this.makeBridgeDelegate_());
+        },
+
+        makeBridgeDelegate_: function() {
+          return {
+            set: (path, value) => {
+              console.log('Local set', path, value);
+              this.set('database.' + path, value);
+            },
+            push: (path, value) => this.push('database.' + path, value),
+            splice: (path, index, numToRemove, ...toInsert) =>
+                this.splice('database.' + path, index, numToRemove, ...toInsert),
+            get: (path) => this.get('database.' + path),
             onUserSignedIn: (userId) => {
               this.userId = userId;
               this.showSignInButton = false;
@@ -100,15 +113,15 @@
             onAutoSignInFailed: () => {
               this.showSignInButton = true;
             },
-          });
+          };
         },
 
         onGameIdChanged_: function(gameId) {
-          this.firebaseDatabase.setGameId(gameId);
+          this.bridge.setGameId(gameId);
         },
 
         firebaseSignIn_: function() {
-          this.firebaseDatabase.signIn();
+          this.bridge.signIn();
         },
       });
     });
@@ -120,7 +133,7 @@
     <template is="dom-if" if="[[userId]]">
       <template is="dom-if" if="[[isDesktop]]">
         <ghvz-desktop-app
-            server-bridge="[[serverBridge]]"
+            bridge="[[bridge]]"
             user-id="[[userId]]"
             game-id="{{gameId}}"
             player-id="{{playerId}}"
@@ -129,7 +142,7 @@
       </template>
       <template is="dom-if" if="[[!isDesktop]]">
         <ghvz-mobile-app
-            server-bridge="[[serverBridge]]"
+            bridge="[[bridge]]"
             user-id="[[userId]]"
             game-id="{{gameId}}"
             player-id="{{playerId}}"

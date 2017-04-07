@@ -8,7 +8,7 @@
         is: 'game-registration',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
           gameId: String,
           userId: String,
         },
@@ -30,7 +30,7 @@
             };
             var playerId = Utils.generateId("player");
 
-            this.serverBridge.joinGame(
+            this.bridge.joinGame(
               event.detail.userId, 
               event.detail.gameId, 
               playerId, 

@@ -9,7 +9,7 @@
         is: 'ghvz-guns',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
 
           gameId: String,
 
@@ -20,9 +20,44 @@
           playersById: Array,
         },
 
+        // observers: [
+        //   'waitForConsistency_(guns.splices, players.splices)',
+        // ],
+        // created: function() {
+        //   this.waitingForConsistency = false;
+        // },
+        // waitForConsistency_() {
+        //   if (this.waitingForConsistency) {
+        //     return;
+        //   } else {
+        //     this.waitingForConsistencyCheck = true;
+        //     this.$.table.globalFilter = this.consistentGun_.bind(this);
+        //     setTimeout(this.checkConsistency_.bind(this), 100);
+        //   }
+        // },
+        // checkConsistency_() {
+        //   let consistent = true;
+        //   for (let gun of this.guns) {
+        //     if (gun.playerId && !(this.playersById && this.playersById[gun.playerId])) {
+        //       consistent = false;
+        //       break;
+        //     }
+        //   }
+        //   if (!consistent) {
+        //     this.waitForConsistency_();
+        //   } else {
+        //     this.$.table.globalFilter = null;
+        //   }
+        // },
+
         attached: function() {
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
+        },
+
+        consistentGun_: function(gun) {
+          return gun.playerId == null ||
+              this.playersById && this.playersById[gun.playerId];
         },
 
         makeTableBlueprint_: function() {
@@ -43,7 +78,7 @@
                 },
                 getView: (gun) => {
                   var field = document.createElement('ghvz-player-field');
-                  field.serverBridge = this.serverBridge;
+                  field.bridge = this.bridge;
                   field.gameId = this.gameId;
                   field.players = this.players;
                   field.playersById = this.playersById;
@@ -51,7 +86,7 @@
                   field.label = null;
                   field.addEventListener('set-player', (e) => {
                     let playerOrNull = e.detail.playerOrNull;
-                    this.serverBridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
+                    this.bridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
                     this.refresh_();
                   });
                   return field;
@@ -82,7 +117,7 @@
         addGun_: function() {
           this.$.gunForm.openForAdding()
               .then((properties) => {
-                this.serverBridge.addGun(Utils.generateId("gun"), properties);
+                this.bridge.addGun(Utils.generateId("gun"), properties);
                 this.refresh_();
               });
         },
@@ -90,7 +125,7 @@
         editGun_: function(gun) {
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
-                this.serverBridge.updateGun(gun.id, properties);
+                this.bridge.updateGun(gun.id, properties);
                 this.refresh_();
               });
         },

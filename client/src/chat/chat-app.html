@@ -23,7 +23,7 @@ TODO(SquirrelThief):
     		is: 'chat-app',
 
     		properties: {
-          serverBridge: Object,
+          bridge: Object,
 
           gameId: String,
 
@@ -59,7 +59,7 @@ TODO(SquirrelThief):
 
         pollMessages_: function() {
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
-          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
+          this.bridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
           .then((messages) => {
             var afterId = this.chatRoom.messages.slice(-1)[0].id;
             for (var index in messages) {
@@ -101,13 +101,13 @@ TODO(SquirrelThief):
           if (!this.$.messageInput.value) {
             return;
           }
-          this.serverBridge.addMessageToChatRoom(this.chatRoom.id, 
+          this.bridge.addMessageToChatRoom(this.chatRoom.id, 
             this.playerId, this.$.messageInput.value);
           this.$.messageInput.value = "";  
 
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
 
-          this.serverBridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
+          this.bridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
           .then((messages) => {
             var afterId = this.chatRoom.messages.slice(-1)[0].id;
             for (var index in messages) {
@@ -140,7 +140,7 @@ TODO(SquirrelThief):
 
       getName_(playerId) {
         if (!this.playersById[playerId]) {
-          this.serverBridge.getPlayerById(playerId)
+          this.bridge.getPlayerById(playerId)
           .then((player) => {
             this.playersById[playerId] = player;
             return this.playersById[playerId].name;
@@ -178,7 +178,7 @@ TODO(SquirrelThief):
         this.$.addPlayerForm.openForAdding()
         .then((properties) => {
           console.log(properties);
-                //this.serverBridge.addGun(Utils.generateId("gun"), properties);
+                //this.bridge.addGun(Utils.generateId("gun"), properties);
                 //this.refresh_();
               });
       },

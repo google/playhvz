@@ -9,7 +9,7 @@
         is: 'mobile-chat-page',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
 
           gameId: String,
 
@@ -48,7 +48,7 @@
       <div class="fit">
 
           <chat-app
-              server-bridge="[[serverBridge]]"
+              bridge="[[bridge]]"
               game-id="[[gameId]]"
               current-player-id="[[currentPlayerId]]"
               chat-room-id="[[chatRoomId]]">

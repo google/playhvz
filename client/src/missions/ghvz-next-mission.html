@@ -9,7 +9,7 @@
         is: 'ghvz-next-mission',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
 
           gameId: String,
 
@@ -52,7 +52,7 @@
     </style>
     <template is="dom-if" if="[[nextMission]]">
       <ghvz-mission
-          server-bridge="[[serverBridge]]"
+          bridge="[[bridge]]"
           game-id="[[gameId]]"
           player-id="[[playerId]]"
           mission="[[nextMission]]">

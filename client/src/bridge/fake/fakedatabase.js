@@ -1,22 +1,101 @@
+
+class FakeDatabase {
+  constructor(delegate) {
+    this.delegate = delegate;
+    this.database = {
+      game: {},
+      games: [],
+      gamesById: {},
+      guns: [],
+      gunsById: {},
+      user: {},
+    };
+
+    this.userId = user.uid;
+    this.delegate.onUserSignedIn(this.userId);
+
+    this.set_(['games'], INITIAL_DATABASE.games);
+    this.set_(['users'], INITIAL_DATABASE.users);
+    this.set_(['guns'], INITIAL_DATABASE.guns);
+  }
+  set_(path, value) {
+    this.broadcastOperation_({
+      type: 'set',
+      path: path,
+      value: Utils.copyOf(value),
+    });
+    this.innerSet_(this.database, path, value);
+  }
+  innerSet_(obj, path, value) {
+    if (!path || !path.length) {
+      throwError('no path!');
+    } else if (path.length == 1) {
+      obj[path[0]] = value;
+    } else {
+      this.innerSet(obj[path[0]], path.slice(1), value);
+    }
+  }
+  push_(path, value) {
+    this.broadcastOperation_({
+      type: 'push',
+      path: path,
+      value: Utils.copyOf(value),
+    });
+    this.innerPush_(this.database, path, value);
+  }
+  innerPush_(obj, path, value) {
+    if (!path || !path.length) {
+      throwError('no path!');
+    } else if (path.length == 1) {
+      obj[path[0]].push(value);
+    } else {
+      this.innerSet(obj[path[0]], path.slice(1), value);
+    }
+  }
+  splice_(path, index, numToRemove, ...toInsert) {
+    this.broadcastOperation_({
+      type: 'splice',
+      path: path,
+      index: index,
+      numToRemove: numToRemove,
+      toInsert: Utils.copyOf(toInsert),
+    });
+    this.innerSplice_(this.database, path, value);
+  }
+  innerSplice_(obj, path, index, numToRemove, ...toInsert) {
+    if (!path || !path.length) {
+      throwError('no path!');
+    } else if (path.length == 1) {
+      obj[path[0]].splice(index, numToRemove, ...toInsert);
+    } else {
+      this.innerSet(obj[path[0]], path.slice(1), value);
+    }
+  }
+  broadcastOperation_(operation) {
+    console.log("Broadcasting:", operation);
+    this.delegate.broadcastOperation(operation);
+  }
+}
+
 class User {
-	constructor(userId, userEmail) {
-	  this.id = userId || "";
+  constructor(userId, userEmail) {
+    this.id = userId || "";
     this.email = userEmail || "";
   }
 }
 
 class Game {
-	constructor(gameId, adminUserId) {
+  constructor(gameId, adminUserId) {
     this.id = gameId || "";
     this.adminUserId = adminUserId || "";
-	}
+  }
 }
 
 class Player {
-	constructor(playerId, number, name, gameId, userId, preferences) {
-		this.id = playerId || "";
+  constructor(playerId, number, name, gameId, userId, preferences) {
+    this.id = playerId || "";
     this.number = number || 0;
-		this.name = name || "";
+    this.name = name || "";
     this.gameId = gameId || "";
     this.userId = userId || "";
     this.points = 0;
@@ -24,25 +103,25 @@ class Player {
     this.preferences = Utils.copyOf(preferences) || {};
     this.infections = [];
     this.lives = [];
-	}
+  }
 }
 
 class ChatRoom {
-	constructor(chatRoomId) {
-	  this.id = chatRoomId;
+  constructor(chatRoomId) {
+    this.id = chatRoomId;
     this.playerIds = [];
     this.messages = [];
   }
 }
 
 class Message {
-	constructor(time, playerId, message) {
+  constructor(time, playerId, message) {
     // The server adds an 'id' field for the client code, but that shouldn't 
     // be stored in the database so is not present in this constructor
     this.time = time;
     this.playerId = playerId;
     this.message = message;
-	}
+  }
 }
 
 class Mission {
@@ -83,8 +162,8 @@ class Gun {
   }
 }
 
-class FakeDatabase {
-	 constructor() {
+class OldFakeDatabase {
+	constructor() {
     this.usersById = new Map();
     this.gamesById = new Map();
     this.playersById = new Map();
@@ -395,10 +474,229 @@ class FakeDatabase {
   expectGunNotExists_(id) { assert(id && !this.gunsById.has(id), 'Gun id already taken: ' + id); }
 }
 
-function assert(condition, message) {
-  if (!condition) {
-    console.error(message);
-    debugger;
-    throw message;
+const INITIAL_DATABASE = {
+  "games" : {
+    "id1" : {
+      "adminUserIds" : {
+        "uuid2" : "user0"
+      },
+      "chatRooms" : {
+        "chatRoom0" : {
+          "allegianceFilter" : "resistance",
+          "memberships" : {
+            "uuid3" : {
+              "playerId" : "player0"
+            },
+            "uuid7" : {
+              "playerId" : "player2"
+            }
+          },
+          "messages" : {
+            "uuid15" : {
+              "index" : 3,
+              "message" : "lololol",
+              "playerId" : "player0",
+              "time" : 1491583212
+            },
+            "uuid2" : {
+              "index" : 5,
+              "message" : "hey swathywathy!",
+              "playerId" : "player1",
+              "time" : 1491563213
+            },
+            "uuid21" : {
+              "index" : 4,
+              "message" : "hi swizmizzle!",
+              "playerId" : "player0",
+              "time" : 1491653212
+            },
+            "uuid4" : {
+              "index" : 0,
+              "message" : "Sup yall!",
+              "playerId" : "player0",
+              "time" : 1491453212
+            },
+            "uuid5" : {
+              "index" : 1,
+              "message" : "Oi?",
+              "playerId" : "player0",
+              "time" : 1491553212
+            },
+            "uuid6" : {
+              "index" : 2,
+              "message" : "Suuuuup",
+              "playerId" : "player2",
+              "time" : 1491563212
+            }
+          },
+          "name" : "Resistance Comms Hub"
+        },
+        "chatRoom1" : {
+          "allegianceFilter" : "horde",
+          "memberships" : {
+            "uuid8" : {
+              "playerId" : "player1"
+            }
+          },
+          "messages" : {
+            "uuid4" : {
+              "index" : 0,
+              "message" : "poop",
+              "playerId" : "player0",
+              "time" : "000001"
+            }
+          },
+          "name" : "Horde ZedLink"
+        }
+      },
+      "missions" : {
+        "id2" : {
+          "allegianceFilter" : "resistance",
+          "beginTime" : 1491538151,
+          "endTime" : 1591538151,
+          "name" : "Firstxaa mission!",
+          "url" : "/firstgame/missions/first-mission.html"
+        },
+        "id3" : {
+          "allegianceFilter" : "horde",
+          "beginTime" : 1491448060,
+          "endTime" : 1591449080,
+          "name" : "Secondzzzz mission!",
+          "url" : "/firstgame/missions/second-mission.html"
+        }
+      },
+      "name" : "2017 Summer!",
+      "notificationCategories" : {
+        "uuid11" : {
+          "name" : "tripped and fell"
+        }
+      },
+      "players" : {
+        "player0" : {
+          "allegiance" : "resistance",
+          "infectable" : true,
+          "infections" : [ {
+            "infectorId" : "player1",
+            "time" : 1491432666
+          } ],
+          "lives" : {
+            "uuid13" : {
+              "code" : "blorklefork",
+              "time" : 14915426660
+            }
+          },
+          "name" : "Flamscrankle",
+          "needGun" : false,
+          "notifications" : {
+            "uuid10" : {
+              "message" : "You did something, specifically you tripped and fell on your face, congrats",
+              "notificationCategoryId" : "uuid11",
+              "previewMessage" : "You did something",
+              "seenTime" : 1491511,
+              "sendTime" : 1491511,
+              "sound" : "transmission",
+              "vibrate" : true
+            }
+          },
+          "number" : 0,
+          "points" : 2,
+          "profileImageUrl" : "https://s-media-cache-ak0.pinimg.com/originals/e6/cf/c3/e6cfc371fe2637e518c0fca6b09bd575.gif",
+          "rewards" : {
+            "uuid12" : {
+              "rewardCategoryId" : "rewardCategory0",
+              "rewardId" : "reward0",
+              "time" : 1491538151
+            }
+          },
+          "startAsZombie" : false,
+          "userId" : "qucd8xbXm0dTE8Zs4fEy9qZu0m82",
+          "volunteer" : true
+        },
+        "player1" : {
+          "allegiance" : "horde",
+          "infectable" : false,
+          "name" : "Dobblewob",
+          "needGun" : false,
+          "number" : 1,
+          "points" : 3,
+          "profileImageUrl" : "https://s-media-cache-ak0.pinimg.com/originals/e6/cf/c3/e6cfc371fe2637e518c0fca6b09bd575.gif",
+          "startAsZombie" : true,
+          "userId" : "qucd8xbXm0dTE8Zs4fEy9qZu0m82",
+          "volunteer" : true
+        },
+        "player2" : {
+          "allegiance" : "resistance",
+          "infectable" : true,
+          "name" : "Splarkbarkle",
+          "needGun" : false,
+          "number" : 2,
+          "points" : 0,
+          "profileImageUrl" : "https://i.ytimg.com/vi/QfbrsY13m3s/hqdefault.jpg",
+          "startAsZombie" : false,
+          "userId" : "5vfXqTOaSrf9p19BtStqGVPNR4i1",
+          "volunteer" : false
+        }
+      },
+      "rewardCategories" : {
+        "rewardCategory0" : {
+          "claimed" : 1,
+          "name" : "Did a merry jig",
+          "points" : 2,
+          "rewards" : {
+            "reward0" : {
+              "code" : "blerk-103",
+              "playerId" : "player0"
+            },
+            "reward1" : {
+              "code" : "blerk-782"
+            },
+            "reward2" : {
+              "code" : "blerk-664"
+            }
+          },
+          "seed" : "blerk"
+        }
+      },
+      "rulesUrl" : "/firstgame/rules.html",
+      "stunTimer" : 60
+    }
+  },
+  "guns" : {
+    "gun0" : {
+      "number" : 1404
+    },
+    "gun1" : {
+      "number" : 1502,
+      "playerId" : "player0"
+    },
+    "gun2" : {
+      "number" : 1406
+    }
+  },
+  "users" : {
+    "4NsfZcTmjqQIHcNFGHJHoqWsFt62" : {
+      "players" : {
+        "uuid17" : {
+          "gameId" : "id1",
+          "playerId" : "player1"
+        }
+      }
+    },
+    "5vfXqTOaSrf9p19BtStqGVPNR4i1" : {
+      "players" : {
+        "randomNonsense" : {
+          "gameId" : "id1",
+          "playerId" : "player2"
+        }
+      }
+    },
+    "qucd8xbXm0dTE8Zs4fEy9qZu0m82" : {
+      "players" : {
+        "uuid15" : {
+          "gameId" : "id1",
+          "playerId" : "player0"
+        }
+      }
+    }
   }
-}
+};

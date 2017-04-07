@@ -124,31 +124,31 @@ class FirebaseDatabase {
     }
   }
 
-  getGunIndex_(id) { return Utils.findIndexById(this.delegate.get("database.guns"), id); }
-  getGameIndex_(id) { return Utils.findIndexById(this.delegate.get("database.games"), id); }
-  getNotificationCategoryIndex_(id) { return Utils.findIndexById(this.delegate.get("database.game.notificationCategories"), id); }
-  getRewardCategoryIndex_(id) { return Utils.findIndexById(this.delegate.get("database.game.rewardCategories"), id); }
-  getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) { return Utils.findIndexById(this.delegate.get("database.game.rewardCategoriesById." + rewardCategoryId).rewards, rewardCategoryRewardId); }
-  getMissionIndex_(id) { return Utils.findIndexById(this.delegate.get("database.game.missions"), id); }
-  getUserPlayerIndex_(id) { return Utils.findIndexById(this.delegate.get("database.user.players"), id); }
-  getChatRoomIndex_(id) { return Utils.findIndexById(this.delegate.get("database.game.chatRooms"), id); }
+  getGunIndex_(id) { return Utils.findIndexById(this.delegate.get("guns"), id); }
+  getGameIndex_(id) { return Utils.findIndexById(this.delegate.get("games"), id); }
+  getNotificationCategoryIndex_(id) { return Utils.findIndexById(this.delegate.get("game.notificationCategories"), id); }
+  getRewardCategoryIndex_(id) { return Utils.findIndexById(this.delegate.get("game.rewardCategories"), id); }
+  getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) { return Utils.findIndexById(this.delegate.get("game.rewardCategoriesById." + rewardCategoryId).rewards, rewardCategoryRewardId); }
+  getMissionIndex_(id) { return Utils.findIndexById(this.delegate.get("game.missions"), id); }
+  getUserPlayerIndex_(id) { return Utils.findIndexById(this.delegate.get("user.players"), id); }
+  getChatRoomIndex_(id) { return Utils.findIndexById(this.delegate.get("game.chatRooms"), id); }
   getPlayerIndex_(id) {
-    if (!this.delegate.get("database.game") || !this.delegate.get("database.game.players")) {
+    if (!this.delegate.get("game") || !this.delegate.get("game.players")) {
       debugger;
     }
-    return Utils.findIndexById(this.delegate.get("database.game.players"), id);
+    return Utils.findIndexById(this.delegate.get("game.players"), id);
   }
-  getPlayerRewardIndex_(playerId, playerRewardId) { return Utils.findIndexById(this.delegate.get("database.game.playersById." + playerId).rewards, playerRewardId); }
-  getPlayerLifeIndex_(playerId, playerLifeId) { return Utils.findIndexById(this.delegate.get("database.game.playersById." + playerId).lives, playerLifeId); }
-  getPlayerInfectionIndex_(playerId, playerInfectionId) { return Utils.findIndexById(this.delegate.get("database.game.playersById." + playerId).infections, playerInfectionId); }
+  getPlayerRewardIndex_(playerId, playerRewardId) { return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).rewards, playerRewardId); }
+  getPlayerLifeIndex_(playerId, playerLifeId) { return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).lives, playerLifeId); }
+  getPlayerInfectionIndex_(playerId, playerInfectionId) { return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).infections, playerInfectionId); }
   getPlayerNotificationIndex_(playerId, playerNotificationId) {
-    return Utils.findIndexById(this.delegate.get("database.game.playersById." + playerId).notifications, playerNotificationId);
+    return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).notifications, playerNotificationId);
   }
   getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) {
-    return Utils.findIndexById(this.delegate.get("database.game.chatRoomsById." + chatRoomId).memberships, chatRoomMembershipId);
+    return Utils.findIndexById(this.delegate.get("game.chatRoomsById." + chatRoomId).memberships, chatRoomMembershipId);
   }
   getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) {
-    return Utils.findIndexById(this.delegate.get("database.game.chatRoomsById." + chatRoomId).messages, chatRoomMessageId);
+    return Utils.findIndexById(this.delegate.get("game.chatRoomsById." + chatRoomId).messages, chatRoomMessageId);
   }
 
   // Figures out where we should insert an object in an array.
@@ -219,17 +219,17 @@ class FirebaseDatabase {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       let gameId = snap.getKey();
       let obj = this.setupClientSideObject(gameId, snap, GUN_PROPERTIES, GUN_COLLECTIONS);
-      this.delegate.push("database.games", obj);
-      this.delegate.set("database.gamesById. " + gameId, obj);
+      this.delegate.push("games", obj);
+      this.delegate.set("gamesById. " + gameId, obj);
       this.listenForPropertyChanges_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.games." + this.getGameIndex_(gameId) + "." + property, value);
+            this.delegate.set("games." + this.getGameIndex_(gameId) + "." + property, value);
           });
     });
     this.firebaseRoot.child("games").on("child_removed", (snap) => {
       this.splice("games", this.getGameIndex_(snap.getKey()), 1);
-      delete this.delegate.get("database.gamesById")[snap.getKey()];
+      delete this.delegate.get("gamesById")[snap.getKey()];
     });
   }
 
@@ -237,12 +237,12 @@ class FirebaseDatabase {
     this.firebaseRoot.child("guns").on("child_added", (snap) => {
       let gunId = snap.getKey();
       let obj = this.setupClientSideObject(gunId, snap, GUN_PROPERTIES, GUN_COLLECTIONS);
-      this.delegate.push("database.guns", obj);
-      this.delegate.set("database.gunsById." + gunId, obj);
+      this.delegate.push("guns", obj);
+      this.delegate.set("gunsById." + gunId, obj);
       this.listenForPropertyChanges_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.guns." + this.getGunIndex_(gunId) + "." + property, value);
+            this.delegate.set("guns." + this.getGunIndex_(gunId) + "." + property, value);
           });
     });
   }
@@ -252,12 +252,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let missionId = snap.getKey();
       let obj = this.setupClientSideObject(missionId, snap, MISSION_PROPERTIES, MISSION_COLLECTIONS);
-      this.delegate.push("database.game.missions", obj);
-      this.delegate.set("database.game.missionsById." + missionId, obj);
+      this.delegate.push("game.missions", obj);
+      this.delegate.set("game.missionsById." + missionId, obj);
       this.listenForPropertyChanges_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.missions." + this.getMissionIndex_(missionId) + "." + property, value);
+            this.delegate.set("game.missions." + this.getMissionIndex_(missionId) + "." + property, value);
           });
     });
   }
@@ -267,12 +267,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let chatRoomId = snap.getKey();
       let obj = this.setupClientSideObject(chatRoomId, snap, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS);
-      this.delegate.push("database.game.chatRooms", obj);
-      this.delegate.set("database.game.chatRoomsById." + chatRoomId, obj);
+      this.delegate.push("game.chatRooms", obj);
+      this.delegate.set("game.chatRoomsById." + chatRoomId, obj);
       this.listenForPropertyChanges_(
           snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + "." + property, value);
+            this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + "." + property, value);
           });
       this.listenToChatRoomMemberships_(gameId, chatRoomId);
       this.listenToChatRoomMessages_(gameId, chatRoomId);
@@ -284,12 +284,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let chatRoomMembershipId = snap.getKey();
       let obj = this.setupClientSideObject(chatRoomMembershipId, snap, CHAT_ROOM_MEMBERSHIP_PROPERTIES, CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
-      this.delegate.push("database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships", obj);
-      this.delegate.set("database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".membershipsById." + chatRoomMembershipId, obj);
+      this.delegate.push("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships", obj);
+      this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".membershipsById." + chatRoomMembershipId, obj);
       this.listenForPropertyChanges_(
           snap.ref, CHAT_ROOM_MEMBERSHIP_PROPERTIES, CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships." + this.getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) + "." + property, value);
+            this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships." + this.getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) + "." + property, value);
           });
     });
   }
@@ -301,16 +301,16 @@ class FirebaseDatabase {
       let obj = this.setupClientSideObject(chatRoomMessageId, snap, CHAT_ROOM_MESSAGE_PROPERTIES, CHAT_ROOM_MESSAGE_COLLECTIONS);
       let insertIndex =
           this.findInsertIndex(
-              this.delegate.get("database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages"),
+              this.delegate.get("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages"),
               obj.index);
       this.delegate.splice(
-          "database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages",
+          "game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages",
           insertIndex, 0, obj);
-      this.delegate.set("database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messagesById." + chatRoomMessageId, obj);
+      this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messagesById." + chatRoomMessageId, obj);
       this.listenForPropertyChanges_(
           snap.ref, CHAT_ROOM_MESSAGE_PROPERTIES, CHAT_ROOM_MESSAGE_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages." + this.getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) + "." + property, value);
+            this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages." + this.getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) + "." + property, value);
           });
     });
   }
@@ -320,12 +320,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let playerId = snap.getKey();
       let obj = this.setupClientSideObject(playerId, snap, PLAYER_PROPERTIES, PLAYER_COLLECTIONS);
-      this.delegate.push("database.game.players", obj);
-      this.delegate.set("database.game.playersById." + playerId, obj);
+      this.delegate.push("game.players", obj);
+      this.delegate.set("game.playersById." + playerId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + "." + property, value);
+            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + "." + property, value);
           });
       this.listenToPlayerRewards_(gameId, playerId);
       this.listenToPlayerLives_(gameId, playerId);
@@ -339,11 +339,11 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let playerRewardId = snap.getKey();
       let obj = this.setupClientSideObject(playerRewardId, snap, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS);
-      this.delegate.push("database.game.players." + this.getPlayerIndex_(playerId) + ".rewards", obj);
+      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".rewards", obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + ".rewards." + this.getPlayerRewardIndex_(playerId, playerRewardId) + "." + property, value);
+            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".rewards." + this.getPlayerRewardIndex_(playerId, playerRewardId) + "." + property, value);
           });
     });
   }
@@ -353,12 +353,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let playerLifeId = snap.getKey();
       let obj = this.setupClientSideObject(playerLifeId, snap, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS);
-      this.delegate.push("database.game.players." + this.getPlayerIndex_(playerId) + ".lives", obj);
-      this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + ".lives." + playerLifeId, obj);
+      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".lives", obj);
+      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".lives." + playerLifeId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + ".lives." + this.getPlayerLifeIndex_(playerId, playerLifeId) + "." + property, value);
+            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".lives." + this.getPlayerLifeIndex_(playerId, playerLifeId) + "." + property, value);
           });
     });
   }
@@ -368,12 +368,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let playerInfectionId = snap.getKey();
       let obj = this.setupClientSideObject(playerInfectionId, snap, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS);
-      this.delegate.push("database.game.players." + this.getPlayerIndex_(playerId) + ".infections", obj);
-      this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + ".infections." + playerInfectionId, obj);
+      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".infections", obj);
+      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".infections." + playerInfectionId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + ".infections." + this.getPlayerInfectionIndex_(playerId, playerInfectionId) + "." + property, value);
+            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".infections." + this.getPlayerInfectionIndex_(playerId, playerInfectionId) + "." + property, value);
           });
     });
   }
@@ -383,12 +383,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let playerNotificationId = snap.getKey();
       let obj = this.setupClientSideObject(playerNotificationId, snap, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS);
-      this.delegate.push("database.game.players." + this.getPlayerIndex_(playerId) + ".notifications", obj);
-      this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + ".notifications." + playerNotificationId, obj);
+      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".notifications", obj);
+      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".notifications." + playerNotificationId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.players." + this.getPlayerIndex_(playerId) + ".notifications." + this.getPlayerNotificationIndex_(playerId, playerNotificationId) + "." + property, value);
+            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".notifications." + this.getPlayerNotificationIndex_(playerId, playerNotificationId) + "." + property, value);
           });
     });
   }
@@ -398,12 +398,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let notificationCategoryId = snap.getKey();
       let obj = this.setupClientSideObject(notificationCategoryId, snap, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS);
-      this.delegate.push("database.game.notificationCategories", obj);
-      this.delegate.set("database.game.notificationCategoriesById." + notificationCategoryId, obj);
+      this.delegate.push("game.notificationCategories", obj);
+      this.delegate.set("game.notificationCategoriesById." + notificationCategoryId, obj);
       this.listenForPropertyChanges_(
           snap.ref, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.notificationCategories." + this.getNotificationCategoryIndex_(notificationCategoryId) + "." + property, value);
+            this.delegate.set("game.notificationCategories." + this.getNotificationCategoryIndex_(notificationCategoryId) + "." + property, value);
           });
     });
   }
@@ -413,12 +413,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let rewardCategoryId = snap.getKey();
       let obj = this.setupClientSideObject(rewardCategoryId, snap, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS);
-      this.delegate.push("database.game.rewardCategories", obj);
-      this.delegate.set("database.game.rewardCategoriesById." + rewardCategoryId, obj);
+      this.delegate.push("game.rewardCategories", obj);
+      this.delegate.set("game.rewardCategoriesById." + rewardCategoryId, obj);
       this.listenForPropertyChanges_(
           snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + "." + property, value);
+            this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + "." + property, value);
           });
       this.listenToRewardCategoryRewards_(gameId, rewardCategoryId);
     });
@@ -429,12 +429,12 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let rewardCategoryRewardId = snap.getKey();
       let obj = this.setupClientSideObject(rewardCategoryRewardId, snap, REWARD_CATEGORY_REWARD_PROPERTIES, REWARD_CATEGORY_REWARD_COLLECTIONS);
-      this.delegate.push("database.game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards", obj);
-      this.delegate.set("database.game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + rewardCategoryRewardId, obj);
+      this.delegate.push("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards", obj);
+      this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + rewardCategoryRewardId, obj);
       this.listenForPropertyChanges_(
           snap.ref, REWARD_CATEGORY_REWARD_PROPERTIES, REWARD_CATEGORY_REWARD_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + this.getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) + "." + property, value);
+            this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + this.getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) + "." + property, value);
           });
     });
   }
@@ -443,11 +443,11 @@ class FirebaseDatabase {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       if (snap.getKey() == gameId) {
         let obj = this.setupClientSideObject(gameId, snap, GAME_PROPERTIES, GAME_COLLECTIONS);
-        this.delegate.set("database.game", obj);
+        this.delegate.set("game", obj);
         this.listenForPropertyChanges_(
             snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
             (property, value) => {
-              this.delegate.set("database.game." + property, value);
+              this.delegate.set("game." + property, value);
             });
         this.listenToMissions_(gameId);
         this.listenToChatRooms_(gameId);
@@ -462,11 +462,11 @@ class FirebaseDatabase {
     this.firebaseRoot.child("users").on("child_added", (snap) => {
       if (snap.getKey() == userId) {
         let obj = this.setupClientSideObject(userId, snap, USER_PROPERTIES, USER_COLLECTIONS);
-        this.delegate.set("database.user", obj);
+        this.delegate.set("user", obj);
         this.listenForPropertyChanges_(
             snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
             (property, value) => {
-              this.delegate.set("database.user." + property, value);
+              this.delegate.set("user." + property, value);
             });
         this.listenToUserPlayers_(userId);
       }
@@ -478,11 +478,11 @@ class FirebaseDatabase {
     ref.on("child_added", (snap) => {
       let userPlayerId = snap.getKey();
       let obj = this.setupClientSideObject(userPlayerId, snap, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS);
-      this.delegate.push("database.user.players", obj);
+      this.delegate.push("user.players", obj);
       this.listenForPropertyChanges_(
           snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("database.user.players." + this.getUserPlayerIndex_(userPlayerId) + "." + property, value);
+            this.delegate.set("user.players." + this.getUserPlayerIndex_(userPlayerId) + "." + property, value);
           });
     });
   }

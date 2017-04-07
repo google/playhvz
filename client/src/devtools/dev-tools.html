@@ -8,7 +8,7 @@
         is: 'dev-tools',
 
         properties: {
-          serverBridge: Object,
+          bridge: Object,
           gameId: String,
           userId: String,
         },
@@ -33,21 +33,21 @@
             // This code is bad and i should feel bad... ¯\_(ツ)_/¯
             if (event.detail.useCurrentUserId == "no") {
               userId = Utils.generateId('user');
-              this.serverBridge.register(userId, 'blah@blah.com');
+              this.bridge.register(userId, 'blah@blah.com');
             }
 
-            this.serverBridge.joinGame(
+            this.bridge.joinGame(
               userId, 
               event.detail.gameId, 
               playerId, 
               name, 
               this.generateRandomPreferences_());
             
-            this.serverBridge.awardPoints(playerId, points);
+            this.bridge.awardPoints(playerId, points);
 
-            this.serverBridge.setPlayerProfileImageUrl(playerId, imageUrl);
+            this.bridge.setPlayerProfileImageUrl(playerId, imageUrl);
 
-            this.serverBridge.getPlayerById(playerId)
+            this.bridge.getPlayerById(playerId)
             .then((player) => {
               console.log(player);
             });

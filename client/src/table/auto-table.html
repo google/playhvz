@@ -14,6 +14,11 @@
             value: {},
           },
 
+          globalFilter: {
+            type: Function,
+            value: null,
+          },
+
           getItemId: {
             type: Function,
             value: null,
@@ -50,8 +55,14 @@
           },
         },
 
+        observers: [
+          'resetRepeaterFilter_(globalFilter, columns)',
+        ],
+
         attached: function() {
           this.getItemId = this.blueprint.getItemId;
+
+          this.globalFilter = this.blueprint.globalFilter || null;
 
           var columns = [];
           for (let column of this.blueprint.columns) {
@@ -201,21 +212,30 @@
             this.set(filterTextPath, "");
             this.set(filteringPath, true);
           }
+          this.resetRepeaterFilter_();
+        },
 
-          const anyFiltering = !!this.columns.filter(c => c.filtering).length;
+        resetRepeaterFilter_: function() {
+          const anyFiltering =
+              this.globalFilter || !!this.columns.filter(c => c.filtering).length;
           this.$.itemsRepeater.filter =
               anyFiltering ? this.filter_.bind(this) : null;
         },
 
-        filter_: function(player) {
+        filter_: function(item) {
+          if (this.globalFilter) {
+            if (!this.globalFilter(item)) {
+              return false;
+            }
+          }
           for (let column of this.columns) {
             if (column.filtering && column.filterText) {
               if (column.filter) {
-                if (!column.filter(player, column.filterText)) {
+                if (!column.filter(item, column.filterText)) {
                   return false;
                 }
               } else {
-                const value = this.getModel_(player, column.index);
+                const value = this.getModel_(item, column.index);
                 if (!Utils.filter(value, column.filterText)) {
                   return false;
                 }

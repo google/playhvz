@@ -1,5 +1,47 @@
 'use strict';
 
+class FakeBridge {
+  constructor(delegate) {
+    this.delegate = delegate;
+    this.databaseOperations = [];
+    this.delayedDatabaseOperations = [];
+    this.userId = null;
+    this.gameId = null;
+
+    this.fakeServer = new FakeServer({
+      broadcastDatabaseOperation: (operation) => {
+        this.delayedDatabaseOperations.push(operation);
+      },
+    });
+    setInterval(this.performOperations_.bind(this), 100);
+  }
+  performOperations_() {
+    for (let operation of this.databaseOperations) {
+      let {path, type, value, index, numToRemove, toInsert} = operation;
+      switch (type) {
+        case 'set':
+          this.delegate.set(path.join('.'), value);
+          if (this.gameId && path[0] == "games" && path[1] == this.gameId) {
+            this.delegate.set(["game"].concat(path.slice(2)).join('.'), value);
+          }
+          if (this.userId && path[0] == "users" && path[1] == this.userId) {
+            this.delegate.set(["user"].concat(path.slice(2)).join('.'), value);
+          }
+          break;
+        case 'push':
+          this.delegate.push(path.join('.'), value);
+          break;
+        case 'splice':
+          this.delegate.push(path.join('.'), index, numToRemove, ...toInsert);
+          break;
+        default:
+          throwError('Unknown operation:', operation);
+      }
+    }
+    this.databaseOperations = this.delayedDatabaseOperations;
+    this.delayedDatabaseOperations = [];
+  }
+}
 // this.__proto__ = inner; would be if we ever want to completely
 // opt out of a layer for a certain function. like if we ever
 // had a getAllGames method, we'd just completely opt it out of
@@ -51,7 +93,7 @@ function DelayingWrapper(inner, funcNames) {
   }
 }
 
-function makeFakePrepopulatedServerBridge() {
+function oldmakeFakePrepopulatedbridge() {
   var kimUserId = Utils.generateId("user");
   var evanUserId = Utils.generateId("user");
   var kimPlayerId = Utils.generateId("player");
