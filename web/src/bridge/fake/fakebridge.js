@@ -25,8 +25,8 @@ class FakeBridge {
             500);
 
     var fakeServer = new FakeServer(delayingCloningFakeServerDelegate);
-    var cloningFakeSerer = new CloningWrapper(fakeServer, ["signIn"]);
-    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, ["signIn"], 1000);
+    var cloningFakeSerer = new CloningWrapper(fakeServer, SERVER_METHODS);
+    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 1000);
     this.server = delayingCloningFakeServer;
 
     setTimeout(() => this.performOperations_(), 100);
@@ -44,6 +44,9 @@ class FakeBridge {
               Utils.copyOf(this.delegate.get("usersById." + this.userId)));
           this.delegate.onUserSignedIn(user.id);
         });
+  }
+  getGameIndex(gameId) {
+    return this.delegate.get("games").findIndex((game) => game.id == gameId);
   }
   setGameId(gameId) {
     this.gameId = gameId;
@@ -85,12 +88,12 @@ class FakeBridge {
   performOperationAndMaybeOnCorrespondingMirrorAndMap_(operation) {
     this.performOperationAndMaybeOnCorrespondingMap_(operation);
     let path = operation.path;
-    if (this.gameId && path[0] == "games" && path[1] == this.gameId) {
+    if (this.gameId && path[0] == "games" && path[1] == this.getGameIndex(this.gameId)) {
       let mirrorOperation = Utils.copyOf(operation);
       mirrorOperation.path = ["game"].concat(operation.path.slice(2));
       this.performOperationAndMaybeOnCorrespondingMap_(mirrorOperation);
     }
-    if (this.userId && path[0] == "users" && path[1] == this.userId) {
+    if (this.userId && path[0] == "users" && path[1] == this.getUserIndex(this.userId)) {
       let mirrorOperation = Utils.copyOf(operation);
       mirrorOperation.path = ["user"].concat(operation.path.slice(2));
       this.performOperationAndMaybeOnCorrespondingMap_(mirrorOperation);
@@ -158,6 +161,9 @@ class FakeBridge {
       default:
         throwError('Unknown operation:', operation);
     }
+  }
+  addMission(missionId, gameId, properties) {
+    this.server.addMission(missionId, gameId, properties);
   }
 }
 

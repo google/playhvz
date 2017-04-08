@@ -66,7 +66,6 @@
         },
 
         attached: function() {
-          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
         },
 
@@ -96,6 +95,11 @@
                 label: "Mission page url",
                 description: "Url of the page describing the mission, example /firstgame/missions/first-mission.html",
               },
+              {
+                property: "allegianceFilter",
+                label: "Allegiance filter",
+                description: "Either 'resistance' or 'horde'"
+              }
             ],
           };
         },
@@ -105,7 +109,6 @@
               .then((properties) => {
                 this.bridge.addMission(
                     Utils.generateId("mission"), this.gameId, properties);
-                this.refresh_();
               });
         },
 
@@ -113,7 +116,6 @@
           this.$.missionForm.openForEditing(mission)
               .then((properties) => {
                 this.bridge.updateMission(mission.id, properties);
-                this.refresh_();
               });
         },
       });
@@ -131,8 +133,6 @@
       }
     </style>
 
-    <paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
-    </paper-icon-button>
     <paper-icon-button id="add" icon="icons:add" on-tap="addMission_">
     </paper-icon-button>
 
