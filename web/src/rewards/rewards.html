@@ -28,7 +28,6 @@
         },
 
         attached: function() {
-          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
         },
 
@@ -98,7 +97,6 @@
                     Utils.generateId("rewardCategory"),
                     this.gameId,
                     properties);
-                this.refresh_();
               });
         },
 
@@ -108,7 +106,6 @@
                 this.bridge.updateRewardCategory(
                     category.id,
                     newProperties);
-                this.refresh_();
               });
         },
 
@@ -154,7 +151,6 @@
         addRewards_: function() {
           this.bridge.addRewards(this.rewardCategoryId, this.numNewRewards);
           this.numNewRewards = "";
-          this.refreshRewardsTable_();
         },
       });
     });
@@ -185,8 +181,6 @@
         align-items: flex-end;
       }
     </style>
-    <paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
-    </paper-icon-button>
     <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
     </paper-icon-button>
 

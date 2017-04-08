@@ -161,7 +161,7 @@
 
       <template is="dom-if" if="[[isAdmin]]">
         <template is="dom-if" if="[[gameId]]">
-          <ghvz-dashlet admin full>
+          <<ghvz-dashlet admin full>
             <div class="header">Missions</div>
             <ghvz-missions
                 bridge="[[bridge]]"
@@ -204,10 +204,11 @@
             </ghvz-guns>
           </ghvz-dashlet>
 
-       <ghvz-dashlet scrolling admin half right>
+          <ghvz-dashlet scrolling admin half right>
             <div class="header">Rewards</div>
             <ghvz-rewards
                 bridge="[[bridge]]"
+                game-id="[[gameId]]"
                 players-by-id="[[database.game.playersById]]"
                 reward-categories="[[database.game.rewardCategories]]"
                 reward-categories-by-id="[[database.game.rewardCategoriesById]]">
@@ -268,6 +269,7 @@
                 class="content"
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
+                current-player-id="[[playerId]]"
                 players-by-id="[[database.game.playersById]]"
                 chat-room="[[chatRoom]]"
                 current-player-id="[[playerId]]">

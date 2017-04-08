@@ -45,29 +45,10 @@ TODO(SquirrelThief):
             type: String,
             value: "",
           },
-
-          pollInterval: {
-            type: Number,
-            value: 1,  // in seconds
-          },
         },
 
         attached: function() {
-          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
-        },
-
-        pollMessages_: function() {
-          var afterId = this.chatRoom.messages.slice(-1)[0].id;
-          this.bridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
-          .then((messages) => {
-            var afterId = this.chatRoom.messages.slice(-1)[0].id;
-            for (var index in messages) {
-              if(messages[index].id > afterId) {
-                this.push('chatRoom.messages', messages[index]);
-              }
-            }
-          });
         },
 
         /*setShowNameOnMessage_: function(messages) {
@@ -101,21 +82,21 @@ TODO(SquirrelThief):
           if (!this.$.messageInput.value) {
             return;
           }
-          this.bridge.addMessageToChatRoom(this.chatRoom.id, 
-            this.playerId, this.$.messageInput.value);
+          this.bridge.addMessageToChatRoom(Bridge.generateMessageId(), this.chatRoom.id, 
+            this.currentPlayerId, {message: this.$.messageInput.value});
           this.$.messageInput.value = "";  
 
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
 
-          this.bridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
-          .then((messages) => {
-            var afterId = this.chatRoom.messages.slice(-1)[0].id;
-            for (var index in messages) {
-              if(messages[index].id > afterId) {
-                this.push('chatRoom.messages', messages[index]);
-              }
-            }
-          });
+          // this.bridge.findMessagesForChatRoom(this.chatRoom.id, afterId)
+          // .then((messages) => {
+          //   var afterId = this.chatRoom.messages.slice(-1)[0].id;
+          //   for (var index in messages) {
+          //     if(messages[index].id > afterId) {
+          //       this.push('chatRoom.messages', messages[index]);
+          //     }
+          //   }
+          // });
         },
 
         /**
@@ -170,16 +151,11 @@ TODO(SquirrelThief):
         ("0" + date.getMinutes()).slice(-2);
       },
 
-      refresh_: function() {
-        this.pollMessages_();
-      },
-
       addPlayer_: function() {
         this.$.addPlayerForm.openForAdding()
         .then((properties) => {
           console.log(properties);
                 //this.bridge.addGun(Utils.generateId("gun"), properties);
-                //this.refresh_();
               });
       },
 
@@ -306,8 +282,6 @@ TODO(SquirrelThief):
     padding-right: 16px;
   }
 </style>
-<paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
-</paper-icon-button>
 <paper-icon-button id="add" icon="icons:add" on-tap="addPlayer_">
 </paper-icon-button>
 <ghvz-super-form

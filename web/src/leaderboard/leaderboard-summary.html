@@ -17,14 +17,6 @@
           type: Number,
           value: 3,
         },
-        pollInterval: {
-          type: Number,
-          value: 60,  // in seconds
-        },
-      },
-
-      attached: function() {
-        this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
       },
 
       makeTableBlueprint_: function() {
@@ -74,11 +66,6 @@
       opacity: .5;
     }
   </style>
-  <paper-icon-button
-  id="refresh"
-  icon="icons:refresh"
-  on-tap="refresh_">
-</paper-icon-button>
 <ghvz-auto-table
 id="leaderboardTable"
 blueprint="[[makeTableBlueprint_()]]"

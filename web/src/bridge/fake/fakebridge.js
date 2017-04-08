@@ -22,18 +22,21 @@ class FakeBridge {
         new DelayingWrapper(
             cloningFakeServerDelegate,
             ["broadcastDatabaseOperation", "onUserSignedIn"],
-            500);
+            50);
 
     var fakeServer = new FakeServer(delayingCloningFakeServerDelegate);
     var cloningFakeSerer = new CloningWrapper(fakeServer, SERVER_METHODS);
-    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 1000);
+    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 100);
     this.server = delayingCloningFakeServer;
 
-    setTimeout(() => this.performOperations_(), 100);
+    setTimeout(() => this.performOperations_(), 37);
 
     window.fakeBridge = this;
 
     fakeServer.fill();
+
+    for (const funcName of SERVER_METHODS)
+      this[funcName] = (...args) => this.server[funcName](...args);
   }
   attemptAutoSignIn() {
     this.server.signIn()
@@ -161,9 +164,6 @@ class FakeBridge {
       default:
         throwError('Unknown operation:', operation);
     }
-  }
-  addMission(missionId, gameId, properties) {
-    this.server.addMission(missionId, gameId, properties);
   }
 }
 

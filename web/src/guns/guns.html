@@ -51,7 +51,6 @@
         // },
 
         attached: function() {
-          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
           this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
         },
 
@@ -87,7 +86,6 @@
                   field.addEventListener('set-player', (e) => {
                     let playerOrNull = e.detail.playerOrNull;
                     this.bridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
-                    this.refresh_();
                   });
                   return field;
                 },
@@ -118,7 +116,6 @@
           this.$.gunForm.openForAdding()
               .then((properties) => {
                 this.bridge.addGun(Utils.generateId("gun"), properties);
-                this.refresh_();
               });
         },
 
@@ -126,7 +123,6 @@
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
                 this.bridge.updateGun(gun.id, properties);
-                this.refresh_();
               });
         },
       });
@@ -136,8 +132,6 @@
     <style>
     </style>
 
-    <paper-icon-button id="refresh" icon="icons:refresh" on-tap="refresh_">
-    </paper-icon-button>
     <paper-icon-button id="add" icon="icons:add" on-tap="addGun_">
     </paper-icon-button>
 

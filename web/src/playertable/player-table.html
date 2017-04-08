@@ -23,18 +23,6 @@
           playersById: {
             type: Object,
           },
-
-          pollInterval: {
-            type: Number,
-            value: undefined,  // in seconds
-            observer: 'pollIntervalChanged_',
-          },
-        },
-
-        attached: function() {
-          this.pollIntervalId = null;
-
-          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.refresh });
         },
 
         makeTableBlueprint_: function() {
@@ -143,11 +131,6 @@
         opacity: .5;
       }
     </style>
-    <paper-icon-button
-        id="refresh"
-        icon="icons:refresh"
-        on-tap="refresh_">
-    </paper-icon-button>
     <ghvz-auto-table
         id="playersTable"
         selectable

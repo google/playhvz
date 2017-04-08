@@ -94,7 +94,38 @@
             });
           }
           this.actions = actions;
+
+          // setInterval(() => this.updateVisibilities_(), 500);
         },
+
+        // overflow-y: auto;
+        // max-height: 400px;
+        // updateVisibilities_: function() {
+        //   let tableRect = this.getBoundingClientRect();
+        //   let rows = this.querySelectorAll('tr');
+        //   for (let row of rows) {
+        //     let rect = row.getBoundingClientRect();
+        //     let top = rect.top;
+        //     let bottom = rect.bottom;
+        //     let isHidden = "hidden" in row.dataset;
+        //     let shouldBeHidden = rect.bottom < tableRect.top || rect.top > tableRect.bottom;
+        //     if (isHidden && !shouldBeHidden) {
+        //       console.log('table', tableRect.top, tableRect.bottom, 'row', rect.top, rect.bottom, 'so showing');
+        //       row.style.height = '';
+        //       for (let cell of row.querySelectorAll('td')) {
+        //         cell.style.display = '';
+        //       }
+        //       delete row.dataset.hidden;
+        //     } else if (!isHidden && shouldBeHidden) {
+        //     console.log('table', tableRect.top, tableRect.bottom, 'row', rect.top, rect.bottom, 'so hiding');
+        //       row.style.height = rect.bottom - rect.top + "px";
+        //       for (let cell of row.querySelectorAll('td')) {
+        //         cell.style.display = 'none';
+        //       }
+        //       row.dataset.hidden = "";
+        //     }
+        //   }
+        // },
 
         computeHasControlCell_: function(selectable, numActions) {
           return selectable || numActions;

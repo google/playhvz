@@ -8,6 +8,7 @@ const SERVER_MESSAGE_PROPERTIES = ["message"];
 const SERVER_MISSION_PROPERTIES = ["beginTime", "endTime", "name", "url", "allegianceFilter"];
 const SERVER_REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed"];
 const SERVER_REWARD_PROPERTIES = ["code"];
+const SERVER_GUN_PROPERTIES = ["number"];
 
 
 class FakeServer {
@@ -21,50 +22,49 @@ class FakeServer {
   }
   fill() {
     var kimUserId = Bridge.generateUserId();
-    var evanUserId = Bridge.generateUserId();
-    var zekeUserId = Bridge.generateUserId();
-    var kimPlayerId = Bridge.generatePlayerId();
-    var evanPlayerId = Bridge.generatePlayerId();
-    var zekePlayerId = Bridge.generatePlayerId();
-    var gameId = Bridge.generateGameId();
-    var humanChatRoom = Bridge.generateChatRoomId();
-    var zedChatRoom = Bridge.generateChatRoomId();
-    var firstMissionId = Bridge.generateMissionId();
-    var rewardCategoryId = Bridge.generateRewardCategoryId();
-    var rewardId = Bridge.generateRewardId();
-    var otherRewardId = Bridge.generateRewardId();
-    var thirdRewardId = Bridge.generateRewardId();
-    var fakeServer = new FakeServer();
     this.register(kimUserId, {});
+    var evanUserId = Bridge.generateUserId();
     this.register(evanUserId, {});
+    var zekeUserId = Bridge.generateUserId();
     this.register(zekeUserId, {});
+    var gameId = Bridge.generateGameId();
     this.createGame(gameId, kimUserId, {name: "Test game", rulesUrl: "/firstgame/rules.html", stunTimer: 60});
+    var kimPlayerId = Bridge.generatePlayerId();
     this.joinGame(kimPlayerId, kimUserId, gameId, {name: 'Kim the Ultimate', needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
+    var evanPlayerId = Bridge.generatePlayerId();
     this.joinGame(evanPlayerId, evanUserId, gameId, {name: 'Evanpocalypse', needGun: true, profileImageUrl: "", startAsZombie: false, volunteer: false});
+    var zekePlayerId = Bridge.generatePlayerId();
     this.joinGame(zekePlayerId, zekeUserId, gameId, {name: 'Zeke', needGun: false, profileImageUrl: "", startAsZombie: true, volunteer: true});
     // if you want to see your computer die, uncomment this
-    // for (let i = 0; i < 600; i++) {
-    //   let userId = Utils.generateId("user");
-    //   fakeServer.register(userId, 'random' + i + '@urk.com');
-    //   fakeServer.joinGame(userId, gameId, Utils.generateId("player"), 'Player' + i, {});
-    // }
+    for (let i = 0; i < 12; i++) {
+      let userId = Bridge.generateUserId();
+      this.register(userId, {});
+      this.joinGame(Bridge.generatePlayerId(), userId, gameId, {name: 'Player' + i, needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
+    }
     this.updatePlayer(kimPlayerId, {profileImageUrl: 'https://lh3.googleusercontent.com/GoKTAX0zAEt6PlzUkTn7tMeK-q1hwKDpzWsMJHBntuyR7ZKVtFXjRkbFOEMqrqxPWJ-7dbCXD7NbVgHd7VmkYD8bDzsjd23XYk0KyALC3BElIk65vKajjjRD_X2_VkLPOVejrZLpPpa2ebQVUHJF5UXVlkst0m6RRqs2SumRzC7EMmEeq9x_TurwKUJmj7PhNBPCeoDEh51jAIc-ZqvRfDegLgq-HtoyJAo91lbD6jqA2-TFufJfiPd4nOWnKhZkQmarxA8LQT0kOu7r3M5F-GH3pCbQqpH1zraha8CqvKxMGLW1i4CbDs1beXatKTdjYhb1D_MVnJ6h7O4WX3GULwNTRSIFVOrogNWm4jWLMKfKt3NfXYUsCOMhlpAI3Q8o1Qgbotfud4_HcRvvs6C6i17X-oQm8282rFu6aQiLXOv55FfiMnjnkbTokOA1OGDQrkBPbSVumz9ZE3Hr-J7w_G8itxqThsSzwtK6p5YR_9lnepWe0HRNKfUZ2x-a2ndT9m6aRXC_ymWHQGfdGPvTfHOPxUpY8mtX2vknmj_dn4dIuir1PpcN0DJVVuyuww3sOn-1YRFh80gBFvwFuMnKwz8GY8IX5gZmbrrBsy_FmwFDIvBcwNjZKd9fH2gkK5rk1AlWv12LsPBsrRIEaLvcSq7Iim9XSsiivzcNrLFG=w294-h488-no'});
     this.updatePlayer(evanPlayerId, {profileImageUrl: 'https://lh3.googleusercontent.com/WP1fewVG0CvERcnQnmxjf84IjnEBoDQBgdaxbNAECRa433neObfAjv_xI35DN67WhcCL9y-mgXmfYrZEBeJ2PYrtIeCK3KSdJ4HiEDUqxaaGsJAtu5C5ZjcABUHoySueEwO0yJWfhWPVbGoAFdP-ZquoXSF3yz4gnlN76W-ltDBglclLxKs-hR9dTjf_DiX9yGmmb5y8mp1Jb8BEw9Q-zx_j9EFkgTI0EA6T10pogxsfAWkrwXO7t37D0vI2OxzHJA51EQ4LZw1oZsIN7Uyqnh06LAJ_ykYhW2xuSCpu7QY7UPm9IbDcsDqj1eap7xvV9JW_EW2Y8Km5nS0ZoAd-Eo3zUe-2YFTc0OAVDwgbhowzo1gUeqfCEtxVHuT36Aq2LWayB6DzOL9TqubcF7qmjtNy_UIr-RY1d69xN-KqjFBoWLtS6rDhQurrfJNd5x-MYOEjCMrbsGmSXE8L7PskM3e_3-ZhIqfMn2I-4zeEZIUG8U2iHRWK-blaqsSY8uhmzNG6sqF-liyINagQF4l35oy7tpobueWs7aDjRrcJrGiQDrGHYV1E67J64Ae9FqXPHmORRpYcihQc6pI0JAmaiWwMJoqD0QMJF9koaDYANPEGbWlnWc_lFzhCO_L8yCkVtJIIItQv-loypR6XqILK32eoGeatnp5Q0x0OEm3W=s240-no'});
-    this.createChatRoom(humanChatRoom, kimPlayerId, {name: "Resistance Comms Hub", allegianceFilter: 'resistance'});
-    this.addPlayerToChatRoom(humanChatRoom, evanPlayerId);
-    this.addPlayerToChatRoom(humanChatRoom, kimPlayerId);
-    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoom, kimPlayerId, {message: 'hi'});
-    this.createChatRoom(zedChatRoom, evanPlayerId, {name: "Horde ZedLink", allegianceFilter: 'horde'});
-    this.addPlayerToChatRoom(zedChatRoom, zekePlayerId);
-    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoom, evanPlayerId, {message: 'zeds rule!'});
-    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoom, kimPlayerId, {message: 'hoomans drool!'});
-    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoom, kimPlayerId, {message: 'monkeys eat stool!'});
+    var humanChatRoomId = Bridge.generateChatRoomId();
+    this.createChatRoom(humanChatRoomId, kimPlayerId, {name: "Resistance Comms Hub", allegianceFilter: 'resistance'});
+    this.addPlayerToChatRoom(humanChatRoomId, evanPlayerId);
+    this.addPlayerToChatRoom(humanChatRoomId, kimPlayerId);
+    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoomId, kimPlayerId, {message: 'hi'});
+    var zedChatRoomId = Bridge.generateChatRoomId();
+    this.createChatRoom(zedChatRoomId, evanPlayerId, {name: "Horde ZedLink", allegianceFilter: 'horde'});
+    this.addPlayerToChatRoom(zedChatRoomId, zekePlayerId);
+    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoomId, evanPlayerId, {message: 'zeds rule!'});
+    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoomId, kimPlayerId, {message: 'hoomans drool!'});
+    this.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoomId, kimPlayerId, {message: 'monkeys eat stool!'});
+    var firstMissionId = Bridge.generateMissionId();
     this.addMission(firstMissionId, gameId, {beginTime: new Date().getTime() / 1000 - 10, endTime: new Date().getTime() / 1000 + 60 * 60, name: "first mission!", url: "/firstgame/missions/first-mission.html", allegianceFilter: 'resistance'});
+    var rewardCategoryId = Bridge.generateRewardCategoryId();
     this.addRewardCategory(rewardCategoryId, gameId, {name: "signed up!", points: 2, seed: "derp"});
-    this.addReward(rewardId, rewardCategoryId, {code: "flarklebark"});
-    this.addReward(otherRewardId, rewardCategoryId, {code: "shooplewop"});
-    this.addReward(thirdRewardId, rewardCategoryId, {code: "lololol"});
+    this.addReward(Bridge.generateRewardId(), rewardCategoryId, {code: "flarklebark"});
+    this.addReward(Bridge.generateRewardId(), rewardCategoryId, {code: "shooplewop"});
+    this.addReward(Bridge.generateRewardId(), rewardCategoryId, {code: "lololol"});
     this.claimReward(evanPlayerId, "flarklebark");
+    for (let i = 0; i < 80; i++) {
+      this.addGun(Bridge.generateGunId(), {number: 1404 + i + ""});
+    }
   }
   getGameIndex(gameId) {
     return Utils.findIndexById(this.database.get(["games"]), gameId);
@@ -148,6 +148,7 @@ class FakeServer {
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_PLAYER_PROPERTIES);
     let {name, needGun, profileImageUrl, startAsZombie, volunteer} = args;
+    let existingPlayers = this.database.get(["games", this.getGameIndex(gameId), "players"]);
     this.database.push(["games", this.getGameIndex(gameId), "players"], {
       id: playerId,
       allegiance: "horde",
@@ -157,7 +158,7 @@ class FakeServer {
       name: name,
       needGun: needGun,
       notifications: [],
-      number: 0,
+      number: existingPlayers.length,
       points: 0,
       profileImageUrl: profileImageUrl,
       rewards: [],
@@ -257,6 +258,16 @@ class FakeServer {
       playerId: null,
     });
   }
+  addGun(gunId, args) {
+    this.checkIdNotTaken(gunId, 'gun');
+    this.checkRequestArgs(args, SERVER_GUN_PROPERTIES);
+    let {number} = args;
+    this.database.push(["guns"], {
+      id: gunId,
+      number: number,
+      playerId: null,
+    });
+  }
   claimReward(playerId, code) {
     assert(typeof code == 'string');
     code = code.replace(/\s/g, '').toLowerCase();
@@ -281,5 +292,11 @@ class FakeServer {
       }
     }
     assert(false);
+  }
+  setGunPlayer(gunId, playerId) {
+    this.checkId(gunId, 'gun');
+    let gunPath = this.database.pathForId(gunId);
+    playerId && this.checkId(playerId, 'player');
+    this.database.set(gunPath.concat(["playerId"]), playerId);
   }
 }
