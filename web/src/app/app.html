@@ -90,7 +90,7 @@
         ],
 
         attached: function() {
-          var fake = true;
+          var fake = false;
           this.bridge = fake ?
               new FakeBridge(this.makeBridgeDelegate_()) :
               new RemoteBridge(this.makeBridgeDelegate_());
