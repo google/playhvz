@@ -160,29 +160,6 @@ class FakeBridge {
     }
   }
 }
-// this.__proto__ = inner; would be if we ever want to completely
-// opt out of a layer for a certain function. like if we ever
-// had a getAllGames method, we'd just completely opt it out of
-// the securing layer.
-// However, that would accidentally bring properties in, and call
-// functions on the wrong scopes, so lets stick to doing it manually
-
-// note to self, dont call superclass methods by saying
-// this.__proto__.someMethod.call(this, stuff)
-// because this.__proto__ is the base class of the leaf class.
-// if you call it from a base class, it's still the base class of
-// the leaf class.
-
-// function SecuringWrapper(inner, isLoggedIn, funcNames) {
-//   for (const funcName of funcNames) {
-//     this[funcName] = function(...args) {
-//       if (!isLoggedIn()) {
-//         throw "Not logged in! Can't call " + funcName;
-//       }
-//       return inner[funcName](...args);
-//     }
-//   }
-// }
 
 function CloningWrapper(inner, funcNames) {
   for (const funcName of funcNames) {
@@ -213,40 +190,4 @@ function DelayingWrapper(inner, funcNames, delay) {
       });
     };
   }
-}
-
-function oldmakeFakePrepopulatedbridge() {
-  window.fakeServer = fakeServer;
-
-  var loggedInUserId = null;
-
-  // const securedFakeServer =
-  //     new SecuringWrapper(
-  //         fakeServer,
-  //         (() => !!loggedInUserId),
-  //         Utils.subtract(SERVER_METHODS, "logIn", "register", "getUserById"));
-  // securedFakeServer.logIn = (authcode) => {
-  //   if (authcode != 'firstuserauthcode') {
-  //     throw "Couldnt find auth code";
-  //   }
-  //   var userId = kimUserId;
-  //   // To check it exists. this.__proto__ to skip the security check
-  //   fakeServer.getUserById(userId);
-  //   loggedInUserId = userId;
-  //   return userId;
-  // };
-  // securedFakeServer.register = (...args) => fakeServer.register(...args);
-  // securedFakeServer.getUserById = (userId) => {
-  //   if (loggedInUserId != userId)
-  //     throw 'Cant get other user';
-  //   return fakeServer.getUserById(userId);
-  // };
-
-  const cloningFakeServer =
-      new CloningWrapper(fakeServer, SERVER_METHODS);
-
-  const delayingCloningFakeServer =
-      new DelayingWrapper(cloningFakeServer, SERVER_METHODS);
-
-  return delayingCloningFakeServer;
 }
