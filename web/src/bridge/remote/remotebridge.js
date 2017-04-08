@@ -7,6 +7,9 @@ class RemoteBridge {
   setGameId(gameId) {
     this.database.setGameId(gameId);
   }
+  attemptAutoSignIn() {
+    this.database.attemptAutoSignIn();
+  }
   signIn() {
     this.database.signIn();
   }

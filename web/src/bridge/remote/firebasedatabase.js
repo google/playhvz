@@ -1,27 +1,15 @@
 'use strict';
 
 const USER_PROPERTIES = [];
-const USER_COLLECTIONS = [
-  {arrayName:"players"}
-];
+const USER_COLLECTIONS = ["players",];
 const USER_PLAYER_PROPERTIES = ["gameId", "playerId"];
 const USER_PLAYER_COLLECTIONS = [];
 const GUN_PROPERTIES = ["number", "playerId"];
 const GUN_COLLECTIONS = [];
 const GAME_PROPERTIES = ["name", "rulesUrl", "stunTimer"];
-const GAME_COLLECTIONS = [
-  {arrayName: "missions", mapName: "missionsById"},
-  {arrayName: "rewardCategories", mapName: "rewardCategoriesById"},
-  {arrayName: "chatRooms", mapName: "chatRoomsById"},
-  {arrayName: "players", mapName: "playersById"},
-  {arrayName: "adminUserIds"},
-  {arrayName: "notificationCategories", mapName: "notificationCategoriesById"}
-];
+const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "adminUserIds", "notificationCategories"];
 const CHAT_ROOM_PROPERTIES = ["allegianceFilter", "name"];
-const CHAT_ROOM_COLLECTIONS = [
-  {arrayName: "messages", mapName: "messagesById"},
-  {arrayName: "memberships", mapName: "membershipsById"},
-];
+const CHAT_ROOM_COLLECTIONS = ["messages", "memberships",];
 const CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["playerId"];
 const CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
 const CHAT_ROOM_MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
@@ -31,12 +19,7 @@ const MISSION_COLLECTIONS = [];
 const NOTIFICATION_CATEGORY_PROPERTIES = ["name"];
 const NOTIFICATION_CATEGORY_COLLECTIONS = [];
 const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer"];
-const PLAYER_COLLECTIONS = [
-  {arrayName: "infections"},
-  {arrayName: "lives"},
-  {arrayName: "rewards"},
-  {arrayName: "notifications"},
-];
+const PLAYER_COLLECTIONS = ["infections", "lives", "rewards", "notifications",];
 const PLAYER_REWARD_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
 const PLAYER_REWARD_COLLECTIONS = [];
 const PLAYER_LIFE_PROPERTIES = ["time", "code"];
@@ -46,9 +29,7 @@ const PLAYER_INFECTION_COLLECTIONS = [];
 const PLAYER_NOTIFICATION_PROPERTIES = ["message", "previewMessage", "notificationCategoryId", "seenTime", "sendTime", "sound", "vibrate"];
 const PLAYER_NOTIFICATION_COLLECTIONS = [];
 const REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed", "claimed"];
-const REWARD_CATEGORY_COLLECTIONS = [
-  {arrayName: "rewards", mapName: "rewardsById"}
-];
+const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 const REWARD_CATEGORY_REWARD_PROPERTIES = ["playerId", "code"];
 const REWARD_CATEGORY_REWARD_COLLECTIONS = [];
 
@@ -74,7 +55,9 @@ class FirebaseDatabase {
     firebase.initializeApp(config);
 
     this.firebaseRoot = firebase.app().database().ref();
+  }
 
+  attemptAutoSignIn() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
@@ -172,7 +155,7 @@ class FirebaseDatabase {
     collectionRef.on("child_added", (change) => {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), change.val());
-      } else if (collections.find((col) => col.arrayName == change.getKey())) {
+      } else if (collections.find((col) => col == change.getKey())) {
         setCallback(change.getKey(), []);
       } else {
         throwError("Unexpected!", change.val(), change.getKey(), arguments);
@@ -181,7 +164,7 @@ class FirebaseDatabase {
     collectionRef.on("child_changed", (change) => {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), change.val());
-      } else if (collections.find((col) => col.arrayName == change.getKey())) {
+      } else if (collections.find((col) => col == change.getKey())) {
         // do nothing, covered elsewhere
       } else {
         throwError("Unexpected!", change.val(), change.getKey(), arguments);
@@ -190,7 +173,7 @@ class FirebaseDatabase {
     collectionRef.on("child_removed", (change) => {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), null);
-      } else if (collections.find((col) => col.arrayName == change.getKey())) {
+      } else if (collections.find((col) => col == change.getKey())) {
         setCallback(change.getKey(), []);
       } else {
         throwError("Unexpected!", change.val(), change.getKey(), arguments);
@@ -207,10 +190,9 @@ class FirebaseDatabase {
         val = null;
       obj[propertyName] = val;
     }
-    for (let {arrayName, mapName} of lists) {
-      obj[arrayName] = [];
-      if (mapName)
-        obj[mapName] = {};
+    for (let listName of lists) {
+      obj[listName] = [];
+      obj[listName + "ById"] = {};
     }
     return obj;
   }
@@ -220,7 +202,7 @@ class FirebaseDatabase {
       let gameId = snap.getKey();
       let obj = this.setupClientSideObject(gameId, snap, GUN_PROPERTIES, GUN_COLLECTIONS);
       this.delegate.push("games", obj);
-      this.delegate.set("gamesById. " + gameId, obj);
+      this.delegate.set("gamesById." + gameId, obj);
       this.listenForPropertyChanges_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
           (property, value) => {
@@ -340,6 +322,7 @@ class FirebaseDatabase {
       let playerRewardId = snap.getKey();
       let obj = this.setupClientSideObject(playerRewardId, snap, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".rewards", obj);
+      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".rewardsById." + playerRewardId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS,
           (property, value) => {
@@ -354,7 +337,7 @@ class FirebaseDatabase {
       let playerLifeId = snap.getKey();
       let obj = this.setupClientSideObject(playerLifeId, snap, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".lives", obj);
-      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".lives." + playerLifeId, obj);
+      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".livesById." + playerLifeId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS,
           (property, value) => {
@@ -369,7 +352,7 @@ class FirebaseDatabase {
       let playerInfectionId = snap.getKey();
       let obj = this.setupClientSideObject(playerInfectionId, snap, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".infections", obj);
-      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".infections." + playerInfectionId, obj);
+      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".infectionsById." + playerInfectionId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS,
           (property, value) => {
@@ -384,7 +367,7 @@ class FirebaseDatabase {
       let playerNotificationId = snap.getKey();
       let obj = this.setupClientSideObject(playerNotificationId, snap, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".notifications", obj);
-      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".notifications." + playerNotificationId, obj);
+      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".notificationsById." + playerNotificationId, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS,
           (property, value) => {

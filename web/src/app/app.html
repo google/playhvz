@@ -60,12 +60,10 @@
 
           gameId: {
             type: String,
-            value: null,
           },
 
           playerId: {
             type: String,
-            value: null,
           },
 
           database: {
@@ -76,6 +74,8 @@
               game: {},
               games: [],
               gamesById: {},
+              users: [],
+              usersById: {},
               user: {},
             }),
           },
@@ -90,10 +90,11 @@
         ],
 
         attached: function() {
-          var fake = false;
+          var fake = true;
           this.bridge = fake ?
               new FakeBridge(this.makeBridgeDelegate_()) :
               new RemoteBridge(this.makeBridgeDelegate_());
+          this.bridge.attemptAutoSignIn();
         },
 
         makeBridgeDelegate_: function() {
@@ -102,9 +103,14 @@
               console.log('Local set', path, value);
               this.set('database.' + path, value);
             },
-            push: (path, value) => this.push('database.' + path, value),
-            splice: (path, index, numToRemove, ...toInsert) =>
-                this.splice('database.' + path, index, numToRemove, ...toInsert),
+            push: (path, value) => {
+              console.log('Local push', path, value);
+              this.push('database.' + path, value);
+            },
+            splice: (path, index, numToRemove, ...toInsert) => {
+              console.log('Local splice', path, index, numToRemove, ...toInsert);
+              this.splice('database.' + path, index, numToRemove, ...toInsert);
+            },
             get: (path) => this.get('database.' + path),
             onUserSignedIn: (userId) => {
               this.userId = userId;
@@ -117,7 +123,10 @@
         },
 
         onGameIdChanged_: function(gameId) {
-          this.bridge.setGameId(gameId);
+          if (gameId) {
+            console.log('Choosing game id ', gameId);
+            this.bridge.setGameId(gameId);
+          }
         },
 
         firebaseSignIn_: function() {

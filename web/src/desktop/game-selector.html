@@ -32,18 +32,19 @@
         },
 
         observers: [
-          'autoChooseGame_(userId, user.players, user.players.splices)',
+          'autoChooseGame_(userId, user.*)',
         ],
 
-
-        autoChooseGame_: function(userId, userPlayers) {
+        autoChooseGame_: function() {
           if (this.gameId == null && this.playerId == null) {
-            for (let userPlayer of userPlayers) {
-              // pick the first one
-              this.gameId = userPlayer.gameId;
-              this.playerId = userPlayer.playerId;
-              this.$.gameChooser.selected = userPlayers.indexOf(userPlayer);
-              break;
+            if (this.user && this.user.players) {
+              for (let userPlayer of this.user.players) {
+                // pick the first one
+                this.gameId = userPlayer.gameId;
+                this.playerId = userPlayer.playerId;
+                this.$.gameChooser.selected = this.user.players.indexOf(userPlayer);
+                break;
+              }
             }
           }
         },
