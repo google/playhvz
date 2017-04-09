@@ -1,0 +1,79 @@
+
+<dom-module id="ghvz-player-row">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-player-row',
+
+        properties: {
+          player: {
+            type: Object,
+            observer: 'onPlayerChanged_',
+          },
+          rewardCategoriesById: Object,
+        },
+
+        onPlayerChanged_: function(player) {
+          player.selected = !!player.selected;
+        },
+
+        computeAllegiance_: function() {
+          if (this.player.allegiance == 'resistance') {
+            return 'Resistance';
+          } else if (this.player.allegiance == 'horde') {
+            return 'Horde';
+          } else {
+            return this.player.allegiance;
+          }
+        },
+
+        computeLifeCode_: function() {
+          if (this.player.allegiance == 'resistance') {
+            if (this.player.lives.length) {
+              return this.player.lives[this.player.lives.length - 1].code;
+            }
+          }
+          return "";
+        },
+
+        computeRewards_: function() {
+          let rewardNames = [];
+          for (const reward of this.player.rewards) {
+            rewardNames.push(this.rewardCategoriesById[reward.rewardCategoryId].name);
+          }
+          return rewardNames.join(", ");
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: table-row;
+    }
+    :host > div {
+      display: table-cell;
+      padding: 4px 8px;
+    }
+  </style>
+  <template>
+    <ghvz-table-control-cell id="control" item="[[player]]"></ghvz-table-control-cell>
+    <div id="number">
+      [[player.number]]
+    </div>
+    <div id="name">
+      [[player.name]]
+    </div>
+    <div id="allegiance">
+      [[computeAllegiance_(player.allegiance)]]
+    </div>
+    <div id="lifeCode">
+      [[computeLifeCode_(player.lives.*, player.infections.*)]]
+    </div>
+    <div id="rewards">
+      [[computeRewards_(player.rewards.*, rewardCategoriesById)]]
+    </div>
+  </template>
+</dom-module>

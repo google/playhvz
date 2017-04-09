@@ -27,6 +27,7 @@
 
         makeTableBlueprint_: function() {
           return {
+            itemsRepeater: this.$.repeater,
             columns: [
               {
                 property: "number",
@@ -38,27 +39,13 @@
                 name: "Name",
                 sortable: true,
                 filterable: true,
-                getModel: player => player.name,
-                getView: (player) => {
-                  var el = document.createElement('ghvz-player-label');
-                  el.playersById = this.playersById;
-                  el.playerIdOrNull = player.id;
-                  return el;
-                }
+                property: "name",
               },
               {
                 name: "Allegiance",
                 sortable: true,
                 filterable: true,
-                getModel: (player) => {
-                  if (player.allegiance == 'resistance') {
-                    return 'Resistance';
-                  } else if (player.allegiance == 'horde') {
-                    return 'Horde';
-                  } else {
-                    return player.allegiance;
-                  }
-                },
+                property: "allegiance",
               },
               {
                 name: "Life Code",
@@ -111,31 +98,20 @@
           };
         },
 
-        onDeletePlayer_: function(player) {
-          var index = this.players.indexOf(player);
-          if (index < 0) {
-            console.error('Cant delete player, player not in list:', player);
-            return;
-          }
-          this.splice('players', 1);
-        },
       });
     });
   </script>
   <template>
-    <style>
-      auto-table {
-        display: block;
-      }
-      .player-icon {
-        opacity: .5;
-      }
-    </style>
-    <ghvz-auto-table
-        id="playersTable"
+    <ghvz-table
         selectable
         blueprint="[[makeTableBlueprint_()]]"
         items="[[players]]">
-    </ghvz-auto-table>
+      <template is="dom-repeat" id="repeater" items="[[players]]" as="player" initial-count="1" target-framerate="5">
+        <ghvz-player-row
+            reward-categories-by-id="[[rewardCategoriesById]]"
+            player="[[player]]">
+        </ghvz-player-row>
+      </template>
+    </ghvz-table>
   </template>
 </dom-module>

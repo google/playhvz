@@ -78,7 +78,7 @@ class FakeDatabase {
     }
   }
   broadcastOperation_(operation) {
-    console.log("Broadcasting:", operation);
+    //console.log("Broadcasting:", operation);
     this.delegate.broadcastOperation(operation);
   }
   objForId(id, allowNotFound) {

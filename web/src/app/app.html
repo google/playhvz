@@ -100,15 +100,15 @@
         makeBridgeDelegate_: function() {
           return {
             set: (path, value) => {
-              console.log('Local set', path, value);
+              //console.log('Local set', path, value);
               this.set('database.' + path, value);
             },
             push: (path, value) => {
-              console.log('Local push', path, value);
+              //console.log('Local push', path, value);
               this.push('database.' + path, value);
             },
             splice: (path, index, numToRemove, ...toInsert) => {
-              console.log('Local splice', path, index, numToRemove, ...toInsert);
+              //console.log('Local splice', path, index, numToRemove, ...toInsert);
               this.splice('database.' + path, index, numToRemove, ...toInsert);
             },
             get: (path) => this.get('database.' + path),
@@ -124,7 +124,7 @@
 
         onGameIdChanged_: function(gameId) {
           if (gameId) {
-            console.log('Choosing game id ', gameId);
+            //console.log('Choosing game id ', gameId);
             this.bridge.setGameId(gameId);
           }
         },

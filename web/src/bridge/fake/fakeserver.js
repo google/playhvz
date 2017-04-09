@@ -36,7 +36,7 @@ class FakeServer {
     var zekePlayerId = Bridge.generatePlayerId();
     this.joinGame(zekePlayerId, zekeUserId, gameId, {name: 'Zeke', needGun: false, profileImageUrl: "", startAsZombie: true, volunteer: true});
     // if you want to see your computer die, uncomment this
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 600; i++) {
       let userId = Bridge.generateUserId();
       this.register(userId, {});
       this.joinGame(Bridge.generatePlayerId(), userId, gameId, {name: 'Player' + i, needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
