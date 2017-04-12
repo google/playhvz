@@ -41,16 +41,17 @@ class RemoteBridge {
     });
   }
   joinGame(playerId, userId, gameId, {name, needGun, profileImageUrl, startAsZombie, volunteer, beSecretZombie}) {
-    this.requester.sendPutRequest('/games/' + gameId + '/players/' + playerId, {
-      id: playerId,
-      userId: userId,
-      gameId: gameId,
-      name: name,
-      needGun: needGun,
-      profileImageUrl: profileImageUrl,
-      startAsZombie: startAsZombie,
-      volunteer: volunteer,
-      beSecretZombie: beSecretZombie,
-    });
+    this.database.joinGame(playerId, userId, gameId, {name, needGun, profileImageUrl, startAsZombie, volunteer, beSecretZombie});
+    // this.requester.sendPutRequest('/games/' + gameId + '/players/' + playerId, {
+    //   id: playerId,
+    //   userId: userId,
+    //   gameId: gameId,
+    //   name: name,
+    //   needGun: needGun,
+    //   profileImageUrl: profileImageUrl,
+    //   startAsZombie: startAsZombie,
+    //   volunteer: volunteer,
+    //   beSecretZombie: beSecretZombie,
+    // });
   }
 }
