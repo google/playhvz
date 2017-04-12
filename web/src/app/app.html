@@ -90,10 +90,11 @@
         ],
 
         attached: function() {
-          var fake = true;
+          var fake = false;
+          var prod = true;
           this.bridge = fake ?
               new FakeBridge(this.makeBridgeDelegate_()) :
-              new RemoteBridge(this.makeBridgeDelegate_());
+              new RemoteBridge(prod, this.makeBridgeDelegate_());
           this.bridge.attemptAutoSignIn();
         },
 

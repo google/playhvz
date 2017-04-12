@@ -1,7 +1,7 @@
 
 class RemoteBridge {
-  constructor(delegate) {
-    this.database = new FirebaseDatabase(delegate);
+  constructor(prod, delegate) {
+    this.database = new FirebaseDatabase(prod, delegate);
     this.requester = new NormalRequester();
   }
   setGameId(gameId) {

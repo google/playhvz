@@ -37,7 +37,7 @@ const REWARD_CATEGORY_REWARD_COLLECTIONS = [];
 // Something about polymer initialization order.
 // I think we"re not supposed to need this.
 class FirebaseDatabase {
-  constructor(delegate) {
+  constructor(prod, delegate) {
     this.firebaseUser = null;
     this.delegate = delegate;
     this.firebaseRoot = null;
@@ -45,14 +45,29 @@ class FirebaseDatabase {
     this.gameId = null;
 
     // Initialize Firebase
-    var config = {
-      apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
-      authDomain: "zeds-dbe0f.firebaseapp.com",
-      databaseURL: "https://zeds-dbe0f.firebaseio.com",
-      storageBucket: "zeds-dbe0f.appspot.com",
-      messagingSenderId: "721599614458",
-    };
+    let config;
+
+    if (prod) {
+      config = {
+        apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+        authDomain: "trogdors-29fa4.firebaseapp.com",
+        databaseURL: "https://trogdors-29fa4.firebaseio.com",
+        projectId: "trogdors-29fa4",
+        storageBucket: "trogdors-29fa4.appspot.com",
+        messagingSenderId: "625580091272"
+      };
+    } else {
+      config = {
+        apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
+        authDomain: "zeds-dbe0f.firebaseapp.com",
+        databaseURL: "https://zeds-dbe0f.firebaseio.com",
+        storageBucket: "zeds-dbe0f.appspot.com",
+        messagingSenderId: "721599614458",
+      };
+    }
+
     firebase.initializeApp(config);
+
 
     this.firebaseRoot = firebase.app().database().ref();
   }
@@ -70,6 +85,8 @@ class FirebaseDatabase {
   }
 
   signIn() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/plus.login');
     firebase.auth().signInWithPopup(provider)
         .then((result) => {
           // This gives you a Google Access Token. You can use it to access the Google API.
