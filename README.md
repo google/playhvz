@@ -1,8 +1,9 @@
 sudo npm install -g firebase-tools
 
 
-to startup the server, in the root directory run:
+to startup the server, run:
 
+cd web
 firebase serve
 
 
