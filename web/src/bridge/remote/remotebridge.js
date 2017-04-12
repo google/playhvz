@@ -24,6 +24,7 @@ class RemoteBridge {
   }
   signIn() {
     this.database.signIn().then((userId) => {
+      this.database.register(userId);
       this.delegate.onUserSignedIn(userId);
     });
   }

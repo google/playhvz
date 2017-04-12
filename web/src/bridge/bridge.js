@@ -3,6 +3,7 @@
 class Bridge { }
 Bridge.generateUserId = () => Utils.generateId("user");
 Bridge.generateGameId = () => Utils.generateId("game");
+Bridge.generateUserPlayerId = () => Utils.generateId("userPlayer");
 Bridge.generatePlayerId = () => Utils.generateId("player");
 Bridge.generateMissionId = () => Utils.generateId("mission");
 Bridge.generateGunId = () => Utils.generateId("gun");

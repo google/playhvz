@@ -1,6 +1,6 @@
 'use strict';
 
-const USER_PROPERTIES = [];
+const USER_PROPERTIES = ["userIndex"];
 const USER_COLLECTIONS = ["players",];
 const USER_PLAYER_PROPERTIES = ["gameId", "playerId"];
 const USER_PLAYER_COLLECTIONS = [];
@@ -47,7 +47,6 @@ class FirebaseDatabase {
     // Initialize Firebase
     firebase.initializeApp(config);
 
-
     this.firebaseRoot = firebase.app().database().ref();
   }
 
@@ -68,16 +67,14 @@ class FirebaseDatabase {
 
   signIn() {
     return new Promise((resolve, reject) => {
-      var provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope('https://www.googleapis.com/auth/plus.login');
-      firebase.auth().signInWithPopup(provider)
+      firebase.auth().getRedirectResult()
           .then((result) => {
             // This gives you a Google Access Token. You can use it to access the Google API.
             var token = result.credential.accessToken;
             // The signed-in user info.
             this.setUser_(result.user);
             // ...
-            resolve(result.user.uid);
+  					resolve(result.user.uid);
           }).catch((error) => {
             // Handle Errors here.
             var errorCode = error.code;
@@ -87,8 +84,11 @@ class FirebaseDatabase {
             // The firebase.auth.AuthCredential type that was used.
             var credential = error.credential;
             // ...
-            reject();
+  					reject();
           });
+  		var provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('https://www.googleapis.com/auth/plus.login');
+  		firebase.auth().signInWithRedirect(provider);
     });
   }
 
@@ -479,6 +479,51 @@ class FirebaseDatabase {
           (property, value) => {
             this.delegate.set("user.players." + this.getUserPlayerIndex_(userPlayerId) + "." + property, value);
           });
+    });
+  }
+
+	register(userId) {
+		var numUsers;
+		this.firebaseRoot.child('num_users').once('value', function(snapshot) {
+			numUsers = snapshot.val();
+			console.log(numUsers);
+			var userId = firebase.auth().currentUser.uid;
+			var found;
+			firebase.database().ref('users/' + userId).once('value', function(snapshot) {
+				if (snapshot.val() === null){
+					firebase.database().ref('users/' + userId).set({userIndex: numUsers});
+					firebase.database().ref().update({num_users: numUsers+1});
+				}
+			});
+		});
+	}
+
+  joinGame(playerId, userId, gameId, args) {
+    let {name, needGun, profileImageUrl, startAsZombie, volunteer} = args;
+
+    var updates = {};
+    updates["users/" + userId + "/players/" + Bridge.generateUserPlayerId()] = {
+      gameId: gameId,
+      playerId: playerId,
+    };
+    updates["games/" + gameId + "/players/" + playerId] = {
+      allegiance: "resistance",
+      infectable: true,
+      name: name,
+      needGun: needGun,
+      number: "?",
+      points: 0,
+      profileImageUrl: profileImageUrl,
+      startAsZombie: startAsZombie,
+      userId: userId,
+      volunteer: volunteer
+    };
+    console.log("updating:", updates);
+    // Do a deep-path update
+    this.firebaseRoot.update(updates, function(error) {
+      if (error) {
+        console.log("Error updating data:", error);
+      }
     });
   }
 }
