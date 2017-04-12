@@ -1,6 +1,6 @@
 'use strict';
 
-const USER_PROPERTIES = [];
+const USER_PROPERTIES = ["userIndex"];
 const USER_COLLECTIONS = ["players",];
 const USER_PLAYER_PROPERTIES = ["gameId", "playerId"];
 const USER_PLAYER_COLLECTIONS = [];
@@ -45,6 +45,7 @@ class FirebaseDatabase {
     this.gameId = null;
 
     // Initialize Firebase
+
     let config;
 
     if (prod) {
@@ -85,15 +86,14 @@ class FirebaseDatabase {
   }
 
   signIn() {
-    var provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('https://www.googleapis.com/auth/plus.login');
-    firebase.auth().signInWithPopup(provider)
+    firebase.auth().getRedirectResult()
         .then((result) => {
           // This gives you a Google Access Token. You can use it to access the Google API.
           var token = result.credential.accessToken;
           // The signed-in user info.
-          this.setUser_(result.user);
+          //this.setUser_(result.user);
           // ...
+					return;
         }).catch((error) => {
           // Handle Errors here.
           var errorCode = error.code;
@@ -103,7 +103,11 @@ class FirebaseDatabase {
           // The firebase.auth.AuthCredential type that was used.
           var credential = error.credential;
           // ...
+					return;
         });
+		var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/plus.login');
+		firebase.auth().signInWithRedirect(provider);
   }
 
   signOut() {
@@ -117,6 +121,7 @@ class FirebaseDatabase {
   }
 
   setUser_(user) {
+		this.register(user.uid);
     this.firebaseUser = user;
     this.userId = user.uid;
     this.delegate.onUserSignedIn(this.userId);
@@ -496,4 +501,20 @@ class FirebaseDatabase {
           });
     });
   }
+
+	register(userId) {
+		var numUsers;
+		this.firebaseRoot.child('num_users').once('value', function(snapshot) {
+			numUsers = snapshot.val();
+			console.log(numUsers);
+			var userId = firebase.auth().currentUser.uid;
+			var found;
+			firebase.database().ref('users/' + userId).once('value', function(snapshot) {
+				if (snapshot.val() === null){
+					firebase.database().ref('users/' + userId).set({userIndex: numUsers});
+					firebase.database().ref().update({num_users: numUsers+1});
+				}
+			});
+		});
+	}
 }
