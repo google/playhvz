@@ -106,6 +106,16 @@ class FirebaseDatabase {
         });
   }
 
+  signOut() {
+    firebase.auth().signOut()
+        .then((result) => {
+          alert("Signed out!");
+          window.location.reload();
+        }).catch((error) => {
+          console.error(error);
+        });
+  }
+
   setUser_(user) {
     this.firebaseUser = user;
     this.userId = user.uid;

@@ -13,4 +13,7 @@ class RemoteBridge {
   signIn() {
     this.database.signIn();
   }
+  signOut() {
+    this.database.signOut();
+  }
 }

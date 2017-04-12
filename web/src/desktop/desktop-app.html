@@ -77,6 +77,10 @@
         computeShowRegister_(gameId, playerId) {
           return gameId && !playerId;
         },
+
+        signOut_: function() {
+          this.bridge.signOut();
+        },
       });
     });
   </script>
@@ -129,6 +133,8 @@
         <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
         <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
       </div>
+
+      <paper-button on-tap="signOut_">Sign Out</paper-button>
     </div>
 
     <div id="info">
