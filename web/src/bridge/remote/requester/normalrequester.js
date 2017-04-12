@@ -1,7 +1,13 @@
 
 class NormalRequester {
-  constructor() {
+  constructor(serverUrl) {
+    assert(serverUrl);
+    this.serverUrl = serverUrl;
+    this.headers = {};
     this.openRequests = [];
+  }
+  setHeaders(headers) {
+    this.headers = headers;
   }
   sendRequest_(verb, path, body) {
     const requestId = this.nextRequestId++;
@@ -18,6 +24,9 @@ class NormalRequester {
       }
     };
     request.open(verb, "https://googlehvz.com/" + path, true);
+    for (var key in this.headers) {
+      request.setRequestHeader(key, this.headers[key]);
+    }
     this.openRequests.push({
       request: request,
       resolve: resolve,

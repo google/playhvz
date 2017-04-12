@@ -91,10 +91,34 @@
 
         attached: function() {
           var fake = false;
-          var prod = true;
-          this.bridge = fake ?
-              new FakeBridge(this.makeBridgeDelegate_()) :
-              new RemoteBridge(prod, this.makeBridgeDelegate_());
+          if (fake) {
+            this.bridge = new FakeBridge(this.makeBridgeDelegate_());
+          } else {
+            var prod = true;
+            let config;
+            let serverUrl;
+            if (prod) {
+              serverUrl = "http://googlehvz.com";
+              config = {
+                apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+                authDomain: "trogdors-29fa4.firebaseapp.com",
+                databaseURL: "https://trogdors-29fa4.firebaseio.com",
+                projectId: "trogdors-29fa4",
+                storageBucket: "trogdors-29fa4.appspot.com",
+                messagingSenderId: "625580091272"
+              };
+            } else {
+              serverUrl = assert(false); // we dont have a dev frontend
+              config = {
+                apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
+                authDomain: "zeds-dbe0f.firebaseapp.com",
+                databaseURL: "https://zeds-dbe0f.firebaseio.com",
+                storageBucket: "zeds-dbe0f.appspot.com",
+                messagingSenderId: "721599614458",
+              };
+            }
+            this.bridge = new RemoteBridge(serverUrl, config, this.makeBridgeDelegate_());
+          }
           this.bridge.attemptAutoSignIn();
         },
 

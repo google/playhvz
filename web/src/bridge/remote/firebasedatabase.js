@@ -37,7 +37,7 @@ const REWARD_CATEGORY_REWARD_COLLECTIONS = [];
 // Something about polymer initialization order.
 // I think we"re not supposed to need this.
 class FirebaseDatabase {
-  constructor(prod, delegate) {
+  constructor(config, delegate) {
     this.firebaseUser = null;
     this.delegate = delegate;
     this.firebaseRoot = null;
@@ -45,27 +45,6 @@ class FirebaseDatabase {
     this.gameId = null;
 
     // Initialize Firebase
-    let config;
-
-    if (prod) {
-      config = {
-        apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
-        authDomain: "trogdors-29fa4.firebaseapp.com",
-        databaseURL: "https://trogdors-29fa4.firebaseio.com",
-        projectId: "trogdors-29fa4",
-        storageBucket: "trogdors-29fa4.appspot.com",
-        messagingSenderId: "625580091272"
-      };
-    } else {
-      config = {
-        apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
-        authDomain: "zeds-dbe0f.firebaseapp.com",
-        databaseURL: "https://zeds-dbe0f.firebaseio.com",
-        storageBucket: "zeds-dbe0f.appspot.com",
-        messagingSenderId: "721599614458",
-      };
-    }
-
     firebase.initializeApp(config);
 
 
@@ -73,37 +52,44 @@ class FirebaseDatabase {
   }
 
   attemptAutoSignIn() {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in.
-        this.setUser_(user);
-      } else {
-        // No user is signed in
-        this.delegate.onAutoSignInFailed();
-      }
+    return new Promise((resolve, reject) => {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          // User is signed in.
+          this.setUser_(user);
+          resolve(user.uid);
+        } else {
+          // No user is signed in
+          reject();
+        }
+      });
     });
   }
 
   signIn() {
-    var provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('https://www.googleapis.com/auth/plus.login');
-    firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          var token = result.credential.accessToken;
-          // The signed-in user info.
-          this.setUser_(result.user);
-          // ...
-        }).catch((error) => {
-          // Handle Errors here.
-          var errorCode = error.code;
-          var errorMessage = error.message;
-          // The email of the user's account used.
-          var email = error.email;
-          // The firebase.auth.AuthCredential type that was used.
-          var credential = error.credential;
-          // ...
-        });
+    return new Promise((resolve, reject) => {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('https://www.googleapis.com/auth/plus.login');
+      firebase.auth().signInWithPopup(provider)
+          .then((result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            var token = result.credential.accessToken;
+            // The signed-in user info.
+            this.setUser_(result.user);
+            // ...
+            resolve(result.user.uid);
+          }).catch((error) => {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            // The email of the user's account used.
+            var email = error.email;
+            // The firebase.auth.AuthCredential type that was used.
+            var credential = error.credential;
+            // ...
+            reject();
+          });
+    });
   }
 
   signOut() {
@@ -119,7 +105,6 @@ class FirebaseDatabase {
   setUser_(user) {
     this.firebaseUser = user;
     this.userId = user.uid;
-    this.delegate.onUserSignedIn(this.userId);
     this.listenToSpecificUser(this.userId);
     this.shallowListenToGames();
     this.listenToGuns();

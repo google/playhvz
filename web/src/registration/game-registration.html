@@ -22,20 +22,21 @@
           this.$.form.addEventListener('iron-form-submit', function(event) {
             Polymer.dom(this.root).querySelector('.output').innerHTML = JSON.stringify(event.detail);
 
-            var preferences = {
+            var playerArgs = {
               needGun: event.detail.needGun,
               startAsZombie: event.detail.startAsZombie,
               beSecretZombie: event.detail.beSecretZombie,
               volunteer: event.detail.volunteer,
+              profileImageUrl: '',
+              name: event.detail.playerName, 
             };
             var playerId = Utils.generateId("player");
 
             this.bridge.joinGame(
-              event.detail.userId, 
-              event.detail.gameId, 
-              playerId, 
-              event.detail.playerName, 
-              preferences);
+                playerId,
+                event.detail.userId,
+                event.detail.gameId,
+                playerArgs);
           }.bind(this));
         },
 
