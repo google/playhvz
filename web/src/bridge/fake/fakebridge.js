@@ -33,7 +33,7 @@ class FakeBridge {
 
     window.fakeBridge = this;
 
-    fakeServer.fill();
+    populateFakeServer(fakeServer);
 
     for (const funcName of SERVER_METHODS)
       this[funcName] = (...args) => this.server[funcName](...args);

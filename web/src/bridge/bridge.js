@@ -5,6 +5,8 @@ Bridge.generateUserId = () => Utils.generateId("user");
 Bridge.generateGameId = () => Utils.generateId("game");
 Bridge.generateUserPlayerId = () => Utils.generateId("userPlayer");
 Bridge.generatePlayerId = () => Utils.generateId("player");
+Bridge.generateLifeId = () => Utils.generateId("life");
+Bridge.generateInfectionId = () => Utils.generateId("infection");
 Bridge.generateMissionId = () => Utils.generateId("mission");
 Bridge.generateGunId = () => Utils.generateId("gun");
 Bridge.generateChatRoomId = () => Utils.generateId("chatRoom");
@@ -28,7 +30,7 @@ const SERVER_METHODS = [
   'addPlayerToChatRoom',
   'addMission',
   'infect',
-  'revive',
+  'addLife',
   'addRewardCategory',
   'addReward',
   'addRewards',

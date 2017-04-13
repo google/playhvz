@@ -160,3 +160,23 @@ Utils.findIndexById = function(collection, id) {
   assert(index >= 0, "Not found!", collection, id);
   return index;
 }
+
+// A nice deterministic shuffle.
+// Similar to how humans shuffle cards.
+Utils.shuffle = function(originalArray, numShuffles) {
+  function innerShuffle(array) {
+    let newArray = [];
+    let arrayA = array.slice(0, array.length / 2);
+    let arrayB = array.slice(array.length / 2, array.length); // might be 1 bigger than arrayA
+    while (arrayA.length || arrayB.length) {
+      arrayA.length && newArray.push(arrayA.pop());
+      arrayB.length && newArray.push(arrayB.pop());
+    }
+    return newArray;
+  }
+  let array = originalArray.slice();
+  for (let i = 0; i < numShuffles; i++) {
+    array = innerShuffle(array);
+  }
+  return array;
+}
