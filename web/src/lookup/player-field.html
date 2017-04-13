@@ -19,10 +19,6 @@
             type: String,
             notify: true,
           },
-          editing: {
-            type: Boolean,
-            value: false,
-          },
           playerIdOrNull: {
             type: String,
           },
@@ -41,10 +37,6 @@
 
         computePlayerOrNull(playerIdOrNull, playersById) {
           return playerIdOrNull && this.playersById[playerIdOrNull];
-        },
-
-        editPlayer_: function() {
-          this.editing = true;
         },
 
         computeSetButtonEnabled_(playerInputValue, matchingPlayerOrNull) {
@@ -75,30 +67,12 @@
         background-color: #C0C0C0;
         opacity: .5;
       }
-      #player {
-        display: flex;
-        align-items: center;
-      }
     </style>
-    <div id="player" hidden$="[[editing]]">
-      <div hidden$="[[playerIdOrNull]]">
-        (none)
-      </div>
-      <div hidden$="[[!playerIdOrNull]]">
-        [[playerOrNull.number]]: [[playerOrNull.name]]
-      </div>
-      <paper-icon-button
-          id="editButton"
-          icon="icons:create"
-          on-tap="editPlayer_">
-      </paper-icon-button>
-    </div>
     <ghvz-player-lookup
         players="[[players]]"
         players-by-id="[[playersById]]"
         matching-player-or-null="{{matchingPlayerOrNull}}"
-        value="{{playerInputValue}}"
-        hidden$="[[!editing]]">
+        value="{{playerInputValue}}">
       <paper-button
           id="setButton"
           icon="icons:check"

@@ -15,9 +15,21 @@
 
           guns: Array,
 
+          gunsById: Object,
+
           players: Array,
 
-          playersById: Array,
+          playersById: Object,
+
+          editingGunIdOrNull: {
+            type: Object,
+            value: null,
+          },
+
+          editingPlayerIdOrNull: {
+            type: Object,
+            value: null,
+          },
         },
 
         // observers: [
@@ -61,6 +73,7 @@
 
         makeTableBlueprint_: function() {
           return {
+            itemsRepeater: this.$.repeater,
             columns: [
               {
                 property: "number",
@@ -125,21 +138,88 @@
                 this.bridge.updateGun(gun.id, properties);
               });
         },
+
+        computePlayerName_: function(playerIdOrNull) {
+          return playerIdOrNull ? this.playersById[playerIdOrNull].name : '(none)';
+        },
+
+        onSetGunPlayer_: function(e) {
+          let playerOrNull = e.detail.playerOrNull;
+          this.bridge.setGunPlayer(this.editingGunIdOrNull, playerOrNull && playerOrNull.id);
+          this.appendChild(this.$.travelingPlayerField);
+          this.querySelector("[editing]").removeAttribute("editing");
+        },
+
+        summonTravelingPlayerField_: function(e) {
+          e.target.parentNode.parentNode.setAttribute("editing", "");
+          let gunId = e.target.dataset.gunId;
+          this.editingGunIdOrNull = gunId;
+          this.$.travelingPlayerField.playerIdOrNull = this.gunsById[gunId].playerId;
+          e.target.parentNode.parentNode.appendChild(this.$.travelingPlayerField);
+        },
       });
     });
   </script>
+  <style>
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      padding: 4px 12px;
+    }
+    .pencil {
+      background-image: url('/pencil.jpg');
+      background-size: 20px 20px;
+      background-repeat: no-repeat;
+      background-position: left;
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: bottom;
+      cursor: pointer;
+    }
+    ghvz-player-field {
+      display: none;
+    }
+    [editing] ghvz-player-field {
+      display: block;
+    }
+    [editing] .player-label {
+      display: none;
+    }
+  </style>
   <template>
-    <style>
-    </style>
 
     <paper-icon-button id="add" icon="icons:add" on-tap="addGun_">
     </paper-icon-button>
 
-    <ghvz-auto-table
+    <ghvz-player-field 
+        id="travelingPlayerField"
+        players="[[players]]"
+        players-by-id="[[playersById]]"
+        on-set-player="onSetGunPlayer_"
+        label="Player">
+    </ghvz-player-field>
+
+    <ghvz-table
         id="table"
         blueprint="[[makeTableBlueprint_()]]"
         items="[[guns]]">
-    </ghvz-auto-table>
+      <template is="dom-repeat" id="repeater" items="[[guns]]" as="gun" initial-count="1" target-framerate="5">
+        <div class="row">
+          <ghvz-table-control-cell item="[[gun]]"></ghvz-table-control-cell>
+          <div class="cell">[[gun.number]]</div>
+          <div class="cell">
+            <div class="player-label">
+              <div class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>
+              [[computePlayerName_(gun.playerId)]]
+            </div>
+          </div>
+        </div>
+      </template>
+    </ghvz-table>
 
     <ghvz-super-form
         id="gunForm"

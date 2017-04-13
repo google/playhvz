@@ -90,11 +90,11 @@
         ],
 
         attached: function() {
-          var fake = false;
+          var fake = true;
+          var prod = false;
           if (fake) {
             this.bridge = new FakeBridge(this.makeBridgeDelegate_());
           } else {
-            var prod = true;
             let config;
             let serverUrl;
             if (prod) {

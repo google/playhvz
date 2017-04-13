@@ -189,19 +189,6 @@
             </ghv-player-table>
           </ghvz-dashlet>
           
-          <!--<ghvz-dashlet scrolling admin full>
-            <div class="header">Players</div>
-            <ghvz-player-table
-                id="playerTableModule"
-                bridge="[[bridge]]"
-                reward-categories-by-id="[[database.game.rewardCategoriesById]]"
-                players="[[database.game.players]]"
-                players-by-id="[[database.game.playersById]]"
-                game-id="[[gameId]]"
-                current-user-id="[[userId]]">
-            </ghvz-player-table>
-          </ghvz-dashlet>-->
-          
           <ghvz-dashlet admin half left>
             <div class="header">Dev Tools</div>
             <ghvz-dev-tools
@@ -212,16 +199,17 @@
             </ghvz-dev-tools>
           </ghvz-dashlet>
 
-          <!--<ghvz-dashlet scrolling admin half right>
+          <ghvz-dashlet scrolling admin half right>
             <div class="header">Guns</div>
             <ghvz-guns
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 guns="[[database.guns]]"
+                guns-by-id="[[database.gunsById]]"
                 players="[[database.game.players]]"
                 players-by-id="[[database.game.playersById]]">
             </ghvz-guns>
-          </ghvz-dashlet>-->
+          </ghvz-dashlet>
 
           <ghvz-dashlet scrolling admin half right>
             <div class="header">Rewards</div>
