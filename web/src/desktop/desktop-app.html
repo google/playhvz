@@ -221,6 +221,17 @@
                 reward-categories-by-id="[[database.game.rewardCategoriesById]]">
             </ghvz-rewards>
           </ghvz-dashlet>
+
+          <ghvz-dashlet scrolling admin half right>
+            <div class="header">Notifications</div>
+            <ghvz-notifications
+                bridge="[[bridge]]"
+                game-id="[[gameId]]"
+                players-by-id="[[database.game.playersById]]"
+                notification-categories="[[database.game.notificationCategories]]"
+                notification-categories-by-id="[[database.game.notificationCategoriesById]]">
+            </ghvz-notifications>
+          </ghvz-dashlet>
         </template>
       </template>
 

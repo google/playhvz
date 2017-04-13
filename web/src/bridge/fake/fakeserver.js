@@ -212,6 +212,13 @@ class FakeServer {
       playerId: null,
     });
   }
+  addRewards(rewardCategoryId, numToAdd) {
+    for (let i = 0; i < numToAdd; i++) {
+      let rewardId = Bridge.generateRewardId();
+      let code = Math.random() * Math.pow(2, 52);
+      this.addReward(rewardId, rewardCategoryId, {code: code});
+    }
+  }
   addGun(gunId, args) {
     this.checkIdNotTaken(gunId, 'gun');
     this.checkRequestArgs(args, SERVER_GUN_PROPERTIES);

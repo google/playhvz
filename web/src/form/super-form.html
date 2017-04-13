@@ -49,8 +49,7 @@
               type: field.type || "string",
               label: field.label || "",
               required: field.required == null ? true : field.required,
-              left: !!field.left,
-              right: !!field.right,
+              width: field.width || null,
               description: field.description || "",
               value: "",
             });
@@ -122,12 +121,26 @@
           }
           this.doneEnabled = true;
         },
+
+        useTimestampPicker_: function(field) {
+          return field.type == 'time' || field.type == 'timestamp';
+        },
+
+        usePaperTextarea_: function(field) {
+          return field.type == 'text' || field.type == 'textarea' || field.type == 'paragraph';
+        },
+
+        usePaperCheckbox_: function(field) {
+          return field.type == 'boolean' || field.type == 'checkbox';
+        },
+
+        usePaperInput_: function(field) {
+          return !field.type || field.type == 'string';
+        },
       });
     });
   </script>
   <template>
-    <style>
-    </style>
     <ghvz-form
         id="form"
         title="[[computeTitle_(editing, typeName)]]"
@@ -137,11 +150,25 @@
         on-ghvz-form-done="done_">
       <template is="dom-repeat" items="{{fields}}" as="field">
         <ghvz-form-section
-            left$="[[field.left]]"
-            right$="[[field.right]]"
+            section-width$="[[field.width]]"
             description="[[field.description]]">
-          <paper-input label="[[field.label]]" value="{{field.value}}">
-          </paper-input>
+          <template is="dom-if" if="[[useTimestampPicker_(field)]]">
+            <ghvz-timestamp-picker timestamp="{{field.value}}">
+            </ghvz-timestamp-picker>
+          </template>
+          <template is="dom-if" if="[[usePaperTextarea_(field)]]">
+            <paper-textarea label="[[field.label]]" checked="{{field.value}}">
+            </paper-textarea>
+          </template>
+          <template is="dom-if" if="[[usePaperCheckbox_(field)]]">
+            <paper-checkbox checked="{{field.value}}">
+              [[field.label]]
+            </paper-checkbox>
+          </template>
+          <template is="dom-if" if="[[usePaperInput_(field)]]">
+            <paper-input label="[[field.label]]" value="{{field.value}}">
+            </paper-input>
+          </template>
         </ghvz-form-section>
       </template>
       <content></content>

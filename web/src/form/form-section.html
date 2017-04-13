@@ -22,16 +22,16 @@
       :host {
         width: 100%;
         display: block;
+        margin: 0 8px;
       }
-      :host[left] {
-        width: 50%;
-        padding-right: 8px;
-        box-sizing: border-box;
+      :host[section-width=half] {
+        width: calc(50% - 16px);
       }
-      :host[right] {
-        width: 50%;
-        box-sizing: border-box;
-        padding-left: 8px;
+      :host[section-width=third] {
+        width: calc(33% - 16px);
+      }
+      :host[section-width=fourth] {
+        width: calc(25% - 16px);
       }
       :host[spaced] {
         margin-top: 8px;

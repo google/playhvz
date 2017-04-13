@@ -30,6 +30,7 @@
 
         makeTableBlueprint_: function() {
           return {
+            itemsRepeater: this.$.repeater,
             columns: [
               {
                 property: "name",
@@ -41,13 +42,11 @@
                 property: "beginTime",
                 name: "Begin",
                 sortable: true,
-                getView: (mission, prop, time) => Utils.formatTime(time),
               },
               {
                 property: "endTime",
                 name: "End",
                 sortable: true,
-                getView: (mission, prop, time) => Utils.formatTime(time),
               },
               {
                 property: "url",
@@ -79,14 +78,14 @@
               {
                 property: "beginTime",
                 label: "Begin timestamp",
-                left: true,
+                width: "half",
                 description: "(in milliseconds)",
                 type: "number",
               },
               {
                 property: "endTime",
                 label: "End timestamp",
-                right: true,
+                width: "half",
                 description: "(in milliseconds)",
                 type: "number",
               },
@@ -118,29 +117,48 @@
                 this.bridge.updateMission(mission.id, properties);
               });
         },
+
+        formatTime_: function(time) {
+          return Utils.formatTime(time);
+        },
       });
     });
   </script>
-  <template>
-    <style>
-      paper-input {
-        display: block;
-        width: 100%;
-        --paper-input-container-underline: {
-          border-bottom-color: #C0C0C0;
-        }
-        margin-bottom: 4px;
+  <style>
+    paper-input {
+      display: block;
+      width: 100%;
+      --paper-input-container-underline: {
+        border-bottom-color: #C0C0C0;
       }
-    </style>
-
+      margin-bottom: 4px;
+    }
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      padding: 4px 12px;
+    }
+  </style>
+  <template>
     <paper-icon-button id="add" icon="icons:add" on-tap="addMission_">
     </paper-icon-button>
 
-    <ghvz-auto-table
+    <ghvz-table
         id="table"
         blueprint="[[makeTableBlueprint_()]]"
         items="[[missions]]">
-    </ghvz-auto-table>
+      <template is="dom-repeat" id="repeater" items="[[missions]]" as="mission" initial-count="1" target-framerate="5">
+        <div class="row">
+          <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
+          <div class="cell">[[mission.name]]</div>
+          <div class="cell">[[formatTime_(mission.beginTime)]]</div>
+          <div class="cell">[[formatTime_(mission.endTime)]]</div>
+          <div class="cell">[[mission.url]]</div>
+        </div>
+      </template>
+    </ghvz-table>
 
     <ghvz-super-form
         id="missionForm"

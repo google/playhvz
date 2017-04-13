@@ -25,11 +25,6 @@
             type: Object,
             value: null,
           },
-
-          editingPlayerIdOrNull: {
-            type: Object,
-            value: null,
-          },
         },
 
         // observers: [
@@ -85,23 +80,7 @@
                 name: "Player",
                 filterable: true,
                 sortable: true,
-                getModel: (gun) => {
-                  return gun.playerId && this.playersById[gun.playerId].name;
-                },
-                getView: (gun) => {
-                  var field = document.createElement('ghvz-player-field');
-                  field.bridge = this.bridge;
-                  field.gameId = this.gameId;
-                  field.players = this.players;
-                  field.playersById = this.playersById;
-                  field.playerIdOrNull = gun.playerId;
-                  field.label = null;
-                  field.addEventListener('set-player', (e) => {
-                    let playerOrNull = e.detail.playerOrNull;
-                    this.bridge.setGunPlayer(gun.id, playerOrNull && playerOrNull.id);
-                  });
-                  return field;
-                },
+                getModel: (gun) => gun.playerId && this.playersById[gun.playerId].name,
               },
             ],
             actions: [
@@ -147,15 +126,14 @@
           let playerOrNull = e.detail.playerOrNull;
           this.bridge.setGunPlayer(this.editingGunIdOrNull, playerOrNull && playerOrNull.id);
           this.appendChild(this.$.travelingPlayerField);
-          this.querySelector("[editing]").removeAttribute("editing");
         },
 
         summonTravelingPlayerField_: function(e) {
-          e.target.parentNode.parentNode.setAttribute("editing", "");
           let gunId = e.target.dataset.gunId;
           this.editingGunIdOrNull = gunId;
           this.$.travelingPlayerField.playerIdOrNull = this.gunsById[gunId].playerId;
-          e.target.parentNode.parentNode.appendChild(this.$.travelingPlayerField);
+          let cell = e.target.closest('.cell');
+          cell.insertBefore(this.$.travelingPlayerField, cell.childNodes[0]);
         },
       });
     });
@@ -180,13 +158,10 @@
       vertical-align: bottom;
       cursor: pointer;
     }
-    ghvz-player-field {
+    :host > ghvz-player-field {
       display: none;
     }
-    [editing] ghvz-player-field {
-      display: block;
-    }
-    [editing] .player-label {
+    ghvz-player-field + .player-label {
       display: none;
     }
   </style>

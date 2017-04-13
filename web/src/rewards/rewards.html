@@ -15,15 +15,8 @@
           rewardCategoriesById: Object,
           playersById: Object,
 
-          rewardCategoryId: {
-            type: String,
-            value: null,
-            observer: 'onRewardCategoryIdChanged_',
-          },
-
-          rewards: {
-            type: Array,
-            value: () => [],
+          currentRewardCategory: {
+            type: Object,
           },
         },
 
@@ -33,6 +26,7 @@
 
         makeCategoriesTableBlueprint_: function() {
           return {
+            itemsRepeater: this.$.categoriesRepeater,
             columns: [
               {
                 property: "name",
@@ -49,13 +43,13 @@
               {
                 property: "claimed",
                 name: "Claimed",
-                getModel: (category) => category.claimed + '/' + category.rewards.length,
+                getModel: (category) => this.computeNumClaimed_(category),
               },
             ],
             actions: [
               {
                 name: "Show Rewards",
-                handler: (category) => this.rewardCategoryId = category.id,
+                handler: (category) => this.$.selector.select(category),
               },
               {
                 name: "Edit",
@@ -77,13 +71,13 @@
                 property: "points",
                 type: "number",
                 label: "Points",
-                left: true,
+                width: "half",
                 description: "Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).",
               },
               {
                 property: "seed",
                 label: "Seed",
-                right: true,
+                width: "half",
                 description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
               },
             ],
@@ -111,6 +105,7 @@
 
         makeRewardsTableBlueprint_: function() {
           return {
+            itemsRepeater: this.$.rewardsRepeater,
             columns: [
               {
                 property: "code",
@@ -121,14 +116,9 @@
               {
                 property: "claimer",
                 name: "Claimer",
-                getModel: (reward) => {
-                  if (reward.playerId == null) {
-                    return "(unclaimed)";
-                  } else {
-                    var player = this.playersById[reward.playerId];
-                    return player ? player.name : "(unknown!)";
-                  }
-                },
+                sortable: true,
+                filterable: true,
+                getModel: (reward) => this.computePlayerName_(reward),
               },
             ],
             actions: [
@@ -140,55 +130,82 @@
           };
         },
 
-        onRewardCategoryIdChanged_: function() {
-          if (this.rewardCategoryId) {
-            this.rewards = this.rewardCategoriesById[this.rewardCategoryId].rewards;
+        addRewards_: function() {
+          this.bridge.addRewards(this.currentRewardCategory.id, this.numNewRewards);
+          this.numNewRewards = "";
+        },
+
+        computePlayerName_: function(reward) {
+          if (reward.playerId == null) {
+            return "(unclaimed)";
           } else {
-            this.rewards = [];
+            var player = this.playersById[reward.playerId];
+            return player ? player.name : "(unknown!)";
           }
         },
 
-        addRewards_: function() {
-          this.bridge.addRewards(this.rewardCategoryId, this.numNewRewards);
-          this.numNewRewards = "";
+        computeNumClaimed_: function(category) {
+          return category.rewards.filter((reward) => reward.playerId != null).length;
         },
       });
     });
   </script>
+  <style>
+    paper-input {
+      --paper-input-container: {
+        padding: 0;
+      }
+    }
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      padding: 4px 12px;
+    }
+    #rewards {
+      margin-top: 16px;
+    }
+    #rewardCodeInput {
+      flex: 1;
+      margin: 0 8px;
+    }
+    #addReward {
+      margin: 8px;
+      white-space: nowrap;
+    }
+    #newReward {
+      display: flex;
+    }
+    #addRewardContainer {
+      display: flex;
+      align-items: flex-end;
+    }
+  </style>
   <template>
-    <style>
-      paper-input {
-        --paper-input-container: {
-          padding: 0;
-        }
-      }
-      #rewards {
-        margin-top: 16px;
-      }
-      #rewardCodeInput {
-        flex: 1;
-        margin: 0 8px;
-      }
-      #addReward {
-        margin: 8px;
-        white-space: nowrap;
-      }
-      #newReward {
-        display: flex;
-      }
-      #addRewardContainer {
-        display: flex;
-        align-items: flex-end;
-      }
-    </style>
+    <array-selector
+        id="selector"
+        items="[[rewardCategories]]"
+        selected="{{currentRewardCategory}}">
+    </array-selector>
+
     <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
     </paper-icon-button>
 
-    <ghvz-auto-table
+    <ghvz-table
         id="categoriesTable"
         blueprint="[[makeCategoriesTableBlueprint_()]]"
         items="[[rewardCategories]]">
-    </ghvz-auto-table>
+      <template is="dom-repeat" id="categoriesRepeater" items="[[rewardCategories]]" as="category" initial-count="1" target-framerate="5">
+        <div class="row">
+          <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
+          <div class="cell">[[category.name]]</div>
+          <div class="cell">[[category.points]]</div>
+          <div class="cell">[[category.seed]]</div>
+          <div class="cell">[[computeNumClaimed_(category)]] / [[category.rewards.length]]</div>
+        </div>
+      </template>
+    </ghvz-table>
 
     <ghvz-super-form
         id="categoryForm"
@@ -196,7 +213,7 @@
         blueprint="[[makeCategoryFormBlueprint_()]]">
     </ghvz-super-form>
 
-    <div id="rewards" hidden="[[!rewardCategoryId]]">
+    <div id="rewards" hidden="[[!currentRewardCategory]]">
       <div id="newReward">
         <paper-input
             id="rewardCodeInput"
@@ -214,12 +231,19 @@
         </div>
       </div>
 
-      <ghvz-auto-table
+      <ghvz-table
           id="rewardsTable"
           blueprint="[[makeRewardsTableBlueprint_()]]"
-          items="[[rewards]]"
-          initial-count="1">
-      </ghvz-auto-table>
+          items="[[currentRewardCategory.rewards]]">
+        <template is="dom-repeat" id="rewardsRepeater" items="[[currentRewardCategory.rewards]]" as="reward" initial-count="1" target-framerate="5">
+          <div class="row">
+            <ghvz-table-control-cell item="[[reward]]"></ghvz-table-control-cell>
+            <div class="cell">[[reward.code]]</div>
+            <div class="cell">[[computePlayerName_(reward)]]</div>
+          </div>
+        </template>
+      </ghvz-table>
+
     </div>
   </template>
 </dom-module>

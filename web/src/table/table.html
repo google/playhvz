@@ -151,15 +151,16 @@
         },
 
         onBulkActionTapped_: function(e) {
+          let action = e.target.dataHost.itemForElement(e.target);
           var matchingItems = this.items.filter((item) => this.isItemSelected(item));
           for (var i = 0; i < matchingItems.length; i++) {
-            this.delegate.doAction(matchingItems[i], e.target.dataset.action);
+            this.delegate.doAction(matchingItems[i], action);
           }
         },
 
         onActionTapped_: function(e) {
-          let action = e.model.action;
-          let item = e.model.dataHost.item;
+          let action = e.model.dataHost.itemForElement(e.target);
+          let item = this.itemsRepeater.itemForElement(e.target);
           action.handler(item);
         },
 
@@ -356,7 +357,7 @@
       text-overflow: ellipsis;
     }
     td {
-      @apply(--ghvz-auto-table-td);
+      @apply(--ghvz-table-td);
     }
     .control-cell {
       padding: 0 0 0 12px;
@@ -451,7 +452,7 @@
       <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
       <paper-menu class="dropdown-content">
         <template is="dom-repeat" items="[[actions]]" as="action">
-          <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.action]]">[[action.name]]</paper-item>
+          <paper-item on-tap="onActionTapped_">[[action.name]]</paper-item>
         </template>
       </paper-menu>
     </paper-menu-button>
@@ -472,7 +473,7 @@
                 <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
                 <paper-menu class="dropdown-content">
                   <template is="dom-repeat" items="[[actions]]" as="action">
-                    <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.action]]">[[action.name]]</paper-item>
+                    <paper-item on-tap="onBulkActionTapped_">[[action.name]]</paper-item>
                   </template>
                 </paper-menu>
               </paper-menu-button>
