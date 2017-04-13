@@ -1,0 +1,67 @@
+
+<dom-module id="ghvz-timestamp-picker">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-timestamp-picker',
+
+        properties: {
+          timestamp: {
+            type: Number,
+            notify: true,
+            observer: 'onTimestampChanged_',
+          },
+
+          year: {
+            type: String,
+            observer: 'onYearChanged_',
+          },
+
+          month: {
+            type: String,
+            observer: 'onMonthChanged_',
+          },
+
+          day: {
+            type: String,
+            observer: 'onDayChanged_',
+          },
+
+          time: {
+            type: String,
+            observer: 'onTimeChanged_',
+          },
+        },
+
+        onTimestampChanged_: function(newTimestamp, oldTimestamp) {
+
+        },
+
+        onYearChanged_: function(newYear, oldYear) {
+          console.log('onyearchanged', newYear, oldYear);
+        },
+
+        onMonthChanged_: function(newMonth, oldMonth) {
+          console.log('onmonthchanged', newMonth, oldMonth);
+        },
+
+        onDayChanged_: function(newDay, oldDay) {
+          console.log('ondaychanged', newDay, oldDay);
+        },
+
+        onTimeChanged_: function(newTime, oldTime) {
+          console.log('ontimechanged', newTime, oldTime);
+        },
+      });
+    });
+  </script>
+  <template>
+    <paper-input label="Year" value="{{year}}" type="number"></paper-input>
+    <paper-input label="Month" value="{{month}}" type="number"></paper-input>
+    <paper-input label="Day" value="{{day}}" type="number"></paper-input>
+    <paper-input label="Time" value="{{time}}"></paper-input>
+  </template>
+</dom-module>

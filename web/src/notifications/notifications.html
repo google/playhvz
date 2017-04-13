@@ -1,0 +1,199 @@
+
+<dom-module id="ghvz-notifications">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-notifications',
+
+        properties: {
+          bridge: Object,
+
+          notificationCategories: Array,
+          notificationCategoriesById: Object,
+        },
+
+        attached: function() {
+          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
+        },
+
+        makeTableBlueprint_: function() {
+          return {
+            itemsRepeater: this.$.repeater,
+            columns: [
+              {
+                property: "name",
+                name: "Name",
+              },
+              {
+                property: "sendTime",
+                name: "Send Time",
+              },
+              {
+                property: "allegianceFilter",
+                name: "To",
+              },
+              {
+                name: "How",
+                getModel: (category) => {
+                  let how = [];
+                  category.email && how.push('email');
+                  category.app && how.push('app');
+                  category.sound && how.push('sound');
+                  category.vibrate && how.push('vibrate');
+                  return how.join('+');
+                },
+              },
+            ],
+            actions: [
+              {
+                name: "Show Rewards",
+                handler: (category) => this.$.selector.select(category),
+              },
+              {
+                name: "Edit",
+                handler: this.startEditingCategory_.bind(this),
+              },
+            ],
+          };
+        },
+
+        computeIconNames_: function(category) {
+          let howIcons = [];
+          category.email && howIcons.push('communication:email');
+          category.app && howIcons.push('icons:announcement');
+          category.sound && howIcons.push('av:volume-up');
+          category.vibrate && howIcons.push('notification:vibration');
+          return howIcons;
+        },
+
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "name",
+                label: "Name",
+                description: "Title of the notification category, for admin use only.",
+              },
+              {
+                property: "sendTime",
+                type: "time",
+                label: "Points",
+                width: "half",
+                description: "When to send this notification. Leave blank to send it now.",
+              },
+              {
+                property: "allegianceFilter",
+                label: "Seed",
+                width: "half",
+                type: "enum",
+                values: [{everyone: "Everyone"}, {resistance: "Resistance"}, {horde: "Horde"}],
+                description: "Who to send this message to.",
+              },
+              {
+                property: "email",
+                label: "Email",
+                width: "fourth",
+                type: 'checkbox',
+                description: "Whether to send as an email.",
+              },
+              {
+                property: "app",
+                label: "App",
+                width: "fourth",
+                type: 'checkbox',
+                description: "Whether to send to all android, ios, and webapp windows.",
+              },
+              {
+                property: "sound",
+                label: "Sound",
+                width: "fourth",
+                type: 'checkbox',
+                description: "Android/iOS only: whether to play a sound.",
+              },
+              {
+                property: "vibrate",
+                label: "Vibrate",
+                width: "fourth",
+                type: 'checkbox',
+                description: "Android/iOS only: whether to vibrate.",
+              },
+              {
+                property: "previewMessage",
+                label: "Preview Message",
+                description: "The small message that will appear in the notification box.",
+              },
+              {
+                property: "message",
+                label: "Preview Message",
+                type: 'textarea',
+                description: "The full message text that the user sees when they click on the notification.",
+              },
+            ],
+          };
+        },
+
+        startAddingCategory_: function() {
+          this.$.form.openForAdding()
+              .then((properties) => {
+                this.bridge.addNotificationCategory(
+                    Utils.generateId("rewardCategory"),
+                    this.gameId,
+                    properties);
+              });
+        },
+
+        startEditingCategory_: function(category) {
+          this.$.form.openForEditing(category)
+              .then((newProperties) => {
+                this.bridge.updateNotificationCategory(
+                    category.id,
+                    newProperties);
+              });
+        },
+
+        formatTime_: function(time) {
+          return Utils.formatTime(time);
+        },
+      });
+    });
+  </script>
+  <style>
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      padding: 4px 12px;
+    }
+  </style>
+  <template>
+    <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
+    </paper-icon-button>
+
+    <ghvz-table
+        id="table"
+        blueprint="[[makeTableBlueprint_()]]"
+        items="[[notificationCategories]]">
+      <template is="dom-repeat" id="repeater" items="[[notificationCategories]]" as="category" initial-count="1" target-framerate="5">
+        <div class="row">
+          <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
+          <div class="cell">[[category.name]]</div>
+          <div class="cell">[[formatTime_(category.sendTime)]]</div>
+          <div class="cell">[[category.allegianceFilter]]</div>
+          <template is="dom-repeat" items="[[computeIconNames_(category, category.*)]]" as="icon">
+            <paper-icon icon="[[icon]]"></paper-icon>
+          </template>
+        </div>
+      </template>
+    </ghvz-table>
+
+    <ghvz-super-form
+        id="form"
+        type-name="Reward Category"
+        blueprint="[[makeFormBlueprint_()]]">
+    </ghvz-super-form>
+  </template>
+</dom-module>
