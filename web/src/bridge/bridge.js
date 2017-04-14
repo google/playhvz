@@ -6,6 +6,7 @@ Bridge.generateGameId = () => Utils.generateId("game");
 Bridge.generateUserPlayerId = () => Utils.generateId("userPlayer");
 Bridge.generatePlayerId = () => Utils.generateId("player");
 Bridge.generateLifeId = () => Utils.generateId("life");
+Bridge.generateAdminId = () => Utils.generateId("admin");
 Bridge.generateInfectionId = () => Utils.generateId("infection");
 Bridge.generateMissionId = () => Utils.generateId("mission");
 Bridge.generateGunId = () => Utils.generateId("gun");

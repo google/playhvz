@@ -24,7 +24,7 @@
         },
 
         openFullscreen_() {
-          this.fire('ghvz-dashlet-open-fullscreen', {
+          this.fire('ghvz-desktop-app-open-page', {
             page: this.fullscreenPage,
           });
         },
@@ -86,9 +86,7 @@
         </paper-icon-button> -->
         <div id="buttons">
           <content select=".header-button">
-          <template is="dom-if" if="[[fullscreenPage]]">
-            <paper-icon-button class="button" icon="icons:fullscreen" on-tap="openFullscreen_"></paper-icon-button>
-          </template>
+          <paper-icon-button hidden$="[[!fullscreenPage]]" class="button" icon="icons:fullscreen" on-tap="openFullscreen_"></paper-icon-button>
         </div>
         
         <!-- <paper-icon-button class="button" icon="icons:more-vert">

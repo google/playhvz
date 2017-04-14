@@ -89,6 +89,10 @@ class FakeServer {
       name: name,
       rulesUrl: rulesUrl,
       stunTimer: stunTimer,
+      admins: [{
+        id: Bridge.generateAdminId(),
+        userId: adminUserId,
+      }],
       players: [],
       missions: [],
       chatRooms: [],
