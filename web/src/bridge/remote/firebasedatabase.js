@@ -7,7 +7,7 @@ const USER_PLAYER_COLLECTIONS = [];
 const GUN_PROPERTIES = ["number", "playerId"];
 const GUN_COLLECTIONS = [];
 const GAME_PROPERTIES = ["name", "rulesUrl", "stunTimer"];
-const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "adminUserIds", "notificationCategories"];
+const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories"];
 const CHAT_ROOM_PROPERTIES = ["allegianceFilter", "name"];
 const CHAT_ROOM_COLLECTIONS = ["messages", "memberships",];
 const CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["playerId"];
@@ -16,6 +16,8 @@ const CHAT_ROOM_MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
 const CHAT_ROOM_MESSAGE_COLLECTIONS = [];
 const MISSION_PROPERTIES = ["name", "beginTime", "endTime", "url", "allegianceFilter"];
 const MISSION_COLLECTIONS = [];
+const ADMIN_PROPERTIES = ["userId"];
+const ADMIN_COLLECTIONS = [];
 const NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate"];
 const NOTIFICATION_CATEGORY_COLLECTIONS = [];
 const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer"];
@@ -125,6 +127,7 @@ class FirebaseDatabase {
   getRewardCategoryIndex_(id) { return Utils.findIndexById(this.delegate.get("game.rewardCategories"), id); }
   getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) { return Utils.findIndexById(this.delegate.get("game.rewardCategoriesById." + rewardCategoryId).rewards, rewardCategoryRewardId); }
   getMissionIndex_(id) { return Utils.findIndexById(this.delegate.get("game.missions"), id); }
+  getAdminIndex_(id) { return Utils.findIndexById(this.delegate.get("game.admins"), id); }
   getUserPlayerIndex_(id) { return Utils.findIndexById(this.delegate.get("user.players"), id); }
   getChatRoomIndex_(id) { return Utils.findIndexById(this.delegate.get("game.chatRooms"), id); }
   getPlayerIndex_(id) {
@@ -252,6 +255,21 @@ class FirebaseDatabase {
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.missions." + this.getMissionIndex_(missionId) + "." + property, value);
+          });
+    });
+  }
+
+  listenToAdmins_(gameId) {
+    var ref = this.firebaseRoot.child("games/" + gameId + "/admins");
+    ref.on("child_added", (snap) => {
+      let adminId = snap.getKey();
+      let obj = this.setupClientSideObject(adminId, snap, ADMIN_PROPERTIES, ADMIN_COLLECTIONS);
+      this.delegate.push("game.admins", obj);
+      this.delegate.set("game.adminsById." + adminId, obj);
+      this.listenForPropertyChanges_(
+          snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
+          (property, value) => {
+            this.delegate.set("game.admins." + this.getAdminIndex_(adminId) + "." + property, value);
           });
     });
   }
