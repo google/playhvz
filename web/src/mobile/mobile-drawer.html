@@ -1,0 +1,198 @@
+
+<dom-module id="ghvz-mobile-drawer">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-mobile-drawer',
+
+      properties: {
+        bridge: Object,
+        database: Object,
+
+        userId: {
+          type: String,
+        },
+
+        gameId: {
+          type: String,
+          notify: true,
+        },
+
+        playerId: {
+          type: String,
+          notify: true,
+        },
+
+        canInfect: {
+          type: Boolean,
+        },
+
+        canRegister: {
+          type: Boolean,
+        },
+
+        isPlayer: {
+          type: Boolean,
+        },
+
+        isAdmin: {
+          type: Boolean,
+        },
+      },
+
+      captureTap_(e) {
+        if (e.target.classList.contains('drawer-item')) {
+          let page = e.target.dataset.page;
+          this.fire('ghvz-close-drawer');
+          this.fire('ghvz-open-page', {
+            page: page,
+          });
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+
+      computeChatPage_(chatRoomId) {
+        return "page/" + chatRoomId;
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    overflow-y: auto;
+    height: 100%;
+  }
+  ghvz-game-selector {
+    margin: 0 12px 8px;
+  }
+  .drawer-item {
+    display: flex;
+    align-items: center;
+    opacity: .6;
+    padding-left: 4px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+  }
+  .drawer-item:active {
+    background-color: #e7e7e7;
+  }
+  .drawer-item:focus {
+    background-color: #e7e7e7;
+  }
+  .drawer-item iron-icon {
+    margin: 8px;
+    opacity: .8;
+  }
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    opacity: .6;
+    margin-left: 12px;
+    height: 48px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .drawer-section {
+    border-top: 1px solid #ddd;
+    padding: 8px 0;
+  }
+</style>
+<template>
+  <div on-tap="captureTap_">
+    <div class="drawer-header">
+      Humans vs Zombies
+    </div>
+
+    <a href="javascript:void(0)" data-page="main" class="drawer-item">
+      <iron-icon icon="icons:dashboard"></iron-icon>
+      Dashboard
+    </a>
+
+    <template is="dom-if" if="[[isAdmin]]">
+      <div class="drawer-section">
+        <a href="javascript:void(0)" data-page="adminMissions" class="drawer-item admin">
+          <iron-icon icon="icons:group-work"></iron-icon>
+          Missions
+        </a>
+        <a href="javascript:void(0)" data-page="adminPlayers" class="drawer-item admin">
+          <iron-icon icon="social:group"></iron-icon>
+          Players
+        </a>
+        <a href="javascript:void(0)" data-page="adminDevTools" class="drawer-item admin">
+          <iron-icon icon="device:developer-mode"></iron-icon>
+          Dev Tools
+        </a>
+        <a href="javascript:void(0)" data-page="adminGuns" class="drawer-item admin">
+          <iron-icon icon="icons:favorite"></iron-icon>
+          Guns
+        </a>
+        <a href="javascript:void(0)" data-page="adminRewards" class="drawer-item admin">
+          <iron-icon icon="icons:stars"></iron-icon>
+          Rewards
+        </a>
+        <a href="javascript:void(0)" data-page="adminNotifications" class="drawer-item admin">
+          <iron-icon icon="social:notifications"></iron-icon>
+          Notifications
+        </a>
+      </div>
+    </template>
+
+    <template is="dom-if" if="[[isPlayer]]">
+      <div class="drawer-section">
+        <a href="javascript:void(0)" data-page="profile" class="drawer-item">
+          <iron-icon icon="icons:account-box"></iron-icon>
+          My Profile
+        </a>
+        <a href="javascript:void(0)" data-page="leaderboard" class="drawer-item">
+          <iron-icon icon="social:group"></iron-icon>
+          Leaderboard
+        </a>
+        <a href="javascript:void(0)" data-page="stats" class="drawer-item">
+          <iron-icon icon="editor:pie-chart"></iron-icon>
+          Game Stats
+        </a>
+        <a href="javascript:void(0)" data-page="rewards" class="drawer-item">
+          <iron-icon icon="icons:stars"></iron-icon>
+          Rewards
+        </a>
+        <a href="javascript:void(0)" data-page="chat" class="drawer-item">
+          <iron-icon icon="communication:chat"></iron-icon>
+          Chat
+        </a>
+        <template is="dom-repeat" items="[[database.game.chatRooms]]" as="chatRoom">
+          <a href="javascript:void(0)" data-page="[[computeChatPage_(chatRoom.id)]]" class="drawer-item">
+            <iron-icon icon="communication:chat"></iron-icon>
+            [[chatRoom.name]]
+          </a>
+        </template>
+      </div>
+    </template>
+
+    <div class="drawer-section">
+      <template is="dom-if" if="[[playerId]]">
+        <a href="javascript:void(0)" class="drawer-item">
+          <iron-icon icon="icons:account-circle"></iron-icon>
+          Sign Out
+        </a>
+      </template>
+
+      <ghvz-game-selector
+          user-id="[[userId]]"
+          user="[[database.user]]"
+          games="[[database.games]]"
+          game-id="{{gameId}}"
+          player-id="{{playerId}}">
+      </ghvz-game-selector>
+    </div>
+  </div>
+</template>
+</dom-module>

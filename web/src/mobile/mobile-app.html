@@ -11,24 +11,17 @@
       properties: {
         bridge: Object,
         database: Object,
-
-        userId: {
-          type: String,
-        },
-
-        gameId: {
-          type: String,
-          notify: true,
-        },
-
-        playerId: {
-          type: String,
-          notify: true,
-        },
-
+        userId: String,
+        gameId: String,
+        playerId: String,
         page: {
           type: String,
-          value: '',
+          observer: 'onPageChanged_',
+        },
+
+        secondPage: {
+          type: String,
+          value: null,
         },
 
         canInfect: {
@@ -45,6 +38,19 @@
           type: Boolean,
           computed: 'computeIsPlayer_(playerId)',
         },
+        
+        isAdmin: {
+          type: Boolean,
+          computed: 'computeIsAdmin_(userId, database.game, database.game.admins.*)',
+        },
+      },
+
+      listeners: {
+        'ghvz-open-drawer': 'openDrawer_',
+        'ghvz-close-drawer': 'closeDrawer_',
+      },
+
+      attached() {
       },
 
       computeCanInfect_: function(playerId, game) {
@@ -59,73 +65,100 @@
         return !!playerId;
       },
 
+      computeIsAdmin_: function(userId, game) {
+        let admin = game.admins.find((admin) => admin.userId == userId);
+        return !!admin;
+      },
+
       openDrawer_() {
         this.$.drawer.openDrawer();
       },
+
+      closeDrawer_() {
+        this.$.drawer.closeDrawer();
+      },
+
+      onPageChanged_: function(newPage, oldPage) {
+        if (newPage == 'main') {
+          this.$.pages.entryAnimation = '';
+          this.$.pages.exitAnimation = '';
+          this.$.pages.selected = 0;
+        } else {
+          this.secondPage = newPage;
+          this.$.pages.entryAnimation = 'slide-from-right-animation';
+          this.$.pages.exitAnimation = '';
+          this.$.pages.selected = 1;
+        }
+      },
+
+      statsPageVisible_(secondPage) { return secondPage == 'stats'; }
     });
   });
 </script>
 <style>
-  .header {
-    height: 48px;
-    background-color: #9C27B0;
-    color: white;
-    font-weight: bold;
-    font-size: 13pt;
-    display: flex;
-    align-items: center;
-    padding-left: 16px;
+  :host {
+    width: 100%;
+    height: 100%;
   }
-  .contents {
-    margin: 16px 16px 0 16px;
+  neon-animated-pages {
+    width: 100%;
+    height: 100%;
+  }
+  neon-animatable {
+    width: 100%;
+    height: 100%;
     background-color: white;
+  }
+  ghvz-game-selector {
+    margin: 0 12px 8px;
   }
 </style>
 <template>
-  <paper-drawer-panel id="drawer">
-    <div drawer>
-      <ghvz-game-selector
+  <paper-drawer-panel id="drawer" disable-swipe>
+    <div id="drawer" drawer>
+      <ghvz-mobile-drawer
+          bridge="[[bridge]]"
+          database="[[database]]"
           user-id="[[userId]]"
-          user="[[database.user]]"
-          games="[[database.games]]"
-          game-id="{{gameId}}"
-          player-id="{{playerId}}">
-      </ghvz-game-selector>
-      dar
+          game-id="[[gameId]]"
+          player-id="[[playerId]]"
+          can-infect="[[canInfect]]"
+          can-register="[[canRegister]]"
+          is-player="[[isPlayer]]"
+          is-admin="[[isAdmin]]">
+      </ghvz-mobile-drawer>
     </div>
     <div main>
-    
-      <paper-icon-button
-          icon="icons:menu"
-          on-tap="openDrawer_">
-      </paper-icon-button>
-
-      <template is="dom-if" if="[[canRegister]]">
-        <div class="header">Join A Game</div>
-        <div class="contents">
-          <ghvz-game-registration
-                class="content"
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                user-id="[[userId]]">
-          </ghvz-game-registration>
-        </div>
-      </template>
-
-      <!--<template is="dom-if" if="[[isPlayer]]">
-
-        <template is="dom-if" if="[[canInfect]]">
-          <div class="header">Infect</div>
-          <div class="contents">
-            <ghvz-infect
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                player-id="[[playerId]]">
-            </ghvz-infect>
-          </div>
-        </template>
-
-      </template>-->
+      <neon-animated-pages id="pages" class="flex" selected="0">
+        <neon-animatable>
+          <ghvz-mobile-main-page
+              bridge="[[bridge]]"
+              database="[[database]]"
+              user-id="[[userId]]"
+              game-id="[[gameId]]"
+              player-id="[[playerId]]"
+              can-infect="[[canInfect]]"
+              can-register="[[canRegister]]"
+              is-player="[[isPlayer]]">
+          </ghvz-mobile-main-page>
+        </neon-animatable>
+        <neon-animatable>
+          <template is="dom-if" if="[[secondPage]]">
+            <template is="dom-if" if="[[statsPageVisible_(secondPage)]]">
+              <ghvz-dashlet full expand with-menu>
+                <div class="header">Game Stats</div>
+                <ghvz-stats-page
+                    bridge="[[bridge]]"
+                    database="[[database]]"
+                    game-id="[[gameId]]"
+                    user-id="[[userId]]"
+                    player-id="[[playerId]]">
+                </ghvz-stats-page>
+              </ghvz-dashlet>
+            </template>
+          </template>
+        </neon-animatable>
+      </neon-animated-pages>
 
     </div>
   </paper-drawer-panel>

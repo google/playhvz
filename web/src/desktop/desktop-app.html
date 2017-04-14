@@ -25,50 +25,10 @@
             type: String,
             notify: true,
           },
-
-          page: {
-            type: String,
-            value: '',
-          },
         },
-
-        observers: [
-          'updatePath_(gameId, page)',
-        ],
 
         listeners: {
           'ghvz-desktop-app-open-page': 'handleOpenPageEvent_',
-        },
-
-        handleOpenPageEvent_(e) {
-          this.openPage_(e.detail.page);
-        },
-
-        attached: function() {
-          let initialUrl = window.location.pathname;
-          let match = /(\w+)\/(\w+)/.exec(initialUrl);
-          if (match) {
-            let gameNumber = match[1];
-            this.$.gameSelector.setGameNumber(gameNumber);
-            let page = match[2];
-            if (page == 'main' || page == 'stats') {
-              this.page = page;
-            }
-          }
-          if (!this.page) {
-            this.page = 'main';
-          }
-        },
-
-        updatePath_: function(gameId, page) {
-          if (gameId && page) {
-            let gameNumber = this.database.gamesById[gameId].number;
-            window.history.replaceState({}, "", "/" + gameNumber + "/" + page);
-          }
-        },
-
-        openPage_(page) {
-          this.page = page;
         },
 
         signOut_: function() {
@@ -159,13 +119,16 @@
     </template>
 
     <template is="dom-if" if="[[computeShowStatsPage_(page)]]">
-      <ghvz-stats-page
-          bridge="[[bridge]]"
-          database="[[database]]"
-          game-id="[[gameId]]"
-          user-id="[[userId]]"
-          player-id="[[playerId]]">
-      </ghvz-stats-page>
+      <ghvz-dashlet full>
+        <div class="header">Game Stats</div>
+        <ghvz-stats-page
+            bridge="[[bridge]]"
+            database="[[database]]"
+            game-id="[[gameId]]"
+            user-id="[[userId]]"
+            player-id="[[playerId]]">
+        </ghvz-stats-page>
+      </ghvz-dashlet>
     </template>
   </template>
 </dom-module>

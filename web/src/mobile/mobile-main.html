@@ -1,0 +1,112 @@
+
+<dom-module id="ghvz-mobile-main-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-mobile-main-page',
+
+      properties: {
+        bridge: Object,
+        database: Object,
+
+        userId: {
+          type: String,
+        },
+
+        gameId: {
+          type: String,
+          notify: true,
+        },
+
+        playerId: {
+          type: String,
+          notify: true,
+        },
+
+        canInfect: {
+          type: Boolean,
+        },
+
+        canRegister: {
+          type: Boolean,
+        },
+
+        isPlayer: {
+          type: Boolean,
+        },
+      },
+
+      startedShowing: function() {
+      },
+
+      handleButtonTap_: function(e) {
+        this.fire('mobile-main-page-show-chat-page');
+      },
+
+      openDrawer_(e) {
+        this.fire('ghvz-open-drawer');
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .paper-header {
+    background-color: #03a9f4;
+    color: white;
+    font-size: 18px;
+    line-height: 48px;
+    font-weight: bold;
+  }
+  ghvz-dashlet {
+    min-height: 100%;
+  }
+</style>
+<template>
+  <ghvz-dashlet full expand with-menu>
+    <div class="header">Humans vs Zombies</div>
+    <template is="dom-if" if="[[canRegister]]">
+      <ghvz-dashlet padded full>
+        <div class="header">Join Game</div>
+        <ghvz-game-registration
+            class="content"
+            bridge="[[bridge]]"
+            game-id="[[gameId]]"
+            user-id="[[userId]]">
+        </ghvz-game-registration>
+      </ghvz-dashlet>
+    </template>
+
+    <template is="dom-if" if="[[isPlayer]]">
+      <template is="dom-if" if="[[canInfect]]">
+        <ghvz-dashlet padded full>
+          <div class="header">Infect</div>
+          <ghvz-infect
+              bridge="[[bridge]]"
+              game-id="[[gameId]]"
+              player-id="[[playerId]]">
+          </ghvz-infect>
+        </ghvz-dashlet>
+      </template>
+
+      <ghvz-dashlet padded full>
+        <div class="header">Next Mission</div>
+        <ghvz-next-mission
+            bridge="[[bridge]]"
+            missions="[[database.game.missions]]"
+            game-id="[[gameId]]"
+            player-id="[[playerId]]">
+        </ghvz-next-mission>
+      </ghvz-dashlet>
+    </template>
+  </ghvz-dashlet>
+</template>
+</dom-module>

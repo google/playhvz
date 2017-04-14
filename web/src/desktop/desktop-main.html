@@ -32,7 +32,7 @@
 
           canInfect: {
             type: Boolean,
-            computed: 'computeCanInfect_(playerId, database.game)',
+            computed: 'computeCanInfect_(playerId, database.game, database.game.playersById.*)',
           },
         },
 
@@ -42,7 +42,7 @@
         },
 
         computeCanInfect_: function(playerId, game) {
-          return !game.playersById[playerId].infectable;
+          return game.playersById[playerId] && !game.playersById[playerId].infectable;
         },
 
         computeCanRegister_(gameId, playerId) {
@@ -89,7 +89,7 @@
     <ghvz-dashboard>
       
       <template is="dom-if" if="[[isAdmin]]">
-        <<ghvz-dashlet admin full>
+        <ghvz-dashlet padded admin full>
           <div class="header">Missions</div>
           <ghvz-missions
               bridge="[[bridge]]"
@@ -98,7 +98,7 @@
           </ghvz-missions>
         </ghvz-dashlet>
 
-        <ghvz-dashlet scrolling admin full>
+        <ghvz-dashlet padded scrolling admin full>
           <div class="header">Players</div>
           <ghvz-player-table
               id="playerTableModule"
@@ -111,7 +111,7 @@
           </ghv-player-table>
         </ghvz-dashlet>
         
-        <ghvz-dashlet admin half left>
+        <ghvz-dashlet padded admin half left>
           <div class="header">Dev Tools</div>
           <ghvz-dev-tools
               class="content"
@@ -121,7 +121,7 @@
           </ghvz-dev-tools>
         </ghvz-dashlet>
 
-        <ghvz-dashlet scrolling admin half right>
+        <ghvz-dashlet padded scrolling admin half right>
           <div class="header">Guns</div>
           <ghvz-guns
               bridge="[[bridge]]"
@@ -133,7 +133,7 @@
           </ghvz-guns>
         </ghvz-dashlet>
 
-        <ghvz-dashlet scrolling admin half right>
+        <ghvz-dashlet padded scrolling admin half right>
           <div class="header">Rewards</div>
           <ghvz-rewards
               bridge="[[bridge]]"
@@ -144,7 +144,7 @@
           </ghvz-rewards>
         </ghvz-dashlet>
 
-        <ghvz-dashlet scrolling admin half right>
+        <ghvz-dashlet padded scrolling admin half right>
           <div class="header">Notifications</div>
           <ghvz-notifications
               bridge="[[bridge]]"
@@ -157,7 +157,7 @@
       </template>
 
       <template is="dom-if" if="[[canRegister]]">
-        <ghvz-dashlet scrolling full>
+        <ghvz-dashlet padded scrolling full>
           <div class="header">Join A Game</div>
           <ghvz-game-registration
                 class="content"
@@ -171,7 +171,7 @@
       <template is="dom-if" if="[[isPlayer]]">
 
         <template is="dom-if" if="[[canInfect]]">
-          <ghvz-dashlet half left>
+          <ghvz-dashlet padded half left>
             <div class="header">Infect</div>
             <ghvz-infect
                 bridge="[[bridge]]"
@@ -181,7 +181,7 @@
           </ghvz-dashlet>
         </template>
 
-        <ghvz-dashlet half left>
+        <ghvz-dashlet padded half left>
           <div class="header">Next Mission</div>
           <ghvz-next-mission
               bridge="[[bridge]]"
@@ -191,19 +191,19 @@
           </ghvz-next-mission>
         </ghvz-dashlet>
 
-        <ghvz-dashlet scrolling half right>
+        <ghvz-dashlet padded scrolling half right>
           <div class="header">Leaderboard</div>
           <ghvz-leaderboard-summary players="[[database.game.players]]">
           </ghvz-leaderboard-summary>
         </ghvz-dashlet>
 
-        <ghvz-dashlet half right fullscreen-page="stats">
+        <ghvz-dashlet padded half right fullscreen-page="stats">
           <div class="header">Game Stats</div>
           <ghvz-game-stat-summary>
           </ghvz-game-stat-summary>
         </ghvz-dashlet>
 
-        <ghvz-dashlet half left>
+        <ghvz-dashlet padded half left>
           <div class="header">Rewards</div>
           <ghvz-claim-reward
               bridge="[[bridge]]"
@@ -213,7 +213,7 @@
         </ghvz-dashlet>
 
         <template is="dom-repeat" items="[[database.game.chatRooms]]" as="chatRoom">
-          <ghvz-dashlet half right>
+          <ghvz-dashlet padded half right>
             <div class="header">[[chatRoom.name]]</div>
             <ghvz-chat-app
                 class="content"

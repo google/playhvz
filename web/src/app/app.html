@@ -56,14 +56,17 @@
 
           userId: {
             type: String,
+            value: null,
           },
 
           gameId: {
             type: String,
+            value: null,
           },
 
           playerId: {
             type: String,
+            value: null,
           },
 
           database: {
@@ -83,17 +86,39 @@
           bridge: {
             type: Object,
           },
+
+          page: {
+            type: String,
+            value: '',
+          },
         },
 
         observers: [
-          'onGameIdChanged_(gameId, bridge)',
+          'autoNavigate_(database.games.splices)',
+          'autoNavigate_(gameId)',
+          'autoNavigate_(playerId)',
+          'autoNavigate_(userId)',
+          'onGameIdChanged_(bridge, gameId)',
         ],
 
+        listeners: {
+          'ghvz-open-page': 'handleOpenPage_',
+        },
+
+        onGameIdChanged_() {
+          this.bridge.setGameId(this.gameId);
+        },
+
         attached: function() {
+          this.bridge = this.makeBridge_();
+          this.bridge.attemptAutoSignIn();
+        },
+
+        makeBridge_() {
           var fake = true;
           var prod = false;
           if (fake) {
-            this.bridge = new FakeBridge(this.makeBridgeDelegate_());
+            return new FakeBridge(this.makeBridgeDelegate_());
           } else {
             let config;
             let serverUrl;
@@ -117,9 +142,8 @@
                 messagingSenderId: "721599614458",
               };
             }
-            this.bridge = new RemoteBridge(serverUrl, config, this.makeBridgeDelegate_());
+            return new RemoteBridge(serverUrl, config, this.makeBridgeDelegate_());
           }
-          this.bridge.attemptAutoSignIn();
         },
 
         makeBridgeDelegate_: function() {
@@ -147,15 +171,69 @@
           };
         },
 
-        onGameIdChanged_: function(gameId) {
-          if (gameId) {
-            //console.log('Choosing game id ', gameId);
-            this.bridge.setGameId(gameId);
+        firebaseSignIn_: function() {
+          this.bridge.signIn();
+        },
+
+        // Called on any change in userId, gameId, playerId, or games.splices.
+        autoNavigate_() {
+          if (this.userId && !this.gameId) {
+            // Try to figure out what game to put them in.
+            let [gameNumber, ] = this.extractUrl_();
+            if (gameNumber) {
+              let game = this.database.games.find(game => game.number == gameNumber);
+              if (game) {
+                this.gameId = game.id;
+              } else {
+                // They specified a game number that doesnt exist, or maybe it
+                // hasnt been loaded yet. Either way, lets not assume they want
+                // to auto-choose a different game.
+              }
+            } else {
+              // They specified no game in the url. Auto choose one.
+              let userPlayer = this.database.user && this.database.user.players[0];
+              if (userPlayer) {
+                this.gameId = userPlayer.gameId;
+              } else {
+                // We can't figure out what game they want. Abort.
+              }
+            }
+          }
+          if (this.userId && this.gameId && !this.playerId) {
+            // Try to figure out their player, if they have one.
+            let player = this.database.user && this.database.user.players.find(player => player.gameId == this.gameId);
+            if (player) {
+              this.playerId = player.id;
+            }
+          }
+          if (this.userId && this.gameId && !this.page) {
+            let [, page] = this.extractUrl_();
+            if (page) {
+              this.page = page;
+            } else {
+              this.page = 'main';
+              window.history.replaceState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
+            }
           }
         },
 
-        firebaseSignIn_: function() {
-          this.bridge.signIn();
+        handleOpenPage_(e) {
+          this.page = e.detail.page;
+          window.history.pushState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
+        },
+
+        extractUrl_() {
+          let initialUrl = window.location.pathname;
+          let match = /(\w+)(?:\/([\w/]+))?/.exec(initialUrl);
+          if (!match) {
+            return [null, null, null];
+          }
+          let gameNumber = match[1];
+          if (!match[2]) {
+            return [gameNumber, null, null];
+          }
+          let page = match[2];
+          return [gameNumber, page];
         },
       });
     });
@@ -171,7 +249,8 @@
             user-id="[[userId]]"
             game-id="{{gameId}}"
             player-id="{{playerId}}"
-            database="[[database]]">
+            database="[[database]]"
+            page="[[page]]">
         </ghvz-desktop-app>
       </template>
       <template is="dom-if" if="[[!isDesktop]]">
@@ -180,7 +259,8 @@
             user-id="[[userId]]"
             game-id="{{gameId}}"
             player-id="{{playerId}}"
-            database="[[database]]">
+            database="[[database]]"
+            page="[[page]]">
         </ghvz-mobile-app>
       </template>
     </template>

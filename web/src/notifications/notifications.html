@@ -16,7 +16,7 @@
         },
 
         attached: function() {
-          this.fire('ghvz-dashlet-add-toolbar-button', { button: this.$.add });
+          this.fire('ghvz-add-toolbar-button', { button: this.$.add });
         },
 
         makeTableBlueprint_: function() {
@@ -182,7 +182,7 @@
           <div class="cell">[[formatTime_(category.sendTime)]]</div>
           <div class="cell">[[category.allegianceFilter]]</div>
           <template is="dom-repeat" items="[[computeIconNames_(category, category.*)]]" as="icon">
-            <paper-icon icon="[[icon]]"></paper-icon>
+            <iron-icon icon="[[icon]]"></iron-icon>
           </template>
         </div>
       </template>

@@ -18,92 +18,47 @@
 
           games: {
             type: Array,
+            observer: 'onGameIdOrGamesChanged_',
           },
 
           gameId: {
             type: String,
-            notify: true,
             value: null,
+            observer: 'onGameIdOrGamesChanged_',
           },
 
           playerId: {
             type: String,
-            notify: true,
             value: null,
           },
         },
 
-        observers: [
-          'autoChooseGame_(userId, user.*)',
-        ],
-
-        attached() {
-          this.gameNumber = null;
-        },
-
-        setGameNumber(gameNumber) {
-          this.gameNumber = gameNumber;
-        },
-
-        findGameWithNumber(number) {
-          for (let game of this.games) {
-            if (game.number == gameNumber) {
-              return game;
-            }
-          }
-          return null;
-        },
-
-        findUserPlayerInGame(gameId) {
-          if (this.user && this.user.players) {
-            for (let userPlayer of this.user.players) {
-              if (userPlayer.gameId == gameId) {
-                return userPlayer;
-              }
-            }
-          }
-          return null;
-        },
-
-        findFirstUserPlayer() {
-          if (this.user && this.user.players) {
-            for (let userPlayer of this.user.players) {
-              return userPlayer;
-            }
-          }
-          return null;
-        },
-
-        autoChooseGame_: function() {
-          if (this.gameId == null && this.playerId == null) {
-            if (this.gameNumber) {
-              let game = this.findGameWithNumber(this.gameNumber);
-              if (game) {
-                this.gameId = game.id;
-                this.$.gameChooser.selected = this.games.findIndex((game) => game.id == this.gameId);
-                let userPlayer = this.findUserPlayerInGame(this.gameId);
-                if (userPlayer) {
-                  this.playerId = userPlayer.playerId;
-                }
-              }
-            } else {
-              let userPlayer = this.findFirstUserPlayer();
-              if (userPlayer) {
-                this.gameId = userPlayer.gameId;
-                this.playerId = userPlayer.playerId;
-                this.$.gameChooser.selected = this.games.findIndex((game) => game.id == this.gameId);
-              }
-            }
-          }
-        },
-
-        chooseGame_: function(e) {
+        chooseGame_(e) {
           let gameIndex = this.$.gameChooser.selected;
-          this.gameId = this.games[gameIndex].id;
+          let gameId = this.games[gameIndex].id;
+          if (gameId != this.gameId) {
+            this.fire('ghvz-select-game', {
+              gameId: gameId,
+            });
+          }
+        },
+
+        onGameIdOrGamesChanged_() {
+          if (this.gameId && this.games) {
+            this.$.gameChooser.selected = this.games.findIndex((game) => game.id == this.gameId);
+          }
         },
       });
     });
   </script>
+  <style>
+    :host {
+      display: block;
+    }
+    paper-dropdown-menu {
+      display: block;
+    }
+  </style>
   <template>
     <paper-dropdown-menu label="Game">
       <paper-listbox id="gameChooser" class="dropdown-content" on-iron-select="chooseGame_">
