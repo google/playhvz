@@ -1,102 +1,89 @@
 
 <dom-module id="ghvz-mobile-app">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-mobile-app',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-mobile-app',
 
-        properties: {
-          bridge: Object,
-          database: Object,
+      properties: {
+        bridge: Object,
+        database: Object,
 
-          userId: {
-            type: String,
-          },
-
-          gameId: {
-            type: String,
-            notify: true,
-          },
-
-          playerId: {
-            type: String,
-            notify: true,
-          },
-
-          isAdmin: {
-            type: Boolean,
-            value: true,
-          },
-
-          isZombie: {
-            type: Boolean,
-            value: true,
-          },
+        userId: {
+          type: String,
         },
 
-        becomeAdmin_: function() {
-          this.isAdmin = true;
+        gameId: {
+          type: String,
+          notify: true,
         },
 
-        becomeNotAdmin_: function() {
-          this.isAdmin = false;
+        playerId: {
+          type: String,
+          notify: true,
         },
 
-        chooseGame_: function(e) {
-          let gameIndex = this.$$("#gameChooser").selected;
-          this.gameId = this.games[gameIndex].id;
+        page: {
+          type: String,
+          value: '',
         },
 
-        computeShowRegister_(gameId, playerId) {
-          return gameId && !playerId;
+        canInfect: {
+          type: Boolean,
+          computed: 'computeCanInfect_(playerId, database.game, database.game.playersById.*)',
         },
-      });
+
+        canRegister: {
+          type: Boolean,
+          computed: 'computeCanRegister_(gameId, playerId)',
+        },
+
+        isPlayer: {
+          type: Boolean,
+          computed: 'computeIsPlayer_(playerId)',
+        },
+      },
+
+      computeCanInfect_: function(playerId, game) {
+        return game.playersById[playerId] && !game.playersById[playerId].infectable;
+      },
+
+      computeCanRegister_(gameId, playerId) {
+        return gameId && !playerId;
+      },
+
+      computeIsPlayer_(playerId) {
+        return !!playerId;
+      },
+
+      openDrawer_() {
+        this.$.drawer.openDrawer();
+      },
     });
-  </script>
-  <template>
-    <style>
-      :host {
-        display: block;
-        position: relative;
-        background-color: #f4f4f4;
-      }
-      .content {
-        display: block;
-        margin: 16px;
-      }
-      #viewControls paper-checkbox {
-        margin-left: 16px;
-      }
-      #topControls {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 16px;
-        align-items: center;
-      }
-      .info {
-        text-align: center;
-      }
-      .header {
-        height: 48px;
-        background-color: #9C27B0;
-        color: white;
-        font-weight: bold;
-        font-size: 13pt;
-        display: flex;
-        align-items: center;
-        padding-left: 16px;
-      }
-      .contents {
-        margin: 16px 16px 0 16px;
-        background-color: white;
-      }
-    </style>
-
-    <div id="topControls">
-
+  });
+</script>
+<style>
+  .header {
+    height: 48px;
+    background-color: #9C27B0;
+    color: white;
+    font-weight: bold;
+    font-size: 13pt;
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+  }
+  .contents {
+    margin: 16px 16px 0 16px;
+    background-color: white;
+  }
+</style>
+<template>
+  <paper-drawer-panel id="drawer">
+    <div drawer>
       <ghvz-game-selector
           user-id="[[userId]]"
           user="[[database.user]]"
@@ -104,140 +91,44 @@
           game-id="{{gameId}}"
           player-id="{{playerId}}">
       </ghvz-game-selector>
-
-      <div id="viewControls">
-        <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
-        <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
-      </div>
+      dar
     </div>
+    <div main>
+    
+      <paper-icon-button
+          icon="icons:menu"
+          on-tap="openDrawer_">
+      </paper-icon-button>
 
-      <template is="dom-if" if="[[computeShowRegister_(gameId, playerId)]]">
-        <paper-material class="contents">
-          <div class="header">Join A Game</div>
+      <template is="dom-if" if="[[canRegister]]">
+        <div class="header">Join A Game</div>
+        <div class="contents">
           <ghvz-game-registration
                 class="content"
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
           </ghvz-game-registration>
-          </paper-material>
+        </div>
       </template>
 
-      <template is="dom-if" if="[[isAdmin]]">
-        <template is="dom-if" if="[[gameId]]">
-        <paper-material class="contents">
-            <div class="header">Missions</div>
-            <ghvz-missions
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                missions="[[database.game.missions]]">
-            </ghvz-missions>
-            </paper-material>
+      <!--<template is="dom-if" if="[[isPlayer]]">
 
-        <paper-material class="contents">
-            <div class="header">Players</div>
-            <ghvz-player-table
-                id="playerTableModule"
-                bridge="[[bridge]]"
-                reward-categories-by-id="[[database.game.rewardCategoriesById]]"
-                players="[[database.game.players]]"
-                players-by-id="[[database.game.playersById]]"
-                game-id="[[gameId]]"
-                current-user-id="[[userId]]">
-            </ghvz-player-table>
-            </paper-material>
-          
-        <paper-material class="contents">
-            <div class="header">Dev Tools</div>
-            <ghvz-dev-tools
-                class="content"
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                user-id="[[userId]]">
-            </ghvz-dev-tools>
-            </paper-material>
-
-        <paper-material class="contents">
-            <div class="header">Guns</div>
-            <ghvz-guns
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                guns="[[database.guns]]"
-                players="[[database.game.players]]"
-                players-by-id="[[database.game.playersById]]">
-            </ghvz-guns>
-            </paper-material>
-
-        <paper-material class="contents">
-            <div class="header">Rewards</div>
-            <ghvz-rewards
-                bridge="[[bridge]]"
-                players-by-id="[[database.game.playersById]]"
-                reward-categories="[[database.game.rewardCategories]]"
-                reward-categories-by-id="[[database.game.rewardCategoriesById]]">
-            </ghvz-rewards>
-            </paper-material>
-        </template>
-      </template>
-
-      <template is="dom-if" if="[[playerId]]">
-
-        <template is="dom-if" if="[[isZombie]]">
-        <paper-material class="contents">
-            <div class="header">Infect</div>
+        <template is="dom-if" if="[[canInfect]]">
+          <div class="header">Infect</div>
+          <div class="contents">
             <ghvz-infect
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 player-id="[[playerId]]">
             </ghvz-infect>
-            </paper-material>
+          </div>
         </template>
 
+      </template>-->
 
-        <paper-material class="contents">
-          <div class="header">Next Mission</div>
-          <ghvz-next-mission
-              bridge="[[bridge]]"
-              missions="[[database.game.missions]]"
-              game-id="[[gameId]]"
-              player-id="[[playerId]]">
-          </ghvz-next-mission>
-          </paper-material>
+    </div>
+  </paper-drawer-panel>
 
-        <paper-material class="contents">
-          <div class="header">Leaderboard</div>
-          <ghvz-leaderboard-summary players="[[database.game.players]]">
-          </ghvz-leaderboard-summary>
-          </paper-material>
-
-        <paper-material class="contents">
-          <div class="header">Game Stats</div>
-          <ghvz-game-stat-summary>
-          </ghvz-game-stat-summary>
-          </paper-material>
-
-        <paper-material class="contents">
-          <div class="header">Rewards</div>
-          <ghvz-claim-reward
-              bridge="[[bridge]]"
-              game-id="[[gameId]]"
-              player-id="[[playerId]]">
-          </ghvz-claim-reward>
-          </paper-material>
-
-        <template is="dom-repeat" items="[[database.game.chatRooms]]" as="chatRoom">
-        <paper-material class="contents">
-            <div class="header">[[chatRoom.name]]</div>
-            <ghvz-chat-app
-                class="content"
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                players-by-id="[[database.game.playersById]]"
-                chat-room="[[chatRoom]]"
-                current-player-id="[[playerId]]">
-            </ghvz-chat-app>
-            </paper-material>
-        </template>
-      </template>
-  </template>
+</template>
 </dom-module>

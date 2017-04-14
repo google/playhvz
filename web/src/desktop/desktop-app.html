@@ -46,12 +46,12 @@
 
         attached: function() {
           let initialUrl = window.location.pathname;
-          let match = /(\w+)(?:\/(\w+))?/.exec(initialUrl);
+          let match = /(\w+)\/(\w+)/.exec(initialUrl);
           if (match) {
             let gameNumber = match[1];
             this.$.gameSelector.setGameNumber(gameNumber);
             let page = match[2];
-            if (page) {
+            if (page == 'main' || page == 'stats') {
               this.page = page;
             }
           }

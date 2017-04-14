@@ -15,26 +15,28 @@ function populateFakeServer(server) {
   var zekePlayerId = Bridge.generatePlayerId();
   server.joinGame(zekePlayerId, zekeUserId, gameId, {name: 'Zeke', needGun: false, profileImageUrl: "", startAsZombie: true, volunteer: true});
   
-  // Make 600 players, start 4 of them as zombies, and have 6 battles.
-  // In each 6 battles, each zombie infects a human.
-  // Should end in 4*(2^6) zombies.
+  let numPlayers = 100;
+  let humansStartIndex = 7;
+  let numBattles = 2;
+  let numShuffles = 3;
+  // Make that many players, start that many of them as zombies, and have that
+  // many battles. In each of the battles, each zombie infects a human.
+  // Should end in humansStartIndex*(2^numBattles) zombies.
   let playerIds = [];
-  for (let i = 0; i < 600; i++) {
+  for (let i = 0; i < numPlayers; i++) {
     let userId = Bridge.generateUserId();
     server.register(userId, {});
     let playerId = Bridge.generatePlayerId();
     server.joinGame(playerId, userId, gameId, {name: 'Player' + i, needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
     playerIds.push(playerId);
   }
-  playerIds = Utils.shuffle(playerIds, 13);
+  playerIds = Utils.shuffle(playerIds, numShuffles);
   let lifeCodesByPlayerId = {};
-  let humansStartIndex = 4;
   for (let i = humansStartIndex; i < playerIds.length; i++) {
     let lifeCode = "life-" + i;
     lifeCodesByPlayerId[playerIds[i]] = lifeCode;
     server.addLife(Bridge.generateLifeId(), playerIds[i], lifeCode);
   }
-  let numBattles = 6;
   for (let i = 0; i < numBattles; i++) {
     for (let j = 0; j < humansStartIndex; j++) {
       let infectorId = playerIds[j];
