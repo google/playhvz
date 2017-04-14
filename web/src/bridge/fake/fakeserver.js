@@ -9,7 +9,7 @@ const SERVER_MISSION_PROPERTIES = ["beginTime", "endTime", "name", "url", "alleg
 const SERVER_REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed"];
 const SERVER_REWARD_PROPERTIES = ["code"];
 const SERVER_GUN_PROPERTIES = ["number"];
-
+const SERVER_NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate"];
 
 class FakeServer {
   constructor(delegate) {
@@ -198,6 +198,40 @@ class FakeServer {
       seed: seed,
       rewards: [],
     });
+  }
+  updateRewardCategory(rewardCategoryId, args) {
+    this.checkId(rewardCategoryId, 'rewardCategory');
+    let rewardCategoryPath = this.database.pathForId(rewardCategoryId);
+    this.checkOptionalRequestArgs(args, SERVER_REWARD_CATEGORY_PROPERTIES);
+    for (let argName in args) {
+      this.database.set(rewardCategoryPath.concat([argName]), args[argName]);
+    }
+  }
+  addNotificationCategory(notificationCategoryId, gameId, args) {
+    this.checkIdNotTaken(notificationCategoryId, 'notificationCategory');
+    this.checkId(gameId, 'game');
+    this.checkRequestArgs(args, SERVER_NOTIFICATION_CATEGORY_PROPERTIES);
+    let {name, message, previewMessage, sendTime, allegianceFilter, email, app, sound, vibrate} = args;
+    this.database.push(["games", this.getGameIndex(gameId), "notificationCategories"], {
+      id: notificationCategoryId,
+      name: name,
+      message: message,
+      previewMessage: previewMessage,
+      sendTime: sendTime,
+      allegianceFilter: allegianceFilter,
+      email: email,
+      app: app,
+      sound: sound,
+      vibrate: vibrate,
+    });
+  }
+  updateNotificationCategory(notificationCategoryId, args) {
+    this.checkId(notificationCategoryId, 'notificationCategory');
+    let notificationCategoryPath = this.database.pathForId(notificationCategoryId);
+    this.checkOptionalRequestArgs(args, SERVER_NOTIFICATION_CATEGORY_PROPERTIES);
+    for (let argName in args) {
+      this.database.set(notificationCategoryPath.concat([argName]), args[argName]);
+    }
   }
   addReward(rewardId, rewardCategoryId, args) {
     this.checkIdNotTaken(rewardId, 'reward');

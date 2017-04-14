@@ -49,10 +49,6 @@
             ],
             actions: [
               {
-                name: "Show Rewards",
-                handler: (category) => this.$.selector.select(category),
-              },
-              {
                 name: "Edit",
                 handler: this.startEditingCategory_.bind(this),
               },
@@ -79,45 +75,45 @@
               },
               {
                 property: "sendTime",
-                type: "time",
+                type: "timestamp",
                 label: "Points",
                 width: "half",
-                description: "When to send this notification. Leave blank to send it now.",
+                description: "When to send this notification. Enter now or a past time to send immediately.",
               },
               {
                 property: "allegianceFilter",
                 label: "Seed",
                 width: "half",
                 type: "enum",
-                values: [{everyone: "Everyone"}, {resistance: "Resistance"}, {horde: "Horde"}],
+                options: [{value: "everyone", name: "Everyone"}, {value: "resistance", name: "Resistance"}, {value: "horde", name: "Horde"}],
                 description: "Who to send this message to.",
               },
               {
                 property: "email",
                 label: "Email",
                 width: "fourth",
-                type: 'checkbox',
+                type: 'boolean',
                 description: "Whether to send as an email.",
               },
               {
                 property: "app",
                 label: "App",
                 width: "fourth",
-                type: 'checkbox',
+                type: 'boolean',
                 description: "Whether to send to all android, ios, and webapp windows.",
               },
               {
                 property: "sound",
                 label: "Sound",
                 width: "fourth",
-                type: 'checkbox',
+                type: 'boolean',
                 description: "Android/iOS only: whether to play a sound.",
               },
               {
                 property: "vibrate",
                 label: "Vibrate",
                 width: "fourth",
-                type: 'checkbox',
+                type: 'boolean',
                 description: "Android/iOS only: whether to vibrate.",
               },
               {
@@ -127,8 +123,8 @@
               },
               {
                 property: "message",
-                label: "Preview Message",
-                type: 'textarea',
+                label: "Full Message",
+                type: 'text',
                 description: "The full message text that the user sees when they click on the notification.",
               },
             ],
@@ -136,10 +132,12 @@
         },
 
         startAddingCategory_: function() {
-          this.$.form.openForAdding()
+          this.$.form.openForAdding({
+                sendTime: Math.floor(new Date().getTime() / 1000),
+              })
               .then((properties) => {
                 this.bridge.addNotificationCategory(
-                    Utils.generateId("rewardCategory"),
+                    Utils.generateId("notificationCategory"),
                     this.gameId,
                     properties);
               });
@@ -192,7 +190,7 @@
 
     <ghvz-super-form
         id="form"
-        type-name="Reward Category"
+        type-name="Notification Category"
         blueprint="[[makeFormBlueprint_()]]">
     </ghvz-super-form>
   </template>

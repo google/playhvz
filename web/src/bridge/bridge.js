@@ -39,4 +39,6 @@ const SERVER_METHODS = [
   'addGun',
   'setGunPlayer',
   'updateMission',
+  'addNotificationCategory',
+  'updateNotificationCategory',
 ];

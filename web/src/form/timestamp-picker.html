@@ -17,51 +17,132 @@
 
           year: {
             type: String,
-            observer: 'onYearChanged_',
           },
 
           month: {
             type: String,
-            observer: 'onMonthChanged_',
           },
 
           day: {
             type: String,
-            observer: 'onDayChanged_',
           },
 
           time: {
             type: String,
-            observer: 'onTimeChanged_',
           },
         },
 
+        attached: function() {
+          this.setAttribute("invalid", "");
+        },
+
         onTimestampChanged_: function(newTimestamp, oldTimestamp) {
+          console.log("timestamp changed!", newTimestamp);
+          if (newTimestamp != oldTimestamp) {
+            if (newTimestamp) {
+              var date = new Date(newTimestamp * 1000);
+              this.$.year.value = date.getYear() + 1900;
+              this.$.month.value = date.getMonth();
+              this.$.day.value = date.getDate();
 
+              let time = "";
+              let pm = date.getHours() > 12;
+              time += date.getHours() - (pm ? 12 : 0);
+              time += ":";
+              time += date.getMinutes() + (date.getMinutes() < 10 ? "0" : "");
+              time += (pm ? "pm" : "am");
+              this.$.time.value = time;
+              this.removeAttribute("invalid");
+            } else {
+              this.timestamp = null;
+              this.$.year.value = "";
+              this.$.month.value = "";
+              this.$.day.value = "";
+              this.$.time.value = "";
+              this.removeAttribute("invalid");
+            }
+          }
         },
 
-        onYearChanged_: function(newYear, oldYear) {
+        updateTimestamp_: function() {
+          let yearStr = this.$.year.value;
+          let monthStr = this.$.month.value;
+          let dayStr = this.$.day.value;
+          let timeStr = this.$.time.value;
+          let year = +yearStr;
+          let month = +monthStr;
+          let day = +dayStr;
+          let timeMatch = /(\d+):(\d+)(am|pm)/.exec(timeStr);
+          if (timeMatch && year > 2000 && month > 0 && day > 0) {
+            let hour = +timeMatch[1];
+            let minute = +timeMatch[2];
+            let pm = timeMatch[3] == "pm";
+            hour += (pm ? 12 : 0);
+            let date = new Date(year, month, day, hour, minute);
+            assert(date.getYear() + 1900 == year);
+            assert(date.getMonth() == month);
+            assert(date.getDate() == day);
+            assert(date.getHours() == hour);
+            assert(date.getMinutes() == minute);
+            this.timestamp = date.getTime() / 1000;
+            this.removeAttribute("invalid");
+          } else {
+            console.error('invalid date');
+            this.setAttribute("invalid", "");
+          }
+        },
+
+        onYearChange_: function(newYear, oldYear) {
           console.log('onyearchanged', newYear, oldYear);
+          this.updateTimestamp_();
         },
 
-        onMonthChanged_: function(newMonth, oldMonth) {
+        onMonthChange_: function(newMonth, oldMonth) {
           console.log('onmonthchanged', newMonth, oldMonth);
+          this.updateTimestamp_();
         },
 
-        onDayChanged_: function(newDay, oldDay) {
+        onDayChange_: function(newDay, oldDay) {
           console.log('ondaychanged', newDay, oldDay);
+          this.updateTimestamp_();
         },
 
-        onTimeChanged_: function(newTime, oldTime) {
+        onTimeChange_: function(newTime, oldTime) {
           console.log('ontimechanged', newTime, oldTime);
+          this.updateTimestamp_();
         },
       });
     });
   </script>
+  <style>
+    :host {
+      display: flex;
+    }
+    :host[invalid] {
+      background-color: #FFF0F0;
+    }
+    paper-input {
+    }
+    paper-input + paper-input {
+      margin-left: 8px;
+    }
+    #year {
+      width: 20%;
+    }
+    #month {
+      width: 25%;
+    }
+    #day {
+      width: 20%;
+    }
+    #time {
+      width: 35%;
+    }
+  </style>
   <template>
-    <paper-input label="Year" value="{{year}}" type="number"></paper-input>
-    <paper-input label="Month" value="{{month}}" type="number"></paper-input>
-    <paper-input label="Day" value="{{day}}" type="number"></paper-input>
-    <paper-input label="Time" value="{{time}}"></paper-input>
+    <paper-input id="year" label="Year" type="number" on-keyup="onYearChange_" on-change="onYearChange_"></paper-input>
+    <paper-input id="month" label="Month" type="number" on-keyup="onMonthChange_" on-change="onMonthChange_"></paper-input>
+    <paper-input id="day" label="Day" type="number" on-keyup="onDayChange_" on-change="onDayChange_"></paper-input>
+    <paper-input id="time" label="Time" on-keyup="onTimeChange_" on-change="onTimeChange_"></paper-input>
   </template>
 </dom-module>
