@@ -26,61 +26,18 @@
             notify: true,
           },
 
-          isAdmin: {
-            type: Boolean,
-            value: true,
+          page: {
+            type: String,
+            value: '',
           },
-
-          isZombie: {
-            type: Boolean,
-            value: true,
-          },
-        },
-
-        attached: function() {
-          // this.bridge.logIn('firstuserauthcode')
-          //     .then((userId) => {
-          //       this.userId = userId;
-          //       return this.bridge.findAllPlayerIdsForUserId(this.userId);
-          //     })
-          //     .then((playerIds) => {
-          //       if (playerIds.length == 0) {
-          //         alert('you should join a game');
-          //       } else if (playerIds.length == 1) {
-          //         this.playerId = playerIds[0];
-          //         this.bridge.findAllChatRoomIdsForPlayerId(this.playerId)
-          //             .then((chatRoomIds) => {
-          //               this.chatRoomIds = chatRoomIds;
-          //             });
-          //         this.bridge.getPlayerById(this.playerId)
-          //             .then((player) => {
-          //               this.gameId = player.gameId;
-          //             });
-          //       } else {
-          //         alert('you should somehow choose a game');
-          //       }
-          //     });
-        },
-
-        becomeAdmin_: function() {
-          this.isAdmin = true;
-        },
-
-        becomeNotAdmin_: function() {
-          this.isAdmin = false;
-        },
-
-        handleError_: function(e) {
-          debugger;
-        },
-
-        computeShowRegister_(gameId, playerId) {
-          return gameId && !playerId;
         },
 
         signOut_: function() {
           this.bridge.signOut();
         },
+
+        computeShowMainPage_(page) { return page == ''; }
+        computeShowStatsPage_(page) { return page == 'stats'; }
       });
     });
   </script>
@@ -151,151 +108,24 @@
       </div>
     </div>
 
-    <ghvz-dashboard>
-      
-      <template is="dom-if" if="[[computeShowRegister_(gameId, playerId)]]">
-        <ghvz-dashlet scrolling full>
-          <div class="header">Join A Game</div>
-          <ghvz-game-registration
-                class="content"
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                user-id="[[userId]]">
-          </ghvz-game-registration>
-        </ghvz-dashlet>
-      </template>
+    <template is="dom-if" if="[[computeShowMainPage_(page)]]">
+      <ghvz-desktop-main-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game-id="[[gameId]]"
+          user-id="[[userId]]"
+          player-id="[[playerId]]">
+      </ghvz-desktop-main-page>
+    </template>
 
-      <template is="dom-if" if="[[isAdmin]]">
-        <template is="dom-if" if="[[gameId]]">
-          <<ghvz-dashlet admin full>
-            <div class="header">Missions</div>
-            <ghvz-missions
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                missions="[[database.game.missions]]">
-            </ghvz-missions>
-          </ghvz-dashlet>
-
-          <ghvz-dashlet scrolling admin full>
-            <div class="header">Players</div>
-            <ghvz-player-table
-                id="playerTableModule"
-                bridge="[[bridge]]"
-                reward-categories-by-id="[[database.game.rewardCategoriesById]]"
-                players="[[database.game.players]]"
-                players-by-id="[[database.game.playersById]]"
-                game-id="[[gameId]]"
-                current-user-id="[[userId]]">
-            </ghv-player-table>
-          </ghvz-dashlet>
-          
-          <ghvz-dashlet admin half left>
-            <div class="header">Dev Tools</div>
-            <ghvz-dev-tools
-                class="content"
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                user-id="[[userId]]">
-            </ghvz-dev-tools>
-          </ghvz-dashlet>
-
-          <ghvz-dashlet scrolling admin half right>
-            <div class="header">Guns</div>
-            <ghvz-guns
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                guns="[[database.guns]]"
-                guns-by-id="[[database.gunsById]]"
-                players="[[database.game.players]]"
-                players-by-id="[[database.game.playersById]]">
-            </ghvz-guns>
-          </ghvz-dashlet>
-
-          <ghvz-dashlet scrolling admin half right>
-            <div class="header">Rewards</div>
-            <ghvz-rewards
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                players-by-id="[[database.game.playersById]]"
-                reward-categories="[[database.game.rewardCategories]]"
-                reward-categories-by-id="[[database.game.rewardCategoriesById]]">
-            </ghvz-rewards>
-          </ghvz-dashlet>
-
-          <ghvz-dashlet scrolling admin half right>
-            <div class="header">Notifications</div>
-            <ghvz-notifications
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                players-by-id="[[database.game.playersById]]"
-                notification-categories="[[database.game.notificationCategories]]"
-                notification-categories-by-id="[[database.game.notificationCategoriesById]]">
-            </ghvz-notifications>
-          </ghvz-dashlet>
-        </template>
-      </template>
-
-      <template is="dom-if" if="[[playerId]]">
-
-        <template is="dom-if" if="[[isZombie]]">
-          <ghvz-dashlet half left>
-            <div class="header">Infect</div>
-            <ghvz-infect
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                player-id="[[playerId]]">
-            </ghvz-infect>
-          </ghvz-dashlet>
-        </template>
-
-
-        <ghvz-dashlet half left>
-          <div class="header">Next Mission</div>
-          <ghvz-next-mission
-              bridge="[[bridge]]"
-              missions="[[database.game.missions]]"
-              game-id="[[gameId]]"
-              player-id="[[playerId]]">
-          </ghvz-next-mission>
-        </ghvz-dashlet>
-
-        <ghvz-dashlet scrolling half right>
-          <div class="header">Leaderboard</div>
-          <ghvz-leaderboard-summary players="[[database.game.players]]">
-          </ghvz-leaderboard-summary>
-        </ghvz-dashlet>
-
-        <ghvz-dashlet half right>
-          <div class="header">Game Stats</div>
-          <ghvz-game-stat-summary>
-          </ghvz-game-stat-summary>
-        </ghvz-dashlet>
-
-        <ghvz-dashlet half left>
-          <div class="header">Rewards</div>
-          <ghvz-claim-reward
-              bridge="[[bridge]]"
-              game-id="[[gameId]]"
-              player-id="[[playerId]]">
-          </ghvz-claim-reward>
-        </ghvz-dashlet>
-
-        <template is="dom-repeat" items="[[database.game.chatRooms]]" as="chatRoom">
-          <ghvz-dashlet half right>
-            <div class="header">[[chatRoom.name]]</div>
-            <ghvz-chat-app
-                class="content"
-                bridge="[[bridge]]"
-                game-id="[[gameId]]"
-                current-player-id="[[playerId]]"
-                players-by-id="[[database.game.playersById]]"
-                chat-room="[[chatRoom]]"
-                current-player-id="[[playerId]]">
-            </ghvz-chat-app>
-          </ghvz-dashlet>
-        </template>
-      </template>
-
-    </ghvz-dashboard>
+    <template is="dom-if" if="[[computeShowStatsPage_(page)]]">
+      <ghvz-stats-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game-id="[[gameId]]"
+          user-id="[[userId]]"
+          player-id="[[playerId]]">
+      </ghvz-stats-page>
+    </template>
   </template>
 </dom-module>

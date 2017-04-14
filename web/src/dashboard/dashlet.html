@@ -8,13 +8,26 @@
       Polymer({
         is: 'ghvz-dashlet',
 
+        properties: {
+          fullscreenPage: {
+            type: String,
+            value: null,
+          },
+        },
+
         listeners: {
           'ghvz-dashlet-add-toolbar-button': 'addToolbarButton_'
         },
 
         addToolbarButton_: function(event) {
           this.$.buttons.appendChild(event.detail.button);
-        }
+        },
+
+        openFullscreen_() {
+          this.fire('ghvz-dashlet-open-fullscreen', {
+            page: this.fullscreenPage,
+          });
+        },
       });
     });
   </script>
@@ -73,7 +86,9 @@
         </paper-icon-button> -->
         <div id="buttons">
           <content select=".header-button">
-          <paper-icon-button class="button" icon="icons:fullscreen"></paper-icon-button>
+          <template is="dom-if" if="[[fullscreenPage]]">
+            <paper-icon-button class="button" icon="icons:fullscreen" on-tap="openFullscreen_"></paper-icon-button>
+          </template>
         </div>
         
         <!-- <paper-icon-button class="button" icon="icons:more-vert">
