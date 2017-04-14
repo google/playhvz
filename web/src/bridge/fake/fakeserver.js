@@ -1,7 +1,7 @@
 'use strict';
 
 const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "volunteer"];
-const SERVER_GAME_PROPERTIES = ["name", "rulesUrl", "stunTimer"];
+const SERVER_GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer"];
 const SERVER_USER_PROPERTIES = [];
 const SERVER_CHAT_ROOM_PROPERTIES = ["name", "allegianceFilter"];
 const SERVER_MESSAGE_PROPERTIES = ["message"];
@@ -83,10 +83,11 @@ class FakeServer {
   createGame(gameId, adminUserId, args) {
     this.checkIdNotTaken(gameId, 'game');
     this.checkRequestArgs(args, SERVER_GAME_PROPERTIES);
-    let {name, rulesUrl, stunTimer} = args;
+    let {name, number, rulesUrl, stunTimer} = args;
     this.database.push(["games"], {
       id: gameId,
       name: name,
+      number: number,
       rulesUrl: rulesUrl,
       stunTimer: stunTimer,
       admins: [{

@@ -7,7 +7,7 @@ function populateFakeServer(server) {
   var zekeUserId = Bridge.generateUserId();
   server.register(zekeUserId, {});
   var gameId = Bridge.generateGameId();
-  server.createGame(gameId, kimUserId, {name: "Test game", rulesUrl: "/firstgame/rules.html", stunTimer: 60});
+  server.createGame(gameId, kimUserId, {number: "2017m", name: "Test game", rulesUrl: "/firstgame/rules.html", stunTimer: 60});
   var kimPlayerId = Bridge.generatePlayerId();
   server.joinGame(kimPlayerId, kimUserId, gameId, {name: 'Kim the Ultimate', needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
   var evanPlayerId = Bridge.generatePlayerId();

@@ -48,22 +48,22 @@
           let initialUrl = window.location.pathname;
           let match = /(\w+)(?:\/(\w+))?/.exec(initialUrl);
           if (match) {
-            this.page = match[1];
-            let gameNumber = match[2];
-            if (gameNumber) {
-              this.$.gameSelector.setGameName(gameNumber);
+            let gameNumber = match[1];
+            this.$.gameSelector.setGameNumber(gameNumber);
+            let page = match[2];
+            if (page) {
+              this.page = page;
             }
+          }
+          if (!this.page) {
+            this.page = 'main';
           }
         },
 
         updatePath_: function(gameId, page) {
-          if (gameId) {
+          if (gameId && page) {
             let gameNumber = this.database.gamesById[gameId].number;
-            if (page) {
-              window.history.replaceState({}, "", "" + gameNumber);
-            } else {
-              window.history.replaceState({}, "", "" + gameNumber + "/" + page);
-            }
+            window.history.replaceState({}, "", "/" + gameNumber + "/" + page);
           }
         },
 

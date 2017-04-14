@@ -37,15 +37,61 @@
           'autoChooseGame_(userId, user.*)',
         ],
 
+        attached() {
+          this.gameNumber = null;
+        },
+
+        setGameNumber(gameNumber) {
+          this.gameNumber = gameNumber;
+        },
+
+        findGameWithNumber(number) {
+          for (let game of this.games) {
+            if (game.number == gameNumber) {
+              return game;
+            }
+          }
+          return null;
+        },
+
+        findUserPlayerInGame(gameId) {
+          if (this.user && this.user.players) {
+            for (let userPlayer of this.user.players) {
+              if (userPlayer.gameId == gameId) {
+                return userPlayer;
+              }
+            }
+          }
+          return null;
+        },
+
+        findFirstUserPlayer() {
+          if (this.user && this.user.players) {
+            for (let userPlayer of this.user.players) {
+              return userPlayer;
+            }
+          }
+          return null;
+        },
+
         autoChooseGame_: function() {
           if (this.gameId == null && this.playerId == null) {
-            if (this.user && this.user.players) {
-              for (let userPlayer of this.user.players) {
-                // pick the first one
+            if (this.gameNumber) {
+              let game = this.findGameWithNumber(this.gameNumber);
+              if (game) {
+                this.gameId = game.id;
+                this.$.gameChooser.selected = this.games.findIndex((game) => game.id == this.gameId);
+                let userPlayer = this.findUserPlayerInGame(this.gameId);
+                if (userPlayer) {
+                  this.playerId = userPlayer.playerId;
+                }
+              }
+            } else {
+              let userPlayer = this.findFirstUserPlayer();
+              if (userPlayer) {
                 this.gameId = userPlayer.gameId;
                 this.playerId = userPlayer.playerId;
-                this.$.gameChooser.selected = this.user.players.indexOf(userPlayer);
-                break;
+                this.$.gameChooser.selected = this.games.findIndex((game) => game.id == this.gameId);
               }
             }
           }
