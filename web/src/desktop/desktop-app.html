@@ -32,11 +32,50 @@
           },
         },
 
+        observers: [
+          'updatePath_(gameId, page)',
+        ],
+
+        listeners: {
+          'ghvz-desktop-app-open-page': 'handleOpenPageEvent_',
+        },
+
+        handleOpenPageEvent_(e) {
+          this.openPage_(e.detail.page);
+        },
+
+        attached: function() {
+          let initialUrl = window.location.pathname;
+          let match = /(\w+)(?:\/(\w+))?/.exec(initialUrl);
+          if (match) {
+            this.page = match[1];
+            let gameNumber = match[2];
+            if (gameNumber) {
+              this.$.gameSelector.setGameName(gameNumber);
+            }
+          }
+        },
+
+        updatePath_: function(gameId, page) {
+          if (gameId) {
+            let gameNumber = this.database.gamesById[gameId].number;
+            if (page) {
+              window.history.replaceState({}, "", "" + gameNumber);
+            } else {
+              window.history.replaceState({}, "", "" + gameNumber + "/" + page);
+            }
+          }
+        },
+
+        openPage_(page) {
+          this.page = page;
+        },
+
         signOut_: function() {
           this.bridge.signOut();
         },
 
-        computeShowMainPage_(page) { return page == ''; },
+        computeShowMainPage_(page) { return page == 'main'; },
         computeShowStatsPage_(page) { return page == 'stats'; },
       });
     });
@@ -75,6 +114,7 @@
 
     <div id="topControls">
       <ghvz-game-selector
+          id="gameSelector"
           user-id="[[userId]]"
           user="[[database.user]]"
           games="[[database.games]]"
