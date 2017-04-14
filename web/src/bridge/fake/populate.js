@@ -71,4 +71,5 @@ function populateFakeServer(server) {
   for (let i = 0; i < 80; i++) {
     server.addGun(Bridge.generateGunId(), {number: 1404 + i + ""});
   }
+  server.addNotificationCategory(Bridge.generateNotificationCategoryId(), gameId, {name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date() / 1000 + 3600, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true});
 }
