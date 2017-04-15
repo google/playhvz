@@ -80,15 +80,15 @@
     line-height: 48px;
     font-weight: bold;
   }
-  ghvz-dashlet {
+  ghvz-card {
     min-height: 100%;
   }
 </style>
 <template>
-  <ghvz-dashlet full expand with-menu>
+  <ghvz-card full expand with-menu>
     <div class="header">Humans vs Zombies</div>
     <template is="dom-if" if="[[canRegister]]">
-      <ghvz-dashlet spaced full>
+      <ghvz-card spaced full>
         <div class="header">Join Game</div>
         <ghvz-game-registration
             class="content"
@@ -96,22 +96,22 @@
             game-id="[[gameId]]"
             user-id="[[userId]]">
         </ghvz-game-registration>
-      </ghvz-dashlet>
+      </ghvz-card>
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
       <template is="dom-if" if="[[canInfect]]">
-        <ghvz-dashlet spaced full>
+        <ghvz-card spaced full>
           <div class="header">Infect</div>
           <ghvz-infect
               bridge="[[bridge]]"
               game-id="[[gameId]]"
               player-id="[[playerId]]">
           </ghvz-infect>
-        </ghvz-dashlet>
+        </ghvz-card>
       </template>
 
-      <ghvz-dashlet spaced full>
+      <ghvz-card spaced full>
         <div class="header">Next Mission</div>
         <ghvz-next-mission
             bridge="[[bridge]]"
@@ -119,8 +119,8 @@
             game-id="[[gameId]]"
             player-id="[[playerId]]">
         </ghvz-next-mission>
-      </ghvz-dashlet>
+      </ghvz-card>
     </template>
-  </ghvz-dashlet>
+  </ghvz-card>
 </template>
 </dom-module>

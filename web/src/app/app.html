@@ -262,13 +262,13 @@ paper-input-container {
   <template is="dom-if" if="[[userId]]">
     <paper-drawer-panel id="drawer" disable-swipe>
       <paper-material drawer>
-        <ghvz-mobile-drawer
+        <ghvz-drawer
             bridge="[[bridge]]"
             database="[[database]]"
             user-id="[[userId]]"
             game-id="[[gameId]]"
             player-id="[[playerId]]">
-        </ghvz-mobile-drawer>
+        </ghvz-drawer>
       </paper-material>
       <div main>
         <template is="dom-if" if="[[isDesktop]]">

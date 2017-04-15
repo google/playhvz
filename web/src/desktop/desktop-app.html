@@ -90,7 +90,7 @@
     </template>
 
     <template is="dom-if" if="[[computeShowStatsPage_(page)]]">
-      <ghvz-dashlet full spaced>
+      <ghvz-card full spaced>
         <div class="header">Game Stats</div>
         <ghvz-stats-page
             bridge="[[bridge]]"
@@ -99,7 +99,7 @@
             user-id="[[userId]]"
             player-id="[[playerId]]">
         </ghvz-stats-page>
-      </ghvz-dashlet>
+      </ghvz-card>
     </template>
   </template>
 </dom-module>

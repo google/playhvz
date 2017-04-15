@@ -89,16 +89,16 @@
     <ghvz-dashboard>
       
       <template is="dom-if" if="[[isAdmin]]">
-        <ghvz-dashlet spaced admin full>
+        <ghvz-card spaced admin full>
           <div class="header">Missions</div>
           <ghvz-missions
               bridge="[[bridge]]"
               game-id="[[gameId]]"
               missions="[[database.game.missions]]">
           </ghvz-missions>
-        </ghvz-dashlet>
+        </ghvz-card>
 
-        <ghvz-dashlet spaced scrolling admin full>
+        <ghvz-card spaced scrolling admin full>
           <div class="header">Players</div>
           <ghvz-player-table
               id="playerTableModule"
@@ -109,9 +109,9 @@
               game-id="[[gameId]]"
               current-user-id="[[userId]]">
           </ghv-player-table>
-        </ghvz-dashlet>
+        </ghvz-card>
         
-        <ghvz-dashlet spaced admin half left>
+        <ghvz-card spaced admin half left>
           <div class="header">Dev Tools</div>
           <ghvz-dev-tools
               class="content"
@@ -119,9 +119,9 @@
               game-id="[[gameId]]"
               user-id="[[userId]]">
           </ghvz-dev-tools>
-        </ghvz-dashlet>
+        </ghvz-card>
 
-        <ghvz-dashlet spaced scrolling admin half right>
+        <ghvz-card spaced scrolling admin half right>
           <div class="header">Guns</div>
           <ghvz-guns
               bridge="[[bridge]]"
@@ -131,9 +131,9 @@
               players="[[database.game.players]]"
               players-by-id="[[database.game.playersById]]">
           </ghvz-guns>
-        </ghvz-dashlet>
+        </ghvz-card>
 
-        <ghvz-dashlet spaced scrolling admin half right>
+        <ghvz-card spaced scrolling admin half right>
           <div class="header">Rewards</div>
           <ghvz-rewards
               bridge="[[bridge]]"
@@ -142,9 +142,9 @@
               reward-categories="[[database.game.rewardCategories]]"
               reward-categories-by-id="[[database.game.rewardCategoriesById]]">
           </ghvz-rewards>
-        </ghvz-dashlet>
+        </ghvz-card>
 
-        <ghvz-dashlet spaced scrolling admin half right>
+        <ghvz-card spaced scrolling admin half right>
           <div class="header">Notifications</div>
           <ghvz-notifications
               bridge="[[bridge]]"
@@ -153,11 +153,11 @@
               notification-categories="[[database.game.notificationCategories]]"
               notification-categories-by-id="[[database.game.notificationCategoriesById]]">
           </ghvz-notifications>
-        </ghvz-dashlet>
+        </ghvz-card>
       </template>
 
       <template is="dom-if" if="[[canRegister]]">
-        <ghvz-dashlet spaced scrolling full>
+        <ghvz-card spaced scrolling full>
           <div class="header">Join A Game</div>
           <ghvz-game-registration
                 class="content"
@@ -165,23 +165,23 @@
                 game-id="[[gameId]]"
                 user-id="[[userId]]">
           </ghvz-game-registration>
-        </ghvz-dashlet>
+        </ghvz-card>
       </template>
 
       <template is="dom-if" if="[[isPlayer]]">
 
         <template is="dom-if" if="[[canInfect]]">
-          <ghvz-dashlet spaced half left>
+          <ghvz-card spaced half left>
             <div class="header">Infect</div>
             <ghvz-infect
                 bridge="[[bridge]]"
                 game-id="[[gameId]]"
                 player-id="[[playerId]]">
             </ghvz-infect>
-          </ghvz-dashlet>
+          </ghvz-card>
         </template>
 
-        <ghvz-dashlet spaced half left>
+        <ghvz-card spaced half left>
           <div class="header">Next Mission</div>
           <ghvz-next-mission
               bridge="[[bridge]]"
@@ -189,31 +189,31 @@
               game-id="[[gameId]]"
               player-id="[[playerId]]">
           </ghvz-next-mission>
-        </ghvz-dashlet>
+        </ghvz-card>
 
-        <ghvz-dashlet spaced scrolling half right>
+        <ghvz-card spaced scrolling half right>
           <div class="header">Leaderboard</div>
           <ghvz-leaderboard-summary players="[[database.game.players]]">
           </ghvz-leaderboard-summary>
-        </ghvz-dashlet>
+        </ghvz-card>
 
-        <ghvz-dashlet spaced half right fullscreen-page="stats">
+        <ghvz-card spaced half right fullscreen-page="stats">
           <div class="header">Game Stats</div>
           <ghvz-game-stat-summary>
           </ghvz-game-stat-summary>
-        </ghvz-dashlet>
+        </ghvz-card>
 
-        <ghvz-dashlet spaced half left>
+        <ghvz-card spaced half left>
           <div class="header">Rewards</div>
           <ghvz-claim-reward
               bridge="[[bridge]]"
               game-id="[[gameId]]"
               player-id="[[playerId]]">
           </ghvz-claim-reward>
-        </ghvz-dashlet>
+        </ghvz-card>
 
         <template is="dom-repeat" items="[[database.game.chatRooms]]" as="chatRoom">
-          <ghvz-dashlet spaced half right>
+          <ghvz-card spaced half right>
             <div class="header">[[chatRoom.name]]</div>
             <ghvz-chat-app
                 class="content"
@@ -224,7 +224,7 @@
                 chat-room="[[chatRoom]]"
                 current-player-id="[[playerId]]">
             </ghvz-chat-app>
-          </ghvz-dashlet>
+          </ghvz-card>
         </template>
       </template>
 

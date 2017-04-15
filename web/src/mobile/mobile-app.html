@@ -80,7 +80,7 @@
     <neon-animatable>
       <template is="dom-if" if="[[secondPage]]">
         <template is="dom-if" if="[[statsPageVisible_(secondPage)]]">
-          <ghvz-dashlet expand with-menu>
+          <ghvz-card expand with-menu>
             <div class="header">Game Stats</div>
             <ghvz-stats-page
                 bridge="[[bridge]]"
@@ -89,7 +89,7 @@
                 user-id="[[userId]]"
                 player-id="[[playerId]]">
             </ghvz-stats-page>
-          </ghvz-dashlet>
+          </ghvz-card>
         </template>
       </template>
     </neon-animatable>
