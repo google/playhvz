@@ -28,8 +28,14 @@
               name: "Name",
             },
             {
+              property: "allegiance",
+              name: "Allegiance",
+            },
+            {
               property: "points",
-              name: "Points"
+              name: "Points",
+              sorting: true,
+              ascending: false,
             },
           ],
           actions: [
@@ -47,6 +53,10 @@
   .row {
     display: table-row;
   }
+  /* Show only first 3 */
+  .row + .row + .row + .row {
+    display: none;
+  }
   .cell {
     display: table-cell;
     padding: 4px 12px;
@@ -61,6 +71,7 @@
       <div class="row">
         <ghvz-table-control-cell item="[[player]]"></ghvz-table-control-cell>
         <div class="cell">[[player.name]]</div>
+        <div class="cell">[[player.allegiance]]</div>
         <div class="cell">[[player.points]]</div>
       </div>
     </template>

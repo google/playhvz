@@ -79,9 +79,9 @@
               getModel: column.getModel,
               sortable: column.sortable,
               filterable: column.filterable,
-              sorting: false,
+              sorting: column.sorting || false,
               comparator: column.comparator,
-              ascending: false,
+              ascending: column.ascending || false,
               filtering: false,
               filterText: "", // "" means show everything
               filter: column.filter,
@@ -100,6 +100,9 @@
           }
           this.actions = actions;
 
+          for (let i = 0; i < this.columns.length; i++) {
+            this.setColumnSorting(i, this.columns[i].sorting, this.columns[i].ascending);
+          }
           // setInterval(() => this.updateVisibilities_(), 500);
         },
 
@@ -172,28 +175,35 @@
           }
         },
 
-        onSortButtonTapped_: function(e) {
-          const columnIndex = e.currentTarget.dataset.columnIndex;
+        setColumnSorting(columnIndex, sorting, ascending) {
           const column = this.columns[columnIndex];
           const sortingPath = 'columns.' + columnIndex + '.sorting';
           const ascendingPath = 'columns.' + columnIndex + '.ascending';
-          if (!column.sorting) {
-            this.set(sortingPath, true);
-            this.set(ascendingPath, true);
-          } else if (column.sorting && column.ascending) {
-            this.set(sortingPath, true);
-            this.set(ascendingPath, false);
-          } else if (column.sorting && !column.ascending) {
-            this.set(sortingPath, false);
-            this.set(ascendingPath, false);
-          }
-
+          this.set(sortingPath, sorting);
+          this.set(ascendingPath, ascending);
           this.sortingColumns = this.sortingColumns.filter(c => c != column);
           if (column.sorting) {
             this.sortingColumns.push(column);
           }
           this.itemsRepeater.sort =
               this.sortingColumns.length ? this.sort_.bind(this) : null;
+        },
+
+        onSortButtonTapped_: function(e) {
+          const columnIndex = e.currentTarget.dataset.columnIndex;
+          let sorting;
+          let ascending;
+          if (!column.sorting) {
+            sorting = true;
+            ascending = true;
+          } else if (column.sorting && column.ascending) {
+            sorting = true;
+            ascending = false;
+          } else if (column.sorting && !column.ascending) {
+            sorting = false;
+            ascending = false;
+          }
+          this.setColumnSorting(columnIndex, sorting, ascending);
         },
 
         sort_: function(a, b) {

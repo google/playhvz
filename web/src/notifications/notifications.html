@@ -56,12 +56,12 @@
           };
         },
 
-        computeIconNames_: function(category) {
+        computeIcons_: function(category) {
           let howIcons = [];
-          category.email && howIcons.push('communication:email');
-          category.app && howIcons.push('icons:announcement');
-          category.sound && howIcons.push('av:volume-up');
-          category.vibrate && howIcons.push('notification:vibration');
+          category.email && howIcons.push({name: 'Email', icon: 'communication:email'});
+          category.app && howIcons.push({name: 'Notification', icon: 'icons:announcement'});
+          category.sound && howIcons.push({name: 'Sound', icon: 'av:volume-up'});
+          category.vibrate && howIcons.push({name: 'Vibrate', icon: 'notification:vibration'});
           return howIcons;
         },
 
@@ -184,8 +184,11 @@
           <div class="cell">[[category.name]]</div>
           <div class="cell">[[formatTime_(category.sendTime)]]</div>
           <div class="cell">[[category.allegianceFilter]]</div>
-          <template is="dom-repeat" items="[[computeIconNames_(category, category.*)]]" as="icon">
-            <iron-icon icon="[[icon]]"></iron-icon>
+          <template is="dom-repeat" items="[[computeIcons_(category, category.*)]]" as="icon">
+            <span>
+              <iron-icon icon="[[icon.icon]]"></iron-icon>
+              <paper-tooltip>[[icon.name]]</paper-tooltip>
+            </span>
           </template>
         </div>
       </template>

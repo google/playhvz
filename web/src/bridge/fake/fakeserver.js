@@ -320,6 +320,8 @@ class FakeServer {
     if (!infecteePlayer) {
       throw 'No player found with life code ' + infecteeLifeCode;
     }
+    this.database.set(infectorPlayerPath.concat(["points"]),
+        this.database.get(infectorPlayerPath.concat(["points"])) + 2);
     let infecteePlayerPath = ["games", gameId, "players", infecteePlayerIndex];
     this.database.push(infecteePlayerPath.concat(["infections"]), {
       id: Bridge.generateInfectionId(),
