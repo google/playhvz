@@ -23,26 +23,6 @@
           type: String,
           value: null,
         },
-
-        canInfect: {
-          type: Boolean,
-          computed: 'computeCanInfect_(playerId, database.game, database.game.playersById.*)',
-        },
-
-        canRegister: {
-          type: Boolean,
-          computed: 'computeCanRegister_(gameId, playerId)',
-        },
-
-        isPlayer: {
-          type: Boolean,
-          computed: 'computeIsPlayer_(playerId)',
-        },
-        
-        isAdmin: {
-          type: Boolean,
-          computed: 'computeIsAdmin_(userId, database.game, database.game.admins.*)',
-        },
       },
 
       listeners: {
@@ -51,31 +31,6 @@
       },
 
       attached() {
-      },
-
-      computeCanInfect_: function(playerId, game) {
-        return game.playersById[playerId] && !game.playersById[playerId].infectable;
-      },
-
-      computeCanRegister_(gameId, playerId) {
-        return gameId && !playerId;
-      },
-
-      computeIsPlayer_(playerId) {
-        return !!playerId;
-      },
-
-      computeIsAdmin_: function(userId, game) {
-        let admin = game.admins.find((admin) => admin.userId == userId);
-        return !!admin;
-      },
-
-      openDrawer_() {
-        this.$.drawer.openDrawer();
-      },
-
-      closeDrawer_() {
-        this.$.drawer.closeDrawer();
       },
 
       onPageChanged_: function(newPage, oldPage) {
@@ -99,6 +54,7 @@
   :host {
     width: 100%;
     height: 100%;
+    display: block;
   }
   neon-animated-pages {
     width: 100%;
@@ -109,59 +65,34 @@
     height: 100%;
     background-color: white;
   }
-  ghvz-game-selector {
-    margin: 0 12px 8px;
-  }
 </style>
 <template>
-  <paper-drawer-panel id="drawer" disable-swipe>
-    <div id="drawer" drawer>
-      <ghvz-mobile-drawer
+  <neon-animated-pages id="pages" class="flex" selected="0">
+    <neon-animatable>
+      <ghvz-mobile-main-page
           bridge="[[bridge]]"
           database="[[database]]"
           user-id="[[userId]]"
           game-id="[[gameId]]"
-          player-id="[[playerId]]"
-          can-infect="[[canInfect]]"
-          can-register="[[canRegister]]"
-          is-player="[[isPlayer]]"
-          is-admin="[[isAdmin]]">
-      </ghvz-mobile-drawer>
-    </div>
-    <div main>
-      <neon-animated-pages id="pages" class="flex" selected="0">
-        <neon-animatable>
-          <ghvz-mobile-main-page
-              bridge="[[bridge]]"
-              database="[[database]]"
-              user-id="[[userId]]"
-              game-id="[[gameId]]"
-              player-id="[[playerId]]"
-              can-infect="[[canInfect]]"
-              can-register="[[canRegister]]"
-              is-player="[[isPlayer]]">
-          </ghvz-mobile-main-page>
-        </neon-animatable>
-        <neon-animatable>
-          <template is="dom-if" if="[[secondPage]]">
-            <template is="dom-if" if="[[statsPageVisible_(secondPage)]]">
-              <ghvz-dashlet expand with-menu>
-                <div class="header">Game Stats</div>
-                <ghvz-stats-page
-                    bridge="[[bridge]]"
-                    database="[[database]]"
-                    game-id="[[gameId]]"
-                    user-id="[[userId]]"
-                    player-id="[[playerId]]">
-                </ghvz-stats-page>
-              </ghvz-dashlet>
-            </template>
-          </template>
-        </neon-animatable>
-      </neon-animated-pages>
-
-    </div>
-  </paper-drawer-panel>
-
+          player-id="[[playerId]]">
+      </ghvz-mobile-main-page>
+    </neon-animatable>
+    <neon-animatable>
+      <template is="dom-if" if="[[secondPage]]">
+        <template is="dom-if" if="[[statsPageVisible_(secondPage)]]">
+          <ghvz-dashlet expand with-menu>
+            <div class="header">Game Stats</div>
+            <ghvz-stats-page
+                bridge="[[bridge]]"
+                database="[[database]]"
+                game-id="[[gameId]]"
+                user-id="[[userId]]"
+                player-id="[[playerId]]">
+            </ghvz-stats-page>
+          </ghvz-dashlet>
+        </template>
+      </template>
+    </neon-animatable>
+  </neon-animated-pages>
 </template>
 </dom-module>

@@ -28,19 +28,44 @@
 
         canInfect: {
           type: Boolean,
+          computed: 'computeCanInfect_(playerId, database.game, database.game.playersById.*)',
         },
 
         canRegister: {
           type: Boolean,
+          computed: 'computeCanRegister_(gameId, playerId)',
         },
 
         isPlayer: {
           type: Boolean,
+          computed: 'computeIsPlayer_(playerId)',
         },
-
+        
         isAdmin: {
           type: Boolean,
+          computed: 'computeIsAdmin_(userId, database.game, database.game.admins.*)',
         },
+      },
+
+      listeners: {
+        'tap': 'captureTap_',
+      },
+
+      computeCanInfect_: function(playerId, game) {
+        return game.playersById[playerId] && !game.playersById[playerId].infectable;
+      },
+
+      computeCanRegister_(gameId, playerId) {
+        return gameId && !playerId;
+      },
+
+      computeIsPlayer_(playerId) {
+        return !!playerId;
+      },
+
+      computeIsAdmin_: function(userId, game) {
+        let admin = game.admins.find((admin) => admin.userId == userId);
+        return !!admin;
       },
 
       captureTap_(e) {
@@ -105,11 +130,20 @@
     border-top: 1px solid #ddd;
     padding: 8px 0;
   }
+  #confidential {
+    padding: 4px 12px 8px;
+    opacity: .5;
+    font-size: 90%;
+  }
 </style>
 <template>
   <div on-tap="captureTap_">
     <div class="drawer-header">
       Humans vs Zombies
+    </div>
+
+    <div id="confidential">
+      Remember, don't post confidential info!</div>
     </div>
 
     <a href="javascript:void(0)" data-page="main" class="drawer-item">
@@ -193,6 +227,11 @@
           player-id="{{playerId}}">
       </ghvz-game-selector>
     </div>
+
+    <div>userId [[userId]]</div>
+    <div>gameId [[gameId]]</div>
+    <div>playerId [[playerId]]</div>
+
   </div>
 </template>
 </dom-module>

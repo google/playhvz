@@ -1,268 +1,298 @@
 <style>
-  body {
-    font-family: 'Roboto', 'Noto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
+body {
+  font-family: 'Roboto', 'Noto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  padding: 0 !important;
+  margin: 0 !important;
+}
 
-  /* whoever designed the default paper-menu needs to be shot */
-  paper-menu,
-  paper-listbox {
-    padding: 0 !important;
-  }
-  paper-menu .iron-selected,
-  paper-listbox .iron-selected {
-    font-weight: inherit !important;
-  }
-  paper-menu paper-item,
-  paper-listbox paper-item {
-    min-height: 36px !important;
-    white-space: nowrap;
-  }
-  paper-listbox paper-item::before,
-  paper-listbox paper-item::after,
-  paper-menu paper-item::before,
-  paper-menu paper-item::after {
-    display: none;
-  }
-  paper-listbox paper-item:hover,
-  paper-menu paper-item:hover {
-    background-color: #F0F0F0 !important;
-    cursor: pointer;
-  }
+/* whoever designed the default paper-menu needs to be shot */
+paper-menu,
+paper-listbox {
+  padding: 0 !important;
+}
+paper-menu .iron-selected,
+paper-listbox .iron-selected {
+  font-weight: inherit !important;
+}
+paper-menu paper-item,
+paper-listbox paper-item {
+  min-height: 36px !important;
+  white-space: nowrap;
+}
+paper-listbox paper-item::before,
+paper-listbox paper-item::after,
+paper-menu paper-item::before,
+paper-menu paper-item::after {
+  display: none;
+}
+paper-listbox paper-item:hover,
+paper-menu paper-item:hover {
+  background-color: #F0F0F0 !important;
+  cursor: pointer;
+}
 
-  paper-input-container {
-    padding: 0 !important;
-  }
+paper-input-container {
+  padding: 0 !important;
+}
 </style>
 
 <dom-module id="ghvz-app">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-app',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-app',
 
-        properties: {
-          isDesktop: {
-            type: Boolean,
-            value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
-          },
-
-          showSignInButton: Boolean,
-
-          userId: {
-            type: String,
-            value: null,
-          },
-
-          gameId: {
-            type: String,
-            value: null,
-          },
-
-          playerId: {
-            type: String,
-            value: null,
-          },
-
-          database: {
-            type: Object,
-            value: () => ({
-              gunsById: {},
-              guns: [],
-              game: {},
-              games: [],
-              gamesById: {},
-              users: [],
-              usersById: {},
-              user: {},
-            }),
-          },
-
-          bridge: {
-            type: Object,
-          },
-
-          page: {
-            type: String,
-            value: '',
-          },
+      properties: {
+        isDesktop: {
+          type: Boolean,
+          value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
         },
 
-        observers: [
-          'autoNavigate_(database.games.splices)',
-          'autoNavigate_(gameId)',
-          'autoNavigate_(playerId)',
-          'autoNavigate_(userId)',
-          'onGameIdChanged_(bridge, gameId)',
-        ],
+        showSignInButton: Boolean,
 
-        listeners: {
-          'ghvz-open-page': 'handleOpenPage_',
+        userId: {
+          type: String,
+          value: null,
         },
 
-        onGameIdChanged_() {
-          this.bridge.setGameId(this.gameId);
+        gameId: {
+          type: String,
+          value: null,
         },
 
-        attached: function() {
-          this.bridge = this.makeBridge_();
-          this.bridge.attemptAutoSignIn();
+        playerId: {
+          type: String,
+          value: null,
         },
 
-        makeBridge_() {
-          var fake = true;
-          var prod = false;
-          if (fake) {
-            return new FakeBridge(this.makeBridgeDelegate_());
+        database: {
+          type: Object,
+          value: () => ({
+            gunsById: {},
+            guns: [],
+            game: {},
+            games: [],
+            gamesById: {},
+            users: [],
+            usersById: {},
+            user: {},
+          }),
+        },
+
+        bridge: {
+          type: Object,
+        },
+
+        page: {
+          type: String,
+          value: '',
+        },
+      },
+
+      observers: [
+        'autoNavigate_(database.games.splices)',
+        'autoNavigate_(gameId)',
+        'autoNavigate_(playerId)',
+        'autoNavigate_(userId)',
+        'onGameIdChanged_(bridge, gameId)',
+      ],
+
+      listeners: {
+        'ghvz-open-page': 'handleOpenPage_',
+        'ghvz-open-drawer': 'openDrawer_',
+        'ghvz-close-drawer': 'closeDrawer_',
+      },
+
+      onGameIdChanged_() {
+        this.bridge.setGameId(this.gameId);
+      },
+
+      attached() {
+        this.bridge = this.makeBridge_();
+        this.bridge.attemptAutoSignIn();
+      },
+
+      makeBridge_() {
+        var fake = true;
+        var prod = false;
+        if (fake) {
+          return new FakeBridge(this.makeBridgeDelegate_());
+        } else {
+          let config;
+          let serverUrl;
+          if (prod) {
+            serverUrl = "http://googlehvz.com";
+            config = {
+              apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+              authDomain: "trogdors-29fa4.firebaseapp.com",
+              databaseURL: "https://trogdors-29fa4.firebaseio.com",
+              projectId: "trogdors-29fa4",
+              storageBucket: "trogdors-29fa4.appspot.com",
+              messagingSenderId: "625580091272"
+            };
           } else {
-            let config;
-            let serverUrl;
-            if (prod) {
-              serverUrl = "http://googlehvz.com";
-              config = {
-                apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
-                authDomain: "trogdors-29fa4.firebaseapp.com",
-                databaseURL: "https://trogdors-29fa4.firebaseio.com",
-                projectId: "trogdors-29fa4",
-                storageBucket: "trogdors-29fa4.appspot.com",
-                messagingSenderId: "625580091272"
-              };
+            serverUrl = assert(false); // we dont have a dev frontend
+            config = {
+              apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
+              authDomain: "zeds-dbe0f.firebaseapp.com",
+              databaseURL: "https://zeds-dbe0f.firebaseio.com",
+              storageBucket: "zeds-dbe0f.appspot.com",
+              messagingSenderId: "721599614458",
+            };
+          }
+          return new RemoteBridge(serverUrl, config, this.makeBridgeDelegate_());
+        }
+      },
+
+      makeBridgeDelegate_: function() {
+        return {
+          set: (path, value) => {
+            //console.log('Local set', path, value);
+            this.set('database.' + path, value);
+          },
+          push: (path, value) => {
+            //console.log('Local push', path, value);
+            this.push('database.' + path, value);
+          },
+          splice: (path, index, numToRemove, ...toInsert) => {
+            //console.log('Local splice', path, index, numToRemove, ...toInsert);
+            this.splice('database.' + path, index, numToRemove, ...toInsert);
+          },
+          get: (path) => this.get('database.' + path),
+          onUserSignedIn: (userId) => {
+            this.userId = userId;
+            this.showSignInButton = false;
+          },
+          onAutoSignInFailed: () => {
+            this.showSignInButton = true;
+          },
+        };
+      },
+
+      firebaseSignIn_: function() {
+        this.bridge.signIn();
+      },
+
+      // Called on any change in userId, gameId, playerId, or games.splices.
+      autoNavigate_() {
+        if (this.userId && !this.gameId) {
+          // Try to figure out what game to put them in.
+          let [gameNumber, ] = this.extractUrl_();
+          if (gameNumber) {
+            let game = this.database.games.find(game => game.number == gameNumber);
+            if (game) {
+              this.gameId = game.id;
             } else {
-              serverUrl = assert(false); // we dont have a dev frontend
-              config = {
-                apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
-                authDomain: "zeds-dbe0f.firebaseapp.com",
-                databaseURL: "https://zeds-dbe0f.firebaseio.com",
-                storageBucket: "zeds-dbe0f.appspot.com",
-                messagingSenderId: "721599614458",
-              };
+              // They specified a game number that doesnt exist, or maybe it
+              // hasnt been loaded yet. Either way, lets not assume they want
+              // to auto-choose a different game.
             }
-            return new RemoteBridge(serverUrl, config, this.makeBridgeDelegate_());
-          }
-        },
-
-        makeBridgeDelegate_: function() {
-          return {
-            set: (path, value) => {
-              //console.log('Local set', path, value);
-              this.set('database.' + path, value);
-            },
-            push: (path, value) => {
-              //console.log('Local push', path, value);
-              this.push('database.' + path, value);
-            },
-            splice: (path, index, numToRemove, ...toInsert) => {
-              //console.log('Local splice', path, index, numToRemove, ...toInsert);
-              this.splice('database.' + path, index, numToRemove, ...toInsert);
-            },
-            get: (path) => this.get('database.' + path),
-            onUserSignedIn: (userId) => {
-              this.userId = userId;
-              this.showSignInButton = false;
-            },
-            onAutoSignInFailed: () => {
-              this.showSignInButton = true;
-            },
-          };
-        },
-
-        firebaseSignIn_: function() {
-          this.bridge.signIn();
-        },
-
-        // Called on any change in userId, gameId, playerId, or games.splices.
-        autoNavigate_() {
-          if (this.userId && !this.gameId) {
-            // Try to figure out what game to put them in.
-            let [gameNumber, ] = this.extractUrl_();
-            if (gameNumber) {
-              let game = this.database.games.find(game => game.number == gameNumber);
-              if (game) {
-                this.gameId = game.id;
-              } else {
-                // They specified a game number that doesnt exist, or maybe it
-                // hasnt been loaded yet. Either way, lets not assume they want
-                // to auto-choose a different game.
-              }
+          } else {
+            // They specified no game in the url. Auto choose one.
+            let userPlayer = this.database.user && this.database.user.players[0];
+            if (userPlayer) {
+              this.gameId = userPlayer.gameId;
             } else {
-              // They specified no game in the url. Auto choose one.
-              let userPlayer = this.database.user && this.database.user.players[0];
-              if (userPlayer) {
-                this.gameId = userPlayer.gameId;
-              } else {
-                // We can't figure out what game they want. Abort.
-              }
+              // We can't figure out what game they want. Abort.
             }
           }
-          if (this.userId && this.gameId && !this.playerId) {
-            // Try to figure out their player, if they have one.
-            let player = this.database.user && this.database.user.players.find(player => player.gameId == this.gameId);
-            if (player) {
-              this.playerId = player.id;
-            }
+        }
+        if (this.userId && this.gameId && !this.playerId) {
+          // Try to figure out their player, if they have one.
+          let player = this.database.user && this.database.user.players.find(player => player.gameId == this.gameId);
+          if (player) {
+            this.playerId = player.id;
           }
-          if (this.userId && this.gameId && !this.page) {
-            let [, page] = this.extractUrl_();
-            if (page) {
-              this.page = page;
-            } else {
-              this.page = 'main';
-              window.history.replaceState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
-            }
+        }
+        if (this.userId && this.gameId && !this.page) {
+          let [, page] = this.extractUrl_();
+          if (page) {
+            this.page = page;
+          } else {
+            this.page = 'main';
+            window.history.replaceState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
           }
-        },
+        }
+      },
 
-        handleOpenPage_(e) {
-          this.page = e.detail.page;
-          window.history.pushState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
-        },
+      handleOpenPage_(e) {
+        this.page = e.detail.page;
+        window.history.pushState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
+      },
 
-        extractUrl_() {
-          let initialUrl = window.location.pathname;
-          let match = /(\w+)(?:\/([\w/]+))?/.exec(initialUrl);
-          if (!match) {
-            return [null, null, null];
-          }
-          let gameNumber = match[1];
-          if (!match[2]) {
-            return [gameNumber, null, null];
-          }
-          let page = match[2];
-          return [gameNumber, page];
-        },
-      });
+      extractUrl_() {
+        let initialUrl = window.location.pathname;
+        let match = /(\w+)(?:\/([\w/]+))?/.exec(initialUrl);
+        if (!match) {
+          return [null, null, null];
+        }
+        let gameNumber = match[1];
+        if (!match[2]) {
+          return [gameNumber, null, null];
+        }
+        let page = match[2];
+        return [gameNumber, page];
+      },
+
+      openDrawer_() {
+        this.$$("#drawer").openDrawer();
+      },
+
+      closeDrawer_() {
+        this.$$("#drawer").closeDrawer();
+      },
     });
-  </script>
-  <template>
-    <template is="dom-if" if="[[showSignInButton]]">
-      <paper-button on-tap="firebaseSignIn_">Sign In With Google</paper-button>
-    </template>
-    <template is="dom-if" if="[[userId]]">
-      <template is="dom-if" if="[[isDesktop]]">
-        <ghvz-desktop-app
-            bridge="[[bridge]]"
-            user-id="[[userId]]"
-            game-id="{{gameId}}"
-            player-id="{{playerId}}"
-            database="[[database]]"
-            page="[[page]]">
-        </ghvz-desktop-app>
-      </template>
-      <template is="dom-if" if="[[!isDesktop]]">
-        <ghvz-mobile-app
-            bridge="[[bridge]]"
-            user-id="[[userId]]"
-            game-id="{{gameId}}"
-            player-id="{{playerId}}"
-            database="[[database]]"
-            page="[[page]]">
-        </ghvz-mobile-app>
-      </template>
-    </template>
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+<template>
+  <template is="dom-if" if="[[showSignInButton]]">
+    <paper-button on-tap="firebaseSignIn_">Sign In With Google</paper-button>
   </template>
+  <template is="dom-if" if="[[userId]]">
+    <paper-drawer-panel id="drawer" disable-swipe>
+      <paper-material drawer>
+        <ghvz-mobile-drawer
+            bridge="[[bridge]]"
+            database="[[database]]"
+            user-id="[[userId]]"
+            game-id="[[gameId]]"
+            player-id="[[playerId]]">
+        </ghvz-mobile-drawer>
+      </paper-material>
+      <div main>
+        <template is="dom-if" if="[[isDesktop]]">
+          <ghvz-desktop-app
+              bridge="[[bridge]]"
+              user-id="[[userId]]"
+              game-id="{{gameId}}"
+              player-id="{{playerId}}"
+              database="[[database]]"
+              page="[[page]]">
+          </ghvz-desktop-app>
+        </template>
+        <template is="dom-if" if="[[!isDesktop]]">
+          <ghvz-mobile-app
+              bridge="[[bridge]]"
+              user-id="[[userId]]"
+              game-id="{{gameId}}"
+              player-id="{{playerId}}"
+              database="[[database]]"
+              page="[[page]]">
+          </ghvz-mobile-app>
+        </template>
+      </div>
+    </paper-drawer-panel>
+  </template>
+</template>
 </dom-module>

@@ -46,6 +46,13 @@
         display: block;
         position: relative;
         background-color: #f4f4f4;
+        height: 100%;
+        overflow-y: auto;
+        padding: 8px;
+      }
+      paper-drawer-panel {
+        width: 100%;
+        height: 100%;
       }
       .content {
         display: block;
@@ -72,42 +79,6 @@
       }
   	</style>
 
-    <div id="topControls">
-      <ghvz-game-selector
-          id="gameSelector"
-          user-id="[[userId]]"
-          user="[[database.user]]"
-          games="[[database.games]]"
-          game-id="{{gameId}}"
-          player-id="{{playerId}}">
-      </ghvz-game-selector>
-
-      <div id="confidential">
-        DONT POST CONFIDENTIAL INFO, COBFLABBIT!
-      </div>
-
-      <div id="viewControls">
-        <paper-checkbox checked="{{isAdmin}}">Is Admin</paper-checkbox>
-        <paper-checkbox checked="{{isZombie}}">Is Zombie</paper-checkbox>
-      </div>
-
-      <paper-button on-tap="signOut_">Sign Out</paper-button>
-    </div>
-
-    <div id="info">
-      <div class="info">
-        userId [[userId]]
-      </div>
-
-      <div class="info">
-        gameId [[gameId]]
-      </div>
-
-      <div class="info">
-        playerId [[playerId]]
-      </div>
-    </div>
-
     <template is="dom-if" if="[[computeShowMainPage_(page)]]">
       <ghvz-desktop-main-page
           bridge="[[bridge]]"
@@ -119,7 +90,7 @@
     </template>
 
     <template is="dom-if" if="[[computeShowStatsPage_(page)]]">
-      <ghvz-dashlet full>
+      <ghvz-dashlet full spaced>
         <div class="header">Game Stats</div>
         <ghvz-stats-page
             bridge="[[bridge]]"

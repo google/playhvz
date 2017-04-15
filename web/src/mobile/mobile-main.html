@@ -28,26 +28,40 @@
 
         canInfect: {
           type: Boolean,
+          computed: 'computeCanInfect_(playerId, database.game, database.game.playersById.*)',
         },
 
         canRegister: {
           type: Boolean,
+          computed: 'computeCanRegister_(gameId, playerId)',
         },
 
         isPlayer: {
           type: Boolean,
+          computed: 'computeIsPlayer_(playerId)',
+        },
+        
+        isAdmin: {
+          type: Boolean,
+          computed: 'computeIsAdmin_(userId, database.game, database.game.admins.*)',
         },
       },
 
-      startedShowing: function() {
+      computeCanInfect_: function(playerId, game) {
+        return game.playersById[playerId] && !game.playersById[playerId].infectable;
       },
 
-      handleButtonTap_: function(e) {
-        this.fire('mobile-main-page-show-chat-page');
+      computeCanRegister_(gameId, playerId) {
+        return gameId && !playerId;
       },
 
-      openDrawer_(e) {
-        this.fire('ghvz-open-drawer');
+      computeIsPlayer_(playerId) {
+        return !!playerId;
+      },
+
+      computeIsAdmin_: function(userId, game) {
+        let admin = game.admins.find((admin) => admin.userId == userId);
+        return !!admin;
       },
     });
   });
@@ -74,7 +88,7 @@
   <ghvz-dashlet full expand with-menu>
     <div class="header">Humans vs Zombies</div>
     <template is="dom-if" if="[[canRegister]]">
-      <ghvz-dashlet padded full>
+      <ghvz-dashlet spaced full>
         <div class="header">Join Game</div>
         <ghvz-game-registration
             class="content"
@@ -87,7 +101,7 @@
 
     <template is="dom-if" if="[[isPlayer]]">
       <template is="dom-if" if="[[canInfect]]">
-        <ghvz-dashlet padded full>
+        <ghvz-dashlet spaced full>
           <div class="header">Infect</div>
           <ghvz-infect
               bridge="[[bridge]]"
@@ -97,7 +111,7 @@
         </ghvz-dashlet>
       </template>
 
-      <ghvz-dashlet padded full>
+      <ghvz-dashlet spaced full>
         <div class="header">Next Mission</div>
         <ghvz-next-mission
             bridge="[[bridge]]"
