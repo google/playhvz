@@ -26,9 +26,12 @@ platforms/
 plugins/
 plugins/android.json
 plugins/ios.json
-www/
+www/*
 $RECYCLE.BIN/
 
 .DS_Store
 Thumbs.db
 UserInterfaceState.xcuserstate
+
+#exception so that git will still save www/
+!www/.gitkeep
