@@ -1,5 +1,15 @@
 function Utils() {}
 
+Utils.setDeterministicGenerator = function() {
+  var idsByType = {};
+  Utils.generateId = (type) => {
+    if (!(type in idsByType)) {
+      idsByType[type] = 1;
+    }
+    return idsByType[type]++ + "-" + type;
+  }
+};
+
 /*
 * Generates a random number to use as an ID. Probability of id collision
 * is negligible.

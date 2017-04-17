@@ -82,8 +82,8 @@
               sorting: column.sorting || false,
               comparator: column.comparator,
               ascending: column.ascending || false,
-              filtering: false,
-              filterText: "", // "" means show everything
+              filtering: column.filtering || false,
+              filterText: column.filterText || "", // "" means show everything
               filter: column.filter,
             });
           }
@@ -103,6 +103,7 @@
           for (let i = 0; i < this.columns.length; i++) {
             this.setColumnSorting(i, this.columns[i].sorting, this.columns[i].ascending);
           }
+          this.resetRepeaterFilter_();
           // setInterval(() => this.updateVisibilities_(), 500);
         },
 
@@ -154,10 +155,10 @@
         },
 
         onBulkActionTapped_: function(e) {
-          let action = e.target.dataHost.itemForElement(e.target);
+          let action = e.target.dataHost.dataHost.itemForElement(e.target);
           var matchingItems = this.items.filter((item) => this.isItemSelected(item));
           for (var i = 0; i < matchingItems.length; i++) {
-            this.delegate.doAction(matchingItems[i], action);
+            action.handler(matchingItems[i]);
           }
         },
 
@@ -191,6 +192,7 @@
 
         onSortButtonTapped_: function(e) {
           const columnIndex = e.currentTarget.dataset.columnIndex;
+          const column = this.columns[columnIndex];
           let sorting;
           let ascending;
           if (!column.sorting) {
@@ -519,7 +521,7 @@
                         no-label-float
                         class="filter-input"
                         on-keyup="filterKeyUp_"
-                        value={{column.filterText}}></paper-input>
+                        value="{{column.filterText}}"></paper-input>
                   </div>
                 </template>
               </div>

@@ -2,6 +2,7 @@
 
 class FakeBridge {
   constructor(delegate) {
+    Utils.setDeterministicGenerator();
     this.delegate = delegate;
     this.databaseOperations = [];
     this.delayedDatabaseOperations = [];
@@ -42,9 +43,9 @@ class FakeBridge {
     this.server.signIn()
         .then((user) => {
           this.userId = user.id;
-          this.delegate.set(
-              "user",
-              Utils.copyOf(this.delegate.get("usersById." + this.userId)));
+          // this.delegate.set(
+          //     "user",
+          //     Utils.copyOf(this.delegate.get("usersById." + this.userId)));
           this.delegate.onUserSignedIn(user.id);
         });
   }
@@ -53,28 +54,30 @@ class FakeBridge {
   }
   setGameId(gameId) {
     this.gameId = gameId;
-    this.delegate.set(
-        "game",
-        this.setupMaps(Utils.copyOf(this.delegate.get("gamesById." + gameId))));
+    // this.delegate.set(
+    //     "game",
+    //     this.setupMaps(Utils.copyOf(this.delegate.get("gamesById." + gameId))));
   }
   // Used on an entire object that is coming in with no maps in it, just arrays.
   // For example, when the entire game mirror is coming in.
   setupMaps(object) {
-    for (var key in object) {
-      if (object[key] instanceof Array) {
-        var map = {};
-        for (let element of object[key])
-          map[element.id] = element;
-        object[key + "ById"] = map;
-        // Recurse, do it to every array
-        for (let element of object[key])
-          this.setupMaps(element);
-      } else if (object[key] === null) {
-        // do nothing
-      } else if (typeof object[key] == 'object') {
-        assert(false); // curiosity
-      } else {
-        // do nothing
+    if (typeof object == 'object') {
+      for (var key in object) {
+        if (object[key] instanceof Array) {
+          var map = {};
+          for (let element of object[key])
+            map[element.id] = element;
+          object[key + "ById"] = map;
+          // Recurse, do it to every array
+          for (let element of object[key])
+            this.setupMaps(element);
+        } else if (object[key] === null) {
+          // do nothing
+        } else if (typeof object[key] == 'object') {
+          assert(false); // curiosity
+        } else {
+          // do nothing
+        }
       }
     }
     return object;
@@ -84,24 +87,28 @@ class FakeBridge {
     this.databaseOperations = this.delayedDatabaseOperations;
     this.delayedDatabaseOperations = [];
     for (let operation of this.databaseOperations) {
-      this.performOperationAndMaybeOnCorrespondingMirrorAndMap_(operation);
+      // this.performOperationAndMaybeOnCorrespondingMirrorAndMap_(operation);
+      if (operation.type == 'push' || operation.type == 'set') {
+        this.setupMaps(operation.value);
+      }
+      this.performOperationAndMaybeOnCorrespondingMap_(operation);
     }
     setTimeout(() => this.performOperations_(), 100);
   }
-  performOperationAndMaybeOnCorrespondingMirrorAndMap_(operation) {
-    this.performOperationAndMaybeOnCorrespondingMap_(operation);
-    let path = operation.path;
-    if (this.gameId && path[0] == "games" && path[1] == this.getGameIndex(this.gameId)) {
-      let mirrorOperation = Utils.copyOf(operation);
-      mirrorOperation.path = ["game"].concat(operation.path.slice(2));
-      this.performOperationAndMaybeOnCorrespondingMap_(mirrorOperation);
-    }
-    if (this.userId && path[0] == "users" && path[1] == this.getUserIndex(this.userId)) {
-      let mirrorOperation = Utils.copyOf(operation);
-      mirrorOperation.path = ["user"].concat(operation.path.slice(2));
-      this.performOperationAndMaybeOnCorrespondingMap_(mirrorOperation);
-    }
-  }
+  // performOperationAndMaybeOnCorrespondingMirrorAndMap_(operation) {
+  //   this.performOperationAndMaybeOnCorrespondingMap_(operation);
+  //   let path = operation.path;
+  //   if (this.gameId && path[0] == "games" && path[1] == this.getGameIndex(this.gameId)) {
+  //     let mirrorOperation = Utils.copyOf(operation);
+  //     mirrorOperation.path = ["game"].concat(operation.path.slice(2));
+  //     this.performOperationAndMaybeOnCorrespondingMap_(mirrorOperation);
+  //   }
+  //   if (this.userId && path[0] == "users" && path[1] == this.getUserIndex(this.userId)) {
+  //     let mirrorOperation = Utils.copyOf(operation);
+  //     mirrorOperation.path = ["user"].concat(operation.path.slice(2));
+  //     this.performOperationAndMaybeOnCorrespondingMap_(mirrorOperation);
+  //   }
+  // }
 
   getPathInCorrespondingMap_(operation, id) {
     let path = operation.path.slice();

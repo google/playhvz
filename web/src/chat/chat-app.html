@@ -25,16 +25,9 @@ TODO(SquirrelThief):
     		properties: {
           bridge: Object,
 
-          gameId: String,
+          game: Object,
 
-          currentPlayerId: String,
-
-          playersById: Object,
-
-          player: {
-            type: Object,
-            value: function() { return {}; },
-          },
+          currentPlayer: Object,
 
           chatRoom: {
             type: Object,
@@ -83,7 +76,7 @@ TODO(SquirrelThief):
             return;
           }
           this.bridge.addMessageToChatRoom(Bridge.generateMessageId(), this.chatRoom.id, 
-            this.currentPlayerId, {message: this.$.messageInput.value});
+            this.currentPlayer.id, {message: this.$.messageInput.value});
           this.$.messageInput.value = "";  
 
           var afterId = this.chatRoom.messages.slice(-1)[0].id;
@@ -120,19 +113,19 @@ TODO(SquirrelThief):
       },
 
       getName_(playerId) {
-        if (!this.playersById[playerId]) {
+        if (!this.game.playersById[playerId]) {
           this.bridge.getPlayerById(playerId)
           .then((player) => {
-            this.playersById[playerId] = player;
-            return this.playersById[playerId].name;
+            this.game.playersById[playerId] = player;
+            return this.game.playersById[playerId].name;
           });
         } else {
-          return this.playersById[playerId].name;
+          return this.game.playersById[playerId].name;
         }
       },
 
       getProfilePic_(playerId) {
-        var imageUrl = this.playersById[playerId].profileImageUrl;
+        var imageUrl = this.game.playersById[playerId].profileImageUrl;
         return imageUrl;
       },
 
@@ -291,11 +284,11 @@ blueprint="[[makeFormBlueprint_()]]">
 </ghvz-super-form>
 <!-- Display messages -->
 <template is="dom-repeat" items="[[chatRoom.messages]]">
-  <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, currentPlayerId)]] [[displaySenderInfo(item.playerId)]]">
+  <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
     <!-- Display message text -->
     <div class="layout vertical display-message">
       <div class="player-name">
-        [[getName_(item.playerId)]]
+        [[getName_(item.playerId, game.playersById)]]
       </div>
       <div class="message-text">[[item.message]]</div>
       <paper-tooltip position="top" animation-delay="0">
@@ -306,13 +299,13 @@ blueprint="[[makeFormBlueprint_()]]">
     <div class="layout vertical display-avatar">
       <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
       <iron-image
-      src="[[getProfilePic_(item.playerId)]]"
+      src="[[getProfilePic_(item.playerId, game.playersById)]]"
       id="profile-pic" 
       sizing="cover"
       on-click="openPlayerProfile_">
     </iron-image>
     <paper-tooltip position="top" animation-delay="0">
-      [[getName_(item.playerId)]]
+      [[getName_(item.playerId, game.playersById)]]
     </paper-tooltip>
   </div>
 </div> 

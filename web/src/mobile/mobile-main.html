@@ -11,57 +11,46 @@
       properties: {
         bridge: Object,
         database: Object,
+        user: Object,
+        game: Object,
+        player: Object,
 
-        userId: {
-          type: String,
-        },
-
-        gameId: {
-          type: String,
-          notify: true,
-        },
-
-        playerId: {
-          type: String,
-          notify: true,
-        },
-
-        canInfect: {
+        isAdmin: {
           type: Boolean,
-          computed: 'computeCanInfect_(playerId, database.game, database.game.playersById.*)',
-        },
-
-        canRegister: {
-          type: Boolean,
-          computed: 'computeCanRegister_(gameId, playerId)',
+          computed: 'computeIsAdmin_(user, game, game.admins.*)',
         },
 
         isPlayer: {
           type: Boolean,
-          computed: 'computeIsPlayer_(playerId)',
+          computed: 'computeIsPlayer_(player)',
         },
-        
-        isAdmin: {
+
+        canRegister: {
           type: Boolean,
-          computed: 'computeIsAdmin_(userId, database.game, database.game.admins.*)',
+          computed: 'computeCanRegister_(game, player)',
+        },
+
+        canInfect: {
+          type: Boolean,
+          computed: 'computeCanInfect_(player, game, game.playersById.*)',
         },
       },
 
-      computeCanInfect_: function(playerId, game) {
-        return game.playersById[playerId] && !game.playersById[playerId].infectable;
-      },
-
-      computeCanRegister_(gameId, playerId) {
-        return gameId && !playerId;
-      },
-
-      computeIsPlayer_(playerId) {
-        return !!playerId;
-      },
-
-      computeIsAdmin_: function(userId, game) {
-        let admin = game.admins.find((admin) => admin.userId == userId);
+      computeIsAdmin_: function(user, game) {
+        let admin = game.admins.find((admin) => admin.userId == user.id);
         return !!admin;
+      },
+
+      computeCanInfect_: function(player, game) {
+          return !player.infectable;
+      },
+
+      computeCanRegister_(game, player) {
+        return game && !player;
+      },
+
+      computeIsPlayer_(player) {
+        return !!player;
       },
     });
   });
@@ -87,14 +76,23 @@
 <template>
   <ghvz-card full expand with-menu>
     <div class="header">Humans vs Zombies</div>
+    
+    <ghvz-unseen-notifications
+        id="notifications"
+        bridge="[[bridge]]"
+        categories-by-id="[[game.notificationCategoriesById]]"
+        categories="[[game.notificationCategories]]"
+        player="[[player]]">
+    </ghvz-unseen-notifications>
+
     <template is="dom-if" if="[[canRegister]]">
       <ghvz-card spaced full>
         <div class="header">Join Game</div>
         <ghvz-game-registration
             class="content"
             bridge="[[bridge]]"
-            game-id="[[gameId]]"
-            user-id="[[userId]]">
+            game="[[game]]"
+            user="[[user]]">
         </ghvz-game-registration>
       </ghvz-card>
     </template>
@@ -105,8 +103,8 @@
           <div class="header">Infect</div>
           <ghvz-infect
               bridge="[[bridge]]"
-              game-id="[[gameId]]"
-              player-id="[[playerId]]">
+              game="[[game]]"
+              player="[[player]]">
           </ghvz-infect>
         </ghvz-card>
       </template>
@@ -116,8 +114,8 @@
         <ghvz-next-mission
             bridge="[[bridge]]"
             missions="[[database.game.missions]]"
-            game-id="[[gameId]]"
-            player-id="[[playerId]]">
+            game="[[game]]"
+            player="[[player]]">
         </ghvz-next-mission>
       </ghvz-card>
     </template>

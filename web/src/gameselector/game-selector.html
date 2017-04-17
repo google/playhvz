@@ -8,14 +8,6 @@
         is: 'ghvz-game-selector',
 
         properties: {
-          userId: {
-            type: String,
-          },
-
-          user: {
-            type: Object,
-          },
-
           games: {
             type: Array,
             observer: 'onGameIdOrGamesChanged_',
@@ -25,11 +17,6 @@
             type: String,
             value: null,
             observer: 'onGameIdOrGamesChanged_',
-          },
-
-          playerId: {
-            type: String,
-            value: null,
           },
         },
 

@@ -47,12 +47,31 @@ paper-input-container {
       is: 'ghvz-app',
 
       properties: {
+        bridge: {
+          type: Object,
+        },
+
         isDesktop: {
           type: Boolean,
           value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
         },
 
         showSignInButton: Boolean,
+
+        database: {
+          type: Object,
+          value: () => ({
+            gunsById: {},
+            guns: [],
+            game: {},
+            player: {},
+            games: [],
+            gamesById: {},
+            users: [],
+            usersById: {},
+            user: {},
+          }),
+        },
 
         userId: {
           type: String,
@@ -69,23 +88,13 @@ paper-input-container {
           value: null,
         },
 
-        database: {
-          type: Object,
-          value: () => ({
-            gunsById: {},
-            guns: [],
-            game: {},
-            games: [],
-            gamesById: {},
-            users: [],
-            usersById: {},
-            user: {},
-          }),
-        },
+        user: Object,
 
-        bridge: {
-          type: Object,
-        },
+        game: Object,
+
+        // Up to the components below us to figure out the player, because a
+        // polymer bug with array-selector doesnt let us do it here
+        // player: Object
 
         page: {
           type: String,
@@ -94,11 +103,13 @@ paper-input-container {
       },
 
       observers: [
+        'onUserIdChanged_(userId, database.users.splices)',
+        'onGameIdChanged_(bridge, gameId, database.games.splices)',
+        // 'onPlayerIdChanged_(playerId, game.playersById)'
         'autoNavigate_(database.games.splices)',
-        'autoNavigate_(gameId)',
-        'autoNavigate_(playerId)',
-        'autoNavigate_(userId)',
-        'onGameIdChanged_(bridge, gameId)',
+        'autoNavigate_(user)',
+        'autoNavigate_(game)',
+        'autoNavigate_(player)',
       ],
 
       listeners: {
@@ -107,13 +118,27 @@ paper-input-container {
         'ghvz-close-drawer': 'closeDrawer_',
       },
 
+      onUserIdChanged_() {
+        this.$.userSelector.select(
+            this.database.users.find(user => user.id == this.userId));
+      },
+
       onGameIdChanged_() {
         this.bridge.setGameId(this.gameId);
+        this.$.gameSelector.select(
+            this.database.games.find(game => game.id == this.gameId));
       },
+
+      // Because of a polymer array-selector bug, we can't do this =(
+      // onPlayerIdChanged_() {
+      //   this.$.playerSelector.select(
+      //       this.game.players.find(player => player.id == this.playerId));
+      // },
 
       attached() {
         this.bridge = this.makeBridge_();
         this.bridge.attemptAutoSignIn();
+        window.onpopstate = this.handlePopState_.bind(this);
       },
 
       makeBridge_() {
@@ -193,7 +218,7 @@ paper-input-container {
             }
           } else {
             // They specified no game in the url. Auto choose one.
-            let userPlayer = this.database.user && this.database.user.players[0];
+            let userPlayer = this.user && this.user.players.slice(-1)[0];
             if (userPlayer) {
               this.gameId = userPlayer.gameId;
             } else {
@@ -203,9 +228,9 @@ paper-input-container {
         }
         if (this.userId && this.gameId && !this.playerId) {
           // Try to figure out their player, if they have one.
-          let player = this.database.user && this.database.user.players.find(player => player.gameId == this.gameId);
-          if (player) {
-            this.playerId = player.id;
+          let userPlayer = this.user && this.user.players.find(player => player.gameId == this.gameId);
+          if (userPlayer) {
+            this.playerId = userPlayer.playerId;
           }
         }
         if (this.userId && this.gameId && !this.page) {
@@ -221,12 +246,16 @@ paper-input-container {
 
       handleOpenPage_(e) {
         this.page = e.detail.page;
-        window.history.pushState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
+        window.history.pushState({page: this.page}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
+      },
+
+      handlePopState_(e) {
+        this.page = e.state ? e.state.page : 'main';
       },
 
       extractUrl_() {
         let initialUrl = window.location.pathname;
-        let match = /(\w+)(?:\/([\w/]+))?/.exec(initialUrl);
+        let match = /(\w+)(?:\/([\w-/]+))?/.exec(initialUrl);
         if (!match) {
           return [null, null, null];
         }
@@ -239,11 +268,11 @@ paper-input-container {
       },
 
       openDrawer_() {
-        this.$$("#drawer").openDrawer();
+        this.$.inner.openDrawer();
       },
 
       closeDrawer_() {
-        this.$$("#drawer").closeDrawer();
+        this.$.inner.closeDrawer();
       },
     });
   });
@@ -256,43 +285,23 @@ paper-input-container {
   }
 </style>
 <template>
-  <template is="dom-if" if="[[showSignInButton]]">
-    <paper-button on-tap="firebaseSignIn_">Sign In With Google</paper-button>
-  </template>
-  <template is="dom-if" if="[[userId]]">
-    <paper-drawer-panel id="drawer" disable-swipe>
-      <paper-material drawer>
-        <ghvz-drawer
-            bridge="[[bridge]]"
-            database="[[database]]"
-            user-id="[[userId]]"
-            game-id="[[gameId]]"
-            player-id="[[playerId]]">
-        </ghvz-drawer>
-      </paper-material>
-      <div main>
-        <template is="dom-if" if="[[isDesktop]]">
-          <ghvz-desktop-app
-              bridge="[[bridge]]"
-              user-id="[[userId]]"
-              game-id="{{gameId}}"
-              player-id="{{playerId}}"
-              database="[[database]]"
-              page="[[page]]">
-          </ghvz-desktop-app>
-        </template>
-        <template is="dom-if" if="[[!isDesktop]]">
-          <ghvz-mobile-app
-              bridge="[[bridge]]"
-              user-id="[[userId]]"
-              game-id="{{gameId}}"
-              player-id="{{playerId}}"
-              database="[[database]]"
-              page="[[page]]">
-          </ghvz-mobile-app>
-        </template>
-      </div>
-    </paper-drawer-panel>
-  </template>
+  <array-selector id="userSelector" items="[[database.users]]" selected="{{user}}"></array-selector>
+  <array-selector id="gameSelector" items="[[database.games]]" selected="{{game}}"></array-selector>
+  <!-- Because of a polymer bug, this doesnt work:
+      <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
+      so instead we have to make a component below us do it.
+      That's actually why ghvz-app-inner was made in the first place... -->
+  <ghvz-app-inner
+      id="inner"
+      bridge="[[bridge]]"
+      is-desktop="[[isDesktop]]"
+      database="[[database]]"
+      user="[[user]]"
+      game="[[game]]"
+      player-id="[[playerId]]"
+      page="[[page]]"
+      show-sign-in-button="[[showSignInButton]]"
+      player="[[player]]">
+  </ghvz-app-inner>
 </template>
 </dom-module>

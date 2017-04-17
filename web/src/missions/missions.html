@@ -11,7 +11,7 @@
         properties: {
           bridge: Object,
 
-          gameId: String,
+          game: Object,
 
           missions: {
             type: Array,
@@ -107,7 +107,7 @@
           this.$.missionForm.openForAdding()
               .then((properties) => {
                 this.bridge.addMission(
-                    Utils.generateId("mission"), this.gameId, properties);
+                    Utils.generateId("mission"), this.game.id, properties);
               });
         },
 

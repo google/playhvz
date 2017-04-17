@@ -166,6 +166,9 @@
       display: table-cell;
       padding: 4px 12px;
     }
+    .icons {
+      white-space: nowrap;
+    }
     iron-icon {
       opacity: .75;
     }
@@ -184,12 +187,14 @@
           <div class="cell">[[category.name]]</div>
           <div class="cell">[[formatTime_(category.sendTime)]]</div>
           <div class="cell">[[category.allegianceFilter]]</div>
-          <template is="dom-repeat" items="[[computeIcons_(category, category.*)]]" as="icon">
-            <span>
-              <iron-icon icon="[[icon.icon]]"></iron-icon>
-              <paper-tooltip>[[icon.name]]</paper-tooltip>
-            </span>
-          </template>
+          <div class="cell icons">
+            <template is="dom-repeat" items="[[computeIcons_(category, category.*)]]" as="icon">
+              <span>
+                <iron-icon icon="[[icon.icon]]"></iron-icon>
+                <paper-tooltip>[[icon.name]]</paper-tooltip>
+              </span>
+            </template>
+          </div>
         </div>
       </template>
     </ghvz-table>

@@ -42,4 +42,5 @@ const SERVER_METHODS = [
   'updateMission',
   'addNotificationCategory',
   'updateNotificationCategory',
+  'markNotificationSeen',
 ];

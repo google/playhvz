@@ -9,7 +9,8 @@ const SERVER_MISSION_PROPERTIES = ["beginTime", "endTime", "name", "url", "alleg
 const SERVER_REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed"];
 const SERVER_REWARD_PROPERTIES = ["code"];
 const SERVER_GUN_PROPERTIES = ["number"];
-const SERVER_NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate"];
+const SERVER_NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate", "destination", "icon"];
+const SERVER_NOTIFICATION_PROPERTIES = ["message", "previewMessage", "sound", "vibrate", "app", "email", "destination"];
 
 class FakeServer {
   constructor(delegate) {
@@ -230,6 +231,26 @@ class FakeServer {
       vibrate: vibrate,
     });
   }
+  addNotification(notificationId, playerId, notificationCategoryId, args) {
+    this.checkIdNotTaken(notificationId, 'notification');
+    this.checkId(playerId, 'player');
+    let playerPath = this.database.pathForId(playerId);
+    this.checkId(notificationCategoryId, 'notificationCategory');
+    let notificationCategoryPath = this.database.pathForId(notificationCategoryId);
+    this.checkRequestArgs(args, SERVER_NOTIFICATION_PROPERTIES);
+    let {message, previewMessage, sound, vibrate, app, destination} = args;
+    this.database.push(playerPath.concat(["notifications"]), {
+      id: notificationId,
+      notificationCategoryId: notificationCategoryId,
+      message: message,
+      previewMessage: previewMessage,
+      seenTime: null,
+      sound: sound,
+      vibrate: vibrate,
+      app: app,
+      destination: destination,
+    });
+  }
   updateNotificationCategory(notificationCategoryId, args) {
     this.checkId(notificationCategoryId, 'notificationCategory');
     let notificationCategoryPath = this.database.pathForId(notificationCategoryId);
@@ -237,6 +258,11 @@ class FakeServer {
     for (let argName in args) {
       this.database.set(notificationCategoryPath.concat([argName]), args[argName]);
     }
+  }
+  markNotificationSeen(notificationId) {
+    this.checkId(notificationId, 'notification');
+    let notificationPath = this.database.pathForId(notificationId);
+    this.database.set(notificationPath.concat(["seenTime"]), new Date() / 1000);
   }
   addReward(rewardId, rewardCategoryId, args) {
     this.checkIdNotTaken(rewardId, 'reward');

@@ -10,6 +10,23 @@ class RemoteBridge {
     });
     this.requester = new NormalRequester(serverUrl);
   }
+  generateUserId() { return Utils.generateId("user"); }
+  generateGameId() { return Utils.generateId("game"); }
+  generateUserPlayerId() { return Utils.generateId("userPlayer"); }
+  generatePlayerId() { return Utils.generateId("player"); }
+  generateLifeId() { return Utils.generateId("life"); }
+  generateAdminId() { return Utils.generateId("admin"); }
+  generateInfectionId() { return Utils.generateId("infection"); }
+  generateMissionId() { return Utils.generateId("mission"); }
+  generateGunId() { return Utils.generateId("gun"); }
+  generateChatRoomId() { return Utils.generateId("chatRoom"); }
+  generateMessageId() { return Utils.generateId("message"); }
+  generateNotificationCategoryId() { return Utils.generateId("notificationCategory"); }
+  generateNotificationId() { return Utils.generateId("notification"); }
+  generateRewardCategoryId() { return Utils.generateId("rewardCategory"); }
+  generateRewardId() { return Utils.generateId("reward"); }
+  generateMembershipId() { return Utils.generateId("membership"); }
+  generatePlayerRewardId() { return Utils.generateId("playerReward"); }
   setGameId(gameId) {
     this.database.setGameId(gameId);
   }
