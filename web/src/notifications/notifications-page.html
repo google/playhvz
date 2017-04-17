@@ -1,0 +1,79 @@
+
+<dom-module id="ghvz-notifications-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-notifications-page',
+
+      properties: {
+        bridge: Object,
+
+        player: Object,
+        categoriesById: Object,
+        categories: Array,
+
+        page: String,
+
+        currentNotification: {
+          type: Object,
+          value: null,
+        },
+      },
+
+      observers: [
+        'onPageChanged_(page, player.notifications.*)',
+      ],
+
+      onPageChanged_() {
+        if (this.page.includes('/')) {
+          let [ , notificationId] = this.page.split('/');
+          this.$.notificationSelector.select(
+              this.player.notifications.find(notification => notification.id == notificationId));
+        }
+      },
+
+      isCurrentNotification(notification, expandedNotificationsById) {
+        return expandedNotificationsById[notification.id] || false;
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: flex;
+  }
+  #list {
+    width: 50%;
+  }
+  #current {
+    width: 50%;
+  }
+</style>
+<template>
+  <array-selector id="notificationSelector" items="[[player.notifications]]" selected="{{currentNotification}}"></array-selector>
+  <div id="list">
+    <template is="dom-repeat" items="[[player.notifications]]" as="notification">
+      <ghvz-notification-preview
+          bridge="[[bridge]]"
+          player-id="[[player.id]]"
+          categories-by-id="[[categoriesById]]"
+          categories="[[categories]]"
+          notification="[[notification]]">
+      </ghvz-notification-preview>
+    </template>
+  </div>
+  <div id="current">
+    <template is="dom-if" if="[[currentNotification]]">
+      <ghvz-notification-full
+          bridge="[[bridge]]"
+          categories-by-id="[[categoriesById]]"
+          categories="[[categories]]"
+          notification="[[currentNotification]]">
+      </ghvz-notification-full>
+    </template>
+  </div>
+</template>
+</dom-module>

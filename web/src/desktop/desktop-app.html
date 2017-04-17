@@ -11,131 +11,34 @@
         properties: {
           bridge: Object,
           database: Object,
-
-          userId: {
-            type: String,
-          },
-
-          gameId: {
-            type: String,
-            notify: true,
-          },
-
-          playerId: {
-            type: String,
-            notify: true,
-          },
-        },
-
-        listeners: {
-          'ghvz-desktop-app-open-page': 'handleOpenPageEvent_',
-        },
-
-        signOut_: function() {
-          this.bridge.signOut();
+          user: Object,
+          game: Object,
+          player: Object,
+          page: String,
         },
 
         computeShowMainPage_(page) { return page == 'main'; },
         computeShowStatsPage_(page) { return page == 'stats'; },
+        computeShowNotificationsPage_(page) { return page.startsWith('notifications'); },
       });
     });
   </script>
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      background-color: #f4f4f4;
+      padding: 8px;
+    }
+  </style>
   <template>
-  	<style>
-      :host {
-        display: block;
-        position: relative;
-        background-color: #f4f4f4;
-        padding: 8px;
-      }
-      paper-drawer-panel {
-        width: 100%;
-        height: 100%;
-      }
-      .content {
-        display: block;
-        margin: 16px;
-      }
-      #viewControls paper-checkbox {
-        margin-left: 16px;
-      }
-      #topControls {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 16px;
-        align-items: center;
-      }
-      #info {
-        display: flex;
-        justify-content: flex-end;
-        padding: 0 16px;
-        align-items: center;
-      }
-      .info {
-        margin-left: 32px;
-        text-align: center;
-      }
-      #notifications {
-        position: fixed;
-        top: 0;
-        right: 0;
-        z-index: 1;
-        max-width: 50%;
-      }
-      .notification {
-        margin: 8px;
-        padding: 0 8px;
-        background-color: white;
-        box-sizing: border-box;
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-      }
-      .notification .decoration {
-        opacity: .6;
-        margin-right: 8px;
-        flex-shrink: 0;
-      }
-      .notification .preview-message {
-        flex-grow: 1;
-      }
-      .notification .close {
-        flex-shrink: 0;
-        opacity: .75;
-      }
-  	</style>
-
-    <div id="notifications">
-      <paper-material class="notification" elevation="5">
-        <iron-icon icon="notification:sms" class="decoration"></iron-icon>
-        <div class="preview-message">
-          Plorkle popply plub
-        </div>
-        <paper-icon-button class="close" icon="icons:close"></paper-icon-button>
-      </paper-material>
-      <paper-material class="notification" elevation="5">
-        <iron-icon icon="notification:sms" class="decoration"></iron-icon>
-        <div class="preview-message">
-          Shubblewiggumbiggle Derploplyboppersops Zelibikefablikus
-        </div>
-        <paper-icon-button class="close" icon="icons:close"></paper-icon-button>
-      </paper-material>
-      <paper-material class="notification" elevation="5">
-        <iron-icon icon="notification:sms" class="decoration"></iron-icon>
-        <div class="preview-message">
-          Ressy down!
-        </div>
-        <paper-icon-button class="close" icon="icons:close"></paper-icon-button>
-      </paper-material>
-    </div>
-
     <template is="dom-if" if="[[computeShowMainPage_(page)]]">
       <ghvz-desktop-main-page
           bridge="[[bridge]]"
           database="[[database]]"
-          game-id="[[gameId]]"
-          user-id="[[userId]]"
-          player-id="[[playerId]]">
+          game="[[game]]"
+          user="[[user]]"
+          player="[[player]]">
       </ghvz-desktop-main-page>
     </template>
 
@@ -145,10 +48,23 @@
         <ghvz-stats-page
             bridge="[[bridge]]"
             database="[[database]]"
-            game-id="[[gameId]]"
-            user-id="[[userId]]"
-            player-id="[[playerId]]">
+            game="[[game]]"
+            user="[[user]]"
+            player="[[player]]">
         </ghvz-stats-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowNotificationsPage_(page)]]">
+      <ghvz-card full spaced>
+        <div class="header">Notifications</div>
+        <ghvz-notifications-page
+            bridge="[[bridge]]"
+            categories-by-id="[[game.notificationCategoriesById]]"
+            categories="[[game.notificationCategories]]"
+            player="[[player]]"
+            page="[[page]]">
+        </ghvz-notifications-page>
       </ghvz-card>
     </template>
   </template>

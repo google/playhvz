@@ -37,3 +37,18 @@ for public directory, put client/
 
 when it asks about single page app, say no
 
+
+
+
+from ghvz, you can start up a local version of the server with running the following two commands
+
+pip install -r web/src/backend/requirements.txt -t web/src/backend/lib
+
+dev_appserver.py web/src/backend/app.yaml
+
+to launch a new version it is:
+
+gcloud app deploy web/src/backend/app.yaml
+
+once you have gcloud hooked in to the right app engine account
+

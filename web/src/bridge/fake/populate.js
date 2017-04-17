@@ -71,5 +71,10 @@ function populateFakeServer(server) {
   for (let i = 0; i < 80; i++) {
     server.addGun(Bridge.generateGunId(), {number: 1404 + i + ""});
   }
-  server.addNotificationCategory(Bridge.generateNotificationCategoryId(), gameId, {name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date() / 1000 + 3600, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true});
+  let mission1AlertNotificationCategoryId = Bridge.generateNotificationCategoryId();
+  server.addNotificationCategory(mission1AlertNotificationCategoryId, gameId, {name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date() / 1000 + 3600, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});
+  server.addNotification(Bridge.generateNotificationId(), kimPlayerId, mission1AlertNotificationCategoryId, {previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null});
+  let chatNotificationCategoryId = Bridge.generateNotificationCategoryId();
+  server.addNotificationCategory(chatNotificationCategoryId, gameId, {name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date() / 1000 + 3600, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
+  server.addNotification(Bridge.generateNotificationId(), kimPlayerId, chatNotificationCategoryId, {previewMessage: "Ping from Evanpocalypse!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + humanChatRoomId});
 }

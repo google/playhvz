@@ -12,38 +12,30 @@
         bridge: Object,
         database: Object,
 
-        userId: {
-          type: String,
-        },
+        user: Object,
 
-        gameId: {
-          type: String,
-          notify: true,
-        },
+        game: Object,
 
-        playerId: {
-          type: String,
-          notify: true,
-        },
+        player: Object,
 
         canInfect: {
           type: Boolean,
-          computed: 'computeCanInfect_(playerId, database.game, database.game.playersById.*)',
+          computed: 'computeCanInfect_(player, game, game.playersById.*)',
         },
 
         canRegister: {
           type: Boolean,
-          computed: 'computeCanRegister_(gameId, playerId)',
+          computed: 'computeCanRegister_(game, player)',
         },
 
         isPlayer: {
           type: Boolean,
-          computed: 'computeIsPlayer_(playerId)',
+          computed: 'computeIsPlayer_(player)',
         },
         
         isAdmin: {
           type: Boolean,
-          computed: 'computeIsAdmin_(userId, database.game, database.game.admins.*)',
+          computed: 'computeIsAdmin_(user, game, game.admins.*)',
         },
       },
 
@@ -51,20 +43,20 @@
         'tap': 'captureTap_',
       },
 
-      computeCanInfect_: function(playerId, game) {
-        return game.playersById[playerId] && !game.playersById[playerId].infectable;
+      computeCanInfect_: function(player, game) {
+        return !player.infectable;
       },
 
-      computeCanRegister_(gameId, playerId) {
-        return gameId && !playerId;
+      computeCanRegister_(game, player) {
+        return game && !player;
       },
 
-      computeIsPlayer_(playerId) {
-        return !!playerId;
+      computeIsPlayer_(player) {
+        return !!player;
       },
 
-      computeIsAdmin_: function(userId, game) {
-        let admin = game.admins.find((admin) => admin.userId == userId);
+      computeIsAdmin_: function(user) {
+        let admin = this.game.admins.find((admin) => admin.userId == user.id);
         return !!admin;
       },
 
@@ -174,7 +166,7 @@
           Rewards
         </a>
         <a href="javascript:void(0)" data-page="adminNotifications" class="drawer-item admin">
-          <iron-icon icon="social:notifications"></iron-icon>
+          <iron-icon icon="notification:sms"></iron-icon>
           Notifications
         </a>
       </div>
@@ -198,11 +190,15 @@
           <iron-icon icon="icons:stars"></iron-icon>
           Rewards
         </a>
+        <a href="javascript:void(0)" data-page="notifications" class="drawer-item">
+          <iron-icon icon="notification:sms"></iron-icon>
+          Notifications
+        </a>
         <a href="javascript:void(0)" data-page="chat" class="drawer-item">
           <iron-icon icon="communication:chat"></iron-icon>
           Chat
         </a>
-        <template is="dom-repeat" items="[[database.game.chatRooms]]" as="chatRoom">
+        <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
           <a href="javascript:void(0)" data-page="[[computeChatPage_(chatRoom.id)]]" class="drawer-item">
             <iron-icon icon="communication:chat"></iron-icon>
             [[chatRoom.name]]
@@ -212,7 +208,7 @@
     </template>
 
     <div class="drawer-section">
-      <template is="dom-if" if="[[playerId]]">
+      <template is="dom-if" if="[[user]]">
         <a href="javascript:void(0)" class="drawer-item">
           <iron-icon icon="icons:account-circle"></iron-icon>
           Sign Out
@@ -220,11 +216,8 @@
       </template>
 
       <ghvz-game-selector
-          user-id="[[userId]]"
-          user="[[database.user]]"
           games="[[database.games]]"
-          game-id="{{gameId}}"
-          player-id="{{playerId}}">
+          game-id="[[game.id]]">
       </ghvz-game-selector>
     </div>
 

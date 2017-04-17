@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "trogdors-29fa4"
+    "default": "trogdors-29fa4",
+    "prod": "trogdors-29fa4",
+    "dev": "zeds-dbe0f",
   }
 }

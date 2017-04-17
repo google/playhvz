@@ -11,9 +11,9 @@
       properties: {
         bridge: Object,
         database: Object,
-        userId: String,
-        gameId: String,
-        playerId: String,
+        user: Object,
+        game: Object,
+        player: Object,
         page: {
           type: String,
           observer: 'onPageChanged_',
@@ -23,14 +23,6 @@
           type: String,
           value: null,
         },
-      },
-
-      listeners: {
-        'ghvz-open-drawer': 'openDrawer_',
-        'ghvz-close-drawer': 'closeDrawer_',
-      },
-
-      attached() {
       },
 
       onPageChanged_: function(newPage, oldPage) {
@@ -72,9 +64,9 @@
       <ghvz-mobile-main-page
           bridge="[[bridge]]"
           database="[[database]]"
-          user-id="[[userId]]"
-          game-id="[[gameId]]"
-          player-id="[[playerId]]">
+          user="[[user]]"
+          game="[[game]]"
+          player="[[player]]">
       </ghvz-mobile-main-page>
     </neon-animatable>
     <neon-animatable>
@@ -85,9 +77,9 @@
             <ghvz-stats-page
                 bridge="[[bridge]]"
                 database="[[database]]"
-                game-id="[[gameId]]"
-                user-id="[[userId]]"
-                player-id="[[playerId]]">
+                user="[[user]]"
+                game="[[game]]"
+                player="[[player]]">
             </ghvz-stats-page>
           </ghvz-card>
         </template>

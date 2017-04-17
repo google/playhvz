@@ -1,0 +1,42 @@
+
+<dom-module id="ghvz-unseen-notifications">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-unseen-notifications',
+
+      properties: {
+        bridge: Object,
+        categoriesById: Object,
+        categories: Array,
+        player: Object,
+      },
+    });
+  });
+</script>
+<style>
+  .notification {
+    margin: 8px;
+    background-color: white;
+  }
+</style>
+<template>
+  <template is="dom-repeat" items="[[player.notifications]]" as="notification">
+    <template is="dom-if" if="[[!notification.seenTime]]">
+      <paper-material class="notification" elevation="5">
+        <ghvz-notification-preview
+            bridge="[[bridge]]"
+            player-id="[[player.id]]"
+            categories-by-id="[[categoriesById]]"
+            categories="[[categories]]"
+            notification="[[notification]]"
+            with-close>
+        </ghvz-notification-preview>
+      </paper-material>
+    </template>
+  </template>
+</template>
+</dom-module>
