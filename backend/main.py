@@ -32,3 +32,26 @@ def get_testdata():
   testdata = firebase.get('testdata', None)
 
   return jsonify(testdata)
+
+@app.route('/creategame', methods=['POST'])
+def new_game():
+  gameId = request.form['gameId']
+  adminUserId = request.form['adminUserId']
+  if 'name' in request.view_args:
+    name = request.args['name']
+  else:
+    name = ''
+
+  if 'rulesUrl' in request.view_args:
+    rulesUrl = request.args['rulesUrl']
+  else:
+    rulesUrl = ''
+
+  if 'stunTimer' in request.view_args:
+    stunTimer = request.args['stunTimer']
+  else:
+    stunTimer = ''
+
+  gamedata = {'name': name, 'rulesUrl': rulesUrl, 'stunTimer': stunTimer, active: True}
+
+  firebase.put('/games', gameId, gamedata)
