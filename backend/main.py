@@ -12,8 +12,13 @@ import requests_toolbelt.adapters.appengine
 requests_toolbelt.adapters.appengine.monkeypatch()
 HTTP_REQUEST = google.auth.transport.requests.Request()
 
+# Fill out with value from https://firebase.corp.google.com/project/trogdors-29fa4/settings/database
+FIREBASE_SECRET = ""
+FIREBASE_EMAIL = ""
+
 app = Flask(__name__)
-firebase = firebase.FirebaseApplication('https://trogdors-29fa4.firebaseio.com', None)
+auth = firebase.FirebaseAuthentication(FIREBASE_SECRET, FIREBASE_EMAIL, admin=True)
+firebase = firebase.FirebaseApplication('https://trogdors-29fa4.firebaseio.com', authentication=auth)
 flask_cors.CORS(app)
 
 @app.route('/')
