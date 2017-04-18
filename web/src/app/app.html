@@ -56,7 +56,10 @@ paper-input-container {
           value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
         },
 
-        showSignInButton: Boolean,
+        showSignInButton: {
+          type: Boolean,
+          computed: 'computeShowSignInButton_(userId, user)',
+        },
 
         database: {
           type: Object,
@@ -113,6 +116,7 @@ paper-input-container {
       ],
 
       listeners: {
+        'ghvz-sign-in': 'signIn_',
         'ghvz-open-page': 'handleOpenPage_',
         'ghvz-open-drawer': 'openDrawer_',
         'ghvz-close-drawer': 'closeDrawer_',
@@ -142,15 +146,15 @@ paper-input-container {
       },
 
       makeBridge_() {
-        var fake = true;
-        var prod = false;
+        var fake = false;
+        var prod = true;
         if (fake) {
           return new FakeBridge(this.makeBridgeDelegate_());
         } else {
           let config;
           let serverUrl;
           if (prod) {
-            serverUrl = "http://googlehvz.com";
+            serverUrl = "https://backend-dot-humansvszombies-24348.appspot.com/";
             config = {
               apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
               authDomain: "trogdors-29fa4.firebaseapp.com",
@@ -181,6 +185,9 @@ paper-input-container {
           },
           push: (path, value) => {
             //console.log('Local push', path, value);
+            if (typeof value == 'object' && value.id) {
+              this.set('database.' + path + 'ById.' + value.id, value);
+            }
             this.push('database.' + path, value);
           },
           splice: (path, index, numToRemove, ...toInsert) => {
@@ -190,15 +197,17 @@ paper-input-container {
           get: (path) => this.get('database.' + path),
           onUserSignedIn: (userId) => {
             this.userId = userId;
-            this.showSignInButton = false;
           },
           onAutoSignInFailed: () => {
-            this.showSignInButton = true;
           },
         };
       },
 
-      firebaseSignIn_: function() {
+      computeShowSignInButton_(userId, user) {
+        return !userId || !user;
+      },
+
+      signIn_: function() {
         this.bridge.signIn();
       },
 

@@ -23,7 +23,7 @@ class NormalRequester {
         }
       }
     };
-    request.open(verb, "https://googlehvz.com/" + path, true);
+    request.open(verb, this.serverUrl + path, true);
     for (var key in this.headers) {
       request.setRequestHeader(key, this.headers[key]);
     }

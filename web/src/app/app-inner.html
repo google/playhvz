@@ -39,6 +39,10 @@
       closeDrawer() {
         this.$$("#drawer").closeDrawer();
       },
+
+      signIn_: function() {
+        this.fire('ghvz-sign-in');
+      },
     });
   });
 </script>
@@ -55,7 +59,7 @@
 <template>
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
   <template is="dom-if" if="[[showSignInButton]]">
-    <paper-button on-tap="firebaseSignIn_">Sign In With Google</paper-button>
+    <paper-button on-tap="signIn_">Sign In With Google</paper-button>
   </template>
   <template is="dom-if" if="[[user]]">
     <paper-drawer-panel id="drawer" disable-swipe>

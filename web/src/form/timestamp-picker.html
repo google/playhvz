@@ -49,7 +49,7 @@
               let pm = date.getHours() > 12;
               time += date.getHours() - (pm ? 12 : 0);
               time += ":";
-              time += date.getMinutes() + (date.getMinutes() < 10 ? "0" : "");
+              time += (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
               time += (pm ? "pm" : "am");
               this.$.time.value = time;
               this.removeAttribute("invalid");

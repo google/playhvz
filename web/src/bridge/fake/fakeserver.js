@@ -192,6 +192,14 @@ class FakeServer {
       allegianceFilter: allegianceFilter,
     });
   }
+  updateMission(missionId, args) {
+    this.checkId(missionId, 'mission');
+    let missionPath = this.database.pathForId(missionId);
+    this.checkOptionalRequestArgs(args, SERVER_MISSION_PROPERTIES);
+    for (let argName in args) {
+      this.database.set(missionPath.concat([argName]), args[argName]);
+    }
+  }
   addRewardCategory(rewardCategoryId, gameId, args) {
     this.checkIdNotTaken(rewardCategoryId, 'rewardCategory');
     this.checkId(gameId, 'game');

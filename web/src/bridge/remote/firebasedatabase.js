@@ -121,33 +121,23 @@ class FirebaseDatabase {
     }
   }
 
-  getGunIndex_(id) { return Utils.findIndexById(this.delegate.get("guns"), id); }
-  getGameIndex_(id) { return Utils.findIndexById(this.delegate.get("games"), id); }
-  getNotificationCategoryIndex_(id) { return Utils.findIndexById(this.delegate.get("game.notificationCategories"), id); }
-  getRewardCategoryIndex_(id) { return Utils.findIndexById(this.delegate.get("game.rewardCategories"), id); }
-  getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) { return Utils.findIndexById(this.delegate.get("game.rewardCategoriesById." + rewardCategoryId).rewards, rewardCategoryRewardId); }
-  getMissionIndex_(id) { return Utils.findIndexById(this.delegate.get("game.missions"), id); }
-  getAdminIndex_(id) { return Utils.findIndexById(this.delegate.get("game.admins"), id); }
-  getUserPlayerIndex_(id) { return Utils.findIndexById(this.delegate.get("user.players"), id); }
-  getChatRoomIndex_(id) { return Utils.findIndexById(this.delegate.get("game.chatRooms"), id); }
-  getPlayerIndex_(id) {
-    if (!this.delegate.get("game") || !this.delegate.get("game.players")) {
-      debugger;
-    }
-    return Utils.findIndexById(this.delegate.get("game.players"), id);
+  getGameIndex_(id) {
+    return this.delegate.get("games").findIndex(x => x.id == id);
   }
-  getPlayerRewardIndex_(playerId, playerRewardId) { return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).rewards, playerRewardId); }
-  getPlayerLifeIndex_(playerId, playerLifeId) { return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).lives, playerLifeId); }
-  getPlayerInfectionIndex_(playerId, playerInfectionId) { return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).infections, playerInfectionId); }
-  getPlayerNotificationIndex_(playerId, playerNotificationId) {
-    return Utils.findIndexById(this.delegate.get("game.playersById." + playerId).notifications, playerNotificationId);
+  getGunIndex_(id) {
+    return this.delegate.get("guns").findIndex(x => x.id == id);
   }
-  getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) {
-    return Utils.findIndexById(this.delegate.get("game.chatRoomsById." + chatRoomId).memberships, chatRoomMembershipId);
-  }
-  getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) {
-    return Utils.findIndexById(this.delegate.get("game.chatRoomsById." + chatRoomId).messages, chatRoomMessageId);
-  }
+  // getPlayerIndex_(id) {
+  //   if (!this.delegate.get("game") || !this.delegate.get("game.players")) {
+  //     debugger;
+  //   }
+  // }
+  // getPlayerNotificationIndex_(playerId, playerNotificationId) {
+  // }
+  // getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) {
+  // }
+  // getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) {
+  // }
 
   // Figures out where we should insert an object in an array.
   // All objects must have "index" property to guide us.
@@ -166,14 +156,14 @@ class FirebaseDatabase {
     return insertIndex;
   }
 
-  listenForPropertyChanges_(collectionRef, properties, collections, setCallback) {
+  listenForDirectChildren_(collectionRef, properties, collections, setCallback) {
     collectionRef.on("child_added", (change) => {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), change.val());
       } else if (collections.find((col) => col == change.getKey())) {
         setCallback(change.getKey(), []);
       } else {
-        throwError("Unexpected!", change.val(), change.getKey(), arguments);
+        throwError("Unexpected child_added!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
       }
     });
     collectionRef.on("child_changed", (change) => {
@@ -182,7 +172,7 @@ class FirebaseDatabase {
       } else if (collections.find((col) => col == change.getKey())) {
         // do nothing, covered elsewhere
       } else {
-        throwError("Unexpected!", change.val(), change.getKey(), arguments);
+        throwError("Unexpected child_changed!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
       }
     });
     collectionRef.on("child_removed", (change) => {
@@ -196,29 +186,30 @@ class FirebaseDatabase {
     });
   }
 
-  setupClientSideObject(id, snapshot, propertyNames, lists) {
-    let obj = {id: id};
-    let snapshotValue = snapshot.val();
+  copyProperties(object, snapshotValue, propertyNames) {
     for (let propertyName of propertyNames) {
       let val = snapshotValue[propertyName];
       if (val === undefined)
         val = null;
-      obj[propertyName] = val;
+      object[propertyName] = val;
     }
+    return object;
+  }
+  addEmptyLists(object, lists) {
     for (let listName of lists) {
-      obj[listName] = [];
-      obj[listName + "ById"] = {};
+      object[listName] = [];
     }
-    return obj;
+    return object;
   }
 
   shallowListenToGames() {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       let gameId = snap.getKey();
-      let obj = this.setupClientSideObject(gameId, snap, GUN_PROPERTIES, GUN_COLLECTIONS);
+      let obj = {id: gameId};
+      obj = this.copyProperties(obj, snap.val(), GUN_PROPERTIES);
+      obj = this.addEmptyLists(obj, GUN_COLLECTIONS);
       this.delegate.push("games", obj);
-      this.delegate.set("gamesById." + gameId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
           (property, value) => {
             this.delegate.set("games." + this.getGameIndex_(gameId) + "." + property, value);
@@ -226,17 +217,17 @@ class FirebaseDatabase {
     });
     this.firebaseRoot.child("games").on("child_removed", (snap) => {
       this.splice("games", this.getGameIndex_(snap.getKey()), 1);
-      delete this.delegate.get("gamesById")[snap.getKey()];
     });
   }
 
   listenToGuns() {
     this.firebaseRoot.child("guns").on("child_added", (snap) => {
       let gunId = snap.getKey();
-      let obj = this.setupClientSideObject(gunId, snap, GUN_PROPERTIES, GUN_COLLECTIONS);
+      let obj = {id: gunId};
+      obj = this.copyProperties(obj, snap.val(), GUN_PROPERTIES);
+      obj = this.addEmptyLists(obj, GUN_COLLECTIONS);
       this.delegate.push("guns", obj);
-      this.delegate.set("gunsById." + gunId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS,
           (property, value) => {
             this.delegate.set("guns." + this.getGunIndex_(gunId) + "." + property, value);
@@ -248,10 +239,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/missions");
     ref.on("child_added", (snap) => {
       let missionId = snap.getKey();
-      let obj = this.setupClientSideObject(missionId, snap, MISSION_PROPERTIES, MISSION_COLLECTIONS);
+      let obj = {id: missionId};
+      obj = this.copyProperties(obj, snap.val(), MISSION_PROPERTIES);
+      obj = this.addEmptyLists(obj, MISSION_COLLECTIONS);
       this.delegate.push("game.missions", obj);
-      this.delegate.set("game.missionsById." + missionId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.missions." + this.getMissionIndex_(missionId) + "." + property, value);
@@ -263,10 +255,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/admins");
     ref.on("child_added", (snap) => {
       let adminId = snap.getKey();
-      let obj = this.setupClientSideObject(adminId, snap, ADMIN_PROPERTIES, ADMIN_COLLECTIONS);
+      let obj = {id: adminId};
+      obj = this.copyProperties(obj, snap.val(), ADMIN_PROPERTIES);
+      obj = this.addEmptyLists(obj, ADMIN_COLLECTIONS);
       this.delegate.push("game.admins", obj);
-      this.delegate.set("game.adminsById." + adminId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.admins." + this.getAdminIndex_(adminId) + "." + property, value);
@@ -278,10 +271,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/chatRooms");
     ref.on("child_added", (snap) => {
       let chatRoomId = snap.getKey();
-      let obj = this.setupClientSideObject(chatRoomId, snap, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS);
+      let obj = {id: chatRoomId};
+      obj = this.copyProperties(obj, snap.val(), CHAT_ROOM_PROPERTIES);
+      obj = this.addEmptyLists(obj, CHAT_ROOM_COLLECTIONS);
       this.delegate.push("game.chatRooms", obj);
-      this.delegate.set("game.chatRoomsById." + chatRoomId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + "." + property, value);
@@ -295,10 +289,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/chatRooms/" + chatRoomId + "/memberships");
     ref.on("child_added", (snap) => {
       let chatRoomMembershipId = snap.getKey();
-      let obj = this.setupClientSideObject(chatRoomMembershipId, snap, CHAT_ROOM_MEMBERSHIP_PROPERTIES, CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
+      let obj = {id: chatRoomMembershipId};
+      obj = this.copyProperties(obj, snap.val(), CHAT_ROOM_MEMBERSHIP_PROPERTIES);
+      obj = this.addEmptyLists(obj, CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
       this.delegate.push("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships", obj);
-      this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".membershipsById." + chatRoomMembershipId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, CHAT_ROOM_MEMBERSHIP_PROPERTIES, CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships." + this.getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) + "." + property, value);
@@ -310,7 +305,9 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/chatRooms/" + chatRoomId + "/messages");
     ref.on("child_added", (snap) => {
       let chatRoomMessageId = snap.getKey();
-      let obj = this.setupClientSideObject(chatRoomMessageId, snap, CHAT_ROOM_MESSAGE_PROPERTIES, CHAT_ROOM_MESSAGE_COLLECTIONS);
+      let obj = {id: chatRoomMessageId};
+      obj = this.copyProperties(obj, snap.val(), CHAT_ROOM_MESSAGE_PROPERTIES);
+      obj = this.addEmptyLists(obj, CHAT_ROOM_MESSAGE_COLLECTIONS);
       let insertIndex =
           this.findInsertIndex(
               this.delegate.get("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages"),
@@ -318,8 +315,7 @@ class FirebaseDatabase {
       this.delegate.splice(
           "game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages",
           insertIndex, 0, obj);
-      this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messagesById." + chatRoomMessageId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, CHAT_ROOM_MESSAGE_PROPERTIES, CHAT_ROOM_MESSAGE_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages." + this.getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) + "." + property, value);
@@ -331,10 +327,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players");
     ref.on("child_added", (snap) => {
       let playerId = snap.getKey();
-      let obj = this.setupClientSideObject(playerId, snap, PLAYER_PROPERTIES, PLAYER_COLLECTIONS);
+      let obj = {id: playerId};
+      obj = this.copyProperties(obj, snap.val(), PLAYER_PROPERTIES);
+      obj = this.addEmptyLists(obj, PLAYER_COLLECTIONS);
       this.delegate.push("game.players", obj);
-      this.delegate.set("game.playersById." + playerId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + "." + property, value);
@@ -350,10 +347,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/rewards");
     ref.on("child_added", (snap) => {
       let playerRewardId = snap.getKey();
-      let obj = this.setupClientSideObject(playerRewardId, snap, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS);
+      let obj = {id: playerRewardId};
+      obj = this.copyProperties(obj, snap.val(), PLAYER_REWARD_PROPERTIES);
+      obj = this.addEmptyLists(obj, PLAYER_REWARD_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".rewards", obj);
-      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".rewardsById." + playerRewardId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".rewards." + this.getPlayerRewardIndex_(playerId, playerRewardId) + "." + property, value);
@@ -365,10 +363,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/lives");
     ref.on("child_added", (snap) => {
       let playerLifeId = snap.getKey();
-      let obj = this.setupClientSideObject(playerLifeId, snap, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS);
+      let obj = {id: playerLifeId};
+      obj = this.copyProperties(obj, snap.val(), PLAYER_LIFE_PROPERTIES);
+      obj = this.addEmptyLists(obj, PLAYER_LIFE_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".lives", obj);
-      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".livesById." + playerLifeId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".lives." + this.getPlayerLifeIndex_(playerId, playerLifeId) + "." + property, value);
@@ -380,10 +379,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/infections");
     ref.on("child_added", (snap) => {
       let playerInfectionId = snap.getKey();
-      let obj = this.setupClientSideObject(playerInfectionId, snap, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS);
+      let obj = {id: playerInfectionId};
+      obj = this.copyProperties(obj, snap.val(), PLAYER_INFECTION_PROPERTIES);
+      obj = this.addEmptyLists(obj, PLAYER_INFECTION_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".infections", obj);
-      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".infectionsById." + playerInfectionId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".infections." + this.getPlayerInfectionIndex_(playerId, playerInfectionId) + "." + property, value);
@@ -395,10 +395,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/notifications");
     ref.on("child_added", (snap) => {
       let playerNotificationId = snap.getKey();
-      let obj = this.setupClientSideObject(playerNotificationId, snap, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS);
+      let obj = {id: playerNotificationId};
+      obj = this.copyProperties(obj, snap.val(), PLAYER_NOTIFICATION_PROPERTIES);
+      obj = this.addEmptyLists(obj, PLAYER_NOTIFICATION_COLLECTIONS);
       this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".notifications", obj);
-      this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".notificationsById." + playerNotificationId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".notifications." + this.getPlayerNotificationIndex_(playerId, playerNotificationId) + "." + property, value);
@@ -410,10 +411,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/notificationCategories");
     ref.on("child_added", (snap) => {
       let notificationCategoryId = snap.getKey();
-      let obj = this.setupClientSideObject(notificationCategoryId, snap, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS);
+      let obj = {id: notificationCategoryId};
+      obj = this.copyProperties(obj, snap.val(), NOTIFICATION_CATEGORY_PROPERTIES);
+      obj = this.addEmptyLists(obj, NOTIFICATION_CATEGORY_COLLECTIONS);
       this.delegate.push("game.notificationCategories", obj);
-      this.delegate.set("game.notificationCategoriesById." + notificationCategoryId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.notificationCategories." + this.getNotificationCategoryIndex_(notificationCategoryId) + "." + property, value);
@@ -425,10 +427,11 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/rewardCategories");
     ref.on("child_added", (snap) => {
       let rewardCategoryId = snap.getKey();
-      let obj = this.setupClientSideObject(rewardCategoryId, snap, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS);
+      let obj = {id: rewardCategoryId};
+      obj = this.copyProperties(obj, snap.val(), REWARD_CATEGORY_PROPERTIES);
+      obj = this.addEmptyLists(obj, REWARD_CATEGORY_COLLECTIONS);
       this.delegate.push("game.rewardCategories", obj);
-      this.delegate.set("game.rewardCategoriesById." + rewardCategoryId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + "." + property, value);
@@ -441,10 +444,12 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("games/" + gameId + "/rewardCategories/" + rewardCategoryId + "/rewards");
     ref.on("child_added", (snap) => {
       let rewardCategoryRewardId = snap.getKey();
-      let obj = this.setupClientSideObject(rewardCategoryRewardId, snap, REWARD_CATEGORY_REWARD_PROPERTIES, REWARD_CATEGORY_REWARD_COLLECTIONS);
+      let obj = {id: rewardCategoryRewardId};
+      obj = this.copyProperties(obj, snap.val(), REWARD_CATEGORY_REWARD_PROPERTIES);
+      obj = this.addEmptyLists(obj, REWARD_CATEGORY_REWARD_COLLECTIONS);
       this.delegate.push("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards", obj);
       this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + rewardCategoryRewardId, obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, REWARD_CATEGORY_REWARD_PROPERTIES, REWARD_CATEGORY_REWARD_COLLECTIONS,
           (property, value) => {
             this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + this.getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) + "." + property, value);
@@ -455,9 +460,11 @@ class FirebaseDatabase {
   listenToSpecificGame(gameId) {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       if (snap.getKey() == gameId) {
-        let obj = this.setupClientSideObject(gameId, snap, GAME_PROPERTIES, GAME_COLLECTIONS);
+        let obj = {id: gameId};
+      obj = this.copyProperties(obj, snap.val(), GAME_PROPERTIES);
+      obj = this.addEmptyLists(obj, GAME_COLLECTIONS);
         this.delegate.set("game", obj);
-        this.listenForPropertyChanges_(
+        this.listenForDirectChildren_(
             snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
             (property, value) => {
               this.delegate.set("game." + property, value);
@@ -474,9 +481,11 @@ class FirebaseDatabase {
   listenToSpecificUser(userId) {
     this.firebaseRoot.child("users").on("child_added", (snap) => {
       if (snap.getKey() == userId) {
-        let obj = this.setupClientSideObject(userId, snap, USER_PROPERTIES, USER_COLLECTIONS);
+        let obj = {id: userId};
+      obj = this.copyProperties(obj, snap.val(), USER_PROPERTIES);
+      obj = this.addEmptyLists(obj, USER_COLLECTIONS);
         this.delegate.set("user", obj);
-        this.listenForPropertyChanges_(
+        this.listenForDirectChildren_(
             snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
             (property, value) => {
               this.delegate.set("user." + property, value);
@@ -490,58 +499,15 @@ class FirebaseDatabase {
     var ref = this.firebaseRoot.child("users/" + userId + "/players");
     ref.on("child_added", (snap) => {
       let userPlayerId = snap.getKey();
-      let obj = this.setupClientSideObject(userPlayerId, snap, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS);
+      let obj = {id: userPlayerId};
+      obj = this.copyProperties(obj, snap.val(), USER_PLAYER_PROPERTIES);
+      obj = this.addEmptyLists(obj, USER_PLAYER_COLLECTIONS);
       this.delegate.push("user.players", obj);
-      this.listenForPropertyChanges_(
+      this.listenForDirectChildren_(
           snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
           (property, value) => {
             this.delegate.set("user.players." + this.getUserPlayerIndex_(userPlayerId) + "." + property, value);
           });
-    });
-  }
-
-	register(userId) {
-		var numUsers;
-		this.firebaseRoot.child('num_users').once('value', function(snapshot) {
-			numUsers = snapshot.val();
-			console.log(numUsers);
-			var userId = firebase.auth().currentUser.uid;
-			var found;
-			firebase.database().ref('users/' + userId).once('value', function(snapshot) {
-				if (snapshot.val() === null){
-					firebase.database().ref('users/' + userId).set({userIndex: numUsers});
-					firebase.database().ref().update({num_users: numUsers+1});
-				}
-			});
-		});
-	}
-
-  joinGame(playerId, userId, gameId, args) {
-    let {name, needGun, profileImageUrl, startAsZombie, volunteer} = args;
-
-    var updates = {};
-    updates["users/" + userId + "/players/" + Bridge.generateUserPlayerId()] = {
-      gameId: gameId,
-      playerId: playerId,
-    };
-    updates["games/" + gameId + "/players/" + playerId] = {
-      allegiance: "resistance",
-      infectable: true,
-      name: name,
-      needGun: needGun,
-      number: "?",
-      points: 0,
-      profileImageUrl: profileImageUrl,
-      startAsZombie: startAsZombie,
-      userId: userId,
-      volunteer: volunteer
-    };
-    console.log("updating:", updates);
-    // Do a deep-path update
-    this.firebaseRoot.update(updates, function(error) {
-      if (error) {
-        console.log("Error updating data:", error);
-      }
     });
   }
 }

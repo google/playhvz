@@ -39,6 +39,12 @@
                 filterable: true,
               },
               {
+                property: "allegianceFilter",
+                name: "Allegiance",
+                sortable: true,
+                filterable: true,
+              },
+              {
                 property: "beginTime",
                 name: "Begin",
                 sortable: true,
@@ -80,14 +86,14 @@
                 label: "Begin timestamp",
                 width: "half",
                 description: "(in milliseconds)",
-                type: "number",
+                type: "timestamp",
               },
               {
                 property: "endTime",
                 label: "End timestamp",
                 width: "half",
                 description: "(in milliseconds)",
-                type: "number",
+                type: "timestamp",
               },
               {
                 property: "url",
@@ -153,6 +159,7 @@
         <div class="row">
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
           <div class="cell">[[mission.name]]</div>
+          <div class="cell">[[mission.allegianceFilter]]</div>
           <div class="cell">[[formatTime_(mission.beginTime)]]</div>
           <div class="cell">[[formatTime_(mission.endTime)]]</div>
           <div class="cell">[[mission.url]]</div>
