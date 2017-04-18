@@ -7,7 +7,6 @@ class FakeBridge {
     this.databaseOperations = [];
     this.delayedDatabaseOperations = [];
     this.userId = null;
-    this.gameId = null;
 
     var fakeServerDelegate = {
       broadcastDatabaseOperation: (operation) => {
@@ -53,7 +52,6 @@ class FakeBridge {
     return this.delegate.get("games").findIndex((game) => game.id == gameId);
   }
   setGameId(gameId) {
-    this.gameId = gameId;
     // this.delegate.set(
     //     "game",
     //     this.setupMaps(Utils.copyOf(this.delegate.get("gamesById." + gameId))));

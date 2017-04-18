@@ -1,6 +1,6 @@
 'use strict';
 
-const USER_PROPERTIES = ["userIndex"];
+const USER_PROPERTIES = ["placeholder"];
 const USER_COLLECTIONS = ["players",];
 const USER_PLAYER_PROPERTIES = ["gameId", "playerId"];
 const USER_PLAYER_COLLECTIONS = [];
@@ -107,7 +107,7 @@ class FirebaseDatabase {
   setUser_(user) {
     this.firebaseUser = user;
     this.userId = user.uid;
-    this.listenToSpecificUser(this.userId);
+    this.listenToUsers(this.userId);
     this.shallowListenToGames();
     this.listenToGuns();
   }
@@ -117,15 +117,142 @@ class FirebaseDatabase {
       throw "Cannot change game once selected, must refresh!";
     }
     if (gameId) {
-      this.listenToSpecificGame(gameId);
+      this.gameId = gameId;
+      this.deepListenToGame(gameId);
     }
   }
 
-  getGameIndex_(id) {
-    return this.delegate.get("games").findIndex(x => x.id == id);
+  getGamePath_(gameId) {
+    assert(typeof gameId == 'string' || gameId == null);
+    let path = "games";
+    if (gameId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), gameId);
+    return path;
   }
-  getGunIndex_(id) {
-    return this.delegate.get("guns").findIndex(x => x.id == id);
+  getGunPath_(gunId) {
+    assert(typeof gunId == 'string' || gunId == null);
+    let path = "guns";
+    if (gunId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), gunId);
+    return path;
+  }
+  getUserPath_(userId) {
+    assert(typeof userId == 'string' || userId == null);
+    let path = "users";
+    if (userId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), userId);
+    return path;
+  }
+  getUserPlayerPath_(userId, userPlayerId) {
+    assert(userId);
+    assert(typeof userPlayerId == 'string' || userPlayerId == null);
+    let path = this.getUserPath_(userId) + ".players";
+    if (userPlayerId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), userPlayerId);
+    return path;
+  }
+  getPlayerPath_(gameId, playerId) {
+    assert(gameId);
+    assert(typeof playerId == 'string' || playerId == null);
+    let path = this.getGamePath_(gameId) + ".players";
+    if (playerId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), playerId);
+    return path;
+  }
+  getPlayerRewardPath_(gameId, playerId, rewardId) {
+    assert(gameId);
+    assert(playerId);
+    assert(typeof rewardId == 'string' || rewardId == null);
+    let path = this.getPlayerPath_(gameId, playerId) + ".rewards";
+    if (rewardId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), rewardId);
+    return path;
+  }
+  getPlayerLifePath_(gameId, playerId, lifeId) {
+    assert(gameId);
+    assert(playerId);
+    assert(typeof lifeId == 'string' || lifeId == null);
+    let path = this.getPlayerPath_(gameId, playerId) + ".lives";
+    if (lifeId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), lifeId);
+    return path;
+  }
+  getPlayerInfectionPath_(gameId, playerId, infectionId) {
+    assert(gameId);
+    assert(playerId);
+    assert(typeof infectionId == 'string' || infectionId == null);
+    let path = this.getPlayerPath_(gameId, playerId) + ".infections";
+    if (infectionId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), infectionId);
+    return path;
+  }
+  getPlayerNotificationPath_(gameId, playerId, notificationId) {
+    assert(gameId);
+    assert(playerId);
+    assert(typeof notificationId == 'string' || notificationId == null);
+    let path = this.getPlayerPath_(gameId, playerId) + ".notifications";
+    if (notificationId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), notificationId);
+    return path;
+  }
+  getMissionPath_(gameId, missionId) {
+    assert(gameId);
+    assert(typeof missionId == 'string' || missionId == null);
+    let path = this.getGamePath_(gameId) + ".missions";
+    if (missionId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), missionId);
+    return path;
+  }
+  getRewardCategoryPath_(gameId, rewardCategoryId) {
+    assert(gameId);
+    assert(typeof rewardCategoryId == 'string' || rewardCategoryId == null);
+    let path = this.getGamePath_(gameId) + ".rewardCategories";
+    if (rewardCategoryId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), rewardCategoryId);
+    return path;
+  }
+  getRewardCategoryRewardPath_(gameId, rewardCategoryId, rewardId) {
+    assert(gameId);
+    assert(rewardCategoryId);
+    assert(typeof rewardId == 'string' || rewardId == null);
+    let path = this.getRewardCategoryPath_(gameId, rewardCategoryId) + ".rewards";
+    if (rewardId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), rewardId);
+    return path;
+  }
+  getNotificationCategoryPath_(gameId, notificationCategoryId) {
+    assert(gameId);
+    assert(typeof notificationCategoryId == 'string' || notificationCategoryId == null);
+    let path = this.getGamePath_(gameId) + ".notificationCategories";
+    if (notificationCategoryId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), notificationCategoryId);
+    return path;
+  }
+  getChatRoomPath_(gameId, chatRoomId) {
+    assert(gameId);
+    assert(typeof chatRoomId == 'string' || chatRoomId == null);
+    let path = this.getGamePath_(gameId) + ".chatRooms";
+    if (chatRoomId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), chatRoomId);
+    return path;
+  }
+  getChatRoomMembershipPath_(gameId, chatRoomId, membershipId) {
+    assert(gameId);
+    assert(chatRoomId);
+    assert(typeof membershipId == 'string' || membershipId == null);
+    let path = this.getChatRoomPath_(gameId, chatRoomId) + ".memberships";
+    if (membershipId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), membershipId);
+    return path;
+  }
+  getChatRoomMessagePath_(gameId, chatRoomId, messageId) {
+    assert(gameId);
+    assert(chatRoomId);
+    assert(typeof messageId == 'string' || messageId == null);
+    let path = this.getChatRoomPath_(gameId, chatRoomId) + ".messages";
+    if (messageId)
+      path += "." + Utils.findIndexById(this.delegate.get(path), messageId);
+    return path;
   }
   // getPlayerIndex_(id) {
   //   if (!this.delegate.get("game") || !this.delegate.get("game.players")) {
@@ -142,6 +269,7 @@ class FirebaseDatabase {
   // Figures out where we should insert an object in an array.
   // All objects must have "index" property to guide us.
   findInsertIndex(collection, newObjectIndex) {
+    assert(collection);
     // For example if we want to insert an object like this:
     // {index: 5}
     // into an array that looks like this:
@@ -161,7 +289,7 @@ class FirebaseDatabase {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), change.val());
       } else if (collections.find((col) => col == change.getKey())) {
-        setCallback(change.getKey(), []);
+        //setCallback(change.getKey(), []);
       } else {
         throwError("Unexpected child_added!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
       }
@@ -206,18 +334,26 @@ class FirebaseDatabase {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       let gameId = snap.getKey();
       let obj = {id: gameId};
-      obj = this.copyProperties(obj, snap.val(), GUN_PROPERTIES);
-      obj = this.addEmptyLists(obj, GUN_COLLECTIONS);
-      this.delegate.push("games", obj);
+      obj = this.copyProperties(obj, snap.val(), GAME_PROPERTIES);
+      obj = this.addEmptyLists(obj, GAME_COLLECTIONS);
+      this.delegate.push(this.getGamePath_(), obj);
       this.listenForDirectChildren_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("games." + this.getGameIndex_(gameId) + "." + property, value);
+            this.delegate.set(this.getGamePath_(gameId) + "." + property, value);
           });
     });
-    this.firebaseRoot.child("games").on("child_removed", (snap) => {
-      this.splice("games", this.getGameIndex_(snap.getKey()), 1);
+    this.firebaseRoot.child(this.getGamePath_()).on("child_removed", (snap) => {
+      this.splice(this.getGamePath_(), this.getGameIndex_(snap.getKey()), 1);
     });
+  }
+
+  deepListenToGame(gameId) {
+    this.listenToMissions_(gameId);
+    this.listenToChatRooms_(gameId);
+    this.listenToPlayers_(gameId);
+    this.listenToRewardCategories_(gameId);
+    this.listenToNotificationCategories_(gameId);
   }
 
   listenToGuns() {
@@ -226,11 +362,11 @@ class FirebaseDatabase {
       let obj = {id: gunId};
       obj = this.copyProperties(obj, snap.val(), GUN_PROPERTIES);
       obj = this.addEmptyLists(obj, GUN_COLLECTIONS);
-      this.delegate.push("guns", obj);
+      this.delegate.push(this.getGunPath_(null), obj);
       this.listenForDirectChildren_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("guns." + this.getGunIndex_(gunId) + "." + property, value);
+            this.delegate.set(this.getGunPath_(gunId) + "." + property, value);
           });
     });
   }
@@ -242,11 +378,12 @@ class FirebaseDatabase {
       let obj = {id: missionId};
       obj = this.copyProperties(obj, snap.val(), MISSION_PROPERTIES);
       obj = this.addEmptyLists(obj, MISSION_COLLECTIONS);
-      this.delegate.push("game.missions", obj);
+      assert(this.delegate.get(this.getMissionPath_(gameId)) != null);
+      this.delegate.push(this.getMissionPath_(gameId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.missions." + this.getMissionIndex_(missionId) + "." + property, value);
+            this.delegate.set(this.getMissionPath_(gameId, missionId) + "." + property, value);
           });
     });
   }
@@ -258,11 +395,11 @@ class FirebaseDatabase {
       let obj = {id: adminId};
       obj = this.copyProperties(obj, snap.val(), ADMIN_PROPERTIES);
       obj = this.addEmptyLists(obj, ADMIN_COLLECTIONS);
-      this.delegate.push("game.admins", obj);
+      this.delegate.push(this.getAdminPath_(gameId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.admins." + this.getAdminIndex_(adminId) + "." + property, value);
+            this.delegate.set(this.getAdminPath_(gameId, adminId) + "." + property, value);
           });
     });
   }
@@ -274,11 +411,11 @@ class FirebaseDatabase {
       let obj = {id: chatRoomId};
       obj = this.copyProperties(obj, snap.val(), CHAT_ROOM_PROPERTIES);
       obj = this.addEmptyLists(obj, CHAT_ROOM_COLLECTIONS);
-      this.delegate.push("game.chatRooms", obj);
+      this.delegate.push(this.getChatRoomPath_(gameId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + "." + property, value);
+            this.delegate.set(this.getChatRoomPath_(gameId, chatRoomId) + "." + property, value);
           });
       this.listenToChatRoomMemberships_(gameId, chatRoomId);
       this.listenToChatRoomMessages_(gameId, chatRoomId);
@@ -292,11 +429,11 @@ class FirebaseDatabase {
       let obj = {id: chatRoomMembershipId};
       obj = this.copyProperties(obj, snap.val(), CHAT_ROOM_MEMBERSHIP_PROPERTIES);
       obj = this.addEmptyLists(obj, CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
-      this.delegate.push("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships", obj);
+      this.delegate.push(this.getChatRoomPath_(gameId, chatRoomId, null) + ".memberships", obj);
       this.listenForDirectChildren_(
           snap.ref, CHAT_ROOM_MEMBERSHIP_PROPERTIES, CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".memberships." + this.getChatRoomMembershipIndex_(chatRoomId, chatRoomMembershipId) + "." + property, value);
+            this.delegate.set(this.getChatRoomMembershipPath_(gameId, chatRoomId, chatRoomMembershipId) + "." + property, value);
           });
     });
   }
@@ -310,15 +447,15 @@ class FirebaseDatabase {
       obj = this.addEmptyLists(obj, CHAT_ROOM_MESSAGE_COLLECTIONS);
       let insertIndex =
           this.findInsertIndex(
-              this.delegate.get("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages"),
+              this.delegate.get(this.getChatRoomPath_(gameId, chatRoomId) + ".messages"),
               obj.index);
       this.delegate.splice(
-          "game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages",
+          this.getChatRoomMessagePath_(gameId, chatRoomId),
           insertIndex, 0, obj);
       this.listenForDirectChildren_(
           snap.ref, CHAT_ROOM_MESSAGE_PROPERTIES, CHAT_ROOM_MESSAGE_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.chatRooms." + this.getChatRoomIndex_(chatRoomId) + ".messages." + this.getChatRoomMessageIndex_(chatRoomId, chatRoomMessageId) + "." + property, value);
+            this.delegate.set(this.getChatRoomMessagePath_(gameId, chatRoomId, chatRoomMessageId) + "." + property, value);
           });
     });
   }
@@ -330,11 +467,11 @@ class FirebaseDatabase {
       let obj = {id: playerId};
       obj = this.copyProperties(obj, snap.val(), PLAYER_PROPERTIES);
       obj = this.addEmptyLists(obj, PLAYER_COLLECTIONS);
-      this.delegate.push("game.players", obj);
+      this.delegate.push(this.getPlayerPath_(gameId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + "." + property, value);
+            this.delegate.set(this.getPlayerPath_(gameId, playerId) + "." + property, value);
           });
       this.listenToPlayerRewards_(gameId, playerId);
       this.listenToPlayerLives_(gameId, playerId);
@@ -350,11 +487,11 @@ class FirebaseDatabase {
       let obj = {id: playerRewardId};
       obj = this.copyProperties(obj, snap.val(), PLAYER_REWARD_PROPERTIES);
       obj = this.addEmptyLists(obj, PLAYER_REWARD_COLLECTIONS);
-      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".rewards", obj);
+      this.delegate.push(this.getPlayerRewardPath_(gameId, playerId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".rewards." + this.getPlayerRewardIndex_(playerId, playerRewardId) + "." + property, value);
+            this.delegate.set(this.getPlayerRewardPath_(gameId, playerId, playerRewardId) + "." + property, value);
           });
     });
   }
@@ -366,11 +503,11 @@ class FirebaseDatabase {
       let obj = {id: playerLifeId};
       obj = this.copyProperties(obj, snap.val(), PLAYER_LIFE_PROPERTIES);
       obj = this.addEmptyLists(obj, PLAYER_LIFE_COLLECTIONS);
-      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".lives", obj);
+      this.delegate.push(this.getPlayerLifePath_(gameId, playerId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, PLAYER_LIFE_PROPERTIES, PLAYER_LIFE_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".lives." + this.getPlayerLifeIndex_(playerId, playerLifeId) + "." + property, value);
+            this.delegate.set(this.getPlayerLifePath_(gameId, playerId, playerLifeId) + "." + property, value);
           });
     });
   }
@@ -382,11 +519,11 @@ class FirebaseDatabase {
       let obj = {id: playerInfectionId};
       obj = this.copyProperties(obj, snap.val(), PLAYER_INFECTION_PROPERTIES);
       obj = this.addEmptyLists(obj, PLAYER_INFECTION_COLLECTIONS);
-      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".infections", obj);
+      this.delegate.push(this.getPlayerInfectionPath_(gameId, playerId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, PLAYER_INFECTION_PROPERTIES, PLAYER_INFECTION_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".infections." + this.getPlayerInfectionIndex_(playerId, playerInfectionId) + "." + property, value);
+            this.delegate.set(this.getPlayerInfectionPath_(gameId, playerId, playerInfectionId) + "." + property, value);
           });
     });
   }
@@ -398,11 +535,11 @@ class FirebaseDatabase {
       let obj = {id: playerNotificationId};
       obj = this.copyProperties(obj, snap.val(), PLAYER_NOTIFICATION_PROPERTIES);
       obj = this.addEmptyLists(obj, PLAYER_NOTIFICATION_COLLECTIONS);
-      this.delegate.push("game.players." + this.getPlayerIndex_(playerId) + ".notifications", obj);
+      this.delegate.push(this.getPlayerNotificationPath_(gameId, playerId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, PLAYER_NOTIFICATION_PROPERTIES, PLAYER_NOTIFICATION_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.players." + this.getPlayerIndex_(playerId) + ".notifications." + this.getPlayerNotificationIndex_(playerId, playerNotificationId) + "." + property, value);
+            this.delegate.set(this.getPlayerNotificationPath_(gameId, playerId, playerNotificationId) + "." + property, value);
           });
     });
   }
@@ -414,11 +551,11 @@ class FirebaseDatabase {
       let obj = {id: notificationCategoryId};
       obj = this.copyProperties(obj, snap.val(), NOTIFICATION_CATEGORY_PROPERTIES);
       obj = this.addEmptyLists(obj, NOTIFICATION_CATEGORY_COLLECTIONS);
-      this.delegate.push("game.notificationCategories", obj);
+      this.delegate.push(this.getNotificationCategoryPath_(gameId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.notificationCategories." + this.getNotificationCategoryIndex_(notificationCategoryId) + "." + property, value);
+            this.delegate.set(this.getNotificationCategoryPath_(gameId, notificationCategoryId) + "." + property, value);
           });
     });
   }
@@ -430,11 +567,11 @@ class FirebaseDatabase {
       let obj = {id: rewardCategoryId};
       obj = this.copyProperties(obj, snap.val(), REWARD_CATEGORY_PROPERTIES);
       obj = this.addEmptyLists(obj, REWARD_CATEGORY_COLLECTIONS);
-      this.delegate.push("game.rewardCategories", obj);
+      this.delegate.push(this.getRewardCategoryPath_(gameId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + "." + property, value);
+            this.delegate.set(this.getRewardCategoryPath_(gameId, rewardCategoryId) + "." + property, value);
           });
       this.listenToRewardCategoryRewards_(gameId, rewardCategoryId);
     });
@@ -447,51 +584,28 @@ class FirebaseDatabase {
       let obj = {id: rewardCategoryRewardId};
       obj = this.copyProperties(obj, snap.val(), REWARD_CATEGORY_REWARD_PROPERTIES);
       obj = this.addEmptyLists(obj, REWARD_CATEGORY_REWARD_COLLECTIONS);
-      this.delegate.push("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards", obj);
-      this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + rewardCategoryRewardId, obj);
+      this.delegate.push(this.getRewardCategoryRewardPath_(gameId, rewardCategoryId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, REWARD_CATEGORY_REWARD_PROPERTIES, REWARD_CATEGORY_REWARD_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("game.rewardCategories." + this.getRewardCategoryIndex_(rewardCategoryId) + ".rewards." + this.getRewardCategoryRewardIndex_(rewardCategoryId, rewardCategoryRewardId) + "." + property, value);
+            this.delegate.set(this.getRewardCategoryRewardPath_(gameId, rewardCategoryId, rewardCategoryRewardId) + "." + property, value);
           });
     });
   }
 
-  listenToSpecificGame(gameId) {
-    this.firebaseRoot.child("games").on("child_added", (snap) => {
-      if (snap.getKey() == gameId) {
-        let obj = {id: gameId};
-      obj = this.copyProperties(obj, snap.val(), GAME_PROPERTIES);
-      obj = this.addEmptyLists(obj, GAME_COLLECTIONS);
-        this.delegate.set("game", obj);
-        this.listenForDirectChildren_(
-            snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
-            (property, value) => {
-              this.delegate.set("game." + property, value);
-            });
-        this.listenToMissions_(gameId);
-        this.listenToChatRooms_(gameId);
-        this.listenToPlayers_(gameId);
-        this.listenToRewardCategories_(gameId);
-        this.listenToNotificationCategories_(gameId);
-      }
-    });
-  }
-
-  listenToSpecificUser(userId) {
+  listenToUsers() {
     this.firebaseRoot.child("users").on("child_added", (snap) => {
-      if (snap.getKey() == userId) {
-        let obj = {id: userId};
+      let userId = snap.getKey();
+      let obj = {id: userId};
       obj = this.copyProperties(obj, snap.val(), USER_PROPERTIES);
       obj = this.addEmptyLists(obj, USER_COLLECTIONS);
-        this.delegate.set("user", obj);
-        this.listenForDirectChildren_(
-            snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
-            (property, value) => {
-              this.delegate.set("user." + property, value);
-            });
-        this.listenToUserPlayers_(userId);
-      }
+      this.delegate.push(this.getUserPath_(null), obj);
+      this.listenForDirectChildren_(
+          snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
+          (property, value) => {
+            this.delegate.set(this.getUserPath_(userId) + "." + property, value);
+          });
+      this.listenToUserPlayers_(userId);
     });
   }
 
@@ -502,11 +616,11 @@ class FirebaseDatabase {
       let obj = {id: userPlayerId};
       obj = this.copyProperties(obj, snap.val(), USER_PLAYER_PROPERTIES);
       obj = this.addEmptyLists(obj, USER_PLAYER_COLLECTIONS);
-      this.delegate.push("user.players", obj);
+      this.delegate.push(this.getUserPlayerPath_(userId, null), obj);
       this.listenForDirectChildren_(
           snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
           (property, value) => {
-            this.delegate.set("user.players." + this.getUserPlayerIndex_(userPlayerId) + "." + property, value);
+            this.delegate.set(this.getUserPlayerPath_(userId, userPlayerId) + "." + property, value);
           });
     });
   }

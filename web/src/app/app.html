@@ -66,13 +66,10 @@ paper-input-container {
           value: () => ({
             gunsById: {},
             guns: [],
-            game: {},
-            player: {},
             games: [],
             gamesById: {},
             users: [],
             usersById: {},
-            user: {},
           }),
         },
 
@@ -110,9 +107,12 @@ paper-input-container {
         'onGameIdChanged_(bridge, gameId, database.games.splices)',
         // 'onPlayerIdChanged_(playerId, game.playersById)'
         'autoNavigate_(database.games.splices)',
+        'autoNavigate_(database.users.splices)',
+        'autoNavigate_(userId)',
         'autoNavigate_(user)',
+        'autoNavigate_(gameId)',
         'autoNavigate_(game)',
-        'autoNavigate_(player)',
+        'autoNavigate_(playerId)',
       ],
 
       listeners: {
@@ -120,6 +120,7 @@ paper-input-container {
         'ghvz-open-page': 'handleOpenPage_',
         'ghvz-open-drawer': 'openDrawer_',
         'ghvz-close-drawer': 'closeDrawer_',
+        'ghvz-select-game': 'handleSelectGame_',
       },
 
       onUserIdChanged_() {
@@ -131,6 +132,10 @@ paper-input-container {
         this.bridge.setGameId(this.gameId);
         this.$.gameSelector.select(
             this.database.games.find(game => game.id == this.gameId));
+      },
+
+      handleSelectGame_(e) {
+        this.gameId = e.detail.gameId;
       },
 
       // Because of a polymer array-selector bug, we can't do this =(
@@ -180,18 +185,18 @@ paper-input-container {
       makeBridgeDelegate_: function() {
         return {
           set: (path, value) => {
-            //console.log('Local set', path, value);
+            console.log('Local set', path, value);
             this.set('database.' + path, value);
           },
           push: (path, value) => {
-            //console.log('Local push', path, value);
+            console.log('Local push', path, value);
             if (typeof value == 'object' && value.id) {
               this.set('database.' + path + 'ById.' + value.id, value);
             }
             this.push('database.' + path, value);
           },
           splice: (path, index, numToRemove, ...toInsert) => {
-            //console.log('Local splice', path, index, numToRemove, ...toInsert);
+            console.log('Local splice', path, index, numToRemove, ...toInsert);
             this.splice('database.' + path, index, numToRemove, ...toInsert);
           },
           get: (path) => this.get('database.' + path),
@@ -235,20 +240,23 @@ paper-input-container {
             }
           }
         }
-        if (this.userId && this.gameId && !this.playerId) {
+        if (this.user && this.gameId && !this.playerId) {
           // Try to figure out their player, if they have one.
-          let userPlayer = this.user && this.user.players.find(player => player.gameId == this.gameId);
+          let userPlayer = this.user.players.find(player => player.gameId == this.gameId);
           if (userPlayer) {
+            // debugger;
             this.playerId = userPlayer.playerId;
           }
         }
-        if (this.userId && this.gameId && !this.page) {
+        if (this.userId && this.game && !this.page) {
           let [, page] = this.extractUrl_();
           if (page) {
+            // debugger;
             this.page = page;
           } else {
+            // debugger;
             this.page = 'main';
-            window.history.replaceState({}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
+            window.history.replaceState({}, "", "/" + this.game.number + "/" + this.page);
           }
         }
       },
@@ -309,8 +317,7 @@ paper-input-container {
       game="[[game]]"
       player-id="[[playerId]]"
       page="[[page]]"
-      show-sign-in-button="[[showSignInButton]]"
-      player="[[player]]">
+      show-sign-in-button="[[showSignInButton]]">
   </ghvz-app-inner>
 </template>
 </dom-module>

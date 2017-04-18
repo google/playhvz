@@ -14,12 +14,12 @@
         },
 
         ready() {
-          this.$.form.addEventListener('iron-form-presubmit', function(event) {
+          this.$.form.addEventListener('iron-form-presubmit', (event) => {
             this.$.form.request.params['gameId'] = this.gameId;
             this.$.form.request.params['userId'] = this.userId;
-          }.bind(this));
+          });
 
-          this.$.form.addEventListener('iron-form-submit', function(event) {
+          this.$.form.addEventListener('iron-form-submit', (event) => {
             Polymer.dom(this.root).querySelector('.output').innerHTML = JSON.stringify(event.detail);
 
             var playerArgs = {
@@ -34,10 +34,10 @@
 
             this.bridge.joinGame(
                 playerId,
-                event.detail.userId,
-                event.detail.gameId,
+                this.userId,
+                this.gameId,
                 playerArgs);
-          }.bind(this));
+          });
         },
 
         submit_: function(event) {

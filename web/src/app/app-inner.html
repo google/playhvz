@@ -21,15 +21,20 @@
       },
 
       observers: [
-        'onPlayerIdChanged_(playerId, game.playersById)'
+        'onPlayerIdChanged_(playerId)',
+        'onPlayerIdChanged_(game)',
+        'onPlayerIdChanged_(game.players.splices)',
       ],
 
       // We do this here instead of up in <ghvz-app> because
       // <array-selector> gets confused when we do too many of them in one
       // place...
       onPlayerIdChanged_() {
-        this.$.playerSelector.select(
-            this.game.players.find(player => player.id == this.playerId));
+        if (this.game && this.playerId && !this.player) {
+          assert(this.game.players);
+          let player = this.game.players.find(player => player.id == this.playerId);
+          this.$.playerSelector.select(player);
+        }
       },
 
       openDrawer() {

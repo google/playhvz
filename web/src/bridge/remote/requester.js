@@ -1,15 +1,25 @@
 
+function newPromise() {
+  let savedResolve, savedReject;
+  let promise = new Promise((resolve, reject) => {
+    savedResolve = resolve;
+    savedReject = reject;
+  });
+  return [promise, savedResolve, savedReject];
+}
+
 class NormalRequester {
   constructor(serverUrl) {
     assert(serverUrl);
     this.serverUrl = serverUrl;
     this.headers = {};
     this.openRequests = [];
+    this.nextRequestId = 1;
   }
   setHeaders(headers) {
     this.headers = headers;
   }
-  sendRequest_(verb, path, body) {
+  sendRequest_(verb, path, urlParams, body) {
     const requestId = this.nextRequestId++;
     let [promise, resolve, reject] = newPromise();
     var request = new XMLHttpRequest();
@@ -23,7 +33,15 @@ class NormalRequester {
         }
       }
     };
-    request.open(verb, this.serverUrl + path, true);
+
+    var urlParamsStr = "";
+    for (var key in urlParams) {
+      urlParamsStr +=
+          (urlParamsStr && "&") +
+          key + "=" + encodeURIComponent(urlParams[key]);
+    }
+    let url = this.serverUrl + path + (urlParamsStr && "?" + urlParamsStr);
+    request.open(verb, url, true);
     for (var key in this.headers) {
       request.setRequestHeader(key, this.headers[key]);
     }
@@ -40,13 +58,13 @@ class NormalRequester {
     }
     return promise;
   }
-  sendGetRequest(path) {
-    return this.sendRequest_('GET', path, null);
+  sendGetRequest(path, urlParams) {
+    return this.sendRequest_('GET', path, urlParams, null);
   }
-  sendPutRequest(path, body) {
-    return this.sendRequest_('PUT', path, body);
+  sendPutRequest(path, urlParams, body) {
+    return this.sendRequest_('PUT', path, urlParams, body);
   }
-  sendPostRequest(path, body) {
-    return this.sendRequest_('POST', path, body);
+  sendPostRequest(path, urlParams, body) {
+    return this.sendRequest_('POST', path, urlParams, body);
   }
 }

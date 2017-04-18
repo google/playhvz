@@ -1,17 +1,5 @@
 'use strict';
 
-const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "volunteer"];
-const SERVER_GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer"];
-const SERVER_USER_PROPERTIES = [];
-const SERVER_CHAT_ROOM_PROPERTIES = ["name", "allegianceFilter"];
-const SERVER_MESSAGE_PROPERTIES = ["message"];
-const SERVER_MISSION_PROPERTIES = ["beginTime", "endTime", "name", "url", "allegianceFilter"];
-const SERVER_REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed"];
-const SERVER_REWARD_PROPERTIES = ["code"];
-const SERVER_GUN_PROPERTIES = ["number"];
-const SERVER_NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate", "destination", "icon"];
-const SERVER_NOTIFICATION_PROPERTIES = ["message", "previewMessage", "sound", "vibrate", "app", "email", "destination"];
-
 class FakeServer {
   constructor(delegate) {
     this.delegate = delegate;
