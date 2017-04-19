@@ -19,6 +19,11 @@
 		D792BD4FCC154496BA432C24 /* CDVSplashScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ED371F7BA004F6A9FBC8968 /* CDVSplashScreen.m */; };
 		FA68C1B364EF4ADBB9907298 /* CDVViewController+SplashScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = E07A868727D4414E865766C4 /* CDVViewController+SplashScreen.m */; };
 		FD3B34BA79534D9BB2E877A4 /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = DB985E1155A84919AFB97533 /* CDVLogger.m */; };
+		825926445AEC4AB49B611DBC /* AppDelegate+notification.m in Sources */ = {isa = PBXBuildFile; fileRef = 056CFCDF99A84C0684B9A6AE /* AppDelegate+notification.m */; };
+		8C41560C84504F5B8B3693BD /* PushPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = E69501EAF7154BF5856FF714 /* PushPlugin.m */; };
+		F025000738E449EBB64B05F5 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4C98591791439C91A742C5 /* AddressBook.framework */; };
+		3587EFBCF75844A9AE8B5650 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587915DAC7044A14812B91AD /* libsqlite3.tbd */; };
+		E003B7581EC9407F9CEDFE52 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 74B32FDB51CF41DA870FF840 /* libz.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +76,13 @@
 		ED33DF2A687741AEAF9F8254 /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		EFCBFF0222734B88A0A9704D /* CDVStatusBar.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = CDVStatusBar.m; path = "cordova-plugin-statusbar/CDVStatusBar.m"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ghvz/config.xml; sourceTree = "<group>"; };
+		056CFCDF99A84C0684B9A6AE /* AppDelegate+notification.m */ = {isa = PBXFileReference; name = "AppDelegate+notification.m"; path = "phonegap-plugin-push/AppDelegate+notification.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		E69501EAF7154BF5856FF714 /* PushPlugin.m */ = {isa = PBXFileReference; name = "PushPlugin.m"; path = "phonegap-plugin-push/PushPlugin.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		6561AA962ED04F7B90E6F798 /* AppDelegate+notification.h */ = {isa = PBXFileReference; name = "AppDelegate+notification.h"; path = "phonegap-plugin-push/AppDelegate+notification.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		E2385850B98D499A9E9662AD /* PushPlugin.h */ = {isa = PBXFileReference; name = "PushPlugin.h"; path = "phonegap-plugin-push/PushPlugin.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		8E4C98591791439C91A742C5 /* AddressBook.framework */ = {isa = PBXFileReference; name = "AddressBook.framework"; path = "System/Library/Frameworks/AddressBook.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		587915DAC7044A14812B91AD /* libsqlite3.tbd */ = {isa = PBXFileReference; name = "libsqlite3.tbd"; path = "usr/lib/libsqlite3.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
+		74B32FDB51CF41DA870FF840 /* libz.tbd */ = {isa = PBXFileReference; name = "libz.tbd"; path = "usr/lib/libz.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +91,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				301BF552109A68D80062928A /* libCordova.a in Frameworks */,
+				F025000738E449EBB64B05F5 /* AddressBook.framework in Frameworks */,
+				3587EFBCF75844A9AE8B5650 /* libsqlite3.tbd in Frameworks */,
+				E003B7581EC9407F9CEDFE52 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,6 +164,9 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8E4C98591791439C91A742C5 /* AddressBook.framework */,
+				587915DAC7044A14812B91AD /* libsqlite3.tbd */,
+				74B32FDB51CF41DA870FF840 /* libz.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -186,6 +204,10 @@
 				E07A868727D4414E865766C4 /* CDVViewController+SplashScreen.m */,
 				0860273CEEAE437FA5874B62 /* CDVSplashScreen.h */,
 				75AB3D658A1542BEBBAC0539 /* CDVViewController+SplashScreen.h */,
+				056CFCDF99A84C0684B9A6AE /* AppDelegate+notification.m */,
+				E69501EAF7154BF5856FF714 /* PushPlugin.m */,
+				6561AA962ED04F7B90E6F798 /* AppDelegate+notification.h */,
+				E2385850B98D499A9E9662AD /* PushPlugin.h */,
 			);
 			name = Plugins;
 			path = ghvz/Plugins;
@@ -312,6 +334,8 @@
 				74F8E8720A234417A8C62029 /* CDVDevice.m in Sources */,
 				D792BD4FCC154496BA432C24 /* CDVSplashScreen.m in Sources */,
 				FA68C1B364EF4ADBB9907298 /* CDVViewController+SplashScreen.m in Sources */,
+				825926445AEC4AB49B611DBC /* AppDelegate+notification.m in Sources */,
+				8C41560C84504F5B8B3693BD /* PushPlugin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

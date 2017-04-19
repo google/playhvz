@@ -35,6 +35,52 @@
                         {
                             "xml": "<feature name=\"SplashScreen\"><param name=\"ios-package\" value=\"CDVSplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"PushNotification\"><param name=\"ios-package\" value=\"PushPlugin\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "*-Info.plist": {
+                "parents": {
+                    "UIBackgroundModes": [
+                        {
+                            "xml": "<array><string>remote-notification</string></array>",
+                            "count": 1
+                        }
+                    ],
+                    "GCM_SENDER_ID": [
+                        {
+                            "xml": "<string>721599614458</string>",
+                            "count": 1
+                        }
+                    ],
+                    "IS_GCM_ENABLED": [
+                        {
+                            "xml": "<true />",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "*-Debug.plist": {
+                "parents": {
+                    "aps-environment": [
+                        {
+                            "xml": "<string>development</string>",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "*-Release.plist": {
+                "parents": {
+                    "aps-environment": [
+                        {
+                            "xml": "<string>production</string>",
+                            "count": 1
                         }
                     ]
                 }
@@ -58,6 +104,10 @@
             "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
         },
         "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "phonegap-plugin-push": {
+            "SENDER_ID": "721599614458",
             "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
         }
     },
@@ -111,6 +161,14 @@
             "clobbers": [
                 "navigator.splashscreen"
             ]
+        },
+        {
+            "id": "phonegap-plugin-push.PushNotification",
+            "file": "plugins/phonegap-plugin-push/www/push.js",
+            "pluginId": "phonegap-plugin-push",
+            "clobbers": [
+                "PushNotification"
+            ]
         }
     ],
     "plugin_metadata": {
@@ -119,6 +177,7 @@
         "cordova-plugin-console": "1.0.5",
         "cordova-plugin-statusbar": "2.2.1",
         "cordova-plugin-device": "1.1.4",
-        "cordova-plugin-splashscreen": "4.0.2"
+        "cordova-plugin-splashscreen": "4.0.2",
+        "phonegap-plugin-push": "1.10.2"
     }
 }

@@ -46,5 +46,15 @@
         },
         "is_top_level": true,
         "variables": {}
+    },
+    "phonegap-plugin-push": {
+        "source": {
+            "type": "registry",
+            "id": "phonegap-plugin-push@1.10.2"
+        },
+        "is_top_level": true,
+        "variables": {
+            "SENDER_ID": "721599614458"
+        }
     }
 }

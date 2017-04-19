@@ -24,6 +24,10 @@
         },
         "ionic-plugin-keyboard": {
             "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "phonegap-plugin-push": {
+            "SENDER_ID": "721599614458",
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
         }
     },
     "dependent_plugins": {}
