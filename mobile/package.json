@@ -19,8 +19,10 @@
     "@angular/platform-browser": "4.0.0",
     "@angular/platform-browser-dynamic": "4.0.0",
     "@ionic-native/core": "3.4.2",
+    "@ionic-native/push": "^3.4.4",
     "@ionic-native/splash-screen": "3.4.2",
     "@ionic-native/status-bar": "3.4.2",
+    "@ionic/cloud-angular": "^0.12.0",
     "@ionic/storage": "2.0.1",
     "ionic-angular": "3.0.1",
     "ionicons": "3.0.0",
@@ -38,7 +40,13 @@
     "cordova-plugin-splashscreen",
     "cordova-plugin-statusbar",
     "cordova-plugin-console",
-    "ionic-plugin-keyboard"
+    "ionic-plugin-keyboard",
+    {
+      "variables": {
+        "SENDER_ID": "*******"
+      },
+      "locator": "phonegap-plugin-push"
+    }
   ],
   "cordovaPlatforms": [
     "ios",
