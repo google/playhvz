@@ -34,28 +34,34 @@ class NormalRequester {
       }
     };
 
-    var urlParamsStr = "";
-    for (var key in urlParams) {
-      urlParamsStr +=
-          (urlParamsStr && "&") +
-          key + "=" + encodeURIComponent(urlParams[key]);
-    }
-    let url = this.serverUrl + path + (urlParamsStr && "?" + urlParamsStr);
-    request.open(verb, url, true);
-    for (var key in this.headers) {
-      request.setRequestHeader(key, this.headers[key]);
-    }
     this.openRequests.push({
       request: request,
       resolve: resolve,
       reject: reject,
       promise: promise,
     });
-    if (body) {
-      request.send(JSON.stringify(body));
-    } else {
-      request.send();
-    }
+
+    firebase.auth().currentUser.getToken(false).then((userToken) => {
+      urlParams = urlParams || {};
+      urlParams.userToken = userToken;
+      var urlParamsStr = "";
+      for (var key in urlParams) {
+        urlParamsStr +=
+            (urlParamsStr && "&") +
+            key + "=" + encodeURIComponent(urlParams[key]);
+      }
+      let url = this.serverUrl + path + (urlParamsStr && "?" + urlParamsStr);
+      request.open(verb, url, true);
+      for (var key in this.headers) {
+        request.setRequestHeader(key, this.headers[key]);
+      }
+      if (body) {
+        request.send(JSON.stringify(body));
+      } else {
+        request.send();
+      }
+    });
+
     return promise;
   }
   sendGetRequest(path, urlParams) {
