@@ -33,7 +33,9 @@
         if (this.game && this.playerId && !this.player) {
           assert(this.game.players);
           let player = this.game.players.find(player => player.id == this.playerId);
-          this.$.playerSelector.select(player);
+          if (player) {
+            this.$.playerSelector.select(player);
+          }
         }
       },
 

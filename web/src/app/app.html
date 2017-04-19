@@ -183,29 +183,31 @@ paper-input-container {
       },
 
       makeBridgeDelegate_: function() {
-        return {
+        let mapper = new Mapper({
           set: (path, value) => {
-            console.log('Local set', path, value);
-            this.set('database.' + path, value);
+            // console.log('Local set', path, value);
+            this.set('database.' + path.join("."), value);
           },
-          push: (path, value) => {
-            console.log('Local push', path, value);
-            if (typeof value == 'object' && value.id) {
-              this.set('database.' + path + 'ById.' + value.id, value);
-            }
-            this.push('database.' + path, value);
+          insert: (path, value, indexOrNull) => {
+            // console.log('Local insert', path, value);
+            if (indexOrNull == null)
+              this.push('database.' + path.join("."), value);
+            else
+              this.splice('database.' + path.join("."), indexOrNull, 0, value);
           },
-          splice: (path, index, numToRemove, ...toInsert) => {
-            console.log('Local splice', path, index, numToRemove, ...toInsert);
-            this.splice('database.' + path, index, numToRemove, ...toInsert);
+          remove: (path, index) => {
+            assert(false); // implement
           },
-          get: (path) => this.get('database.' + path),
+          get: (path) => {
+            return this.get('database.' + path.join("."));
+          },
           onUserSignedIn: (userId) => {
             this.userId = userId;
           },
           onAutoSignInFailed: () => {
           },
-        };
+        });
+        return mapper;
       },
 
       computeShowSignInButton_(userId, user) {

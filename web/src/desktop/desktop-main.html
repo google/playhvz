@@ -42,7 +42,11 @@
         },
 
         computeCanInfect_: function(player, game) {
-          return !player.infectable;
+          if (!player) {
+            console.warn('null player?!');
+          } else {
+            return !player.infectable;
+          }
         },
 
         computeCanRegister_(game, player) {

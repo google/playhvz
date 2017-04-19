@@ -113,20 +113,13 @@ TODO(SquirrelThief):
       },
 
       getName_(playerId) {
-        if (!this.game.playersById[playerId]) {
-          this.bridge.getPlayerById(playerId)
-          .then((player) => {
-            this.game.playersById[playerId] = player;
-            return this.game.playersById[playerId].name;
-          });
-        } else {
-          return this.game.playersById[playerId].name;
-        }
+        let player = this.game.playersById[playerId];
+        return player && player.name;
       },
 
       getProfilePic_(playerId) {
-        var imageUrl = this.game.playersById[playerId].profileImageUrl;
-        return imageUrl;
+        let player = this.game.playersById[playerId];
+        return player && player.profileImageUrl;
       },
 
       openPlayerProfile_(e) {
@@ -288,7 +281,7 @@ blueprint="[[makeFormBlueprint_()]]">
     <!-- Display message text -->
     <div class="layout vertical display-message">
       <div class="player-name">
-        [[getName_(item.playerId, game.playersById)]]
+        [[getName_(item.playerId, game.players.*)]]
       </div>
       <div class="message-text">[[item.message]]</div>
       <paper-tooltip position="top" animation-delay="0">
@@ -299,13 +292,13 @@ blueprint="[[makeFormBlueprint_()]]">
     <div class="layout vertical display-avatar">
       <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
       <iron-image
-      src="[[getProfilePic_(item.playerId, game.playersById)]]"
+      src="[[getProfilePic_(item.playerId, game.playersById.*)]]"
       id="profile-pic" 
       sizing="cover"
       on-click="openPlayerProfile_">
     </iron-image>
     <paper-tooltip position="top" animation-delay="0">
-      [[getName_(item.playerId, game.playersById)]]
+      [[getName_(item.playerId, game.players.*)]]
     </paper-tooltip>
   </div>
 </div> 
