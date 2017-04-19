@@ -6,7 +6,9 @@
 To startup the server, run:
 
 sudo npm install -g firebase-tools
+
 cd web
+
 firebase serve
 
 ### Installing a Polymer component
@@ -14,7 +16,9 @@ firebase serve
 Run:
 
 sudo npm install -g bower
+
 cd web/
+
 bower install paper-button
 
 
