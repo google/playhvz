@@ -56,6 +56,9 @@ class FakeBridge {
     //     "game",
     //     this.setupMaps(Utils.copyOf(this.delegate.get("gamesById." + gameId))));
   }
+  listenToGame(gameId) {
+    // Do nothing. This method is really just an optimization.
+  }
   // Used on an entire object that is coming in with no maps in it, just arrays.
   // For example, when the entire game mirror is coming in.
   setupMaps(object) {
