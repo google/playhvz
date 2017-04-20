@@ -6,6 +6,18 @@
     HTMLImports.whenReady(() => {
       Polymer({
         is: 'ghvz-chat-page',
+
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: String,
+          game: String,
+          player: Object,
+        },
+
+        showFirstChat_: function() {
+          return true; //this.game.chatRooms.length > 0;
+        },
       });
     });
   </script>
@@ -15,14 +27,16 @@
     }
   </style>
   <template>
-    <div>Hello chat</div>
-    <!--
+    <div class="flex layout horizontal">
+      <ghvz-chat-room-list style="max-width: 15%" game="[[game]]"></ghvz-chat-room-list>
+      <template is="dom-if" if="[[showFirstChat_()]]">
     <ghvz-chat-room
       bridge="[[bridge]]"
       game="[[game]]"
       current-player="[[player]]"
-      chat-room="[[chatRoom]]">
+      chat-room="[[game.chatRooms[0]]]">
     </ghvz-chat-room>
-    -->
+    </template>
+
   </template>
 </dom-module>
