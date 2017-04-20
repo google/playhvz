@@ -170,8 +170,14 @@ class LocalDatabase {
     assert(indexOrNull == null || typeof indexOrNull == 'number');
     for (var key in value) {
       if (value[key] instanceof Array) {
-        assert(value[key].length == 0); // curiosity
-        value[key + "ById"] = {};
+        let list = value[key];
+        let map = {};
+        for (var elementKey in list) {
+          let element = list[elementKey];
+          assert(element.id);
+          map[element.id] = element;
+        }
+        value[key + "ById"] = map;
       }
     }
     this.delegate.insert(path, value, indexOrNull);
