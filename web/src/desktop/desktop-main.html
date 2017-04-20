@@ -232,13 +232,13 @@
         <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
           <ghvz-card spaced half right>
             <div class="header">[[chatRoom.name]]</div>
-            <ghvz-chat-app
+            <ghvz-chat-room
                 class="content"
                 bridge="[[bridge]]"
                 game="[[game]]"
                 current-player="[[player]]"
                 chat-room="[[chatRoom]]">
-            </ghvz-chat-app>
+            </ghvz-chat-room>
           </ghvz-card>
         </template>
       </template>
