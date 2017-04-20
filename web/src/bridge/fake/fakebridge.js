@@ -133,7 +133,7 @@ class FakeBridge {
       this.performOperation_(originalOperation);
     } else if (originalOperation.type == 'remove') {
       let objectPath = operation.path.concat([operation.index]);
-      let object = this.delegate.get(objectPath.join('.'));
+      let object = this.delegate.get(objectPath);
       assert(object);
       let objectId = object.id;
       assert(objectId);
@@ -154,17 +154,17 @@ class FakeBridge {
     let {path, type, value, index, numToRemove, toInsert} = operation;
     switch (type) {
       case 'set': {
-        this.delegate.set(path.join('.'), value);
+        this.delegate.set(path, value);
       } break;
       case 'push': {
-        let existingThing = this.delegate.get(path.join('.'));
+        let existingThing = this.delegate.get(path);
         assert(existingThing, "Nothing at path", path);
-        this.delegate.push(path.join('.'), value);
+        this.delegate.insert(path, value, null);
       } break;
       case 'remove': {
-        let existingThing = this.delegate.get(path.join('.'));
+        let existingThing = this.delegate.get(path);
         assert(existingThing, "Nothing at path", path);
-        this.delegate.splice(path.join('.'), index, 1);
+        this.delegate.remove(path, index, 1);
       } break;
       default:
         throwError('Unknown operation:', operation);
