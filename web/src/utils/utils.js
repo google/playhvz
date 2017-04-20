@@ -211,3 +211,48 @@ Utils.getParameterByName = function(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+
+Utils.get = function(obj, path) {
+  return (function innerGet(obj, path) {
+    if (!path || !path.length) {
+      throwError('no path!');
+    } else if (path.length == 1) {
+      return obj[path[0]];
+    } else {
+      return innerGet(obj[path[0]], path.slice(1));
+    }
+  })(obj, path);
+}
+Utils.set = function(obj, path, value) {
+  return (function innerSet(obj, path, value) {
+    if (!path || !path.length) {
+      throwError('no path!');
+    } else if (path.length == 1) {
+      obj[path[0]] = value;
+    } else {
+      innerSet(obj[path[0]], path.slice(1), value);
+    }
+  })(obj, path, value);
+}
+Utils.push = function(obj, path, value) {
+  return (function innerPush(obj, path, value) {
+    if (!path || !path.length) {
+      throwError('no path!');
+    } else if (path.length == 1) {
+      obj[path[0]].push(value);
+    } else {
+      innerPush(obj[path[0]], path.slice(1), value);
+    }
+  })(obj, path, value);
+}
+Utils.remove = function(obj, path, index) {
+  (function innerRemove(obj, path, index) {
+    if (!path || !path.length) {
+      throwError('no path!');
+    } else if (path.length == 1) {
+      obj[path[0]].splice(index, 1);
+    } else {
+      innerRemove(obj[path[0]], path.slice(1), index);
+    }
+  })(obj, path, index);
+}

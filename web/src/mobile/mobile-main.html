@@ -32,7 +32,7 @@
 
         canInfect: {
           type: Boolean,
-          computed: 'computeCanInfect_(player, game, game.playersById.*)',
+          computed: 'computeCanInfect_(player.infectable)',
         },
       },
 

@@ -11,75 +11,22 @@ class FakeDatabase {
     window.fakeDatabase = this;
   }
   get(path) {
-    return Utils.copyOf(this.innerGet_(this.database, path));
-  }
-  innerGet_(obj, path) {
-    if (!path || !path.length) {
-      throwError('no path!');
-    } else if (path.length == 1) {
-      return obj[path[0]];
-    } else {
-      return this.innerGet_(obj[path[0]], path.slice(1));
-    }
+    return Utils.copyOf(Utils.get(this.database, path));
   }
   set(path, value) {
-    this.broadcastOperation_({
-      type: 'set',
-      path: path,
-      value: Utils.copyOf(value),
-    });
-    this.innerSet_(this.database, path, Utils.copyOf(value));
-
-    // if (this.gameId && path[0] == "games" && path[1] == this.getGameIndex(this.gameId)) {
-    //   this.set_(["game"].concat(path.slice(2)), value);
-    // }
-  }
-  innerSet_(obj, path, value) {
-    if (!path || !path.length) {
-      throwError('no path!');
-    } else if (path.length == 1) {
-      obj[path[0]] = value;
-    } else {
-      this.innerSet_(obj[path[0]], path.slice(1), value);
-    }
+    this.delegate.broadcastOperation(
+        {type: 'set', path: path, value: Utils.copyOf(value)});
+    Utils.set(this.database, path, Utils.copyOf(value));
   }
   push(path, value) {
-    this.broadcastOperation_({
-      type: 'push',
-      path: path,
-      value: Utils.copyOf(value),
-    });
-    this.innerPush_(this.database, path, Utils.copyOf(value));
-  }
-  innerPush_(obj, path, value) {
-    if (!path || !path.length) {
-      throwError('no path!');
-    } else if (path.length == 1) {
-      obj[path[0]].push(value);
-    } else {
-      this.innerPush_(obj[path[0]], path.slice(1), value);
-    }
+    this.delegate.broadcastOperation(
+        {type: 'push', path: path, value: Utils.copyOf(value)});
+    Utils.push(this.database, path, Utils.copyOf(value));
   }
   remove(path, index) {
-    this.broadcastOperation_({
-      type: 'remove',
-      path: path,
-      index: index,
-    });
-    this.innerRemove_(this.database, path, index);
-  }
-  innerRemove_(obj, path, index) {
-    if (!path || !path.length) {
-      throwError('no path!');
-    } else if (path.length == 1) {
-      obj[path[0]].splice(index, 1);
-    } else {
-      this.innerRemove_(obj[path[0]], path.slice(1), index);
-    }
-  }
-  broadcastOperation_(operation) {
-    //console.log("Broadcasting:", operation);
-    this.delegate.broadcastOperation(operation);
+    this.delegate.broadcastOperation(
+        {type: 'remove', path: path, index: index});
+    Utils.remove(this.database, path, index);
   }
   objForId(id, allowNotFound) {
     assert(id);

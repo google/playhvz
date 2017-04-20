@@ -17,7 +17,7 @@
 
           isAdmin: {
             type: Boolean,
-            computed: 'computeIsAdmin_(user, game, game.admins.*)',
+            computed: 'computeIsAdmin_(user, game, game.admins.length)',
           },
 
           isPlayer: {
@@ -32,7 +32,7 @@
 
           canInfect: {
             type: Boolean,
-            computed: 'computeCanInfect_(player, game, game.playersById.*)',
+            computed: 'computeCanInfect_(player.infectable)',
           },
         },
 

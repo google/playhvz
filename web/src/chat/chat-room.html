@@ -235,7 +235,7 @@ blueprint="[[makeFormBlueprint_()]]">
     <!-- Display message text -->
     <div class="layout vertical display-message">
       <div class="player-name">
-        [[getName_(item.playerId, game.players.*)]]
+        [[getName_(item.playerId, game.players.length)]]
       </div>
       <div class="message-text">[[item.message]]</div>
       <paper-tooltip position="top" animation-delay="0">
@@ -246,13 +246,13 @@ blueprint="[[makeFormBlueprint_()]]">
     <div class="layout vertical display-avatar">
       <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
       <iron-image
-      src="[[getProfilePic_(item.playerId, game.playersById.*)]]"
+      src="[[getProfilePic_(item.playerId, game.players.length)]]"
       id="profile-pic" 
       sizing="cover"
       on-click="openPlayerProfile_">
     </iron-image>
     <paper-tooltip position="top" animation-delay="0">
-      [[getName_(item.playerId, game.players.*)]]
+      [[getName_(item.playerId, game.players.length)]]
     </paper-tooltip>
   </div>
 </div> 

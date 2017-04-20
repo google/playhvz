@@ -20,7 +20,7 @@
 
         canInfect: {
           type: Boolean,
-          computed: 'computeCanInfect_(player, game, game.playersById.*)',
+          computed: 'computeCanInfect_(player, game, game.players.length)',
         },
 
         canRegister: {
@@ -35,7 +35,7 @@
         
         isAdmin: {
           type: Boolean,
-          computed: 'computeIsAdmin_(user, game, game.admins.*)',
+          computed: 'computeIsAdmin_(user, game, game.admins.length)',
         },
       },
 

@@ -1,8 +1,5 @@
 'use strict';
 
-// Not sure why this HTMLImports.whenReady is really needed.
-// Something about polymer initialization order.
-// I think we"re not supposed to need this.
 class FirebaseListener {
   constructor(localDb, firebaseRoot) {
     this.localDb = localDb;

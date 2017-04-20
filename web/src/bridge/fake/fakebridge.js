@@ -13,24 +13,12 @@ class FakeBridge {
     });
 
     this.databaseOperations = [];
-    this.delayedDatabaseOperations = [];
-    var fakeServerDelegate = {
+    var fakeServer = new FakeServer({
       broadcastDatabaseOperation: (operation) => {
-        this.delayedDatabaseOperations.push(operation);
+        this.databaseOperations.push(operation);
       },
       onUserSignedIn: (userId) => this.delegate.onUserSignedIn(userId),
-    };
-    var cloningFakeServerDelegate =
-        new CloningWrapper(
-            fakeServerDelegate,
-            ["broadcastDatabaseOperation", "onUserSignedIn"]);
-    var delayingCloningFakeServerDelegate =
-        new DelayingWrapper(
-            cloningFakeServerDelegate,
-            ["broadcastDatabaseOperation", "onUserSignedIn"],
-            50);
-
-    var fakeServer = new FakeServer(delayingCloningFakeServerDelegate);
+    });
     var cloningFakeSerer = new CloningWrapper(fakeServer, SERVER_METHODS);
     var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 100);
     this.server = delayingCloningFakeServer;
@@ -54,9 +42,6 @@ class FakeBridge {
     // Do nothing. This method is really just an optimization.
   }
   performOperations_() {
-    let operationsToPerformNow = this.databaseOperations;
-    this.databaseOperations = this.delayedDatabaseOperations;
-    this.delayedDatabaseOperations = [];
     for (let operation of this.databaseOperations) {
       let {type, path, value, index} = operation;
       switch (type) {
@@ -66,6 +51,7 @@ class FakeBridge {
         default: throwError('Unknown operation:', operation);
       }
     }
+    this.databaseOperations = [];
     setTimeout(() => this.performOperations_(), 100);
   }
 }
