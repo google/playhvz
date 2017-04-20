@@ -124,14 +124,22 @@ paper-input-container {
       },
 
       onUserIdChanged_() {
-        this.$.userSelector.select(
-            this.database.users.find(user => user.id == this.userId));
+        if (!this.user) {
+          let user = this.database.users.find(user => user.id == this.userId);
+          if (user) {
+            this.$.userSelector.select(user);
+          }
+        }
       },
 
       onGameIdChanged_() {
-        this.bridge.setGameId(this.gameId);
-        this.$.gameSelector.select(
-            this.database.games.find(game => game.id == this.gameId));
+        if (!this.game) {
+          let game = this.database.games.find(game => game.id == this.gameId);
+          if (game) {
+            this.bridge.listenToGame(this.gameId);
+            this.$.gameSelector.select(game);
+          }
+        }
       },
 
       handleSelectGame_(e) {
@@ -151,14 +159,13 @@ paper-input-container {
       },
 
       makeBridge_() {
-        var fake = Utils.getParameterByName('fake') == 'true';
-        var prod = Utils.getParameterByName('prod') == 'true';
-        if (fake) {
+        var env = Utils.getParameterByName('env');
+        if (!env || env == 'fake') {
           return new FakeBridge(this.makeBridgeDelegate_());
         } else {
           let config;
           let serverUrl;
-          if (prod) {
+          if (env == 'prod') {
             serverUrl = "https://backend-dot-humansvszombies-24348.appspot.com/";
             config = {
               apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
@@ -168,7 +175,7 @@ paper-input-container {
               storageBucket: "trogdors-29fa4.appspot.com",
               messagingSenderId: "625580091272"
             };
-          } else {
+          } else if (env == 'dev') {
             serverUrl = assert(false); // we dont have a dev frontend
             config = {
               apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
@@ -177,6 +184,8 @@ paper-input-container {
               storageBucket: "zeds-dbe0f.appspot.com",
               messagingSenderId: "721599614458",
             };
+          } else {
+            throwError("Bad env:", env);
           }
           return new RemoteBridge(serverUrl, config, this.makeBridgeDelegate_());
         }

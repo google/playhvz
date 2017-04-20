@@ -1,6 +1,6 @@
 
 class RemoteBridge {
-  constructor(firebaseConfig, serverUrl, delegate) {
+  constructor(serverUrl, firebaseConfig, delegate) {
     this.delegate = delegate;
     this.localDb = new LocalDatabase({
       set: (...args) => this.delegate.set(...args),
@@ -9,7 +9,7 @@ class RemoteBridge {
       get: (...args) => this.delegate.get(...args),
     });
 
-    firebase.initializeApp(config);
+    firebase.initializeApp(firebaseConfig);
     this.firebaseListener =
         new FirebaseListener(
             this.localDb,
@@ -43,8 +43,8 @@ class RemoteBridge {
   attemptAutoSignIn() {
     return new Promise((resolve, reject) => {
       firebase.auth().onAuthStateChanged((firebaseUser) => {
-        if (user) {
-          this.userId = result.user.uid;
+        if (firebaseUser) {
+          this.userId = firebaseUser.uid;
           this.delegate.onUserSignedIn(firebaseUser.uid);
           resolve(firebaseUser.uid);
         } else {
