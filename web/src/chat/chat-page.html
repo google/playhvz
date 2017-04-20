@@ -1,0 +1,28 @@
+<dom-module id="ghvz-chat-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-page',
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <div>Hello chat</div>
+    <!--
+    <ghvz-chat-room
+      bridge="[[bridge]]"
+      game="[[game]]"
+      current-player="[[player]]"
+      chat-room="[[chatRoom]]">
+    </ghvz-chat-room>
+    -->
+  </template>
+</dom-module>

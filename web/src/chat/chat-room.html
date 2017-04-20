@@ -1,0 +1,282 @@
+<dom-module id="ghvz-chat-room">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+    	Polymer({
+    		is: 'ghvz-chat-room',
+
+    		properties: {
+          bridge: Object,
+          game: Object,
+          currentPlayer: Object,
+
+          chatRoom: {
+            type: Object,
+            value: function() { return {}; },
+          },
+
+          previousMessagePlayerId: {
+            type: String,
+            value: "",
+          },
+        },
+
+        attached: function() {
+          this.fire('ghvz-add-toolbar-button', { button: this.$.add });
+        },
+
+        computeMessageDisplayClass_(senderId, myId) {
+          return senderId === myId ? 'message-from-me' : 'message-from-other';
+        },
+
+        /**
+        * Sends messages to the server and retrieves any messages since last 
+        * check. 
+        */
+        onSendClicked_: function() {
+          if (!this.$.messageInput.value) {
+            return;
+          }
+          this.bridge.addMessageToChatRoom(Bridge.generateMessageId(), this.chatRoom.id, 
+            this.currentPlayer.id, {message: this.$.messageInput.value});
+          this.$.messageInput.value = "";  
+
+          var afterId = this.chatRoom.messages.slice(-1)[0].id;
+        },
+
+        /**
+        * Submit text on 'enter', allow shift+enter to insert a new line in
+        * the text field.
+        */
+        checkForEnter_: function(e) {
+         if (e.keyCode === 13 && !e.shiftKey) {
+          e.preventDefault();
+          this.$.messageSend.click();
+        }
+      },
+
+      displaySenderInfo(playerId) {
+        if (playerId != this.previousMessagePlayerId) {
+          this.previousMessagePlayerId = playerId;
+          return 'display-sender';
+        } else {
+          return 'hide-sender';
+        }
+      },
+
+      getName_(playerId) {
+        let player = this.game.playersById[playerId];
+        return player && player.name;
+      },
+
+      getProfilePic_(playerId) {
+        let player = this.game.playersById[playerId];
+        return player && player.profileImageUrl;
+      },
+
+      openPlayerProfile_(e) {
+        console.log(e);
+      },
+
+      /**
+      * Returns the date in format: Day 00:00
+      */
+      getTime_(time) {
+        var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        var date = new Date(time);
+        return days[date.getDay()] + " " + 
+        ("0" + date.getHours()).slice(-2) + ":" + 
+        ("0" + date.getMinutes()).slice(-2);
+      },
+
+      addPlayer_: function() {
+        this.$.addPlayerForm.openForAdding()
+        .then((properties) => {
+          console.log(properties);
+                //this.bridge.addGun(Utils.generateId("gun"), properties);
+              });
+      },
+
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+          {
+            property: "playerId",
+            label: "Player",
+            description: "Player, example Kim the Ultimate.",
+          },
+          ],
+        };
+      },
+    });
+});
+</script>
+
+<template>
+ <style include="iron-flex iron-flex-alignment">
+  iron-image {
+    border-radius: 50%;
+    border: 2px solid green;
+    width: 40px;
+    height:40px;
+  }
+
+  paper-button.send {
+    background-color: rgba(135, 206, 250, .5);
+    color: darkslategrey;
+    font-size: small;
+    font-weight: bold;
+  }
+
+  .message-from-other {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .message-from-me {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .player-name {
+    font-size: 10px;
+  }
+
+  .message-from-me .player-name {
+    align-self: flex-end;
+  }
+
+  .message-from-other .player-name {
+    align-self: flex-start;
+  }
+
+  .display-sender {}
+
+  .hide-sender {}
+
+  .message-from-me .display-avatar {
+    order: 3;
+  }
+
+  .message-from-other .display-avatar {
+    order: 1;
+  }
+
+  .display-sender .player-name {
+    visibility: visible;
+  }
+
+  .display-sender .display-avatar {
+    visibility: visible;
+  }
+
+  .hide-sender .player-name {
+    display: none;
+  }
+
+  .hide-sender .display-avatar {
+    visibility: hidden;
+    height: 0px;
+  }
+
+  .display-message {
+    align-self: center;
+    order: 2;
+  }
+
+  .message-from-me .display-message {
+    padding-right: 8px;
+  }
+
+  .message-from-other .display-message {
+    padding-left: 8px;
+  }
+
+  .message-text {
+    border-radius: 25px;
+    margin-bottom: 4px;
+    padding: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+    white-space: pre;
+  }
+
+  .message-from-me .message-text {
+    align-self: flex-end;
+    background-color: rgba(135, 206, 250, .4);
+  }
+
+  .message-from-other .message-text {
+    align-self: flex-start;
+    background-color: lightgrey;
+  }
+
+  .textbox {
+    padding-top: 8px;
+  }
+
+  .textbox-input-field {
+    @apply(--layout-flex);
+    padding-right: 16px;
+  }
+</style>
+<paper-icon-button id="add" icon="icons:add" on-tap="addPlayer_">
+</paper-icon-button>
+<ghvz-super-form
+id="addPlayerForm"
+type-name="Add Player"
+blueprint="[[makeFormBlueprint_()]]">
+</ghvz-super-form>
+<!-- Display messages -->
+<template is="dom-repeat" items="[[chatRoom.messages]]">
+  <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
+    <!-- Display message text -->
+    <div class="layout vertical display-message">
+      <div class="player-name">
+        [[getName_(item.playerId, game.players.*)]]
+      </div>
+      <div class="message-text">[[item.message]]</div>
+      <paper-tooltip position="top" animation-delay="0">
+        [[getTime_(item.time)]]
+      </paper-tooltip>
+    </div>
+    <!-- Display player avatar -->
+    <div class="layout vertical display-avatar">
+      <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
+      <iron-image
+      src="[[getProfilePic_(item.playerId, game.playersById.*)]]"
+      id="profile-pic" 
+      sizing="cover"
+      on-click="openPlayerProfile_">
+    </iron-image>
+    <paper-tooltip position="top" animation-delay="0">
+      [[getName_(item.playerId, game.players.*)]]
+    </paper-tooltip>
+  </div>
+</div> 
+</template>
+
+<!-- Text Input -->
+<div class="layout horizontal textbox">
+  <paper-textarea 
+  class="textbox-input-field"
+  id="messageInput"
+  autocorrect
+  multiline
+  max-rows=3
+  label="message"
+  no-label-float
+  on-keydown="checkForEnter_">
+</paper-textarea>
+<paper-button 
+class="send"
+id="messageSend" 
+raised
+on-click="onSendClicked_">
+SEND
+</paper-button>
+</div>
+</template>
+</dom-module>
