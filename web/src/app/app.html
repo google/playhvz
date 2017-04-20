@@ -151,8 +151,8 @@ paper-input-container {
       },
 
       makeBridge_() {
-        var fake = false;
-        var prod = true;
+        var fake = Utils.getParameterByName('fake') == 'true';
+        var prod = Utils.getParameterByName('prod') == 'true';
         if (fake) {
           return new FakeBridge(this.makeBridgeDelegate_());
         } else {
@@ -183,7 +183,7 @@ paper-input-container {
       },
 
       makeBridgeDelegate_: function() {
-        let mapper = new Mapper({
+        return {
           set: (path, value) => {
             // console.log('Local set', path, value);
             this.set('database.' + path.join("."), value);
@@ -206,8 +206,7 @@ paper-input-container {
           },
           onAutoSignInFailed: () => {
           },
-        });
-        return mapper;
+        };
       },
 
       computeShowSignInButton_(userId, user) {

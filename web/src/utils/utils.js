@@ -134,9 +134,22 @@ Utils.findIndexById = function(collection, id) {
   return index;
 }
 
+/**
+ * Returns a shuffled copy of the given array.
+ * @param {Array} a items The array containing the items.
+ */
+Utils.shuffle = function(a) {
+  a = a.slice();
+  for (let i = a.length; i; i--) {
+    let j = Math.floor(Math.random() * i);
+    [a[i - 1], a[j]] = [a[j], a[i - 1]];
+  }
+  return a;
+}
+
 // A nice deterministic shuffle.
 // Similar to how humans shuffle cards.
-Utils.shuffle = function(originalArray, numShuffles) {
+Utils.deterministicShuffle = function(originalArray, numShuffles) {
   function innerShuffle(array) {
     let newArray = [];
     let arrayA = array.slice(0, array.length / 2);
@@ -152,4 +165,49 @@ Utils.shuffle = function(originalArray, numShuffles) {
     array = innerShuffle(array);
   }
   return array;
+}
+
+Utils.copyProperties = function(object, snapshotValue, propertyNames) {
+  for (let propertyName of propertyNames) {
+    let val = snapshotValue[propertyName];
+    if (val === undefined)
+      val = null;
+    object[propertyName] = val;
+  }
+  return object;
+}
+
+Utils.addEmptyLists = function(object, lists) {
+  for (let listName of lists) {
+    object[listName] = [];
+  }
+  return object;
+}
+
+// Figures out where we should insert an object in an array.
+// All objects must have "index" property to guide us.
+Utils.findInsertIndex = function(collection, newObjectIndex) {
+  assert(collection);
+  // For example if we want to insert an object like this:
+  // {index: 5}
+  // into an array that looks like this:
+  // [{index: 0}, {index: 1}, {index: 4}, {index:6}]
+  // then we'd want to insert it at index 3, so the resulting array would be:
+  // [{index: 0}, {index: 1}, {index: 4}, {index: 5}, {index:6}]
+  let insertIndex = collection.findIndex((existing) => existing.index > newObjectIndex);
+  // If we couldnt find one greater than us, then we must be the greatest.
+  // Insert us at the end.
+  if (insertIndex < 0)
+    insertIndex = collection.length;
+  return insertIndex;
+}
+
+Utils.getParameterByName = function(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }

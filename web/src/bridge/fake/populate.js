@@ -30,7 +30,7 @@ function populateFakeServer(server) {
     server.joinGame(playerId, userId, gameId, {name: 'Player' + i, needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
     playerIds.push(playerId);
   }
-  playerIds = Utils.shuffle(playerIds, numShuffles);
+  playerIds = Utils.deterministicShuffle(playerIds, numShuffles);
   let lifeCodesByPlayerId = {};
   for (let i = humansStartIndex; i < playerIds.length; i++) {
     let lifeCode = "life-" + i;

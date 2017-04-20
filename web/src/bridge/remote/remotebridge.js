@@ -1,44 +1,72 @@
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig, delegate) {
+  constructor(firebaseConfig, serverUrl, delegate) {
     this.delegate = delegate;
-    this.database = new FirebaseDatabase(firebaseConfig, {
+    this.localDb = new LocalDatabase({
       set: (...args) => this.delegate.set(...args),
       insert: (...args) => this.delegate.insert(...args),
       remove: (...args) => this.delegate.remove(...args),
       get: (...args) => this.delegate.get(...args),
     });
-    this.requester = new NormalRequester(serverUrl);
-  }
-  
-  setGameId(gameId) {
-    this.database.setGameId(gameId);
-  }
 
-  attemptAutoSignIn() {
-    this.database.attemptAutoSignIn().then(
-        (userId) => {
-          this.userId = userId;
-          this.delegate.onUserSignedIn(userId);
-        },
-        (error) => {
-          this.delegate.onAutoSignInFailed();
-        });
+    firebase.initializeApp(config);
+    this.firebaseListener =
+        new FirebaseListener(
+            this.localDb,
+            firebase.app().database().ref());
+
+    this.requester = new NormalRequester(serverUrl);
+
+    this.userId = null;
   }
 
   signIn() {
     if (this.userId == null) {
-      this.database.signIn().then((userId) => {
-        this.register(userId);
-        this.delegate.onUserSignedIn(userId);
+      return new Promise((resolve, reject) => {
+        firebase.auth().getRedirectResult()
+            .then((result) => {
+              this.userId = result.user.uid;
+              this.register(userId);
+              resolve(result.user.uid);
+            }).catch((error) => {
+              reject(error.message);
+            });
+        var provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/plus.login');
+        firebase.auth().signInWithRedirect(provider);
       });
     } else {
       this.register(this.userId);
     }
   }
 
+  attemptAutoSignIn() {
+    return new Promise((resolve, reject) => {
+      firebase.auth().onAuthStateChanged((firebaseUser) => {
+        if (user) {
+          this.userId = result.user.uid;
+          this.delegate.onUserSignedIn(firebaseUser.uid);
+          resolve(firebaseUser.uid);
+        } else {
+          this.delegate.onAutoSignInFailed();
+          reject();
+        }
+      });
+    });
+  }
+
   signOut() {
-    this.database.signOut();
+    firebase.auth().signOut()
+        .then((result) => {
+          alert("Signed out!");
+          window.location.reload();
+        }).catch((error) => {
+          console.error(error);
+        });
+  }
+
+  listenToGame(gameId) {
+    this.firebaseListener.listenToGame(gameId);
   }
 
   register(userId) {
