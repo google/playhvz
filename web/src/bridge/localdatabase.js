@@ -147,8 +147,8 @@ const REWARD_PROPERTIES = ["playerId", "code"];
 const REWARD_COLLECTIONS = [];
 function newReward(id, args) {
   let obj = {id: id};
-  Utils.copyProperties(obj, args, REWARD_CATEGORY_REWARD_PROPERTIES);
-  Utils.addEmptyLists(obj, REWARD_CATEGORY_REWARD_COLLECTIONS);
+  Utils.copyProperties(obj, args, REWARD_PROPERTIES);
+  Utils.addEmptyLists(obj, REWARD_COLLECTIONS);
   return obj;
 }
 
