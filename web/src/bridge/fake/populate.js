@@ -1,19 +1,30 @@
 
-function populateFakeServer(server) {
+function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
+  // registered, admin, and joined
   var kimUserId = Bridge.generateUserId();
   server.register(kimUserId, {});
+  // registered, thats it
+  let reggieUserId = Bridge.generateUserId();
+  server.register(reggieUserId, {});
+  // registered and is admin, not joined
+  let minnyUserId = Bridge.generateUserId();
+  server.register(minnyUserId, {});
+  // registered and joined
   var evanUserId = Bridge.generateUserId();
   server.register(evanUserId, {});
+  // just some other dude in a chat room...
   var zekeUserId = Bridge.generateUserId();
   server.register(zekeUserId, {});
+
   var gameId = Bridge.generateGameId();
   server.createGame(gameId, kimUserId, {number: "2017m", name: "Test game", rulesUrl: "/firstgame/rules.html", stunTimer: 60});
+  server.addAdmin(Bridge.generateAdminId(), gameId, minnyUserId);
   var kimPlayerId = Bridge.generatePlayerId();
-  server.joinGame(kimPlayerId, kimUserId, gameId, {name: 'Kim the Ultimate', needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
+  server.joinGame(kimPlayerId, kimUserId, gameId, {name: 'Kim the Ultimate', needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false, beSecretZombie: true,});
   var evanPlayerId = Bridge.generatePlayerId();
-  server.joinGame(evanPlayerId, evanUserId, gameId, {name: 'Evanpocalypse', needGun: true, profileImageUrl: "", startAsZombie: false, volunteer: false});
+  server.joinGame(evanPlayerId, evanUserId, gameId, {name: 'Evanpocalypse', needGun: true, profileImageUrl: "", startAsZombie: false, volunteer: false, beSecretZombie: true,});
   var zekePlayerId = Bridge.generatePlayerId();
-  server.joinGame(zekePlayerId, zekeUserId, gameId, {name: 'Zeke', needGun: false, profileImageUrl: "", startAsZombie: true, volunteer: true});
+  server.joinGame(zekePlayerId, zekeUserId, gameId, {name: 'Zeke', needGun: false, profileImageUrl: "", startAsZombie: true, volunteer: true, beSecretZombie: true,});
   
   let numPlayers = 100;
   let humansStartIndex = 7;
@@ -27,7 +38,7 @@ function populateFakeServer(server) {
     let userId = Bridge.generateUserId();
     server.register(userId, {});
     let playerId = Bridge.generatePlayerId();
-    server.joinGame(playerId, userId, gameId, {name: 'Player' + i, needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false});
+    server.joinGame(playerId, userId, gameId, {name: 'Player' + i, needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false, beSecretZombie: false,});
     playerIds.push(playerId);
   }
   playerIds = Utils.deterministicShuffle(playerIds, numShuffles);
@@ -77,4 +88,22 @@ function populateFakeServer(server) {
   let chatNotificationCategoryId = Bridge.generateNotificationCategoryId();
   server.addNotificationCategory(chatNotificationCategoryId, gameId, {name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date() / 1000 + 3600, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
   server.addNotification(Bridge.generateNotificationId(), kimPlayerId, chatNotificationCategoryId, {previewMessage: "Ping from Evanpocalypse!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + humanChatRoomId});
+
+  if (isRegistered) {
+    if (isAdmin) {
+      if (isJoined) {
+        return kimUserId;
+      } else {
+        return minnyUserId;
+      }
+    } else {
+      if (isJoined) {
+        return evanUserId;
+      } else {
+        return reggieUserId;
+      }
+    }
+  } else {
+    return null;
+  }
 }

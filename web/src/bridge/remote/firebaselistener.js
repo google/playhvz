@@ -17,28 +17,28 @@ class FirebaseListener {
     collectionRef.on("child_added", (change) => {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), change.val());
-      } else if (collections.find((col) => col == change.getKey())) {
-        // do nothing, covered elsewhere
       } else {
-        throwError("Unexpected child_added!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
+        assert(
+            collections.find((col) => col == change.getKey()),
+            "Unexpected child_added!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
       }
     });
     collectionRef.on("child_changed", (change) => {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), change.val());
-      } else if (collections.find((col) => col == change.getKey())) {
-        // do nothing, covered elsewhere
       } else {
-        throwError("Unexpected child_changed!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
+        assert(
+            collections.find((col) => col == change.getKey()),
+            "Unexpected child_changed!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
       }
     });
     collectionRef.on("child_removed", (change) => {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), null);
-      } else if (collections.find((col) => col == change.getKey())) {
-        // do nothing, covered elsewhere
       } else {
-        throwError("Unexpected!", change.val(), change.getKey(), arguments);
+        assert(
+            collections.find((col) => col == change.getKey()),
+            "Unexpected!", change.val(), change.getKey(), arguments);
       }
     });
   }
@@ -103,6 +103,7 @@ class FirebaseListener {
   deepListenToGame(gameId) {
     this.listenToMissions_(gameId);
     this.listenToChatRooms_(gameId);
+    this.listenToQuizQuestions_(gameId);
     this.listenToPlayers_(gameId);
     this.listenToRewardCategories_(gameId);
     this.listenToNotificationCategories_(gameId);
@@ -113,7 +114,6 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let missionId = snap.getKey();
       let obj = newMission(missionId, snap.val());
-      assert(this.localDb.get(this.localDb.getMissionPath_(gameId)) != null);
       this.localDb.insert(this.localDb.getMissionPath_(gameId, null), obj, null);
       this.listenForPropertyChanges_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
@@ -133,6 +133,35 @@ class FirebaseListener {
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
           (property, value) => {
             this.localDb.set(this.localDb.getAdminPath_(gameId, adminId).concat([property]), value);
+          });
+    });
+  }
+
+  listenToQuizQuestions_(gameId) {
+    var ref = this.firebaseRoot.child("games/" + gameId + "/quizQuestions");
+    ref.on("child_added", (snap) => {
+      let quizQuestionId = snap.getKey();
+      let obj = newQuizQuestion(quizQuestionId, snap.val());
+      this.localDb.insert(this.localDb.getQuizQuestionPath_(gameId, null), obj, null);
+      this.listenForPropertyChanges_(
+          snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
+          (property, value) => {
+            this.localDb.set(this.localDb.getQuizQuestionPath_(gameId, quizQuestionId).concat([property]), value);
+          });
+      this.listenToQuizAnswers_(gameId, quizQuestionId);
+    });
+  }
+
+  listenToQuizAnswers_(gameId, quizQuestionId) {
+    var ref = this.firebaseRoot.child("games/" + gameId + "/quizQuestions/" + quizQuestionId + "/answers");
+    ref.on("child_added", (snap) => {
+      let quizAnswerId = snap.getKey();
+      let obj = newQuizAnswer(quizAnswerId, snap.val());
+      this.localDb.insert(this.localDb.getQuizAnswerPath_(gameId, quizQuestionId, null), obj, null);
+      this.listenForPropertyChanges_(
+          snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
+          (property, value) => {
+            this.localDb.set(this.localDb.getQuizAnswerPath_(gameId, quizQuestionId, quizAnswerId).concat([property]), value);
           });
     });
   }

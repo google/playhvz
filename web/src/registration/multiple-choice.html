@@ -1,0 +1,35 @@
+<dom-module id="ghvz-multiple-choice">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-multiple-choice',
+
+      properties: {
+        question: String,
+        answers: Array,
+      },
+    });
+  });
+</script>
+<style>
+  .answer {
+    padding: 16px;
+  }
+</style>
+<template>
+  <div>
+    [[question]]
+  </div>
+  <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
+    <iron-collapse opened>
+      <paper-material class="answer">
+        [[answer]]
+        <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
+      </paper-material>
+    </iron-collapse>
+  </template>
+</template>
+</dom-module>

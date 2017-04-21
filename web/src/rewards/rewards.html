@@ -52,6 +52,10 @@
                 handler: (category) => this.$.selector.select(category),
               },
               {
+                name: "Export Rewards",
+                handler: (category) => this.showRewardsDialog_(category),
+              },
+              {
                 name: "Edit",
                 handler: this.startEditingCategory_.bind(this),
               },
@@ -130,12 +134,12 @@
           };
         },
 
-        addRewards_: function() {
+        addRewards_() {
           this.bridge.addRewards(this.currentRewardCategory.id, this.numNewRewards);
           this.numNewRewards = "";
         },
 
-        computePlayerName_: function(reward) {
+        computePlayerName_(reward) {
           if (reward.playerId == null) {
             return "(unclaimed)";
           } else {
@@ -144,9 +148,18 @@
           }
         },
 
-        computeNumClaimed_: function(category) {
+        computeNumClaimed_(category) {
           return category.rewards.filter((reward) => reward.playerId != null).length;
         },
+
+        showRewardsDialog_(category) {
+          let codes = [];
+          for (let reward of category.rewards)
+            codes.push(reward.code);
+          let codesHTML = codes.reduce((a, b) => (a + "\n" + b), "");
+          this.$.codesDialogContents.value = codesHTML;
+          this.$.codesDialog.open();
+        }
       });
     });
   </script>
@@ -181,6 +194,10 @@
       display: flex;
       align-items: flex-end;
     }
+    #codesDialogContents {
+      max-height: 400px;
+      overflow-y: auto;
+    }
   </style>
   <template>
     <array-selector
@@ -191,6 +208,13 @@
 
     <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
     </paper-icon-button>
+
+    <paper-dialog modal id="codesDialog">
+      <paper-textarea id="codesDialogContents"></paper-textarea>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Done</paper-button>
+      </div>
+    </paper-dialog>
 
     <ghvz-table
         id="categoriesTable"

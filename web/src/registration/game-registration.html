@@ -72,7 +72,7 @@
         padding-bottom: 8px;
       }
     </style>
-    <form is="iron-form" method="get" action="/" id="form">
+    <form is="iron-form" id="form">
       <div class="layout vertical">  
         <div class="section">
           <div class="maintext">Name</div>      
@@ -134,34 +134,38 @@
             </paper-radio-button>
             <paper-radio-button name="beSecretZombie" value="maybe" class="radio-style">
              I'm interested, tell me more...
-           </paper-radio-button>
-         </paper-radio-group>
-       </div>
-
-       <div class="section">
-        <div class="maintext">
-          Interested in helping out?
+            </paper-radio-button>
+          </paper-radio-group>
         </div>
-        <paper-radio-group attr-for-selected="value">
-          <paper-radio-button name="volunteer" value="yes" class="radio-style">
-            Yeah! I'm awesome :^D
-          </paper-radio-button>
-          <paper-radio-button name="volunteer" value="no" class="radio-style">
-           Sorry, nope!
-         </paper-radio-button>
-       </paper-radio-group>
-     </div>
-   </div>
 
-   <div class="section">
-    <paper-button raised on-click="submit_">
-      Submit
-    </paper-button>
-    <paper-button raised on-click="reset_">
-      Reset
-    </paper-button>
-  </div>
-  <div class="output"></div>
-</form>
-</template>
+        <div class="section">
+          <div class="maintext">
+            Interested in helping out?
+          </div>
+          <paper-radio-group attr-for-selected="value">
+            <paper-radio-button name="volunteer" value="yes" class="radio-style">
+              Yeah! I'm awesome :^D
+            </paper-radio-button>
+            <paper-radio-button name="volunteer" value="no" class="radio-style">
+             Sorry, nope!
+            </paper-radio-button>
+          </paper-radio-group>
+        </div>
+      </div>
+
+      <ghvz-rules-quiz>
+
+      </ghvz-rules-quiz>
+
+      <div class="section">
+        <paper-button raised on-click="submit_">
+          Submit
+        </paper-button>
+        <paper-button raised on-click="reset_">
+          Reset
+        </paper-button>
+      </div>
+      <div class="output"></div>
+    </form>
+  </template>
 </dom-module>
