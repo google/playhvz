@@ -24,13 +24,13 @@ bower install paper-button
 
 ## Backend
 
-pip install -r web/src/backend/requirements.txt -t web/src/backend/lib
+pip install -r backend/requirements.txt -t backend/lib
 
-dev_appserver.py web/src/backend/app.yaml
+dev_appserver.py backend/app.yaml
 
 To launch a new version (once you have gcloud hooked in to the right app engine account):
 
-gcloud app deploy web/src/backend/app.yaml
+gcloud app deploy backend/app.yaml
 
 
 ## Set up Firebase
