@@ -23,14 +23,21 @@ bower install paper-button
 
 
 ## Backend
+$ sudo goobuntu-add-repo -e cloud-sdk-trusty
+$ sudo apt-get update
+$ sudo apt-get install google-cloud-sdk
+$ sudo apt-get install google-cloud-sdk-app-engine-python
 
-pip install -r backend/requirements.txt -t backend/lib
+$ gcloud init
+Set project to humansvszombies-24348 (All of our collaborators should have access to this)
 
-dev_appserver.py backend/app.yaml
+$ pip install -r backend/requirements.txt -t backend/lib
+
+$ dev_appserver.py backend/app.yaml
 
 To launch a new version (once you have gcloud hooked in to the right app engine account):
 
-gcloud app deploy backend/app.yaml
+$ gcloud app deploy backend/app.yaml
 
 
 ## Set up Firebase
