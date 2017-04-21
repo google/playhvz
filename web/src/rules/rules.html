@@ -1,0 +1,43 @@
+
+<dom-module id="ghvz-rules">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-rules',
+
+        properties: {
+          game: Object,
+        },
+
+        assembleParams() {
+          return null;
+        },
+
+        handleResponse(response) {
+          this.$.rules.innerHTML = this.$.ajax.lastResponse;
+        }
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin: 16px;
+      }
+    </style>
+    <iron-ajax
+        id="ajax"
+        auto
+        url="[[game.rulesUrl]]"
+        params="[[assembleParams(game.rulesUrl)]]"
+        handle-as="text"
+        on-response="handleResponse"
+        debounce-duration="300">
+    </iron-ajax>
+    <div id="rules"></div>
+  </template>
+</dom-module>

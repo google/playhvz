@@ -58,8 +58,9 @@ class FakeServer {
   checkIdNotTaken(id, type) {
     return this.checkId(id, type, false);
   }
-  signIn() {
-    return this.database.get(["users"])[0] || null;
+  signIn(preferredUserId) {
+    assert(preferredUserId);
+    return preferredUserId;
   }
   register(userId, args) {
     this.checkIdNotTaken(userId, 'user');
@@ -79,15 +80,23 @@ class FakeServer {
       number: number,
       rulesUrl: rulesUrl,
       stunTimer: stunTimer,
-      admins: [{
-        id: Bridge.generateAdminId(),
-        userId: adminUserId,
-      }],
+      admins: [],
       players: [],
       missions: [],
       chatRooms: [],
       notificationCategories: [],
       rewardCategories: [],
+    });
+    this.addAdmin(Bridge.generateAdminId(), gameId, adminUserId);
+  }
+  addAdmin(adminId, gameId, adminUserId) {
+    this.checkIdNotTaken(adminId, 'admin');
+    this.checkId(gameId, 'game');
+    this.checkId(adminUserId, 'user');
+    let gamePath = this.database.pathForId(gameId);
+    this.database.push(gamePath.concat(["admins"]), {
+      id: adminId,
+      userId: adminUserId,
     });
   }
   joinGame(playerId, userId, gameId, args) {
@@ -116,7 +125,7 @@ class FakeServer {
       rewards: [],
     });
     this.database.push(["users", this.getUserIndex(userId), "players"], {
-      id: Utils.generateId("userplayer"),
+      id: Bridge.generateUserPlayerId(),
       gameId: gameId,
       playerId: playerId,
     });

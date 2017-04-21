@@ -1,7 +1,7 @@
 'use strict';
 
 class FakeBridge {
-  constructor(delegate) {
+  constructor(delegate, isRegistered, isAdmin, isJoined) {
     Utils.setDeterministicGenerator();
     this.delegate = delegate;
 
@@ -17,7 +17,6 @@ class FakeBridge {
       broadcastDatabaseOperation: (operation) => {
         this.databaseOperations.push(operation);
       },
-      onUserSignedIn: (userId) => this.delegate.onUserSignedIn(userId),
     });
     var cloningFakeSerer = new CloningWrapper(fakeServer, SERVER_METHODS);
     var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 100);
@@ -27,16 +26,38 @@ class FakeBridge {
 
     window.fakeBridge = this;
 
-    populateFakeServer(fakeServer);
+    this.userId =
+        populateFakeServer(fakeServer, isAdmin, isRegistered, isJoined);
 
-    for (const funcName of SERVER_METHODS)
-      this[funcName] = (...args) => this.server[funcName](...args);
+    for (const funcName of SERVER_METHODS) {
+      if (funcName != 'signIn') {
+        this[funcName] = (...args) => this.server[funcName](...args);
+      }
+    }
+  }
+  signIn() {
+    return new Promise((resolve, reject) => {
+      if (!this.userId) {
+        this.userId = Bridge.generateUserId();
+        this.server.register(this.userId, {});
+      }
+      this.server.signIn(this.userId)
+          .then((userId) => {
+            resolve(userId);
+          });
+    });
   }
   attemptAutoSignIn() {
-    this.server.signIn()
-        .then((user) => {
-          this.delegate.onUserSignedIn(user.id);
-        });
+    return new Promise((resolve, reject) => {
+      if (this.userId) {
+        this.server.signIn(this.userId)
+            .then((userId) => {
+              resolve(userId);
+            });
+      } else {
+        reject('Nope!');
+      }
+    });
   }
   listenToGame(gameId) {
     // Do nothing. This method is really just an optimization.

@@ -108,6 +108,10 @@ paper-input-container {
         // 'onPlayerIdChanged_(playerId, game.playersById)'
         'autoNavigate_(database.games.splices)',
         'autoNavigate_(database.users.splices)',
+        'autoNavigate_(game.players.length)',
+        'autoNavigate_(game.players.splices)',
+        'autoNavigate_(user.players.length)',
+        'autoNavigate_(user.players.splices)',
         'autoNavigate_(userId)',
         'autoNavigate_(user)',
         'autoNavigate_(gameId)',
@@ -154,14 +158,20 @@ paper-input-container {
 
       attached() {
         this.bridge = this.makeBridge_();
-        this.bridge.attemptAutoSignIn();
+        this.bridge.attemptAutoSignIn()
+            .then((userId) => this.userId = userId)
+            .catch((e) => {}); // do nothing
         window.onpopstate = this.handlePopState_.bind(this);
       },
 
       makeBridge_() {
         var env = Utils.getParameterByName('env');
         if (!env || env == 'fake') {
-          return new FakeBridge(this.makeBridgeDelegate_());
+          return new FakeBridge(
+              this.makeBridgeDelegate_(),
+              Utils.getParameterByName('registered', 'true') == 'true',
+              Utils.getParameterByName('admin', 'true') == 'true',
+              Utils.getParameterByName('joined', 'true') == 'true');
         } else {
           let config;
           let serverUrl;
@@ -210,11 +220,6 @@ paper-input-container {
           get: (path) => {
             return this.get('database.' + path.join("."));
           },
-          onUserSignedIn: (userId) => {
-            this.userId = userId;
-          },
-          onAutoSignInFailed: () => {
-          },
         };
       },
 
@@ -223,7 +228,8 @@ paper-input-container {
       },
 
       signIn_: function() {
-        this.bridge.signIn();
+        this.bridge.signIn()
+            .then((userId) => this.userId = userId);
       },
 
       // Called on any change in userId, gameId, playerId, or games.splices.

@@ -19,7 +19,7 @@ Bridge.generateRewardId = () => Utils.generateId("reward");
 Bridge.generateMembershipId = () => Utils.generateId("membership");
 Bridge.generatePlayerRewardId = () => Utils.generateId("playerReward");
 
-const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "volunteer"];
+const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
 const SERVER_GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer"];
 const SERVER_USER_PROPERTIES = [];
 const SERVER_CHAT_ROOM_PROPERTIES = ["name", "allegianceFilter"];

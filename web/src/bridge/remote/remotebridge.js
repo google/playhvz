@@ -45,10 +45,8 @@ class RemoteBridge {
       firebase.auth().onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
           this.userId = firebaseUser.uid;
-          this.delegate.onUserSignedIn(firebaseUser.uid);
           resolve(firebaseUser.uid);
         } else {
-          this.delegate.onAutoSignInFailed();
           reject();
         }
       });

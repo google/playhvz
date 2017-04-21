@@ -41,7 +41,7 @@
           }
         }
         return true;
-      }
+      },
 
       confirm_: function(event) {
         this.fire('ghvz-order-question-confirm');
@@ -67,14 +67,26 @@
   <div>
     [[question]]
   </div>
-  <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
-    <paper-material class="answer">
-      [[answer]]
-      <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
-    </paper-material>
-  </template>
-  <div id="unordered"></div>
-  <div id="ordered"></div>
+  <div id="unordered">
+    <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
+      <iron-collapse opened>
+        <paper-material class="answer">
+          [[answer]]
+          <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
+        </paper-material>
+      </iron-collapse>
+    </template>
+  </div>
+  <div id="ordered">
+    <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
+      <iron-collapse>
+        <paper-material class="answer">
+          [[answer]]
+          <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
+        </paper-material>
+      </iron-collapse>
+    </template>
+  </div>
   <div>
     <paper-button on-tap="reset_">Reset</paper-button>
     <paper-button on-tap="confirm_" disabled="[[!nextEnabled]]">Next</paper-button>

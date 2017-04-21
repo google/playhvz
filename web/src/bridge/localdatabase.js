@@ -26,12 +26,30 @@ function newUserPlayer(id, args) {
   return obj;
 }
 
-const GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer"];
+const GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer", "quizQuestions"];
 const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories"];
 function newGame(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, GAME_PROPERTIES);
   Utils.addEmptyLists(obj, GAME_COLLECTIONS);
+  return obj;
+}
+
+const QUIZ_QUESTION_PROPERTIES = ["question", "type"];
+const QUIZ_QUESTION_COLLECTIONS = ["answers"];
+function newQuizQuestion(id, args) {
+  let obj = {id: id};
+  Utils.copyProperties(obj, args, QUIZ_QUESTION_PROPERTIES);
+  Utils.addEmptyLists(obj, QUIZ_QUESTION_COLLECTIONS);
+  return obj;
+}
+
+const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect"];
+const QUIZ_ANSWER_COLLECTIONS = [];
+function newQuizAnswer(id, args) {
+  let obj = {id: id};
+  Utils.copyProperties(obj, args, QUIZ_ANSWER_PROPERTIES);
+  Utils.addEmptyLists(obj, QUIZ_ANSWER_COLLECTIONS);
   return obj;
 }
 
