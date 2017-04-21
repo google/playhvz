@@ -207,7 +207,7 @@ paper-input-container {
             // console.log('Local set', path, value);
             this.set('database.' + path.join("."), value);
           },
-          insert: (path, value, indexOrNull) => {
+          insert: (path, indexOrNull, value) => {
             // console.log('Local insert', path, value);
             if (indexOrNull == null)
               this.push('database.' + path.join("."), value);

@@ -180,7 +180,7 @@ class LocalDatabase {
   set(path, value) {
     this.delegate.set(path, value);
   }
-  insert(path, value, indexOrNull) {
+  insert(path, indexOrNull, value) {
     assert(path instanceof Array);
     assert(typeof value == 'object');
     assert(path);
@@ -198,7 +198,7 @@ class LocalDatabase {
         value[key + "ById"] = map;
       }
     }
-    this.delegate.insert(path, value, indexOrNull);
+    this.delegate.insert(path, indexOrNull, value);
     let mapPath = path.slice();
     mapPath[mapPath.length - 1] += "ById";
     let pathInMap = mapPath.concat([value.id]);
@@ -288,6 +288,14 @@ class LocalDatabase {
       path = path.concat([Utils.findIndexById(this.get(path), missionId)]);
     return path;
   }
+  getAdminPath_(gameId, adminId) {
+    assert(gameId);
+    assert(typeof adminId == 'string' || adminId == null);
+    let path = this.getGamePath_(gameId).concat(["admins"]);
+    if (adminId)
+      path = path.concat([Utils.findIndexById(this.get(path), adminId)]);
+    return path;
+  }
   getRewardCategoryPath_(gameId, rewardCategoryId) {
     assert(gameId);
     assert(typeof rewardCategoryId == 'string' || rewardCategoryId == null);
@@ -339,5 +347,66 @@ class LocalDatabase {
       path = path.concat([Utils.findIndexById(this.get(path), messageId)]);
     return path;
     return obj;
+  }
+  getGameIdAndPlayerIdForNotificationId_(notificationId) {
+    let [ , gameId, , playerId, ...] = this.pathForId_(notificationId);
+    return [gameId, playerId];
+  }
+  getGameIdForNotificationCategoryId_(notificationCategoryId) {
+    let [ , gameId, ...] = this.pathForId_(notificationCategoryId);
+    return gameId;
+  }
+  getGameIdForRewardCategoryId_(rewardCategoryId) {
+    let [ , gameId, ...] = this.pathForId_(rewardCategoryId);
+    return gameId;
+  }
+
+
+  idExists(id, allowNotFound) {
+    return this.objForId_(id, allowNotFound);
+  }
+  objForId_(id, allowNotFound) {
+    assert(id);
+    let result = this.objForIdInner_(this.delegate.get([]), id);
+    if (!allowNotFound)
+      assert(result);
+    return result;
+  }
+  objForIdInner_(obj, id) {
+    assert(typeof obj == 'object');
+    if (obj) {
+      if (obj.id == id)
+        return obj;
+      for (var key in obj) {
+        if (typeof obj[key] == 'object') {
+          let found = this.objForIdInner_(obj[key], id);
+          if (found)
+            return found;
+        }
+      }
+    }
+    return null;
+  }
+  pathForId_(id, allowNotFound) {
+    assert(id);
+    let result = this.pathForIdInner_([], this.delegate.get([]), id);
+    if (!allowNotFound)
+      assert(result);
+    return result;
+  }
+  pathForIdInner_(path, obj, id) {
+    assert(typeof obj == 'object');
+    if (obj) {
+      if (obj.id == id)
+        return path;
+      for (var key in obj) {
+        if (typeof obj[key] == 'object') {
+          let foundPath = this.pathForIdInner_(path.concat([key]), obj[key], id);
+          if (foundPath)
+            return foundPath;
+        }
+      }
+    }
+    return null;
   }
 }

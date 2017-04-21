@@ -28,6 +28,38 @@ Utils.copyOf = function(value) {
   return value && JSON.parse(JSON.stringify(value));
 }
 
+Utils.merge = function(...objs) {
+  var result = {};
+  for (let obj of objs) {
+    Utils.mergeInto(result, obj);
+  }
+  return result;
+};
+
+Utils.mergeInto = function(dest, source) {
+  for (var key in source) {
+    if (key in dest) {
+      if (dest[key] instanceof Array) {
+        let destArray = dest[key];
+        assert(source[key] instanceof Array);
+        let sourceArray = source[key];
+        for (let sourceElement of sourceArray) {
+          destArray.push(sourceElement);
+        }
+      } else if (typeof dest[key] == 'object') {
+        let destObj = dest[key];
+        assert(typeof source[key] == 'object');
+        let sourceObj = source[key];
+        Utils.mergeInto(destObj, sourceObj);
+      } else {
+        dest[key] = source[key]; // overwrite
+      }
+    } else {
+      dest[key] = source[key];
+    }
+  }
+};
+
 /*
 * This function will get all functions of an object. Inherited or not,
 * enumerable or not. All functions are included. Inspired by
@@ -212,6 +244,8 @@ Utils.getParameterByName = function(name, defaultValue) {
 }
 
 Utils.get = function(obj, path) {
+  if (path.length == 0)
+    return obj;
   return (function innerGet(obj, path) {
     if (!path || !path.length) {
       throwError('no path!');
@@ -223,6 +257,7 @@ Utils.get = function(obj, path) {
   })(obj, path);
 }
 Utils.set = function(obj, path, value) {
+  assert(path.length);
   return (function innerSet(obj, path, value) {
     if (!path || !path.length) {
       throwError('no path!');
@@ -233,12 +268,10 @@ Utils.set = function(obj, path, value) {
     }
   })(obj, path, value);
 }
-Utils.push = function(obj, path, value) {
+Utils.insert = function(obj, path, value, index) {
   return (function innerPush(obj, path, value) {
-    if (!path || !path.length) {
-      throwError('no path!');
-    } else if (path.length == 1) {
-      obj[path[0]].push(value);
+    if (path.length == 0) {
+      obj.push(value);
     } else {
       innerPush(obj[path[0]], path.slice(1), value);
     }
@@ -246,10 +279,8 @@ Utils.push = function(obj, path, value) {
 }
 Utils.remove = function(obj, path, index) {
   (function innerRemove(obj, path, index) {
-    if (!path || !path.length) {
-      throwError('no path!');
-    } else if (path.length == 1) {
-      obj[path[0]].splice(index, 1);
+    if (path.length == 0) {
+      obj.splice(index, 1);
     } else {
       innerRemove(obj[path[0]], path.slice(1), index);
     }

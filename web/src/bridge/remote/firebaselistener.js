@@ -47,7 +47,7 @@ class FirebaseListener {
     this.firebaseRoot.child("guns").on("child_added", (snap) => {
       let gunId = snap.getKey();
       let obj = newGun(gunId, snap.val());
-      this.localDb.insert(this.localDb.getGunPath_(null), obj, null);
+      this.localDb.insert(this.localDb.getGunPath_(null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS,
           (property, value) => {
@@ -60,7 +60,7 @@ class FirebaseListener {
     this.firebaseRoot.child("users").on("child_added", (snap) => {
       let userId = snap.getKey();
       let obj = newUser(userId, snap.val());
-      this.localDb.insert(this.localDb.getUserPath_(null), obj, null);
+      this.localDb.insert(this.localDb.getUserPath_(null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
           (property, value) => {
@@ -75,7 +75,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let userPlayerId = snap.getKey();
       let obj = newUserPlayer(userPlayerId, snap.val());
-      this.localDb.insert(this.localDb.getUserPlayerPath_(userId, null), obj, null);
+      this.localDb.insert(this.localDb.getUserPlayerPath_(userId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
           (property, value) => {
@@ -88,7 +88,7 @@ class FirebaseListener {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       let gameId = snap.getKey();
       let obj = newGame(gameId, snap.val());
-      this.localDb.insert(this.localDb.getGamePath_(null), obj, null);
+      this.localDb.insert(this.localDb.getGamePath_(null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
           (property, value) => {
@@ -114,7 +114,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let missionId = snap.getKey();
       let obj = newMission(missionId, snap.val());
-      this.localDb.insert(this.localDb.getMissionPath_(gameId, null), obj, null);
+      this.localDb.insert(this.localDb.getMissionPath_(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
           (property, value) => {
@@ -128,7 +128,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let adminId = snap.getKey();
       let obj = newAdmin(adminId, snap.val());
-      this.localDb.insert(this.localDb.getAdminPath_(gameId, null), obj, null);
+      this.localDb.insert(this.localDb.getAdminPath_(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
           (property, value) => {
@@ -142,7 +142,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let quizQuestionId = snap.getKey();
       let obj = newQuizQuestion(quizQuestionId, snap.val());
-      this.localDb.insert(this.localDb.getQuizQuestionPath_(gameId, null), obj, null);
+      this.localDb.insert(this.localDb.getQuizQuestionPath_(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
           (property, value) => {
@@ -157,7 +157,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let quizAnswerId = snap.getKey();
       let obj = newQuizAnswer(quizAnswerId, snap.val());
-      this.localDb.insert(this.localDb.getQuizAnswerPath_(gameId, quizQuestionId, null), obj, null);
+      this.localDb.insert(this.localDb.getQuizAnswerPath_(gameId, quizQuestionId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
           (property, value) => {
@@ -171,7 +171,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let chatRoomId = snap.getKey();
       let obj = newChatRoom(chatRoomId, snap.val());
-      this.localDb.insert(this.localDb.getChatRoomPath_(gameId, null), obj, null);
+      this.localDb.insert(this.localDb.getChatRoomPath_(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
           (property, value) => {
@@ -187,7 +187,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let chatRoomMembershipId = snap.getKey();
       let obj = newMembership(chatRoomMembershipId, snap.val());
-      this.localDb.insert(this.localDb.getChatRoomMembershipPath_(gameId, chatRoomId, null), obj, null);
+      this.localDb.insert(this.localDb.getChatRoomMembershipPath_(gameId, chatRoomId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, MEMBERSHIP_PROPERTIES, MEMBERSHIP_COLLECTIONS,
           (property, value) => {
@@ -207,8 +207,8 @@ class FirebaseListener {
               obj.index);
       this.localDb.insert(
           this.localDb.getChatRoomMessagePath_(gameId, chatRoomId),
-          obj,
-          insertIndex);
+          insertIndex,
+          obj);
       this.listenForPropertyChanges_(
           snap.ref, MESSAGE_PROPERTIES, MESSAGE_COLLECTIONS,
           (property, value) => {
@@ -222,7 +222,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let playerId = snap.getKey();
       let obj = newPlayer(playerId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerPath_(gameId, null), obj, null);
+      this.localDb.insert(this.localDb.getPlayerPath_(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
           (property, value) => {
@@ -240,7 +240,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let playerRewardId = snap.getKey();
       let obj = newPlayerReward(playerRewardId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerRewardPath_(gameId, playerId, null), obj, null);
+      this.localDb.insert(this.localDb.getPlayerRewardPath_(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS,
           (property, value) => {
@@ -254,7 +254,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let playerLifeId = snap.getKey();
       let obj = newLife(playerLifeId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerLifePath_(gameId, playerId, null), obj, null);
+      this.localDb.insert(this.localDb.getPlayerLifePath_(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, LIFE_PROPERTIES, LIFE_COLLECTIONS,
           (property, value) => {
@@ -268,7 +268,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let playerInfectionId = snap.getKey();
       let obj = newInfection(playerInfectionId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerInfectionPath_(gameId, playerId, null), obj, null);
+      this.localDb.insert(this.localDb.getPlayerInfectionPath_(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, INFECTION_PROPERTIES, INFECTION_COLLECTIONS,
           (property, value) => {
@@ -282,7 +282,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let playerNotificationId = snap.getKey();
       let obj = newNotification(playerNotificationId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerNotificationPath_(gameId, playerId, null), obj, null);
+      this.localDb.insert(this.localDb.getPlayerNotificationPath_(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, NOTIFICATION_PROPERTIES, NOTIFICATION_COLLECTIONS,
           (property, value) => {
@@ -296,7 +296,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let notificationCategoryId = snap.getKey();
       let obj = newNotificationCategory(notificationCategoryId, snap.val());
-      this.localDb.insert(this.localDb.getNotificationCategoryPath_(gameId, null), obj, null);
+      this.localDb.insert(this.localDb.getNotificationCategoryPath_(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS,
           (property, value) => {
@@ -310,7 +310,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let rewardCategoryId = snap.getKey();
       let obj = newRewardCategory(rewardCategoryId, snap.val());
-      this.localDb.insert(this.localDb.getRewardCategoryPath_(gameId, null), obj, null);
+      this.localDb.insert(this.localDb.getRewardCategoryPath_(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
           (property, value) => {
@@ -325,7 +325,7 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let rewardCategoryRewardId = snap.getKey();
       let obj = newReward(rewardCategoryRewardId, snap.val());
-      this.localDb.insert(this.localDb.getRewardCategoryRewardPath_(gameId, rewardCategoryId, null), obj, null);
+      this.localDb.insert(this.localDb.getRewardCategoryRewardPath_(gameId, rewardCategoryId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
           (property, value) => {
