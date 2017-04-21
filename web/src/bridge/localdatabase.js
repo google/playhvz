@@ -21,13 +21,13 @@ const USER_PLAYER_PROPERTIES = ["gameId", "playerId"];
 const USER_PLAYER_COLLECTIONS = [];
 function newUserPlayer(id, args) {
   let obj = {id: id};
-  Utils.copyProperties(obj, args, USER_PROPERTIES);
-  Utils.addEmptyLists(obj, USER_COLLECTIONS);
+  Utils.copyProperties(obj, args, USER_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(obj, USER_PLAYER_COLLECTIONS);
   return obj;
 }
 
-const GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer", "quizQuestions"];
-const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories"];
+const GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer"];
+const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions"];
 function newGame(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, GAME_PROPERTIES);

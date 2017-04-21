@@ -73,20 +73,7 @@ class FakeServer {
   createGame(gameId, adminUserId, args) {
     this.checkIdNotTaken(gameId, 'game');
     this.checkRequestArgs(args, SERVER_GAME_PROPERTIES);
-    let {name, number, rulesUrl, stunTimer} = args;
-    this.database.push(["games"], {
-      id: gameId,
-      name: name,
-      number: number,
-      rulesUrl: rulesUrl,
-      stunTimer: stunTimer,
-      admins: [],
-      players: [],
-      missions: [],
-      chatRooms: [],
-      notificationCategories: [],
-      rewardCategories: [],
-    });
+    this.database.push(["games"], newGame(gameId, args));
     this.addAdmin(Bridge.generateAdminId(), gameId, adminUserId);
   }
   addAdmin(adminId, gameId, adminUserId) {
@@ -94,41 +81,30 @@ class FakeServer {
     this.checkId(gameId, 'game');
     this.checkId(adminUserId, 'user');
     let gamePath = this.database.pathForId(gameId);
-    this.database.push(gamePath.concat(["admins"]), {
-      id: adminId,
-      userId: adminUserId,
-    });
+    this.database.push(
+        gamePath.concat(["admins"]),
+        newAdmin(adminId, {userId: adminUserId}));
   }
   joinGame(playerId, userId, gameId, args) {
     this.checkIdNotTaken(playerId, 'player');
     this.checkId(userId, 'user');
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_PLAYER_PROPERTIES);
-    let {name, needGun, profileImageUrl, startAsZombie, volunteer} = args;
     let existingPlayers = this.database.get(["games", this.getGameIndex(gameId), "players"]);
-    this.database.push(["games", this.getGameIndex(gameId), "players"], {
-      id: playerId,
-      allegiance: "horde",
-      infectable: false,
-      infections: [],
-      lives: [],
-      name: name,
-      needGun: needGun,
-      notifications: [],
-      number: existingPlayers.length,
-      points: 0,
-      profileImageUrl: profileImageUrl,
-      rewards: [],
-      startAsZombie: startAsZombie,
-      userId: userId,
-      volunteer: volunteer,
-      rewards: [],
-    });
-    this.database.push(["users", this.getUserIndex(userId), "players"], {
-      id: Bridge.generateUserPlayerId(),
-      gameId: gameId,
-      playerId: playerId,
-    });
+    let properties = Utils.copyOf(args);
+    properties.allegiance = "horde";
+    properties.userId = userId;
+    properties.infectable = false;
+    properties.points = 0;
+    properties.number = existingPlayers.length;
+    this.database.push(
+        ["games", this.getGameIndex(gameId), "players"],
+        newPlayer(playerId, properties));
+    this.database.push(
+        ["users", this.getUserIndex(userId), "players"],
+        newUserPlayer(
+            Bridge.generateUserPlayerId(),
+            {gameId: gameId, playerId: playerId}));
   }
   createChatRoom(chatRoomId, firstPlayerId, args) {
     this.checkIdNotTaken(chatRoomId, 'chatRoom');
@@ -137,13 +113,7 @@ class FakeServer {
     let gamePath = firstPlayerPath.slice(0, 2);
     this.checkRequestArgs(args, SERVER_CHAT_ROOM_PROPERTIES);
     let {name, allegianceFilter} = args;
-    this.database.push(gamePath.concat(["chatRooms"]), {
-      id: chatRoomId,
-      name: name,
-      allegianceFilter: allegianceFilter,
-      messages: [],
-      memberships: [],
-    });
+    this.database.push(gamePath.concat(["chatRooms"]), newChatRoom(chatRoomId, args));
   }
   updatePlayer(playerId, args) {
     this.checkId(playerId, 'player');
@@ -157,37 +127,29 @@ class FakeServer {
     this.checkId(chatRoomId, 'chatRoom');
     let chatRoomPath = this.database.pathForId(chatRoomId);
     this.checkId(playerId, 'player');
-    this.database.push(chatRoomPath.concat(["memberships"]), {
-      id: Bridge.generateMembershipId(),
-      playerId: playerId,
-    });
+    this.database.push(
+        chatRoomPath.concat(["memberships"]),
+        newMembership(Bridge.generateMembershipId(), {playerId: playerId}));
   }
   addMessageToChatRoom(messageId, chatRoomId, playerId, args) {
     this.checkId(playerId, 'player');
     this.checkId(chatRoomId, 'chatRoom');
     let chatRoomPath = this.database.pathForId(chatRoomId);
     this.checkRequestArgs(args, SERVER_MESSAGE_PROPERTIES);
-    let {message} = args;
-    this.database.push(chatRoomPath.concat(["messages"]), {
-      id: messageId,
-      playerId: playerId,
-      message: message,
-      time: new Date().getTime() / 1000,
-    });
+    let properties = Utils.copyOf(args);
+    properties.time = new Date().getTime() / 1000;
+    properties.playerId = playerId;
+    this.database.push(
+        chatRoomPath.concat(["messages"]),
+        newMessage(messageId, properties));
   }
   addMission(missionId, gameId, args) {
     this.checkIdNotTaken(missionId, 'mission');
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_MISSION_PROPERTIES);
-    let {beginTime, endTime, name, url, allegianceFilter} = args;
-    this.database.push(["games", this.getGameIndex(gameId), "missions"], {
-      id: missionId,
-      beginTime: beginTime,
-      endTime: endTime,
-      name: name,
-      url: url,
-      allegianceFilter: allegianceFilter,
-    });
+    this.database.push(
+        ["games", this.getGameIndex(gameId), "missions"],
+        newMission(missionId, args));
   }
   updateMission(missionId, args) {
     this.checkId(missionId, 'mission');
@@ -202,13 +164,9 @@ class FakeServer {
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_REWARD_CATEGORY_PROPERTIES);
     let {name, points, seed} = args;
-    this.database.push(["games", this.getGameIndex(gameId), "rewardCategories"], {
-      id: rewardCategoryId,
-      name: name,
-      points: points,
-      seed: seed,
-      rewards: [],
-    });
+    this.database.push(
+        ["games", this.getGameIndex(gameId), "rewardCategories"],
+        newRewardCategory(rewardCategoryId, args));
   }
   updateRewardCategory(rewardCategoryId, args) {
     this.checkId(rewardCategoryId, 'rewardCategory');
@@ -222,19 +180,9 @@ class FakeServer {
     this.checkIdNotTaken(notificationCategoryId, 'notificationCategory');
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_NOTIFICATION_CATEGORY_PROPERTIES);
-    let {name, message, previewMessage, sendTime, allegianceFilter, email, app, sound, vibrate} = args;
-    this.database.push(["games", this.getGameIndex(gameId), "notificationCategories"], {
-      id: notificationCategoryId,
-      name: name,
-      message: message,
-      previewMessage: previewMessage,
-      sendTime: sendTime,
-      allegianceFilter: allegianceFilter,
-      email: email,
-      app: app,
-      sound: sound,
-      vibrate: vibrate,
-    });
+    this.database.push(
+        ["games", this.getGameIndex(gameId), "notificationCategories"],
+        newNotificationCategory(notificationCategoryId, args));
   }
   addNotification(notificationId, playerId, notificationCategoryId, args) {
     this.checkIdNotTaken(notificationId, 'notification');
@@ -243,18 +191,12 @@ class FakeServer {
     this.checkId(notificationCategoryId, 'notificationCategory');
     let notificationCategoryPath = this.database.pathForId(notificationCategoryId);
     this.checkRequestArgs(args, SERVER_NOTIFICATION_PROPERTIES);
-    let {message, previewMessage, sound, vibrate, app, destination} = args;
-    this.database.push(playerPath.concat(["notifications"]), {
-      id: notificationId,
-      notificationCategoryId: notificationCategoryId,
-      message: message,
-      previewMessage: previewMessage,
-      seenTime: null,
-      sound: sound,
-      vibrate: vibrate,
-      app: app,
-      destination: destination,
-    });
+    let properties = Utils.copyOf(args);
+    properties.seenTime = null;
+    properties.notificationCategoryId = notificationCategoryId;
+    this.database.push(
+        playerPath.concat(["notifications"]),
+        newNotification(notificationId, properties));
   }
   updateNotificationCategory(notificationCategoryId, args) {
     this.checkId(notificationCategoryId, 'notificationCategory');
@@ -274,13 +216,11 @@ class FakeServer {
     this.checkId(rewardCategoryId, 'rewardCategory');
     let rewardCategoryPath = this.database.pathForId(rewardCategoryId);
     this.checkRequestArgs(args, SERVER_REWARD_PROPERTIES);
-    let {code} = args;
-    this.database.push(rewardCategoryPath.concat(["rewards"]), {
-      id: rewardId,
-      rewardCategoryId: rewardCategoryId,
-      code: code,
-      playerId: null,
-    });
+    let properties = Utils.copyOf(args);
+    properties.playerId = null;
+    this.database.push(
+        rewardCategoryPath.concat(["rewards"]),
+        newReward(rewardId, properties));
   }
   addRewards(rewardCategoryId, numToAdd) {
     for (let i = 0; i < numToAdd; i++) {
@@ -292,12 +232,9 @@ class FakeServer {
   addGun(gunId, args) {
     this.checkIdNotTaken(gunId, 'gun');
     this.checkRequestArgs(args, SERVER_GUN_PROPERTIES);
-    let {number} = args;
-    this.database.push(["guns"], {
-      id: gunId,
-      number: number,
-      playerId: null,
-    });
+    let properties = Utils.copyOf(args);
+    properties.playerId = null;
+    this.database.push(["guns"], properties);
   }
   claimReward(playerId, code) {
     assert(typeof code == 'string');
@@ -312,12 +249,15 @@ class FakeServer {
       for (let j = 0; j < rewardCategory.rewards.length; j++) {
         let reward = rewardCategory.rewards[j];
         if (reward.code.replace(/\s/g, '').toLowerCase() == code) {
-          this.database.set(gamePath.concat(["rewardCategories", i, "rewards", j, "playerId"]), playerId);
-          this.database.push(playerPath.concat(["rewards"]), {
-            id: Bridge.generatePlayerRewardId(),
-            rewardCategoryId: rewardCategory.id,
-            rewardId: reward.id,
-          });
+          this.database.set(
+              gamePath.concat(["rewardCategories", i, "rewards", j, "playerId"]),
+              playerId);
+          this.database.push(
+              playerPath.concat(["rewards"]),
+              newPlayerReward(Bridge.generatePlayerRewardId(), {
+                rewardCategoryId: rewardCategory.id,
+                rewardId: reward.id,
+              }));
           return;
         }
       }
@@ -354,10 +294,11 @@ class FakeServer {
     this.database.set(infectorPlayerPath.concat(["points"]),
         this.database.get(infectorPlayerPath.concat(["points"])) + 2);
     let infecteePlayerPath = ["games", gameId, "players", infecteePlayerIndex];
-    this.database.push(infecteePlayerPath.concat(["infections"]), {
-      id: Bridge.generateInfectionId(),
-      infectorPlayerId: infectorPlayerId,
-    });
+    this.database.push(
+        infecteePlayerPath.concat(["infections"]),
+        newInfection(Bridge.generateInfectionId(), {
+          infectorPlayerId: infectorPlayerId,
+        }));
     infecteePlayer = this.database.get(infecteePlayerPath);
     if (infecteePlayer.infections.length >= infecteePlayer.lives.length) {
       this.database.set(infecteePlayerPath.concat(["infectable"]), false);
@@ -367,10 +308,9 @@ class FakeServer {
   addLife(lifeId, playerId, code) {
     this.checkId(playerId, 'player');
     let playerPath = this.database.pathForId(playerId);
-    this.database.push(playerPath.concat(["lives"]), {
-      id: lifeId,
-      code: code,
-    });
+    this.database.push(
+        playerPath.concat(["lives"]),
+        newLife(lifeId, {code: code}));
     let player = this.database.get(playerPath);
     if (player.lives.length > player.infections.length) {
       this.database.set(playerPath.concat(["infectable"]), true);

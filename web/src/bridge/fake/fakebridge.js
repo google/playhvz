@@ -27,7 +27,7 @@ class FakeBridge {
     window.fakeBridge = this;
 
     this.userId =
-        populateFakeServer(fakeServer, isAdmin, isRegistered, isJoined);
+        populateFakeServer(fakeServer, isRegistered, isAdmin, isJoined);
 
     for (const funcName of SERVER_METHODS) {
       if (funcName != 'signIn') {
