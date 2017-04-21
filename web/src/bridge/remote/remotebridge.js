@@ -26,8 +26,10 @@ class RemoteBridge {
         firebase.auth().getRedirectResult()
             .then((result) => {
               this.userId = result.user.uid;
-              this.register(userId);
-              resolve(result.user.uid);
+              this.register(userId)
+                  .then(() => {
+                    resolve(result.user.uid);
+                  });
             }).catch((error) => {
               reject(error.message);
             });
@@ -36,7 +38,7 @@ class RemoteBridge {
         firebase.auth().signInWithRedirect(provider);
       });
     } else {
-      this.register(this.userId);
+      return this.register(this.userId);
     }
   }
 
@@ -68,7 +70,10 @@ class RemoteBridge {
   }
 
   register(userId) {
-    this.requester.sendPostRequest('register', {id: userId}, {});
+    return this.requester.sendPostRequest('register', {id: userId}, {})
+        .then(() => {
+          return userId;
+        })
   }
 
   createGame(gameId, adminUserId, {name, rulesUrl, stunTimer}) {
