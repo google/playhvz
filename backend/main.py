@@ -30,6 +30,14 @@ def get_testdata():
   testdata = firebase.get('testdata', None)
   return jsonify(testdata)
 
+@app.route('/register', methods=['POST'])
+def register():
+  userId = request.headers.get('userId')
+  userdata = {
+    'registered': True
+  }
+  firebase.put('/users', userId, userdata)
+  return ''
 
 @app.route('/creategame', methods=['POST'])
 def new_game():
