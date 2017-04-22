@@ -95,3 +95,50 @@ def assign_gun():
     'playerId': player,
   }
   return repr(firebase.put('/guns', gun, put_data))
+
+
+@app.route('/updatePlayer', methods=['POST'])
+def update_player():
+  request_data = request.get_json()
+  game = request_data['gameId']
+  player = request_data['playerId']
+
+  put_data = {}
+  for property in ['name', 'needGun', 'profileImageUrl', 'startAsZombie', 'volunteer']:
+    if property in request_data:
+      put_data[property] = request_data[property]
+
+  path = '/games/%s/players/%s' % (game, player)
+  return jsonify(firebase.patch(path, put_data))
+
+@app.route('/addMission', methods=['POST'])
+def add_mission():
+  request_data = request.get_json()
+  game = request_data['gameId']
+  mission = request_data['missionId']
+
+  put_data = {
+    'name': request_data['name'],
+    'begin': request_data['begin'],
+    'end': request_data['end'],
+    'url': request_data['url'],
+    'allegiance': request_data['allegiance'],
+  }
+
+  path = '/games/%s/missions' % game
+  return jsonify(firebase.put(path, mission, put_data))
+
+@app.route('/updateMission', methods=['POST'])
+def update_mission():
+  request_data = request.get_json()
+  game = request_data['gameId']
+  mission = request_data['missionId']
+
+  put_data = {}
+  for property in ['name', 'begin', 'end', 'url', 'allegiance']:
+    if property in request_data:
+      put_data[property] = request_data[property]
+
+  path = '/games/%s/missions/%s' % (game, mission)
+  return jsonify(firebase.patch(path, put_data))
+
