@@ -187,7 +187,7 @@ paper-input-container {
               messagingSenderId: "625580091272"
             };
           } else if (env == 'dev') {
-            serverUrl = assert(false); // we dont have a dev frontend
+            serverUrl = "trololol"; // we dont have a dev frontend
             config = {
               apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
               authDomain: "zeds-dbe0f.firebaseapp.com",
@@ -243,7 +243,7 @@ paper-input-container {
           // Try to figure out what game to put them in.
           let [gameId, ] = this.extractUrl_();
           if (gameId) {
-            let game = this.database.games.find(game => game.id == gameId);
+            let game = this.database.gamesById[gameId];
             if (game) {
               this.gameId = game.id;
             } else {
@@ -265,26 +265,32 @@ paper-input-container {
           // Try to figure out their player, if they have one.
           let userPlayer = this.user.players.find(player => player.gameId == this.gameId);
           if (userPlayer) {
-            // debugger;
             this.playerId = userPlayer.playerId;
           }
         }
         if (this.userId && this.game && !this.page) {
           let [, page] = this.extractUrl_();
           if (page) {
-            // debugger;
             this.page = page;
           } else {
-            // debugger;
             this.page = 'main';
-            window.history.replaceState({}, "", "/" + this.game.number + "/" + this.page);
+            window.history.replaceState({}, "", this.assembleUrl_(this.gameId, this.page));
           }
         }
       },
 
+      assembleUrl_(gameId, page) {
+        let url = "/" + gameId + "/" + page;
+        let queryStringMatch = /\?(.*)/.exec(window.location.href);
+        if (queryStringMatch)
+          url += "?" + queryStringMatch[1];
+        return url;
+      },
+
       handleOpenPage_(e) {
         this.page = e.detail.page;
-        window.history.pushState({page: this.page}, "", "/" + this.database.gamesById[this.gameId].number + "/" + this.page);
+        window.history.pushState(
+            {page: this.page}, "", this.assembleUrl_(this.gameId, this.page));
       },
 
       handlePopState_(e) {
@@ -293,7 +299,7 @@ paper-input-container {
 
       extractUrl_() {
         let initialUrl = window.location.pathname;
-        let match = /(\w+)(?:\/([\w-/]+))?/.exec(initialUrl);
+        let match = /([\w-]+)(?:\/([\w/-]+))?/.exec(initialUrl);
         if (!match) {
           return [null, null, null];
         }

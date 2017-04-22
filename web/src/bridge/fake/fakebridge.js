@@ -67,8 +67,8 @@ class FakeBridge {
       let {type, path, value, index} = operation;
       switch (type) {
         case 'set': this.localDb.set(path, value); break;
-        case 'insert': this.localDb.insert(path, value, index); break;
-        case 'remove': this.localDb.remove(path, index, 1); break;
+        case 'insert': this.localDb.insert(path, index, value); break;
+        case 'remove': this.localDb.remove(path); break;
         default: throwError('Unknown operation:', operation);
       }
     }

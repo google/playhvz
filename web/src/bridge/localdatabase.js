@@ -108,7 +108,7 @@ function newNotificationCategory(id, args) {
 }
 
 const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
-const PLAYER_COLLECTIONS = ["infections", "lives", "rewards", "notifications"];
+const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications"];
 function newPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, PLAYER_PROPERTIES);
@@ -116,12 +116,12 @@ function newPlayer(id, args) {
   return obj;
 }
 
-const PLAYER_REWARD_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
-const PLAYER_REWARD_COLLECTIONS = [];
-function newPlayerReward(id, args) {
+const CLAIM_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
+const CLAIM_COLLECTIONS = [];
+function newClaim(id, args) {
   let obj = {id: id};
-  Utils.copyProperties(obj, args, PLAYER_REWARD_PROPERTIES);
-  Utils.addEmptyLists(obj, PLAYER_REWARD_COLLECTIONS);
+  Utils.copyProperties(obj, args, CLAIM_PROPERTIES);
+  Utils.addEmptyLists(obj, CLAIM_COLLECTIONS);
   return obj;
 }
 
@@ -207,166 +207,177 @@ class LocalDatabase {
   remove(path) {
     this.delegate.remove(path);
   }
-  getGamePath_(gameId) {
+  getGamePath(gameId) {
     assert(typeof gameId == 'string' || gameId == null);
     let path = ["games"];
     if (gameId)
       path = path.concat([Utils.findIndexById(this.get(path), gameId)]);
     return path;
   }
-  getGunPath_(gunId) {
+  getGunPath(gunId) {
     assert(typeof gunId == 'string' || gunId == null);
     let path = ["guns"];
     if (gunId)
       path = path.concat([Utils.findIndexById(this.get(path), gunId)]);
     return path;
   }
-  getUserPath_(userId) {
+  getUserPath(userId) {
     assert(typeof userId == 'string' || userId == null);
     let path = ["users"];
     if (userId)
       path = path.concat([Utils.findIndexById(this.get(path), userId)]);
     return path;
   }
-  getUserPlayerPath_(userId, userPlayerId) {
+  getUserPlayerPath(userId, userPlayerId) {
     assert(userId);
     assert(typeof userPlayerId == 'string' || userPlayerId == null);
-    let path = this.getUserPath_(userId).concat(["players"]);
+    let path = this.getUserPath(userId).concat(["players"]);
     if (userPlayerId)
       path = path.concat([Utils.findIndexById(this.get(path), userPlayerId)]);
     return path;
   }
-  getPlayerPath_(gameId, playerId) {
+  getPlayerPath(gameId, playerId) {
     assert(gameId);
     assert(typeof playerId == 'string' || playerId == null);
-    let path = this.getGamePath_(gameId).concat(["players"]);
+    let path = this.getGamePath(gameId).concat(["players"]);
     if (playerId)
       path = path.concat([Utils.findIndexById(this.get(path), playerId)]);
     return path;
   }
-  getPlayerRewardPath_(gameId, playerId, rewardId) {
+  getClaimPath(gameId, playerId, rewardId) {
     assert(gameId);
     assert(playerId);
     assert(typeof rewardId == 'string' || rewardId == null);
-    let path = this.getPlayerPath_(gameId, playerId).concat(["rewards"]);
+    let path = this.getPlayerPath(gameId, playerId).concat(["claims"]);
     if (rewardId)
       path = path.concat([Utils.findIndexById(this.get(path), rewardId)]);
     return path;
   }
-  getPlayerLifePath_(gameId, playerId, lifeId) {
+  getLifePath(gameId, playerId, lifeId) {
     assert(gameId);
     assert(playerId);
     assert(typeof lifeId == 'string' || lifeId == null);
-    let path = this.getPlayerPath_(gameId, playerId).concat(["lives"]);
+    let path = this.getPlayerPath(gameId, playerId).concat(["lives"]);
     if (lifeId)
       path = path.concat([Utils.findIndexById(this.get(path), lifeId)]);
     return path;
   }
-  getPlayerInfectionPath_(gameId, playerId, infectionId) {
+  getInfectionPath(gameId, playerId, infectionId) {
     assert(gameId);
     assert(playerId);
     assert(typeof infectionId == 'string' || infectionId == null);
-    let path = this.getPlayerPath_(gameId, playerId).concat(["infections"]);
+    let path = this.getPlayerPath(gameId, playerId).concat(["infections"]);
     if (infectionId)
       path = path.concat([Utils.findIndexById(this.get(path), infectionId)]);
     return path;
   }
-  getPlayerNotificationPath_(gameId, playerId, notificationId) {
+  getNotificationPath(gameId, playerId, notificationId) {
     assert(gameId);
     assert(playerId);
     assert(typeof notificationId == 'string' || notificationId == null);
-    let path = this.getPlayerPath_(gameId, playerId).concat(["notifications"]);
+    let path = this.getPlayerPath(gameId, playerId).concat(["notifications"]);
     if (notificationId)
       path = path.concat([Utils.findIndexById(this.get(path), notificationId)]);
     return path;
   }
-  getAdminPath_(gameId, adminId) {
-    assert(gameId);
-    assert(typeof adminId == 'string' || adminId == null);
-    let path = this.getGamePath_(gameId).concat(["admins"]);
-    if (adminId)
-      path = path.concat([Utils.findIndexById(this.get(path), adminId)]);
-    return path;
-  }
-  getMissionPath_(gameId, missionId) {
-    assert(gameId);
-    assert(typeof missionId == 'string' || missionId == null);
-    let path = this.getGamePath_(gameId).concat(["missions"]);
-    if (missionId)
-      path = path.concat([Utils.findIndexById(this.get(path), missionId)]);
-    return path;
-  }
-  getAdminPath_(gameId, adminId) {
-    assert(gameId);
-    assert(typeof adminId == 'string' || adminId == null);
-    let path = this.getGamePath_(gameId).concat(["admins"]);
-    if (adminId)
-      path = path.concat([Utils.findIndexById(this.get(path), adminId)]);
-    return path;
-  }
-  getRewardCategoryPath_(gameId, rewardCategoryId) {
-    assert(gameId);
-    assert(typeof rewardCategoryId == 'string' || rewardCategoryId == null);
-    let path = this.getGamePath_(gameId).concat(["rewardCategories"]);
-    if (rewardCategoryId)
-      path = path.concat([Utils.findIndexById(this.get(path), rewardCategoryId)]);
-    return path;
-  }
-  getRewardCategoryRewardPath_(gameId, rewardCategoryId, rewardId) {
-    assert(gameId);
-    assert(rewardCategoryId);
-    assert(typeof rewardId == 'string' || rewardId == null);
-    let path = this.getRewardCategoryPath_(gameId, rewardCategoryId).concat(["rewards"]);
-    if (rewardId)
-      path = path.concat([Utils.findIndexById(this.get(path), rewardId)]);
-    return path;
-  }
-  getNotificationCategoryPath_(gameId, notificationCategoryId) {
-    assert(gameId);
-    assert(typeof notificationCategoryId == 'string' || notificationCategoryId == null);
-    let path = this.getGamePath_(gameId).concat(["notificationCategories"]);
-    if (notificationCategoryId)
-      path = path.concat([Utils.findIndexById(this.get(path), notificationCategoryId)]);
-    return path;
-  }
-  getChatRoomPath_(gameId, chatRoomId) {
-    assert(gameId);
-    assert(typeof chatRoomId == 'string' || chatRoomId == null);
-    let path = this.getGamePath_(gameId).concat(["chatRooms"]);
-    if (chatRoomId)
-      path = path.concat([Utils.findIndexById(this.get(path), chatRoomId)]);
-    return path;
-  }
-  getChatRoomMembershipPath_(gameId, chatRoomId, membershipId) {
+  getMembershipPath(gameId, chatRoomId, membershipId) {
     assert(gameId);
     assert(chatRoomId);
     assert(typeof membershipId == 'string' || membershipId == null);
-    let path = this.getChatRoomPath_(gameId, chatRoomId).concat(["memberships"]);
+    let path = this.getChatRoomPath(gameId, chatRoomId).concat(["memberships"]);
     if (membershipId)
       path = path.concat([Utils.findIndexById(this.get(path), membershipId)]);
     return path;
   }
-  getChatRoomMessagePath_(gameId, chatRoomId, messageId) {
+  getAdminPath(gameId, adminId) {
+    assert(gameId);
+    assert(typeof adminId == 'string' || adminId == null);
+    let path = this.getGamePath(gameId).concat(["admins"]);
+    if (adminId)
+      path = path.concat([Utils.findIndexById(this.get(path), adminId)]);
+    return path;
+  }
+  getMissionPath(gameId, missionId) {
+    assert(gameId);
+    assert(typeof missionId == 'string' || missionId == null);
+    let path = this.getGamePath(gameId).concat(["missions"]);
+    if (missionId)
+      path = path.concat([Utils.findIndexById(this.get(path), missionId)]);
+    return path;
+  }
+  getRewardCategoryPath(gameId, rewardCategoryId) {
+    assert(gameId);
+    assert(typeof rewardCategoryId == 'string' || rewardCategoryId == null);
+    let path = this.getGamePath(gameId).concat(["rewardCategories"]);
+    if (rewardCategoryId)
+      path = path.concat([Utils.findIndexById(this.get(path), rewardCategoryId)]);
+    return path;
+  }
+  getRewardPath(gameId, rewardCategoryId, rewardId) {
+    assert(gameId);
+    assert(rewardCategoryId);
+    assert(typeof rewardId == 'string' || rewardId == null);
+    let path = this.getRewardCategoryPath(gameId, rewardCategoryId).concat(["rewards"]);
+    if (rewardId)
+      path = path.concat([Utils.findIndexById(this.get(path), rewardId)]);
+    return path;
+  }
+  getNotificationCategoryPath(gameId, notificationCategoryId) {
+    assert(gameId);
+    assert(typeof notificationCategoryId == 'string' || notificationCategoryId == null);
+    let path = this.getGamePath(gameId).concat(["notificationCategories"]);
+    if (notificationCategoryId)
+      path = path.concat([Utils.findIndexById(this.get(path), notificationCategoryId)]);
+    return path;
+  }
+  getChatRoomPath(gameId, chatRoomId) {
+    assert(gameId);
+    assert(typeof chatRoomId == 'string' || chatRoomId == null);
+    let path = this.getGamePath(gameId).concat(["chatRooms"]);
+    if (chatRoomId)
+      path = path.concat([Utils.findIndexById(this.get(path), chatRoomId)]);
+    return path;
+  }
+  getChatRoomMembershipPath(gameId, chatRoomId, membershipId) {
+    assert(gameId);
+    assert(chatRoomId);
+    assert(typeof membershipId == 'string' || membershipId == null);
+    let path = this.getChatRoomPath(gameId, chatRoomId).concat(["memberships"]);
+    if (membershipId)
+      path = path.concat([Utils.findIndexById(this.get(path), membershipId)]);
+    return path;
+  }
+  getChatRoomMessagePath(gameId, chatRoomId, messageId) {
     assert(gameId);
     assert(chatRoomId);
     assert(typeof messageId == 'string' || messageId == null);
-    let path = this.getChatRoomPath_(gameId, chatRoomId).concat(["messages"]);
+    let path = this.getChatRoomPath(gameId, chatRoomId).concat(["messages"]);
     if (messageId)
       path = path.concat([Utils.findIndexById(this.get(path), messageId)]);
     return path;
     return obj;
   }
-  getGameIdAndPlayerIdForNotificationId_(notificationId) {
-    let [ , gameId, , playerId, ...] = this.pathForId_(notificationId);
+  getGameIdAndPlayerIdForNotificationId(notificationId) {
+    let path = this.pathForId_(notificationId);
+    let gameId = this.delegate.get(path.slice(0, 2)).id;
+    let playerId = this.delegate.get(path.slice(0, 4)).id;
     return [gameId, playerId];
   }
-  getGameIdForNotificationCategoryId_(notificationCategoryId) {
-    let [ , gameId, ...] = this.pathForId_(notificationCategoryId);
-    return gameId;
+  getGameIdForNotificationCategoryId(notificationCategoryId) {
+    let path = this.pathForId_(notificationCategoryId);
+    return this.delegate.get(path.slice(0, 2)).id;
   }
-  getGameIdForRewardCategoryId_(rewardCategoryId) {
-    let [ , gameId, ...] = this.pathForId_(rewardCategoryId);
-    return gameId;
+  getGameIdForRewardCategoryId(rewardCategoryId) {
+    let path = this.pathForId_(rewardCategoryId);
+    return this.delegate.get(path.slice(0, 2)).id;
+  }
+  getGameIdForPlayerId(playerId) {
+    let path = this.pathForId_(playerId);
+    return this.delegate.get(path.slice(0, 2)).id;
+  }
+  getGameIdForChatRoomId(chatRoomId) {
+    let path = this.pathForId_(chatRoomId);
+    return this.delegate.get(path.slice(0, 2)).id;
   }
 
 

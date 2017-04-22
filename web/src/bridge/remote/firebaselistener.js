@@ -50,11 +50,11 @@ class FirebaseListener {
     this.firebaseRoot.child("guns").on("child_added", (snap) => {
       let gunId = snap.getKey();
       let obj = newGun(gunId, snap.val());
-      this.localDb.insert(this.localDb.getGunPath_(null), null, obj);
+      this.localDb.insert(this.localDb.getGunPath(null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getGunPath_(gunId).concat([property]), value);
+            this.localDb.set(this.localDb.getGunPath(gunId).concat([property]), value);
           });
     });
   }
@@ -64,11 +64,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let userPlayerId = snap.getKey();
       let obj = newUserPlayer(userPlayerId, snap.val());
-      this.localDb.insert(this.localDb.getUserPlayerPath_(userId, null), null, obj);
+      this.localDb.insert(this.localDb.getUserPlayerPath(userId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getUserPlayerPath_(userId, userPlayerId).concat([property]), value);
+            this.localDb.set(this.localDb.getUserPlayerPath(userId, userPlayerId).concat([property]), value);
           });
     });
   }
@@ -77,15 +77,15 @@ class FirebaseListener {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       let gameId = snap.getKey();
       let obj = newGame(gameId, snap.val());
-      this.localDb.insert(this.localDb.getGamePath_(null), null, obj);
+      this.localDb.insert(this.localDb.getGamePath(null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getGamePath_(gameId).concat([property]), value);
+            this.localDb.set(this.localDb.getGamePath(gameId).concat([property]), value);
           });
     });
     this.firebaseRoot.child("games").on("child_removed", (snap) => {
-      this.splice(this.localDb.getGamePath_(), this.localDb.getGameIndex_(snap.getKey()), 1);
+      this.splice(this.localDb.getGamePath(), this.localDb.getGameIndex(snap.getKey()), 1);
     });
   }
 
@@ -103,11 +103,11 @@ class FirebaseListener {
   //   this.firebaseRoot.child("users").on("child_added", (snap) => {
   //     let userId = snap.getKey();
   //     let obj = newUser(userId, snap.val());
-  //     this.localDb.insert(this.localDb.getUserPath_(null), obj, null);
+  //     this.localDb.insert(this.localDb.getUserPath(null), obj, null);
   //     this.listenForPropertyChanges_(
   //         snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
   //         (property, value) => {
-  //           this.localDb.set(this.localDb.getUserPath_(userId).concat([property]), value);
+  //           this.localDb.set(this.localDb.getUserPath(userId).concat([property]), value);
   //         });
   //     this.listenToUserPlayers_(userId);
   //   });
@@ -117,11 +117,11 @@ class FirebaseListener {
     let ref = this.firebaseRoot.child("users/" + userId);
     ref.once("value").then((snap) => {
       let obj = newUser(userId, snap.val());
-      this.localDb.insert(this.localDb.getUserPath_(null), null, obj);
+      this.localDb.insert(this.localDb.getUserPath(null), null, obj);
       this.listenForPropertyChanges_(
           ref, USER_PROPERTIES, USER_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getUserPath_(userId).concat([property]), value);
+            this.localDb.set(this.localDb.getUserPath(userId).concat([property]), value);
           });
       this.listenToUserPlayers_(userId);
     });
@@ -132,11 +132,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let missionId = snap.getKey();
       let obj = newMission(missionId, snap.val());
-      this.localDb.insert(this.localDb.getMissionPath_(gameId, null), null, obj);
+      this.localDb.insert(this.localDb.getMissionPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getMissionPath_(gameId, missionId).concat([property]), value);
+            this.localDb.set(this.localDb.getMissionPath(gameId, missionId).concat([property]), value);
           });
     });
   }
@@ -146,11 +146,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let adminId = snap.getKey();
       let obj = newAdmin(adminId, snap.val());
-      this.localDb.insert(this.localDb.getAdminPath_(gameId, null), null, obj);
+      this.localDb.insert(this.localDb.getAdminPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getAdminPath_(gameId, adminId).concat([property]), value);
+            this.localDb.set(this.localDb.getAdminPath(gameId, adminId).concat([property]), value);
           });
     });
   }
@@ -160,11 +160,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let quizQuestionId = snap.getKey();
       let obj = newQuizQuestion(quizQuestionId, snap.val());
-      this.localDb.insert(this.localDb.getQuizQuestionPath_(gameId, null), null, obj);
+      this.localDb.insert(this.localDb.getQuizQuestionPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getQuizQuestionPath_(gameId, quizQuestionId).concat([property]), value);
+            this.localDb.set(this.localDb.getQuizQuestionPath(gameId, quizQuestionId).concat([property]), value);
           });
       this.listenToQuizAnswers_(gameId, quizQuestionId);
     });
@@ -175,11 +175,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let quizAnswerId = snap.getKey();
       let obj = newQuizAnswer(quizAnswerId, snap.val());
-      this.localDb.insert(this.localDb.getQuizAnswerPath_(gameId, quizQuestionId, null), null, obj);
+      this.localDb.insert(this.localDb.getQuizAnswerPath(gameId, quizQuestionId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getQuizAnswerPath_(gameId, quizQuestionId, quizAnswerId).concat([property]), value);
+            this.localDb.set(this.localDb.getQuizAnswerPath(gameId, quizQuestionId, quizAnswerId).concat([property]), value);
           });
     });
   }
@@ -189,11 +189,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let chatRoomId = snap.getKey();
       let obj = newChatRoom(chatRoomId, snap.val());
-      this.localDb.insert(this.localDb.getChatRoomPath_(gameId, null), null, obj);
+      this.localDb.insert(this.localDb.getChatRoomPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getChatRoomPath_(gameId, chatRoomId).concat([property]), value);
+            this.localDb.set(this.localDb.getChatRoomPath(gameId, chatRoomId).concat([property]), value);
           });
       this.listenToChatRoomMemberships_(gameId, chatRoomId);
       this.listenToChatRoomMessages_(gameId, chatRoomId);
@@ -205,11 +205,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let chatRoomMembershipId = snap.getKey();
       let obj = newMembership(chatRoomMembershipId, snap.val());
-      this.localDb.insert(this.localDb.getChatRoomMembershipPath_(gameId, chatRoomId, null), null, obj);
+      this.localDb.insert(this.localDb.getChatRoomMembershipPath(gameId, chatRoomId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, MEMBERSHIP_PROPERTIES, MEMBERSHIP_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getChatRoomMembershipPath_(gameId, chatRoomId, chatRoomMembershipId).concat([property]), value);
+            this.localDb.set(this.localDb.getChatRoomMembershipPath(gameId, chatRoomId, chatRoomMembershipId).concat([property]), value);
           });
     });
   }
@@ -221,16 +221,16 @@ class FirebaseListener {
       let obj = newMessage(chatRoomMessageId, snap.val());
       let insertIndex =
           Utils.findInsertIndex(
-              this.localDb.get(this.localDb.getChatRoomMessagePath_(gameId, chatRoomId, null)),
+              this.localDb.get(this.localDb.getChatRoomMessagePath(gameId, chatRoomId, null)),
               obj.index);
       this.localDb.insert(
-          this.localDb.getChatRoomMessagePath_(gameId, chatRoomId),
+          this.localDb.getChatRoomMessagePath(gameId, chatRoomId),
           insertIndex,
           obj);
       this.listenForPropertyChanges_(
           snap.ref, MESSAGE_PROPERTIES, MESSAGE_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getChatRoomMessagePath_(gameId, chatRoomId, chatRoomMessageId).concat([property]), value);
+            this.localDb.set(this.localDb.getChatRoomMessagePath(gameId, chatRoomId, chatRoomMessageId).concat([property]), value);
           });
     });
   }
@@ -240,71 +240,71 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let playerId = snap.getKey();
       let obj = newPlayer(playerId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerPath_(gameId, null), null, obj);
+      this.localDb.insert(this.localDb.getPlayerPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getPlayerPath_(gameId, playerId).concat([property]), value);
+            this.localDb.set(this.localDb.getPlayerPath(gameId, playerId).concat([property]), value);
           });
-      this.listenToPlayerRewards_(gameId, playerId);
-      this.listenToPlayerLives_(gameId, playerId);
-      this.listenToPlayerInfections_(gameId, playerId);
-      this.listenToPlayerNotifications_(gameId, playerId);
+      this.listenToClaims_(gameId, playerId);
+      this.listenToLives_(gameId, playerId);
+      this.listenToInfections_(gameId, playerId);
+      this.listenToNotifications_(gameId, playerId);
     });
   }
 
-  listenToPlayerRewards_(gameId, playerId) {
-    var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/rewards");
+  listenToClaims_(gameId, playerId) {
+    var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/claims");
     ref.on("child_added", (snap) => {
-      let playerRewardId = snap.getKey();
-      let obj = newPlayerReward(playerRewardId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerRewardPath_(gameId, playerId, null), null, obj);
+      let claimId = snap.getKey();
+      let obj = newClaim(claimId, snap.val());
+      this.localDb.insert(this.localDb.getClaimPath(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
-          snap.ref, PLAYER_REWARD_PROPERTIES, PLAYER_REWARD_COLLECTIONS,
+          snap.ref, CLAIM_PROPERTIES, CLAIM_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getPlayerRewardPath_(gameId, playerId, playerRewardId).concat([property]), value);
+            this.localDb.set(this.localDb.getClaimPath(gameId, playerId, claimId).concat([property]), value);
           });
     });
   }
 
-  listenToPlayerLives_(gameId, playerId) {
+  listenToLives_(gameId, playerId) {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/lives");
     ref.on("child_added", (snap) => {
-      let playerLifeId = snap.getKey();
-      let obj = newLife(playerLifeId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerLifePath_(gameId, playerId, null), null, obj);
+      let lifeId = snap.getKey();
+      let obj = newLife(lifeId, snap.val());
+      this.localDb.insert(this.localDb.getLifePath(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, LIFE_PROPERTIES, LIFE_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getPlayerLifePath_(gameId, playerId, playerLifeId).concat([property]), value);
+            this.localDb.set(this.localDb.getLifePath(gameId, playerId, lifeId).concat([property]), value);
           });
     });
   }
 
-  listenToPlayerInfections_(gameId, playerId) {
+  listenToInfections_(gameId, playerId) {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/infections");
     ref.on("child_added", (snap) => {
-      let playerInfectionId = snap.getKey();
-      let obj = newInfection(playerInfectionId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerInfectionPath_(gameId, playerId, null), null, obj);
+      let infectionId = snap.getKey();
+      let obj = newInfection(infectionId, snap.val());
+      this.localDb.insert(this.localDb.getInfectionPath(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, INFECTION_PROPERTIES, INFECTION_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getPlayerInfectionPath_(gameId, playerId, playerInfectionId).concat([property]), value);
+            this.localDb.set(this.localDb.getInfectionPath(gameId, playerId, infectionId).concat([property]), value);
           });
     });
   }
 
-  listenToPlayerNotifications_(gameId, playerId) {
+  listenToNotifications_(gameId, playerId) {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/notifications");
     ref.on("child_added", (snap) => {
-      let playerNotificationId = snap.getKey();
-      let obj = newNotification(playerNotificationId, snap.val());
-      this.localDb.insert(this.localDb.getPlayerNotificationPath_(gameId, playerId, null), null, obj);
+      let notificationId = snap.getKey();
+      let obj = newNotification(notificationId, snap.val());
+      this.localDb.insert(this.localDb.getNotificationPath(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, NOTIFICATION_PROPERTIES, NOTIFICATION_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getPlayerNotificationPath_(gameId, playerId, playerNotificationId).concat([property]), value);
+            this.localDb.set(this.localDb.getNotificationPath(gameId, playerId, notificationId).concat([property]), value);
           });
     });
   }
@@ -314,11 +314,11 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let notificationCategoryId = snap.getKey();
       let obj = newNotificationCategory(notificationCategoryId, snap.val());
-      this.localDb.insert(this.localDb.getNotificationCategoryPath_(gameId, null), null, obj);
+      this.localDb.insert(this.localDb.getNotificationCategoryPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, NOTIFICATION_CATEGORY_PROPERTIES, NOTIFICATION_CATEGORY_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getNotificationCategoryPath_(gameId, notificationCategoryId).concat([property]), value);
+            this.localDb.set(this.localDb.getNotificationCategoryPath(gameId, notificationCategoryId).concat([property]), value);
           });
     });
   }
@@ -328,26 +328,26 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let rewardCategoryId = snap.getKey();
       let obj = newRewardCategory(rewardCategoryId, snap.val());
-      this.localDb.insert(this.localDb.getRewardCategoryPath_(gameId, null), null, obj);
+      this.localDb.insert(this.localDb.getRewardCategoryPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getRewardCategoryPath_(gameId, rewardCategoryId).concat([property]), value);
+            this.localDb.set(this.localDb.getRewardCategoryPath(gameId, rewardCategoryId).concat([property]), value);
           });
-      this.listenToRewardCategoryRewards_(gameId, rewardCategoryId);
+      this.listenToRewards_(gameId, rewardCategoryId);
     });
   }
 
-  listenToRewardCategoryRewards_(gameId, rewardCategoryId) {
+  listenToRewards_(gameId, rewardCategoryId) {
     var ref = this.firebaseRoot.child("games/" + gameId + "/rewardCategories/" + rewardCategoryId + "/rewards");
     ref.on("child_added", (snap) => {
-      let rewardCategoryRewardId = snap.getKey();
-      let obj = newReward(rewardCategoryRewardId, snap.val());
-      this.localDb.insert(this.localDb.getRewardCategoryRewardPath_(gameId, rewardCategoryId, null), null, obj);
+      let rewardId = snap.getKey();
+      let obj = newReward(rewardId, snap.val());
+      this.localDb.insert(this.localDb.getRewardPath(gameId, rewardCategoryId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
           (property, value) => {
-            this.localDb.set(this.localDb.getRewardCategoryRewardPath_(gameId, rewardCategoryId, rewardCategoryRewardId).concat([property]), value);
+            this.localDb.set(this.localDb.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
           });
     });
   }

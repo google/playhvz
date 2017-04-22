@@ -6,7 +6,7 @@ Utils.setDeterministicGenerator = function() {
     if (!(type in idsByType)) {
       idsByType[type] = 1;
     }
-    return idsByType[type]++ + "-" + type;
+    return type + "-" + idsByType[type]++;
   }
 };
 
@@ -268,14 +268,17 @@ Utils.set = function(obj, path, value) {
     }
   })(obj, path, value);
 }
-Utils.insert = function(obj, path, value, index) {
-  return (function innerPush(obj, path, value) {
+Utils.insert = function(obj, path, index, value) {
+  return (function innerInsert(obj, path, index, value) {
     if (path.length == 0) {
-      obj.push(value);
+      if (index == null)
+        obj.push(value);
+      else
+        obj.splice(index, 0, value);
     } else {
-      innerPush(obj[path[0]], path.slice(1), value);
+      innerInsert(obj[path[0]], path.slice(1), index, value);
     }
-  })(obj, path, value);
+  })(obj, path, index, value);
 }
 Utils.remove = function(obj, path, index) {
   (function innerRemove(obj, path, index) {

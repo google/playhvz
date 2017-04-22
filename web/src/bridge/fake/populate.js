@@ -16,8 +16,8 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var zekeUserId = Bridge.generateUserId();
   server.register(zekeUserId, {});
 
-  var gameId = Bridge.generateGameId();
-  server.createGame(gameId, kimUserId, {number: "2017m", name: "Test game", rulesUrl: "/firstgame/rules.html", stunTimer: 60});
+  var gameId = "game-2017m";
+  server.createGame(gameId, kimUserId, {name: "Test game", rulesUrl: "/firstgame/rules.html", stunTimer: 60});
   server.addAdmin(Bridge.generateAdminId(), gameId, minnyUserId);
   var kimPlayerId = Bridge.generatePlayerId();
   server.joinGame(kimPlayerId, kimUserId, gameId, {name: 'Kim the Ultimate', needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false, beSecretZombie: true,});
@@ -80,7 +80,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.addReward(Bridge.generateRewardId(), rewardCategoryId, {});
   // server.claimReward(evanPlayerId, "flarklebark");
   for (let i = 0; i < 80; i++) {
-    server.addGun(Bridge.generateGunId(), {number: 1404 + i + ""});
+    server.addGun("gun-" + 1404 + i, {});
   }
   let mission1AlertNotificationCategoryId = Bridge.generateNotificationCategoryId();
   server.addNotificationCategory(mission1AlertNotificationCategoryId, gameId, {name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date() / 1000 + 3600, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});

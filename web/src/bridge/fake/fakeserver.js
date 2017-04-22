@@ -37,7 +37,7 @@ class FakeServer {
   }
   checkId(id, type, opt_existence) {
     assert(id);
-    assert(id.endsWith(type));
+    assert(id.startsWith(type + "-"));
     let found = this.localDb.idExists(id, true);
     let existence = (opt_existence == null ? true : opt_existence);
     if (existence)
@@ -59,7 +59,7 @@ class FakeServer {
   register(userId, args) {
     this.checkIdNotTaken(userId, 'user');
     this.checkRequestArgs(args, SERVER_USER_PROPERTIES);
-    this.localDb.insert(this.localDb.getUserPath_(null), null, {
+    this.localDb.insert(this.localDb.getUserPath(null), null, {
       id: userId,
       players: [],
     });
@@ -68,7 +68,7 @@ class FakeServer {
     this.checkIdNotTaken(gameId, 'game');
     this.checkRequestArgs(args, SERVER_GAME_PROPERTIES);
     this.localDb.insert(
-        this.localDb.getGamePath_(null),
+        this.localDb.getGamePath(null),
         null,
         newGame(gameId, args));
     this.addAdmin(Bridge.generateAdminId(), gameId, adminUserId);
@@ -78,7 +78,7 @@ class FakeServer {
     this.checkId(gameId, 'game');
     this.checkId(adminUserId, 'user');
     this.localDb.insert(
-        this.localDb.getAdminPath_(gameId, null),
+        this.localDb.getAdminPath(gameId, null),
         null,
         newAdmin(adminId, {userId: adminUserId}));
   }
@@ -87,9 +87,9 @@ class FakeServer {
     this.checkId(userId, 'user');
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_PLAYER_PROPERTIES);
-    let existingPlayers = this.localDb.get(this.localDb.getPlayerPath_(gameId, null));
+    let existingPlayers = this.localDb.get(this.localDb.getPlayerPath(gameId, null));
     this.localDb.insert(
-        this.localDb.getPlayerPath_(gameId, null),
+        this.localDb.getPlayerPath(gameId, null),
         null,
         newPlayer(playerId, Utils.merge(args, {
             allegiance: 'horde',
@@ -99,7 +99,7 @@ class FakeServer {
             number: existingPlayers.length
         })));
     this.localDb.insert(
-        ["users", this.getUserIndex(userId), "players"],
+        this.localDb.getUserPlayerPath(userId, null),
         null,
         newUserPlayer(Bridge.generateUserPlayerId(), {
             gameId: gameId,
@@ -110,48 +110,50 @@ class FakeServer {
     this.checkIdNotTaken(chatRoomId, 'chatRoom');
     this.checkId(firstPlayerId, 'player');
     this.checkRequestArgs(args, SERVER_CHAT_ROOM_PROPERTIES);
-    let gameId = this.localDb.getGameIdForPlayerId_(firstPlayerId);
+    let gameId = this.localDb.getGameIdForPlayerId(firstPlayerId);
     this.localDb.insert(
-        this.localDb.getChatRoomPath_(gameId, null),
+        this.localDb.getChatRoomPath(gameId, null),
         null,
         newChatRoom(chatRoomId, args));
   }
   updatePlayer(playerId, args) {
     this.checkId(playerId, 'player');
-    let playerPath = this.localDb.pathForId(playerId);
     this.checkOptionalRequestArgs(args, SERVER_PLAYER_PROPERTIES);
+    let gameId = this.localDb.getGameIdForPlayerId(playerId);
     for (let argName in args) {
-      this.localDb.set(playerPath.concat([argName]), args[argName]);
+      this.localDb.set(
+          this.localDb.getPlayerPath(gameId, playerId).concat([argName]),
+          args[argName]);
     }
   }
   addPlayerToChatRoom(chatRoomId, playerId) {
     this.checkId(chatRoomId, 'chatRoom');
     this.checkId(playerId, 'player');
-    let gameId = this.localDb.getGameIdForChatRoomId_(chatRoomId);
+    let gameId = this.localDb.getGameIdForChatRoomId(chatRoomId);
     this.localDb.insert(
-        this.localDb.getMembershipPath_(gameId, chatRoomId, null),
+        this.localDb.getMembershipPath(gameId, chatRoomId, null),
         null,
         newMembership(Bridge.generateMembershipId(), {playerId: playerId}));
   }
   addMessageToChatRoom(messageId, chatRoomId, playerId, args) {
     this.checkId(playerId, 'player');
     this.checkId(chatRoomId, 'chatRoom');
-    let chatRoomPath = this.localDb.pathForId(chatRoomId);
     this.checkRequestArgs(args, SERVER_MESSAGE_PROPERTIES);
-    let properties = Utils.copyOf(args);
-    properties.time = new Date().getTime() / 1000;
-    properties.playerId = playerId;
+    let gameId = this.localDb.getGameIdForChatRoomId(chatRoomId);
     this.localDb.insert(
-        chatRoomPath.concat(["messages"]),
+        this.localDb.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
         null,
-        newMessage(messageId, properties));
+        newMessage(messageId, Utils.merge(args, {
+          time: new Date().getTime() / 1000,
+          playerId: playerId,
+        })));
   }
   addMission(missionId, gameId, args) {
     this.checkIdNotTaken(missionId, 'mission');
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_MISSION_PROPERTIES);
     this.localDb.insert(
-        this.localDb.getMissionPath_(gameId, null),
+        this.localDb.getMissionPath(gameId, null),
         null,
         newMission(missionId, args));
   }
@@ -169,7 +171,7 @@ class FakeServer {
     this.checkRequestArgs(args, SERVER_REWARD_CATEGORY_PROPERTIES);
     let {name, points, seed} = args;
     this.localDb.insert(
-        this.localDb.getRewardCategoryPath_(gameId, null),
+        this.localDb.getRewardCategoryPath(gameId, null),
         null,
         newRewardCategory(rewardCategoryId, args));
   }
@@ -186,7 +188,7 @@ class FakeServer {
     this.checkId(gameId, 'game');
     this.checkRequestArgs(args, SERVER_NOTIFICATION_CATEGORY_PROPERTIES);
     this.localDb.insert(
-        this.localDb.getNotificationCategoryPath_(gameId, null),
+        this.localDb.getNotificationCategoryPath(gameId, null),
         null,
         newNotificationCategory(notificationCategoryId, args));
   }
@@ -198,9 +200,9 @@ class FakeServer {
     let properties = Utils.copyOf(args);
     properties.seenTime = null;
     properties.notificationCategoryId = notificationCategoryId;
-    let [gameId, ] = this.localDb.getGameIdAndPlayerIdForNotificationId_(notificationId);
+    let gameId = this.localDb.getGameIdForPlayerId(playerId);
     this.localDb.insert(
-        this.localDb.getNotificationPath_(gameId, playerId, null),
+        this.localDb.getNotificationPath(gameId, playerId, null),
         null,
         newNotification(notificationId, properties));
   }
@@ -214,18 +216,18 @@ class FakeServer {
   }
   markNotificationSeen(notificationId) {
     this.checkId(notificationId, 'notification');
-    let [gameId, playerId] = this.localDb.getGameIdAndPlayerIdForNotificationId_(notificationId);
+    let [gameId, playerId] = this.localDb.getGameIdAndPlayerIdForNotificationId(notificationId);
     this.localDb.set(
-        this.localDb.getNotificationPath_(gameId, playerId, notificationId).concat(["seenTime"]),
+        this.localDb.getNotificationPath(gameId, playerId, notificationId).concat(["seenTime"]),
         new Date() / 1000);
   }
   addReward(rewardId, rewardCategoryId, args) {
     this.checkIdNotTaken(rewardId, 'reward');
     this.checkId(rewardCategoryId, 'rewardCategory');
     this.checkRequestArgs(args, SERVER_REWARD_PROPERTIES);
-    let gameId = this.localDb.getGameIdForRewardCategoryId_(rewardCategoryId);
+    let gameId = this.localDb.getGameIdForRewardCategoryId(rewardCategoryId);
     this.localDb.insert(
-        this.localDb.getRewardPath_(gameId, rewardCategoryId, null),
+        this.localDb.getRewardPath(gameId, rewardCategoryId, null),
         null,
         newReward(rewardId, Utils.merge(args, {
           code: "" + Math.random(),
@@ -246,7 +248,7 @@ class FakeServer {
     let properties = Utils.copyOf(args);
     properties.playerId = null;
     this.localDb.insert(
-        this.localDb.getGunsPath_(),
+        this.localDb.getGunPath(null),
         null,
         properties);
   }
@@ -269,7 +271,7 @@ class FakeServer {
           this.localDb.insert(
               playerPath.concat(["rewards"]),
               null,
-              newPlayerReward(Bridge.generatePlayerRewardId(), {
+              newClaim(Bridge.generateClaimId(), {
                 rewardCategoryId: rewardCategory.id,
                 rewardId: reward.id,
               }));
@@ -287,17 +289,14 @@ class FakeServer {
   }
   infect(infectionId, infectorPlayerId, infecteeLifeCode) {
     this.checkId(infectorPlayerId, 'player');
-    let infectorPlayerPath = this.localDb.pathForId(infectorPlayerId);
-    let gameId = infectorPlayerPath[1];
-    let players = this.localDb.get(["games", gameId, "players"]);
-    let infecteePlayerIndex = null;
+    let gameId = this.localDb.getGameIdForPlayerId(infectorPlayerId);
+    let players = this.localDb.get(this.localDb.getPlayerPath(gameId, null));
     let infecteePlayer = null;
     for (let i = 0; i < players.length; i++) {
       let player = players[i];
       if (player.lives.length) {
         let life = player.lives[player.lives.length - 1];
         if (life.code == infecteeLifeCode) {
-          infecteePlayerIndex = i;
           infecteePlayer = player;
           break;
         }
@@ -306,9 +305,11 @@ class FakeServer {
     if (!infecteePlayer) {
       throw 'No player found with life code ' + infecteeLifeCode;
     }
-    this.localDb.set(infectorPlayerPath.concat(["points"]),
+    let infectorPlayerPath = this.localDb.getPlayerPath(gameId, infectorPlayerId);
+    this.localDb.set(
+        this.localDb.getPlayerPath(gameId, infectorPlayerId).concat(["points"]),
         this.localDb.get(infectorPlayerPath.concat(["points"])) + 2);
-    let infecteePlayerPath = ["games", gameId, "players", infecteePlayerIndex];
+    let infecteePlayerPath = this.localDb.getPlayerPath(gameId, infecteePlayer.id);
     this.localDb.insert(
         infecteePlayerPath.concat(["infections"]),
         null,
@@ -323,9 +324,10 @@ class FakeServer {
   }
   addLife(lifeId, playerId, code) {
     this.checkId(playerId, 'player');
-    let playerPath = this.localDb.pathForId(playerId);
+    let gameId = this.localDb.getGameIdForPlayerId(playerId);
+    let playerPath = this.localDb.getPlayerPath(gameId, playerId);
     this.localDb.insert(
-        playerPath.concat(["lives"]),
+        this.localDb.getLifePath(gameId, playerId, null),
         null,
         newLife(lifeId, {code: code}));
     let player = this.localDb.get(playerPath);

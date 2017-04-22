@@ -17,17 +17,17 @@ Bridge.generateNotificationId = () => Utils.generateId("notification");
 Bridge.generateRewardCategoryId = () => Utils.generateId("rewardCategory");
 Bridge.generateRewardId = () => Utils.generateId("reward");
 Bridge.generateMembershipId = () => Utils.generateId("membership");
-Bridge.generatePlayerRewardId = () => Utils.generateId("playerReward");
+Bridge.generateClaimId = () => Utils.generateId("claim");
 
 const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
-const SERVER_GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer"];
+const SERVER_GAME_PROPERTIES = ["name", "rulesUrl", "stunTimer"];
 const SERVER_USER_PROPERTIES = [];
 const SERVER_CHAT_ROOM_PROPERTIES = ["name", "allegianceFilter"];
 const SERVER_MESSAGE_PROPERTIES = ["message"];
 const SERVER_MISSION_PROPERTIES = ["beginTime", "endTime", "name", "url", "allegianceFilter"];
 const SERVER_REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed"];
 const SERVER_REWARD_PROPERTIES = [];
-const SERVER_GUN_PROPERTIES = ["number"];
+const SERVER_GUN_PROPERTIES = [];
 const SERVER_NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate", "destination", "icon"];
 const SERVER_NOTIFICATION_PROPERTIES = ["message", "previewMessage", "sound", "vibrate", "app", "email", "destination"];
 

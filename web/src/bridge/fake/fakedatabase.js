@@ -22,6 +22,9 @@ class FakeDatabase {
     Utils.set(this.database, path, Utils.copyOf(value));
   }
   insert(path, index, value) {
+    assert(path instanceof Array);
+    assert(value && typeof value == 'object');
+    assert(index === null || typeof index == 'number');
     this.delegate.broadcastOperation(
         {type: 'insert', path: path, value: Utils.copyOf(value), index: index});
     Utils.insert(this.database, path, index, Utils.copyOf(value));
