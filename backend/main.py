@@ -20,6 +20,20 @@ auth = firebase.FirebaseAuthentication(constants.FIREBASE_SECRET,
 firebase = firebase.FirebaseApplication('https://trogdors-29fa4.firebaseio.com', authentication=auth)
 flask_cors.CORS(app)
 
+class AppError(Exception):
+    status_code = 500
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
 @app.route('/')
 def index():
   return "<h1>Welcome To Google HVZ (backend)!</h1>"
@@ -32,12 +46,16 @@ def get_testdata():
 
 @app.route('/register', methods=['POST'])
 def register():
-  userId = request.headers.get('userId')
-  userdata = {
-    'registered': True
-  }
-  firebase.put('/users', userId, userdata)
-  return ''
+  try:
+    data = request.get_json()
+    userId = data['userToken']
+    userdata = {
+        'registered': True
+    }
+    firebase.put('/users', userId, userdata)
+    return ''
+  except:
+    return AppError("There was an app error")
 
 @app.route('/creategame', methods=['POST'])
 def new_game():
