@@ -44,6 +44,7 @@ def get_testdata():
   testdata = firebase.get('testdata', None)
   return jsonify(testdata)
 
+
 @app.route('/register', methods=['POST'])
 def register():
   try:
@@ -57,11 +58,12 @@ def register():
   except:
     return AppError("There was an app error")
 
+
 @app.route('/creategame', methods=['POST'])
 def new_game():
   request_data = request.get_json()
-  gameId = request_data['gameId']
-  adminUserId = request_data['adminUserId']
+  game = request_data['gameId']
+  adminUser = request_data['adminUserId']
   name = request_data.get('name', '')
   rulesUrl = request_data.get('rulesUrl', '')
   stunTimer = request_data.get('stunTimer', '')
@@ -72,8 +74,8 @@ def new_game():
     'stunTimer': stunTimer,
     'active': True
   }
-  firebase.put('/games', gameId, put_data)
-  return ''
+  return jsonify(firebase.put('/games', game, put_data))
+
 
 @app.route('/addGun', methods=['POST'])
 def add_gun():
@@ -83,7 +85,8 @@ def add_gun():
   put_data = {
     'playerId': '',
   }
-  return repr(firebase.put('/guns', gun, put_data))
+  return jsonify(firebase.put('/guns', gun, put_data))
+
 
 @app.route('/assignGun', methods=['POST'])
 def assign_gun():
@@ -94,7 +97,23 @@ def assign_gun():
   put_data = {
     'playerId': player,
   }
-  return repr(firebase.put('/guns', gun, put_data))
+  return jsonify(firebase.put('/guns', gun, put_data))
+
+
+@app.route('/updatePlayer', methods=['POST'])
+def update_player():
+  request_data = request.get_json()
+  player = request_data['playerId']
+  game = request_data['gameId']
+
+  put_data = {}
+  for property in ['name', 'needGun', 'profileImageUrl', 'startAsZombie', 'volunteer']:
+    if property in request_data:
+      put_data[property] = request_data[property]
+
+  path = '/games/%s/players/%s' % (game, player)
+  print '%s => %s' % (path, repr(put_data))
+  return jsonify(firebase.patch(path, put_data, {'print': 'pretty'}))
 
 
 @app.route('/addMission', methods=['POST'])
@@ -128,4 +147,3 @@ def update_mission():
 
   path = '/games/%s/missions/%s' % (game, mission)
   return jsonify(firebase.patch(path, put_data))
-
