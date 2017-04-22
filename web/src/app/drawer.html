@@ -77,8 +77,13 @@
       },
 
       computeChatPage_(chatRoomId) {
-        return "page/" + chatRoomId;
+        return "chat/" + chatRoomId;
       },
+
+      signOut_(e) {
+        this.fire('ghvz-sign-out');
+        e.stopPropagation();
+      }
     });
   });
 </script>
@@ -203,7 +208,7 @@
           Chat
         </a>
         <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
-          <a href="javascript:void(0)" data-page="[[computeChatPage_(chatRoom.id)]]" class="drawer-item">
+          <a href="javascript:void(0)" data-page$="[[computeChatPage_(chatRoom.id)]]" class="drawer-item">
             <iron-icon icon="communication:chat"></iron-icon>
             [[chatRoom.name]]
           </a>
@@ -213,7 +218,7 @@
 
     <div class="drawer-section">
       <template is="dom-if" if="[[user]]">
-        <a href="javascript:void(0)" class="drawer-item">
+        <a href="javascript:void(0)" class="drawer-item" on-tap="signOut_">
           <iron-icon icon="icons:account-circle"></iron-icon>
           Sign Out
         </a>

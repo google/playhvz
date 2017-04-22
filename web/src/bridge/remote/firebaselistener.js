@@ -4,13 +4,16 @@ class FirebaseListener {
   constructor(localDb, firebaseRoot) {
     this.localDb = localDb;
     this.firebaseRoot = firebaseRoot;
-    this.listenToUsers();
     this.shallowListenToGames();
     this.listenToGuns();
   }
   listenToGame(gameId) {
     this.deepListenToGame(gameId);
     this.listenToGame = () => throwError("Can't call listenToGame twice!");
+  }
+  listenToUser(userId) {
+    this.deepListenToUser(userId);
+    this.listenToUser = () => throwError("Can't call listenToUser twice!");
   }
 
   listenForPropertyChanges_(collectionRef, properties, collections, setCallback) {
@@ -56,20 +59,6 @@ class FirebaseListener {
     });
   }
 
-  listenToUsers() {
-    this.firebaseRoot.child("users").on("child_added", (snap) => {
-      let userId = snap.getKey();
-      let obj = newUser(userId, snap.val());
-      this.localDb.insert(this.localDb.getUserPath_(null), null, obj);
-      this.listenForPropertyChanges_(
-          snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
-          (property, value) => {
-            this.localDb.set(this.localDb.getUserPath_(userId).concat([property]), value);
-          });
-      this.listenToUserPlayers_(userId);
-    });
-  }
-
   listenToUserPlayers_(userId) {
     var ref = this.firebaseRoot.child("users/" + userId + "/players");
     ref.on("child_added", (snap) => {
@@ -101,12 +90,41 @@ class FirebaseListener {
   }
 
   deepListenToGame(gameId) {
+    this.listenToAdmins_(gameId);
     this.listenToMissions_(gameId);
     this.listenToChatRooms_(gameId);
     this.listenToQuizQuestions_(gameId);
     this.listenToPlayers_(gameId);
     this.listenToRewardCategories_(gameId);
     this.listenToNotificationCategories_(gameId);
+  }
+
+  // listenToUsers() {
+  //   this.firebaseRoot.child("users").on("child_added", (snap) => {
+  //     let userId = snap.getKey();
+  //     let obj = newUser(userId, snap.val());
+  //     this.localDb.insert(this.localDb.getUserPath_(null), obj, null);
+  //     this.listenForPropertyChanges_(
+  //         snap.ref, USER_PROPERTIES, USER_COLLECTIONS,
+  //         (property, value) => {
+  //           this.localDb.set(this.localDb.getUserPath_(userId).concat([property]), value);
+  //         });
+  //     this.listenToUserPlayers_(userId);
+  //   });
+  // }
+
+  deepListenToUser(userId) {
+    let ref = this.firebaseRoot.child("users/" + userId);
+    ref.once("value").then((snap) => {
+      let obj = newUser(userId, snap.val());
+      this.localDb.insert(this.localDb.getUserPath_(null), null, obj);
+      this.listenForPropertyChanges_(
+          ref, USER_PROPERTIES, USER_COLLECTIONS,
+          (property, value) => {
+            this.localDb.set(this.localDb.getUserPath_(userId).concat([property]), value);
+          });
+      this.listenToUserPlayers_(userId);
+    });
   }
 
   listenToMissions_(gameId) {

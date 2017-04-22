@@ -224,12 +224,14 @@ class FakeServer {
     this.checkId(rewardCategoryId, 'rewardCategory');
     this.checkRequestArgs(args, SERVER_REWARD_PROPERTIES);
     let gameId = this.localDb.getGameIdForRewardCategoryId_(rewardCategoryId);
-    let properties = Utils.copyOf(args);
-    properties.playerId = null;
     this.localDb.insert(
         this.localDb.getRewardPath_(gameId, rewardCategoryId, null),
         null,
-        newReward(rewardId, properties));
+        newReward(rewardId, Utils.merge(args, {
+          code: "" + Math.random(),
+          rewardCategoryId: rewardCategoryId,
+          playerId: null,
+        })));
   }
   addRewards(rewardCategoryId, numToAdd) {
     for (let i = 0; i < numToAdd; i++) {

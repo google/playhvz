@@ -10,6 +10,23 @@
         properties: {
           game: String,
         },
+
+        listeners: {
+          'tap': 'captureTap_',
+        },
+
+        captureTap_(e) {
+          let page = e.target.dataset.page;
+          this.fire('ghvz-open-page', {
+            page: page,
+          });
+          e.preventDefault();
+          e.stopPropagation();
+        },
+
+        computeChatPage_(chatRoomId) {
+          return "chat/" + chatRoomId;
+        },
       });
     });
   </script>
@@ -18,25 +35,33 @@
       display: block;
     }
     .frame {
-      border-right: 1px solid darkgray;
       padding-left: 8px;
       padding-right: 8px;
-      padding-top: 4px;
-      padding-bottom: 4px;
     }
     .listing {
-      padding-top: 4px;
-      padding-bottom: 4px;
+      align-items: center;
+      padding-bottom: 8px;
+      padding-top: 8px;
+      height: 48px;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+      text-overflow: ellipsis;
+    }
+    .icon {
+      width: 24px;
+      height: 24px;
+      padding-right: 8px;
     }
   </style>
   <template>
-  <div class="frame">
-    <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
-      <div class="layout horizontal listing">
-            <iron-icon icon="communication:chat"></iron-icon>
-            <div>[[chatRoom.name]]</div>
-            </div>
-        </template>
-      </div>
+    <div class="frame" on-tap="captureTap_">
+      <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
+        <a href="javascript:void(0)" data-page$="[[computeChatPage_(chatRoom.id)]]" class="layout horizontal listing">
+          <iron-icon icon="communication:chat" class="icon"></iron-icon>
+          [[chatRoom.name]]
+        </a>
+      </template>
+    </div>
   </template>
 </dom-module>

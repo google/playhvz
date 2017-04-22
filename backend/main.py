@@ -20,6 +20,20 @@ auth = firebase.FirebaseAuthentication(constants.FIREBASE_SECRET,
 firebase = firebase.FirebaseApplication('https://trogdors-29fa4.firebaseio.com', authentication=auth)
 flask_cors.CORS(app)
 
+class AppError(Exception):
+    status_code = 500
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
 @app.route('/')
 def index():
   return "<h1>Welcome To Google HVZ (backend)!</h1>"
@@ -31,20 +45,105 @@ def get_testdata():
   return jsonify(testdata)
 
 
+@app.route('/register', methods=['POST'])
+def register():
+  try:
+    request_data = request.get_json()
+    userId = request_data['userToken']
+    put_data = {
+        'registered': True
+    }
+    firebase.put('/users', userId, put_data)
+    return ''
+  except:
+    return AppError("There was an app error")
+
+
 @app.route('/creategame', methods=['POST'])
 def new_game():
-  data = request.get_json()
-  gameId = data['gameId']
-  adminUserId = data['adminUserId']
-  name = request.args.get('name', '')
-  rulesUrl = request.args.get('rulesUrl', '')
-  stunTimer = request.args.get('stunTimer', '')
+  request_data = request.get_json()
+  game = request_data['gameId']
+  adminUser = request_data['adminUserId']
+  name = request_data.get('name', '')
+  rulesUrl = request_data.get('rulesUrl', '')
+  stunTimer = request_data.get('stunTimer', '')
 
-  gamedata = {
+  put_data = {
     'name': name,
     'rulesUrl': rulesUrl,
     'stunTimer': stunTimer,
     'active': True
   }
-  firebase.put('/games', gameId, gamedata)
-  return ''
+  return jsonify(firebase.put('/games', game, put_data))
+
+
+@app.route('/addGun', methods=['POST'])
+def add_gun():
+  request_data = request.get_json()
+  gun = request_data['gunId']
+
+  put_data = {
+    'playerId': '',
+  }
+  return jsonify(firebase.put('/guns', gun, put_data))
+
+
+@app.route('/assignGun', methods=['POST'])
+def assign_gun():
+  request_data = request.get_json()
+  gun = request_data['gunId']
+  player = request_data['playerId']
+
+  put_data = {
+    'playerId': player,
+  }
+  return jsonify(firebase.put('/guns', gun, put_data))
+
+
+@app.route('/updatePlayer', methods=['POST'])
+def update_player():
+  request_data = request.get_json()
+  player = request_data['playerId']
+  game = request_data['gameId']
+
+  put_data = {}
+  for property in ['name', 'needGun', 'profileImageUrl', 'startAsZombie', 'volunteer']:
+    if property in request_data:
+      put_data[property] = request_data[property]
+
+  path = '/games/%s/players/%s' % (game, player)
+  print '%s => %s' % (path, repr(put_data))
+  return jsonify(firebase.patch(path, put_data, {'print': 'pretty'}))
+
+
+@app.route('/addMission', methods=['POST'])
+def add_mission():
+  request_data = request.get_json()
+  game = request_data['gameId']
+  mission = request_data['missionId']
+
+  put_data = {
+    'name': request_data['name'],
+    'begin': request_data['begin'],
+    'end': request_data['end'],
+    'url': request_data['url'],
+    'allegiance': request_data['allegiance'],
+  }
+
+  path = '/games/%s/missions' % game
+  return jsonify(firebase.put(path, mission, put_data))
+
+
+@app.route('/updateMission', methods=['POST'])
+def update_mission():
+  request_data = request.get_json()
+  game = request_data['gameId']
+  mission = request_data['missionId']
+
+  put_data = {}
+  for property in ['name', 'begin', 'end', 'url', 'allegiance']:
+    if property in request_data:
+      put_data[property] = request_data[property]
+
+  path = '/games/%s/missions/%s' % (game, mission)
+  return jsonify(firebase.patch(path, put_data))
