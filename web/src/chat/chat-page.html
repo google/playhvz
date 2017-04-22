@@ -13,10 +13,19 @@
           user: String,
           game: String,
           player: Object,
+
+          currentChatRoom: {
+            type: Object,
+            value: null,
+          },
         },
 
-        showFirstChat_: function() {
-          return true; //this.game.chatRooms.length > 0;
+        observers: [
+        'onChatRoomChanged_(this.game.chatRooms.*)',
+        ],
+
+        onChatRoomChanged_: function() {
+
         },
       });
     });
@@ -25,18 +34,35 @@
     :host {
       display: block;
     }
+    .chat-window {
+      width: 100%;
+      padding: 8px;
+    }
+    .chat-room-list {
+      max-width: 15%;
+    }
+    .vertical-separator {
+      border-right: 1px solid darkgray;
+    }
   </style>
   <template>
-    <div class="flex layout horizontal">
-      <ghvz-chat-room-list style="max-width: 15%" game="[[game]]"></ghvz-chat-room-list>
-      <template is="dom-if" if="[[showFirstChat_()]]">
-    <ghvz-chat-room
-      bridge="[[bridge]]"
-      game="[[game]]"
-      current-player="[[player]]"
-      chat-room="[[game.chatRooms[0]]]">
-    </ghvz-chat-room>
-    </template>
+    <ghvz-card full spaced>
+      <div class="header">makechatnameherelsdkfjosidjfoweijfs</div>
 
+      <div class="flex layout horizontal">
+        <ghvz-chat-room-list class="chat-room-list" game="[[game]]">
+        </ghvz-chat-room-list>
+        <div class="vertical-separator"></div>
+        <template is="dom-if" if="true">  
+          <ghvz-chat-room
+            bridge="[[bridge]]"
+            game="[[game]]"
+            current-player="[[player]]"
+            chat-room="[[game.chatRooms.0]]"
+            class="chat-window">
+          </ghvz-chat-room>
+        </template>
+      </div>
+    </ghvz-card>
   </template>
 </dom-module>

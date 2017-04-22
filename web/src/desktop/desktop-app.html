@@ -19,7 +19,7 @@
 
         computeShowMainPage_(page) { return page == 'main'; },
         computeShowStatsPage_(page) { return page == 'stats'; },
-        computeShowChatPage_(page) { return page == 'chat'; },
+        computeShowChatPage_(page) { return page == 'chat' || page.startsWith('chat/'); },
         computeShowNotificationsPage_(page) { return page.startsWith('notifications'); },
       });
     });
@@ -57,16 +57,13 @@
     </template>
 
     <template is="dom-if" if="[[computeShowChatPage_(page)]]">
-      <ghvz-card full spaced>
-        <div class="header">Chats</div>
-        <ghvz-chat-page
-            bridge="[[bridge]]"
-            database="[[database]]"
-            game="[[game]]"
-            user="[[user]]"
-            player="[[player]]">
-        </ghvz-chat-page>
-      </ghvz-card>
+      <ghvz-chat-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user="[[user]]"
+          player="[[player]]">
+      </ghvz-chat-page>
     </template>
 
     <template is="dom-if" if="[[computeShowNotificationsPage_(page)]]">
