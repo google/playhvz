@@ -121,6 +121,7 @@ paper-input-container {
 
       listeners: {
         'ghvz-sign-in': 'signIn_',
+        'ghvz-sign-out': 'signOut_',
         'ghvz-open-page': 'handleOpenPage_',
         'ghvz-open-drawer': 'openDrawer_',
         'ghvz-close-drawer': 'closeDrawer_',
@@ -232,13 +233,17 @@ paper-input-container {
             .then((userId) => this.userId = userId);
       },
 
+      signOut_() {
+        this.bridge.signOut();
+      },
+
       // Called on any change in userId, gameId, playerId, or games.splices.
       autoNavigate_() {
         if (this.userId && !this.gameId) {
           // Try to figure out what game to put them in.
-          let [gameNumber, ] = this.extractUrl_();
-          if (gameNumber) {
-            let game = this.database.games.find(game => game.number == gameNumber);
+          let [gameId, ] = this.extractUrl_();
+          if (gameId) {
+            let game = this.database.games.find(game => game.id == gameId);
             if (game) {
               this.gameId = game.id;
             } else {

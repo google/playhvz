@@ -274,7 +274,7 @@ class FakeServer {
     this.checkId(rewardCategoryId, 'rewardCategory');
     let rewardCategoryPath = this.database.pathForId(rewardCategoryId);
     this.checkRequestArgs(args, SERVER_REWARD_PROPERTIES);
-    let {code} = args;
+    let code = "" + Math.random();
     this.database.push(rewardCategoryPath.concat(["rewards"]), {
       id: rewardId,
       rewardCategoryId: rewardCategoryId,

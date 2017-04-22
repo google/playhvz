@@ -43,7 +43,6 @@ class NormalRequester {
 
     firebase.auth().currentUser.getToken(false).then((userToken) => {
       urlParams = urlParams || {};
-      urlParams.userToken = userToken;
       var urlParamsStr = "";
       for (var key in urlParams) {
         urlParamsStr +=
@@ -52,9 +51,14 @@ class NormalRequester {
       }
       let url = this.serverUrl + path + (urlParamsStr && "?" + urlParamsStr);
       request.open(verb, url, true);
-      for (var key in this.headers) {
-        request.setRequestHeader(key, this.headers[key]);
+
+      let headers = Utils.copyOf(this.headers);
+      headers.userToken = userToken;
+      headers['Content-Type'] = 'application/json';
+      for (var key in headers) {
+        request.setRequestHeader(key, headers[key]);
       }
+
       if (body) {
         request.send(JSON.stringify(body));
       } else {

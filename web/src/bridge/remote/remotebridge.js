@@ -28,6 +28,7 @@ class RemoteBridge {
               this.userId = result.user.uid;
               this.register(userId)
                   .then(() => {
+                    this.firebaseListener.listenToUser(this.userId);
                     resolve(result.user.uid);
                   });
             }).catch((error) => {
@@ -47,6 +48,7 @@ class RemoteBridge {
       firebase.auth().onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
           this.userId = firebaseUser.uid;
+          this.firebaseListener.listenToUser(this.userId);
           resolve(firebaseUser.uid);
         } else {
           reject();
@@ -69,15 +71,15 @@ class RemoteBridge {
     this.firebaseListener.listenToGame(gameId);
   }
 
-  register(userId) {
-    return this.requester.sendPostRequest('register', {id: userId}, {})
+  register() {
+    return this.requester.sendPostRequest('register', {}, {})
         .then(() => {
           return userId;
         })
   }
 
   createGame(gameId, adminUserId, {name, rulesUrl, stunTimer}) {
-    this.requester.sendPutRequest(
+    this.requester.sendPostRequest(
         'createGame',
         {id: gameId, adminUserId: adminUserId},
         {
@@ -88,7 +90,7 @@ class RemoteBridge {
   }
 
   joinGame(playerId, userId, gameId, {name, needGun, profileImageUrl, startAsZombie, volunteer}) {
-    this.requester.sendPutRequest(
+    this.requester.sendPostRequest(
         'joinGame',
         {id: playerId, userId: userId, gameId: gameId},
         {
@@ -98,5 +100,13 @@ class RemoteBridge {
           startAsZombie: startAsZombie,
           volunteer: volunteer,
         });
+  }
+
+  addGun({id}) {
+    this.requester.sendPostRequest('addGun', {}, {gunId: id});
+  }
+
+  assignGun({gunId, playerId}) {
+    this.requester.sendPostRequest('assignGun', {}, {gunId: gunId, playerId: playerId});
   }
 }
