@@ -13,6 +13,7 @@
           user: String,
           game: String,
           player: Object,
+          page: String,
 
           currentChatRoom: {
             type: Object,
@@ -21,11 +22,41 @@
         },
 
         observers: [
-        'onChatRoomChanged_(this.game.chatRooms.*)',
+          'onPageChanged_(page, game.chatRooms.*)',
+          //'onChatRoomChanged_(page)',
         ],
 
-        onChatRoomChanged_: function() {
+        onPageChanged_() {
+          if (this.page == "chat" || this.page.startsWith('chat/')) {
+            let chatRoomId;
+            if (this.page.includes('/')) {
+              chatRoomId = this.page.split('/')[1];
+            }
+            if (chatRoomId) {
+              this.$.chatRoomSelector.select(
+                  this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
+            } else {
+              if (this.game.chatRooms.length > 0) {
+                this.async(() => {
+                  chatRoomId = this.game.chatRooms[0].id;
+                  var page = "chat/" + chatRoomId;
+                  this.fire('ghvz-open-page', {
+                    page: page,
+                  });
+                });
+              }
+            }
+          }
+        },
 
+        extractChatRoomIdFromUrl_() {
+          let initialUrl = window.location.pathname;
+          let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
+          if (!match) {
+            return null;
+          }
+          let chatRoomId = match[1];
+          return chatRoomId;
         },
       });
     });
@@ -46,8 +77,9 @@
     }
   </style>
   <template>
+    <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
     <ghvz-card full spaced>
-      <div class="header">makechatnameherelsdkfjosidjfoweijfs</div>
+      <div class="header">[[currentChatRoom.name]]</div>
 
       <div class="flex layout horizontal">
         <ghvz-chat-room-list class="chat-room-list" game="[[game]]">
@@ -58,7 +90,7 @@
             bridge="[[bridge]]"
             game="[[game]]"
             current-player="[[player]]"
-            chat-room="[[game.chatRooms.0]]"
+            chat-room="[[currentChatRoom]]"
             class="chat-window">
           </ghvz-chat-room>
         </template>

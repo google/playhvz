@@ -288,7 +288,7 @@ paper-input-container {
 
       extractUrl_() {
         let initialUrl = window.location.pathname;
-        let match = /(\w+)(?:\/([\w-/]+))?/.exec(initialUrl);
+        let match = /(\w+)(?:\/([\w/-]+))?/.exec(initialUrl);
         if (!match) {
           return [null, null, null];
         }
