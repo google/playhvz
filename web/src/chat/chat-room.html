@@ -31,19 +31,13 @@
           return senderId === myId ? 'message-from-me' : 'message-from-other';
         },
 
-        /**
-        * Sends messages to the server and retrieves any messages since last 
-        * check. 
-        */
         onSendClicked_: function() {
           if (!this.$.messageInput.value) {
             return;
           }
           this.bridge.addMessageToChatRoom(Bridge.generateMessageId(), this.chatRoom.id, 
             this.currentPlayer.id, {message: this.$.messageInput.value});
-          this.$.messageInput.value = "";  
-
-          var afterId = this.chatRoom.messages.slice(-1)[0].id;
+          this.$.messageInput.value = "";
         },
 
         /**
