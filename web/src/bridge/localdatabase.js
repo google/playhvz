@@ -1,5 +1,5 @@
 
-const GUN_PROPERTIES = ["number", "playerId"];
+const GUN_PROPERTIES = ["playerId"];
 const GUN_COLLECTIONS = [];
 function newGun(id, args) {
   let obj = {id: id};
@@ -21,12 +21,12 @@ const USER_PLAYER_PROPERTIES = ["gameId", "playerId"];
 const USER_PLAYER_COLLECTIONS = [];
 function newUserPlayer(id, args) {
   let obj = {id: id};
-  Utils.copyProperties(obj, args, USER_PROPERTIES);
-  Utils.addEmptyLists(obj, USER_COLLECTIONS);
+  Utils.copyProperties(obj, args, USER_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(obj, USER_PLAYER_COLLECTIONS);
   return obj;
 }
 
-const GAME_PROPERTIES = ["name", "number", "rulesUrl", "stunTimer", "quizQuestions"];
+const GAME_PROPERTIES = ["active", "name", "number", "rulesUrl", "stunTimer"];
 const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories"];
 function newGame(id, args) {
   let obj = {id: id};
@@ -107,8 +107,8 @@ function newNotificationCategory(id, args) {
   return obj;
 }
 
-const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer"];
-const PLAYER_COLLECTIONS = ["infections", "lives", "rewards", "notifications",];
+const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
+const PLAYER_COLLECTIONS = ["infections", "lives", "rewards", "notifications"];
 function newPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, PLAYER_PROPERTIES);
@@ -278,6 +278,14 @@ class LocalDatabase {
     let path = this.getPlayerPath_(gameId, playerId).concat(["notifications"]);
     if (notificationId)
       path = path.concat([Utils.findIndexById(this.get(path), notificationId)]);
+    return path;
+  }
+  getAdminPath_(gameId, adminId) {
+    assert(gameId);
+    assert(typeof adminId == 'string' || adminId == null);
+    let path = this.getGamePath_(gameId).concat(["admins"]);
+    if (adminId)
+      path = path.concat([Utils.findIndexById(this.get(path), adminId)]);
     return path;
   }
   getMissionPath_(gameId, missionId) {

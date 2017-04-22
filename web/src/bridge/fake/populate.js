@@ -75,10 +75,10 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.addMission(firstMissionId, gameId, {beginTime: new Date().getTime() / 1000 - 10, endTime: new Date().getTime() / 1000 + 60 * 60, name: "first mission!", url: "/firstgame/missions/first-mission.html", allegianceFilter: 'resistance'});
   var rewardCategoryId = Bridge.generateRewardCategoryId();
   server.addRewardCategory(rewardCategoryId, gameId, {name: "signed up!", points: 2, seed: "derp"});
-  server.addReward(Bridge.generateRewardId(), rewardCategoryId, {code: "flarklebark"});
-  server.addReward(Bridge.generateRewardId(), rewardCategoryId, {code: "shooplewop"});
-  server.addReward(Bridge.generateRewardId(), rewardCategoryId, {code: "lololol"});
-  server.claimReward(evanPlayerId, "flarklebark");
+  server.addReward(Bridge.generateRewardId(), rewardCategoryId, {});
+  server.addReward(Bridge.generateRewardId(), rewardCategoryId, {});
+  server.addReward(Bridge.generateRewardId(), rewardCategoryId, {});
+  // server.claimReward(evanPlayerId, "flarklebark");
   for (let i = 0; i < 80; i++) {
     server.addGun(Bridge.generateGunId(), {number: 1404 + i + ""});
   }

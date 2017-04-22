@@ -94,9 +94,9 @@
           return {
             fields: [
               {
-                property: "number",
-                label: "Number",
-                description: "Number on the gun, example 1404.",
+                property: "id",
+                label: "ID",
+                description: "ID on the gun, example 1404.",
               },
             ],
           };
@@ -105,7 +105,7 @@
         addGun_: function() {
           this.$.gunForm.openForAdding()
               .then((properties) => {
-                this.bridge.addGun(Utils.generateId("gun"), properties);
+                this.bridge.addGun(properties);
               });
         },
 
@@ -122,7 +122,10 @@
 
         onSetGunPlayer_: function(e) {
           let playerOrNull = e.detail.playerOrNull;
-          this.bridge.setGunPlayer(this.editingGunIdOrNull, playerOrNull && playerOrNull.id);
+          this.bridge.assignGun({
+            gunId: this.editingGunIdOrNull,
+            playerId: playerOrNull && playerOrNull.id || "",
+          });
           this.appendChild(this.$.travelingPlayerField);
         },
 
@@ -183,7 +186,7 @@
       <template is="dom-repeat" id="repeater" items="[[guns]]" as="gun" initial-count="1" target-framerate="5">
         <div class="row">
           <ghvz-table-control-cell item="[[gun]]"></ghvz-table-control-cell>
-          <div class="cell">[[gun.number]]</div>
+          <div class="cell">[[gun.id]]</div>
           <div class="cell">
             <div class="player-label">
               <div class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>
