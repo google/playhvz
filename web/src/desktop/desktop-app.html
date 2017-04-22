@@ -19,7 +19,7 @@
 
         computeShowMainPage_(page) { return page == 'main'; },
         computeShowStatsPage_(page) { return page == 'stats'; },
-        computeShowChatPage_(page) { return page == 'chat'; },
+        computeShowChatPage_(page) { return page == 'chat' || page.startsWith('chat/'); },
         computeShowNotificationsPage_(page) { return page.startsWith('notifications'); },
       });
     });
