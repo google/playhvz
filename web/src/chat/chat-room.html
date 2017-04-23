@@ -12,6 +12,11 @@
           game: Object,
           currentPlayer: Object,
 
+          isAttached: {
+            type: Boolean,
+            value: null,
+          },
+
           chatRoom: {
             type: Object,
             value: function() { return {}; },
@@ -29,16 +34,16 @@
         },
 
         observers: [
-          'onChatRoomNameChange_(chatRoom.name)',
+          'onChatRoomNameChange_(chatRoom.name, isAttached)',
         ],
 
-        attached: function(chatRoom) {
+        attached: function() {
+          this.isAttached = true;
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
         },
 
         onChatRoomNameChange_() {
-          console.log(this.chatRoom.name);
-          this.fire('ghvz-set-card-header', { header: this.chatRoom.name });
+          this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
         },
 
         computeMessageDisplayClass_(senderId, myId) {
