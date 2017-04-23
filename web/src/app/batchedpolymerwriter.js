@@ -31,12 +31,13 @@ class BatchedPolymerWriter {
           this.component.notifyPath(targetPath, value);
           break;
         case 'insert':
+          let array = Utils.get(property, path);
           this.component.notifySplices(targetPath, [
               {
-                index: index,
+                index: index === null ? array.length : index,
                 removed: [],
                 addedCount: 1,
-                object: Utils.get(property, path),
+                object: array,
                 type: 'splice'
               }]);
           break;
