@@ -63,14 +63,7 @@ paper-input-container {
 
         database: {
           type: Object,
-          value: () => ({
-            gunsById: {},
-            guns: [],
-            games: [],
-            gamesById: {},
-            users: [],
-            usersById: {},
-          }),
+          value: () => ({}),
         },
 
         userId: {
@@ -203,25 +196,7 @@ paper-input-container {
       },
 
       makeBridgeDelegate_: function() {
-        return {
-          set: (path, value) => {
-            // console.log('Local set', path, value);
-            this.set('database.' + path.join("."), value);
-          },
-          insert: (path, indexOrNull, value) => {
-            // console.log('Local insert', path, value);
-            if (indexOrNull == null)
-              this.push('database.' + path.join("."), value);
-            else
-              this.splice('database.' + path.join("."), indexOrNull, 0, value);
-          },
-          remove: (path, index) => {
-            assert(false); // implement
-          },
-          get: (path) => {
-            return this.get('database.' + path.join("."));
-          },
-        };
+        return new BatchedPolymerWriter(this, 'database');
       },
 
       computeShowSignInButton_(userId, user) {

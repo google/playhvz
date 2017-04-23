@@ -259,6 +259,7 @@ Utils.get = function(obj, path) {
 Utils.set = function(obj, path, value) {
   assert(path.length);
   return (function innerSet(obj, path, value) {
+    assert(obj);
     if (!path || !path.length) {
       throwError('no path!');
     } else if (path.length == 1) {
@@ -270,6 +271,7 @@ Utils.set = function(obj, path, value) {
 }
 Utils.insert = function(obj, path, index, value) {
   return (function innerInsert(obj, path, index, value) {
+    assert(obj);
     if (path.length == 0) {
       if (index == null)
         obj.push(value);
@@ -282,6 +284,7 @@ Utils.insert = function(obj, path, index, value) {
 }
 Utils.remove = function(obj, path, index) {
   (function innerRemove(obj, path, index) {
+    assert(obj);
     if (path.length == 0) {
       obj.splice(index, 1);
     } else {

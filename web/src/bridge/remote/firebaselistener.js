@@ -3,23 +3,24 @@
 class FirebaseListener {
   constructor(farWriter, firebaseRoot) {
 
-    this.gatedFarWriter = new GatedWriter(farWriter);
+    this.gatedFarWriter = new GatedWriter(farWriter, true);
 
     let nearPincushion = {};
-    let nearPincushionWriter = new PlainWriter(nearPincushion);
-    let teeWriter = new TeeWriter(nearPincushionWriter, this.gatedFarWriter);
-    let mappingWriter = new MappingWriter(teeWriter);
-    this.writer = mappingWriter;
 
-    this.nearReader = new Reader(nearPincushion);
+    this.writer =
+        new TeeWriter(
+            new MappingWriter(new SimpleWriter(nearPincushion)),
+            new MappingWriter(this.gatedFarWriter));
 
+    this.nearReader = new Reader(new SimpleReader(nearPincushion));
+
+    this.gatedFarWriter.closeGate();
     this.writer.set(this.nearReader.getGunPath(null), []);
     this.writer.set(this.nearReader.getGamePath(null), []);
     this.writer.set(this.nearReader.getUserPath(null), []);
+    this.gatedFarWriter.openGate();
 
     this.firebaseRoot = firebaseRoot;
-    this.shallowListenToGames();
-    this.listenToGuns();
   }
   listenToGame(gameId) {
     this.deepListenToGame(gameId);
@@ -27,6 +28,8 @@ class FirebaseListener {
   }
   listenToUser(userId) {
     this.deepListenToUser(userId);
+    this.shallowListenToGames();
+    this.listenToGuns();
     this.listenToUser = () => throwError("Can't call listenToUser twice!");
   }
 
@@ -64,6 +67,8 @@ class FirebaseListener {
     assert(!this.gatedFarWriter.isGateOpen());
     if (this.nearReader.isConsistent()) {
       this.gatedFarWriter.openGate();
+    } else {
+      assert(false);
     }
   }
 
@@ -118,11 +123,15 @@ class FirebaseListener {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       let gameId = snap.getKey();
       let obj = newGame(gameId, snap.val());
-      this.writer.insert(this.nearReader.getGamePath(null), null, obj);
+      this.gatedWrite(
+          () => this.writer.insert(this.nearReader.getGamePath(null), null, obj),
+          () => this.nearReader.isGameConsistent(gameId));
       this.listenForPropertyChanges_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS,
           (property, value) => {
-            this.writer.set(this.nearReader.getGamePath(gameId).concat([property]), value);
+            this.gatedWrite(
+                () => this.writer.set(this.nearReader.getGamePath(gameId).concat([property]), value),
+                () => this.nearReader.isGameConsistent(gameId));
           });
     });
     this.firebaseRoot.child("games").on("child_removed", (snap) => {
@@ -131,11 +140,11 @@ class FirebaseListener {
   }
 
   deepListenToGame(gameId) {
+    this.listenToPlayers_(gameId);
     this.listenToAdmins_(gameId);
     this.listenToMissions_(gameId);
     this.listenToChatRooms_(gameId);
     this.listenToQuizQuestions_(gameId);
-    this.listenToPlayers_(gameId);
     this.listenToRewardCategories_(gameId);
     this.listenToNotificationCategories_(gameId);
   }
@@ -159,11 +168,15 @@ class FirebaseListener {
     ref.on("child_added", (snap) => {
       let adminId = snap.getKey();
       let obj = newAdmin(adminId, snap.val());
-      this.writer.insert(this.nearReader.getAdminPath(gameId, null), null, obj);
+      this.gatedWrite(
+          () => this.writer.insert(this.nearReader.getAdminPath(gameId, null), null, obj),
+          () => this.nearReader.isAdminConsistent(gameId, adminId));
       this.listenForPropertyChanges_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
           (property, value) => {
-            this.writer.set(this.nearReader.getAdminPath(gameId, adminId).concat([property]), value);
+            this.gatedWrite(
+                () => this.writer.set(this.nearReader.getAdminPath(gameId, adminId).concat([property]), value),
+                () => this.nearReader.isAdminConsistent(gameId, adminId));
           });
     });
   }
@@ -291,25 +304,40 @@ class FirebaseListener {
       let playerId = gamePlayerSnap.getKey();
       let obj = newPlayer(playerId, gamePlayerSnap.val());
       let userId = obj.userId;
-      this.firebaseRoot.child("users/" + userId + "/players/" + playerId).once("value")
-          .then((userPlayerSnap) => {
-            this.writer.insert(this.nearReader.getPlayerPath(gameId, null), null, obj);
-            this.listenForPropertyChanges_(
-                gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
-                (property, value) => {
-                  this.writer.set(this.nearReader.getPlayerPath(gameId, playerId).concat([property]), value);
-                });
-            this.listenForPropertyChanges_(
-                userPlayerSnap,
-                USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
-                (property, value) => {
-                  this.writer.set(this.nearReader.getPlayerPath(gameId, playerId).concat([property]), value);
-                });
-            this.listenToClaims_(gameId, playerId);
-            this.listenToLives_(userId, playerId, gameId);
-            this.listenToInfections_(gameId, playerId);
-            this.listenToNotifications_(userId, playerId, gameId);
-          });
+      if (this.userId == userId) {
+        this.firebaseRoot.child("users/" + userId + "/players/" + playerId).once("value")
+            .then((userPlayerSnap) => {
+              this.gatedWrite(
+                  () => this.writer.insert(this.nearReader.getPlayerPath(gameId, null), null, obj),
+                  () => this.nearReader.isPlayerConsistent(playerId));
+              this.listenForPropertyChanges_(
+                  gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
+                  (property, value) => {
+                    this.writer.set(this.nearReader.getPlayerPath(gameId, playerId).concat([property]), value);
+                  });
+              this.listenForPropertyChanges_(
+                  userPlayerSnap.ref,
+                  USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
+                  (property, value) => {
+                    this.writer.set(this.nearReader.getPlayerPath(gameId, playerId).concat([property]), value);
+                  });
+              this.listenToClaims_(gameId, playerId);
+              this.listenToLives_(userId, playerId, gameId);
+              this.listenToInfections_(gameId, playerId);
+              this.listenToNotifications_(userId, playerId, gameId);
+            });
+      } else {
+        this.gatedWrite(
+            () => this.writer.insert(this.nearReader.getPlayerPath(gameId, null), null, obj),
+            () => this.nearReader.isPlayerConsistent(playerId));
+        this.listenForPropertyChanges_(
+            gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
+            (property, value) => {
+              this.writer.set(this.nearReader.getPlayerPath(gameId, playerId).concat([property]), value);
+            });
+        this.listenToClaims_(gameId, playerId);
+        this.listenToInfections_(gameId, playerId);
+      }
     });
   }
 

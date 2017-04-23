@@ -1,23 +1,12 @@
 'use strict';
 
 class FakeBridge {
-  constructor(delegate, isRegistered, isAdmin, isJoined) {
+  constructor(destination, isRegistered, isAdmin, isJoined) {
     Utils.setDeterministicGenerator();
-    this.delegate = delegate;
-
-    this.localDb = new LocalDatabase({
-      set: (...args) => this.delegate.set(...args),
-      insert: (...args) => this.delegate.insert(...args),
-      remove: (...args) => this.delegate.remove(...args),
-      get: (...args) => this.delegate.get(...args),
-    });
 
     this.databaseOperations = [];
-    var fakeServer = new FakeServer({
-      broadcastDatabaseOperation: (operation) => {
-        this.databaseOperations.push(operation);
-      },
-    });
+    this.gatedWriter = new GatedWriter(destination, false);
+    var fakeServer = new FakeServer(this.gatedWriter);
     var cloningFakeSerer = new CloningWrapper(fakeServer, SERVER_METHODS);
     var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 100);
     this.server = delayingCloningFakeServer;
@@ -63,16 +52,8 @@ class FakeBridge {
     // Do nothing. This method is really just an optimization.
   }
   performOperations_() {
-    for (let operation of this.databaseOperations) {
-      let {type, path, value, index} = operation;
-      switch (type) {
-        case 'set': this.localDb.set(path, value); break;
-        case 'insert': this.localDb.insert(path, index, value); break;
-        case 'remove': this.localDb.remove(path); break;
-        default: throwError('Unknown operation:', operation);
-      }
-    }
-    this.databaseOperations = [];
+    this.gatedWriter.openGate();
+    this.gatedWriter.closeGate();
     setTimeout(() => this.performOperations_(), 100);
   }
 }

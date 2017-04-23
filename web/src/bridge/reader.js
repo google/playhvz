@@ -1,6 +1,7 @@
 class Reader {
   constructor(source) {
     this.source = source;
+    assert(this.source.get);
   }
   get(path) {
     return this.source.get(path);
@@ -228,24 +229,51 @@ class Reader {
   }
 
   getPlayer(gameId, playerId) {
-    return this.get(["games", gameId, "players", playerId]);
+    return this.get(["gamesById", gameId, "playersById", playerId]);
   }
 
   isConsistent() {
-    for (let gun of this.get(this.getGunPath(null))) {
-      if (!this.isGunConsistent(gun)) {
+    for (var gunId in this.get(["gunsById"])) {
+      if (!this.isGunConsistent(gunId)) {
         return false;
       }
     }
     return true;
   }
 
-  isGunConsistent(gun) {
+  isGunConsistent(gunId) {
+    let gun = this.get(["gunsById", gunId]);
     if (gun.playerId) {
       let gameId = this.getGameIdForPlayerId(gun.playerId);
       if (!this.getPlayer(gameId, gun.playerId))
         return false;
     }
+    return true;
+  }
+
+  isGameConsistent(gameId) {
+    return true;
+  }
+
+  isPlayerConsistent(gameId, playerId) {
+    if (!this.get(["gamesById", gameId]))
+      return false;
+    let player = this.get(["gamesById", gameId, "playersById", playerId]);
+    if (!player)
+      return false;
+    let userId = player.userId;
+    if (!this.get(["usersById", userId]))
+      return false;
+    return true;
+  }
+
+  isAdminConsistent(gameId, adminId) {
+    let admin = this.get(["gamesById", gameId, "adminsById", adminId]);
+    let userId = admin.userId;
+    if (!this.get(["usersById", userId]))
+      return false;
+    if (!this.get(["gamesById", gameId]))
+      return false;
     return true;
   }
 }

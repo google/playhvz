@@ -4,6 +4,11 @@ class MappingWriter {
     this.destination = destination;
   }
   set(path, value) {
+    this.mapify(value);
+    if (value instanceof Array) {
+      let array = value;
+      this.destination.set(this.mapifyPath(path), this.arrayToMap(array));
+    }
     this.destination.set(path, value);
   }
   insert(path, indexOrNull, value) {
@@ -12,25 +17,41 @@ class MappingWriter {
     assert(path);
     assert(value);
     assert(indexOrNull == null || typeof indexOrNull == 'number');
-    for (var key in value) {
-      if (value[key] instanceof Array) {
-        let list = value[key];
-        let map = {};
-        for (var elementKey in list) {
-          let element = list[elementKey];
-          assert(element.id);
-          map[element.id] = element;
+    this.mapify(value);
+    let pathInMap = this.mapifyPath(path).concat([value.id]);
+    this.destination.set(pathInMap, value);
+    this.destination.insert(path, indexOrNull, value);
+  }
+  remove(path, index) {
+    this.destination.remove(path, index);
+  }
+  mapify(value) {
+    if (value instanceof Array) {
+      for (let i = 0; i < value.length; i++) {
+        this.mapify(value[i]);
+      }
+    } else if (typeof value == 'object') {
+      for (var key in value) {
+        this.mapify(value[key]);
+        if (value[key] instanceof Array) {
+          value[key + "ById"] = this.arrayToMap(value[key]);;
         }
-        value[key + "ById"] = map;
       }
     }
-    this.destination.insert(path, indexOrNull, value);
+    return value;
+  }
+  arrayToMap(array) {
+    let map = {};
+    for (let i = 0; i < array.length; i++) {
+      let element = array[i];
+      assert(element.id);
+      map[element.id] = element;
+    }
+    return map;
+  }
+  mapifyPath(path) {
     let mapPath = path.slice();
     mapPath[mapPath.length - 1] += "ById";
-    let pathInMap = mapPath.concat([value.id]);
-    this.destination.set(pathInMap, value);
-  }
-  remove(path) {
-    this.destination.remove(path);
+    return mapPath;
   }
 }
