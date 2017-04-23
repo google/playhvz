@@ -292,3 +292,16 @@ Utils.remove = function(obj, path, index) {
     }
   })(obj, path, index);
 }
+
+Utils.catchAndReturn = function(exceptionType, callback) {
+  try {
+    callback();
+    return true;
+  } catch (e) {
+    if (e instanceof exceptionType) {
+      return false;
+    } else {
+      throw e;
+    }
+  }
+};

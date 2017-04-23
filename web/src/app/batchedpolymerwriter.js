@@ -32,6 +32,7 @@ class BatchedPolymerWriter {
           break;
         case 'remove':
           Utils.remove(property, path, index);
+          console.error("implement");
           break;
         default:
           throwError('Unknown operation:', operation);

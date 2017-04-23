@@ -1,3 +1,4 @@
+
 class Reader {
   constructor(source) {
     this.source = source;
@@ -170,8 +171,8 @@ class Reader {
     let path = this.pathForId_(rewardCategoryId);
     return this.source.get(path.slice(0, 2)).id;
   }
-  getGameIdForPlayerId(playerId, allowNotFound) {
-    let path = this.pathForId_(playerId, allowNotFound, ["games"]);
+  getGameIdForPlayerId(playerId, expect) {
+    let path = this.pathForId_(playerId, expect, ["games"]);
     if (path)
       return this.source.get(path.slice(0, 2)).id;
     else
@@ -183,13 +184,14 @@ class Reader {
   }
 
 
-  idExists(id, allowNotFound) {
-    return this.objForId_(id, allowNotFound);
+  idExists(id, expect) {
+    expect = expect === undefined ? true : false; // Default to expecting
+    return this.objForId_(id, expect);
   }
-  objForId_(id, allowNotFound) {
+  objForId_(id, expect) {
     assert(id);
     let result = this.objForIdInner_(this.source.get([]), id);
-    if (!allowNotFound)
+    if (expect)
       assert(result);
     return result;
   }
@@ -208,11 +210,11 @@ class Reader {
     }
     return null;
   }
-  pathForId_(id, allowNotFound, startPath) {
+  pathForId_(id, expect, startPath) {
     startPath = startPath || [];
     assert(id);
     let result = this.pathForIdInner_(startPath, this.source.get(startPath), id);
-    if (!allowNotFound)
+    if (expect)
       assert(result);
     return result;
   }
@@ -234,54 +236,5 @@ class Reader {
 
   getPlayer(gameId, playerId) {
     return this.get(["gamesById", gameId, "playersById", playerId]);
-  }
-
-  isConsistent() {
-    for (var gunId in this.get(["gunsById"])) {
-      if (!this.isGunConsistent(gunId)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  isGunConsistent(gunId) {
-    let gun = this.get(["gunsById", gunId]);
-    if (gun.playerId) {
-      if (!this.idExists(gun.playerId, true))
-        return false;
-      let gameId = this.getGameIdForPlayerId(gun.playerId, true);
-      if (!gameId)
-        return false;
-      if (!this.get(["gamesById", gameId, "playersById", gun.playerId]))
-        return false;
-    }
-    return true;
-  }
-
-  isGameConsistent(gameId) {
-    return true;
-  }
-
-  isPlayerConsistent(gameId, playerId) {
-    if (!this.get(["gamesById", gameId]))
-      return false;
-    let player = this.get(["gamesById", gameId, "playersById", playerId]);
-    if (!player)
-      return false;
-    let userId = player.userId;
-    if (!this.get(["usersById", userId]))
-      return false;
-    return true;
-  }
-
-  isAdminConsistent(gameId, adminId) {
-    let admin = this.get(["gamesById", gameId, "adminsById", adminId]);
-    let userId = admin.userId;
-    if (!this.get(["usersById", userId]))
-      return false;
-    if (!this.get(["gamesById", gameId]))
-      return false;
-    return true;
   }
 }
