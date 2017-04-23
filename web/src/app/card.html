@@ -21,11 +21,18 @@
         },
 
         listeners: {
-          'ghvz-add-toolbar-button': 'addToolbarButton_'
+          'ghvz-add-toolbar-button': 'addToolbarButton_',
+          'ghvz-set-card-header': 'setCardHeader_',
         },
 
         addToolbarButton_: function(event) {
           this.$.buttons.appendChild(event.detail.button);
+        },
+
+        setCardHeader_: function(event) {
+          console.log("setting header");
+          console.log(event.detail);
+          this.$.title.innerText = event.detail.header;
         },
 
         openFullscreen_() {
@@ -105,7 +112,7 @@
           <paper-icon-button id="menu" icon="icons:menu" raised on-tap="openDrawer_">
           </paper-icon-button>
         </template>
-        <div class="text" pad-left$="[[!withMenu]]"><content select=".header"></div>
+        <div id="title" class="text" pad-left$="[[!withMenu]]"><content select=".header"></div>
         <!-- <paper-icon-button class="button" icon="icons:chevron-left"></paper-icon-button>
         <paper-icon-button class="button" icon="icons:chevron-right"></paper-icon-button> -->
         <!-- <paper-icon-button class="header-button" icon="icons:refresh">

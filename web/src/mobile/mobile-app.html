@@ -38,7 +38,8 @@
         }
       },
 
-      statsPageVisible_(secondPage) { return secondPage == 'stats'; }
+      statsPageVisible_(secondPage) { return secondPage == 'stats'; },
+      chatPageVisible_(secondPage) { return secondPage == 'chat' || secondPage.startsWith('chat/');  },
     });
   });
 </script>
@@ -81,6 +82,18 @@
                 game="[[game]]"
                 player="[[player]]">
             </ghvz-stats-page>
+          </ghvz-card>
+        </template>
+        <template is="dom-if" if="[[chatPageVisible_(secondPage)]]">
+          <ghvz-card expand with-menu>
+            <ghvz-chat-page
+                bridge="[[bridge]]"
+                database="[[database]]"
+                user="[[user]]"
+                game="[[game]]"
+                player="[[player]]"
+                page="[[secondPage]]">
+            </ghvz-chat-page>
           </ghvz-card>
         </template>
       </template>

@@ -57,14 +57,16 @@
     </template>
 
     <template is="dom-if" if="[[computeShowChatPage_(page)]]">
-      <ghvz-chat-page
-          bridge="[[bridge]]"
-          database="[[database]]"
-          game="[[game]]"
-          user="[[user]]"
-          player="[[player]]"
-          page="[[page]]">
-      </ghvz-chat-page>
+      <ghvz-card full spaced>
+        <ghvz-chat-page
+            bridge="[[bridge]]"
+            database="[[database]]"
+            game="[[game]]"
+            user="[[user]]"
+            player="[[player]]"
+            page="[[page]]">
+        </ghvz-chat-page>
+      </ghvz-card>
     </template>
 
     <template is="dom-if" if="[[computeShowNotificationsPage_(page)]]">
