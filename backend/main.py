@@ -88,14 +88,34 @@ def add_gun():
   return jsonify(firebase.put('/guns', gun, put_data))
 
 
+@app.route('/gun', methods=['GET'])
+def get_gun():
+  gun = request.args['gunId']
+  return jsonify(firebase.get('/guns', gun))
+
+
 @app.route('/assignGun', methods=['POST'])
 def assign_gun():
   request_data = request.get_json()
+
+  args = ['gameId', 'playerId', 'gunId']
+  if any(a not in request_data for a in args):
+    return AppError('Missing data. assignGun requires: %s' % ', '.join(args))
+
+  game = request_data['gameId']
   gun = request_data['gunId']
   player = request_data['playerId']
 
+  if not firebase.get('/games/%s/name' % game, None):
+    return AppError('Game %s not found.' % game)
+  if not firebase.get('/games/%s/players/%s/name' % (game, player), None):
+    return AppError('Player %s not found.' % player)
+  if not firebase.get('/guns', gun):
+    return AppError('Gun %s not found.' % gun)
+
   put_data = {
     'playerId': player,
+    'gameId': game,
   }
   return jsonify(firebase.put('/guns', gun, put_data))
 
