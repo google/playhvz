@@ -162,7 +162,6 @@ def update_player():
       put_data[property] = request_data[property]
 
   path = '/games/%s/players/%s' % (game, player)
-  print '%s => %s' % (path, repr(put_data))
   return jsonify(firebase.patch(path, put_data, {'print': 'pretty'}))
 
 
