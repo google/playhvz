@@ -170,9 +170,12 @@ class Reader {
     let path = this.pathForId_(rewardCategoryId);
     return this.source.get(path.slice(0, 2)).id;
   }
-  getGameIdForPlayerId(playerId) {
-    let path = this.pathForId_(playerId);
-    return this.source.get(path.slice(0, 2)).id;
+  getGameIdForPlayerId(playerId, allowNotFound) {
+    let path = this.pathForId_(playerId, allowNotFound, ["games"]);
+    if (path)
+      return this.source.get(path.slice(0, 2)).id;
+    else
+      return null;
   }
   getGameIdForChatRoomId(chatRoomId) {
     let path = this.pathForId_(chatRoomId);
@@ -205,9 +208,10 @@ class Reader {
     }
     return null;
   }
-  pathForId_(id, allowNotFound) {
+  pathForId_(id, allowNotFound, startPath) {
+    startPath = startPath || [];
     assert(id);
-    let result = this.pathForIdInner_([], this.source.get([]), id);
+    let result = this.pathForIdInner_(startPath, this.source.get(startPath), id);
     if (!allowNotFound)
       assert(result);
     return result;
@@ -244,8 +248,12 @@ class Reader {
   isGunConsistent(gunId) {
     let gun = this.get(["gunsById", gunId]);
     if (gun.playerId) {
-      let gameId = this.getGameIdForPlayerId(gun.playerId);
-      if (!this.getPlayer(gameId, gun.playerId))
+      if (!this.idExists(gun.playerId, true))
+        return false;
+      let gameId = this.getGameIdForPlayerId(gun.playerId, true);
+      if (!gameId)
+        return false;
+      if (!this.get(["gamesById", gameId, "playersById", gun.playerId]))
         return false;
     }
     return true;

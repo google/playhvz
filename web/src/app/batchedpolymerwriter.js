@@ -5,6 +5,7 @@ class BatchedPolymerWriter {
     this.propertyName = propertyName;
   }
   batchedWrite(operations) {
+    let notifies = [];
     let property = this.component.get(this.propertyName);
     for (let operation of operations) {
       let {type, path, value, index} = operation;
@@ -12,9 +13,22 @@ class BatchedPolymerWriter {
       switch (type) {
         case 'set':
           Utils.set(property, path, value);
+          notifies.push(() => this.component.notifyPath(targetPath, value));
           break;
         case 'insert':
+          let array = Utils.get(property, path);
+          index = index === null ? array.length : index;
           Utils.insert(property, path, index, value);
+          notifies.push(() => {
+            this.component.notifySplices(targetPath, [
+                {
+                  index: index,
+                  removed: [],
+                  addedCount: 1,
+                  object: array,
+                  type: 'splice'
+                }]);
+          });
           break;
         case 'remove':
           Utils.remove(property, path, index);
@@ -23,32 +37,7 @@ class BatchedPolymerWriter {
           throwError('Unknown operation:', operation);
       }
     }
-    for (let operation of operations) {
-      let {type, path, value, index} = operation;
-      let targetPath = this.propertyName + '.' + path.join(".");
-      switch (type) {
-        case 'set':
-          this.component.notifyPath(targetPath, value);
-          break;
-        case 'insert':
-          let array = Utils.get(property, path);
-          this.component.notifySplices(targetPath, [
-              {
-                index: index === null ? array.length : index,
-                removed: [],
-                addedCount: 1,
-                object: array,
-                type: 'splice'
-              }]);
-          break;
-        case 'remove':
-          assert(false); // implement
-          // will need to remember the removed items, so we can give
-          // to notifySplices
-          break;
-        default:
-          throwError('Unknown operation:', operation);
-      }
-    }
+    for (let notify of notifies)
+      notify();
   }
 }

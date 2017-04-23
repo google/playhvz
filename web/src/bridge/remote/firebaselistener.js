@@ -68,7 +68,7 @@ class FirebaseListener {
     if (this.nearReader.isConsistent()) {
       this.gatedFarWriter.openGate();
     } else {
-      assert(false);
+      console.error('todo: open gate!');
     }
   }
 
