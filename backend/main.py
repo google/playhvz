@@ -162,13 +162,14 @@ def update_player():
       put_data[property] = request_data[property]
 
   path = '/games/%s/players/%s' % (game, player)
-  return jsonify(firebase.patch(path, put_data, {'print': 'pretty'}))
+  return jsonify(firebase.patch(path, put_data))
 
 
 @app.route('/addMission', methods=['POST'])
 def add_mission():
+  ValidateInputs(['missionId'], [])
+
   request_data = request.get_json()
-  game = request_data['gameId']
   mission = request_data['missionId']
 
   put_data = {
@@ -179,8 +180,7 @@ def add_mission():
     'allegiance': request_data['allegiance'],
   }
 
-  path = '/games/%s/missions' % game
-  return jsonify(firebase.put(path, mission, put_data))
+  return jsonify(firebase.put('/missions', mission, put_data))
 
 
 @app.route('/updateMission', methods=['POST'])
@@ -192,7 +192,6 @@ def update_mission():
     return e.message
 
   request_data = request.get_json()
-  game = request_data['gameId']
   mission = request_data['missionId']
 
   put_data = {}
@@ -200,5 +199,6 @@ def update_mission():
     if property in request_data:
       put_data[property] = request_data[property]
 
-  path = '/games/%s/missions/%s' % (game, mission)
-  return jsonify(firebase.patch(path, put_data))
+  return jsonify(firebase.patch('/missions/%s' % mission, put_data))
+
+# vim:ts=2:sw=2:expandtab
