@@ -1,0 +1,161 @@
+
+<dom-module id="ghvz-chat-info-drawer">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-info-drawer',
+
+        properties: {
+          bridge: Object,
+          game: Object,
+          chatRoom: Object,
+
+          players: {
+            type: Object,
+            value: function() { return []; },
+          }
+        },
+
+        observers: [
+          'onChatMembershipsChanged_(game, chatRoom.memberships)',
+        ],
+
+        onChatMembershipsChanged_() {
+          var updatedPlayers = [];
+          for (let membership of this.chatRoom.memberships) {
+            updatedPlayers.push(this.game.playersById[membership.playerId]);
+          }
+          this.players = updatedPlayers;
+        },
+
+        captureTap_(e) {
+          let action = e.target.dataset.action;
+          switch(action) {
+            case 'add':
+              this.addPlayer_();
+              break;
+            case 'leave':
+              this.leaveChat_();
+              break;
+            default:
+              // Unrecognized action, do nothing
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        },
+
+        addPlayer_: function() {
+          console.log("add player");
+
+        },
+
+        leaveChat_: function() {
+          alert("Really leave chat?");
+        },
+
+        openPlayerProfile_(e) {
+          console.log(e);
+          // add option to kick player from chat
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+      overflow-y: auto;
+      height: 100%;
+    }
+    iron-image {
+      border-radius: 50%;
+      border: 2px solid green;
+      width: 40px;
+      height:40px;
+    }
+    .drawer-item {
+      display: flex;
+      align-items: center;
+      opacity: .6;
+      padding-left: 4px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+    }
+    .drawer-item iron-icon {
+      margin: 8px;
+      opacity: .8;
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      opacity: .6;
+      margin-left: 12px;
+      height: 48px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .drawer-section {
+      border-top: 1px solid #ddd;
+      padding: 8px 0;
+    }
+    .info-label {
+      font-size: 12px;
+      font-style: italic;
+      padding-left: 16px;
+      opacity: .6;
+      text-align: center;
+    }
+    .player-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+    }
+    .player-name {
+      padding-left: 12px;
+      font-size: 14px;
+    }
+  </style>
+  <template>
+    <div on-tap="captureTap_">
+      <div class="drawer-header">
+        [[chatRoom.name]]
+      </div>
+      <div class="drawer-section">
+        <a href="javascript:void(0)" data-action="add" class="drawer-item">
+          <iron-icon icon="icons:add"></iron-icon>
+          Add player
+        </a>
+        <a href="javascript:void(0)" data-action="notifications" class="drawer-item">
+          <iron-icon icon="social:notifications"></iron-icon>
+          Notifications
+        </a>
+        <a href="javascript:void(0)" data-action="leave" class="drawer-item">
+          <iron-icon icon="communication:call-made"></iron-icon>
+          Leave
+        </a>
+      </div>
+
+      <div class="drawer-section">
+      <div class="info-label">[[chatRoom.memberships.length]] members</div>
+      <template is="dom-repeat" items="[[players]]">
+        <div class="layout horizontal player-item">
+          <iron-image
+            src="[[item.profileImageUrl]]"
+            id="profile-pic" 
+            sizing="cover"
+            on-click="openPlayerProfile_">
+          </iron-image>
+          <div class='player-name'>
+            [[item.name]]
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
+</dom-module>
