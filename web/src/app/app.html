@@ -265,7 +265,7 @@ paper-input-container {
           // Try to figure out their player, if they have one.
           let userPlayer = this.user.players.find(player => player.gameId == this.gameId);
           if (userPlayer) {
-            this.playerId = userPlayer.playerId;
+            this.playerId = userPlayer.id;
           }
         }
         if (this.userId && this.game && !this.page) {

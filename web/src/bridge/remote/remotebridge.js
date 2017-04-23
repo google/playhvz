@@ -1,19 +1,10 @@
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig, delegate) {
-    this.delegate = delegate;
-    this.localDb = new LocalDatabase({
-      set: (...args) => this.delegate.set(...args),
-      insert: (...args) => this.delegate.insert(...args),
-      remove: (...args) => this.delegate.remove(...args),
-      get: (...args) => this.delegate.get(...args),
-    });
+  constructor(serverUrl, firebaseConfig, writer) {
 
     firebase.initializeApp(firebaseConfig);
     this.firebaseListener =
-        new FirebaseListener(
-            this.localDb,
-            firebase.app().database().ref());
+        new FirebaseListener(writer, firebase.app().database().ref());
 
     this.requester = new NormalRequester(serverUrl);
 
