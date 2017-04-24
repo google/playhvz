@@ -21,18 +21,54 @@ firebase = firebase.FirebaseApplication('https://trogdors-29fa4.firebaseio.com',
 flask_cors.CORS(app)
 
 class AppError(Exception):
-    status_code = 500
-    def __init__(self, message, status_code=None, payload=None):
-        Exception.__init__(self)
-        self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        self.payload = payload
+  status_code = 500
+  def __init__(self, message, status_code=None, payload=None):
+    Exception.__init__(self)
+    self.message = message
+    if status_code is not None:
+      self.status_code = status_code
+      self.payload = payload
 
-    def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['message'] = self.message
-        return rv
+  def to_dict(self):
+    rv = dict(self.payload or ())
+    rv['message'] = self.message
+    return rv
+
+
+class InvalidInputError(AppError):
+  pass
+
+
+def ValidateInputs(present, valid):
+  """Validate args.
+
+  Args:
+    present: These args must be present in the requst.
+    valid: These args must already exist in the DB.
+  """
+  request_data = request.get_json()
+
+  if any(a not in request_data for a in present):
+    raise InvalidInputError('Missing required input. Required: %s' % ', '.join(present))
+
+  request_data = request.get_json()
+  for a in valid:
+    data = request_data[a]
+    if a == 'gameId':
+      if not firebase.get('/games/%s/name' % data, None):
+        raise InvalidInputError('Game %s not found.' % data)
+    elif a == 'playerId':
+      if not firebase.get('/games/%s/players/%s/name' % (request_data['gameId'], data), None):
+        raise InvalidInputError('Player %s not found.' % data)
+    elif a == 'gunId':
+      if not firebase.get('/guns', data):
+        raise InvalidInputError('Gun %s not found.' % data)
+    elif a == 'missionId':
+      if not firebase.get('/missions/%s/name' % data, None):
+        raise InvalidInputError('Mission %s not found.' % data)
+    else:
+      raise AppError('Unhandled arg validation: %s' % a)
+
 
 @app.route('/')
 def index():
@@ -96,22 +132,13 @@ def get_gun():
 
 @app.route('/assignGun', methods=['POST'])
 def assign_gun():
-  request_data = request.get_json()
-
   args = ['gameId', 'playerId', 'gunId']
-  if any(a not in request_data for a in args):
-    return AppError('Missing data. assignGun requires: %s' % ', '.join(args))
+  ValidateInputs(args, args)
 
+  request_data = request.get_json()
   game = request_data['gameId']
   gun = request_data['gunId']
   player = request_data['playerId']
-
-  if not firebase.get('/games/%s/name' % game, None):
-    return AppError('Game %s not found.' % game)
-  if not firebase.get('/games/%s/players/%s/name' % (game, player), None):
-    return AppError('Player %s not found.' % player)
-  if not firebase.get('/guns', gun):
-    return AppError('Gun %s not found.' % gun)
 
   put_data = {
     'playerId': player,
@@ -122,6 +149,9 @@ def assign_gun():
 
 @app.route('/updatePlayer', methods=['POST'])
 def update_player():
+  args = ['gameId', 'playerId']
+  ValidateInputs(args, args)
+
   request_data = request.get_json()
   player = request_data['playerId']
   game = request_data['gameId']
@@ -132,14 +162,14 @@ def update_player():
       put_data[property] = request_data[property]
 
   path = '/games/%s/players/%s' % (game, player)
-  print '%s => %s' % (path, repr(put_data))
-  return jsonify(firebase.patch(path, put_data, {'print': 'pretty'}))
+  return jsonify(firebase.patch(path, put_data))
 
 
 @app.route('/addMission', methods=['POST'])
 def add_mission():
+  ValidateInputs(['missionId'], [])
+
   request_data = request.get_json()
-  game = request_data['gameId']
   mission = request_data['missionId']
 
   put_data = {
@@ -150,14 +180,18 @@ def add_mission():
     'allegiance': request_data['allegiance'],
   }
 
-  path = '/games/%s/missions' % game
-  return jsonify(firebase.put(path, mission, put_data))
+  return jsonify(firebase.put('/missions', mission, put_data))
 
 
 @app.route('/updateMission', methods=['POST'])
 def update_mission():
+  args = ['missionId']
+  try:
+    ValidateInputs(args, args)
+  except Exception as e:
+    return e.message
+
   request_data = request.get_json()
-  game = request_data['gameId']
   mission = request_data['missionId']
 
   put_data = {}
@@ -165,5 +199,6 @@ def update_mission():
     if property in request_data:
       put_data[property] = request_data[property]
 
-  path = '/games/%s/missions/%s' % (game, mission)
-  return jsonify(firebase.patch(path, put_data))
+  return jsonify(firebase.patch('/missions/%s' % mission, put_data))
+
+# vim:ts=2:sw=2:expandtab
