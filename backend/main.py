@@ -113,11 +113,11 @@ def new_game():
   return jsonify(firebase.put('/games', game, put_data))
 
 
-@app.route('/joingame', methods=['POST'])
+@app.route('/joinGame', methods=['POST'])
 def join_game():
   request_data = request.get_json()
-  game_to_join = request_data['gameId']
-  player_to_add_to_game = request_data['playerId']
+  game = request_data['gameId']
+  player = request_data['playerId']
   name = request_data.get('name', '')
   need_gun = request_data.get('needGun', False)
   profile_image_url = request_data.get('profileImageUrl', '')
@@ -127,9 +127,9 @@ def join_game():
   user_id = request.headers['userId']
 
   player_info = {
-    'gameId': game_to_join
+    'gameId': game
   }
-  firebase.put('/users/' + user_id + '/players', player_to_add_to_game, player_info)
+  firebase.put('/users/%s/players' % user_id, player, player_info)
 
   game_info = {
     'name': name,
@@ -140,7 +140,7 @@ def join_game():
     'volunteer' : volunteer
   }
 
-  return jsonify(firebase.put('/games/' + game_to_join + '/players', player_to_add_to_game, game_info))
+  return jsonify(firebase.put('/games/%s/players' % game, player, game_info))
 
 
 @app.route('/addGun', methods=['POST'])
