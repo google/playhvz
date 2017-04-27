@@ -115,24 +115,21 @@ def new_game():
 
 @app.route('/joingame', methods=['POST'])
 def join_game():
-  print "join_game called"
   request_data = request.get_json()
-  print 'getting game_to_join'
   game_to_join = request_data['gameId']
-  print 'got game_to_join'
   player_to_add_to_game = request_data['playerId']
-  print 'got player to add'
   name = request_data.get('name', '')
-  print 'got name'
   need_gun = request_data.get('needGun', False)
-  print 'got need_gun'
   profile_image_url = request_data.get('profileImageUrl', '')
   start_as_zombie = request_data.get('startAsZombie', False)
   volunteer = request_data.get('volunteer', False)
   be_secret_zombie = request_data.get('beSecretZombie', False)
-  print 'getting userId'
   user_id = request.headers['userId']
-  print 'variables saved'
+
+  player_info = {
+    'gameId': game_to_join
+  }
+  firebase.put('/users/' + user_id + '/players', player_to_add_to_game, player_info)
 
   game_info = {
     'name': name,
@@ -142,20 +139,8 @@ def join_game():
     'user_id' : user_id,
     'volunteer' : volunteer
   }
-  print game_to_join
-  result = firebase.get('/users', '4NsfZcTmjqQIHcNFGHJHoqWsFt62')
-  print 'read from firebase'
-  print 'putting game_info into firebase'
-  firebase.put('/games/' + game_to_join + '/players', player_to_add_to_game, game_info)
-  print 'entered into firebase'
 
-  player_info = {
-    'gameId': game_to_join
-  }
-  
-# Player must be visible in /games/[gameid]/players/[their player id]
-# info must be updated in /users/[userId]/players
-  return jsonify(firebase.put('/users/' + user_id + '/players', player_to_add_to_game, player_info))
+  return jsonify(firebase.put('/games/' + game_to_join + '/players', player_to_add_to_game, game_info))
 
 
 @app.route('/addGun', methods=['POST'])
