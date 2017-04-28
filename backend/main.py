@@ -39,17 +39,17 @@ class InvalidInputError(AppError):
   pass
 
 
-def ValidateInputs(present, valid):
+def ValidateInputs(required, valid):
   """Validate args.
 
   Args:
-    present: These args must be present in the requst.
+    required: These args must be present in the request.
     valid: These args must already exist in the DB.
   """
   request_data = request.get_json()
 
-  if any(a not in request_data for a in present):
-    raise InvalidInputError('Missing required input. Required: %s' % ', '.join(present))
+  if any(a not in request_data for a in required):
+    raise InvalidInputError('Missing required input. Required: %s' % ', '.join(required))
 
   request_data = request.get_json()
   for a in valid:
@@ -66,6 +66,9 @@ def ValidateInputs(present, valid):
     elif a == 'missionId':
       if not firebase.get('/missions/%s/name' % data, None):
         raise InvalidInputError('Mission %s not found.' % data)
+    elif a == 'allegianceFilter':
+      if data not in ('horde', 'resistance', 'none'):
+        raise InvalidInputError('Allegiance %s is not valid.' % data)
     else:
       raise AppError('Unhandled arg validation: %s' % a)
 
