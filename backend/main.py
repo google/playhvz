@@ -235,4 +235,42 @@ def update_mission():
 
   return jsonify(firebase.patch('/missions/%s' % mission, put_data))
 
+
+@app.route('/createChatRoom', methods=['POST'])
+def create_chat_room():
+  """Create a new chat room.
+
+  Use the chatId to make a new chat room.
+  Add the player to the room and set the other room properties.
+  Add the chatRoomId to the game's list of chat rooms.
+  """
+  valid_args = ['gameId', 'playerId', 'allegianceFilter']
+  required_args = list(valid_args)
+  required_args.extend(['chatRoomId', 'name'])
+  ValidateInputs(required_args, valid_args)
+
+  request_data = request.get_json()
+  chat = request_data['chatRoomId']
+  game = request_data['gameId']
+  player = request_data['playerId']
+  name = request_data['name']
+  allegiance = request_data['allegianceFilter']
+  
+  # Validate chatRoomId is of the form chatRoom-NNN and not used yet
+  if not chat.startswith('chatRoom-'):
+    raise InvalidInputError('Chat ID is not valid.')
+  if firebase.get('/chatRooms/%s' % chat, 'name'):
+    raise InvalidInputError('Chat ID is already in use.')
+
+  put_data = {
+    'allegianceFilter': allegiance,
+    'gameId': game,
+    'name': name,
+  }
+  result = []
+  result.append(firebase.put('/chatRooms', chat, put_data))
+  result.append(firebase.put('/chatRooms/%s/memberships' % chat, player, ""))
+  result.append(firebase.put('/games/%s/chatRoomIds' % game, chat, ""))
+  return jsonify(result)
+
 # vim:ts=2:sw=2:expandtab
