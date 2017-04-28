@@ -223,10 +223,7 @@ def add_mission():
 @app.route('/updateMission', methods=['POST'])
 def update_mission():
   args = ['missionId']
-  try:
-    ValidateInputs(args, args)
-  except Exception as e:
-    return e.message
+  ValidateInputs(args, args)
 
   request_data = request.get_json()
   mission = request_data['missionId']
