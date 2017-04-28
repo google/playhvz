@@ -119,6 +119,8 @@ def new_game():
 @app.route('/createPlayer', methods=['POST'])
 def create_player():
   """Generate a player to be assigned to a user and added to a game."""
+  result = []
+
   request_data = request.get_json()
   game = request_data['gameId']
   player = request_data['playerId']
@@ -133,7 +135,7 @@ def create_player():
   player_info = {
     'gameId': game
   }
-  firebase.put('/users/%s/players' % user_id, player, player_info)
+  result.append(firebase.put('/users/%s/players' % user_id, player, player_info))
 
   game_info = {
     'name': name,
@@ -143,8 +145,9 @@ def create_player():
     'user_id' : user_id,
     'volunteer' : volunteer
   }
+  result.append(firebase.put('/games/%s/players' % game, player, game_info))
 
-  return jsonify(firebase.put('/games/%s/players' % game, player, game_info))
+  return jsonify(result)
 
 
 @app.route('/addGun', methods=['POST'])
