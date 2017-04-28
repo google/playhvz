@@ -113,6 +113,37 @@ def new_game():
   return jsonify(firebase.put('/games', game, put_data))
 
 
+@app.route('/createPlayer', methods=['POST'])
+def create_player():
+  """Generate a player to be assigned to a user and added to a game."""
+  request_data = request.get_json()
+  game = request_data['gameId']
+  player = request_data['playerId']
+  user_id = request_data['userId']
+  name = request_data.get('name', '')
+  need_gun = request_data.get('needGun', False)
+  profile_image_url = request_data.get('profileImageUrl', '')
+  start_as_zombie = request_data.get('startAsZombie', False)
+  volunteer = request_data.get('volunteer', False)
+  be_secret_zombie = request_data.get('beSecretZombie', False)
+
+  player_info = {
+    'gameId': game
+  }
+  firebase.put('/users/%s/players' % user_id, player, player_info)
+
+  game_info = {
+    'name': name,
+    'needGun' : need_gun,
+    'profileImageUrl' : profile_image_url,
+    'startAsZombie' : start_as_zombie,
+    'user_id' : user_id,
+    'volunteer' : volunteer
+  }
+
+  return jsonify(firebase.put('/games/%s/players' % game, player, game_info))
+
+
 @app.route('/addGun', methods=['POST'])
 def add_gun():
   request_data = request.get_json()
