@@ -10,7 +10,7 @@ class FakeServer {
     var teeWriter = new TeeWriter(mappingWriter, new MappingWriter(destination));
     this.writer = teeWriter;
 
-    this.reader = new Reader(new SimpleReader(this.database));
+    this.reader = new PathFindingReader(new SimpleReader(this.database));
 
     this.writer.set(this.reader.getGunPath(null), []);
     this.writer.set(this.reader.getGamePath(null), []);

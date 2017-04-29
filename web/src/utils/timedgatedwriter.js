@@ -1,17 +1,18 @@
 
 class TimedGatedWriter extends GatedWriter {
-  constructor(destination, gateOpen) {
+  constructor(destination, gateOpen, timeoutMs) {
     super(destination, gateOpen);
     this.closedTimer = null;
     if (!gateOpen) {
       this.startClosedTimer();
     }
+    this.timeoutMs = timeoutMs || 2000;
   }
   startClosedTimer() {
     this.closedTimer =
         setTimeout(
             () => console.error("Gate closed for too long!", this),
-            2000);
+            this.timeoutMs);
   }
   openGate() {
     if (!this.isGateOpen()) {
