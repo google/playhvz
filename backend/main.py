@@ -39,17 +39,17 @@ class InvalidInputError(AppError):
   pass
 
 
-def ValidateInputs(present, valid):
+def ValidateInputs(required, valid):
   """Validate args.
 
   Args:
-    present: These args must be present in the requst.
+    required: These args must be present in the request.
     valid: These args must already exist in the DB.
   """
   request_data = request.get_json()
 
-  if any(a not in request_data for a in present):
-    raise InvalidInputError('Missing required input. Required: %s' % ', '.join(present))
+  if any(a not in request_data for a in required):
+    raise InvalidInputError('Missing required input. Required: %s' % ', '.join(required))
 
   request_data = request.get_json()
   for a in valid:
@@ -66,6 +66,9 @@ def ValidateInputs(present, valid):
     elif a == 'missionId':
       if not firebase.get('/missions/%s/name' % data, None):
         raise InvalidInputError('Mission %s not found.' % data)
+    elif a == 'allegianceFilter':
+      if data not in ('horde', 'resistance', 'none'):
+        raise InvalidInputError('Allegiance %s is not valid.' % data)
     else:
       raise AppError('Unhandled arg validation: %s' % a)
 
@@ -116,6 +119,8 @@ def new_game():
 @app.route('/createPlayer', methods=['POST'])
 def create_player():
   """Generate a player to be assigned to a user and added to a game."""
+  result = []
+
   request_data = request.get_json()
   game = request_data['gameId']
   player = request_data['playerId']
@@ -130,7 +135,7 @@ def create_player():
   player_info = {
     'gameId': game
   }
-  firebase.put('/users/%s/players' % user_id, player, player_info)
+  result.append(firebase.put('/users/%s/players' % user_id, player, player_info))
 
   game_info = {
     'name': name,
@@ -140,8 +145,9 @@ def create_player():
     'user_id' : user_id,
     'volunteer' : volunteer
   }
+  result.append(firebase.put('/games/%s/players' % game, player, game_info))
 
-  return jsonify(firebase.put('/games/%s/players' % game, player, game_info))
+  return jsonify(result)
 
 
 @app.route('/addGun', methods=['POST'])
@@ -217,10 +223,7 @@ def add_mission():
 @app.route('/updateMission', methods=['POST'])
 def update_mission():
   args = ['missionId']
-  try:
-    ValidateInputs(args, args)
-  except Exception as e:
-    return e.message
+  ValidateInputs(args, args)
 
   request_data = request.get_json()
   mission = request_data['missionId']
@@ -231,5 +234,43 @@ def update_mission():
       put_data[property] = request_data[property]
 
   return jsonify(firebase.patch('/missions/%s' % mission, put_data))
+
+
+@app.route('/createChatRoom', methods=['POST'])
+def create_chat_room():
+  """Create a new chat room.
+
+  Use the chatId to make a new chat room.
+  Add the player to the room and set the other room properties.
+  Add the chatRoomId to the game's list of chat rooms.
+  """
+  valid_args = ['gameId', 'playerId', 'allegianceFilter']
+  required_args = list(valid_args)
+  required_args.extend(['chatRoomId', 'name'])
+  ValidateInputs(required_args, valid_args)
+
+  request_data = request.get_json()
+  chat = request_data['chatRoomId']
+  game = request_data['gameId']
+  player = request_data['playerId']
+  name = request_data['name']
+  allegiance = request_data['allegianceFilter']
+  
+  # Validate chatRoomId is of the form chatRoom-NNN and not used yet
+  if not chat.startswith('chatRoom-'):
+    raise InvalidInputError('Chat ID is not valid.')
+  if firebase.get('/chatRooms/%s' % chat, 'name'):
+    raise InvalidInputError('Chat ID is already in use.')
+
+  put_data = {
+    'allegianceFilter': allegiance,
+    'gameId': game,
+    'name': name,
+  }
+  result = []
+  result.append(firebase.put('/chatRooms', chat, put_data))
+  result.append(firebase.put('/chatRooms/%s/memberships' % chat, player, ""))
+  result.append(firebase.put('/games/%s/chatRoomIds' % game, chat, ""))
+  return jsonify(result)
 
 # vim:ts=2:sw=2:expandtab
