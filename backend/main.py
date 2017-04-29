@@ -71,7 +71,7 @@ def ValidateInputs(required, valid):
       if not firebase.get('/chatRooms/%s/name' % data, None):
         raise InvalidInputError('Chat room %s not found.' % data)
     elif a == 'allegianceFilter':
-      if data not in ('horde', 'resistance', 'none'):
+      if data not in constants.ALLEGIANCES:
         raise InvalidInputError('Allegiance %s is not valid.' % data)
     else:
       raise AppError('Unhandled arg validation: %s' % a)
