@@ -67,15 +67,12 @@ def ValidateInputs(present, valid):
     elif a == 'missionId':
       if not firebase.get('/missions/%s/name' % data, None):
         raise InvalidInputError('Mission %s not found.' % data)
-<<<<<<< HEAD
-=======
     elif a == 'chatRoomId':
       if not firebase.get('/chatRooms/%s/name' % data, None):
         raise InvalidInputError('Chat room %s not found.' % data)
     elif a == 'allegianceFilter':
       if data not in ('horde', 'resistance', 'none'):
         raise InvalidInputError('Allegiance %s is not valid.' % data)
->>>>>>> 5bdce27c... New method: addPlayerToChat
     else:
       raise AppError('Unhandled arg validation: %s' % a)
 
