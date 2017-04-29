@@ -100,4 +100,8 @@ class RemoteBridge {
   assignGun({gunId, playerId}) {
     this.requester.sendPostRequest('assignGun', {}, {gunId: gunId, playerId: playerId});
   }
+
+  addPlayerToChatRoom({chatRoomId, playerId}) {
+    this.requester.sendPostRequest('addPlayerToChatRoom', {}, {chatRoomId: chatRoomId, playerId: playerId});
+  }
 }
