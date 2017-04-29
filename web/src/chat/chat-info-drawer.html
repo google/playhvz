@@ -12,15 +12,25 @@
           bridge: Object,
           game: Object,
           chatRoom: Object,
+          player: Object,
 
-          players: {
+          playersInChatRoom: {
             type: Object,
             value: function() { return []; },
-          }
+          },
+
+          playerInputValue: {
+            type: String,
+          },
+          
+          matchingPlayerOrNull: {
+            type: Object,
+            notify: true,
+          },
         },
 
         observers: [
-          'onChatMembershipsChanged_(game, chatRoom.memberships)',
+          'onChatMembershipsChanged_(game, chatRoom.memberships.length)',
         ],
 
         onChatMembershipsChanged_() {
@@ -28,7 +38,8 @@
           for (let membership of this.chatRoom.memberships) {
             updatedPlayers.push(this.game.playersById[membership.playerId]);
           }
-          this.players = updatedPlayers;
+          this.playersInChatRoom = [];
+          this.playersInChatRoom = updatedPlayers;
         },
 
         captureTap_(e) {
@@ -48,8 +59,13 @@
         },
 
         addPlayer_: function() {
-          console.log("add player");
+          this.$.add.open();
+        },
 
+        onSetPlayer_: function(e) {
+          var newPlayer = this.matchingPlayerOrNull;
+          this.$.lookup.value = "";
+          this.bridge.addPlayerToChatRoom(this.chatRoom.id, newPlayer.id);
         },
 
         leaveChat_: function() {
@@ -122,6 +138,20 @@
     }
   </style>
   <template>
+    <paper-dialog id="add">
+      <ghvz-player-lookup
+        id="lookup"
+        players="[[game.players]]"
+        players-by-id="[[game.playersById]]"
+        matching-player-or-null="{{matchingPlayerOrNull}}"
+        value="{{playerInputValue}}">
+      </ghvz-player-lookup>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Done</paper-button>
+        <paper-button on-tap="onSetPlayer_">Add</paper-button>
+      </div>
+    </paper-dialog>
+
     <div on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]
@@ -142,20 +172,21 @@
       </div>
 
       <div class="drawer-section">
-      <div class="info-label">[[chatRoom.memberships.length]] members</div>
-      <template is="dom-repeat" items="[[players]]">
-        <div class="layout horizontal player-item">
-          <iron-image
-            src="[[item.profileImageUrl]]"
-            id="profile-pic" 
-            sizing="cover"
-            on-click="openPlayerProfile_">
-          </iron-image>
-          <div class='player-name'>
-            [[item.name]]
+        <div class="info-label">[[chatRoom.memberships.length]] members</div>
+        <template is="dom-repeat" items="[[playersInChatRoom]]">
+          <div class="layout horizontal player-item">
+            <iron-image
+              src="[[item.profileImageUrl]]"
+              id="profile-pic" 
+              sizing="cover"
+              on-click="openPlayerProfile_">
+            </iron-image>
+            <div class='player-name'>
+              [[item.name]]
+            </div>
           </div>
-        </div>
-      </template>
+        </template>
+      </div> 
     </div>
   </template>
 </dom-module>
