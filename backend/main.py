@@ -57,7 +57,7 @@ def ValidateInputs(present, valid):
     if a == 'gameId':
       if not firebase.get('/games/%s/name' % data, None):
         raise InvalidInputError('Game %s not found.' % data)
-    elif a == 'playerId':
+    elif a in ('playerId', 'otherPlayerId'):
       if not firebase.get('/games/%s/players/%s/name' % (request_data['gameId'], data), None):
         raise InvalidInputError('Player %s not found.' % data)
     elif a == 'gunId':
@@ -66,6 +66,15 @@ def ValidateInputs(present, valid):
     elif a == 'missionId':
       if not firebase.get('/missions/%s/name' % data, None):
         raise InvalidInputError('Mission %s not found.' % data)
+<<<<<<< HEAD
+=======
+    elif a == 'chatRoomId':
+      if not firebase.get('/chatRooms/%s/name' % data, None):
+        raise InvalidInputError('Chat room %s not found.' % data)
+    elif a == 'allegianceFilter':
+      if data not in ('horde', 'resistance', 'none'):
+        raise InvalidInputError('Allegiance %s is not valid.' % data)
+>>>>>>> 5bdce27c... New method: addPlayerToChat
     else:
       raise AppError('Unhandled arg validation: %s' % a)
 
@@ -231,5 +240,40 @@ def update_mission():
       put_data[property] = request_data[property]
 
   return jsonify(firebase.patch('/missions/%s' % mission, put_data))
+
+
+@app.route('/addPlayerToChat', methods=['POST'])
+def add_player_to_chat():
+  """Add a new player to a chat room.
+
+  Must be done by a player already in the chat room.
+
+  Args:
+    gameId: The game ID.
+    chatRoomId: The chat room ID to add the player to.
+    otherPlayerId: The player being added.
+    playerId: The player doing the adding.
+  """
+  valid_args = ['gameId', 'chatRoomId', 'playerId', 'otherPlayerId']
+  required_args = list(valid_args)
+  ValidateInputs(required_args, valid_args)
+
+  request_data = request.get_json()
+  game = request_data['gameId']
+  chat = request_data['chatRoomId']
+  player = request_data['playerId']
+  otherPlayer = request_data['otherPlayerId']
+
+  # Validate player is in the chat room
+  if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
+    raise InvalidInputError('You are not a member of that chat room.')
+  # Validate otherPlayer is not in the chat room
+  if firebase.get('/chatRooms/%s/memberships' % chat, otherPlayer) is not None:
+    raise InvalidInputError('Other player is already in the chat.')
+  # Check allegiance?
+
+  return jsonify(firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, ""))
+
+
 
 # vim:ts=2:sw=2:expandtab
