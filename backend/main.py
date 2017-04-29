@@ -8,6 +8,7 @@ from google.appengine.ext import ndb
 import google.auth.transport.requests
 import google.oauth2.id_token
 import requests_toolbelt.adapters.appengine
+import time
 
 import constants
 
@@ -309,6 +310,49 @@ def add_player_to_chat():
 
   return jsonify(firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, ""))
 
+
+@app.route('/sendChatMessage', methods=['POST'])
+def send_chat_message():
+  """Send a message to a chat room.
+
+  Must be done by a player already in the chat room.
+
+  Args:
+    gameId: The game ID.
+    chatRoomId: The chat room to update.
+    playerId: The player sending the message.
+    messageId: The ID of the new message.
+    message: The message to add (string).
+  """
+  valid_args = ['gameId', 'chatRoomId', 'playerId']
+  required_args = list(valid_args)
+  required_args.extend(['messageId', 'message'])
+  ValidateInputs(required_args, valid_args)
+
+  request_data = request.get_json()
+  game = request_data['gameId']
+  chat = request_data['chatRoomId']
+  player = request_data['playerId']
+  messageId = request_data['messageId']
+  message = request_data['message']
+
+  if not messageId.startswith('message-'):
+    raise InvalidInputError('Message ID is not valid.')
+  # Validate player is in the chat room
+  if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
+    raise InvalidInputError('You are not a member of that chat room.')
+
+  # Compute the message index to use -- reimplement auto IDs ;)
+  index = 1
+
+  message_data = {
+    'index': index,
+    'message': message,
+    'playerId': player,
+    'time': int(time.time()),
+  }
+
+  return jsonify(firebase.put('/chatRooms/%s/messages' % chat, messageId, message_data))
 
 
 # vim:ts=2:sw=2:expandtab
