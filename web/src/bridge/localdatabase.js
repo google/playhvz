@@ -1,5 +1,5 @@
 
-const GUN_PROPERTIES = ["playerId"];
+const GUN_PROPERTIES = ["gameId", "playerId"];
 const GUN_COLLECTIONS = [];
 function newGun(id, args) {
   let obj = {id: id};
@@ -9,7 +9,8 @@ function newGun(id, args) {
 }
 
 const USER_PROPERTIES = ["registered"];
-const USER_COLLECTIONS = ["players",];
+const USER_COLLECTIONS = ["players"];
+const USER_IGNORED = ["playerIdsByGameId"];
 function newUser(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, USER_PROPERTIES);

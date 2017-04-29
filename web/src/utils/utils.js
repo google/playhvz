@@ -305,3 +305,21 @@ Utils.catchAndReturn = function(exceptionType, callback) {
     }
   }
 };
+
+Utils.forEachPathUnder = function(path, value, callback) {
+  if (typeof value == 'object') {
+    for (var key in value)
+      forEachPathUnder(path.concat([key]), value[key], callback);
+  } else {
+    callback(path, value);
+  }
+}
+
+Utils.matches = function(pattern, path) {
+  if (pattern.length != path.length)
+    return false;
+  for (let i = 0; i < pattern.length; i++)
+    if (pattern[i] && pattern[i] != path[i])
+      return false;
+  return true;
+}

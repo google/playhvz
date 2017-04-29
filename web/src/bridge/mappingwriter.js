@@ -1,4 +1,23 @@
 
+// Requirement: the generated map must point to the same exact elements, not copies
+
+let COLLECTIONS = [
+  {collection: ["games"], newMap: "gamesById", keyBy: "id"},
+  {collection: ["games", null, "players"], newMap: "playersById", keyBy: "id"},
+  {collection: ["games", null, "players", null, "claims"], newMap: "claimsById", keyBy: "id"},
+  {collection: ["games", null, "players", null, "infections"], newMap: "infectionsById", keyBy: "id"},
+  {collection: ["games", null, "players", null, "lives"], newMap: "livesById", keyBy: "id"},
+  {collection: ["games", null, "rewardCategories"], newMap: "rewardCategoriesById", keyBy: "id"},
+  {collection: ["games", null, "rewardCategories", null, "rewards"], newMap: "rewardsById", keyBy: "id"},
+  {collection: ["chatRooms"], newMap: "chatRoomsById", keyBy: "id"},
+  {collection: ["chatRooms", null, "messages"], newMap: "messagesById", keyBy: "id"},
+  {collection: ["notificationCategories"], newMap: "notificationCategoriesById", keyBy: "id"},
+  {collection: ["missions"], newMap: "missionsById", keyBy: "id"},
+  {collection: ["guns"], newMap: "gunsById", keyBy: "id"},
+  {collection: ["users"], newMap: "usersById", keyBy: "id"},
+  {collection: ["chatRooms", null, "memberships"], newMap: "membershipsByUserId", keyBy: "userId"},
+];
+
 class MappingWriter {
   constructor(destination) {
     this.destination = destination;
@@ -18,40 +37,67 @@ class MappingWriter {
     assert(value);
     assert(indexOrNull == null || typeof indexOrNull == 'number');
     this.mapify(value);
-    let pathInMap = this.mapifyPath(path).concat([value.id]);
-    this.destination.set(pathInMap, value);
+    this.destination.set(this.mapifyValuePath(path, value), value);
     this.destination.insert(path, indexOrNull, value);
   }
   remove(path, index) {
     this.destination.remove(path, index);
   }
-  mapify(value) {
+  mapify(path, value) {
     if (value instanceof Array) {
       for (let i = 0; i < value.length; i++) {
-        this.mapify(value[i]);
+        this.mapify(path.concat([i]), value[i]);
+        
+        if (value[key] instanceof Array) {
+          let matchingCollection = this.getMatchingCollection(path);
+          if (matchingCollection) {
+            value[matchingCollection.newMap] =
+                this.arrayToMap(value[key], matchingCollection.keyBy);
+          }
+        }
       }
     } else if (typeof value == 'object') {
       for (var key in value) {
-        this.mapify(value[key]);
+        this.mapify(path.concat([key]), value[key]);
+
         if (value[key] instanceof Array) {
-          value[key + "ById"] = this.arrayToMap(value[key]);;
+          let matchingCollection = this.getMatchingCollection(path);
+          if (matchingCollection) {
+            value[matchingCollection.newMap] =
+                this.arrayToMap(value[key], matchingCollection.keyBy);
+          }
         }
       }
     }
     return value;
   }
-  arrayToMap(array) {
+  arrayToMap(array, keyName) {
     let map = {};
     for (let i = 0; i < array.length; i++) {
       let element = array[i];
-      assert(element.id);
-      map[element.id] = element;
+      assert(element[keyName]);
+      let key = element[keyName];
+      map[key] = element;
     }
     return map;
   }
+  getMatchingCollection(path) {
+    return COLLECTIONS.find(pattern => Utils.matches(pattern, path));
+  }
   mapifyPath(path) {
-    let mapPath = path.slice();
-    mapPath[mapPath.length - 1] += "ById";
+    let result = this.getMatchingCollection(path);
+    if (result) {
+      let mapPath = result.slice();
+      mapPath.pop();
+      mapPath.push(result.newMap);
+      return mapPath;
+    } else {
+      return null;
+    }
+  }
+  mapifyValuePath(path, value) {
+    let mapPath = this.mapifyPath(path);
+    mapPath.push(value[result.keyBy]);
     return mapPath;
   }
 }

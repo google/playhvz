@@ -27,14 +27,20 @@ class ConsistencyChecker {
 
   checkGunConsistent(gunId) {
     let gun = this.get(["gunsById", gunId]);
-    // if (gun.playerId) {
-    //   let gameId = this.source.getGameIdForPlayerId(gun.playerId, false);
-    //   if (!gameId)
-    //     return this.falseOrThrow();
-    //   let player = this.get(["gamesById", gameId, "playersById", gun.playerId]);
-    //   if (!player)
-    //     return this.falseOrThrow();
-    // }
+    if (!!gun.playerId != !!gun.gameId)
+      return this.falseOrThrow();
+    if (gun.playerId) {
+      let gameId = gun.gameId;
+      if (!gameId)
+        return this.falseOrThrow();
+      let game = this.get(["gamesById", gameId]);
+      assert(typeof game.inMemory == 'boolean');
+      if (game.inMemory) {
+        let player = this.get(["gamesById", gameId, "playersById", gun.playerId]);
+        if (!player)
+          return this.falseOrThrow();
+      }
+    }
     return true;
   }
 
