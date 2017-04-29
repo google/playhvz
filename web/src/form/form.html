@@ -81,7 +81,7 @@
         },
 
         onKeyUp_(e) {
-          if (e.key == 'Enter') {
+          if (e.key == 'Enter' && this.doneEnabled) {
             this.$.dialog.close();
             this.finish_();
             this.async(() => this.reset());

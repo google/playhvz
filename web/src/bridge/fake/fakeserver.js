@@ -118,7 +118,7 @@ class FakeServer {
   createChatRoom(chatRoomId, firstPlayerId, args) {
     this.checkIdNotTaken(chatRoomId, 'chatRoom');
     this.checkId(firstPlayerId, 'player');
-    this.checkRequestArgs(args, SERVER_CHAT_ROOM_PROPERTIES);
+    this.checkRequestArgs(args, SERVER_CHAT_ROOM_PROPERTIES, true);
     let gameId = this.reader.getGameIdForPlayerId(firstPlayerId);
     this.writer.insert(
         this.reader.getChatRoomPath(gameId, null),

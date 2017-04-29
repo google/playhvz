@@ -1,0 +1,87 @@
+<dom-module id="ghvz-chat-room-settings">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-room-settings',
+
+        properties: {
+          bridge: Object,
+          player: Object,
+
+          doneEnabled: {
+            type: Boolean,
+            value: false,
+          },
+
+          newName: {
+            type: String,
+            value: "",
+          },
+        },
+
+        observers: [
+          'updateDoneEnabled_(newName)',
+        ],
+
+        computeChatPage_: function(chatRoomId) {
+          return "chat/" + chatRoomId;
+        },
+
+        openForCreate: function() {
+          this.$.settingsForm.open();
+        },
+
+        updateDoneEnabled_: function(newName) {
+          if (this.newName == "") {
+            this.doneEnabled = false;
+            return;
+          }
+          this.doneEnabled = true;
+        },
+
+        createChatRoom_: function(bridge, player) {
+          this.doneEnabled = false;
+          var chatRoomId = Utils.generateId("chatRoom");
+          let name = this.$.chatName.value;
+          var args = {name: name};
+          this.bridge.createChatRoom(chatRoomId, this.player.id, args);
+          this.fire('ghvz-open-page', {
+              page: this.computeChatPage_(chatRoomId),
+            });
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    .contents {
+      padding: 8px;
+    }
+  </style>
+  <template>
+    <ghvz-form
+      id="settingsForm"
+      title="Chat Settings"
+      close-label="Cancel"
+      done-label="Create"
+      done-enabled="[[doneEnabled]]"
+      on-ghvz-form-done="createChatRoom_">
+      <div class="contents">
+        <paper-input 
+          id="chatName"
+          auto-validate
+          error-message="Name required!"
+          label="Name"
+          no-label-float
+          maxlength="40"
+          value="{{newName}}">
+        </paper-input>
+      </div>
+    </ghvz-form>
+  </template>
+</dom-module>

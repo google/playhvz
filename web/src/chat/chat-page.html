@@ -81,7 +81,11 @@
   <template>
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
     <div class="flex layout horizontal" style="height: 100%;">
-      <ghvz-chat-room-list class="chat-room-list" game="[[game]]">
+      <ghvz-chat-room-list 
+        class="chat-room-list" 
+        bridge="[[bridge]]"
+        game="[[game]]"
+        player="[[player]]">
       </ghvz-chat-room-list>
       <div class="vertical-separator"></div>
       <template is="dom-if" if="true">  

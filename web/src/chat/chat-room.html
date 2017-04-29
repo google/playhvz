@@ -104,14 +104,6 @@
           ("0" + date.getMinutes()).slice(-2);
         },
 
-        addPlayer_: function() {
-          this.$.addPlayerForm.openForAdding()
-          .then((properties) => {
-            console.log(properties);
-                  //this.bridge.addGun(Utils.generateId("gun"), properties);
-                });
-        },
-
         toggleChatInfo_: function() {
           this.chatInfoVisible ? this.hideChatInfo() : this.showChatInfo();
         },
