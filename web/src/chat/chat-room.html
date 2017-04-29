@@ -33,6 +33,10 @@
           },
         },
 
+        listeners: {
+          'ghvz-chat-info-action': 'executeAction_',
+        },
+
         observers: [
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
         ],
@@ -141,6 +145,15 @@
               },
             ],
           };
+        },
+
+        /* 
+        *  Catch action from drawer and pass to action executor.
+        *  This is required because drawer can't open dialogs in full
+        *  screen because it enjoys being difficult.
+        */
+        executeAction_(e) {
+          this.$.actions.executeAction(e);
         },
       });
     });
@@ -329,5 +342,12 @@
         <div main></div>
       </paper-drawer-panel>
     </div>
+
+    <ghvz-chat-info-actions
+      id="actions"
+      bridge="[[bridge]]"
+      game="[[game]]"
+      chat-room="[[chatRoom]]">
+    </ghvz-chat-info-actions>
   </template>
 </dom-module>

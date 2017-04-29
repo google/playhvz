@@ -124,11 +124,6 @@ class FakeServer {
         this.reader.getChatRoomPath(gameId, null),
         null,
         newChatRoom(chatRoomId, args));
-    this.writer.insert(
-        this.reader.getMembershipPath(gameId, chatRoomId, null),
-        null,
-        newMembership(Bridge.generateMembershipId(), {playerId: firstPlayerId}));
-
   }
   updatePlayer(playerId, args) {
     this.checkId(playerId, 'player');

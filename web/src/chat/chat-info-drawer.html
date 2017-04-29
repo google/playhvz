@@ -44,37 +44,9 @@
 
         captureTap_(e) {
           let action = e.target.dataset.action;
-          switch(action) {
-            case 'add':
-              this.addPlayer_();
-              break;
-            case 'leave':
-              this.leaveChat_();
-              break;
-            default:
-              // Unrecognized action, do nothing
-          }
+          this.fire('ghvz-chat-info-action', { action: action });
           e.preventDefault();
           e.stopPropagation();
-        },
-
-        addPlayer_: function() {
-          this.$.add.open();
-        },
-
-        onSetPlayer_: function(e) {
-          var newPlayer = this.matchingPlayerOrNull;
-          this.$.lookup.value = "";
-          this.bridge.addPlayerToChatRoom(this.chatRoom.id, newPlayer.id);
-        },
-
-        leaveChat_: function() {
-          alert("Really leave chat?");
-        },
-
-        openPlayerProfile_(e) {
-          console.log(e);
-          // add option to kick player from chat
         },
       });
     });
@@ -138,20 +110,6 @@
     }
   </style>
   <template>
-    <paper-dialog id="add">
-      <ghvz-player-lookup
-        id="lookup"
-        players="[[game.players]]"
-        players-by-id="[[game.playersById]]"
-        matching-player-or-null="{{matchingPlayerOrNull}}"
-        value="{{playerInputValue}}">
-      </ghvz-player-lookup>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Done</paper-button>
-        <paper-button on-tap="onSetPlayer_">Add</paper-button>
-      </div>
-    </paper-dialog>
-
     <div on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]
