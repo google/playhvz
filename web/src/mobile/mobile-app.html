@@ -24,18 +24,6 @@
           value: null,
         },
 
-        showPage: {
-          type: Object,
-          value: {
-            'main': 'main',
-            'chat': 'chat',
-            'notifications': 'notifications',
-            'profile': 'profile',
-            'stats': 'stats',
-          },
-        },
-      },
-
       onPageChanged_: function(newPage, oldPage) {
         if (newPage == 'main') {
           this.$.pages.entryAnimation = '';
@@ -48,13 +36,6 @@
           this.$.pages.selected = 1;
         }
       },
-
-      computeShowPage_(desiredPage, secondPage) {
-          if (this.page && this.page.startsWith(desiredPage)) {
-            return true;
-          }
-          return false;
-        },
     });
   });
 </script>
