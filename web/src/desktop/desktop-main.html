@@ -25,9 +25,9 @@
             computed: 'computeIsPlayer_(player)',
           },
 
-          canRegister: {
+          canJoinGame: {
             type: Boolean,
-            computed: 'computeCanRegister_(game, player)',
+            computed: 'computeCanJoinGame_(game, player)',
           },
 
           canInfect: {
@@ -49,7 +49,7 @@
           }
         },
 
-        computeCanRegister_(game, player) {
+        computeCanJoinGame_(game, player) {
           return game && !player;
         },
 
@@ -57,6 +57,11 @@
           return !!player;
         },
 
+        joinGame_() {
+          this.fire('ghvz-open-page', {
+            page: 'joinGame',
+          });
+        },
       });
     });
   </script>
@@ -173,15 +178,10 @@
         </ghvz-card>
       </template>
 
-      <template is="dom-if" if="[[canRegister]]">
-        <ghvz-card spaced full>
+      <template is="dom-if" if="[[canJoinGame]]">
+        <ghvz-card spaced full padded>
           <div class="header">Join A Game</div>
-          <ghvz-game-registration
-                class="content"
-                bridge="[[bridge]]"
-                game="[[game]]"
-                user-id="[[user.id]]">
-          </ghvz-game-registration>
+          <a href="javascript:void()" on-tap="joinGame_">Click here to join the game!</a>
         </ghvz-card>
       </template>
 

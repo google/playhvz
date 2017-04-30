@@ -8,8 +8,15 @@
       is: 'ghvz-order-question',
 
       properties: {
-        question: String,
-        answers: Array,
+        question: {
+          type: String,
+          observer: 'reset_',
+        },
+
+        answers: {
+          type: Array,
+          value: () => [],
+        },
 
         nextEnabled: {
           type: Boolean,
@@ -18,9 +25,16 @@
       },
 
       onAnswerTapped_(e) {
-        let answerElement = e.target.closest('.answer');
-        // let index = e.model.dataHost.indexForElement(e.target);
-        this.$.ordered.appendChild(answerElement);
+        let unorderedAnswer = e.target.closest('.answer');
+        let answerId = unorderedAnswer.dataset.answerId;
+        let orderedAnswer =
+            Array.from(this.querySelectorAll('#ordered .answer'))
+                .find(answer => answer.dataset.answerId == answerId);
+        assert(orderedAnswer);
+        unorderedAnswer.opened = false;
+        // Move it to the end
+        orderedAnswer.parentNode.appendChild(orderedAnswer);
+        orderedAnswer.opened = true;
         this.updateNextEnabled_();
       },
 
@@ -48,44 +62,75 @@
       },
 
       reset_: function(event) {
-        let answers = this.querySelectorAll(".answer");
-        answers = Utils.shuffle(answers);
-        for (let answer of answers) {
-          this.$.unordered.appendChild(answer);
-        }
+        this.answers = Utils.shuffle(this.question.answers.slice());
         this.updateNextEnabled_();
       },
     });
   });
 </script>
 <style>
+  :host {
+    display: block;
+  }
+  #answers {
+    display: flex;
+    flex-direction: row;
+  }
+  #unordered {
+    width: 50%;
+  }
+  #ordered {
+    width: 50%;
+  }
   .answer {
-    padding: 16px;
+    margin: 8px 0
+  }
+  .answer paper-material {
+    padding: 8px;;
+    display: flex;
+    flex-direction: row;
+  }
+  .text {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
   }
 </style>
 <template>
   <div>
-    [[question]]
+    [[question.text]]
   </div>
-  <div id="unordered">
-    <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
-      <iron-collapse opened>
-        <paper-material class="answer">
-          [[answer]]
-          <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
-        </paper-material>
-      </iron-collapse>
-    </template>
-  </div>
-  <div id="ordered">
-    <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
-      <iron-collapse>
-        <paper-material class="answer">
-          [[answer]]
-          <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
-        </paper-material>
-      </iron-collapse>
-    </template>
+  <div id="answers">
+    <div id="unordered">
+      <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
+        <iron-collapse class="answer" opened data-answer-id$="[[answer.id]]">
+          <paper-material>
+            <div class="text">
+              [[answer.text]]
+            </div>
+            <div class="button-container">
+              <paper-button raised on-tap="onAnswerTapped_">Choose</paper-button>
+            </div>
+          </paper-material>
+        </iron-collapse>
+      </template>
+    </div>
+    <div id="ordered">
+      <template id="repeater" is="dom-repeat" items="[[question.answers]]" as="answer">
+        <iron-collapse class="answer" data-answer-id$="[[answer.id]]">
+          <paper-material>
+            <!-- <div class="text"> -->
+              [[answer.text]]
+            <!-- </div>
+            <paper-button raised on-tap="onAnswerTapped_">Choose</paper-button> -->
+          </paper-material>
+        </iron-collapse>
+      </template>
+    </div>
   </div>
   <div>
     <paper-button on-tap="reset_">Reset</paper-button>

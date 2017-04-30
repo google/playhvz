@@ -355,4 +355,23 @@ class FakeServer {
       this.writer.set(playerPath.concat(["allegiance"]), "resistance");
     }
   }
+  addQuizQuestion(questionId, gameId, args) {
+    this.checkIdNotTaken(questionId, 'quizQuestion');
+    this.checkId(gameId, 'game');
+    this.checkRequestArgs(args, SERVER_QUIZ_QUESTION_PROPERTIES);
+    this.writer.insert(
+        this.reader.getQuizQuestionPath(gameId, null),
+        null,
+        newQuizQuestion(questionId, args));
+  }
+  addQuizAnswer(answerId, questionId, args) {
+    this.checkIdNotTaken(answerId, 'quizAnswer');
+    this.checkId(questionId, 'quizQuestion');
+    let gameId = this.reader.getGameIdForQuizQuestionId(questionId);
+    this.checkRequestArgs(args, SERVER_QUIZ_ANSWER_PROPERTIES);
+    this.writer.insert(
+        this.reader.getQuizAnswerPath(gameId, questionId, null),
+        null,
+        newQuizAnswer(answerId, args));
+  }
 }

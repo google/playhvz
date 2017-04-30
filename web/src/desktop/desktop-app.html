@@ -21,6 +21,7 @@
             value: {
               'main': 'main',
               'chat': 'chat',
+              'joinGame': 'joinGame',
               'notifications': 'notifications',
               'profile': 'profile',
               'stats': 'stats',
@@ -43,6 +44,9 @@
       position: relative;
       background-color: #f4f4f4;
       padding: 8px;
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
     }
   </style>
   <template>
@@ -54,6 +58,18 @@
           user="[[user]]"
           player="[[player]]">
       </ghvz-desktop-main-page>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.joinGame, page)]]">
+      <ghvz-card spaced expand>
+        <div class="header">Join Game</div>
+        <ghvz-game-registration
+              class="content"
+              bridge="[[bridge]]"
+              game="[[game]]"
+              user-id="[[user.id]]">
+        </ghvz-game-registration>
+      </ghvz-card>
     </template>
 
     <template is="dom-if" if="[[computeShowPage_(showPage.stats, page)]]">
