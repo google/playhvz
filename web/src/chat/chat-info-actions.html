@@ -66,7 +66,11 @@
         },
 
         leaveChat_: function() {
-          alert("Really leave chat?");
+          this.$.leaveForm.open();
+        },
+
+        onConfirmLeave_: function(e) {
+          console.log("removing player");
         },
 
         openPlayerProfile_(e) {
@@ -99,6 +103,17 @@
         matching-player-or-null="{{matchingPlayerOrNull}}"
         value="{{playerInputValue}}">
       </ghvz-player-lookup>
+    </ghvz-form>
+
+    <ghvz-form
+      id="leaveForm"
+      title="Really leave [[chatRoom.name]]?"
+      close-label="Cancel"
+      done-label="Yep, really leave"
+      on-ghvz-form-done="onConfirmLeave_">
+      <div class="form-contents">
+        Can't be undone, someone will have to add you back
+      </div>
     </ghvz-form>
   </template>
 </dom-module>
