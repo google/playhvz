@@ -16,12 +16,16 @@ class RemoteBridge {
       return new Promise((resolve, reject) => {
         firebase.auth().getRedirectResult()
             .then((result) => {
-              this.userId = result.user.uid;
-              this.register(userId)
-                  .then(() => {
-                    this.firebaseListener.listenToUser(this.userId);
-                    resolve(result.user.uid);
-                  });
+              if (result.user) {
+                this.userId = result.user.uid;
+                this.register(userId)
+                    .then(() => {
+                      this.firebaseListener.listenToUser(this.userId);
+                      resolve(result.user.uid);
+                    });
+              } else {
+                // This sometimes happens when we redirect away. Let it go.
+              }
             }).catch((error) => {
               reject(error.message);
             });

@@ -292,6 +292,9 @@ class FirebaseListener {
             this.writer.set(this.reader.getChatRoomMembershipPath(gameId, chatRoomId, membershipId).concat([property]), value);
           });
     });
+    ref.on("child_removed", (snap) => {
+      debugger;
+    });
   }
 
   listenToChatRoomMessages_(gameId, chatRoomId) {
