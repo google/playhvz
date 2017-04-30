@@ -48,7 +48,7 @@ class BatchedPolymerWriter {
           } else {
             assert(typeof obj == 'object');
             notifies.push(() => {
-              this.component.notifyPath(targetPath + "." + index, undefined);
+              this.component.notifyPath(targetPath + "." + index, null);
             });
           }
           Utils.remove(property, path, index);
