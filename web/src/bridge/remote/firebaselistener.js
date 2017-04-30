@@ -283,8 +283,8 @@ class FirebaseListener {
   listenToChatRoomMemberships_(gameId, chatRoomId) {
     var ref = this.firebaseRoot.child("/chatRooms/" + chatRoomId + "/memberships");
     ref.on("child_added", (snap) => {
-      let membershipId = snap.getKey();
-      let obj = newMembership(membershipId, snap.val());
+      let playerId = snap.getKey();
+      let obj = newMembership(playerId, {playerId: playerId});
       this.writer.insert(this.reader.getChatRoomMembershipPath(gameId, chatRoomId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, MEMBERSHIP_PROPERTIES, MEMBERSHIP_COLLECTIONS,

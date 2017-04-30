@@ -2,24 +2,39 @@
 
 // We assumes below that the objects at these paths have an "id" property
 let definitions = [
-  ["games", null],
-  ["games", null, "players", null],
-  ["games", null, "players", null, "claims", null],
-  ["games", null, "players", null, "infections", null],
-  ["games", null, "players", null, "lives", null],
-  ["games", null, "players", null, "notifications", null],
-  ["games", null, "rewardCategories", null],
-  ["games", null, "rewardCategories", null, "rewards", null],
-  ["games", null, "chatRooms", null],
-  ["games", null, "chatRooms", null, "messages", null],
-  ["games", null, "chatRooms", null, "memberships", null],
-  ["games", null, "notificationCategories", null],
-  ["games", null, "missions", null],
-  ["guns", null],
-  ["users", null],
+  ["gamesById", null],
+  ["games", null, "playersById", null],
+  ["games", null, "players", null, "claimsById", null],
+  ["games", null, "players", null, "infectionsById", null],
+  ["games", null, "players", null, "livesById", null],
+  ["games", null, "players", null, "notificationsById", null],
+  ["games", null, "rewardCategoriesById", null],
+  ["games", null, "rewardCategories", null, "rewardsById", null],
+  ["games", null, "chatRoomsById", null],
+  ["games", null, "chatRooms", null, "messagesById", null],
+  ["games", null, "chatRooms", null, "membershipsByPlayerId", null],
+  ["games", null, "notificationCategoriesById", null],
+  ["games", null, "missionsById", null],
+  ["gunsById", null],
+  ["usersById", null],
 ];
 
 let references = [
+  ["games", null],
+  ["games", null, "players", null, "id", null],
+  ["games", null, "players", null, "claims", null, "id", null],
+  ["games", null, "players", null, "infections", null, "id", null],
+  ["games", null, "players", null, "lives", null, "id", null],
+  ["games", null, "players", null, "notifications", null, "id", null],
+  ["games", null, "rewardCategories", null, "id", null],
+  ["games", null, "rewardCategories", null, "rewards", null, "id", null],
+  ["games", null, "chatRooms", null, "id", null],
+  ["games", null, "chatRooms", null, "messages", null, "id", null],
+  ["games", null, "chatRooms", null, "membershipsByPlayerId", null, "id", null],
+  ["games", null, "notificationCategories", null, "id", null],
+  ["games", null, "missions", null, "id", null],
+  ["guns", null, "id", null],
+  ["users", null, "id", null],
   // AKA "anything at here is an ID referring somewhere else"
   ["games", null, "chatRooms", null, "gameId", null],
   ["games", null, "chatRooms", null, "membershipsByPlayerId", null],
@@ -49,7 +64,7 @@ function matchesAnyDefinition(path) {
 }
 
 function findDefinitions(path, value, callback) {
-  Utils.forEachPathUnder(path, value, (wholePath, value) => {
+  Utils.forEachRowUnder(path, value, (wholePath, value) => {
     if (matchesAnyDefinition(wholePath)) {
       callback(wholePath, value);
     }
@@ -97,10 +112,11 @@ class ConsistentWriter {
 
   noteReferencesAndDefinitions(path, value) {
     findDefinitions(path, value, (wholePath, value) => {
-      if (this.definedById[value.id] === undefined) {
-        // console.log("Found definition for id", value.id);
-        this.definedById[value.id] = true;
-      } else if (this.definedById[value.id] === true) {
+      let id = wholePath.slice(-1)[0];
+      if (this.definedById[id] === undefined) {
+        console.log("Found definition for id", id);
+        this.definedById[id] = true;
+      } else if (this.definedById[id] === true) {
         // Lets say we receive ["games"] and then ["games", 4, "stunTimer"]
         // We would hit this case four times:
         // ["games"]
@@ -108,9 +124,9 @@ class ConsistentWriter {
         // ["games", 4]
         // ["games", 4, "stunTimer"]
         // So its not particularly worrying if we get here.
-      } else if (this.definedById[value.id] === false) {
-        // console.log("Found definition for id", value.id, ", no longer hanging!");
-        this.definedById[value.id] = true;
+      } else if (this.definedById[id] === false) {
+        console.log("Found definition for id", id, ", no longer hanging!");
+        this.definedById[id] = true;
         assert(this.numUndefined);
         this.numUndefined--;
       } else {
@@ -124,9 +140,9 @@ class ConsistentWriter {
         if (this.definedById[id] === undefined) {
           this.definedById[id] = false;
           this.numUndefined++;
-          // console.log("Found reference to", id, ", is hanging!");
+          console.log("Found reference to", id, ", is hanging!");
         } else {
-          // console.log("Found reference to", id, "already defined");
+          console.log("Found reference to", id, "already defined");
         }
       }
     });
