@@ -1,0 +1,111 @@
+
+<dom-module id="ghvz-display-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-display-page',
+
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: Object,
+          game: Object,
+          player: Object,
+          page: String,
+          
+          isMobile: {
+            type: Boolean,
+            value: false,
+          },
+
+          showPage: {
+            type: Object,
+            value: {
+              // 'main' is handled by either desktop-app or mobile-app
+              'chat': 'chat',
+              'joinGame': 'joinGame',
+              'notifications': 'notifications',
+              'profile': 'profile',
+              'stats': 'stats',
+            },
+          },
+        },
+
+        computeShowPage_: function(desiredPage, page) {
+          if (this.page && this.page.startsWith(desiredPage)) {
+            return true;
+          }
+          return false;
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      background-color: #f4f4f4;
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    :host[!isMobile] {
+      padding: 8px;
+    }
+  </style>
+  <template>
+    <template is="dom-if" if="[[computeShowPage_(showPage.joinGame, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Join Game</div>
+        <ghvz-game-registration
+              class="content"
+              bridge="[[bridge]]"
+              game="[[game]]"
+              user-id="[[user.id]]">
+        </ghvz-game-registration>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.stats, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Game Stats</div>
+        <ghvz-stats-page
+            bridge="[[bridge]]"
+            database="[[database]]"
+            game="[[game]]"
+            user="[[user]]"
+            player="[[player]]">
+        </ghvz-stats-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.chat, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <ghvz-chat-page
+            bridge="[[bridge]]"
+            database="[[database]]"
+            game="[[game]]"
+            user="[[user]]"
+            player="[[player]]"
+            page="[[page]]">
+        </ghvz-chat-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.notifications, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Notifications</div>
+        <ghvz-notifications-page
+            bridge="[[bridge]]"
+            categories-by-id="[[game.notificationCategoriesById]]"
+            categories="[[game.notificationCategories]]"
+            player="[[player]]"
+            page="[[page]]">
+        </ghvz-notifications-page>
+      </ghvz-card>
+    </template>
+  </template>
+</dom-module>

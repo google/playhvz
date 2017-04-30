@@ -75,6 +75,7 @@
   }
 </style>
 <template>
+  
   <neon-animated-pages id="pages" class="flex" selected="0">
     <neon-animatable>
       <ghvz-mobile-main-page
@@ -86,32 +87,16 @@
       </ghvz-mobile-main-page>
     </neon-animatable>
     <neon-animatable>
-      <template is="dom-if" if="[[secondPage]]">
-        <template is="dom-if" if="[[computeShowPage_(showPage.stats, secondPage)]]">
-          <ghvz-card expand with-menu>
-            <div class="header">Game Stats</div>
-            <ghvz-stats-page
-                bridge="[[bridge]]"
-                database="[[database]]"
-                user="[[user]]"
-                game="[[game]]"
-                player="[[player]]">
-            </ghvz-stats-page>
-          </ghvz-card>
-        </template>
-        <template is="dom-if" if="[[computeShowPage_(showPage.chat, secondPage)]]">
-          <ghvz-card expand with-menu>
-            <ghvz-chat-page
-                bridge="[[bridge]]"
-                database="[[database]]"
-                user="[[user]]"
-                game="[[game]]"
-                player="[[player]]"
-                page="[[secondPage]]">
-            </ghvz-chat-page>
-          </ghvz-card>
-        </template>
-      </template>
+      <ghvz-display-page
+        bridge="[[bridge]]"
+        database="[[database]]"
+        user="[[user]]"
+        game="[[game]]"
+        player="[[player]]"
+        player-id="[[playerId]]"
+        page="[[page]]"
+        is-mobile>
+      </ghvz-display-page>
     </neon-animatable>
   </neon-animated-pages>
 </template>

@@ -16,24 +16,18 @@
           player: Object,
           page: String,
 
-          showPage: {
-            type: Object,
-            value: {
-              'main': 'main',
-              'chat': 'chat',
-              'joinGame': 'joinGame',
-              'notifications': 'notifications',
-              'profile': 'profile',
-              'stats': 'stats',
-            },
+          showMainPage: {
+            type: Boolean,
+            value: false,
           },
         },
 
-        computeShowPage_(desiredPage, page) {
-          if (this.page && this.page.startsWith(desiredPage)) {
-            return true;
-          }
-          return false;
+        observers: [
+          'onPageChanged_(page)',
+        ],
+
+        onPageChanged_: function() {
+          this.showMainPage_ = this.page.startsWith('main');
         },
       });
     });
@@ -50,65 +44,23 @@
     }
   </style>
   <template>
-    <template is="dom-if" if="[[computeShowPage_(showPage.main, page)]]">
+    <template is="dom-if" if="[[showMainPage_]]">
       <ghvz-desktop-main-page
-          bridge="[[bridge]]"
-          database="[[database]]"
-          game="[[game]]"
-          user="[[user]]"
-          player="[[player]]">
+        bridge="[[bridge]]"
+        database="[[database]]"
+        game="[[game]]"
+        user="[[user]]"
+        player="[[player]]">
       </ghvz-desktop-main-page>
     </template>
-
-    <template is="dom-if" if="[[computeShowPage_(showPage.joinGame, page)]]">
-      <ghvz-card spaced expand>
-        <div class="header">Join Game</div>
-        <ghvz-game-registration
-              class="content"
-              bridge="[[bridge]]"
-              game="[[game]]"
-              user-id="[[user.id]]">
-        </ghvz-game-registration>
-      </ghvz-card>
-    </template>
-
-    <template is="dom-if" if="[[computeShowPage_(showPage.stats, page)]]">
-      <ghvz-card full spaced>
-        <div class="header">Game Stats</div>
-        <ghvz-stats-page
-            bridge="[[bridge]]"
-            database="[[database]]"
-            game="[[game]]"
-            user="[[user]]"
-            player="[[player]]">
-        </ghvz-stats-page>
-      </ghvz-card>
-    </template>
-
-    <template is="dom-if" if="[[computeShowPage_(showPage.chat, page)]]">
-      <ghvz-card full spaced>
-        <ghvz-chat-page
-            bridge="[[bridge]]"
-            database="[[database]]"
-            game="[[game]]"
-            user="[[user]]"
-            player="[[player]]"
-            page="[[page]]">
-        </ghvz-chat-page>
-      </ghvz-card>
-    </template>
-
-    <template is="dom-if" if="[[computeShowPage_(showPage.notifications, page)]]">
-      <ghvz-card full spaced>
-        <div class="header">Notifications</div>
-        <ghvz-notifications-page
-            bridge="[[bridge]]"
-            categories-by-id="[[game.notificationCategoriesById]]"
-            categories="[[game.notificationCategories]]"
-            player="[[player]]"
-            page="[[page]]">
-        </ghvz-notifications-page>
-      </ghvz-card>
-    </template>
+    <ghvz-display-page
+      bridge="[[bridge]]"
+      database="[[database]]"
+      user="[[user]]"
+      game="[[game]]"
+      player="[[player]]"
+      player-id="[[playerId]]"
+      page="[[page]]">
+    </ghvz-display-page>
   </template>
 </dom-module>
