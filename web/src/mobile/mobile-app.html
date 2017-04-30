@@ -23,6 +23,17 @@
           type: String,
           value: null,
         },
+
+        showPage: {
+          type: Object,
+          value: {
+            'main': 'main',
+            'chat': 'chat',
+            'notifications': 'notifications',
+            'profile': 'profile',
+            'stats': 'stats',
+          },
+        },
       },
 
       onPageChanged_: function(newPage, oldPage) {
@@ -38,8 +49,12 @@
         }
       },
 
-      statsPageVisible_(secondPage) { return secondPage == 'stats'; },
-      chatPageVisible_(secondPage) { return secondPage == 'chat' || secondPage.startsWith('chat/');  },
+      computeShowPage_(desiredPage, secondPage) {
+          if (this.page && this.page.startsWith(desiredPage)) {
+            return true;
+          }
+          return false;
+        },
     });
   });
 </script>
@@ -72,7 +87,7 @@
     </neon-animatable>
     <neon-animatable>
       <template is="dom-if" if="[[secondPage]]">
-        <template is="dom-if" if="[[statsPageVisible_(secondPage)]]">
+        <template is="dom-if" if="[[computeShowPage_(showPage.stats, secondPage)]]">
           <ghvz-card expand with-menu>
             <div class="header">Game Stats</div>
             <ghvz-stats-page
@@ -84,7 +99,7 @@
             </ghvz-stats-page>
           </ghvz-card>
         </template>
-        <template is="dom-if" if="[[chatPageVisible_(secondPage)]]">
+        <template is="dom-if" if="[[computeShowPage_(showPage.chat, secondPage)]]">
           <ghvz-card expand with-menu>
             <ghvz-chat-page
                 bridge="[[bridge]]"

@@ -15,12 +15,25 @@
           game: Object,
           player: Object,
           page: String,
+
+          showPage: {
+            type: Object,
+            value: {
+              'main': 'main',
+              'chat': 'chat',
+              'notifications': 'notifications',
+              'profile': 'profile',
+              'stats': 'stats',
+            },
+          },
         },
 
-        computeShowMainPage_(page) { return page == 'main'; },
-        computeShowStatsPage_(page) { return page == 'stats'; },
-        computeShowChatPage_(page) { return page == 'chat' || page.startsWith('chat/'); },
-        computeShowNotificationsPage_(page) { return page.startsWith('notifications'); },
+        computeShowPage_(desiredPage, page) {
+          if (this.page && this.page.startsWith(desiredPage)) {
+            return true;
+          }
+          return false;
+        },
       });
     });
   </script>
@@ -33,7 +46,7 @@
     }
   </style>
   <template>
-    <template is="dom-if" if="[[computeShowMainPage_(page)]]">
+    <template is="dom-if" if="[[computeShowPage_(showPage.main, page)]]">
       <ghvz-desktop-main-page
           bridge="[[bridge]]"
           database="[[database]]"
@@ -43,7 +56,7 @@
       </ghvz-desktop-main-page>
     </template>
 
-    <template is="dom-if" if="[[computeShowStatsPage_(page)]]">
+    <template is="dom-if" if="[[computeShowPage_(showPage.stats, page)]]">
       <ghvz-card full spaced>
         <div class="header">Game Stats</div>
         <ghvz-stats-page
@@ -56,7 +69,7 @@
       </ghvz-card>
     </template>
 
-    <template is="dom-if" if="[[computeShowChatPage_(page)]]">
+    <template is="dom-if" if="[[computeShowPage_(showPage.chat, page)]]">
       <ghvz-card full spaced>
         <ghvz-chat-page
             bridge="[[bridge]]"
@@ -69,7 +82,7 @@
       </ghvz-card>
     </template>
 
-    <template is="dom-if" if="[[computeShowNotificationsPage_(page)]]">
+    <template is="dom-if" if="[[computeShowPage_(showPage.notifications, page)]]">
       <ghvz-card full spaced>
         <div class="header">Notifications</div>
         <ghvz-notifications-page

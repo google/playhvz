@@ -1,0 +1,70 @@
+<dom-module id="ghvz-profile-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-profile-page',
+
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: String,
+          game: String,
+          player: Object,
+          page: String,
+
+          currentChatRoom: {
+            type: Object,
+            value: null,
+          },
+        },
+
+        observers: [
+          'onPageChanged_(page, game.chatRooms.*)',
+        ],
+
+        onPageChanged_() {
+          if (this.page == "chat" || this.page.startsWith('chat/')) {
+            var chatRoomId = this.page.includes('/') ? this.page.split('/')[1] : "";
+            if (chatRoomId) {
+              this.$.chatRoomSelector.select(
+                  this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
+              if (this.$.chatRoomSelector.selected != null) {
+                return;
+              }
+            }
+            if (this.game.chatRooms.length > 0) {
+              this.async(() => {
+                chatRoomId = this.game.chatRooms[0].id;
+                var page = "chat/" + chatRoomId;
+                this.fire('ghvz-open-page', {
+                  page: page,
+                });
+              });
+            }
+          }
+        },
+
+        extractChatRoomIdFromUrl_() {
+          let initialUrl = window.location.pathname;
+          let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
+          if (!match) {
+            return null;
+          }
+          let chatRoomId = match[1];
+          return chatRoomId;
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <div>helloworld</div>
+  </template>
+</dom-module>
