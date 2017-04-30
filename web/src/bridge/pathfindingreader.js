@@ -80,13 +80,13 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), notificationId)]);
     return path;
   }
-  getMembershipPath(gameId, chatRoomId, membershipId) {
+  getMembershipPath(gameId, chatRoomId, playerId) {
     assert(gameId);
     assert(chatRoomId);
-    assert(typeof membershipId == 'string' || membershipId == null);
+    assert(typeof playerId == 'string' || playerId == null);
     let path = this.getChatRoomPath(gameId, chatRoomId).concat(["memberships"]);
-    if (membershipId)
-      path = path.concat([Utils.findIndexById(this.get(path), membershipId)]);
+    if (playerId)
+      path = path.concat([Utils.findIndexById(this.get(path), playerId)]);
     return path;
   }
   getAdminPath(gameId, adminId) {

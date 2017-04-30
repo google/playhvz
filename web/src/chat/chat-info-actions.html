@@ -13,6 +13,8 @@
           game: Object,
           chatRoom: Object,
 
+          playerId: String,
+
           playersInChatRoom: {
             type: Object,
             value: function() { return []; },
@@ -70,7 +72,7 @@
         },
 
         onConfirmLeave_: function(e) {
-          console.log("removing player");
+          this.bridge.removePlayerFromChatRoom(this.chatRoom.id, this.playerId);
         },
 
         openPlayerProfile_(e) {

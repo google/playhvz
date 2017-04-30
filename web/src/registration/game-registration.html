@@ -63,13 +63,18 @@
         color: grey;
       }
       .section {
-        padding-top: 24px;
-        padding-bottom: 24px;
+        margin: 32px 0;
+      }
+      .section:first-child {
+        margin-top: 0;
       }
       .radio-style {
         display: block;
         padding-top: 8px;
         padding-bottom: 8px;
+      }
+      paper-input {
+        margin-top: -20px;
       }
     </style>
     <form is="iron-form" id="form">
@@ -86,7 +91,7 @@
           <div class="maintext">Can you get your own Nerf gun before the game? (If not, we can get you one!) 
           </div>
           <div class="subtext">
-            We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href="http://www.walmart.com/ip/22866794?wl3=40330218152&wl4=pla-78287872112&wl5=9031923&wl9=pla&wl10=8175035&wl12=22866794&wl13=&veh=sem">Strongarm</a> tried-and-true and only $13, most players will have them.
+            We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href="https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050">Disruptor</a> tried-and-true and only $12, most players will have them.
           </div>
           <paper-radio-group attr-for-selected="value">
             <paper-radio-button name="needGun" value="yes" class="radio-style">

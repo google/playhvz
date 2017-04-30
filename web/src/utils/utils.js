@@ -273,10 +273,17 @@ Utils.insert = function(obj, path, index, value) {
   return (function innerInsert(obj, path, index, value) {
     assert(obj);
     if (path.length == 0) {
-      if (index == null)
-        obj.push(value);
-      else
-        obj.splice(index, 0, value);
+      if (obj instanceof Array) {
+        if (index == null) {
+          obj.push(value);
+        } else {
+          assert(typeof index == 'number');
+          obj.splice(index, 0, value);
+        }
+      } else {
+        assert(typeof obj == 'object');
+        obj[index] = value;
+      }
     } else {
       innerInsert(obj[path[0]], path.slice(1), index, value);
     }
@@ -286,7 +293,14 @@ Utils.remove = function(obj, path, index) {
   (function innerRemove(obj, path, index) {
     assert(obj);
     if (path.length == 0) {
-      obj.splice(index, 1);
+      if (obj instanceof Array) {
+        assert(typeof index == 'number');
+        obj.splice(index, 1);
+      } else {
+        assert(typeof obj == 'object');
+        assert(index in obj);
+        delete obj[index];
+      }
     } else {
       innerRemove(obj[path[0]], path.slice(1), index);
     }

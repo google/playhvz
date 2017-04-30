@@ -40,6 +40,7 @@ const SERVER_METHODS = [
   'awardPoints',
   'addMessageToChatRoom',
   'addPlayerToChatRoom',
+  'removePlayerFromChatRoom',
   'addMission',
   'infect',
   'addLife',

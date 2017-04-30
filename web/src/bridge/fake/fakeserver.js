@@ -142,7 +142,17 @@ class FakeServer {
     this.writer.insert(
         this.reader.getMembershipPath(gameId, chatRoomId, null),
         null,
-        newMembership(Bridge.generateMembershipId(), {playerId: playerId}));
+        newMembership(playerId, {playerId: playerId}));
+  }
+  removePlayerFromChatRoom(chatRoomId, playerId) {
+    this.checkId(chatRoomId, 'chatRoom');
+    this.checkId(playerId, 'player');
+    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
+    let path = this.reader.getMembershipPath(gameId, chatRoomId, playerId);
+    this.writer.remove(
+        path.slice(0, path.length - 1),
+        path[path.length - 1],
+        playerId);
   }
   addMessageToChatRoom(messageId, chatRoomId, playerId, args) {
     this.checkId(playerId, 'player');

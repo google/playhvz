@@ -74,15 +74,19 @@ class MappingWriter {
     this.mapify_(path.concat([indexOrNull]), value);
     // If the array we're inserting into has a corresponding map,
     // then set the element in that map.
-    let mapPath = this.mapifyValuePath_(path, value);
+    let mapPath = this.mapifyPath_(path);
     if (mapPath) {
-      this.destination.set(mapPath, value);
+      this.destination.insert(mapPath, value.id, value);
     }
     // And finally, add to the array.
     this.destination.insert(path, indexOrNull, value);
   }
-  remove(path, index) {
-    assert(false); // implement
+  remove(path, index, id) {
+    assert(id == null || typeof id == 'string');
+    if (id != null) {
+      let mapPath = this.mapifyPath_(path);
+      this.destination.remove(mapPath, id);
+    }
     this.destination.remove(path, index);
   }
   // Takes an object, looks for arrays in there, and if we have any
@@ -122,18 +126,6 @@ class MappingWriter {
       let mapPath = path.slice();
       mapPath.pop();
       mapPath.push(result.newMap);
-      return mapPath;
-    } else {
-      return null;
-    }
-  }
-  mapifyValuePath_(path, value) {
-    let result = findMapping(path);
-    if (result) {
-      let mapPath = path.slice();
-      mapPath.pop();
-      mapPath.push(result.newMap);
-      mapPath.push(value[result.keyBy]);
       return mapPath;
     } else {
       return null;

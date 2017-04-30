@@ -31,8 +31,27 @@ class BatchedPolymerWriter {
           });
           break;
         case 'remove':
+          debugger;
+          let obj = Utils.get(property, path);
+          if (obj instanceof Array) {
+            let removed = obj[index];
+            notifies.push(() => {
+              this.component.notifySplices(targetPath, [
+                  {
+                    index: index,
+                    removed: [removed],
+                    addedCount: 0,
+                    object: obj,
+                    type: 'splice',
+                  }]);
+            });
+          } else {
+            assert(typeof obj == 'object');
+            notifies.push(() => {
+              this.component.notifyPath(targetPath + "." + index, undefined);
+            });
+          }
           Utils.remove(property, path, index);
-          console.error("implement");
           break;
         default:
           throwError('Unknown operation:', operation);
