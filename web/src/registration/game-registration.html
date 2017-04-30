@@ -22,11 +22,16 @@
             profileImageUrl: '',
             name: event.detail.playerName, 
           };
+          // As the new player comes down from firebase,
+          // <ghvz-app> will detect it and auto-choose it.
           this.bridge.joinGame(
               Bridge.generatePlayerId(),
               this.userId,
               this.game.id,
               playerArgs);
+          this.fire('ghvz-open-page', {
+            page: 'main',
+          });
         },
 
         nextPage_() {
@@ -172,9 +177,11 @@
               </paper-radio-group>
             </div>
 
-            <paper-button raised on-click="nextPage_">
-              Next
-            </paper-button>
+            <div class="section">
+              <paper-button raised on-click="nextPage_">
+                Next
+              </paper-button>
+            </div>
           </div>
         </neon-animatable>
 
