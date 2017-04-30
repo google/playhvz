@@ -8,6 +8,7 @@
       is: 'ghvz-order-question',
 
       properties: {
+        game: Object,
         question: {
           type: String,
           observer: 'reset_',
@@ -18,9 +19,19 @@
           value: () => [],
         },
 
-        nextEnabled: {
+        suppliedOrderedAnswerIds: {
+          type: Array,
+          value: () => [],
+        },
+
+        isCorrect: {
           type: Boolean,
-          value: false,
+          computed: 'computeIsCorrect_(question.answers, suppliedOrderedAnswerIds)',
+        },
+
+        prompt: {
+          type: String,
+          computed: 'computePrompt_(question.answers, suppliedOrderedAnswerIds, isCorrect)',
         },
       },
 
@@ -35,22 +46,39 @@
         // Move it to the end
         orderedAnswer.parentNode.appendChild(orderedAnswer);
         orderedAnswer.opened = true;
-        this.updateNextEnabled_();
+
+        this.suppliedOrderedAnswerIds =
+            Array.from(this.querySelectorAll("#ordered .answer"))
+                .filter(element => element.opened)
+                .map(element => element.dataset.answerId);
       },
 
-      updateNextEnabled_() {
-        this.nextEnabled = this.isCorrect_();
+      computePrompt_(answers, suppliedOrderedAnswerIds, isCorrect) {
+        if (isCorrect) {
+          return "Great! Hit Next to continue!";
+        } else {
+          if (suppliedOrderedAnswerIds.length == 0) {
+            return "Which comes first?";
+          } else if (suppliedOrderedAnswerIds.length == answers.length) {
+            return "Sorry, incorrect! Hit Reset below to try again.";
+          } else {
+            return "Which comes next?";
+          }
+        }
       },
 
-      isCorrect_() {
-        let answers = this.querySelectorAll("#ordered .answer");
-        if (answers != this.answers.length) {
+      computeIsCorrect_(answers, suppliedOrderedAnswerIds) {
+        let correctOrderedAnswerIds =
+            answers.slice()
+                .filter(answer => answer.isCorrect)
+                .sort((a, b) => a.order - b.order)
+                .map(answer => answer.id);
+
+        if (suppliedOrderedAnswerIds.length != correctOrderedAnswerIds.length) {
           return false;
         }
-        for (let i = 0; i < answers.length; i++) {
-          let answer = answers[i];
-          let originalIndex = this.$.repeater.indexForElement(answer);
-          if (originalIndex != i) {
+        for (let i = 0; i < correctOrderedAnswerIds.length; i++) {
+          if (suppliedOrderedAnswerIds[i] != correctOrderedAnswerIds[i]) {
             return false;
           }
         }
@@ -58,12 +86,16 @@
       },
 
       confirm_: function(event) {
-        this.fire('ghvz-order-question-confirm');
+        this.fire('ghvz-quiz-done');
       },
 
       reset_: function(event) {
         this.answers = Utils.shuffle(this.question.answers.slice());
-        this.updateNextEnabled_();
+        Array.from(this.querySelectorAll("#unordered .answer"))
+            .forEach(element => element.opened = true);
+        Array.from(this.querySelectorAll("#ordered .answer"))
+            .forEach(element => element.opened = false);
+        this.suppliedOrderedAnswerIds = [];
       },
     });
   });
@@ -77,10 +109,12 @@
     flex-direction: row;
   }
   #unordered {
-    width: 50%;
+    width: calc(50% - 8px);
+    padding-right: 8px;
   }
   #ordered {
-    width: 50%;
+    width: calc(50% - 8px);
+    padding-left: 8px;
   }
   .answer {
     margin: 8px 0
@@ -99,10 +133,23 @@
     background-color: #03A9F4;
     color: white;
   }
+  #text {
+    margin-bottom: 16px;
+    font-weight: bold;
+  }
+  #prompt {
+    margin: 16px 0;
+  }
+  #rulesHeader {
+    margin: 16px 0;
+  }
 </style>
 <template>
-  <div>
+  <div id="text">
     [[question.text]]
+  </div>
+  <div id="prompt">
+    [[prompt]]
   </div>
   <div id="answers">
     <div id="unordered">
@@ -134,7 +181,11 @@
   </div>
   <div>
     <paper-button on-tap="reset_">Reset</paper-button>
-    <paper-button on-tap="confirm_" disabled="[[!nextEnabled]]">Next</paper-button>
+    <paper-button on-tap="confirm_" disabled="[[!isCorrect]]">Next</paper-button>
   </div>
+  <div id="rulesHeader">
+    To help you out, here are the rules:
+  </div>
+  <ghvz-rules game="[[game]]"></ghvz-rules>
 </template>
 </dom-module>

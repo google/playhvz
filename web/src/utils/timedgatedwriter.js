@@ -6,7 +6,7 @@ class TimedGatedWriter extends GatedWriter {
     if (!gateOpen) {
       this.startClosedTimer();
     }
-    this.timeoutMs = timeoutMs || 2000;
+    this.timeoutMs = timeoutMs || 5000;
     this.panicObservers = [];
   }
   addPanicObserver(observer) {
