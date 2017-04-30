@@ -7,24 +7,33 @@ class TimedGatedWriter extends GatedWriter {
       this.startClosedTimer();
     }
     this.timeoutMs = timeoutMs || 2000;
+    this.panicObservers = [];
+  }
+  addPanicObserver(observer) {
+    this.panicObservers.push(observer);
   }
   startClosedTimer() {
+    this.clearClosedTimer();
     this.closedTimer =
         setTimeout(
-            () => console.error("Gate closed for too long!", this),
+            () => {
+              for (let panicObserver of this.panicObservers)
+                panicObserver();
+            },
             this.timeoutMs);
+  }
+  clearClosedTimer() {
+    clearTimeout(this.closedTimer);
+    this.closedTimer = null;
   }
   openGate() {
     if (!this.isGateOpen()) {
-      console.log("Opening gate!");
       super.openGate();
-      clearTimeout(this.closedTimer);
-      this.closedTimer = null;
+      this.clearClosedTimer();
     }
   }
   closeGate() {
     if (this.isGateOpen()) {
-      console.log("Closing gate!");
       this.startClosedTimer();
       super.closeGate();
     }

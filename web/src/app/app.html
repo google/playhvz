@@ -220,7 +220,12 @@ paper-input-container {
           if (gameId) {
             let game = this.database.gamesById[gameId];
             if (game) {
-              this.gameId = game.id;
+              // Async so we dont accidentally cause calls into firebaselistener
+              // while we're already reacting to something from it.
+              this.async(() => {
+                this.gameId = game.id;
+              });
+              return;
             } else {
               // They specified a game number that doesnt exist, or maybe it
               // hasnt been loaded yet. Either way, lets not assume they want
@@ -230,7 +235,12 @@ paper-input-container {
             // They specified no game in the url. Auto choose one.
             let userPlayer = this.user && this.user.players.slice(-1)[0];
             if (userPlayer) {
-              this.gameId = userPlayer.gameId;
+              // Async so we dont accidentally cause calls into firebaselistener
+              // while we're already reacting to something from it.
+              this.async(() => {
+                this.gameId = userPlayer.gameId;
+              });
+              return;
             } else {
               // We can't figure out what game they want. Abort.
             }
@@ -240,17 +250,27 @@ paper-input-container {
           // Try to figure out their player, if they have one.
           let userPlayer = this.user.players.find(player => player.gameId == this.gameId);
           if (userPlayer) {
-            this.playerId = userPlayer.id;
+            // Async so we dont accidentally cause calls into firebaselistener
+            // while we're already reacting to something from it.
+            this.async(() => {
+              this.playerId = userPlayer.id;
+            });
+            return;
           }
         }
         if (this.userId && this.game && !this.page) {
           let [, page] = this.extractUrl_();
-          if (page) {
-            this.page = page;
-          } else {
-            this.page = 'main';
-            window.history.replaceState({}, "", this.assembleUrl_(this.gameId, this.page));
-          }
+          // Async so we dont accidentally cause calls into firebaselistener
+          // while we're already reacting to something from it.
+          this.async(() => {
+            if (page) {
+              this.page = page;
+            } else {
+              this.page = 'main';
+              window.history.replaceState({}, "", this.assembleUrl_(this.gameId, this.page));
+            }
+          });
+          return;
         }
       },
 
@@ -269,7 +289,7 @@ paper-input-container {
       },
 
       handlePopState_(e) {
-        this.page = e.state ? e.state.page : 'main';
+        this.page = e.state && e.state.page || 'main';
       },
 
       extractUrl_() {

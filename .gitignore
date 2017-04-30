@@ -1,3 +1,4 @@
 .DS_Store
 firebase-debug.log
+firebase/rules.json
 *.pyc

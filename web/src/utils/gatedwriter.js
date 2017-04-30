@@ -1,7 +1,7 @@
 
 class GatedWriter {
-  constructor(destination, gateOpen) {
-    this.destination = destination;
+  constructor(destinationBatchedWriter, gateOpen) {
+    this.destinationBatchedWriter = destinationBatchedWriter;
     this.waitingOperations = [];
     this.gateOpen = gateOpen;
   }
@@ -37,6 +37,6 @@ class GatedWriter {
     assert(this.gateOpen);
     let operations = this.waitingOperations;
     this.waitingOperations = [];
-    this.destination.batchedWrite(operations);
+    this.destinationBatchedWriter.batchedWrite(operations);
   }
 }

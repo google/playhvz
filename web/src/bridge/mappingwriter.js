@@ -36,6 +36,7 @@ let MAPPINGS = [
   {pattern: ["games", null, "missions"], newMap: "missionsById", keyBy: "id"},
   {pattern: ["guns"], newMap: "gunsById", keyBy: "id"},
   {pattern: ["users"], newMap: "usersById", keyBy: "id"},
+  {pattern: ["users", null, "players"], newMap: "playersById", keyBy: "id"},
 ];
 // Helper function to find which mapping a given path matches.
 // For example, given ["games", 5, "players", 3, "claims"], it would
