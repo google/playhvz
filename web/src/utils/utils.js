@@ -305,3 +305,30 @@ Utils.catchAndReturn = function(exceptionType, callback) {
     }
   }
 };
+
+Utils.forEachRowUnder = function(path, value, callback) {
+  callback(path);
+  if (typeof value == 'object') { // Also catches arrays
+    for (var key in value) // If an array, key is the index
+      Utils.forEachRowUnder(path.concat([key]), value[key], callback);
+  } else {
+    callback(path.concat([value]));
+  }
+}
+
+Utils.forEachPathUnder = function(path, value, callback) {
+  callback(path, value);
+  if (typeof value == 'object') { // Also catches arrays
+    for (var key in value) // If an array, key is the index
+      Utils.forEachPathUnder(path.concat([key]), value[key], callback);
+  }
+}
+
+Utils.matches = function(pattern, path) {
+  if (pattern.length != path.length)
+    return false;
+  for (let i = 0; i < pattern.length; i++)
+    if (pattern[i] && pattern[i] != path[i])
+      return false;
+  return true;
+}

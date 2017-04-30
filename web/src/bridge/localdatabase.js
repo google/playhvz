@@ -1,5 +1,5 @@
 
-const GUN_PROPERTIES = ["playerId"];
+const GUN_PROPERTIES = ["gameId", "playerId"];
 const GUN_COLLECTIONS = [];
 function newGun(id, args) {
   let obj = {id: id};
@@ -9,7 +9,8 @@ function newGun(id, args) {
 }
 
 const USER_PROPERTIES = ["registered"];
-const USER_COLLECTIONS = ["players",];
+const USER_COLLECTIONS = ["players"];
+const USER_IGNORED = ["playerIdsByGameId", "gameIdsByPlayerId"];
 function newUser(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, USER_PROPERTIES);
@@ -17,8 +18,9 @@ function newUser(id, args) {
   return obj;
 }
 
-const USER_PLAYER_PROPERTIES = ["gameId", "playerId"];
-const USER_PLAYER_COLLECTIONS = ["lives", "notifications"];
+const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
+const USER_PLAYER_COLLECTIONS = [];
+const USER_PLAYER_IGNORED = ["lives", "notifications"];
 function newUserPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, USER_PLAYER_PROPERTIES);
@@ -27,7 +29,8 @@ function newUserPlayer(id, args) {
 }
 
 const GAME_PROPERTIES = ["active", "name", "number", "rulesUrl", "stunTimer"];
-const GAME_COLLECTIONS = ["missions", "missionIds", "rewardCategories", "chatRooms", "chatRoomIds", "players", "admins", "notificationCategories", "notificationCategoryIds", "quizQuestions"];
+const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions"];
+const GAME_IGNORED = ["missionIds", "chatRoomIds", "adminUserIds", "notificationCategoryIds"];
 function newGame(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, GAME_PROPERTIES);

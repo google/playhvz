@@ -1,8 +1,8 @@
-# Uses Firebase Bolt to generate firebase rules JSON.
-# https://github.com/firebase/bolt/blob/master/docs/guide.md
-# To generate the rules json:
-#    firebase-bolt rules.bolt
-# Then, paste it into firebase's rules console.
+// Uses Firebase Bolt to generate firebase rules JSON.
+// https://github.com/firebase/bolt/blob/master/docs/guide.md
+// To generate the rules json:
+//    firebase-bolt rules.bolt
+// Then, paste it into firebase's rules console.
 
 type ChatRoomId extends String { validate() { this.startsWith("chatRoom-") } }
 type PlayerId extends String { validate() { this.startsWith("player-") } }
@@ -65,6 +65,12 @@ getCurrentPlayerId(gameId) {
 getCurrentGamePlayer(gameId) {
   getGamePlayer(gameId, getCurrentPlayerId(gameId))
 }
+getPrivatePlayer(userId, playerId) {
+  root.players[playerId]
+}
+getCurrentPrivatePlayer(gameId) {
+  getPrivatePlayer(auth.uid, getCurrentPlayerId(gameId))
+}
 
 isMember(chatRoom, playerId) {
   chatRoom.memberships[playerId] != null
@@ -106,6 +112,11 @@ type ChatRoom {
   messages: Map<MessageId, Message>;
   allegianceFilter: OptionalAllegiance;
 
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    this.memberships[getCurrentPlayerId(this.gameId)] != null
+  }
   validate() {
     root.games[this.gameId] != null
   }
@@ -205,12 +216,17 @@ type NotificationCategory {
   message: String;
   previewMessage: String;
 
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    getCurrentPrivatePlayer(this.gameId).notifications[key()] != null
+  }
   validate() {
     root.games[this.gameId] != null
   }
 }
 
-type UserPlayerLife {
+type PrivatePlayerLife {
   code: String;
 
   validate() {
@@ -220,14 +236,20 @@ type UserPlayerLife {
   }
 }
 
-type UserPlayer {
+type PrivatePlayer {
   playerId: PlayerId;
   // Get rid of this once https://github.com/firebase/bolt/issues/95 is resolved
   gameId: GameId;
+  userId: UserId;
   notifications: Map<NotificationCategoryId, Map<NotificationId, Notification>>;
-  lives: Map<LifeId, UserPlayerLife>;
+  lives: Map<LifeId, PrivatePlayerLife>;
   beSecretZombie: Boolean;
 
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    auth.uid == this.userId
+  }
   validate() {
     key() == this.gameId && // Get rid of this once https://github.com/firebase/bolt/issues/95 is resolved
     root.games[this.gameId].players[this.playerId] != null
@@ -236,10 +258,14 @@ type UserPlayer {
 
 type User {
   registered: Boolean;
-  players: Map<GameId, UserPlayer>;
+  playerIdsByGameId: Map<GameId, PlayerId>;
 
   validate() {
     this.registered == true
+  }
+  read() {
+    isServer() ||
+    auth.uid == key()
   }
 }
 
@@ -280,9 +306,6 @@ type Game {
   players: Map<PlayerId, GamePlayer>;
   rewardCategories: Map<RewardCategoryId, RewardCategory>;
 
-  read() {
-    true
-  }
   validate() {
     key() == this.gameId
   }
@@ -292,9 +315,6 @@ type Gun {
   playerId: OptionalPlayerId;
   gameId: OptionalGameId;
 
-  read() {
-    true
-  }
   validate() {
     root.games[this.gameId].players[this.playerId] != null
   }
@@ -320,6 +340,13 @@ type Mission {
 path / {
   write() { isServer() }
 }
+path /games {
+  read() { true }
+}
+path /guns {
+  read() { true }
+}
+path /players is Map<PlayerId, PrivatePlayer>;
 path /chatRooms is Map<ChatRoomId, ChatRoom>;
 path /missions is Map<MissionId, Mission>;
 path /games is Map<GameId, Game>;

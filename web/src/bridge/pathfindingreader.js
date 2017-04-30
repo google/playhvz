@@ -1,5 +1,5 @@
 
-class Reader {
+class PathFindingReader {
   constructor(source) {
     this.source = source;
     assert(this.source.get);

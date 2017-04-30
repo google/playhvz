@@ -38,9 +38,15 @@ class RemoteBridge {
     return new Promise((resolve, reject) => {
       firebase.auth().onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
-          this.userId = firebaseUser.uid;
-          this.firebaseListener.listenToUser(this.userId);
-          resolve(firebaseUser.uid);
+          if (this.userId == null) {
+            this.userId = firebaseUser.uid;
+            this.firebaseListener.listenToUser(this.userId);
+            resolve(firebaseUser.uid);
+          } else {
+            // Sometimes we get spurious auth changes.
+            // As long as we stick with the same user, its fine.
+            assert(firebaseUser.uid == this.userId);
+          }
         } else {
           reject();
         }
