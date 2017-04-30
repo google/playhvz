@@ -17,8 +17,12 @@ Bridge.generateRewardCategoryId = () => Utils.generateId("rewardCategory");
 Bridge.generateRewardId = () => Utils.generateId("reward");
 Bridge.generateMembershipId = () => Utils.generateId("membership");
 Bridge.generateClaimId = () => Utils.generateId("claim");
+Bridge.generateQuizQuestionId = () => Utils.generateId("quizQuestion");
+Bridge.generateQuizAnswerId = () => Utils.generateId("quizAnswer");
 
 const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
+const SERVER_QUIZ_QUESTION_PROPERTIES = ["text", "type"];
+const SERVER_QUIZ_ANSWER_PROPERTIES = ["text", "order", "isCorrect"];
 const SERVER_GAME_PROPERTIES = ["name", "rulesUrl", "stunTimer"];
 const SERVER_USER_PROPERTIES = [];
 const SERVER_CHAT_ROOM_PROPERTIES = ["name", "allegianceFilter"];
@@ -41,6 +45,8 @@ const SERVER_METHODS = [
   'addMessageToChatRoom',
   'addPlayerToChatRoom',
   'removePlayerFromChatRoom',
+  'addQuizQuestion',
+  'addQuizAnswer',
   'addMission',
   'infect',
   'addLife',

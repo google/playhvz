@@ -18,6 +18,7 @@
         },
 
         computeShowMainPage_(page) { return page == 'main'; },
+        computeShowJoinGamePage_(page) { return page == 'joinGame'; },
         computeShowStatsPage_(page) { return page == 'stats'; },
         computeShowChatPage_(page) { return page == 'chat' || page.startsWith('chat/'); },
         computeShowNotificationsPage_(page) { return page.startsWith('notifications'); },
@@ -30,6 +31,9 @@
       position: relative;
       background-color: #f4f4f4;
       padding: 8px;
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
     }
   </style>
   <template>
@@ -41,6 +45,18 @@
           user="[[user]]"
           player="[[player]]">
       </ghvz-desktop-main-page>
+    </template>
+
+    <template is="dom-if" if="[[computeShowJoinGamePage_(page)]]">
+      <ghvz-card spaced expand>
+        <div class="header">Join Game</div>
+        <ghvz-game-registration
+              class="content"
+              bridge="[[bridge]]"
+              game="[[game]]"
+              user-id="[[user.id]]">
+        </ghvz-game-registration>
+      </ghvz-card>
     </template>
 
     <template is="dom-if" if="[[computeShowStatsPage_(page)]]">

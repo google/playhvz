@@ -36,6 +36,23 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), userPlayerId)]);
     return path;
   }
+  getQuizQuestionPath(gameId, quizQuestionId) {
+    assert(gameId);
+    assert(typeof quizQuestionId == 'string' || quizQuestionId == null);
+    let path = this.getGamePath(gameId).concat(["quizQuestions"]);
+    if (quizQuestionId)
+      path = path.concat([Utils.findIndexById(this.get(path), quizQuestionId)]);
+    return path;
+  }
+  getQuizAnswerPath(gameId, quizQuestionId, quizAnswerId) {
+    assert(gameId);
+    assert(quizQuestionId);
+    assert(typeof quizAnswerId == 'string' || quizAnswerId == null);
+    let path = this.getQuizQuestionPath(gameId, quizQuestionId).concat(["answers"]);
+    if (quizAnswerId)
+      path = path.concat([Utils.findIndexById(this.get(path), quizAnswerId)]);
+    return path;
+  }
   getPlayerPath(gameId, playerId) {
     assert(gameId);
     assert(typeof playerId == 'string' || playerId == null);
@@ -177,6 +194,10 @@ class PathFindingReader {
       return this.source.get(path.slice(0, 2)).id;
     else
       return null;
+  }
+  getGameIdForQuizQuestionId(quizQuestionId, expect) {
+    let path = this.pathForId_(quizQuestionId);
+    return this.source.get(path.slice(0, 2)).id;
   }
   getGameIdForChatRoomId(chatRoomId) {
     let path = this.pathForId_(chatRoomId);
