@@ -20,8 +20,6 @@
           });
 
           this.$.form.addEventListener('iron-form-submit', (event) => {
-            Polymer.dom(this.root).querySelector('.output').innerHTML = JSON.stringify(event.detail);
-
             var playerArgs = {
               needGun: event.detail.needGun,
               startAsZombie: event.detail.startAsZombie,
@@ -46,7 +44,14 @@
 
         reset_: function(event) {
           this.$.form.reset();
-          form.querySelector('.output').innerHTML = '';
+        },
+
+        isMultipleChoice(type) {
+          return type == 'multipleChoice';
+        },
+
+        isOrderQuestion(type) {
+          return type == 'order';
         },
       });
     });
@@ -54,6 +59,19 @@
 
   <template>
     <style>
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      neon-animated-pages {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      neon-animatable {
+        padding: 16px;
+      }
       .maintext {
         padding-bottom: 16px;
         font-weight: bold;
@@ -77,100 +95,114 @@
         margin-top: -20px;
       }
     </style>
-    <form is="iron-form" id="form">
-      <div class="layout vertical">  
-        <div class="section">
-          <div class="maintext">Name</div>      
-          <div class="subtext">To strike terror in the hearts of your victims. e.g. John Smith, The Destroyer, King Spigglewigget the Flamscrankle.
-          </div>
-          <paper-input name="playerName" label="who be u?" required>
-          </paper-input>
-        </div>
-        
-        <div class="section">
-          <div class="maintext">Can you get your own Nerf gun before the game? (If not, we can get you one!) 
-          </div>
-          <div class="subtext">
-            We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href="https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050">Disruptor</a> tried-and-true and only $12, most players will have them.
-          </div>
-          <paper-radio-group attr-for-selected="value">
-            <paper-radio-button name="needGun" value="yes" class="radio-style">
-              Yes! I can bring/buy/steal/3D print my own nerf gun!
-            </paper-radio-button>
-            <paper-radio-button name="needGun" value="no" class="radio-style">
-              No D^: I need a nerf gun and can't get one before the game, save one for me please!
-            </paper-radio-button>
-          </paper-radio-group>
-        </div>
+    <neon-animated-pages
+        id="pages"
+        entry-animation="slide-from-right-animation"
+        exit-animation="slide-right-animation"
+        selected="0">
+      <neon-animatable>
+        <form is="iron-form" id="form">
+          <div class="layout vertical">  
+            <div class="section">
+              <div class="maintext">Name</div>      
+              <div class="subtext">To strike terror in the hearts of your victims. e.g. John Smith, The Destroyer, King Spigglewigget the Flamscrankle.
+              </div>
+              <paper-input name="playerName" label="who be u?" required>
+              </paper-input>
+            </div>
+            
+            <div class="section">
+              <div class="maintext">Can you get your own Nerf gun before the game? (If not, we can get you one!) 
+              </div>
+              <div class="subtext">
+                We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href="https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050">Disruptor</a> tried-and-true and only $12, most players will have them.
+              </div>
+              <paper-radio-group attr-for-selected="value">
+                <paper-radio-button name="needGun" value="yes" class="radio-style">
+                  Yes! I can bring/buy/steal/3D print my own nerf gun!
+                </paper-radio-button>
+                <paper-radio-button name="needGun" value="no" class="radio-style">
+                  No D^: I need a nerf gun and can't get one before the game, save one for me please!
+                </paper-radio-button>
+              </paper-radio-group>
+            </div>
 
-        <div class="section">
-          <div class="maintext">
-            Want to be a starting zombie?
-          </div>
-          <div class="subtext">
-            Start the game as a zombie! The starting zombies may get pool noodles to extend their reach, and shields to block darts. Starting zombies have the option to revive later on in the game. So, fight the resistance while you're outnumbered, and then resist the horde while you're outnumbered, the best way to play!
-          </div>
-          <paper-radio-group attr-for-selected="value">
-            <paper-radio-button name="startAsZombie" value="yes" class="radio-style">
-              Graahhh braiiinnnnsss! Glory to the horde!
-            </paper-radio-button>
-            <paper-radio-button name="startAsZombie" value="maybe"class="radio-style">
-              If there aren't enough in the first mission, then I'm willing to help and jump in as a starting zombie.
-            </paper-radio-button>
-            <paper-radio-button name="startAsZombie" value="no"class="radio-style">
-              Nope, viva la Humanoids
-            </paper-radio-button>
-          </paper-radio-group>
-        </div>
-        
-        <div class="section">
-          <div class="maintext">
-            Willing to be a secret zombie?
-          </div>
-          <div class="subtext">
-            The secret zombie is a powerful leader of the horde, hidden among the humans. Depending on play style, the secret zombie can either stealthily infect humans, or just spy on them to relay intel to the rest of the horde. See the rules for details!
-          </div>
-          <paper-radio-group attr-for-selected="value">
-            <paper-radio-button name="beSecretZombie" value="yes" class="radio-style">
-              Yes
-            </paper-radio-button>
-            <paper-radio-button name="beSecretZombie" value="no" class="radio-style">
-              No
-            </paper-radio-button>
-            <paper-radio-button name="beSecretZombie" value="maybe" class="radio-style">
-             I'm interested, tell me more...
-            </paper-radio-button>
-          </paper-radio-group>
-        </div>
+            <div class="section">
+              <div class="maintext">
+                Want to be a starting zombie?
+              </div>
+              <div class="subtext">
+                Start the game as a zombie! The starting zombies may get pool noodles to extend their reach, and shields to block darts. Starting zombies have the option to revive later on in the game. So, fight the resistance while you're outnumbered, and then resist the horde while you're outnumbered, the best way to play!
+              </div>
+              <paper-radio-group attr-for-selected="value">
+                <paper-radio-button name="startAsZombie" value="yes" class="radio-style">
+                  Graahhh braiiinnnnsss! Glory to the horde!
+                </paper-radio-button>
+                <paper-radio-button name="startAsZombie" value="maybe"class="radio-style">
+                  If there aren't enough in the first mission, then I'm willing to help and jump in as a starting zombie.
+                </paper-radio-button>
+                <paper-radio-button name="startAsZombie" value="no"class="radio-style">
+                  Nope, viva la Humanoids
+                </paper-radio-button>
+              </paper-radio-group>
+            </div>
+            
+            <div class="section">
+              <div class="maintext">
+                Willing to be a secret zombie?
+              </div>
+              <div class="subtext">
+                The secret zombie is a powerful leader of the horde, hidden among the humans. Depending on play style, the secret zombie can either stealthily infect humans, or just spy on them to relay intel to the rest of the horde. See the rules for details!
+              </div>
+              <paper-radio-group attr-for-selected="value">
+                <paper-radio-button name="beSecretZombie" value="yes" class="radio-style">
+                  Yes
+                </paper-radio-button>
+                <paper-radio-button name="beSecretZombie" value="no" class="radio-style">
+                  No
+                </paper-radio-button>
+                <paper-radio-button name="beSecretZombie" value="maybe" class="radio-style">
+                 I'm interested, tell me more...
+                </paper-radio-button>
+              </paper-radio-group>
+            </div>
 
-        <div class="section">
-          <div class="maintext">
-            Interested in helping out?
+            <div class="section">
+              <div class="maintext">
+                Interested in helping out?
+              </div>
+              <paper-radio-group attr-for-selected="value">
+                <paper-radio-button name="volunteer" value="yes" class="radio-style">
+                  Yeah! I'm awesome :^D
+                </paper-radio-button>
+                <paper-radio-button name="volunteer" value="no" class="radio-style">
+                 Sorry, nope!
+                </paper-radio-button>
+              </paper-radio-group>
+            </div>
           </div>
-          <paper-radio-group attr-for-selected="value">
-            <paper-radio-button name="volunteer" value="yes" class="radio-style">
-              Yeah! I'm awesome :^D
-            </paper-radio-button>
-            <paper-radio-button name="volunteer" value="no" class="radio-style">
-             Sorry, nope!
-            </paper-radio-button>
-          </paper-radio-group>
-        </div>
-      </div>
 
-      <ghvz-rules-quiz game="[[game]]">
+          <div class="section">
+            <paper-button raised on-click="submit_">
+              Submit
+            </paper-button>
+            <paper-button raised on-click="reset_">
+              Reset
+            </paper-button>
+          </div>
+        </form>
+      </neon-animatable>
 
-      </ghvz-rules-quiz>
-
-      <div class="section">
-        <paper-button raised on-click="submit_">
-          Submit
-        </paper-button>
-        <paper-button raised on-click="reset_">
-          Reset
-        </paper-button>
-      </div>
-      <div class="output"></div>
-    </form>
+      <template is="dom-repeat" items="[[game.quizQuestions]]" as="question">
+        <neon-animatable>
+          <template is="dom-if" if="[[isMultipleChoice(question.type)]]">
+            <ghvz-multiple-choice question="[[question]]"></ghvz-multiple-choice>
+          </template>
+          <template is="dom-if" if="[[isOrderQuestion(question.type)]]">
+            <ghvz-order-question question="[[question]]"></ghvz-order-question>
+          </template>
+        </neon-animatable>
+      </template>
+    </neon-animated-pages>
   </template>
 </dom-module>
