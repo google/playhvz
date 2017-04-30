@@ -38,12 +38,18 @@
         },
 
         observers: [
+          'onChatRoomChanged_(chatRoom)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
         ],
 
         attached: function() {
           this.isAttached = true;
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
+        },
+
+        onChatRoomChanged_() {
+          this.previousMessagePlayerId = "";
+          this.chatInfoVisible = false;
         },
 
         onChatRoomNameChange_() {
@@ -58,8 +64,11 @@
           if (!this.$.messageInput.value) {
             return;
           }
-          this.bridge.addMessageToChatRoom(Bridge.generateMessageId(), this.chatRoom.id, 
-            this.currentPlayer.id, {message: this.$.messageInput.value});
+          this.bridge.addMessageToChatRoom(
+            Bridge.generateMessageId(), 
+            this.chatRoom.id, 
+            this.currentPlayer.id, 
+            {message: this.$.messageInput.value});
           this.$.messageInput.value = "";
         },
 
@@ -133,18 +142,6 @@
           }
           e.preventDefault();
           e.stopPropagation();
-        },
-
-        makeFormBlueprint_: function() {
-          return {
-            fields: [
-              {
-                property: "playerId",
-                label: "Player",
-                description: "Player, example Kim the Ultimate.",
-              },
-            ],
-          };
         },
 
         /* 
@@ -265,17 +262,7 @@
       padding-right: 16px;
     }
   </style>
-  <!--<paper-icon-button id="add" icon="icons:add" on-tap="addPlayer_">
-  </paper-icon-button>
-  <ghvz-super-form
-  id="addPlayerForm"
-  type-name="Add Player"
-  blueprint="[[makeFormBlueprint_()]]">
-  </ghvz-super-form> -->
-  
-
   <template>
-  
     <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
     </paper-icon-button>
 

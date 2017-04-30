@@ -27,11 +27,23 @@
             type: Object,
             notify: true,
           },
+
+          selectedMenuItem: String,
+
+          booleanFalse: {
+            type: Boolean,
+            value: false,
+          },
         },
 
         observers: [
+          'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
           'onChatMembershipsChanged_(game, chatRoom.memberships.length)',
         ],
+
+        onChatRoomChanged_() {
+          this.onChatMembershipsChanged_();
+        },
 
         onChatMembershipsChanged_() {
           var updatedPlayers = [];
@@ -43,10 +55,16 @@
         },
 
         captureTap_(e) {
-          let action = e.target.dataset.action;
-          this.fire('ghvz-chat-info-action', { action: action });
+          var action = e.target.dataset.action || e.currentTarget.dataset.action;
+          var playerId = e.target.dataset.playerId || e.currentTarget.dataset.playerId;
+          if (action) {
+            this.fire('ghvz-chat-info-action', {action: action, playerId: playerId});
+          }
           e.preventDefault();
           e.stopPropagation();
+          if (action == 'ping' || action == 'kick') {
+            e.srcElement.closest("paper-menu-button").close();
+          }
         },
       });
     });
@@ -99,10 +117,20 @@
       opacity: .6;
       text-align: center;
     }
-    .player-item {
+    .player-entry {
+      display: flex;
+      padding: 8px;
+      align-items: center;
+      height: 40px;
+      font-size: 14px;
+    }
+    .player-info {
       display: flex;
       align-items: center;
-      padding: 8px;
+      cursor: pointer;
+      color: black;
+      flex-grow: 2;
+      text-decoration: none;
     }
     .player-name {
       padding-left: 12px;
@@ -132,16 +160,43 @@
       <div class="drawer-section">
         <div class="info-label">[[chatRoom.memberships.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
-          <div class="layout horizontal player-item">
-            <iron-image
-              src="[[item.profileImageUrl]]"
-              id="profile-pic" 
-              sizing="cover"
-              on-click="openPlayerProfile_">
-            </iron-image>
-            <div class='player-name'>
-              [[item.name]]
+          <div class="layout horizontal player-entry">
+            <div class="layout horizontal player-info"
+              on-tap="captureTap_"
+              data-action="profile"
+              data-player-id$="[[item.id]]">
+              <iron-image
+                style
+                src="[[item.profileImageUrl]]"
+                id="profile-pic" 
+                sizing="cover">
+              </iron-image>
+              <div class='player-name'>
+                [[item.name]]
+              </div>
             </div>
+            <paper-menu-button restore-focus-on-close="[[booleanFalse]]">
+              <paper-icon-button 
+                class="dropdown-trigger" 
+                icon="icons:more-vert">
+              </paper-icon-button>
+              <paper-menu 
+                class="dropdown-content" 
+                selected="{{selectedMenuItem}}">
+                <paper-item 
+                  on-tap="captureTap_" 
+                  data-action="ping" 
+                  data-player-id$="[[item.id]]">
+                  ping
+                </paper-item>
+                <paper-item 
+                  on-tap="captureTap_" 
+                  data-action="kick" 
+                  data-player-id$="[[item.id]]">
+                  kick
+                </paper-item>
+              </paper-menu>
+            </paper-menu-button>
           </div>
         </template>
       </div> 
