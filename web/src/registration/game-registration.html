@@ -13,37 +13,28 @@
           userId: String,
         },
 
-        ready() {
-          this.$.form.addEventListener('iron-form-presubmit', (event) => {
-            this.$.form.request.params['gameId'] = this.game.id;
-            this.$.form.request.params['userId'] = this.userId;
-          });
+        onSubmit_(event) {
+          var playerArgs = {
+            needGun: event.detail.needGun,
+            startAsZombie: event.detail.startAsZombie,
+            beSecretZombie: event.detail.beSecretZombie,
+            volunteer: event.detail.volunteer,
+            profileImageUrl: '',
+            name: event.detail.playerName, 
+          };
+          this.bridge.joinGame(
+              Bridge.generatePlayerId(),
+              this.userId,
+              this.game.id,
+              playerArgs);
+        },
 
-          this.$.form.addEventListener('iron-form-submit', (event) => {
-            var playerArgs = {
-              needGun: event.detail.needGun,
-              startAsZombie: event.detail.startAsZombie,
-              beSecretZombie: event.detail.beSecretZombie,
-              volunteer: event.detail.volunteer,
-              profileImageUrl: '',
-              name: event.detail.playerName, 
-            };
-            var playerId = Utils.generateId("player");
-
-            this.bridge.joinGame(
-                playerId,
-                this.userId,
-                this.game.id,
-                playerArgs);
-          });
+        nextPage_() {
+          this.$.pages.selected++;
         },
 
         submit_: function(event) {
           this.$.form.submit();
-        },
-
-        reset_: function(event) {
-          this.$.form.reset();
         },
 
         isMultipleChoice(type) {
@@ -95,13 +86,13 @@
         margin-top: -20px;
       }
     </style>
-    <neon-animated-pages
-        id="pages"
-        entry-animation="slide-from-right-animation"
-        exit-animation="slide-right-animation"
-        selected="0">
-      <neon-animatable>
-        <form is="iron-form" id="form">
+    <form is="iron-form" id="form" on-iron-form-submit="onSubmit_">
+      <neon-animated-pages
+          id="pages"
+          entry-animation="slide-from-right-animation"
+          exit-animation="slide-right-animation"
+          selected="0">
+        <neon-animatable>
           <div class="layout vertical">  
             <div class="section">
               <div class="maintext">Name</div>      
@@ -180,29 +171,38 @@
                 </paper-radio-button>
               </paper-radio-group>
             </div>
-          </div>
 
+            <paper-button raised on-click="nextPage_">
+              Next
+            </paper-button>
+          </div>
+        </neon-animatable>
+
+        <template is="dom-repeat" items="[[game.quizQuestions]]" as="question">
+          <neon-animatable>
+            <template is="dom-if" if="[[isMultipleChoice(question.type)]]">
+              <ghvz-multiple-choice game="[[game]]" question="[[question]]" on-ghvz-quiz-done="nextPage_"></ghvz-multiple-choice>
+            </template>
+            <template is="dom-if" if="[[isOrderQuestion(question.type)]]">
+              <ghvz-order-question game="[[game]]" question="[[question]]" on-ghvz-quiz-done="nextPage_"></ghvz-order-question>
+            </template>
+          </neon-animatable>
+        </template>
+
+        <neon-animatable>
+          <div class="section">
+            WELCOME TO THE FRAY
+          </div>
+          <div class="section">
+            GET READY TO GET REKT
+          </div>
           <div class="section">
             <paper-button raised on-click="submit_">
               Submit
             </paper-button>
-            <paper-button raised on-click="reset_">
-              Reset
-            </paper-button>
           </div>
-        </form>
-      </neon-animatable>
-
-      <template is="dom-repeat" items="[[game.quizQuestions]]" as="question">
-        <neon-animatable>
-          <template is="dom-if" if="[[isMultipleChoice(question.type)]]">
-            <ghvz-multiple-choice question="[[question]]"></ghvz-multiple-choice>
-          </template>
-          <template is="dom-if" if="[[isOrderQuestion(question.type)]]">
-            <ghvz-order-question question="[[question]]"></ghvz-order-question>
-          </template>
         </neon-animatable>
-      </template>
-    </neon-animated-pages>
+      </neon-animated-pages>
+    </form>
   </template>
 </dom-module>
