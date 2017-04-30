@@ -54,10 +54,6 @@
           this.playersInChatRoom = updatedPlayers;
         },
 
-        getId(player) {
-          console.log(player);
-        },
-
         captureTap_(e) {
           var action = e.target.dataset.action || e.currentTarget.dataset.action;
           var playerId = e.target.dataset.playerId || e.currentTarget.dataset.playerId;
@@ -67,9 +63,7 @@
           e.preventDefault();
           e.stopPropagation();
           if (action == 'ping' || action == 'kick') {
-            var menuButton =  e.srcElement.closest("paper-menu-button");
-            menuButton.close();
-            menuButton.selected = false;
+            e.srcElement.closest("paper-menu-button").close();
           }
         },
       });
