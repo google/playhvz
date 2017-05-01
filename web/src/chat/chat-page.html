@@ -26,24 +26,25 @@
         ],
 
         onPageChanged_() {
-          if (this.page == "chat" || this.page.startsWith('chat/')) {
-            var chatRoomId = this.page.includes('/') ? this.page.split('/')[1] : "";
-            if (chatRoomId) {
-              this.$.chatRoomSelector.select(
-                  this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
-              if (this.$.chatRoomSelector.selected != null) {
-                return;
-              }
+          if (!this.page.startsWith('chat')) {
+            return;
+          }
+          var chatRoomId = this.page.includes('/') ? this.page.split('/')[1] : "";
+          if (chatRoomId) {
+            this.$.chatRoomSelector.select(
+                this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
+            if (this.$.chatRoomSelector.selected != null) {
+              return;
             }
-            if (this.game.chatRooms.length > 0) {
-              this.async(() => {
-                chatRoomId = this.game.chatRooms[0].id;
-                var page = "chat/" + chatRoomId;
-                this.fire('ghvz-open-page', {
-                  page: page,
-                });
+          }
+          if (this.game.chatRooms.length > 0) {
+            this.async(() => {
+              chatRoomId = this.game.chatRooms[0].id;
+              var page = "chat/" + chatRoomId;
+              this.fire('ghvz-open-page', {
+                page: page,
               });
-            }
+            });
           }
         },
 

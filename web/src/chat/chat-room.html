@@ -22,6 +22,11 @@
             value: function() { return {}; },
           },
 
+          selectedPlayers: {
+            type: Object,
+            value: null,
+          },
+
           previousMessagePlayerId: {
             type: String,
             value: "",
@@ -38,7 +43,7 @@
         },
 
         observers: [
-          'onChatRoomChanged_(chatRoom)',
+          'onChatRoomChange_(chatRoom)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
         ],
 
@@ -47,12 +52,12 @@
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
         },
 
-        onChatRoomChanged_() {
+        onChatRoomChange_: function() {
           this.previousMessagePlayerId = "";
           this.chatInfoVisible = false;
         },
 
-        onChatRoomNameChange_() {
+        onChatRoomNameChange_: function() {
           this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
         },
 
@@ -94,6 +99,8 @@
 
         getName_(playerId) {
           let player = this.game.playersById[playerId];
+         /* this.$.playerSelector.select(
+                this.game.players.find(player => player.id == playerId)); */
           return player && player.name;
         },
 
@@ -103,7 +110,11 @@
         },
 
         openPlayerProfile_(e) {
-          console.log(e);
+          return;  // should we enable this?
+          var playerId = e.model.item.playerId;
+          if (playerId) {
+            this.fire('ghvz-open-page', {page: 'profile/' + playerId});
+          }
         },
 
         /**
@@ -266,6 +277,8 @@
     <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
     </paper-icon-button>
 
+    <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
+
     <!-- Display messages -->
     <template is="dom-repeat" items="[[chatRoom.messages]]">
       <div class$="layout horizontal [[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
@@ -286,7 +299,7 @@
             src="[[getProfilePic_(item.playerId, game.players.length)]]"
             id="profile-pic" 
             sizing="cover"
-            on-click="openPlayerProfile_">
+            on-tap="openPlayerProfile_">
           </iron-image>
           <paper-tooltip position="top" animation-delay="0">
             [[getName_(item.playerId, game.players.length)]]

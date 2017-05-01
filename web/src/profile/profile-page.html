@@ -15,36 +15,36 @@
           player: Object,
           page: String,
 
-          currentChatRoom: {
+          displayedPlayer: {
             type: Object,
             value: null,
           },
         },
 
-        observers: [
-          'onPageChanged_(page, game.chatRooms.*)',
+         observers: [
+          'onPageChanged_(page, game, player)',
+          'onDisplayedPlayerChange_(displayedPlayer)',
         ],
 
-        onPageChanged_() {
-          if (this.page == "chat" || this.page.startsWith('chat/')) {
-            var chatRoomId = this.page.includes('/') ? this.page.split('/')[1] : "";
-            if (chatRoomId) {
-              this.$.chatRoomSelector.select(
-                  this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
-              if (this.$.chatRoomSelector.selected != null) {
-                return;
-              }
-            }
-            if (this.game.chatRooms.length > 0) {
-              this.async(() => {
-                chatRoomId = this.game.chatRooms[0].id;
-                var page = "chat/" + chatRoomId;
-                this.fire('ghvz-open-page', {
-                  page: page,
-                });
-              });
-            }
+        onDisplayedPlayerChange_(displayedPlayer) {
+          if (!displayedPlayer) {
+            return;
           }
+          this.fire('ghvz-set-card-header-text', {headerText: this.displayedPlayer.name});
+        },
+
+        onPageChanged_() {
+          if (!this.page.startsWith('profile')) {
+            return;
+          }
+          var displayedPlayerId = this.page.includes('/') ? this.page.split('/')[1] : "";
+          if (!displayedPlayerId) {
+            displayedPlayerId = this.player.id;
+            var page = "profile/" + displayedPlayerId;
+            this.fire('ghvz-open-page', {page: page});
+          }
+          this.$.playerSelector.select(
+              this.game.players.find(player => player.id == displayedPlayerId));
         },
 
         extractChatRoomIdFromUrl_() {
@@ -56,15 +56,94 @@
           let chatRoomId = match[1];
           return chatRoomId;
         },
+
+        getAliveStatus_(allegiance) {
+          return allegiance == 'horde';
+        },
+
+        getAliveStatusClass_(allegiance) {
+          return this.getAliveStatus_(allegiance) ? "dead" : "alive";
+        },
+
+        getAliveStatusLabel_(allegiance) {
+          return this.getAliveStatus_(allegiance) ? "Living Dead" : "Alive";
+        },
       });
     });
   </script>
   <style>
     :host {
-      display: block;
+      display: flex;
+    }
+    iron-image {
+      width: 100px;
+      height:100px;
+      border-radius: 50%;
+    }
+    .alive {
+      display: flex;
+    }
+    .alive iron-image {
+      border: 2px solid fuchsia;
+    }
+    .alive .status {
+      color: fuchsia;
+    }
+    .dead {
+      display: flex;
+    }
+    .dead iron-image {
+      border: 2px solid forestgreen;
+    }
+    .dead .status {
+      color: forestgreen;
+    }
+    .info {
+      flex-grow: 1;
+      font-size: 14px;
+      padding: 8px;
+    }
+    .name {
+      font-size: 24px;
+      padding-top: 16px;
+      padding-bottom: 16px;
+    }
+    .profile-pic {
+      width: 116px;
+      height:116px;
+      padding: 16px;
+    }
+    .status {}
+    .sub-item {
+      padding-top: 8px;
+      padding-bottom: 8px;
     }
   </style>
   <template>
-    <div>helloworld</div>
+    <array-selector id="playerSelector" items="[[game.players]]" selected="{{displayedPlayer}}"></array-selector>
+
+    <div class$="[[getAliveStatusClass_(displayedPlayer.allegiance)]]">
+      <div class="profile-pic">
+        <iron-image
+          id="profile-pic" 
+          src="[[displayedPlayer.profileImageUrl]]"
+          sizing="cover">
+        </iron-image>
+      </div>
+      <div class="info">
+        <div class="name">
+          [[displayedPlayer.name]]
+        </div>
+        <span class="sub-item">
+          Status: 
+          <span class="status">
+            [[getAliveStatusLabel_(displayedPlayer.allegiance)]]
+          </span>
+        </span>
+        <div class="sub-item">
+        Points: [[displayedPlayer.points]]
+        </div>
+      </div>
+    </div>
   </template>
 </dom-module>
