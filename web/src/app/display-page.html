@@ -57,31 +57,6 @@
     }
   </style>
   <template>
-    <template is="dom-if" if="[[computeShowPage_(showPage.joinGame, page)]]">
-      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
-        <div class="header">Join Game</div>
-        <ghvz-game-registration
-              class="content"
-              bridge="[[bridge]]"
-              game="[[game]]"
-              user-id="[[user.id]]">
-        </ghvz-game-registration>
-      </ghvz-card>
-    </template>
-
-    <template is="dom-if" if="[[computeShowPage_(showPage.stats, page)]]">
-      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
-        <div class="header">Game Stats</div>
-        <ghvz-stats-page
-            bridge="[[bridge]]"
-            database="[[database]]"
-            game="[[game]]"
-            user="[[user]]"
-            player="[[player]]">
-        </ghvz-stats-page>
-      </ghvz-card>
-    </template>
-
     <template is="dom-if" if="[[computeShowPage_(showPage.chat, page)]]">
       <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
         <ghvz-chat-page
@@ -95,6 +70,18 @@
       </ghvz-card>
     </template>
 
+    <template is="dom-if" if="[[computeShowPage_(showPage.joinGame, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Join Game</div>
+        <ghvz-game-registration
+              class="content"
+              bridge="[[bridge]]"
+              game="[[game]]"
+              user-id="[[user.id]]">
+        </ghvz-game-registration>
+      </ghvz-card>
+    </template>
+
     <template is="dom-if" if="[[computeShowPage_(showPage.notifications, page)]]">
       <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
         <div class="header">Notifications</div>
@@ -105,6 +92,30 @@
             player="[[player]]"
             page="[[page]]">
         </ghvz-notifications-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.profile, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <ghvz-profile-page
+              class="content"
+              bridge="[[bridge]]"
+              game="[[game]]"
+              player="[[player]]"
+              page="[[page]]">
+        </ghvz-profile-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.stats, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Game Stats</div>
+        <ghvz-stats-page
+            bridge="[[bridge]]"
+            database="[[database]]"
+            game="[[game]]"
+            user="[[user]]">
+        </ghvz-stats-page>
       </ghvz-card>
     </template>
   </template>
