@@ -105,7 +105,7 @@
         },
 
         onConfirmKick_: function(e) {
-          console.log("removing player");
+          this.bridge.removePlayerFromChatRoom(this.chatRoom.id, this.kickPlayer.id);
         },
       });
     });
