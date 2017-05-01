@@ -146,13 +146,20 @@
     margin-bottom: 16px;
     font-weight: bold;
   }
-  #prompt, #rulesHeader, #noiseWarning {
+  #prompt, #noiseWarning, #answersBelow {
     margin: 16px 0;
+  }
+  #rulesHeader {
+    margin-top: 32px;
+    margin-bottom: 16px;
   }
 </style>
 <template>
   <div id="text">
     [[question.text]]
+  </div>
+  <div id="answersBelow">
+    (Scroll down to see the rules, feel free to use them!)
   </div>
   <div id="prompt">
     [[prompt]]
