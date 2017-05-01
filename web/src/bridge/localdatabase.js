@@ -74,6 +74,15 @@ function newMembership(id, args) {
   return obj;
 }
 
+const PLAYER_MEMBERSHIP_PROPERTIES = ["chatRoomId"];
+const PLAYER_MEMBERSHIP_COLLECTIONS = [];
+function newPlayerMembership(id, args) {
+  let obj = {id: id};
+  Utils.copyProperties(obj, args, PLAYER_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(obj, PLAYER_MEMBERSHIP_COLLECTIONS);
+  return obj;
+}
+
 const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
 const MESSAGE_COLLECTIONS = [];
 function newMessage(id, args) {
@@ -111,7 +120,7 @@ function newNotificationCategory(id, args) {
 }
 
 const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
-const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications"];
+const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "memberships"];
 function newPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, PLAYER_PROPERTIES);

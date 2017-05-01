@@ -140,6 +140,10 @@ class FakeServer {
     this.checkId(playerId, 'player');
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     this.writer.insert(
+        this.reader.getPlayerMembershipPath(gameId, playerId, null),
+        null,
+        newPlayerMembership(chatRoomId, {chatRoomId: chatRoomId}));
+    this.writer.insert(
         this.reader.getMembershipPath(gameId, chatRoomId, null),
         null,
         newMembership(playerId, {playerId: playerId}));
@@ -153,6 +157,11 @@ class FakeServer {
         path.slice(0, path.length - 1),
         path[path.length - 1],
         playerId);
+    let playerMembershipPath = this.reader.getPlayerMembershipPath(gameId, playerId, chatRoomId);
+    this.writer.remove(
+        playerMembershipPath.slice(0, playerMembershipPath.length - 1),
+        playerMembershipPath[playerMembershipPath.length - 1],
+        chatRoomId);
   }
   addMessageToChatRoom(messageId, chatRoomId, playerId, args) {
     this.checkId(playerId, 'player');

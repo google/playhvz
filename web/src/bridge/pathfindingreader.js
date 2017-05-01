@@ -106,6 +106,15 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), playerId)]);
     return path;
   }
+  getPlayerMembershipPath(gameId, playerId, chatRoomId) {
+    assert(gameId);
+    assert(playerId);
+    assert(typeof chatRoomId == 'string' || chatRoomId == null);
+    let path = this.getPlayerPath(gameId, playerId).concat(["memberships"]);
+    if (chatRoomId)
+      path = path.concat([Utils.findIndexById(this.get(path), chatRoomId)]);
+    return path;
+  }
   getAdminPath(gameId, adminId) {
     assert(gameId);
     assert(typeof adminId == 'string' || adminId == null);
@@ -190,6 +199,13 @@ class PathFindingReader {
   }
   getGameIdForPlayerId(playerId, expect) {
     let path = this.pathForId_(playerId, expect, ["games"]);
+    if (path)
+      return this.source.get(path.slice(0, 2)).id;
+    else
+      return null;
+  }
+  getUserIdForPlayerId(playerId, expect) {
+    let path = this.pathForId_(playerId, expect, ["users"]);
     if (path)
       return this.source.get(path.slice(0, 2)).id;
     else

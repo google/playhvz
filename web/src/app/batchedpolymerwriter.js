@@ -31,7 +31,6 @@ class BatchedPolymerWriter {
           });
           break;
         case 'remove':
-          debugger;
           let obj = Utils.get(property, path);
           if (obj instanceof Array) {
             let removed = obj[index];
