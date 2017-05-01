@@ -11,10 +11,11 @@
           bridge: Object,
           game: Object,
           userId: String,
+          newPlayerArgs: Object,
         },
 
         onSubmit_(event) {
-          var playerArgs = {
+          this.newPlayerArgs = {
             needGun: event.detail.needGun,
             startAsZombie: event.detail.startAsZombie,
             beSecretZombie: event.detail.beSecretZombie,
@@ -22,11 +23,20 @@
             profileImageUrl: '',
             name: event.detail.playerName, 
           };
+          this.nextPage_();
+        },
+
+        done_() {
+          // As the new player comes down from firebase,
+          // <ghvz-app> will detect it and auto-choose it.
           this.bridge.joinGame(
               Bridge.generatePlayerId(),
               this.userId,
               this.game.id,
-              playerArgs);
+              this.newPlayerArgs);
+          this.fire('ghvz-open-page', {
+            page: 'main',
+          });
         },
 
         nextPage_() {
@@ -63,6 +73,9 @@
       neon-animatable {
         padding: 16px;
       }
+      p {
+        margin: 16px 0;
+      }
       .maintext {
         padding-bottom: 16px;
         font-weight: bold;
@@ -75,6 +88,9 @@
         margin: 32px 0;
       }
       .section:first-child {
+        margin-top: 0;
+      }
+      p:first-child {
         margin-top: 0;
       }
       .radio-style {
@@ -172,6 +188,28 @@
               </paper-radio-group>
             </div>
 
+            <div class="section">
+              <paper-button raised on-click="submit_">
+                Next
+              </paper-button>
+            </div>
+          </div>
+        </neon-animatable>
+
+        <neon-animatable>
+          <p>
+            Now things get interesting!
+          </p>
+          <p>
+            Before you're in the game, we're going to help you understand the rules. Once you hit next, we'll show you the rules, and have you answer some questions.
+          </p>
+          <p>
+            This is not a quiz, you're not scored, and we give you the answers right there. This is just to help everyone get on the same page with the rules.
+          </p>
+          <p>
+            So, hit next, and off we go!
+          </p>
+          <div class="section">
             <paper-button raised on-click="nextPage_">
               Next
             </paper-button>
@@ -197,7 +235,7 @@
             GET READY TO GET REKT
           </div>
           <div class="section">
-            <paper-button raised on-click="submit_">
+            <paper-button raised on-click="done_">
               Submit
             </paper-button>
           </div>

@@ -33,6 +33,11 @@
           type: String,
           computed: 'computePrompt_(question.answers, suppliedOrderedAnswerIds, isCorrect)',
         },
+
+        anyNoiseAnswers: {
+          type: Boolean,
+          computed: 'computeAnyUnused_(question.answers)',
+        },
       },
 
       onAnswerTapped_(e) {
@@ -65,6 +70,10 @@
             return "Which comes next?";
           }
         }
+      },
+
+      computeAnyUnused_(answers) {
+        return answers.filter(answer => !answer.isCorrect).length > 0;
       },
 
       computeIsCorrect_(answers, suppliedOrderedAnswerIds) {
@@ -137,19 +146,26 @@
     margin-bottom: 16px;
     font-weight: bold;
   }
-  #prompt {
+  #prompt, #noiseWarning, #answersBelow {
     margin: 16px 0;
   }
   #rulesHeader {
-    margin: 16px 0;
+    margin-top: 32px;
+    margin-bottom: 16px;
   }
 </style>
 <template>
   <div id="text">
     [[question.text]]
   </div>
+  <div id="answersBelow">
+    (Scroll down to see the rules, feel free to use them!)
+  </div>
   <div id="prompt">
     [[prompt]]
+  </div>
+  <div id="noiseWarning" hidden$="[[!anyNoiseAnswers]]">
+    (hint: only some of these options will be used, pick carefully!)
   </div>
   <div id="answers">
     <div id="unordered">
