@@ -212,10 +212,13 @@
           <iron-icon icon="communication:chat"></iron-icon>
           Chat
         </a>
-        <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
-          <a href="javascript:void(0)" data-page$="[[computeChatPage_(chatRoom.id)]]" class="drawer-item">
+        <template is="dom-repeat" items="[[player.memberships]]" as="membership">
+          <a href="javascript:void(0)" data-page$="[[computeChatPage_(membership.chatRoomId)]]" class="drawer-item">
             <iron-icon icon="communication:chat"></iron-icon>
-            [[chatRoom.name]]
+            <ghvz-chat-room-name-label
+                game="[[game]]"
+                chat-room-id="[[membership.chatRoomId]]">
+            </ghvz-chat-room-name-label>
           </a>
         </template>
       </div>

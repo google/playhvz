@@ -62,6 +62,8 @@
               this.leaveChat_();
               break;
             case 'profile':
+              this.fire('ghvz-open-page', {page: 'profile/' + playerId});
+              break;
             case 'ping':
               console.log(action);
               console.log(playerId);
@@ -103,7 +105,7 @@
         },
 
         onConfirmKick_: function(e) {
-          console.log("removing player");
+          this.bridge.removePlayerFromChatRoom(this.chatRoom.id, this.kickPlayer.id);
         },
       });
     });
