@@ -7,13 +7,13 @@ class GatedWriter {
   }
   set(path, value) {
     this.waitingOperations.push(
-        {type: 'set', path: path, value: Utils.copyOf(value)});
+        {type: 'set', path: path, value: value});
     if (this.gateOpen)
       this.send_();
   }
   insert(path, index, value) {
     this.waitingOperations.push(
-        {type: 'insert', path: path, value: Utils.copyOf(value), index: index});
+        {type: 'insert', path: path, value: value, index: index});
     if (this.gateOpen)
       this.send_();
   }

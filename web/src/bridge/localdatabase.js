@@ -29,7 +29,7 @@ function newUserPlayer(id, args) {
 }
 
 const GAME_PROPERTIES = ["active", "name", "number", "rulesUrl", "stunTimer"];
-const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions"];
+const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
 const GAME_IGNORED = ["missionIds", "chatRoomIds", "adminUserIds", "notificationCategoryIds"];
 function newGame(id, args) {
   let obj = {id: id};
@@ -56,8 +56,17 @@ function newQuizAnswer(id, args) {
   return obj;
 }
 
-const CHAT_ROOM_PROPERTIES = ["gameId", "allegianceFilter", "name"];
-const CHAT_ROOM_COLLECTIONS = ["messages", "memberships",];
+const GROUP_PROPERTIES = ["gameId", "allegianceFilter", "autoAdd", "membersCanAdd", "autoRemove"];
+const GROUP_COLLECTIONS = ["memberships"];
+function newGroup(id, args) {
+  let obj = {id: id};
+  Utils.copyProperties(obj, args, GROUP_PROPERTIES);
+  Utils.addEmptyLists(obj, GROUP_COLLECTIONS);
+  return obj;
+}
+
+const CHAT_ROOM_PROPERTIES = ["gameId", "allegianceFilter", "name", "groupId"];
+const CHAT_ROOM_COLLECTIONS = ["messages"];
 function newChatRoom(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, CHAT_ROOM_PROPERTIES);
@@ -65,21 +74,21 @@ function newChatRoom(id, args) {
   return obj;
 }
 
-const MEMBERSHIP_PROPERTIES = ["playerId"];
-const MEMBERSHIP_COLLECTIONS = [];
-function newMembership(id, args) {
+const GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
+const GROUP_MEMBERSHIP_COLLECTIONS = [];
+function newGroupMembership(id, args) {
   let obj = {id: id};
-  Utils.copyProperties(obj, args, MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(obj, MEMBERSHIP_COLLECTIONS);
+  Utils.copyProperties(obj, args, GROUP_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(obj, GROUP_MEMBERSHIP_COLLECTIONS);
   return obj;
 }
 
-const PLAYER_MEMBERSHIP_PROPERTIES = ["chatRoomId"];
-const PLAYER_MEMBERSHIP_COLLECTIONS = [];
-function newPlayerMembership(id, args) {
+const PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId"];
+const PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
+function newPlayerChatRoomMembership(id, args) {
   let obj = {id: id};
-  Utils.copyProperties(obj, args, PLAYER_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(obj, PLAYER_MEMBERSHIP_COLLECTIONS);
+  Utils.copyProperties(obj, args, PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(obj, PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
   return obj;
 }
 
@@ -120,7 +129,7 @@ function newNotificationCategory(id, args) {
 }
 
 const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
-const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "memberships"];
+const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships"];
 function newPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, PLAYER_PROPERTIES);

@@ -107,6 +107,11 @@
     cursor: pointer;
     color: black;
     text-decoration: none;
+
+    --ghvz-chat-room-name-label-icon: {
+      margin: 8px;
+      opacity: .8;
+    }
   }
   .drawer-item:active {
     background-color: #e7e7e7;
@@ -212,14 +217,15 @@
           <iron-icon icon="communication:chat"></iron-icon>
           Chat
         </a>
-        <template is="dom-repeat" items="[[player.memberships]]" as="membership">
-          <a href="javascript:void(0)" data-page$="[[computeChatPage_(membership.chatRoomId)]]" class="drawer-item">
-            <iron-icon icon="communication:chat"></iron-icon>
-            <ghvz-chat-room-name-label
-                game="[[game]]"
-                chat-room-id="[[membership.chatRoomId]]">
-            </ghvz-chat-room-name-label>
-          </a>
+
+        <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
+          <ghvz-chat-room-name-label
+              class="layout horizontal listing drawer-item"
+              with-icon
+              game="[[game]]"
+              chat-room-id="[[membership.chatRoomId]]"
+              data-page$="[[computeChatPage_(membership.chatRoomId)]]">
+          </ghvz-chat-room-name-label>
         </template>
       </div>
     </template>

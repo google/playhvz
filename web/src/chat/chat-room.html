@@ -11,16 +11,14 @@
           bridge: Object,
           game: Object,
           currentPlayer: Object,
+          chatRoomId: String,
 
           isAttached: {
             type: Boolean,
             value: null,
           },
 
-          chatRoom: {
-            type: Object,
-            value: undefined,
-          },
+          chatRoom: Object,
 
           selectedPlayers: {
             type: Object,
@@ -43,6 +41,7 @@
         },
 
         observers: [
+          'onChatRoomIdChange_(chatRoomId, game.chatRoomsById)',
           'onChatRoomChange_(chatRoom)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
         ],
@@ -50,6 +49,10 @@
         attached: function() {
           this.isAttached = true;
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
+        },
+
+        onChatRoomIdChange_(chatRoomId) {
+          this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
         },
 
         onChatRoomChange_: function() {
@@ -274,10 +277,11 @@
     }
   </style>
   <template>
+    <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
+    <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
+
     <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
     </paper-icon-button>
-
-    <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
 
     <!-- Display messages -->
     <template is="dom-repeat" items="[[chatRoom.messages]]">

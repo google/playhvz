@@ -30,36 +30,44 @@ class FirebaseListener {
     // Whenever we want to change the database, we write to this writer.
     // (a writer is just something that has set/push/remove methods).
     this.writer =
-        // For this first place, we write to a mapping writer,
-        // which does our write but also makes writes that
-        // create/maintain id-to-object maps.
-        // Once we have a consistent picture, we write to a mapping
-        // writer, which does our write but also makes writes that
-        // create/maintain id-to-object maps.
-        new MappingWriter(
-            // When we write, the TeeWriter takes that write and sends it to
-            // two places. We want it to eventually go into our privateDatabaseCopyObject,
-            // which we can read, and also the destinationBatchedWriter.
-            new TeeWriter(
+        // When we write, the TeeWriter takes that write and sends it to
+        // two places. We want it to eventually go into our privateDatabaseCopyObject,
+        // which we can read, and also the destinationBatchedWriter.
+        new TeeWriter(
+            // For this first place, we write to a mapping writer,
+            // which does our write but also makes writes that
+            // create/maintain id-to-object maps.
+            // Once we have a consistent picture, we write to a mapping
+            // writer, which does our write but also makes writes that
+            // create/maintain id-to-object maps.
+            new MappingWriter(
                 // The MappingWriter will send its writes to this SimpleWriter
                 // which is a tiny wrapper that just takes set/insert/remove
                 // operations and executes them on a plain javascript object.
-                new SimpleWriter(privateDatabaseCopyObject),
-                // The second place we write to will hold back all of its writes
-                // until the right moment, when releasing all of the writes
-                // would result in a consistent object (no dangling id references).
-                new ConsistentWriter(
-                    // The ConsistentWriter expects a GatedWriter, which it can
-                    // open and close as it wills (when its consistent, really).
-                    // This TimedGatedWriter is a subclass of GatedWriter which
-                    // is wired to give up after 2 entire seconds of inconsistency,
-                    // and just release the writes anyway.
-                    new TimedGatedWriter(
-                        // The MappingWriter will give its writes to whatever
-                        // writer the FirebaseListener was given (supposedly,
-                        // a writer which writes to something that the UI pays
-                        // attention to)
-                        destinationBatchedWriter, true))));
+                new SimpleWriter(privateDatabaseCopyObject)),
+            new CloningWriter(
+                // For this first place, we write to a mapping writer,
+                // which does our write but also makes writes that
+                // create/maintain id-to-object maps.
+                // Once we have a consistent picture, we write to a mapping
+                // writer, which does our write but also makes writes that
+                // create/maintain id-to-object maps.
+                new MappingWriter(
+                    // The second place we write to will hold back all of its writes
+                    // until the right moment, when releasing all of the writes
+                    // would result in a consistent object (no dangling id references).
+                    new ConsistentWriter(
+                        // The ConsistentWriter expects a GatedWriter, which it can
+                        // open and close as it wills (when its consistent, really).
+                        // This TimedGatedWriter is a subclass of GatedWriter which
+                        // is wired to give up after 2 entire seconds of inconsistency,
+                        // and just release the writes anyway.
+                        new TimedGatedWriter(
+                            // The MappingWriter will give its writes to whatever
+                            // writer the FirebaseListener was given (supposedly,
+                            // a writer which writes to something that the UI pays
+                            // attention to)
+                            destinationBatchedWriter, true)))));
     // Set up the initial structure. Gotta have a games, users, and guns array.
     this.writer.set(this.reader.getGunPath(null), []);
     this.writer.set(this.reader.getGamePath(null), []);

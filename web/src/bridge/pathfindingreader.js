@@ -97,20 +97,20 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), notificationId)]);
     return path;
   }
-  getMembershipPath(gameId, chatRoomId, playerId) {
+  getMembershipPath(gameId, groupId, playerId) {
     assert(gameId);
-    assert(chatRoomId);
+    assert(groupId);
     assert(typeof playerId == 'string' || playerId == null);
-    let path = this.getChatRoomPath(gameId, chatRoomId).concat(["memberships"]);
+    let path = this.getGroupPath(gameId, groupId).concat(["memberships"]);
     if (playerId)
       path = path.concat([Utils.findIndexById(this.get(path), playerId)]);
     return path;
   }
-  getPlayerMembershipPath(gameId, playerId, chatRoomId) {
+  getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId) {
     assert(gameId);
     assert(playerId);
     assert(typeof chatRoomId == 'string' || chatRoomId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["memberships"]);
+    let path = this.getPlayerPath(gameId, playerId).concat(["chatRoomMemberships"]);
     if (chatRoomId)
       path = path.concat([Utils.findIndexById(this.get(path), chatRoomId)]);
     return path;
@@ -156,6 +156,23 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), notificationCategoryId)]);
     return path;
   }
+  getGroupPath(gameId, groupId) {
+    assert(gameId);
+    assert(typeof groupId == 'string' || groupId == null);
+    let path = this.getGamePath(gameId).concat(["groups"]);
+    if (groupId)
+      path = path.concat([Utils.findIndexById(this.get(path), groupId)]);
+    return path;
+  }
+  getGroupMembershipPath(gameId, groupId, membershipId) {
+    assert(gameId);
+    assert(groupId);
+    assert(typeof membershipId == 'string' || membershipId == null);
+    let path = this.getGroupPath(gameId, groupId).concat(["memberships"]);
+    if (membershipId)
+      path = path.concat([Utils.findIndexById(this.get(path), membershipId)]);
+    return path;
+  }
   getChatRoomPath(gameId, chatRoomId) {
     assert(gameId);
     assert(typeof chatRoomId == 'string' || chatRoomId == null);
@@ -164,15 +181,15 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), chatRoomId)]);
     return path;
   }
-  getChatRoomMembershipPath(gameId, chatRoomId, membershipId) {
-    assert(gameId);
-    assert(chatRoomId);
-    assert(typeof membershipId == 'string' || membershipId == null);
-    let path = this.getChatRoomPath(gameId, chatRoomId).concat(["memberships"]);
-    if (membershipId)
-      path = path.concat([Utils.findIndexById(this.get(path), membershipId)]);
-    return path;
-  }
+  // getChatRoomMembershipPath(gameId, chatRoomId, membershipId) {
+  //   assert(gameId);
+  //   assert(chatRoomId);
+  //   assert(typeof membershipId == 'string' || membershipId == null);
+  //   let path = this.getChatRoomPath(gameId, chatRoomId).concat(["memberships"]);
+  //   if (membershipId)
+  //     path = path.concat([Utils.findIndexById(this.get(path), membershipId)]);
+  //   return path;
+  // }
   getChatRoomMessagePath(gameId, chatRoomId, messageId) {
     assert(gameId);
     assert(chatRoomId);
@@ -217,6 +234,10 @@ class PathFindingReader {
   }
   getGameIdForChatRoomId(chatRoomId) {
     let path = this.pathForId_(chatRoomId);
+    return this.source.get(path.slice(0, 2)).id;
+  }
+  getGameIdForGroupId(groupId) {
+    let path = this.pathForId_(groupId);
     return this.source.get(path.slice(0, 2)).id;
   }
 

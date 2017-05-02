@@ -2,12 +2,10 @@
 
 class FakeServer {
   constructor(destination) {
-    this.destination = destination;
-
     this.database = {};
     var writer = new SimpleWriter(this.database);
     var mappingWriter = new MappingWriter(writer);
-    var teeWriter = new TeeWriter(mappingWriter, new MappingWriter(destination));
+    var teeWriter = new TeeWriter(mappingWriter, new CloningWriter(destination), true);
     this.writer = teeWriter;
 
     this.reader = new PathFindingReader(new SimpleReader(this.database));
@@ -115,15 +113,27 @@ class FakeServer {
             playerId: playerId
         }));
   }
-  createChatRoom(chatRoomId, firstPlayerId, args) {
-    this.checkIdNotTaken(chatRoomId, 'chatRoom');
+  createGroup(groupId, firstPlayerId, args) {
+    this.checkIdNotTaken(groupId, 'group');
     this.checkId(firstPlayerId, 'player');
-    this.checkRequestArgs(args, SERVER_CHAT_ROOM_PROPERTIES, true);
+    this.checkRequestArgs(args, SERVER_GROUP_PROPERTIES, true);
     let gameId = this.reader.getGameIdForPlayerId(firstPlayerId);
+    this.writer.insert(
+        this.reader.getGroupPath(gameId, null),
+        null,
+        newGroup(groupId, args));
+  }
+  createChatRoom(chatRoomId, groupId, args) {
+    this.checkIdNotTaken(chatRoomId, 'chatRoom');
+    this.checkId(groupId, 'group');
+    this.checkRequestArgs(args, SERVER_CHAT_ROOM_PROPERTIES, true);
+    let gameId = this.reader.getGameIdForGroupId(groupId);
     this.writer.insert(
         this.reader.getChatRoomPath(gameId, null),
         null,
-        newChatRoom(chatRoomId, args));
+        newChatRoom(chatRoomId, Utils.merge(args, {
+          groupId: groupId,
+        })));
   }
   updatePlayer(playerId, args) {
     this.checkId(playerId, 'player');
@@ -139,14 +149,16 @@ class FakeServer {
     this.checkId(chatRoomId, 'chatRoom');
     this.checkId(playerId, 'player');
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
+    let chatRoom = this.reader.get(this.reader.getChatRoomPath(gameId, chatRoomId));
+    let groupId = chatRoom.groupId;
     this.writer.insert(
-        this.reader.getPlayerMembershipPath(gameId, playerId, null),
+        this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null),
         null,
-        newPlayerMembership(chatRoomId, {chatRoomId: chatRoomId}));
+        newPlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId}));
     this.writer.insert(
-        this.reader.getMembershipPath(gameId, chatRoomId, null),
+        this.reader.getMembershipPath(gameId, groupId, null),
         null,
-        newMembership(playerId, {playerId: playerId}));
+        newGroupMembership(playerId, {playerId: playerId}));
   }
   removePlayerFromChatRoom(chatRoomId, playerId) {
     this.checkId(chatRoomId, 'chatRoom');
