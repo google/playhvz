@@ -186,10 +186,7 @@
       <template id="repeater" is="dom-repeat" items="[[question.answers]]" as="answer">
         <iron-collapse class="answer" data-answer-id$="[[answer.id]]">
           <paper-material>
-            <!-- <div class="text"> -->
-              [[answer.text]]
-            <!-- </div>
-            <paper-button raised on-tap="onAnswerTapped_">Choose</paper-button> -->
+            [[answer.text]]
           </paper-material>
         </iron-collapse>
       </template>

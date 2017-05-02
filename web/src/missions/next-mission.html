@@ -21,10 +21,10 @@
         },
 
         observers: [
-          "ready_(missions, playerId, missions.splices)",
+          "ready_(missions)",
         ],
 
-        ready_: function(missions, playerId) {
+        ready_: function(missions) {
           let nextMission;
           for (const mission of missions) {
             if (new Date().getTime() / 1000 < mission.endTime) {

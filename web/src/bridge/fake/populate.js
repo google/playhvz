@@ -73,6 +73,8 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.addMessageToChatRoom(Bridge.generateMessageId(), humanChatRoomId, kimPlayerId, {message: 'monkeys eat stool!'});
   var firstMissionId = Bridge.generateMissionId();
   server.addMission(firstMissionId, gameId, {beginTime: new Date().getTime() / 1000 - 10, endTime: new Date().getTime() / 1000 + 60 * 60, name: "first mission!", url: "/firstgame/missions/first-mission.html", allegianceFilter: 'resistance'});
+  var secondMissionId = Bridge.generateMissionId();
+  server.addMission(secondMissionId, gameId, {beginTime: new Date().getTime() / 1000 - 10, endTime: new Date().getTime() / 1000 + 60 * 60, name: "second mission!", url: "/firstgame/missions/second-mission.html", allegianceFilter: 'horde'});
   var rewardCategoryId = Bridge.generateRewardCategoryId();
   server.addRewardCategory(rewardCategoryId, gameId, {name: "signed up!", points: 2, seed: "derp"});
   server.addReward(Bridge.generateRewardId(), rewardCategoryId, {});

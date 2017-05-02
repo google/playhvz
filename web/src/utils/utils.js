@@ -138,7 +138,7 @@ Utils.compare = function(aValue, bValue) {
 Utils.formatTime = function(timestampInSeconds) {
   var date = new Date(timestampInSeconds * 1000);
   var result = "";
-  var months = [null, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
   result += months[date.getMonth()] + ' ';
   result += date.getDate() + ' ';
   var am = date.getHours() <= 12;
