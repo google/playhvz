@@ -20,7 +20,7 @@ function newUser(id, args) {
 
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
-const USER_PLAYER_IGNORED = ["lives", "notifications"];
+const USER_PLAYER_IGNORED = ["lives", "notifications", "chatRoomMembershipsByChatRoomId"];
 function newUserPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, USER_PLAYER_PROPERTIES);
@@ -30,7 +30,7 @@ function newUserPlayer(id, args) {
 
 const GAME_PROPERTIES = ["active", "name", "number", "rulesUrl", "stunTimer"];
 const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
-const GAME_IGNORED = ["missionIds", "chatRoomIds", "adminUserIds", "notificationCategoryIds"];
+const GAME_IGNORED = ["missionIds", "chatRoomIds", "adminUserIds", "notificationCategoryIds", "groupIds"];
 function newGame(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, GAME_PROPERTIES);

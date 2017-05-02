@@ -5,6 +5,7 @@
 // Then, paste it into firebase's rules console.
 
 type ChatRoomId extends String { validate() { this.startsWith("chatRoom-") } }
+type GroupId extends String { validate() { this.startsWith("group-") } }
 type PlayerId extends String { validate() { this.startsWith("player-") } }
 type GameId extends String { validate() { this.startsWith("game-") } }
 type MessageId extends String { validate() { this.startsWith("message-") } }
@@ -73,7 +74,7 @@ getCurrentPrivatePlayer(gameId) {
 }
 
 isMember(chatRoom, playerId) {
-  chatRoom.memberships[playerId] != null
+  root.groups[chatRoom.groupId].memberships[playerId] != null
 }
 
 isAdmin(gameId) {
@@ -105,17 +106,31 @@ type Membership extends Empty {
   }
 }
 
-type ChatRoom {
-  name: String;
+type Group {
   gameId: GameId;
   memberships: Map<PlayerId, Membership>;
-  messages: Map<MessageId, Message>;
   allegianceFilter: OptionalAllegiance;
 
   read() {
     isServer() ||
     isAdmin(this.gameId) ||
     this.memberships[getCurrentPlayerId(this.gameId)] != null
+  }
+  validate() {
+    root.games[this.gameId] != null
+  }
+}
+
+type ChatRoom {
+  name: String;
+  gameId: GameId;
+  groupId: GroupId;
+  messages: Map<MessageId, Message>;
+
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    root.groups[this.groupId].memberships[getCurrentPlayerId(this.gameId)] != null
   }
   validate() {
     root.games[this.gameId] != null
@@ -243,6 +258,7 @@ type PrivatePlayer {
   userId: UserId;
   notifications: Map<NotificationCategoryId, Map<NotificationId, Notification>>;
   lives: Map<LifeId, PrivatePlayerLife>;
+  chatRoomMembershipsByChatRoomId: Map<ChatRoomId, Empty>;
   beSecretZombie: Boolean;
 
   read() {
@@ -279,6 +295,13 @@ type GameChatRoom extends Empty {
   validate() {
     root.chatRooms[key()] != null &&
     root.chatRooms[key()].gameId == this.parent().parent().gameId
+  }
+}
+
+type GameGroup extends Empty {
+  validate() {
+    root.groups[key()] != null &&
+    root.groups[key()].gameId == this.parent().parent().gameId
   }
 }
 
@@ -348,6 +371,7 @@ path /guns {
 }
 path /players is Map<PlayerId, PrivatePlayer>;
 path /chatRooms is Map<ChatRoomId, ChatRoom>;
+path /groups is Map<ChatRoomId, Group>;
 path /missions is Map<MissionId, Mission>;
 path /games is Map<GameId, Game>;
 path /guns is Map<GunId, Gun>;
