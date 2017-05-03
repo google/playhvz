@@ -70,6 +70,13 @@ def ValidateInputs(required, valid):
     elif a == 'chatRoomId':
       if not firebase.get('/chatRooms/%s/name' % data, None):
         raise InvalidInputError('Chat room %s not found.' % data)
+    elif a == 'rewardCategoryId':
+      if not firebase.get('/games/%s/rewardCategories/%s/name' % (request_data['gameId'], data), None):
+        raise InvalidInputError('Reward category %s not found.' % data)
+    elif a == 'rewardId':
+      path = '/games/%s/rewardCategories/%s/rewards/%s' % (request_data['gameId'], request_data['rewardCategoryId'], data)
+      if not firebase.get(path, None):
+        raise InvalidInputError('Reward %s not found.' % data)
     elif a == 'allegianceFilter':
       if data not in constants.ALLEGIANCES:
         raise InvalidInputError('Allegiance %s is not valid.' % data)
@@ -353,6 +360,146 @@ def send_chat_message():
   }
 
   return jsonify(firebase.put('/chatRooms/%s/messages' % chat, messageId, message_data))
+
+
+@app.route('/addRewardCategory', methods=['POST'])
+def add_reward_category():
+  """Add a new reward group.
+
+  Args:
+    gameId: The game ID. eg game-1
+    rewardCatergoryId: reward type, eg rewardCategory-foo
+    name: Name of the reward
+    points: (int) points the reward is worth
+  """
+  valid_args = ['gameId']
+  required_args = list(valid_args)
+  required_args.extend(['name', 'points', 'rewardCategoryId'])
+  ValidateInputs(required_args, valid_args)
+
+  request_data = request.get_json()
+  game = request_data['gameId']
+  name = request_data['name']
+  points = int(request_data['points'])
+  reward_category = request_data['rewardCategoryId']
+
+  if not reward_category.startswith('rewardCategory-'):
+    raise InvalidInputError('Reward ID is not valid.')
+
+  reward_category_data = {
+    'claimed': 0,
+    'name': name,
+    'points': points,
+  }
+
+  return jsonify(firebase.put('/games/%s/rewardCategories' % game, reward_category, reward_category_data))
+
+
+@app.route('/updateRewardCategory', methods=['POST'])
+def update_reward_category():
+  """Update an existing reward group.
+
+  Args:
+    gameId: The game ID. eg game-1
+    rewardCatergoryId: reward type, eg rewardCategory-foo
+    name: Name of the reward
+    points: (int) points the reward is worth
+  """
+  valid_args = ['gameId', 'rewardCategoryId']
+  required_args = list(valid_args)
+  ValidateInputs(required_args, valid_args)
+
+  request_data = request.get_json()
+  game = request_data['gameId']
+  reward_category = request_data['rewardCategoryId']
+
+  reward_category_data = {}
+  for k in ('name', 'points'):
+    if k in request_data:
+      reward_category_data[k] = request_data[k]
+
+  return jsonify(firebase.patch('/games/%s/rewardCategories/%s' % (game, reward_category), reward_category_data))
+
+
+@app.route('/addReward', methods=['POST'])
+def add_reward():
+  """Add a new reward to an existing category..
+
+  Args:
+    gameId: The game ID.
+    rewardCatergoryId: reward type, eg rewardCategory-foo
+    rewardId: reward-foo-bar. Must start with the category
+  """
+  valid_args = ['gameId', 'rewardCategoryId']
+  required_args = list(valid_args)
+  required_args.extend(['rewardId'])
+  ValidateInputs(required_args, valid_args)
+
+  request_data = request.get_json()
+  game = request_data['gameId']
+  reward_category = request_data['rewardCategoryId']
+  reward = request_data['rewardId']
+  reward_seed = reward_category[len('rewardCategory-'):]
+
+  if not reward.startswith('reward-%s' % reward_seed):
+    raise InvalidInputError('Reward ID is not valid.')
+
+  reward_data = {'playerId': ''}
+
+  path = '/games/%s/rewardCategories/%s/rewards' % (game, reward_category)
+  return jsonify(firebase.put(path, reward, reward_data))
+
+
+@app.route('/claimReward', methods=['POST'])
+def claim_reward():
+  """Claim a reward for a player.
+
+  Args:
+    gameId: The game ID.
+    playerId: Player's ID
+    rewardId: reward-foo-bar. Must start with the category
+  """
+  valid_args = ['gameId', 'playerId']
+  required_args = list(valid_args)
+  required_args.extend(['rewardId'])
+  ValidateInputs(required_args, valid_args)
+
+  result = []
+
+  request_data = request.get_json()
+  game = request_data['gameId']
+  player = request_data['playerId']
+  reward = request_data['rewardId']
+
+  reward_category_seed = reward.split('-')[1]
+  reward_category = 'rewardCategory-%s' % reward_category_seed
+
+  player_path = '/games/%s/players/%s' % (game, player)
+  reward_category_path = '/games/%s/rewardCategories/%s' % (game, reward_category)
+  reward_path = '%s/rewards/%s' % (reward_category_path, reward)
+
+  if not firebase.get(reward_path, None):
+    raise InvalidInputError('Reward %s not found.' % reward)
+
+  # TODO: Validate the user hasn't already claimed it
+  if firebase.get('%s/claims/%s' % (player_path, reward), 'time'):
+    raise InvalidInputError('Reward was already claimed by this player.')
+
+  current_points = int(firebase.get(player_path, 'points'))
+  reward_points = int(firebase.get(reward_category_path, 'points'))
+  new_player_points = current_points + reward_points
+
+  rewards_claimed = int(firebase.get(reward_category_path, 'claimed'))
+
+  result.append('Player points = %d + %d => %d' % (current_points, reward_points, new_player_points))
+  result.append('Claim count %d => %d' % (rewards_claimed, rewards_claimed + 1))
+  result.append(firebase.patch(reward_category_path, {'claimed': rewards_claimed + 1}))
+  result.append(firebase.patch(player_path, {'points': new_player_points}))
+  result.append(firebase.patch(reward_path, {'playerId': player}))
+  claim_data = {'rewardCategoryId': reward_category, 'time': int(time.time())}
+  result.append(firebase.put('%s/claims' % player_path, reward, claim_data))
+
+  return jsonify(result)
 
 
 # vim:ts=2:sw=2:expandtab
