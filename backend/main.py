@@ -62,9 +62,34 @@ def HandleError(e):
   return '500: %r %r' % (type(e), e), 500
 
 
+methods = {
+  'register': api_calls.Register,
+  'createGame': api_calls.CreateGame,
+  'createPlayer': api_calls.CreatePlayer,
+  'addGun': api_calls.AddGun,
+  'assignGun': api_calls.AssignGun,
+  'updatePlayer': api_calls.UpdatePlayer,
+  'addMission': api_calls.AddMission,
+  'updateMission': api_calls.UpdateMission,
+  'createChatRoom': api_calls.CreateChatRoom,
+  'addPlayerToChat': api_calls.AddPlayerToChat,
+  'sendChatMessage': api_calls.SendChatMessage,
+  'addRewardCategory': api_calls.AddRewardCategory,
+  'updateRewardCategory': api_calls.UpdateRewardCategory,
+  'addReward': api_calls.AddReward,
+  'claimReward': api_calls.ClaimReward,
+}
+
+
 @app.route('/')
 def index():
   return "<h1>Welcome To Google HVZ (backend)!</h1>"
+
+
+@app.route('/help')
+def ApiHelp():
+  r = ['%s: %s' % (k, v.__doc__) for k, v in methods.iteritems()]
+  return '\n---\n\n'.join(r)
 
 
 @app.route('/test', methods=['GET'])
@@ -79,79 +104,12 @@ def GetGun():
   return jsonify(GetFirebase().get('/guns', gun))
 
 
-@app.route('/register', methods=['POST'])
-def Register():
-  return jsonify(api_calls.Register(request.get_json(), GetFirebase()))
+@app.route('/api/<method>', methods=['POST'])
+def RouteRequest(method):
+  if method not in methods:
+    raise AppError('Invalid method %s' % method)
+  f = methods[method]
 
-
-@app.route('/createGame', methods=['POST'])
-def CreateGame():
-  return jsonify(api_calls.CreateGame(request.get_json(), GetFirebase()))
-
-
-@app.route('/createPlayer', methods=['POST'])
-def CreatePlayer():
-  return jsonify(api_calls.CreatePlayer(request.get_json(), GetFirebase()))
-
-
-@app.route('/addGun', methods=['POST'])
-def AddGun():
-  return jsonify(api_calls.AddGun(request.get_json(), GetFirebase()))
-
-
-@app.route('/assignGun', methods=['POST'])
-def AssignGun():
-  return jsonify(api_calls.AssignGun(request.get_json(), GetFirebase()))
-
-
-@app.route('/updatePlayer', methods=['POST'])
-def UpdatePlayer():
-  return jsonify(api_calls.UpdatePlayer(request.get_json(), GetFirebase()))
-
-
-@app.route('/addMission', methods=['POST'])
-def AddMission():
-  return jsonify(api_calls.AddMission(request.get_json(), GetFirebase()))
-
-
-@app.route('/updateMission', methods=['POST'])
-def UpdateMission():
-  return jsonify(api_calls.UpdateMission(request.get_json(), GetFirebase()))
-
-
-@app.route('/createChatRoom', methods=['POST'])
-def CreateChatRoom():
-  return jsonify(api_calls.CreateChatRoom(request.get_json(), GetFirebase()))
-
-
-@app.route('/addPlayerToChat', methods=['POST'])
-def AddPlayerToChat():
-  return jsonify(api_calls.AddPlayerToChat(request.get_json(), GetFirebase()))
-
-
-@app.route('/sendChatMessage', methods=['POST'])
-def SendChatMessage():
-  return jsonify(api_calls.SendChatMessage(request.get_json(), GetFirebase()))
-
-
-@app.route('/addRewardCategory', methods=['POST'])
-def AddRewardCategory():
-  return jsonify(api_calls.AddRewardCategory(request.get_json(), GetFirebase()))
-
-
-@app.route('/updateRewardCategory', methods=['POST'])
-def UpdateRewardCategory():
-  return jsonify(api_calls.UpdateRewardCategory(request.get_json(), GetFirebase()))
-
-
-@app.route('/addReward', methods=['POST'])
-def AddReward():
-  return jsonify(api_calls.AddReward(request.get_json(), GetFirebase()))
-
-
-@app.route('/claimReward', methods=['POST'])
-def ClaimReward():
-  return jsonify(api_calls.ClaimReward(request.get_json(), GetFirebase()))
-
+  return jsonify(f(request.get_json(), GetFirebase()))
 
 # vim:ts=2:sw=2:expandtab
