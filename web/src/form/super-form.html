@@ -88,7 +88,7 @@
               } else if (field.type == 'enum') {
                 newValue = field.options[0].value;
               } else if (field.type == 'timestamp') {
-                newValue = new Date().getTime() / 1000;
+                newValue = new Date().getTime();
               } else {
                 newValue = "";
               }

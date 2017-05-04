@@ -135,8 +135,8 @@ Utils.compare = function(aValue, bValue) {
     return 0;
 }
 
-Utils.formatTime = function(timestampInSeconds) {
-  var date = new Date(timestampInSeconds * 1000);
+Utils.formatTime = function(timestampInMs) {
+  var date = new Date(timestampInMs);
   var result = "";
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
   result += months[date.getMonth()] + ' ';

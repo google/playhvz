@@ -1,7 +1,7 @@
 'use strict';
 
 class FakeServer {
-  constructor(destination) {
+  constructor(destination, time) {
     this.database = {};
     var writer = new SimpleWriter(this.database);
     var mappingWriter = new MappingWriter(writer);
@@ -10,11 +10,16 @@ class FakeServer {
 
     this.reader = new PathFindingReader(new SimpleReader(this.database));
 
+    this.time = time;
+
     this.writer.set(this.reader.getGunPath(null), []);
     this.writer.set(this.reader.getGamePath(null), []);
     this.writer.set(this.reader.getUserPath(null), []);
 
     window.fakeServer = this;
+  }
+  setTime(time) {
+    this.time = time;
   }
   checkRequestArgs(args, paramNames, optional) {
     assert(typeof args == 'object');
@@ -184,7 +189,7 @@ class FakeServer {
         this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
         null,
         newMessage(messageId, Utils.merge(args, {
-          time: new Date().getTime() / 1000,
+          time: this.time,
           playerId: playerId,
         })));
   }
@@ -259,7 +264,7 @@ class FakeServer {
     let [gameId, playerId] = this.reader.getGameIdAndPlayerIdForNotificationId(notificationId);
     this.writer.set(
         this.reader.getNotificationPath(gameId, playerId, notificationId).concat(["seenTime"]),
-        new Date() / 1000);
+        this.time);
   }
   addReward(rewardId, rewardCategoryId, args) {
     this.checkIdNotTaken(rewardId, 'reward');
@@ -355,6 +360,7 @@ class FakeServer {
         null,
         newInfection(Bridge.generateInfectionId(), {
           infectorPlayerId: infectorPlayerId,
+          time: this.time,
         }));
     infecteePlayer = this.reader.get(infecteePlayerPath);
     if (infecteePlayer.infections.length >= infecteePlayer.lives.length) {

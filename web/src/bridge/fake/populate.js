@@ -20,6 +20,76 @@ function makePlayerProperties(name) {
   };
 }
 
+function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays, numShuffles) {
+  let zombiesStartIndex = 0;
+  let zombiesEndIndex = numStartingZombies;
+  let gameStartTimestamp = new Date().getTime();
+
+  // For console logging only
+  // let numHumans = 0;
+  // let numZombies = numStartingZombies;
+
+  // Make that many players, start that many of them as zombies, and simulate that
+  // many days. In each of the days, each zombie infects a human.
+  // Should end in zombiesEndIndex*(2^numDays) zombies.
+  let playerIds = [];
+  for (let i = 0; i < numPlayers; i++) {
+    let userId = Bridge.generateUserId();
+    server.register(userId, {});
+    let playerId = Bridge.generatePlayerId();
+    server.joinGame(playerId, userId, gameId, makePlayerProperties('Player' + i));
+    playerIds.push(playerId);
+  }
+  playerIds = Utils.deterministicShuffle(playerIds, numShuffles);
+  let lifeCodesByPlayerId = {};
+  for (let i = zombiesEndIndex; i < playerIds.length; i++) {
+    let lifeCode = "life-" + i;
+    lifeCodesByPlayerId[playerIds[i]] = lifeCode;
+    server.addLife(Bridge.generateLifeId(), playerIds[i], lifeCode);
+    // numHumans++;
+  }
+  // console.log(server.time, numHumans, numZombies);
+  for (let i = 0; i < numDays; i++) {
+    let dayStartTimestamp = gameStartTimestamp + i * 24 * 60 * 60 * 1000; // 24 hours
+    for (let j = zombiesStartIndex; j < zombiesEndIndex; j++) {
+      let infectorId = playerIds[j];
+      let infecteeId = playerIds[zombiesEndIndex + j];
+      let infecteeLifeCode = lifeCodesByPlayerId[infecteeId];
+      server.setTime(dayStartTimestamp + j * 11 * 60 * 1000); // infections are spread by 11 minutes
+      server.infect(Bridge.generateInfectionId(), infectorId, infecteeLifeCode);
+      // console.log(server.time, --numHumans, ++numZombies);
+    }
+    zombiesEndIndex *= 2;
+
+    if (i == 0) {
+      // End of first day, revive the starting zombies
+      server.setTime(dayStartTimestamp + i * 12 * 60 * 60 * 1000); // 12 hours past day start
+      for (let j = 0; j < numStartingZombies; j++) {
+        server.addLife(Bridge.generateLifeId(), playerIds[j]);
+        // console.log(server.time, ++numHumans, --numZombies);
+      }
+      zombiesStartIndex = numStartingZombies;
+    }
+    if (i == 1) {
+      server.setTime(dayStartTimestamp + i * 12 * 60 * 60 * 1000); // 12 hours past day start
+      // End of second day, revive a 3 random humans
+      for (let j = zombiesStartIndex; j < zombiesStartIndex + 3; j++) {
+        server.addLife(Bridge.generateLifeId(), playerIds[j]);
+        // console.log(server.time, ++numHumans, --numZombies);
+      }
+      zombiesStartIndex += 3;
+    }
+  }
+}
+
+function populatePlayersLight(server, gameId) {
+  populatePlayers(server, gameId, 100, 7, 2, 3);
+}
+
+function populatePlayersHeavy(server, gameId) {
+  populatePlayers(server, gameId, 300, 7, 5, 3);
+}
+
 function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   // registered, admin, and joined
   var kimUserId = Bridge.generateUserId();
@@ -47,36 +117,10 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var zekePlayerId = Bridge.generatePlayerId();
   server.joinGame(zekePlayerId, zekeUserId, gameId, makePlayerProperties('Zeke'));
   
-  let numPlayers = 100;
-  let humansStartIndex = 7;
-  let numBattles = 2;
-  let numShuffles = 3;
-  // Make that many players, start that many of them as zombies, and have that
-  // many battles. In each of the battles, each zombie infects a human.
-  // Should end in humansStartIndex*(2^numBattles) zombies.
-  let playerIds = [];
-  for (let i = 0; i < numPlayers; i++) {
-    let userId = Bridge.generateUserId();
-    server.register(userId, {});
-    let playerId = Bridge.generatePlayerId();
-    server.joinGame(playerId, userId, gameId, makePlayerProperties('Player' + i));
-    playerIds.push(playerId);
-  }
-  playerIds = Utils.deterministicShuffle(playerIds, numShuffles);
-  let lifeCodesByPlayerId = {};
-  for (let i = humansStartIndex; i < playerIds.length; i++) {
-    let lifeCode = "life-" + i;
-    lifeCodesByPlayerId[playerIds[i]] = lifeCode;
-    server.addLife(Bridge.generateLifeId(), playerIds[i], lifeCode);
-  }
-  for (let i = 0; i < numBattles; i++) {
-    for (let j = 0; j < humansStartIndex; j++) {
-      let infectorId = playerIds[j];
-      let infecteeId = playerIds[humansStartIndex + j];
-      let infecteeLifeCode = lifeCodesByPlayerId[infecteeId];
-      server.infect(Bridge.generateInfectionId(), infectorId, infecteeLifeCode);
-    }
-    humansStartIndex *= 2;
+  if (Utils.getParameterByName('populate', 'light') == 'heavy') {
+    populatePlayersHeavy(server, gameId);
+  } else {
+    populatePlayersLight(server, gameId);
   }
 
   server.updatePlayer(kimPlayerId, {profileImageUrl: 'https://lh3.googleusercontent.com/GoKTAX0zAEt6PlzUkTn7tMeK-q1hwKDpzWsMJHBntuyR7ZKVtFXjRkbFOEMqrqxPWJ-7dbCXD7NbVgHd7VmkYD8bDzsjd23XYk0KyALC3BElIk65vKajjjRD_X2_VkLPOVejrZLpPpa2ebQVUHJF5UXVlkst0m6RRqs2SumRzC7EMmEeq9x_TurwKUJmj7PhNBPCeoDEh51jAIc-ZqvRfDegLgq-HtoyJAo91lbD6jqA2-TFufJfiPd4nOWnKhZkQmarxA8LQT0kOu7r3M5F-GH3pCbQqpH1zraha8CqvKxMGLW1i4CbDs1beXatKTdjYhb1D_MVnJ6h7O4WX3GULwNTRSIFVOrogNWm4jWLMKfKt3NfXYUsCOMhlpAI3Q8o1Qgbotfud4_HcRvvs6C6i17X-oQm8282rFu6aQiLXOv55FfiMnjnkbTokOA1OGDQrkBPbSVumz9ZE3Hr-J7w_G8itxqThsSzwtK6p5YR_9lnepWe0HRNKfUZ2x-a2ndT9m6aRXC_ymWHQGfdGPvTfHOPxUpY8mtX2vknmj_dn4dIuir1PpcN0DJVVuyuww3sOn-1YRFh80gBFvwFuMnKwz8GY8IX5gZmbrrBsy_FmwFDIvBcwNjZKd9fH2gkK5rk1AlWv12LsPBsrRIEaLvcSq7Iim9XSsiivzcNrLFG=w294-h488-no'});
@@ -108,9 +152,9 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.addMessageToChatRoom(Bridge.generateMessageId(), zedChatRoomId, kimPlayerId, {message: 'hoomans drool!'});
   server.addMessageToChatRoom(Bridge.generateMessageId(), zedChatRoomId, kimPlayerId, {message: 'monkeys eat stool!'});
   var firstMissionId = Bridge.generateMissionId();
-  server.addMission(firstMissionId, gameId, {beginTime: new Date().getTime() / 1000 - 10, endTime: new Date().getTime() / 1000 + 60 * 60, name: "first mission!", url: "/firstgame/missions/first-mission.html", allegianceFilter: 'resistance'});
+  server.addMission(firstMissionId, gameId, {beginTime: new Date().getTime() - 10 * 1000, endTime: new Date().getTime() + 60 * 60 * 1000, name: "first mission!", url: "/firstgame/missions/first-mission.html", allegianceFilter: 'resistance'});
   var secondMissionId = Bridge.generateMissionId();
-  server.addMission(secondMissionId, gameId, {beginTime: new Date().getTime() / 1000 - 10, endTime: new Date().getTime() / 1000 + 60 * 60, name: "second mission!", url: "/firstgame/missions/second-mission.html", allegianceFilter: 'horde'});
+  server.addMission(secondMissionId, gameId, {beginTime: new Date().getTime() - 10 * 1000, endTime: new Date().getTime() + 60 * 60 * 1000, name: "second mission!", url: "/firstgame/missions/second-mission.html", allegianceFilter: 'horde'});
   var rewardCategoryId = Bridge.generateRewardCategoryId();
   server.addRewardCategory(rewardCategoryId, gameId, {name: "signed up!", points: 2, seed: "derp"});
   server.addReward(Bridge.generateRewardId(), rewardCategoryId, {});

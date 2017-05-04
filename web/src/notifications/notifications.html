@@ -133,7 +133,7 @@
 
         startAddingCategory_: function() {
           this.$.form.openForAdding({
-                sendTime: Math.floor(new Date().getTime() / 1000),
+                sendTime: Math.floor(new Date().getTime()),
               })
               .then((properties) => {
                 this.bridge.addNotificationCategory(

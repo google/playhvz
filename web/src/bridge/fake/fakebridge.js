@@ -7,7 +7,7 @@ class FakeBridge {
     this.databaseOperations = [];
     this.gatedWriter = new GatedWriter(destination, false);
     var mappingWriter = new MappingWriter(this.gatedWriter);
-    var fakeServer = new FakeServer(mappingWriter);
+    var fakeServer = new FakeServer(mappingWriter, new Date().getTime());
     var cloningFakeSerer = new CloningWrapper(fakeServer, SERVER_METHODS);
     var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 100);
     this.server = delayingCloningFakeServer;

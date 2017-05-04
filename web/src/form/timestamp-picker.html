@@ -39,7 +39,7 @@
         onTimestampChanged_: function(newTimestamp, oldTimestamp) {
           if (newTimestamp != oldTimestamp) {
             if (newTimestamp) {
-              var date = new Date(newTimestamp * 1000);
+              var date = new Date(newTimestamp);
               this.$.year.value = date.getYear() + 1900;
               this.$.month.value = date.getMonth();
               this.$.day.value = date.getDate();
@@ -83,7 +83,7 @@
             assert(date.getDate() == day);
             assert(date.getHours() == hour);
             assert(date.getMinutes() == minute);
-            this.timestamp = date.getTime() / 1000;
+            this.timestamp = date.getTime();
             this.removeAttribute("invalid");
           } else {
             console.error('invalid date');
