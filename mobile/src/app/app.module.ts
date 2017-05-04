@@ -10,7 +10,7 @@ import { HomePage } from '../pages/home/home';
 
 const cloudSettings: CloudSettings = {
   'core': {
-    'app_id': '3a12adf9'
+    'app_id': '59b0c21d'
   },
   'push': {
     'sender_id': '721599614458', // dev

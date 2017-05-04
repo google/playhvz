@@ -7,18 +7,18 @@
 		<key>ApplicationPath</key>
 		<string>Applications/ghvz.app</string>
 		<key>CFBundleIdentifier</key>
-		<string>com.ionicframework.sparkbarkle988242</string>
+		<string>com.ghvz.ghvz</string>
 		<key>CFBundleShortVersionString</key>
 		<string>0.0.1</string>
 		<key>CFBundleVersion</key>
 		<string>0.0.1</string>
 		<key>SigningIdentity</key>
-		<string>iPhone Developer: kimfshook@gmail.com (X83GX5B4L6)</string>
+		<string>iPhone Developer: Kim Shook (JEHVPFCED8)</string>
 	</dict>
 	<key>ArchiveVersion</key>
 	<integer>2</integer>
 	<key>CreationDate</key>
-	<date>2017-04-16T06:56:28Z</date>
+	<date>2017-05-04T03:30:04Z</date>
 	<key>Name</key>
 	<string>ghvz</string>
 	<key>SchemeName</key>

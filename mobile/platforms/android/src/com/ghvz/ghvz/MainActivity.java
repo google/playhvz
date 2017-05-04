@@ -17,7 +17,7 @@
        under the License.
  */
 
-package com.ionicframework.sparkbarkle988242;
+package com.ghvz.ghvz;
 
 import android.os.Bundle;
 import org.apache.cordova.*;
