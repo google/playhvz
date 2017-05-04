@@ -101,6 +101,10 @@
       margin-left: 32px;
       text-align: center;
     }
+    paper-button {
+      background-color: #03A9F4;
+      color: white;
+    }
   </style>
   <template>
     <ghvz-unseen-notifications
@@ -181,7 +185,7 @@
       <template is="dom-if" if="[[canJoinGame]]">
         <ghvz-card spaced full padded>
           <div class="header">Join A Game</div>
-          <a href="javascript:void()" on-tap="joinGame_">Click here to join the game!</a>
+          <paper-button raised on-tap="joinGame_">Join Game!</paper-button>
         </ghvz-card>
       </template>
 
