@@ -1,4 +1,25 @@
 
+function makePlayerProperties(name) {
+  return {
+    name: name,
+    needGun: false,
+    profileImageUrl: "",
+    startAsZombie: false,
+    beSecretZombie: false,
+    advertising: false,
+    logistics: false,
+    communications: false,
+    moderator: false,
+    cleric: false,
+    sorcerer: false,
+    admin: false,
+    photographer: false,
+    chronicler: false,
+    server: false,
+    client: false,
+  };
+}
+
 function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   // registered, admin, and joined
   var kimUserId = Bridge.generateUserId();
@@ -20,11 +41,11 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.createGame(gameId, kimUserId, {name: "Test game", rulesUrl: "/firstgame/rules.html", stunTimer: 60});
   server.addAdmin(Bridge.generateAdminId(), gameId, minnyUserId);
   var kimPlayerId = Bridge.generatePlayerId();
-  server.joinGame(kimPlayerId, kimUserId, gameId, {name: 'Kim the Ultimate', needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false, beSecretZombie: true,});
+  server.joinGame(kimPlayerId, kimUserId, gameId, makePlayerProperties('Kim the Ultimate'));
   var evanPlayerId = Bridge.generatePlayerId();
-  server.joinGame(evanPlayerId, evanUserId, gameId, {name: 'Evanpocalypse', needGun: true, profileImageUrl: "", startAsZombie: false, volunteer: false, beSecretZombie: true,});
+  server.joinGame(evanPlayerId, evanUserId, gameId, makePlayerProperties('Evanpocalypse'));
   var zekePlayerId = Bridge.generatePlayerId();
-  server.joinGame(zekePlayerId, zekeUserId, gameId, {name: 'Zeke', needGun: false, profileImageUrl: "", startAsZombie: true, volunteer: true, beSecretZombie: true,});
+  server.joinGame(zekePlayerId, zekeUserId, gameId, makePlayerProperties('Zeke'));
   
   let numPlayers = 100;
   let humansStartIndex = 7;
@@ -38,7 +59,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
     let userId = Bridge.generateUserId();
     server.register(userId, {});
     let playerId = Bridge.generatePlayerId();
-    server.joinGame(playerId, userId, gameId, {name: 'Player' + i, needGun: false, profileImageUrl: "", startAsZombie: false, volunteer: false, beSecretZombie: false,});
+    server.joinGame(playerId, userId, gameId, makePlayerProperties('Player' + i));
     playerIds.push(playerId);
   }
   playerIds = Utils.deterministicShuffle(playerIds, numShuffles);
