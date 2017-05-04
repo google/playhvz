@@ -128,7 +128,7 @@ function newNotificationCategory(id, args) {
   return obj;
 }
 
-const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
+const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "beSecretZombie", "advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "server", "client"];
 const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships"];
 function newPlayer(id, args) {
   let obj = {id: id};

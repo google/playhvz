@@ -21,7 +21,7 @@ Bridge.generateClaimId = () => Utils.generateId("claim");
 Bridge.generateQuizQuestionId = () => Utils.generateId("quizQuestion");
 Bridge.generateQuizAnswerId = () => Utils.generateId("quizAnswer");
 
-const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "volunteer", "beSecretZombie"];
+const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "beSecretZombie", "advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "server", "client"];
 const SERVER_QUIZ_QUESTION_PROPERTIES = ["text", "type"];
 const SERVER_QUIZ_ANSWER_PROPERTIES = ["text", "order", "isCorrect"];
 const SERVER_GAME_PROPERTIES = ["name", "rulesUrl", "stunTimer"];
@@ -35,6 +35,9 @@ const SERVER_REWARD_PROPERTIES = [];
 const SERVER_GUN_PROPERTIES = [];
 const SERVER_NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate", "destination", "icon"];
 const SERVER_NOTIFICATION_PROPERTIES = ["message", "previewMessage", "sound", "vibrate", "app", "email", "destination"];
+
+
+
 
 const SERVER_METHODS = [
   'signIn',

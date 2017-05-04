@@ -86,7 +86,7 @@
 		</data>
 		<key>CDVLaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<data>
-		qERITM/N19j+EAgYH+hxVEUKxFI=
+		FxPYlYx50T2va9BoEGud3R6Z/AE=
 		</data>
 		<key>CDVLaunchScreen.storyboardc/Info.plist</key>
 		<data>
@@ -94,11 +94,11 @@
 		</data>
 		<key>CDVLaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib</key>
 		<data>
-		qOj5m4fMbNGsIi+Hs+bz/5n7Jhw=
+		k9HSV6lnpU31tWacW1gx+9zWi0Q=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		DTFGYgGtEAGi4mwdLFdKUT6fQyk=
+		7w7qfGbhnBiKccUjRuy1LayacMw=
 		</data>
 		<key>LaunchImage-568h@2x.png</key>
 		<data>
@@ -158,7 +158,7 @@
 		</data>
 		<key>MainViewController.nib</key>
 		<data>
-		GWTvjIzXEIW2OtHczy1D8pcS0Uk=
+		otmImGanVbnOO2D63fmeWHvTjZA=
 		</data>
 		<key>PkgInfo</key>
 		<data>
@@ -166,15 +166,15 @@
 		</data>
 		<key>archived-expanded-entitlements.xcent</key>
 		<data>
-		vO/gVYVVkU1zHBaxd4xJ53/ga5k=
+		uVC4UsEAjsaAorNMAW+mHUKgk9o=
 		</data>
 		<key>config.xml</key>
 		<data>
-		XsGTNXlvgfRq3bu0h2BGT+C8ne8=
+		FNkdj5uqtcZZrn6tTXRT3V1Brt0=
 		</data>
 		<key>embedded.mobileprovision</key>
 		<data>
-		p9weWxlPLyHTWhhS4jVAei07vG8=
+		uEjYbh+X7gSUIQ+0ShVqsQZcGIg=
 		</data>
 		<key>www/assets/fonts/ionicons.eot</key>
 		<data>
@@ -286,11 +286,11 @@
 		</data>
 		<key>www/build/main.js</key>
 		<data>
-		7+tKFUawb8H/qi7+kkb5vaAtfEk=
+		Jd7eWsctB6RfyABzSqPgSoasQYs=
 		</data>
 		<key>www/build/main.js.map</key>
 		<data>
-		MuXI6H+p2jAK4j66yoH3zo5Kj40=
+		zOw2fH53QqkYZJtx/TUgvKcrzBA=
 		</data>
 		<key>www/build/polyfills.js</key>
 		<data>
@@ -314,7 +314,7 @@
 		</data>
 		<key>www/cordova_plugins.js</key>
 		<data>
-		lLZSbz0+7E2wnD1RjPZ9dD+Ojyk=
+		Bbpg3Fqz1cBDElx8oSKT/kR2c48=
 		</data>
 		<key>www/index.html</key>
 		<data>
@@ -347,6 +347,10 @@
 		<key>www/plugins/ionic-plugin-keyboard/www/ios/keyboard.js</key>
 		<data>
 		gexyZjGUVvhbQiJbBzCrImXWv34=
+		</data>
+		<key>www/plugins/phonegap-plugin-push/www/push.js</key>
+		<data>
+		5lqeq3eXKNBSZFridjwkmGk0IH8=
 		</data>
 		<key>www/service-worker.js</key>
 		<data>
@@ -579,11 +583,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			qERITM/N19j+EAgYH+hxVEUKxFI=
+			FxPYlYx50T2va9BoEGud3R6Z/AE=
 			</data>
 			<key>hash2</key>
 			<data>
-			OvkWjBbzYFe8wH3a50RcpMf7uFSquSgwJfXgrX0r7FY=
+			IqPi5wFsWK6LzhvL3X+sCEHXUrBNUPTkbi24CSFlC50=
 			</data>
 		</dict>
 		<key>CDVLaunchScreen.storyboardc/Info.plist</key>
@@ -601,11 +605,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			qOj5m4fMbNGsIi+Hs+bz/5n7Jhw=
+			k9HSV6lnpU31tWacW1gx+9zWi0Q=
 			</data>
 			<key>hash2</key>
 			<data>
-			k24uwCRqI5bVehkBxuhzR4sTT8x3hAOH8NtfXgXxDd0=
+			i3OqKjr3KqT5byoTics9jIGEX2lHpbXbyd7MNbNJngo=
 			</data>
 		</dict>
 		<key>LaunchImage-568h@2x.png</key>
@@ -766,44 +770,44 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			GWTvjIzXEIW2OtHczy1D8pcS0Uk=
+			otmImGanVbnOO2D63fmeWHvTjZA=
 			</data>
 			<key>hash2</key>
 			<data>
-			3LCYTWH8fkOm7U8cp4xp/fMJ+5FC6uL74FfecLcfck0=
+			59KvXqronnRK+pA4bA3e3WDcdorw7hLnaP30/ntVqY8=
 			</data>
 		</dict>
 		<key>archived-expanded-entitlements.xcent</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			vO/gVYVVkU1zHBaxd4xJ53/ga5k=
+			uVC4UsEAjsaAorNMAW+mHUKgk9o=
 			</data>
 			<key>hash2</key>
 			<data>
-			l3BKiWC0+szu9UOXoI+10KRWJHw2JzWSFaoqJ98iZWw=
+			e/joE7ObU4L5jO1+1JUxZxM/FUkgLPoVg6yex5UVEFk=
 			</data>
 		</dict>
 		<key>config.xml</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			XsGTNXlvgfRq3bu0h2BGT+C8ne8=
+			FNkdj5uqtcZZrn6tTXRT3V1Brt0=
 			</data>
 			<key>hash2</key>
 			<data>
-			SE8fGp3ZPTPvSgSr3NkEKdE4rUV1PTjR9FsM2EVGx6s=
+			qyO3s+cmM2LLdO4phdNznMLzUeWh6qzZ694R5ZIrdJ8=
 			</data>
 		</dict>
 		<key>embedded.mobileprovision</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			p9weWxlPLyHTWhhS4jVAei07vG8=
+			uEjYbh+X7gSUIQ+0ShVqsQZcGIg=
 			</data>
 			<key>hash2</key>
 			<data>
-			uKRoZxru9wj8518x3+eAVbEDIPWUIqmX+RaWQxcO60M=
+			eGBmUiY+RgL+4ooGeT1oo1xxK3IimxXof0u/diRxul0=
 			</data>
 		</dict>
 		<key>www/assets/fonts/ionicons.eot</key>
@@ -1107,22 +1111,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			7+tKFUawb8H/qi7+kkb5vaAtfEk=
+			Jd7eWsctB6RfyABzSqPgSoasQYs=
 			</data>
 			<key>hash2</key>
 			<data>
-			Ms0TXnO2raZnVs85OdR75244jjSqC5g/7ELi2TIC7B0=
+			ujFiPifw6SCSNgYdfAbMA4DSEnW1ZSgTpUx7FyvQJBA=
 			</data>
 		</dict>
 		<key>www/build/main.js.map</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			MuXI6H+p2jAK4j66yoH3zo5Kj40=
+			zOw2fH53QqkYZJtx/TUgvKcrzBA=
 			</data>
 			<key>hash2</key>
 			<data>
-			22kyPs7noXWPpHFINZtZTkNsgYvb5FY4LW1QfFwTG0k=
+			pZJrUTahyWFtIMHoR2oqnY4lQc8oCRzdgkb6Xch+sTs=
 			</data>
 		</dict>
 		<key>www/build/polyfills.js</key>
@@ -1184,11 +1188,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			lLZSbz0+7E2wnD1RjPZ9dD+Ojyk=
+			Bbpg3Fqz1cBDElx8oSKT/kR2c48=
 			</data>
 			<key>hash2</key>
 			<data>
-			v3lCYzjAYVPjDYLvduFIEDXn/+MWiJfJX+3qBAWd5b8=
+			um1Muk8QTQy+QvnFOJcdfm5VZe64UOnD0zgZfCJJxjI=
 			</data>
 		</dict>
 		<key>www/index.html</key>
@@ -1277,6 +1281,17 @@
 			<key>hash2</key>
 			<data>
 			s8oy4VvWgJx67mjrcY9CWo7fZ0VqTuZEyLnykDMBTXs=
+			</data>
+		</dict>
+		<key>www/plugins/phonegap-plugin-push/www/push.js</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			5lqeq3eXKNBSZFridjwkmGk0IH8=
+			</data>
+			<key>hash2</key>
+			<data>
+			fnu6B3igubTsRbXXflx/zb6AbO9quQlivKUyNjtq/qo=
 			</data>
 		</dict>
 		<key>www/service-worker.js</key>

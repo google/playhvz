@@ -1,7 +1,7 @@
 {
   "name": "ghvz",
   "author": "ghvz Zed Fighters",
-  "homepage": "http://ionicframework.com/",
+  "homepage": "http://googlehvz.com/",
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",
@@ -43,7 +43,7 @@
     "ionic-plugin-keyboard",
     {
       "variables": {
-        "SENDER_ID": "*******"
+        "SENDER_ID": "721599614458"
       },
       "locator": "phonegap-plugin-push"
     }

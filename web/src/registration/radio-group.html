@@ -1,0 +1,36 @@
+<!--
+From http://stackoverflow.com/questions/38003624/how-to-enforce-required-paper-radio-group-in-polymer
+-->
+<dom-module id="radio-group">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'radio-group',
+        properties: {
+          attrForSelected: String,
+          // selected: ??
+        },
+        behaviors: [
+          Polymer.IronFormElementBehavior
+        ],
+        get selectedItem() {
+          return this.$.group.selectedItem;
+        },
+        validate: function() {
+          return this.selectedItem != null;
+        }
+      });
+    });
+  </script>
+  <template>
+    <paper-radio-group
+        id="group"
+        attr-for-selected="{{attrForSelected}}"
+        selected="{{selected}}">
+      <content/>
+    </paper-radio-group>
+  </template>
+</dom-module>

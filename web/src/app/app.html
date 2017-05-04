@@ -160,7 +160,17 @@ paper-input-container {
 
       makeBridge_() {
         var env = Utils.getParameterByName('env');
-        if (!env || env == 'fake') {
+
+        var defaultEnv = 'fake';
+        if (window.location.hostname == "dev.googlehvz.com")
+          defaultEnv = 'env';
+        if (window.location.hostname == "googlehvz.com")
+          defaultEnv = 'prod';
+
+        if (!env)
+          env = defaultEnv;
+
+        if (env == 'fake') {
           return new FakeBridge(
               this.makeBridgeDelegate_(),
               Utils.getParameterByName('registered', 'true') == 'true',
