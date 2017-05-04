@@ -24,6 +24,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
   let zombiesStartIndex = 0;
   let zombiesEndIndex = numStartingZombies;
   let gameStartTimestamp = new Date().getTime();
+  let lifeCodeNumber = 1001;
 
   // For console logging only
   // let numHumans = 0;
@@ -43,7 +44,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
   playerIds = Utils.deterministicShuffle(playerIds, numShuffles);
   let lifeCodesByPlayerId = {};
   for (let i = zombiesEndIndex; i < playerIds.length; i++) {
-    let lifeCode = "life-" + i;
+    let lifeCode = "life-" + lifeCodeNumber++;
     lifeCodesByPlayerId[playerIds[i]] = lifeCode;
     server.addLife(Bridge.generateLifeId(), playerIds[i], lifeCode);
     // numHumans++;
@@ -65,7 +66,9 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       // End of first day, revive the starting zombies
       server.setTime(dayStartTimestamp + i * 12 * 60 * 60 * 1000); // 12 hours past day start
       for (let j = 0; j < numStartingZombies; j++) {
-        server.addLife(Bridge.generateLifeId(), playerIds[j]);
+        let lifeCode = "life-" + lifeCodeNumber++;
+        lifeCodesByPlayerId[playerIds[j]] = lifeCode;
+        server.addLife(Bridge.generateLifeId(), playerIds[j], lifeCode);
         // console.log(server.time, ++numHumans, --numZombies);
       }
       zombiesStartIndex = numStartingZombies;
@@ -74,7 +77,9 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       server.setTime(dayStartTimestamp + i * 12 * 60 * 60 * 1000); // 12 hours past day start
       // End of second day, revive a 3 random humans
       for (let j = zombiesStartIndex; j < zombiesStartIndex + 3; j++) {
-        server.addLife(Bridge.generateLifeId(), playerIds[j]);
+        let lifeCode = "life-" + lifeCodeNumber++;
+        lifeCodesByPlayerId[playerIds[j]] = lifeCode;
+        server.addLife(Bridge.generateLifeId(), playerIds[j], lifeCode);
         // console.log(server.time, ++numHumans, --numZombies);
       }
       zombiesStartIndex += 3;

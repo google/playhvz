@@ -1,22 +1,26 @@
 
 <dom-module id="ghvz-stats-page">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-stats-page',
-      });
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-stats-page',
+
+      properties: {
+        game: Object,
+      },
     });
-  </script>
-  <style include="iron-flex iron-flex-alignment">
-    :host {
-      display: block;
-    }
-  </style>
-  <template>
-    <ghvz-population-current></ghvz-population-current>
-    <ghvz-population-over-time></ghvz-population-over-time>
-  </template>
+  });
+</script>
+<style include="iron-flex iron-flex-alignment">
+  :host {
+    display: block;
+  }
+</style>
+<template>
+  <ghvz-population-current game="[[game]]"></ghvz-population-current>
+  <ghvz-population-over-time game="[[game]]"></ghvz-population-over-time>
+</template>
 </dom-module>

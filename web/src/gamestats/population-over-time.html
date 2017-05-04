@@ -1,20 +1,35 @@
 <dom-module id="ghvz-population-over-time">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-population-over-time',
-      });
-    });
-  </script>
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-population-over-time',
 
-  <template>
-    <script type="text/javascript">
-      var component = document.currentScript.parentElement;
+      properties: {
+        game: Object,
 
-      var drawPopulationOverTimeChart = function() {
+        chartLoaded: {
+          type: Boolean,
+          value: undefined, // When this becomes not-undefined, the observer will fire
+        },
+      },
+
+      observers: [
+        'drawPopulationOverTimeChart(chartLoaded, game)',
+      ],
+
+      setChartLoaded() {
+        this.chartLoaded = true;
+      },
+
+      drawPopulationOverTimeChart(chartLoaded, game) {
+        // console.log(this.game);
+        // for (let player of this.game.players) {
+        //   console.log("player", player.id, "lives", player.lives, "infections", player.infections);
+        // }
+
         var data = google.visualization.arrayToDataTable([
           ['Day', 'Human', 'Zed'],
           ['0',  199,      1],
@@ -37,13 +52,19 @@
           this.$.population_over_time_chart);
 
         chart.draw(data, options);
-      }.bind(component);
 
-      google.charts.setOnLoadCallback(drawPopulationOverTimeChart);
+        // The following makes Google Charts responsive and will resize the chart
+        // as the page is resized. 
+        window.addEventListener('resize', () => this.drawPopulationOverTimeChart());
+      },
+    });
+  });
+</script>
 
-    // The following makes Google Charts responsive and will resize the chart
-    // as the page is resized. 
-    window.addEventListener('resize', drawPopulationOverTimeChart);
+<template>
+  <script type="text/javascript">
+    var component = document.currentScript.parentElement;
+    google.charts.setOnLoadCallback(() => component.setChartLoaded());
   </script>
   <div id="population_over_time_chart"></div>
 </template>

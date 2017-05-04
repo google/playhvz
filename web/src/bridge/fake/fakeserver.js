@@ -359,7 +359,7 @@ class FakeServer {
         infecteePlayerPath.concat(["infections"]),
         null,
         newInfection(Bridge.generateInfectionId(), {
-          infectorPlayerId: infectorPlayerId,
+          infectorId: infectorPlayerId,
           time: this.time,
         }));
     infecteePlayer = this.reader.get(infecteePlayerPath);
@@ -375,7 +375,10 @@ class FakeServer {
     this.writer.insert(
         this.reader.getLifePath(gameId, playerId, null),
         null,
-        newLife(lifeId, {code: code}));
+        newLife(lifeId, {
+          code: code,
+          time: this.time,
+        }));
     let player = this.reader.get(playerPath);
     if (player.lives.length > player.infections.length) {
       this.writer.set(playerPath.concat(["infectable"]), true);

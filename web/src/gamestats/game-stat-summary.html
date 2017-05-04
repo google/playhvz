@@ -2,85 +2,85 @@
 <!-- TODO move these to index.html -->
 
 <dom-module id="ghvz-game-stat-summary">
-  <style include="iron-flex iron-flex-alignment">
-    :host {
-      display: block;
-      position: relative;
-      height: 200px;
-    }
-    neon-animated-pages {
-      width: 100%;
-      height: 100%;
-    }
-    neon-animatable {
-      width: 100%;
-      height: 100%;
-      background-color: white;
-    }
-    #swap-gamestat-button {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 10;
-    }
-  </style>
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-    	Polymer({
-    		is: 'ghvz-game-stat-summary',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+  	Polymer({
+  		is: 'ghvz-game-stat-summary',
 
-    		properties: {
-          showing: {
-            type: Number,
-            value: 0,
-          },
-          lineGraphIcon: {
-            type: String,
-            value: "https://cdn0.iconfinder.com/data/icons/colicon/24/line_chart_analystic_report_10-128.png",
-          },
-          pieChartIcon: {
-            type: String,
-            value: "https://image.flaticon.com/icons/png/128/138/138338.png",
-          },
-          buttonIcon: {
-            type: String,
-            value: "https://cdn0.iconfinder.com/data/icons/colicon/24/line_chart_analystic_report_10-128.png",
-          },
+  		properties: {
+        showing: {
+          type: Number,
+          value: 0,
         },
+        lineGraphIcon: {
+          type: String,
+          value: "https://cdn0.iconfinder.com/data/icons/colicon/24/line_chart_analystic_report_10-128.png",
+        },
+        pieChartIcon: {
+          type: String,
+          value: "https://image.flaticon.com/icons/png/128/138/138338.png",
+        },
+        buttonIcon: {
+          type: String,
+          value: "https://cdn0.iconfinder.com/data/icons/colicon/24/line_chart_analystic_report_10-128.png",
+        },
+      },
 
-        onSwapClicked_: function() {
-          this.showing = !this.showing;
-          if (this.showing == 0) {
-            this.buttonIcon = this.lineGraphIcon;
-          } else {
-            this.buttonIcon = this.pieChartIcon;
-          }
-        },
-      });
+      onSwapClicked_: function() {
+        this.showing = !this.showing;
+        if (this.showing == 0) {
+          this.buttonIcon = this.lineGraphIcon;
+        } else {
+          this.buttonIcon = this.pieChartIcon;
+        }
+      },
     });
-  </script>
+  });
+</script>
+<style include="iron-flex iron-flex-alignment">
+  :host {
+    display: block;
+    position: relative;
+    height: 200px;
+  }
+  neon-animated-pages {
+    width: 100%;
+    height: 100%;
+  }
+  neon-animatable {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+  }
+  #swap-gamestat-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+  }
+</style>
 
-  <template class="layout vertical" style="height:300px">
-    <paper-icon-button
-    src="[[buttonIcon]]"
-    id="swap-gamestat-button" 
-    on-click="onSwapClicked_">
+<template class="layout vertical" style="height:300px">
+  <paper-icon-button
+      src="[[buttonIcon]]"
+      id="swap-gamestat-button" 
+      on-click="onSwapClicked_">
   </paper-icon-button>
   <neon-animated-pages 
-  id="game-stat-summary" 
-  class="flex" 
-  entry-animation="scale-up-animation"
-  exit-animation="fade-out-animation"
-  selected="[[showing]]">
-  <neon-animatable>
-    <ghvz-population-current/>
-  </neon-animatable>
-  <neon-animatable>
-    <ghvz-population-over-time/>
-  </neon-animatable>
-</neon-animated-pages>
+      id="game-stat-summary" 
+      class="flex" 
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation"
+      selected="[[showing]]">
+    <neon-animatable>
+      <ghvz-population-current game="[[game]]"/>
+    </neon-animatable>
+    <neon-animatable>
+      <ghvz-population-over-time game="[[game]]"/>
+    </neon-animatable>
+  </neon-animated-pages>
 </template>
 </dom-module>
