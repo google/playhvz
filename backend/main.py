@@ -33,21 +33,6 @@ def GetFirebase():
   return db
 
 
-def FirebaseGet(*args, **kwargs):
-  """Firebase GET request, wrapping the GetFirebase call."""
-  return GetFirebase().get(*args, **kwargs)
-
-
-def FirebasePut(*args, **kwargs):
-  """Firebase PUT request, wrapping the GetFirebase call."""
-  return GetFirebase().put(*args, **kwargs)
-
-
-def FirebasePatch(*args, **kwargs):
-  """Firebase PATCH request, wrapping the GetFirebase call."""
-  return GetFirebase().patch(*args, **kwargs)
-
-
 class AppError(Exception):
   """Generic error class for app errors."""
   status_code = 500
@@ -65,18 +50,7 @@ class AppError(Exception):
     return rv
 
 
-class InvalidInputError(AppError):
-  """Error used when the inputs fail to pass validation."""
-  pass
-
-
 @app.errorhandler(api_calls.InvalidInputError)
-def HandleError(e):
-  """Pretty print data validation errors."""
-  return 'The request is not valid. %s' % e.message, 500
-
-
-@app.errorhandler(InvalidInputError)
 def HandleError(e):
   """Pretty print data validation errors."""
   return 'The request is not valid. %s' % e.message, 500
@@ -95,14 +69,14 @@ def index():
 
 @app.route('/test', methods=['GET'])
 def get_testdata():
-  testdata = FirebaseGet('testdata', None)
+  testdata = GetFirebase().get('testdata', None)
   return jsonify(testdata)
 
 
 @app.route('/gun', methods=['GET'])
 def GetGun():
   gun = request.args['gunId']
-  return jsonify(FirebaseGet('/guns', gun))
+  return jsonify(GetFirebase().get('/guns', gun))
 
 
 @app.route('/register', methods=['POST'])
