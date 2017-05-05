@@ -7,6 +7,8 @@ class InvalidInputError(Exception):
   pass
 
 
+# Mapping from a key name to where in Firebase it can be found
+# along with a specific value that can be used to validate existance.
 ENTITY_PATH = {
   'gameId': ['/games/%s', 'name'],
   'userToken': ['/users/%s', 'a'],
@@ -17,6 +19,7 @@ ENTITY_PATH = {
   'missionId': ['/missions/%s', 'name'],
   'chatRoomId': ['/chatRooms/%s', 'name'],
 }
+
 
 def ValidateInputs(request, firebase, required, valid):
   """Validate args.
@@ -372,8 +375,7 @@ def AddMission(request, firebase):
   required_args.extend(['name', 'begin', 'end', 'detailsHtml'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_args = list(required_args)
-  mission_data = {k: request[k] for k in put_args if k[0] != '!'}
+  mission_data = {k: request[k] for k in required_args if k[0] != '!'}
 
   return firebase.put('/missions', request['missionId'], mission_data)
 
