@@ -107,6 +107,10 @@ def CreateGame(request, firebase):
 def CreatePlayer(request, firebase):
   """Create a new player for a user and put that player into the game.
 
+  Player data gets sharded between /games/%(gameId)/players/%(playerId)
+  and /players/%(playerId) for public and private info about players.
+  The latter can be used to map a playerId to a gameId.
+
   Validation:
   Args:
     gameId:
@@ -120,8 +124,9 @@ def CreatePlayer(request, firebase):
     beSecretZombie:
 
   Firebase entries:
-    /users/%(userToken)/players/
-    /games/%(gameId)/players/
+    /players/%(playerId)
+    /users/%(userToken)/players/%(playerId)
+    /games/%(gameId)/players/%(playerId)
   """
   valid_args = ['gameId', 'userToken']
   required_args = list(valid_args)
@@ -141,18 +146,31 @@ def CreatePlayer(request, firebase):
   volunteer = request['volunteer']
   be_secret_zombie = request['beSecretZombie']
 
-  player_info = {
-    'gameId': game
-  }
+  player_info = {'gameId': game}
   result.append(firebase.put('/users/%s/players' % user_token, player, player_info))
 
-  game_info = {
-    'name': name,
+  player_info = {
+    'gameId': game,
+    'userId': user_token,
+    'canInfect': start_as_zombie,
     'needGun' : need_gun,
-    'profileImageUrl' : profile_image_url,
     'startAsZombie' : start_as_zombie,
+    'volunteer' : volunteer,
+    'wantsToBeSecretZombie': be_secret_zombie,
+  }
+  result.append(firebase.put('/players', player, player_info))
+
+  if start_as_zombie:
+    allegiance = 'horde'
+  else:
+    allegiance = 'resistence'
+
+  game_info = {
     'user_id' : user_token,
-    'volunteer' : volunteer
+    'name': name,
+    'profileImageUrl' : profile_image_url,
+    'points': 0,
+    'allegiance': allegiance,
   }
   result.append(firebase.put('/games/%s/players' % game, player, game_info))
 
