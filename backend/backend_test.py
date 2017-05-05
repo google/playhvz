@@ -98,6 +98,8 @@ class EndToEndTest(unittest.TestCase):
       'startAsZombie': True,
       'volunteer': True,
       'beSecretZombie': True,
+      'notifySound': True,
+      'notifyVibrate': True,
     }
     update = {
       'playerId': self.Id('playerId'),
@@ -168,7 +170,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
 
     # Compare a dump of the DB to the JSON string below.
-    expected_raw_data = '{"chatRooms":{},"games":{"game-%(ident)s":{"active":true,"adminUserId":"%(ident)s","groups":{"group-%(ident)s":{"a":true}},"name":"test Game","players":{"player-%(ident)s":{"allegiance":"horde","claims":{"reward-%(ident)s-bleck":{"rewardCategoryId":"rewardCategory-%(ident)s","time":0}},"name":"test Charles","points":5,"profileImageUrl":"http://jpg","user_id":"%(ident)s","volunteer":false}},"rewardCategories":{"rewardCategory-%(ident)s":{"claimed":1,"name":"test Reward","points":5,"rewards":{"reward-%(ident)s-bleck":{"a":true,"playerId":"player-%(ident)s"}}}},"rulesHtml":"test rule","stunTimer":5}},"groups":{"group-%(ident)s":{"allegiance":"horde","autoAdd":true,"autoRemove":false,"gameId":"game-%(ident)s","membersCanAdd":false,"membersCanRemove":false,"players":{"player-%(ident)s":{"a":true}}}},"guns":{"gun-%(ident)s":{"playerId":"player-%(ident)s"}},"missions":{"mission-%(ident)s":{"allegiance":"resistance","begin":1,"detailsHtml":"test Details","end":0,"name":"test Mission"}},"players":{"player-%(ident)s":{"canInfect":true,"gameId":"game-%(ident)s","needGun":true,"startAsZombie":true,"userId":"%(ident)s","volunteer":true,"wantsToBeSecretZombie":true}},"users":{"%(ident)s":{"a":true,"players":{"player-%(ident)s":{"gameId":"game-%(ident)s"}}}}}' % {'ident': self.identifier}
+    expected_raw_data = '{"chatRooms":{},"games":{"game-%(ident)s":{"active":true,"adminUserId":"%(ident)s","groups":{"group-%(ident)s":{"a":true}},"name":"test Game","players":{"player-%(ident)s":{"allegiance":"horde","claims":{"reward-%(ident)s-bleck":{"rewardCategoryId":"rewardCategory-%(ident)s","time":0}},"name":"test Charles","points":5,"profileImageUrl":"http://jpg","user_id":"%(ident)s","volunteer":false}},"rewardCategories":{"rewardCategory-%(ident)s":{"claimed":1,"name":"test Reward","points":5,"rewards":{"reward-%(ident)s-bleck":{"a":true,"playerId":"player-%(ident)s"}}}},"rulesHtml":"test rule","stunTimer":5}},"groups":{"group-%(ident)s":{"allegiance":"horde","autoAdd":true,"autoRemove":false,"gameId":"game-%(ident)s","membersCanAdd":false,"membersCanRemove":false,"players":{"player-%(ident)s":{"a":true}}}},"guns":{"gun-%(ident)s":{"playerId":"player-%(ident)s"}},"missions":{"mission-%(ident)s":{"allegiance":"resistance","begin":1,"detailsHtml":"test Details","end":0,"name":"test Mission"}},"players":{"player-%(ident)s":{"notificationSettings":{"sound":true,"vibrate":true},"canInfect":true,"gameId":"game-%(ident)s","needGun":true,"startAsZombie":true,"userId":"%(ident)s","volunteer":true,"wantsToBeSecretZombie":true}},"users":{"%(ident)s":{"a":true,"players":{"player-%(ident)s":{"gameId":"game-%(ident)s"}}}}}' % {'ident': self.identifier}
     r = self.Post('DumpTestData', {'id': constants.FIREBASE_EMAIL})
     expected = json.loads(expected_raw_data)
     actual = r.json()
