@@ -65,6 +65,7 @@ def HandleError(e):
 methods = {
   'register': api_calls.Register,
   'createGame': api_calls.CreateGame,
+  'updateGame': api_calls.UpdateGame,
   'createPlayer': api_calls.CreatePlayer,
   'addGun': api_calls.AddGun,
   'assignGun': api_calls.AssignGun,

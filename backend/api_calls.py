@@ -18,6 +18,12 @@ def ValidateInputs(request, firebase, required, valid):
   if any(a not in request for a in required):
     raise InvalidInputError('Missing required input. Required: %s' % ', '.join(required))
 
+  # Any keys fooId must start "foo-XXX"
+  for key in request:
+    if key.endswith('Id'):
+      if not request[key].startswith('%s-' % key[:-2]):
+        raise InvalidInputError('Id %s="%s" must start with "%s-".' % (key, request[key], key[:-2]))
+
   for a in valid:
     data = request[a]
     if a == 'gameId':
@@ -75,33 +81,60 @@ def CreateGame(request, firebase):
   """Create a new game.
 
   Validation:
+    gameId must be valid format.
+
   Args:
     gameId:
     userToken:
     name:
-    rulesUrl:
+    rulesHtml:
     stunTimer:
 
   Firebase entries:
     /games/%(gameId)
   """
   valid_args = []
-  required_args = ['gameId', 'userToken', 'name', 'rulesUrl', 'stunTimer']
+  required_args = ['gameId', 'userToken', 'name', 'rulesHtml', 'stunTimer']
   ValidateInputs(request, firebase, required_args, valid_args)
 
   game = request['gameId']
-  adminUser = request['adminUserId']
-  name = request['name']
-  rulesUrl = request['rulesUrl']
-  stunTimer = request['stunTimer']
 
   put_data = {
-    'name': name,
-    'rulesUrl': rulesUrl,
-    'stunTimer': stunTimer,
-    'active': True
+    'name': request['name'],
+    'rulesHtml': request['rulesHtml'],
+    'stunTimer': request['stunTimer'],
+    'active': True,
+    'adminUserId': request['adminUserId'],
   }
   return firebase.put('/games', game, put_data)
+
+
+def UpdateGame(request, firebase):
+  """Update a game entry.
+
+  Validation:
+
+  Args:
+    gameId:
+    name (optional):
+    rulesHtml (optional):
+    stunTimer (optional):
+
+  Firebase entries:
+    /games/%(gameId)
+  """
+  valid_args = ['gameId']
+  required_args = list(valid_args)
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  game = request['gameId']
+
+  put_data = {}
+  for property in ['name', 'rulesHtml', 'stunTimer']:
+    if property in request:
+      put_data[property] = request[property]
+
+  return firebase.patch('/games/%s' % game, put_data)
 
 
 def CreatePlayer(request, firebase):
@@ -133,6 +166,9 @@ def CreatePlayer(request, firebase):
   required_args.extend(['playerId', 'name', 'needGun', 'profileImageUrl'])
   required_args.extend(['startAsZombie', 'volunteer', 'beSecretZombie'])
   ValidateInputs(request, firebase, required_args, valid_args)
+
+  # TODO Validate:
+  # Unique playerId, correct format
 
   result = []
 
@@ -264,7 +300,7 @@ def AddMission(request, firebase):
   """
   valid_args = ['allegiance']
   required_args = list(valid_args)
-  required_args.extend(['missionId', 'name', 'begin', 'end', 'url'])
+  required_args.extend(['missionId', 'name', 'begin', 'end', 'detailsHtml'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
   mission = request['missionId']
@@ -273,7 +309,7 @@ def AddMission(request, firebase):
     'name': request['name'],
     'begin': request['begin'],
     'end': request['end'],
-    'url': request['url'],
+    'detailsHtml': request['detailsHtml'],
     'allegiance': request['allegiance'],
   }
 
@@ -285,6 +321,13 @@ def UpdateMission(request, firebase):
 
   Validation:
   Args:
+    missionId
+    name (optional):
+    begin (optional):
+    end (optional):
+    detailsHtml (optional):
+    allegiance (optional):
+
   Firebase entries:
     /missions/%(missionId)
   """
@@ -295,7 +338,7 @@ def UpdateMission(request, firebase):
   mission = request['missionId']
 
   put_data = {}
-  for property in ['name', 'begin', 'end', 'url', 'allegiance']:
+  for property in ['name', 'begin', 'end', 'detailsHtml', 'allegiance']:
     if property in request:
       put_data[property] = request[property]
 
@@ -328,8 +371,6 @@ def CreateChatRoom(request, firebase):
   allegiance = request['allegianceFilter']
   
   # Validate chatRoomId is of the form chatRoom-NNN and not used yet
-  if not chat.startswith('chatRoom-'):
-    raise InvalidInputError('Chat ID is not valid.')
   if firebase.get('/chatRooms/%s' % chat, 'name'):
     raise InvalidInputError('Chat ID is already in use.')
 
@@ -408,8 +449,6 @@ def SendChatMessage(request, firebase):
   messageId = request['messageId']
   message = request['message']
 
-  if not messageId.startswith('message-'):
-    raise InvalidInputError('Message ID is not valid.')
   # Validate player is in the chat room
   if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
     raise InvalidInputError('You are not a member of that chat room.')
@@ -451,9 +490,6 @@ def AddRewardCategory(request, firebase):
   name = request['name']
   points = int(request['points'])
   reward_category = request['rewardCategoryId']
-
-  if not reward_category.startswith('rewardCategory-'):
-    raise InvalidInputError('Reward ID is not valid.')
 
   reward_category_data = {
     'claimed': 0,
@@ -518,9 +554,6 @@ def AddReward(request, firebase):
   reward_category = request['rewardCategoryId']
   reward = request['rewardId']
   reward_seed = reward_category[len('rewardCategory-'):]
-
-  if not reward.startswith('reward-%s' % reward_seed):
-    raise InvalidInputError('Reward ID is not valid.')
 
   reward_data = {'playerId': ''}
 
