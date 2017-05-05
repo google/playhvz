@@ -545,6 +545,7 @@ def AddRewardCategory(request, firebase):
     gameId: The game ID. eg game-1
     rewardCategoryId: reward type, eg rewardCategory-foo
     name: Name of the reward
+    limitPerPlayer: (int) how many a player can claim
     points: (int) points the reward is worth
 
   Firebase entries:
@@ -552,20 +553,19 @@ def AddRewardCategory(request, firebase):
   """
   valid_args = ['gameId', '!rewardCategoryId']
   required_args = list(valid_args)
-  required_args.extend(['name', 'points'])
+  required_args.extend(['name', 'points', 'limitPerPlayer'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
   # TODO Validate the rewardCategoryId does not yet exist
 
   game = request['gameId']
-  name = request['name']
-  points = int(request['points'])
   reward_category = request['rewardCategoryId']
 
   reward_category_data = {
     'claimed': 0,
-    'name': name,
-    'points': points,
+    'name': request['name'],
+    'points': int(request['points']),
+    'limitPerPlayer': request['limitPerPlayer'],
   }
 
   return firebase.put('/games/%s/rewardCategories' % game, reward_category, reward_category_data)
@@ -581,6 +581,7 @@ def UpdateRewardCategory(request, firebase):
     gameId: The game ID. eg game-1
     rewardCategoryId: reward type, eg rewardCategory-foo
     name: Name of the reward
+    limitPerPlayer: (int) how many a player can claim
     points: (int) points the reward is worth
 
   Firebase entries:
@@ -594,7 +595,7 @@ def UpdateRewardCategory(request, firebase):
   reward_category = request['rewardCategoryId']
 
   reward_category_data = {}
-  for k in ('name', 'points'):
+  for k in ('name', 'points', 'limitPerPlayer'):
     if k in request:
       reward_category_data[k] = request[k]
 
@@ -613,7 +614,7 @@ def AddReward(request, firebase):
   Firebase entries:
     /games/%(gameId)/rewardCategories/%(rCId)/rewards/%(rewardId)
   """
-  valid_args = ['gameId', 'rewardCategoryId']
+  valid_args = ['gameId']
   required_args = list(valid_args)
   required_args.extend(['rewardId'])
   ValidateInputs(request, firebase, required_args, valid_args)
@@ -679,6 +680,14 @@ def ClaimReward(request, firebase):
   # Validate the reward was not yet claimed by another player.
   if firebase.get(reward_path, 'playerId') != "":
     raise InvalidInputError('Reward was already claimed.')
+  # Check the limitPerPlayer
+  reward_limit = int(firebase.get(reward_category_path, 'limitPerPlayer'))
+  if reward_limit:
+    claims = firebase.get('%s/claims' % player_path, None)
+    if claims:
+      claims = [c for c in claims if c.startswith('reward-%s' % reward_category_seed)]
+      if len(claims) >= reward_limit:
+        raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % reward_limit)
 
   results.append(firebase.patch(reward_path, {'playerId': player}))
 
