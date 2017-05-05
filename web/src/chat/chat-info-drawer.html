@@ -12,16 +12,12 @@
           bridge: Object,
           game: Object,
           chatRoom: Object,
+          group: Object,
           player: Object,
-
-          group: {
-            type: Object,
-            value: function() { return {}; },
-          },
 
           playersInChatRoom: {
             type: Object,
-            value: function() { return ; },
+            value: function() { return []; },
           },
 
           playerInputValue: {
@@ -42,17 +38,22 @@
         },
 
         observers: [
-          'onChatRoomChanged_(game, chatRoom)',
-          'onGroupChanged_(game, group, group.memberships.length)',
+          'onGroupIdChanged_(chatRoom.groupId, game.groupsById)',
+          'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
+          'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
 
         onChatRoomChanged_() {
-          this.group = this.game.groupsById[this.chatRoom.groupId];
+          this.onChatMembershipsChanged_();
         },
 
-        onGroupChanged_() {
-          console.log("group change");
-           var updatedPlayers = [];
+
+        onGroupIdChanged_(groupId, groupsById) {
+          this.$.groupsSelector.select(groupsById[groupId]);
+        },
+
+        onChatMembershipsChanged_() {
+          var updatedPlayers = [];
           for (let membership of this.group.memberships) {
             updatedPlayers.push(this.game.playersById[membership.playerId]);
           }
@@ -144,6 +145,7 @@
     }
   </style>
   <template>
+    <array-selector id="groupsSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
     <div on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]

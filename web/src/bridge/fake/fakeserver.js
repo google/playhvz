@@ -169,12 +169,14 @@ class FakeServer {
     this.checkId(chatRoomId, 'chatRoom');
     this.checkId(playerId, 'player');
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
-    let path = this.reader.getMembershipPath(gameId, chatRoomId, playerId);
+    let chatRoom = this.reader.get(this.reader.getChatRoomPath(gameId, chatRoomId));
+    let groupId = chatRoom.groupId;
+    let path = this.reader.getMembershipPath(gameId, groupId, playerId);
     this.writer.remove(
         path.slice(0, path.length - 1),
         path[path.length - 1],
         playerId);
-    let playerMembershipPath = this.reader.getPlayerMembershipPath(gameId, playerId, chatRoomId);
+    let playerMembershipPath = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
     this.writer.remove(
         playerMembershipPath.slice(0, playerMembershipPath.length - 1),
         playerMembershipPath[playerMembershipPath.length - 1],
