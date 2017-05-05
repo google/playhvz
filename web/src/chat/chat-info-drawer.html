@@ -14,9 +14,14 @@
           chatRoom: Object,
           player: Object,
 
+          group: {
+            type: Object,
+            value: function() { return {}; },
+          },
+
           playersInChatRoom: {
             type: Object,
-            value: function() { return []; },
+            value: function() { return ; },
           },
 
           playerInputValue: {
@@ -37,17 +42,18 @@
         },
 
         observers: [
-          'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
-          'onChatMembershipsChanged_(game, chatRoom.memberships.length)',
+          'onChatRoomChanged_(game, chatRoom)',
+          'onGroupChanged_(game, group, group.memberships.length)',
         ],
 
         onChatRoomChanged_() {
-          this.onChatMembershipsChanged_();
+          this.group = this.game.groupsById[this.chatRoom.groupId];
         },
 
-        onChatMembershipsChanged_() {
-          var updatedPlayers = [];
-          for (let membership of this.chatRoom.memberships) {
+        onGroupChanged_() {
+          console.log("group change");
+           var updatedPlayers = [];
+          for (let membership of this.group.memberships) {
             updatedPlayers.push(this.game.playersById[membership.playerId]);
           }
           this.playersInChatRoom = [];
@@ -158,7 +164,7 @@
       </div>
 
       <div class="drawer-section">
-        <div class="info-label">[[chatRoom.memberships.length]] members</div>
+        <div class="info-label">[[group.memberships.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
           <div class="layout horizontal player-entry">
             <div class="layout horizontal player-info"
