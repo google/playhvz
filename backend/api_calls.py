@@ -9,7 +9,7 @@ class InvalidInputError(Exception):
 
 ENTITY_PATH = {
   'gameId': ['/games/%s', 'name'],
-  'userToken': ['/users/%s', 'registered'],
+  'userToken': ['/users/%s', 'a'],
   'groupId': ['/groups/%s', 'gameId'],
   'playerId': ['/players/%s', 'userId'],
   'otherPlayerId': ['/players/%s', 'userId'],
@@ -84,13 +84,11 @@ def Register(request, firebase):
   Firebase entries:
     /users/%(userToken)
   """
-  valid_args = []
-  required_args = ['userToken']
+  valid_args = ['!userToken']
+  required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  user_token = request['userToken']
-  put_data = {'registered': True}
-  return firebase.put('/users', user_token, put_data)
+  return firebase.put('/users', request['userToken'], {'a': True})
 
 
 def CreateGame(request, firebase):
@@ -303,8 +301,7 @@ def AddGun(request, firebase):
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_data = {'playerId': ''}
-  return firebase.put('/guns', request['gunId'], put_data)
+  return firebase.put('/guns', request['gunId'], {'playerId': ''})
 
 
 def AssignGun(request, firebase):
@@ -326,11 +323,7 @@ def AssignGun(request, firebase):
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_data = {
-    'playerId': request['playerId'],
-    'gameId': request['gameId'],
-  }
-  return firebase.put('/guns', request['gunId'], put_data)
+  return firebase.put('/guns', request['gunId'], {'playerId': request['playerId']})
 
 
 def UpdatePlayer(request, firebase):
@@ -512,6 +505,7 @@ def SendChatMessage(request, firebase):
   # Validate player is in the chat room
   if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
     raise InvalidInputError('You are not a member of that chat room.')
+  # TODO Validation the messageId is new.
 
   message_data = {
     'message': message,
