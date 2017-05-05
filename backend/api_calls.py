@@ -51,6 +51,8 @@ def ValidateInputs(request, firebase, required, valid):
             key, request[key], key[:-2]))
 
   for key in valid:
+    if key not in request:
+      continue
     negate = False
     if key[0] == '!':
       negate = True
@@ -397,7 +399,7 @@ def AddMission(request, firebase):
 
   Args:
     missionId:
-    allegiance:
+    groupId:
     name:
     begin:
     end:
@@ -406,7 +408,7 @@ def AddMission(request, firebase):
   Firebase entries:
     /missions/%(missionId)
   """
-  valid_args = ['!missionId', 'allegiance']
+  valid_args = ['!missionId', 'groupId']
   required_args = list(valid_args)
   required_args.extend(['name', 'begin', 'end', 'detailsHtml'])
   ValidateInputs(request, firebase, required_args, valid_args)
@@ -423,22 +425,22 @@ def UpdateMission(request, firebase):
   Args:
     missionId
     name (optional):
+    groupId:
     begin (optional):
     end (optional):
     detailsHtml (optional):
-    allegiance (optional):
 
   Firebase entries:
     /missions/%(missionId)
   """
-  valid_args = ['missionId']
+  valid_args = ['missionId', 'groupId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
   mission = request['missionId']
 
   put_data = {}
-  for property in ['name', 'begin', 'end', 'detailsHtml', 'allegiance']:
+  for property in ['name', 'begin', 'end', 'detailsHtml', 'groupId']:
     if property in request:
       put_data[property] = request[property]
 
@@ -459,7 +461,7 @@ def CreateChatRoom(request, firebase):
     /chatRooms/%(chatRoomId)/memberships
     /games/%(gameId)/chatRooms
   """
-  valid_args = ['!chatRoomId', 'gameId', 'playerId', 'allegiance']
+  valid_args = ['!chatRoomId', 'gameId', 'playerId', 'groupId']
   required_args = list(valid_args)
   required_args.extend(['name'])
   ValidateInputs(request, firebase, required_args, valid_args)
@@ -467,10 +469,11 @@ def CreateChatRoom(request, firebase):
   chat = request['chatRoomId']
   
   put_data = {
-    'allegiance': request['allegiance'],
+    'groupId': request['groupId'],
     'gameId': request['gameId'],
     'name': request['name'],
   }
+
   results = []
   results.append(firebase.put('/chatRooms', chat, put_data))
   results.append(firebase.put('/chatRooms/%s/memberships' % chat, request['playerId'], ""))
@@ -478,6 +481,7 @@ def CreateChatRoom(request, firebase):
   return results
 
 
+# TODO convert to add player to group?
 def AddPlayerToChat(request, firebase):
   """Add a new player to a chat room.
 
@@ -507,7 +511,7 @@ def AddPlayerToChat(request, firebase):
   # Validate otherPlayer is not in the chat room
   if firebase.get('/chatRooms/%s/memberships' % chat, otherPlayer) is not None:
     raise InvalidInputError('Other player is already in the chat.')
-  # TODO Check allegiance?
+  # TODO Check allegiance and other chat settings
 
   return firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, "")
 
@@ -539,6 +543,7 @@ def SendChatMessage(request, firebase):
   messageId = request['messageId']
   message = request['message']
 
+  # TODO Map the chat to a group and check the group for membership
   # Validate player is in the chat room
   if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
     raise InvalidInputError('You are not a member of that chat room.')
