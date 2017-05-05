@@ -303,6 +303,55 @@ def CreatePlayer(request, firebase):
   return results
 
 
+def UpdatePlayer(request, firebase):
+  """Update player properties.
+
+  Validation:
+  Args:
+    playerId:
+    name (optional):
+    needGun (optional):
+    profileImageUrl (optional):
+    startAsZombie (optional):
+    volunteer (optional):
+    notifySound:
+    notifyVibrate:
+
+  Firebase entries:
+    /players/%(playerId)
+    /games/%(gameId)/players/%(playerId)
+  """
+  results = []
+  valid_args = ['playerId']
+  required_args = list(valid_args)
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  player = request['playerId']
+  game = firebase.get('/players/%s' % player, 'gameId')
+
+
+  player_info = {}
+  for property in ['startAsZombie', 'volunteer', 'needGun', 'wantsToBeSecretZombie']:
+    if property in request:
+      player_info[property] = request[property]
+  player_info['notificationSettings'] = {}
+  for property in ['notifySound', 'notifyVibrate']:
+    if property in request:
+      player_info['notificationSettings'][property] = request[property]
+
+  game_info = {}
+  for property in ['name', 'profileImageUrl', 'volunteer']:
+    if property in request:
+      game_info[property] = request[property]
+
+  if player_info:
+    results.append(firebase.patch('/players/%s' % player, player_info))
+  if game_info:
+    results.append(firebase.patch('/games/%s/players/%s' % (game, player), game_info))
+
+  return results
+
+
 def AddGun(request, firebase):
   """Add a new gun to the DB.
 
@@ -339,37 +388,6 @@ def AssignGun(request, firebase):
   ValidateInputs(request, firebase, required_args, valid_args)
 
   return firebase.put('/guns', request['gunId'], {'playerId': request['playerId']})
-
-
-def UpdatePlayer(request, firebase):
-  """Update player properties.
-
-  Validation:
-  Args:
-    playerId:
-    name (optional):
-    needGun (optional):
-    profileImageUrl (optional):
-    startAsZombie (optional):
-    volunteer (optional):
-
-  Firebase entries:
-    /games/%(gameId)/players/%(playerId)
-  """
-  valid_args = ['playerId']
-  required_args = list(valid_args)
-  ValidateInputs(request, firebase, required_args, valid_args)
-
-  player = request['playerId']
-  game = firebase.get('/players/%s' % player, 'gameId')
-
-  put_data = {}
-  for property in ['name', 'needGun', 'profileImageUrl', 'startAsZombie', 'volunteer']:
-    if property in request:
-      put_data[property] = request[property]
-
-  path = '/games/%s/players/%s' % (game, player)
-  return firebase.patch(path, put_data)
 
 
 def AddMission(request, firebase):
