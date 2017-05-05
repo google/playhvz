@@ -15,11 +15,6 @@
 
           playerId: String,
 
-          playersInChatRoom: {
-            type: Object,
-            value: function() { return []; },
-          },
-
           playerInputValue: {
             type: String,
           },
@@ -33,19 +28,6 @@
             type: Object,
             value: function() { return []; },
           }
-        },
-
-        observers: [
-          'onChatMembershipsChanged_(game, chatRoom.memberships.length)',
-        ],
-
-        onChatMembershipsChanged_() {
-          var updatedPlayers = [];
-          for (let membership of this.chatRoom.memberships) {
-            updatedPlayers.push(this.game.playersById[membership.playerId]);
-          }
-          this.playersInChatRoom = [];
-          this.playersInChatRoom = updatedPlayers;
         },
 
         executeAction(e) {

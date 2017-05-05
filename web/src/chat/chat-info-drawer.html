@@ -47,6 +47,7 @@
           this.onChatMembershipsChanged_();
         },
 
+
         onGroupIdChanged_(groupId, groupsById) {
           this.$.groupsSelector.select(groupsById[groupId]);
         },
@@ -165,7 +166,7 @@
       </div>
 
       <div class="drawer-section">
-        <div class="info-label">[[chatRoom.memberships.length]] members</div>
+        <div class="info-label">[[group.memberships.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
           <div class="layout horizontal player-entry">
             <div class="layout horizontal player-info"
