@@ -12,6 +12,7 @@
           bridge: Object,
           game: Object,
           chatRoom: Object,
+          group: Object,
           player: Object,
 
           playersInChatRoom: {
@@ -37,17 +38,22 @@
         },
 
         observers: [
+          'onGroupIdChanged_(chatRoom.groupId, game.groupsById)',
           'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
-          'onChatMembershipsChanged_(game, chatRoom.memberships.length)',
+          'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
 
         onChatRoomChanged_() {
           this.onChatMembershipsChanged_();
         },
 
+        onGroupIdChanged_(groupId, groupsById) {
+          this.$.groupsSelector.select(groupsById[groupId]);
+        },
+
         onChatMembershipsChanged_() {
           var updatedPlayers = [];
-          for (let membership of this.chatRoom.memberships) {
+          for (let membership of this.group.memberships) {
             updatedPlayers.push(this.game.playersById[membership.playerId]);
           }
           this.playersInChatRoom = [];
@@ -138,6 +144,7 @@
     }
   </style>
   <template>
+    <array-selector id="groupsSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
     <div on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]
