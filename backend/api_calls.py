@@ -312,14 +312,13 @@ def AssignGun(request, firebase):
     Player must exist.
 
   Args:
-    gameId:
     playerId:
     gunId:
 
   Firebase entries:
     /guns/%(gunId)
   """
-  valid_args = ['gameId', 'playerId', 'gunId']
+  valid_args = ['playerId', 'gunId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
@@ -331,18 +330,17 @@ def UpdatePlayer(request, firebase):
 
   Validation:
   Args:
-    gameId:
     playerId:
 
   Firebase entries:
     /games/%(gameId)/players/%(playerId)
   """
-  valid_args = ['gameId', 'playerId']
+  valid_args = ['playerId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
   player = request['playerId']
-  game = request['gameId']
+  game = firebase.get('/players/%s', 'gameId')
 
   put_data = {}
   for property in ['name', 'needGun', 'profileImageUrl', 'startAsZombie', 'volunteer']:
@@ -357,7 +355,15 @@ def AddMission(request, firebase):
   """Add a new mission.
 
   Validation:
+
   Args:
+    missionId:
+    allegiance:
+    name:
+    begin:
+    end:
+    detailsHtml:
+
   Firebase entries:
     /missions/%(missionId)
   """
@@ -366,15 +372,10 @@ def AddMission(request, firebase):
   required_args.extend(['name', 'begin', 'end', 'detailsHtml'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_data = {
-    'name': request['name'],
-    'begin': request['begin'],
-    'end': request['end'],
-    'detailsHtml': request['detailsHtml'],
-    'allegiance': request['allegiance'],
-  }
+  put_args = list(required_args)
+  mission_data = {k: request[k] for k in put_args if k[0] != '!'}
 
-  return firebase.put('/missions', request['missionId'], put_data)
+  return firebase.put('/missions', request['missionId'], mission_data)
 
 
 def UpdateMission(request, firebase):
@@ -446,7 +447,6 @@ def AddPlayerToChat(request, firebase):
     Player doing the adding is a member of the room.
 
   Args:
-    gameId: The game ID.
     chatRoomId: The chat room ID to add the player to.
     otherPlayerId: The player being added.
     playerId: The player doing the adding.
@@ -454,11 +454,11 @@ def AddPlayerToChat(request, firebase):
   Firebase entries:
     /chatRooms/%(chatRoomId)/memberships/%(playerId)
   """
-  valid_args = ['gameId', 'chatRoomId', 'playerId', 'otherPlayerId']
+  valid_args = ['chatRoomId', 'playerId', 'otherPlayerId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  game = request['gameId']
+  game = firebase.get('/players/%s', 'gameId')
   chat = request['chatRoomId']
   player = request['playerId']
   otherPlayer = request['otherPlayerId']
@@ -481,7 +481,6 @@ def SendChatMessage(request, firebase):
     Player is a member of the chat room.
 
   Args:
-    gameId: The game ID.
     chatRoomId: The chat room to update.
     playerId: The player sending the message.
     messageId: The ID of the new message.
@@ -491,12 +490,12 @@ def SendChatMessage(request, firebase):
     /chatRooms/%(chatRoomId)/memberships/%(playerId)
     /chatRooms/%(chatRoomId)/messages
   """
-  valid_args = ['gameId', 'chatRoomId', 'playerId']
+  valid_args = ['chatRoomId', 'playerId']
   required_args = list(valid_args)
   required_args.extend(['messageId', 'message'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  game = request['gameId']
+  game = firebase.get('/players/%s', 'gameId')
   chat = request['chatRoomId']
   player = request['playerId']
   messageId = request['messageId']
@@ -624,7 +623,6 @@ def ClaimReward(request, firebase):
     This player doesn't have the reward in their claims.
 
   Args:
-    gameId: The game ID.
     playerId: Player's ID
     rewardId: reward-foo-bar. Must start with the category
 
@@ -635,14 +633,14 @@ def ClaimReward(request, firebase):
     /games/%(gameId)/rewardCategories/%(rCId)/rewards/%(rewardId)
     /games/%(gameId)/rewardCategories/%(rCId)/rewards/%(rewardId)/playerId
   """
-  valid_args = ['gameId', 'playerId']
+  valid_args = ['playerId']
   required_args = list(valid_args)
   required_args.extend(['rewardId'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
   results = []
 
-  game = request['gameId']
+  game = firebase.get('/players/%s', 'gameId')
   player = request['playerId']
   reward = request['rewardId']
 
