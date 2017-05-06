@@ -170,6 +170,32 @@ def UpdateGame(request, firebase):
   return firebase.patch('/games/%s' % request['gameId'], put_data)
 
 
+def AddGameAdmin(request, firebase):
+  """Add an admin to a game.
+
+  Validation:
+
+  Args:
+    gameId:
+    userId:
+
+  Firebase entries:
+    /games/%(gameId)/adminUsers
+  """
+
+  valid_args = ['gameId', 'userId']
+  required_args = list(valid_args)
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  game = request['gameId']
+  user = request['userId']
+
+  if firebase.get('/games/%s/adminUsers/%s' % (game, user), 'a'):
+    raise InvalidInputError('User %s is already an admin.' % user)
+
+  return firebase.put('/games/%s/adminUsers/' % game, user, {'a': True})
+
+
 def CreateGroup(request, firebase):
   """Create a new player group.
 

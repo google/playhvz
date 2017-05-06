@@ -66,6 +66,7 @@ methods = {
   'register': api_calls.Register,
   'createGame': api_calls.CreateGame,
   'updateGame': api_calls.UpdateGame,
+  'addGameAdmin': api_calls.AddGameAdmin,
   'createGroup': api_calls.CreateGroup,
   'updateGroup': api_calls.UpdateGroup,
   'createPlayer': api_calls.CreatePlayer,
