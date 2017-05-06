@@ -54,7 +54,7 @@
   },
   "guns": {
     "gun-%(ident)s": {
-      "playerId": "player-%(ident)s"
+      "playerId": "player-%(ident)s",
       "userId": "user-%(ident)s"
     }
   },
