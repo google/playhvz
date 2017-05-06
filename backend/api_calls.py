@@ -435,8 +435,11 @@ def AssignGun(request, firebase):
   valid_args = ['playerId', 'gunId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
-
-  return firebase.put('/guns', request['gunId'], {'playerId': request['playerId']})
+  data = {
+    'playerId': request['playerId'],
+    'userId': firebase.get('/players/%s' % request['playerId'], 'userId'),
+  }
+  return firebase.put('/guns', request['gunId'], data)
 
 
 def AddMission(request, firebase):
