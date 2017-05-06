@@ -547,7 +547,8 @@ def SendChatMessage(request, firebase):
   # Validate player is in the chat room
   if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
     raise InvalidInputError('You are not a member of that chat room.')
-  # TODO Validation the messageId is new.
+  if firebase.get('/chatRooms/%s/messages/%s' % (chat, messageId), None):
+    raise InvalidInputError('That message ID was already posted.')
 
   message_data = {
     'message': message,
@@ -578,8 +579,6 @@ def AddRewardCategory(request, firebase):
   required_args = list(valid_args)
   required_args.extend(['name', 'points', 'limitPerPlayer'])
   ValidateInputs(request, firebase, required_args, valid_args)
-
-  # TODO Validate the rewardCategoryId does not yet exist
 
   game = request['gameId']
   reward_category = request['rewardCategoryId']
@@ -648,7 +647,7 @@ def AddReward(request, firebase):
   reward_category = 'rewardCategory-%s' % reward_seed
   path = '/games/%s/rewardCategories/%s/rewards' % (game, reward_category)
 
-  # TODO Validation the rewardId does not yet exist
+  # Validation the rewardId does not yet exist
   if firebase.get('%s/%s' % (path, reward), 'a'):
     raise InvalidInputError('Reward %s already defined.' % reward)
 
