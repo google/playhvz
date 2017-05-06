@@ -100,15 +100,21 @@ def Register(request, firebase):
   Validation:
   Args:
     userId: Unique userId added to the user list.
+    name: A name to use to reference a player.
 
   Firebase entries:
     /users/%(userId)
   """
   valid_args = ['!userId']
   required_args = list(valid_args)
+  required_args.extend(['name'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  return firebase.put('/users', request['userId'], {'a': True})
+  data = {
+    'a': True,
+    'name': request['name'],
+  }
+  return firebase.put('/users', request['userId'], data)
 
 
 def CreateGame(request, firebase):

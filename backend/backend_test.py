@@ -80,11 +80,11 @@ class EndToEndTest(unittest.TestCase):
     self.identifier = 'test_%d' % (time.time() % 1000)
 
     # Register. Should work then fails.
-    create = {'userId': self.Id('userId')}
+    create = {'userId': self.Id('userId'), 'name': 'John'}
     self.AssertOk('register', create)
     self.AssertFails('register', create)
 
-    create = {'userId': '%s-2' % self.Id('userId')}
+    create = {'userId': '%s-2' % self.Id('userId'), 'name': 'Bob'}
     self.Post('register', create)
 
     # Create and update game.

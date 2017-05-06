@@ -84,6 +84,7 @@
   "users": {
     "user-%(ident)s": {
       "a": true,
+      "name": "John",
       "players": {
         "player-%(ident)s": {
           "gameId": "game-%(ident)s"
@@ -91,7 +92,8 @@
       }
     },
     "user-%(ident)s-2": {
-      "a": true
+      "a": true,
+      "name": "Bob"
     }
   },
   "rewardCategories": {
