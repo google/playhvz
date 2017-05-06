@@ -81,6 +81,7 @@ methods = {
   'addRewardCategory': api_calls.AddRewardCategory,
   'updateRewardCategory': api_calls.UpdateRewardCategory,
   'addReward': api_calls.AddReward,
+  'addRewards': api_calls.AddRewards,
   'claimReward': api_calls.ClaimReward,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,

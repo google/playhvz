@@ -164,7 +164,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
 	
     create = {'gunId': self.Id('gunId')}
-    update = {'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
+    update = {'gunId': self.Id('gunId'), 'userId': self.Id('userId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
 
     create = {
