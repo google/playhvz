@@ -133,7 +133,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var zedChatRoomId = Bridge.ChatRoomId.generate();
   server.createChatRoom({chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink"});
 
-  server.addAdmin({adminId: Bridge.AdminId.generate(), gameId: gameId, userId: minnyUserId});
+  server.addAdmin({gameId: gameId, userId: minnyUserId});
 
   var kimPlayerId = Bridge.PlayerId.generate();
   server.createPlayer(makePlayerProperties(kimPlayerId, kimUserId, gameId, 'Kim the Ultimate'));

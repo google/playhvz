@@ -17,11 +17,18 @@ class RemoteBridge {
         firebase.auth().getRedirectResult()
             .then((result) => {
               if (result.user) {
-                this.userId = result.user.uid;
-                this.register(userId)
+                this.userId = "user-" + result.user.uid;
+                this.register({userId: this.userId})
                     .then(() => {
-                      this.firebaseListener.listenToUser(this.userId);
-                      resolve(result.user.uid);
+                      this.firebaseListener.listenToUser(this.userId)
+                          .then(() => resolve(this.userId))
+                          .catch((e) => {
+                            console.error(e);
+                            this.register({userId: this.userId})
+                                .then(() => {
+                                  this.firebaseListener.listenToUser(this.userId);
+                                });
+                          });
                     });
               } else {
                 // This sometimes happens when we redirect away. Let it go.
@@ -34,7 +41,7 @@ class RemoteBridge {
         firebase.auth().signInWithRedirect(provider);
       });
     } else {
-      return this.register(this.userId);
+      return this.register({userId: this.userId});
     }
   }
 
@@ -43,13 +50,21 @@ class RemoteBridge {
       firebase.auth().onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
           if (this.userId == null) {
-            this.userId = firebaseUser.uid;
-            this.firebaseListener.listenToUser(this.userId);
-            resolve(firebaseUser.uid);
+            this.userId = "user-" + firebaseUser.uid;
+            this.firebaseListener.listenToUser(this.userId)
+                .then(() => resolve(firebaseUser.uid))
+                .catch((e) => {
+                  console.error(e);
+                  this.register({userId: this.userId})
+                      .then(() => {
+                        this.firebaseListener.listenToUser(this.userId);
+                      });
+                });
+            resolve(this.userId);
           } else {
             // Sometimes we get spurious auth changes.
             // As long as we stick with the same user, its fine.
-            assert(firebaseUser.uid == this.userId);
+            assert("user-" + firebaseUser.uid == this.userId);
           }
         } else {
           reject();
@@ -72,15 +87,17 @@ class RemoteBridge {
     this.firebaseListener.listenToGame(gameId);
   }
 
-  register() {
-    return this.requester.sendPostRequest('register', {}, {})
-        .then(() => {
-          return userId;
-        })
+  register(args) {
+    let {userId} = args;
+    return this.requester.sendPostRequest('register', {}, {
+      userId: userId,
+    }).then(() => {
+      return userId;
+    });
   }
 
   createGame(args) {
-    this.requester.sendPostRequest('createGame', args);
+    this.requester.sendPostRequest('createGame', {}, args);
   }
 
   joinGame(playerId, userId, gameId, {name, needGun, profileImageUrl, startAsZombie, volunteer}) {
@@ -100,8 +117,8 @@ class RemoteBridge {
     this.requester.sendPostRequest('addGun', {}, {gunId: id});
   }
 
-  assignGun({gunId, playerId}) {
-    this.requester.sendPostRequest('assignGun', {}, {gunId: gunId, playerId: playerId});
+  assignGun({gunId, userId}) {
+    this.requester.sendPostRequest('assignGun', {}, {gunId: gunId, userId: userId});
   }
 
   addPlayerToChatRoom({chatRoomId, playerId}) {

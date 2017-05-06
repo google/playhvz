@@ -56,7 +56,7 @@ class Bridge {
     } else {
       let config;
       let serverUrl;
-      if (this.env == 'prod') {
+      if (env == 'prod') {
         serverUrl = "https://humansvszombies-24348.appspot.com/";
         config = {
           apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
@@ -66,7 +66,7 @@ class Bridge {
           storageBucket: "trogdors-29fa4.appspot.com",
           messagingSenderId: "625580091272"
         };
-      } else if (this.env == 'dev') {
+      } else if (env == 'dev') {
         serverUrl = "trololol"; // we dont have a dev frontend
         config = {
           apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
@@ -98,10 +98,6 @@ Bridge.PlayerId = {
 Bridge.LifeId = {
   generate: () => Utils.generateId('life'),
   verify: (id) => id.startsWith('life-'),
-};
-Bridge.AdminId = {
-  generate: () => Utils.generateId('admin'),
-  verify: (id) => id.startsWith('admin-'),
 };
 Bridge.InfectionId = {
   generate: () => Utils.generateId('infection'),
@@ -179,7 +175,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('assignGun', {
     required: {
       gunId: 'GunId',
-      playerId: '?PlayerId',
+      userId: '?UserId',
     },
   });
 
@@ -346,7 +342,7 @@ Bridge.QuizAnswerId = {
   });
 
   serverMethods.set('addAdmin', {
-    required: {adminId: '!AdminId', gameId: 'GameId', userId: 'UserId'}
+    required: {gameId: 'GameId', userId: 'UserId'}
   });
 
   serverMethods.set('joinHorde', {required: {playerId: 'PlayerId'}});
@@ -455,7 +451,7 @@ Bridge.QuizAnswerId = {
             {quizAnswerId: '!QuizAnswerId', quizQuestionId: 'QuizQuestionId'},
             QUIZ_ANSWER_PROPERTEIS)
   });
-  serverMethods.set('updateQuizQuestion', {
+  serverMethods.set('updateQuizAnswer', {
     required: {quizAnswerId: 'QuizAnswerId'},
     optional: QUIZ_ANSWER_PROPERTEIS,
   });

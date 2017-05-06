@@ -240,8 +240,17 @@ paper-input-container {
             return;
           }
         }
+        let [, page] = this.extractUrl_();
+        if (this.userId && !this.page && page == 'createGame') {
+          // Async so we dont accidentally cause calls into firebaselistener
+          // while we're already reacting to something from it.
+          this.async(() => {
+            this.page = page;
+            window.history.replaceState({}, "", this.assembleUrl_(null, this.page));
+          });
+          return;
+        }
         if (this.userId && this.game && !this.page) {
-          let [, page] = this.extractUrl_();
           // Async so we dont accidentally cause calls into firebaselistener
           // while we're already reacting to something from it.
           this.async(() => {
@@ -257,7 +266,10 @@ paper-input-container {
       },
 
       assembleUrl_(gameId, page) {
-        let url = "/" + gameId + "/" + page;
+        let url = "";
+        if (gameId)
+          url += "/" + gameId;
+        url += "/" + page;
         let queryStringMatch = /\?(.*)/.exec(window.location.href);
         if (queryStringMatch)
           url += "?" + queryStringMatch[1];
@@ -276,16 +288,21 @@ paper-input-container {
 
       extractUrl_() {
         let initialUrl = window.location.pathname;
-        let match = /([\w-]+)(?:\/([\w/-]+))?/.exec(initialUrl);
-        if (!match) {
-          return [null, null, null];
+        let nonGamePageMatch = /^\/(\w+)$/.exec(initialUrl);
+        if (nonGamePageMatch) {
+          let page = nonGamePageMatch[1];
+          return [null, page];
         }
-        let gameNumber = match[1];
-        if (!match[2]) {
-          return [gameNumber, null, null];
+        let gamePageMatch = /^\/(game-[\w-]+)(?:\/([\w/-]+))?/.exec(initialUrl);
+        if (gamePageMatch) {
+          let gameNumber = gamePageMatch[1];
+          if (!gamePageMatch[2]) {
+            return [gameNumber, null, null];
+          }
+          let page = gamePageMatch[2];
+          return [gameNumber, page];
         }
-        let page = match[2];
-        return [gameNumber, page];
+        return [null, null, null];
       },
 
       openDrawer_() {

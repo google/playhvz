@@ -37,17 +37,17 @@ class FakeServer {
         this.reader.getGamePath(null),
         null,
         newGame(gameId, args));
-    this.addAdmin({adminId: Bridge.AdminId.generate(), gameId: gameId, userId: firstAdminUserId});
+    this.addAdmin({gameId: gameId, userId: firstAdminUserId});
   }
   updateGame(args) {
     throwError('Implement!');
   }
   addAdmin(args) {
-    let {adminId, gameId, userId} = args;
+    let {gameId, userId} = args;
     this.writer.insert(
         this.reader.getAdminPath(gameId, null),
         null,
-        newAdmin(adminId, {userId: userId}));
+        newAdmin(userId, {userId: userId}));
   }
   createPlayer(args) {
     let {gameId, playerId, userId} = args;
@@ -320,14 +320,13 @@ class FakeServer {
     assert(false);
   }
   assignGun(args) {
-    let {gunId, playerId} = args;
+    let {gunId, userId} = args;
     let gunPath = this.reader.pathForId(gunId);
-    playerId && this.checkId(playerId, 'player');
-    this.writer.set(gunPath.concat(["playerId"]), playerId);
+    this.writer.set(gunPath.concat(["userId"]), userId);
   }
   selfInfect(args) {
     let {playerId} = args;
-    this.setPlayerZombie({playerId: playerId});
+    this.setPlayerZombie(playerId);
   }
   joinResistance(args, lifeCodeHint) {
     let {playerId} = args;

@@ -124,7 +124,7 @@
           let playerOrNull = e.detail.playerOrNull;
           this.bridge.assignGun({
             gunId: this.editingGunIdOrNull,
-            playerId: playerOrNull && playerOrNull.id || "",
+            userId: playerOrNull && playerOrNull.userId || "",
           });
           this.appendChild(this.$.travelingPlayerField);
         },

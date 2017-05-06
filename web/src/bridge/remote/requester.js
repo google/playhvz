@@ -49,7 +49,7 @@ class NormalRequester {
             (urlParamsStr && "&") +
             key + "=" + encodeURIComponent(urlParams[key]);
       }
-      let url = this.serverUrl + path + (urlParamsStr && "?" + urlParamsStr);
+      let url = this.serverUrl + 'api/' + path + (urlParamsStr && "?" + urlParamsStr);
       request.open(verb, url, true);
 
       let headers = Utils.copyOf(this.headers);
@@ -58,6 +58,7 @@ class NormalRequester {
       for (var key in headers) {
         request.setRequestHeader(key, headers[key]);
       }
+      body.userToken = userToken;
 
       if (body) {
         request.send(JSON.stringify(body));

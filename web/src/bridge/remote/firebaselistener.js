@@ -34,26 +34,24 @@ class FirebaseListener {
         // two places. We want it to eventually go into our privateDatabaseCopyObject,
         // which we can read, and also the destinationBatchedWriter.
         new TeeWriter(
-            // For this first place, we write to a mapping writer,
-            // which does our write but also makes writes that
-            // create/maintain id-to-object maps.
-            // Once we have a consistent picture, we write to a mapping
-            // writer, which does our write but also makes writes that
-            // create/maintain id-to-object maps.
+            // The first place we want to write to will eventually go to our
+            // privateDatabaseCopyObject. But we need to do some operations on
+            // any changes going there. First thing we need to do is maintain
+            // the mappings (playersById, usersById, etc)
             new MappingWriter(
                 // The MappingWriter will send its writes to this SimpleWriter
                 // which is a tiny wrapper that just takes set/insert/remove
                 // operations and executes them on a plain javascript object.
                 new SimpleWriter(privateDatabaseCopyObject)),
+            // The second place we want to write to will eventually end up in the
+            // destinationBatchedWriter, the ultimate consumer of our work here.
+            // But first, lets notice that the TeeWriter just sends the same object
+            // to two different places, which is very troublesome. This cloning
+            // writer will make a copy of the object it's given and send that instead.
             new CloningWriter(
-                // For this first place, we write to a mapping writer,
-                // which does our write but also makes writes that
-                // create/maintain id-to-object maps.
-                // Once we have a consistent picture, we write to a mapping
-                // writer, which does our write but also makes writes that
-                // create/maintain id-to-object maps.
+                // We want to maintain the maps on whatever operations we end.
                 new MappingWriter(
-                    // The second place we write to will hold back all of its writes
+                    // This ConsistentWriter will hold back all of its writes
                     // until the right moment, when releasing all of the writes
                     // would result in a consistent object (no dangling id references).
                     new ConsistentWriter(
@@ -76,15 +74,17 @@ class FirebaseListener {
     this.firebaseRoot = firebaseRoot;
   }
   listenToGame(gameId) {
-    this.deepListenToGame(gameId);
     this.listenToGame = () => throwError("Can't call listenToGame twice!");
+    this.deepListenToGame(gameId);
   }
   listenToUser(userId) {
-    this.userId = userId;
-    this.deepListenToUser(userId);
-    this.shallowListenToGames();
-    this.listenToGuns();
-    this.listenToUser = () => throwError("Can't call listenToUser twice!");
+    return this.deepListenToUser(userId)
+        .then(() => {
+          this.userId = userId;
+          this.shallowListenToGames();
+          this.listenToGuns();
+          this.listenToUser = () => throwError("Can't call listenToUser twice!");
+        });
   }
   listenForPropertyChanges_(collectionRef, properties, ignored, setCallback) {
     collectionRef.on("child_added", (change) => {
@@ -151,7 +151,7 @@ class FirebaseListener {
       obj.inMemory = false;
       this.writer.insert(this.reader.getGamePath(null), null, obj);
       this.listenForPropertyChanges_(
-          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(["missionIds", "chatRoomIds", "adminUserIds", "notificationCategoryIds", "groupIds"]),
+          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(["missions", "chatRooms", "adminUsers", "notificationCategories", "groups"]),
           (property, value) => {
             this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
           });
@@ -174,29 +174,37 @@ class FirebaseListener {
   }
 
   deepListenToUser(userId) {
-    let ref = this.firebaseRoot.child("users/" + userId);
-    ref.once("value").then((snap) => {
-      let obj = newUser(userId, snap.val());
-      this.writer.insert(this.reader.getUserPath(null), null, obj);
-      this.listenForPropertyChanges_(
-          ref, USER_PROPERTIES, USER_COLLECTIONS.concat(["playerIdsByGameId", "gameIdsByPlayerId"]),
-          (property, value) => {
-            this.writer.set(this.reader.getUserPath(userId).concat([property]), value);
-          });
-      this.listenToPrivatePlayers_(userId);
+    return new Promise((resolve, reject) => {
+      let ref = this.firebaseRoot.child("users/" + userId);
+      ref.once("value").then((snap) => {
+        if (snap.val() == null) {
+          console.log('value is null?', snap.val());
+          reject();
+          return;
+        }
+        resolve();
+        let obj = newUser(userId, snap.val());
+        this.writer.insert(this.reader.getUserPath(null), null, obj);
+        this.listenForPropertyChanges_(
+            ref, USER_PROPERTIES, USER_COLLECTIONS.concat(["playerIdsByGameId", "gameIdsByPlayerId", "a"]),
+            (property, value) => {
+              this.writer.set(this.reader.getUserPath(userId).concat([property]), value);
+            });
+        this.listenToPrivatePlayers_(userId);
+      });
     });
   }
 
   listenToAdmins_(gameId) {
-    var ref = this.firebaseRoot.child("games/" + gameId + "/admins");
+    var ref = this.firebaseRoot.child("games/" + gameId + "/adminUsers");
     ref.on("child_added", (snap) => {
-      let adminId = snap.getKey();
-      let obj = newAdmin(adminId, snap.val());
+      let userId = snap.getKey();
+      let obj = newAdmin(userId, snap.val());
       this.writer.insert(this.reader.getAdminPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
           (property, value) => {
-            this.writer.set(this.reader.getAdminPath(gameId, adminId).concat([property]), value);
+            this.writer.set(this.reader.getAdminPath(gameId, userId).concat([property]), value);
           });
     });
   }
@@ -462,17 +470,22 @@ class FirebaseListener {
   }
 
   listenToRewardCategories_(gameId) {
-    var ref = this.firebaseRoot.child("games/" + gameId + "/rewardCategories");
-    ref.on("child_added", (snap) => {
-      let rewardCategoryId = snap.getKey();
-      let obj = newRewardCategory(rewardCategoryId, snap.val());
-      this.writer.insert(this.reader.getRewardCategoryPath(gameId, null), null, obj);
-      this.listenForPropertyChanges_(
-          snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getRewardCategoryPath(gameId, rewardCategoryId).concat([property]), value);
+    var collectionRef = this.firebaseRoot.child("games/" + gameId + "/rewardCategoryIds");
+    collectionRef.on("child_added", (snap) => {
+      let rewardCategoryId = snap.getKey(); // snap.val() is ""
+      let ref = this.firebaseRoot.child("rewardCategories/" + rewardCategoryId);
+      ref.once("value")
+          .then((snap) => {
+            let obj = newRewardCategory(rewardCategoryId, snap.val());
+
+            this.writer.insert(this.reader.getRewardCategoryPath(gameId, null), null, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
+                (property, value) => {
+                  this.writer.set(this.reader.getRewardCategoryPath(gameId, rewardCategoryId).concat([property]), value);
+                });
+            this.listenToRewards_(gameId, rewardCategoryId);
           });
-      this.listenToRewards_(gameId, rewardCategoryId);
     });
   }
 
