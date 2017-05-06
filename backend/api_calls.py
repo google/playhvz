@@ -1,5 +1,6 @@
 import constants
 import logging
+import random
 import time
 
 
@@ -700,6 +701,37 @@ def AddReward(request, firebase):
   return firebase.put(path, reward, reward_data)
 
 
+def AddRewards(request, firebase):
+  """Add a set of rewards.
+
+  Validation:
+
+  Args:
+    rewardCategoryId:
+    count: How many rewards to generate.
+
+  Firebase entries:
+    /rewardCategories/%(rCId)/rewards/%(rewardId)
+  """
+  results = []
+
+  valid_args = ['rewardCategoryId']
+  required_args = list(valid_args)
+  required_args.extend(['count'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  reward_category = request['rewardCategoryId']
+  reward_seed = reward_category.split('-')[1]
+  path = '/rewardCategories/%s/rewards' % reward_category
+  reward_data = {'playerId': '', 'a': True}
+
+  for i in range(request['count']):
+    reward = 'reward-%s-%s' % (reward_seed, RandomWords(3))
+    results.append({reward: firebase.put(path, reward, reward_data)})
+
+  return results
+
+
 def ClaimReward(request, firebase):
   """Claim a reward for a player.
 
@@ -772,6 +804,15 @@ def ClaimReward(request, firebase):
   results.append(firebase.put('%s/claims' % player_path, reward, claim_data))
 
   return results
+
+
+def RandomWords(n):
+  words = []
+  with open('wordlist.txt') as f:
+    wordlist = f.readlines()
+    for i in range(n):
+      words.append(random.choice(wordlist).strip())
+  return '-'.join(words)
 
 
 def DeleteTestData(request, firebase):
