@@ -131,6 +131,7 @@ def CreateGame(request, firebase):
   Firebase entries:
     /games/%(gameId)
   """
+  results = []
   valid_args = ['!gameId']
   required_args = list(valid_args)
   required_args.extend(['userId', 'name', 'rulesHtml', 'stunTimer'])
@@ -141,9 +142,10 @@ def CreateGame(request, firebase):
     'rulesHtml': request['rulesHtml'],
     'stunTimer': request['stunTimer'],
     'active': True,
-    'adminUserId': request['userId'],
   }
-  return firebase.put('/games', request['gameId'], put_data)
+  results.append(firebase.put('/games', request['gameId'], put_data))
+  results.append(firebase.put('/games/%s/adminUsers' % request['gameId'], request['userId'], {'a': True}))
+  return results
 
 
 def UpdateGame(request, firebase):
