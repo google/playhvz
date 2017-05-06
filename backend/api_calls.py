@@ -294,12 +294,13 @@ def CreatePlayer(request, firebase):
     'startAsZombie' : start_as_zombie,
     'volunteer' : volunteer,
     'wantsToBeSecretZombie': be_secret_zombie,
-    'notificationSettings': {
-      'sound': request['notifySound'],
-      'vibrate': request['notifyVibrate'],
-    }
   }
   results.append(firebase.put('/players', player, player_info))
+  settings = {
+    'sound': request['notifySound'],
+    'vibrate': request['notifyVibrate'],
+  }
+  results.append(firebase.put('/players/%s' % player, 'notificationSettings', settings))
 
   if start_as_zombie:
     allegiance = 'horde'
@@ -307,7 +308,7 @@ def CreatePlayer(request, firebase):
     allegiance = 'resistence'
 
   game_info = {
-    'user_id' : user,
+    'userId' : user,
     'name': name,
     'profileImageUrl' : profile_image_url,
     'points': 0,
@@ -349,10 +350,11 @@ def UpdatePlayer(request, firebase):
   for property in ['startAsZombie', 'volunteer', 'needGun', 'wantsToBeSecretZombie']:
     if property in request:
       player_info[property] = request[property]
-  player_info['notificationSettings'] = {}
+
+  settings = {}
   for property in ['notifySound', 'notifyVibrate']:
     if property in request:
-      player_info['notificationSettings'][property] = request[property]
+      settings[property] = request[property]
 
   game_info = {}
   for property in ['name', 'profileImageUrl', 'volunteer']:
@@ -361,6 +363,8 @@ def UpdatePlayer(request, firebase):
 
   if player_info:
     results.append(firebase.patch('/players/%s' % player, player_info))
+  if settings:
+    results.append(firebase.patch('/players/%s/notificationSettings' % player, settings))
   if game_info:
     results.append(firebase.patch('/games/%s/players/%s' % (game, player), game_info))
 
