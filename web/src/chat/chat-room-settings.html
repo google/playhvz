@@ -9,6 +9,7 @@
 
         properties: {
           bridge: Object,
+          gameId: String,
           player: Object,
 
           doneEnabled: {
@@ -44,14 +45,33 @@
 
         createChatRoom_: function(bridge, player) {
           this.doneEnabled = false;
-          var chatRoomId = Utils.generateId("chatRoom");
           let name = this.$.chatName.value;
-          var args = {name: name};
-          this.bridge.createChatRoom(chatRoomId, this.player.id, args);
-          this.bridge.addPlayerToChatRoom(chatRoomId, this.player.id);
+
+          let groupId = Bridge.GroupId.generate();
+          this.bridge.createGroup({
+            groupId: groupId,
+            gameId: this.gameId,
+            ownerPlayerId: this.player.id,
+            allegianceFilter: '',
+            autoAdd: false,
+            autoRemove: false,
+            membersCanAdd: true,
+            membersCanRemove: false,
+          });
+          var chatRoomId = Bridge.ChatRoomId.generate();
+          this.bridge.createChatRoom({
+            chatRoomId: chatRoomId,
+            groupId: groupId,
+            name: name
+          });
+          this.bridge.addPlayerToGroup({
+            groupId: groupId,
+            playerId: this.player.id,
+            playerToAddId: this.player.id
+          });
           this.fire('ghvz-open-page', {
-              page: this.computeChatPage_(chatRoomId),
-            });
+            page: this.computeChatPage_(chatRoomId),
+          });
         },
       });
     });

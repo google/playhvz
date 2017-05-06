@@ -34,7 +34,7 @@
 
         infect_: function() {
           this.requesting = true;
-          this.bridge.infect(this.playerId, this.lifeCode)
+          this.bridge.infect({playerId: this.playerId, lifeCode: this.lifeCode})
               .then(
                   (player) => {
                     this.infectedPlayer = player;

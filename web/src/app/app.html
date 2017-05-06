@@ -47,6 +47,21 @@ paper-input-container {
       is: 'ghvz-app',
 
       properties: {
+        env: {
+          type: String,
+          value: () => {
+            var env = Utils.getParameterByName('env');
+            var defaultEnv = 'fake';
+            if (window.location.hostname == "dev.googlehvz.com")
+              defaultEnv = 'env';
+            if (window.location.hostname == "googlehvz.com")
+              defaultEnv = 'prod';
+            if (!env)
+              env = defaultEnv;
+            return env;
+          },
+        },
+
         bridge: {
           type: Object,
         },
@@ -159,50 +174,7 @@ paper-input-container {
       },
 
       makeBridge_() {
-        var env = Utils.getParameterByName('env');
-
-        var defaultEnv = 'fake';
-        if (window.location.hostname == "dev.googlehvz.com")
-          defaultEnv = 'env';
-        if (window.location.hostname == "googlehvz.com")
-          defaultEnv = 'prod';
-
-        if (!env)
-          env = defaultEnv;
-
-        if (env == 'fake') {
-          return new FakeBridge(
-              this.makeBridgeDelegate_(),
-              Utils.getParameterByName('registered', 'true') == 'true',
-              Utils.getParameterByName('admin', 'true') == 'true',
-              Utils.getParameterByName('joined', 'true') == 'true');
-        } else {
-          let config;
-          let serverUrl;
-          if (env == 'prod') {
-            serverUrl = "https://humansvszombies-24348.appspot.com/";
-            config = {
-              apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
-              authDomain: "trogdors-29fa4.firebaseapp.com",
-              databaseURL: "https://trogdors-29fa4.firebaseio.com",
-              projectId: "trogdors-29fa4",
-              storageBucket: "trogdors-29fa4.appspot.com",
-              messagingSenderId: "625580091272"
-            };
-          } else if (env == 'dev') {
-            serverUrl = "trololol"; // we dont have a dev frontend
-            config = {
-              apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
-              authDomain: "zeds-dbe0f.firebaseapp.com",
-              databaseURL: "https://zeds-dbe0f.firebaseio.com",
-              storageBucket: "zeds-dbe0f.appspot.com",
-              messagingSenderId: "721599614458",
-            };
-          } else {
-            throwError("Bad env:", env);
-          }
-          return new RemoteBridge(serverUrl, config, this.makeBridgeDelegate_());
-        }
+        return new Bridge(this.env, this.makeBridgeDelegate_());
       },
 
       makeBridgeDelegate_: function() {
@@ -344,6 +316,7 @@ paper-input-container {
       id="inner"
       bridge="[[bridge]]"
       is-desktop="[[isDesktop]]"
+      env="[[env]]"
       database="[[database]]"
       user="[[user]]"
       game="[[game]]"

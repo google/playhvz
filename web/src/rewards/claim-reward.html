@@ -34,16 +34,19 @@
 
         claim_: function() {
           this.requesting = true;
-          this.bridge.claimReward(this.gameId, this.playerId, this.rewardCode)
-              .then(
-                  (rewardCategory) => {
-                    this.claimedRewardCategory = rewardCategory;
-                    this.requesting = false;
-                  },
-                  (error) => {
-                    alert('Error claiming reward: '+ error);
-                    this.reset_();
-                  });
+          this.bridge.claimReward({
+              gameId: this.gameId,
+              playerId: this.playerId,
+              code: this.rewardCode,
+          }).then(
+              (rewardCategory) => {
+                this.claimedRewardCategory = rewardCategory;
+                this.requesting = false;
+              },
+              (error) => {
+                alert('Error claiming reward: '+ error);
+                this.reset_();
+              });
         },
       });
     });

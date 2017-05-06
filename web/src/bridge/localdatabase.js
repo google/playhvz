@@ -10,7 +10,6 @@ function newGun(id, args) {
 
 const USER_PROPERTIES = ["registered"];
 const USER_COLLECTIONS = ["players"];
-const USER_IGNORED = ["playerIdsByGameId", "gameIdsByPlayerId"];
 function newUser(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, USER_PROPERTIES);
@@ -20,7 +19,6 @@ function newUser(id, args) {
 
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
-const USER_PLAYER_IGNORED = ["lives", "notifications", "chatRoomMembershipsByChatRoomId"];
 function newUserPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, USER_PLAYER_PROPERTIES);
@@ -28,9 +26,8 @@ function newUserPlayer(id, args) {
   return obj;
 }
 
-const GAME_PROPERTIES = ["active", "name", "number", "rulesUrl", "stunTimer"];
+const GAME_PROPERTIES = ["active", "name", "number", "rulesHtml", "stunTimer"];
 const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
-const GAME_IGNORED = ["missionIds", "chatRoomIds", "adminUserIds", "notificationCategoryIds", "groupIds"];
 function newGame(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, GAME_PROPERTIES);
@@ -92,6 +89,15 @@ function newPlayerChatRoomMembership(id, args) {
   return obj;
 }
 
+const PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
+const PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
+function newPlayerGroupMembership(id, args) {
+  let obj = {id: id};
+  Utils.copyProperties(obj, args, PLAYER_GROUP_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(obj, PLAYER_GROUP_MEMBERSHIP_COLLECTIONS);
+  return obj;
+}
+
 const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
 const MESSAGE_COLLECTIONS = [];
 function newMessage(id, args) {
@@ -101,7 +107,7 @@ function newMessage(id, args) {
   return obj;
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "url", "allegianceFilter"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "allegianceFilter"];
 const MISSION_COLLECTIONS = [];
 function newMission(id, args) {
   let obj = {id: id};
@@ -129,7 +135,7 @@ function newNotificationCategory(id, args) {
 }
 
 const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "infectable", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "beSecretZombie", "advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "server", "client"];
-const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships"];
+const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships", "groupMemberships"];
 function newPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, PLAYER_PROPERTIES);
@@ -190,3 +196,4 @@ function newReward(id, args) {
   Utils.addEmptyLists(obj, REWARD_COLLECTIONS);
   return obj;
 }
+

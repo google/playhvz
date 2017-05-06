@@ -79,15 +79,8 @@ class RemoteBridge {
         })
   }
 
-  createGame(gameId, adminUserId, {name, rulesUrl, stunTimer}) {
-    this.requester.sendPostRequest(
-        'createGame',
-        {id: gameId, adminUserId: adminUserId},
-        {
-          name: name,
-          rulesUrl: rulesUrl,
-          stunTimer: stunTimer,
-        });
+  createGame(args) {
+    this.requester.sendPostRequest('createGame', args);
   }
 
   joinGame(playerId, userId, gameId, {name, needGun, profileImageUrl, startAsZombie, volunteer}) {

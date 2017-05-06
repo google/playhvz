@@ -1,69 +1,480 @@
 'use strict';
 
-class Bridge { }
-Bridge.generateUserId = () => Utils.generateId("user");
-Bridge.generateGameId = () => Utils.generateId("game");
-Bridge.generatePlayerId = () => Utils.generateId("player");
-Bridge.generateLifeId = () => Utils.generateId("life");
-Bridge.generateAdminId = () => Utils.generateId("admin");
-Bridge.generateInfectionId = () => Utils.generateId("infection");
-Bridge.generateMissionId = () => Utils.generateId("mission");
-Bridge.generateGunId = () => Utils.generateId("gun");
-Bridge.generateGroupId = () => Utils.generateId("group");
-Bridge.generateChatRoomId = () => Utils.generateId("chatRoom");
-Bridge.generateMessageId = () => Utils.generateId("message");
-Bridge.generateNotificationCategoryId = () => Utils.generateId("notificationCategory");
-Bridge.generateNotificationId = () => Utils.generateId("notification");
-Bridge.generateRewardCategoryId = () => Utils.generateId("rewardCategory");
-Bridge.generateRewardId = () => Utils.generateId("reward");
-Bridge.generateMembershipId = () => Utils.generateId("membership");
-Bridge.generateClaimId = () => Utils.generateId("claim");
-Bridge.generateQuizQuestionId = () => Utils.generateId("quizQuestion");
-Bridge.generateQuizAnswerId = () => Utils.generateId("quizAnswer");
+class Bridge {
+  constructor(env, appWriter) {
+    this.inner = Bridge.makeInnerBridge_(env, appWriter);
 
-const SERVER_PLAYER_PROPERTIES = ["name", "needGun", "profileImageUrl", "startAsZombie", "beSecretZombie", "advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "server", "client"];
-const SERVER_QUIZ_QUESTION_PROPERTIES = ["text", "type"];
-const SERVER_QUIZ_ANSWER_PROPERTIES = ["text", "order", "isCorrect"];
-const SERVER_GAME_PROPERTIES = ["name", "rulesUrl", "stunTimer"];
-const SERVER_USER_PROPERTIES = [];
-const SERVER_GROUP_PROPERTIES = ["allegianceFilter", "membersCanAdd", "autoAdd", "autoRemove"];
-const SERVER_CHAT_ROOM_PROPERTIES = ["name"];
-const SERVER_MESSAGE_PROPERTIES = ["message"];
-const SERVER_MISSION_PROPERTIES = ["beginTime", "endTime", "name", "url", "allegianceFilter"];
-const SERVER_REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed"];
-const SERVER_REWARD_PROPERTIES = [];
-const SERVER_GUN_PROPERTIES = [];
-const SERVER_NOTIFICATION_CATEGORY_PROPERTIES = ["name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate", "destination", "icon"];
-const SERVER_NOTIFICATION_PROPERTIES = ["message", "previewMessage", "sound", "vibrate", "app", "email", "destination"];
+    for (let [method, expectations] of Bridge.METHODS_MAP) {
+      this[method] =
+          (...args) => {
+            Utils.checkObject(
+                ...args,
+                expectations.required,
+                expectations.optional,
+                this.check_.bind(this));
+            return this.inner[method](...args);
+          };
+    }
+  }
+
+  attemptAutoSignIn() {
+    return this.inner.attemptAutoSignIn();
+  }
+
+  listenToGame(gameId) {
+    return this.inner.listenToGame(gameId);
+  }
+
+  check_(typeName, value) {
+    if (typeName.startsWith("?")) {
+      if (value === null)
+        return true;
+      typeName = typeName.slice(1); // Example "?UserId" to UserId
+    }
+    if (typeName == 'Boolean')
+      return Utils.isBoolean(value);
+    if (typeName == 'String')
+      return Utils.isString(value);
+    if (typeName == 'Number')
+      return Utils.isNumber(value);
+    if (typeName == 'TimestampMs')
+      return Utils.isTimestampMs(value);
+    if (typeName.startsWith('!'))
+      typeName = typeName.slice(1);
+    assert(typeName in Bridge);
+    Bridge[typeName].verify(value);
+    // todo, put existence checks here
+  }
+
+  static makeInnerBridge_(env, appWriter) {
+    if (env == 'fake') {
+      return new FakeBridge(
+          appWriter,
+          Utils.getParameterByName('registered', 'true') == 'true',
+          Utils.getParameterByName('admin', 'true') == 'true',
+          Utils.getParameterByName('joined', 'true') == 'true');
+    } else {
+      let config;
+      let serverUrl;
+      if (this.env == 'prod') {
+        serverUrl = "https://humansvszombies-24348.appspot.com/";
+        config = {
+          apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+          authDomain: "trogdors-29fa4.firebaseapp.com",
+          databaseURL: "https://trogdors-29fa4.firebaseio.com",
+          projectId: "trogdors-29fa4",
+          storageBucket: "trogdors-29fa4.appspot.com",
+          messagingSenderId: "625580091272"
+        };
+      } else if (this.env == 'dev') {
+        serverUrl = "trololol"; // we dont have a dev frontend
+        config = {
+          apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
+          authDomain: "zeds-dbe0f.firebaseapp.com",
+          databaseURL: "https://zeds-dbe0f.firebaseio.com",
+          storageBucket: "zeds-dbe0f.appspot.com",
+          messagingSenderId: "721599614458",
+        };
+      } else {
+        throwError("Bad env:", env);
+      }
+      return new RemoteBridge(serverUrl, config, appWriter);
+    }
+  }
+}
+
+Bridge.UserId = {
+  generate: () => Utils.generateId('user'),
+  verify: (id) => id.startsWith('user-'),
+};
+Bridge.GameId = {
+  generate: () => Utils.generateId('game'),
+  verify: (id) => id.startsWith('game-'),
+};
+Bridge.PlayerId = {
+  generate: () => Utils.generateId('player'),
+  verify: (id) => id.startsWith('player-'),
+};
+Bridge.LifeId = {
+  generate: () => Utils.generateId('life'),
+  verify: (id) => id.startsWith('life-'),
+};
+Bridge.AdminId = {
+  generate: () => Utils.generateId('admin'),
+  verify: (id) => id.startsWith('admin-'),
+};
+Bridge.InfectionId = {
+  generate: () => Utils.generateId('infection'),
+  verify: (id) => id.startsWith('infection-'),
+};
+Bridge.MissionId = {
+  generate: () => Utils.generateId('mission'),
+  verify: (id) => id.startsWith('mission-'),
+};
+Bridge.GunId = {
+  generate: () => Utils.generateId('gun'),
+  verify: (id) => id.startsWith('gun-'),
+};
+Bridge.GroupId = {
+  generate: () => Utils.generateId('group'),
+  verify: (id) => id.startsWith('group-'),
+};
+Bridge.ChatRoomId = {
+  generate: () => Utils.generateId('chatRoom'),
+  verify: (id) => id.startsWith('chatRoom-'),
+};
+Bridge.MessageId = {
+  generate: () => Utils.generateId('message'),
+  verify: (id) => id.startsWith('message-'),
+};
+Bridge.NotificationCategoryId = {
+  generate: () => Utils.generateId('notificationCategory'),
+  verify: (id) => id.startsWith('notificationCategory-'),
+};
+Bridge.NotificationId = {
+  generate: () => Utils.generateId('notification'),
+  verify: (id) => id.startsWith('notification-'),
+};
+Bridge.RewardCategoryId = {
+  generate: () => Utils.generateId('rewardCategory'),
+  verify: (id) => id.startsWith('rewardCategory-'),
+};
+Bridge.RewardId = {
+  generate: () => Utils.generateId('reward'),
+  verify: (id) => id.startsWith('reward-'),
+};
+Bridge.MembershipId = {
+  generate: () => Utils.generateId('membership'),
+  verify: (id) => id.startsWith('membership-'),
+};
+Bridge.ClaimId = {
+  generate: () => Utils.generateId('claim'),
+  verify: (id) => id.startsWith('claim-'),
+};
+Bridge.QuizQuestionId = {
+  generate: () => Utils.generateId('quizQuestion'),
+  verify: (id) => id.startsWith('quizQuestion-'),
+};
+Bridge.QuizAnswerId = {
+  generate: () => Utils.generateId('quizAnswer'),
+  verify: (id) => id.startsWith('quizAnswer-'),
+};
+
+// Sets Bridge.METHODS_MAP and Bridge.serverMethods
+(function() {
+  let serverMethods = new Map();
+
+  // Users
+  serverMethods.set('signIn', {});
+  serverMethods.set('register', {
+    required: {userId: '!UserId'}
+  });
+
+  // Guns
+  serverMethods.set('addGun', {
+    required: {
+      gunId: '!GunId',
+    }
+  });
+  serverMethods.set('assignGun', {
+    required: {
+      gunId: 'GunId',
+      playerId: '?PlayerId',
+    },
+  });
+
+  // Games
+  const GAME_PROPERTIES = {
+    name: 'String',
+    rulesHtml: 'String',
+    stunTimer: 'Number',
+  };
+  serverMethods.set('createGame', {
+    required: Utils.merge({gameId: '!GameId', firstAdminUserId: 'UserId'}, GAME_PROPERTIES),
+  });
+  serverMethods.set('updateGame', {
+    required: {gameId: 'GameId'},
+    optional: GAME_PROPERTIES,
+  });
+
+  // Players
+  const PLAYER_PROPERTIES = {
+    name: 'String',
+    needGun: 'Boolean',
+    profileImageUrl: 'String',
+    startAsZombie: 'Boolean',
+    beSecretZombie: 'Boolean',
+    volunteer: {
+      advertising: 'Boolean',
+      logistics: 'Boolean',
+      communications: 'Boolean',
+      moderator: 'Boolean',
+      cleric: 'Boolean',
+      sorcerer: 'Boolean',
+      admin: 'Boolean',
+      photographer: 'Boolean',
+      chronicler: 'Boolean',
+      server: 'Boolean',
+      client: 'Boolean',
+    }
+  };
+  serverMethods.set('createPlayer', {
+      required:
+          Utils.merge(
+              {playerId: '!PlayerId', userId: 'UserId', gameId: 'GameId'},
+              PLAYER_PROPERTIES)
+  });
+  serverMethods.set('updatePlayer', {
+    required: {playerId: 'PlayerId'},
+    optional: PLAYER_PROPERTIES
+  });
 
 
+  // Missions
+  const MISSION_PROPERTIES = {
+    beginTime: 'TimestampMs',
+    endTime: 'TimestampMs',
+    name: 'String',
+    detailsHtml: 'String',
+    groupId: 'GroupId',
+  };
+  serverMethods.set('addMission', {
+    required:
+        Utils.merge(
+            {missionId: '!MissionId', groupId: 'GroupId', gameId: 'GameId'},
+            MISSION_PROPERTIES)
+  });
+  serverMethods.set('updateMission', {
+    required: {missionId: 'MissionId'},
+    optional: MISSION_PROPERTIES
+  });
+
+  serverMethods.set('selfInfect', {required: {playerId: 'PlayerId'}});
+
+  const GROUP_PROPERTIES = {
+    allegianceFilter: 'String',
+    ownerPlayerId: '?PlayerId',
+    autoAdd: 'Boolean',
+    autoRemove: 'Boolean',
+    membersCanAdd: 'Boolean',
+    membersCanRemove: 'Boolean',
+  };
+  serverMethods.set('createGroup', {
+    required:
+        Utils.merge({groupId: '!GroupId', gameId: 'GameId'}, GROUP_PROPERTIES)
+  });
+  serverMethods.set('updateGroup', {
+    required: {groupId: 'GroupId'},
+    optional: GROUP_PROPERTIES,
+  });
+
+  const REWARD_CATEGORY_PROPERTIES = {
+    name: 'String',
+    points: 'Number',
+    seed: 'String',
+  };
+  serverMethods.set('addRewardCategory', {
+    required:
+        Utils.merge(
+            {rewardCategoryId: '!RewardCategoryId', gameId: 'GameId'},
+            REWARD_CATEGORY_PROPERTIES),
+  });
+  serverMethods.set('updateRewardCategory', {
+    required: {rewardCategoryId: 'RewardCategoryId'},
+    optional: REWARD_CATEGORY_PROPERTIES,
+  });
+
+  serverMethods.set('addReward', {
+    required: {
+      gameId: 'GameId',
+      rewardId: '!RewardId',
+      rewardCategoryId: 'RewardCategoryId',
+    },
+  });
+
+  serverMethods.set('addRewards', {
+    required: {
+      gameId: 'GameId',
+      numNewRewards: 'Number',
+    },
+  });
+
+  serverMethods.set('claimReward', {
+    required: {
+      gameId: 'GameId',
+      playerId: 'PlayerId',
+      rewardId: 'RewardId',
+    },
+  });
 
 
-const SERVER_METHODS = [
-  'signIn',
-  'register',
-  'createGame',
-  'joinGame',
-  'updatePlayer',
-  'createChatRoom',
-  'awardPoints',
-  'addMessageToChatRoom',
-  'addPlayerToChatRoom',
-  'removePlayerFromChatRoom',
-  'addQuizQuestion',
-  'addQuizAnswer',
-  'addMission',
-  'infect',
-  'addLife',
-  'addRewardCategory',
-  'addReward',
-  'addRewards',
-  'claimReward',
-  'updateRewardCategory',
-  'addGun',
-  'setGunPlayer',
-  'updateMission',
-  'addNotificationCategory',
-  'updateNotificationCategory',
-  'markNotificationSeen',
-];
+  const CHAT_ROOM_PROPERTIES = {
+    name: 'String',
+  };
+  serverMethods.set('createChatRoom', {
+    required:
+        Utils.merge(
+            {chatRoomId: '!ChatRoomId', groupId: 'GroupId'},
+            CHAT_ROOM_PROPERTIES)
+  });
+  serverMethods.set('updateChatRoom', {
+    required: {chatRoomId: 'ChatRoomId'},
+    optional: CHAT_ROOM_PROPERTIES,
+  });
+  serverMethods.set('setLastSeenChatTime', {
+    required: {
+      chatRoomId: 'ChatRoomId',
+      playerId: 'PlayerId',
+      timestamp: 'TimestampMs',
+    },
+  });
+
+  serverMethods.set('addPlayerToGroup', {
+    required: {
+      groupId: 'GroupId',
+      playerToAddId: 'PlayerId',
+      playerId: '?PlayerId',
+    },
+  });
+
+  serverMethods.set('removePlayerFromGroup', {
+    required: {
+      groupId: 'GroupId',
+      playerToRemoveId: 'PlayerId',
+      playerId: '?PlayerId',
+    },
+  });
+
+  serverMethods.set('addAdmin', {
+    required: {adminId: '!AdminId', gameId: 'GameId', userId: 'UserId'}
+  });
+
+  serverMethods.set('joinHorde', {required: {playerId: 'PlayerId'}});
+  serverMethods.set('joinResistance', {required: {playerId: 'PlayerId'}});
+
+  serverMethods.set('sendChatMessage', {
+    required: {
+      messageId: '!MessageId',
+      chatRoomId: 'ChatRoomId',
+      playerId: 'PlayerId',
+      message: 'String',
+    },
+  });
+
+  serverMethods.set('addLife', {
+    required: {
+      playerId: 'PlayerId',
+      lifeId: '!LifeId',
+      code: 'String',
+    }
+  });
+
+  serverMethods.set('infect', {
+    required: {
+      infectionId: '!InfectionId',
+      playerId: 'PlayerId',
+      infecteeLifeCode: 'String'
+    },
+  });
+
+  const NOTIFICATION_CATEGORY_PROPERTIES = {
+    name: 'String',
+    message: 'String',
+    previewMessage: 'String',
+    sound: 'Boolean',
+    vibrate: 'Boolean',
+    email: 'Boolean',
+    app: 'Boolean',
+    destination: '?String',
+    sendTime: 'TimestampMs',
+    allegianceFilter: 'String',
+    icon: '?String',
+  };
+  serverMethods.set('addNotificationCategory', {
+    required:
+        Utils.merge(
+            {
+              notificationCategoryId: '!NotificationCategoryId',
+              gameId: 'GameId'
+            },
+            NOTIFICATION_CATEGORY_PROPERTIES),
+  });
+  serverMethods.set('updateNotificationCategory', {
+    required: {notificationCategoryId: 'NotificationCategoryId'},
+    optional: NOTIFICATION_CATEGORY_PROPERTIES,
+  });
+
+
+  const NOTIFICATION_PROPERTIES = {
+    message: '?String',
+    previewMessage: '?String',
+    sound: '?Boolean',
+    vibrate: '?Boolean',
+    email: '?Boolean',
+    app: '?Boolean',
+    destination: '?String',
+    icon: '?String',
+  };
+  serverMethods.set('addNotification', {
+    required:
+        Utils.merge(
+            {
+              notificationId: '!NotificationId',
+              notificationCategoryId: 'NotificationCategoryId',
+              gameId: 'GameId',
+              playerId: 'PlayerId',
+            },
+            NOTIFICATION_PROPERTIES),
+  });
+
+
+  const QUIZ_QUESTION_PROPERTIES = {
+    text: 'String',
+    type: 'String',
+  };
+  serverMethods.set('addQuizQuestion', {
+    required:
+        Utils.merge(
+            {quizQuestionId: '!QuizQuestionId', gameId: 'GameId'},
+            QUIZ_QUESTION_PROPERTIES)
+  });
+  serverMethods.set('updateQuizQuestion', {
+    required: {quizQuestionId: 'QuizQuestionId'},
+    optional: QUIZ_QUESTION_PROPERTIES,
+  });
+
+
+  const QUIZ_ANSWER_PROPERTEIS = {
+    text: 'String',
+    order: 'Number',
+    isCorrect: 'Boolean',
+  };
+  serverMethods.set('addQuizAnswer', {
+    required:
+        Utils.merge(
+            {quizAnswerId: '!QuizAnswerId', quizQuestionId: 'QuizQuestionId'},
+            QUIZ_ANSWER_PROPERTEIS)
+  });
+  serverMethods.set('updateQuizQuestion', {
+    required: {quizAnswerId: 'QuizAnswerId'},
+    optional: QUIZ_ANSWER_PROPERTEIS,
+  });
+
+  serverMethods.set('markNotificationSeen', {
+    required: {playerId: 'PlayerId', notificationId: 'NotificationCategoryId',}
+  });
+
+  
+  Bridge.SERVER_METHODS_MAP = serverMethods;
+  Bridge.SERVER_METHODS = Array.from(serverMethods.keys());
+
+  let bridgeMethods = new Map(serverMethods);
+
+  bridgeMethods.set('attemptAutoSignIn', {});
+  bridgeMethods.set('listenToGame', {
+    required: 'GameId',
+  });
+
+  Bridge.METHODS_MAP = bridgeMethods;
+  Bridge.METHODS = Array.from(bridgeMethods.keys());
+})();

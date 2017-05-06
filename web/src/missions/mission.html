@@ -20,12 +20,10 @@
           response: Object,
         },
 
-        assembleParams() {
-          return null;
-        },
+        observers: ['onMissionHtmlChanged(mission.detailsHtml)'],
 
-        handleResponse(response) {
-          this.$.mission.innerHTML = this.$.ajax.lastResponse;
+        onMissionHtmlChanged(detailsHtml) {
+          this.$.mission.innerHTML = detailsHtml;
         }
       });
     });
@@ -37,15 +35,6 @@
         margin: 16px;
       }
     </style>
-    <iron-ajax
-        id="ajax"
-        auto
-        url="[[mission.url]]"
-        params="[[assembleParams(missionUrl)]]"
-        handle-as="text"
-        on-response="handleResponse"
-        debounce-duration="300">
-    </iron-ajax>
     <div id="mission"></div>
   </template>
 </dom-module>

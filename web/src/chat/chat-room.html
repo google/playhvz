@@ -72,11 +72,12 @@
           if (!this.$.messageInput.value) {
             return;
           }
-          this.bridge.addMessageToChatRoom(
-            Bridge.generateMessageId(), 
-            this.chatRoom.id, 
-            this.currentPlayer.id, 
-            {message: this.$.messageInput.value});
+          this.bridge.sendChatMessage({
+            messageId: Bridge.MessageId.generate(), 
+            chatRoomId: this.chatRoom.id, 
+            playerId: this.currentPlayer.id, 
+            message: this.$.messageInput.value
+          });
           this.$.messageInput.value = "";
         },
 

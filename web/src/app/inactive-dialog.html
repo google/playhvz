@@ -1,0 +1,77 @@
+<dom-module id="ghvz-inactive-dialog">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-inactive-dialog',
+
+      properties: {
+        bridge: Object,
+        player: Object,
+
+        active: {
+          type: Boolean,
+          value: true,
+        },
+      },
+
+      observers: [
+        'onActiveChanged_(active, player.allegiance)',
+        'onZombify_(player.allegiance)',
+      ],
+
+      onActiveChanged_(newActive, allegiance) {
+        if (newActive == false && allegiance == 'resistance') {
+          this.$$("#dialog").open();
+        }
+      },
+
+      onClosed_(e) {
+        if (e.detail.confirmed) {
+          this.bridge.selfInfect({playerId: this.player.id});
+        } else {
+          this.$$("#dialog").close();
+        }
+      },
+
+      onZombify_(allegiance) {
+        if (allegiance == 'horde') {
+          this.$$("#dialog").close();
+        }
+      }
+    });
+  });
+</script>
+<style>
+  paper-dialog {
+    max-width: 500px;
+  }
+  .buttons {
+    display: block !important;
+    padding: 0 24px !important;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    margin: 8px 0;
+  }
+</style>
+<template>
+  <template is="dom-if" if="[[player]]">
+    <paper-dialog modal id="dialog" on-iron-overlay-closed="onClosed_">
+      <h2>Welcome back! Still human?</h2>
+      <p>Just in case something changed and nobody's told the system yet, are you still a human?</p>
+      <p>(We do this check whenever you've been gone for more than 5 minutes to get you into the correct chat rooms as soon as we can! Please let us know if the 5 minute period is too short, too long, too annoying, or any ideas for this!)</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>My inevitable death has not yet come!</paper-button>
+        <paper-button dialog-confirm>I'VE JOINED THE GLORIOUS UNDEAD, BRING ME TO MY HORDE!</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</template>
+</dom-module>

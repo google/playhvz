@@ -1,0 +1,74 @@
+<dom-module id="ghvz-active">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-active',
+
+      properties: {
+        env: String,
+
+        active: {
+          type: Boolean,
+          value: true,
+          notify: true,
+        },
+      },
+
+      created() {
+        this.inactiveTimeout = null;
+      },
+
+      attached() {
+        this.onActivity_();
+
+        window.addEventListener('click', this.onActivity_.bind(this), true);
+        window.addEventListener('tap', this.onActivity_.bind(this), true);
+        window.addEventListener('mouseover', this.onActivity_.bind(this), true);
+        window.addEventListener('mousemove', this.onActivity_.bind(this), true);
+        window.addEventListener('keydown', this.onActivity_.bind(this), true);
+        window.addEventListener('keypress', this.onActivity_.bind(this), true);
+        window.addEventListener('keyup', this.onActivity_.bind(this), true);
+        window.addEventListener('scroll', this.onActivity_.bind(this), true);
+        window.addEventListener('focus', this.onActivity_.bind(this), true);
+      },
+
+      onActivity_() {
+        if (!this.active) {
+          this.active = true;
+        }
+
+        let activeForMs = 5 * 60 * 1000; // We'll consider them active for 5 minutes
+        if (this.env == 'fake' || this.env == 'dev') {
+          let newActiveForMs = Utils.getParameterByName('activeTimeoutMs');
+          if (newActiveForMs)
+            activeForMs = newActiveForMs;
+        }
+
+        // cancel the current timeout
+        clearTimeout(this.inactiveTimeout);
+        this.inactiveTimeout = null;
+
+        // Make a new one further out
+        this.inactiveTimeout =
+            setTimeout(this.setInactive_.bind(this), activeForMs);
+      },
+
+      setInactive_() {
+        if (!this.active) {
+          console.warn("Already inactive?"); // Shouldnt happen
+        }
+
+        this.inactiveTimeout = null;
+        this.active = false;
+      },
+    });
+  });
+</script>
+<style>
+</style>
+<template>
+</template>
+</dom-module>
