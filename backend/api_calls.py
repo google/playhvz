@@ -100,15 +100,21 @@ def Register(request, firebase):
   Validation:
   Args:
     userId: Unique userId added to the user list.
+    name: A name to use to reference a player.
 
   Firebase entries:
     /users/%(userId)
   """
   valid_args = ['!userId']
   required_args = list(valid_args)
+  required_args.extend(['name'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  return firebase.put('/users', request['userId'], {'a': True})
+  data = {
+    'a': True,
+    'name': request['name'],
+  }
+  return firebase.put('/users', request['userId'], data)
 
 
 def CreateGame(request, firebase):
@@ -168,6 +174,32 @@ def UpdateGame(request, firebase):
       put_data[property] = request[property]
 
   return firebase.patch('/games/%s' % request['gameId'], put_data)
+
+
+def AddGameAdmin(request, firebase):
+  """Add an admin to a game.
+
+  Validation:
+
+  Args:
+    gameId:
+    userId:
+
+  Firebase entries:
+    /games/%(gameId)/adminUsers
+  """
+
+  valid_args = ['gameId', 'userId']
+  required_args = list(valid_args)
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  game = request['gameId']
+  user = request['userId']
+
+  if firebase.get('/games/%s/adminUsers/%s' % (game, user), 'a'):
+    raise InvalidInputError('User %s is already an admin.' % user)
+
+  return firebase.put('/games/%s/adminUsers/' % game, user, {'a': True})
 
 
 def CreateGroup(request, firebase):
