@@ -423,22 +423,19 @@ def AssignGun(request, firebase):
 
   Validation:
     Gun must exist.
-    Player must exist.
+    User must exist.
 
   Args:
-    playerId:
+    userId:
     gunId:
 
   Firebase entries:
     /guns/%(gunId)
   """
-  valid_args = ['playerId', 'gunId']
+  valid_args = ['userId', 'gunId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
-  data = {
-    'playerId': request['playerId'],
-    'userId': firebase.get('/players/%s' % request['playerId'], 'userId'),
-  }
+  data = {'userId': request['userId']}
   return firebase.put('/guns', request['gunId'], data)
 
 
