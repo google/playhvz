@@ -12,12 +12,17 @@
         isDesktop: Boolean,
         database: Object,
         user: Object,
+        env: String,
         game: Object,
         playerId: String,
         page: String,
         showSignInButton: Boolean,
 
         player: Object,
+
+        userActive: {
+          type: Boolean,
+        },
       },
 
       observers: [
@@ -65,6 +70,15 @@
   }
 </style>
 <template>
+  <ghvz-active
+      env="[[env]]"
+      active="{{userActive}}">
+  </ghvz-active>
+  <ghvz-inactive-dialog
+      bridge="[[bridge]]"
+      player="[[player]]"
+      active="[[userActive]]">
+  </ghvz-inactive-dialog>
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
   <template is="dom-if" if="[[showSignInButton]]">
     <paper-button on-tap="signIn_">Sign In With Google</paper-button>

@@ -33,15 +33,17 @@
       },
 
       done_() {
-        this.newPlayerArgs.profileImageUrl = "";
-
         // As the new player comes down from firebase,
         // <ghvz-app> will detect it and auto-choose it.
         this.bridge.joinGame(
-            Bridge.generatePlayerId(),
-            this.userId,
-            this.game.id,
-            this.newPlayerArgs);
+            Utils.merge(
+                {
+                  playerId: Bridge.PlayerId.generate(),
+                  userId: this.userId,
+                  gameId: this.game.id,
+                  profileImageUrl: "",
+                },
+                this.newPlayerArgs));
         this.fire('ghvz-open-page', {
           page: 'main',
         });

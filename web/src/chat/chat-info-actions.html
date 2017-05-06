@@ -65,7 +65,11 @@
         onSetPlayer_: function(e) {
           var newPlayer = this.matchingPlayerOrNull;
           this.$.lookup.value = "";
-          this.bridge.addPlayerToChatRoom(this.chatRoom.id, newPlayer.id);
+          this.bridge.addPlayerToGroup({
+            groupId: this.chatRoom.groupId,
+            playerId: this.playerId,
+            playerToAddId: newPlayer.id
+          });
         },
 
         leaveChat_: function() {
@@ -73,7 +77,11 @@
         },
 
         onConfirmLeave_: function(e) {
-          this.bridge.removePlayerFromChatRoom(this.chatRoom.id, this.playerId);
+          this.bridge.removePlayerFromGroup({
+            groupId: this.chatRoom.groupId,
+            playerId: this.playerId,
+            playerToRemoveId: this.playerId,
+          });
         },
 
         openPlayerProfile_(e) {
@@ -87,7 +95,11 @@
         },
 
         onConfirmKick_: function(e) {
-          this.bridge.removePlayerFromChatRoom(this.chatRoom.id, this.kickPlayer.id);
+          this.bridge.removePlayerFromGroup({
+            groupId: this.chatRoom.groupId,
+            playerId: this.playerId,
+            playerToRemoveId: this.kickPlayer.id,
+          });
         },
       });
     });

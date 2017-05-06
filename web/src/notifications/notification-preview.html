@@ -14,6 +14,8 @@
           categoriesById: Object,
           categories: Array,
 
+          playerId: Object,
+
           notification: Object,
 
           withClose: {
@@ -85,7 +87,10 @@
         },
 
         close_(e) {
-          this.bridge.markNotificationSeen(this.notification.id);
+          this.bridge.markNotificationSeen({
+            playerId: this.playerId,
+            notificationId: this.notification.id,
+          });
           e.stopPropagation();
         },
       });

@@ -91,19 +91,19 @@
         startAddingCategory_: function() {
           this.$.categoryForm.openForAdding()
               .then((properties) => {
-                this.bridge.addRewardCategory(
-                    Utils.generateId("rewardCategory"),
-                    this.gameId,
-                    properties);
+                this.bridge.addRewardCategory(Utils.merge(properties, {
+                    id: Utils.generateId("rewardCategory"),
+                    gameId: this.gameId
+                }));
               });
         },
 
         startEditingCategory_: function(category) {
           this.$.categoryForm.openForEditing(category)
               .then((newProperties) => {
-                this.bridge.updateRewardCategory(
-                    category.id,
-                    newProperties);
+                this.bridge.updateRewardCategory(Utils.merge(newProperties, {
+                    rewardCategoryId: category.id,
+                }));
               });
         },
 
@@ -135,7 +135,10 @@
         },
 
         addRewards_() {
-          this.bridge.addRewards(this.currentRewardCategory.id, this.numNewRewards);
+          this.bridge.addRewards({
+            rewardCategoryId: this.currentRewardCategory.id,
+            numRewards: this.numNewRewards
+          });
           this.numNewRewards = "";
         },
 

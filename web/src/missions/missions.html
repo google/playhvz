@@ -23,7 +23,7 @@
               name: "",
               beginTime: "",
               endTime: "",
-              url: "",
+              detailsHtml: "",
             }),
           },
         },
@@ -55,8 +55,8 @@
                 sortable: true,
               },
               {
-                property: "url",
-                name: "Url",
+                property: "detailsHtml",
+                name: "HTML",
                 sortable: true,
                 filterable: true,
               },
@@ -96,9 +96,9 @@
                 type: "timestamp",
               },
               {
-                property: "url",
-                label: "Mission page url",
-                description: "Url of the page describing the mission, example /firstgame/missions/first-mission.html",
+                property: "detailsHtml",
+                label: "Mission page html",
+                description: "HTML describing the mission",
               },
               {
                 property: "allegianceFilter",
@@ -113,19 +113,27 @@
           this.$.missionForm.openForAdding()
               .then((properties) => {
                 this.bridge.addMission(
-                    Utils.generateId("mission"), this.game.id, properties);
+                  Utils.merge(properties, {
+                    missionId: Bridge.MissionId.generate(),
+                    gameId: this.game.id}));
               });
         },
 
         editMission_: function(mission) {
           this.$.missionForm.openForEditing(mission)
               .then((properties) => {
-                this.bridge.updateMission(mission.id, properties);
+                this.bridge.updateMission(Utils.merge({id: mission.id}, properties));
               });
         },
 
         formatTime_: function(time) {
           return Utils.formatTime(time);
+        },
+
+        shorten(html) {
+          if (html.length > 20)
+            return html.slice(0, 17) + '...';
+          return html;
         },
       });
     });
@@ -162,7 +170,7 @@
           <div class="cell">[[mission.allegianceFilter]]</div>
           <div class="cell">[[formatTime_(mission.beginTime)]]</div>
           <div class="cell">[[formatTime_(mission.endTime)]]</div>
-          <div class="cell">[[mission.url]]</div>
+          <div class="cell">[[shorten(mission.detailsHtml)]]</div>
         </div>
       </template>
     </ghvz-table>

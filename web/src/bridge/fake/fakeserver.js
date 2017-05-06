@@ -21,94 +21,46 @@ class FakeServer {
   setTime(time) {
     this.time = time;
   }
-  checkRequestArgs(args, paramNames, optional) {
-    assert(typeof args == 'object');
-    assert(paramNames instanceof Array);
-    for (var argName in args) {
-      assert(paramNames.indexOf(argName) >= 0);
-    }
-    if (!optional) {
-      for (var paramName of paramNames) {
-        assert(paramName in args);
-      }
-    }
-    for (var argName in args) {
-      let arg = args[argName];
-      if (arg == null ||
-          typeof arg == 'string' ||
-          typeof arg == 'number' ||
-          typeof arg == 'boolean') {
-        // Good
-      } else {
-        throwError('Bad type for arg:', arg);
-      }
-    }
-  }
-  checkOptionalRequestArgs(args, paramNames) {
-    this.checkRequestArgs(args, paramNames, true);
-  }
-  checkId(id, type, opt_existence) {
-    assert(id);
-    assert(id.startsWith(type + "-"));
-    let found = this.reader.idExists(id, true);
-    let existence = (opt_existence == null ? true : opt_existence);
-    if (existence)
-      assert(found);
-    else
-      assert(!found);
-    return found;
-  }
-  checkedGet(id, type) {
-    return this.checkId(id, type);
-  }
-  checkIdNotTaken(id, type) {
-    return this.checkId(id, type, false);
-  }
   signIn(preferredUserId) {
     assert(preferredUserId);
     return preferredUserId;
   }
-  register(userId, args) {
-    this.checkIdNotTaken(userId, 'user');
-    this.checkRequestArgs(args, SERVER_USER_PROPERTIES);
+  register(args) {
     this.writer.insert(this.reader.getUserPath(null), null, {
-      id: userId,
+      id: args.userId,
       players: [],
     });
   }
-  createGame(gameId, adminUserId, args) {
-    this.checkIdNotTaken(gameId, 'game');
-    this.checkRequestArgs(args, SERVER_GAME_PROPERTIES);
+  createGame(args) {
+    let {gameId, firstAdminUserId} = args;
     this.writer.insert(
         this.reader.getGamePath(null),
         null,
         newGame(gameId, args));
-    this.addAdmin(Bridge.generateAdminId(), gameId, adminUserId);
+    this.addAdmin({adminId: Bridge.AdminId.generate(), gameId: gameId, userId: firstAdminUserId});
   }
-  addAdmin(adminId, gameId, adminUserId) {
-    this.checkIdNotTaken(adminId, 'admin');
-    this.checkId(gameId, 'game');
-    this.checkId(adminUserId, 'user');
+  updateGame(args) {
+    throwError('Implement!');
+  }
+  addAdmin(args) {
+    let {adminId, gameId, userId} = args;
     this.writer.insert(
         this.reader.getAdminPath(gameId, null),
         null,
-        newAdmin(adminId, {userId: adminUserId}));
+        newAdmin(adminId, {userId: userId}));
   }
-  joinGame(playerId, userId, gameId, args) {
-    this.checkIdNotTaken(playerId, 'player');
-    this.checkId(userId, 'user');
-    this.checkId(gameId, 'game');
-    this.checkRequestArgs(args, SERVER_PLAYER_PROPERTIES);
-    let existingPlayers = this.reader.get(this.reader.getPlayerPath(gameId, null));
+  createPlayer(args) {
+    let {gameId, playerId, userId} = args;
+    let game = this.database.gamesById[gameId];
     this.writer.insert(
         this.reader.getPlayerPath(gameId, null),
         null,
         newPlayer(playerId, Utils.merge(args, {
-            allegiance: 'horde',
+            allegiance: '',
             userId: userId,
             infectable: false,
             points: 0,
-            number: existingPlayers.length
+            number: game.players.length
         })));
     this.writer.insert(
         this.reader.getUserPlayerPath(userId, null),
@@ -118,20 +70,21 @@ class FakeServer {
             playerId: playerId
         }));
   }
-  createGroup(groupId, firstPlayerId, args) {
-    this.checkIdNotTaken(groupId, 'group');
-    this.checkId(firstPlayerId, 'player');
-    this.checkRequestArgs(args, SERVER_GROUP_PROPERTIES, true);
-    let gameId = this.reader.getGameIdForPlayerId(firstPlayerId);
+  createGroup(args) {
+    let {ownerPlayerId, gameId, groupId, playerId} = args;
     this.writer.insert(
         this.reader.getGroupPath(gameId, null),
         null,
         newGroup(groupId, args));
   }
-  createChatRoom(chatRoomId, groupId, args) {
-    this.checkIdNotTaken(chatRoomId, 'chatRoom');
-    this.checkId(groupId, 'group');
-    this.checkRequestArgs(args, SERVER_CHAT_ROOM_PROPERTIES, true);
+  updateGroup(args) {
+    throwError('Implement!');
+  }
+  setLastSeenChatTime(args) {
+    throwError('Implement!');
+  }
+  createChatRoom(args) {
+    let {groupId, chatRoomId} = args;
     let gameId = this.reader.getGameIdForGroupId(groupId);
     this.writer.insert(
         this.reader.getChatRoomPath(gameId, null),
@@ -140,9 +93,11 @@ class FakeServer {
           groupId: groupId,
         })));
   }
-  updatePlayer(playerId, args) {
-    this.checkId(playerId, 'player');
-    this.checkOptionalRequestArgs(args, SERVER_PLAYER_PROPERTIES);
+  updateChatRoom(args) {
+    throwError('Implement!');
+  }
+  updatePlayer(args) {
+    let {playerId} = args;
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     for (let argName in args) {
       this.writer.set(
@@ -150,100 +105,140 @@ class FakeServer {
           args[argName]);
     }
   }
-  addPlayerToChatRoom(chatRoomId, playerId) {
-    this.checkId(chatRoomId, 'chatRoom');
-    this.checkId(playerId, 'player');
-    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
-    let chatRoom = this.reader.get(this.reader.getChatRoomPath(gameId, chatRoomId));
-    let groupId = chatRoom.groupId;
+
+  addPlayerToGroup(args) {
+    let {groupId, playerToAddId} = args;
+    let gameId = this.reader.getGameIdForGroupId(groupId);
+    let game = this.database.gamesById[gameId];
+    let player = game.playersById[playerToAddId];
+    let group = game.groupsById[groupId];
+
+    let existingMembership = group.membershipsByPlayerId[playerToAddId];
+    if (existingMembership)
+      return;
+
+    if (group.allegianceFilter && group.allegianceFilter != player.allegiance)
+      throw 'Player does not satisfy this group\'s allegiance filter!';
+
+    this.writer.insert(
+        this.reader.getMembershipPath(gameId, groupId, null),
+        null,
+        newGroupMembership(playerToAddId, {playerId: playerToAddId}));
+    this.writer.insert(
+        this.reader.getPlayerGroupMembershipPath(gameId, playerToAddId, null),
+        null,
+        newPlayerGroupMembership(groupId, {groupId: groupId}));
+
+    for (let chatRoom of game.chatRooms) {
+      if (chatRoom.groupId == groupId) {
+        this.addPlayerToChatRoom_(gameId, groupId, chatRoom.id, playerToAddId);
+      }
+    }
+  }
+
+  removePlayerFromGroup(args) {
+    let {groupId, playerToRemoveId} = args;
+    let playerId = playerToRemoveId;
+    let gameId = this.reader.getGameIdForGroupId(groupId);
+    let game = this.database.gamesById[gameId];
+    let player = game.playersById[playerId];
+    let group = game.groupsById[groupId];
+
+    let existingMembership = group.membershipsByPlayerId[playerId];
+    if (!existingMembership)
+      return;
+
+    for (let chatRoom of game.chatRooms) {
+      if (chatRoom.groupId == groupId) {
+        this.removePlayerFromChatRoom_(game.id, group.id, chatRoom.id, player.id);
+      }
+    }
+
+    let membershipPath = this.reader.getMembershipPath(gameId, groupId, playerId);
+    this.writer.remove(
+        membershipPath.slice(0, membershipPath.length - 1),
+        membershipPath.slice(-1)[0], // index
+        playerId);
+
+    let playerGroupMembershipPath = this.reader.getPlayerGroupMembershipPath(gameId, playerId, groupId);
+    this.writer.remove(
+        playerGroupMembershipPath.slice(0, playerGroupMembershipPath.length - 1),
+        playerGroupMembershipPath.slice(-1)[0],
+        groupId);
+  }
+
+  addPlayerToChatRoom_(gameId, groupId, chatRoomId, playerId) {
+    // Assumes already added to group
     this.writer.insert(
         this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null),
         null,
         newPlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId}));
-    this.writer.insert(
-        this.reader.getMembershipPath(gameId, groupId, null),
-        null,
-        newGroupMembership(playerId, {playerId: playerId}));
   }
-  removePlayerFromChatRoom(chatRoomId, playerId) {
-    this.checkId(chatRoomId, 'chatRoom');
-    this.checkId(playerId, 'player');
-    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
-    let chatRoom = this.reader.get(this.reader.getChatRoomPath(gameId, chatRoomId));
-    let groupId = chatRoom.groupId;
-    let path = this.reader.getMembershipPath(gameId, groupId, playerId);
+
+  removePlayerFromChatRoom_(gameId, groupId, chatRoomId, playerId) {
+    // Assumes still in the group, and will be removed after this call
+    let playerChatRoomMembershipPath = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
     this.writer.remove(
-        path.slice(0, path.length - 1),
-        path[path.length - 1],
-        playerId);
-    let playerMembershipPath = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
-    this.writer.remove(
-        playerMembershipPath.slice(0, playerMembershipPath.length - 1),
-        playerMembershipPath[playerMembershipPath.length - 1],
+        playerChatRoomMembershipPath.slice(0, playerChatRoomMembershipPath.length - 1),
+        playerChatRoomMembershipPath.slice(-1)[0],
         chatRoomId);
   }
-  addMessageToChatRoom(messageId, chatRoomId, playerId, args) {
-    this.checkId(playerId, 'player');
-    this.checkId(chatRoomId, 'chatRoom');
-    this.checkRequestArgs(args, SERVER_MESSAGE_PROPERTIES);
+
+  sendChatMessage(args) {
+    let {chatRoomId, playerId, messageId, message} = args;
+
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
-    this.writer.insert(
-        this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
-        null,
-        newMessage(messageId, Utils.merge(args, {
-          time: this.time,
-          playerId: playerId,
-        })));
+    let game = this.database.gamesById[gameId];
+    let player = game.playersById[playerId];
+    let chatRoom = game.chatRoomsById[chatRoomId];
+    let group = game.groupsById[chatRoom.groupId];
+    if (group.membershipsByPlayerId[player.id]) {
+      this.writer.insert(
+          this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
+          null,
+          newMessage(messageId, Utils.merge(args, {
+            time: this.time,
+            playerId: playerId,
+          })));
+    } else {
+      throw 'Can\'t send message to chat room without membership';
+    }
   }
-  addMission(missionId, gameId, args) {
-    this.checkIdNotTaken(missionId, 'mission');
-    this.checkId(gameId, 'game');
-    this.checkRequestArgs(args, SERVER_MISSION_PROPERTIES);
+  addMission(args) {
+    let {gameId, missionId} = args;
     this.writer.insert(
         this.reader.getMissionPath(gameId, null),
         null,
         newMission(missionId, args));
   }
-  updateMission(missionId, args) {
-    this.checkId(missionId, 'mission');
+  updateMission(args) {
     let missionPath = this.reader.pathForId(missionId);
-    this.checkOptionalRequestArgs(args, SERVER_MISSION_PROPERTIES);
     for (let argName in args) {
       this.writer.set(missionPath.concat([argName]), args[argName]);
     }
   }
-  addRewardCategory(rewardCategoryId, gameId, args) {
-    this.checkIdNotTaken(rewardCategoryId, 'rewardCategory');
-    this.checkId(gameId, 'game');
-    this.checkRequestArgs(args, SERVER_REWARD_CATEGORY_PROPERTIES);
-    let {name, points, seed} = args;
+  addRewardCategory(args) {
+    let {rewardCategoryId, gameId} = args;
     this.writer.insert(
         this.reader.getRewardCategoryPath(gameId, null),
         null,
         newRewardCategory(rewardCategoryId, args));
   }
-  updateRewardCategory(rewardCategoryId, args) {
-    this.checkId(rewardCategoryId, 'rewardCategory');
+  updateRewardCategory(args) {
     let rewardCategoryPath = this.reader.pathForId(rewardCategoryId);
-    this.checkOptionalRequestArgs(args, SERVER_REWARD_CATEGORY_PROPERTIES);
     for (let argName in args) {
       this.writer.set(rewardCategoryPath.concat([argName]), args[argName]);
     }
   }
-  addNotificationCategory(notificationCategoryId, gameId, args) {
-    this.checkIdNotTaken(notificationCategoryId, 'notificationCategory');
-    this.checkId(gameId, 'game');
-    this.checkRequestArgs(args, SERVER_NOTIFICATION_CATEGORY_PROPERTIES);
+  addNotificationCategory(args) {
+    let {gameId, notificationCategoryId} = args;
     this.writer.insert(
         this.reader.getNotificationCategoryPath(gameId, null),
         null,
         newNotificationCategory(notificationCategoryId, args));
   }
-  addNotification(notificationId, playerId, notificationCategoryId, args) {
-    this.checkIdNotTaken(notificationId, 'notification');
-    this.checkId(playerId, 'player');
-    this.checkId(notificationCategoryId, 'notificationCategory');
-    this.checkRequestArgs(args, SERVER_NOTIFICATION_PROPERTIES);
+  addNotification(args) {
+    let {notificationCategoryId, notificationId, playerId} = args;
     let properties = Utils.copyOf(args);
     properties.seenTime = null;
     properties.notificationCategoryId = notificationCategoryId;
@@ -253,25 +248,21 @@ class FakeServer {
         null,
         newNotification(notificationId, properties));
   }
-  updateNotificationCategory(notificationCategoryId, args) {
-    this.checkId(notificationCategoryId, 'notificationCategory');
+  updateNotificationCategory(args) {
     let notificationCategoryPath = this.reader.pathForId(notificationCategoryId);
-    this.checkOptionalRequestArgs(args, SERVER_NOTIFICATION_CATEGORY_PROPERTIES);
     for (let argName in args) {
       this.writer.set(notificationCategoryPath.concat([argName]), args[argName]);
     }
   }
-  markNotificationSeen(notificationId) {
-    this.checkId(notificationId, 'notification');
+  markNotificationSeen(args) {
+    let {notificationId} = args;
     let [gameId, playerId] = this.reader.getGameIdAndPlayerIdForNotificationId(notificationId);
     this.writer.set(
         this.reader.getNotificationPath(gameId, playerId, notificationId).concat(["seenTime"]),
         this.time);
   }
-  addReward(rewardId, rewardCategoryId, args) {
-    this.checkIdNotTaken(rewardId, 'reward');
-    this.checkId(rewardCategoryId, 'rewardCategory');
-    this.checkRequestArgs(args, SERVER_REWARD_PROPERTIES);
+  addReward(args) {
+    let {rewardCategoryId, rewardId} = args;
     let gameId = this.reader.getGameIdForRewardCategoryId(rewardCategoryId);
     this.writer.insert(
         this.reader.getRewardPath(gameId, rewardCategoryId, null),
@@ -284,14 +275,12 @@ class FakeServer {
   }
   addRewards(rewardCategoryId, numToAdd) {
     for (let i = 0; i < numToAdd; i++) {
-      let rewardId = Bridge.generateRewardId();
+      let rewardId = Bridge.RewardId.generate();
       let code = Math.random() * Math.pow(2, 52);
-      this.addReward(rewardId, rewardCategoryId, {code: code});
+      this.addReward({id: rewardId, rewardCategoryId: rewardCategoryId, code: code});
     }
   }
-  addGun(gunId, args) {
-    this.checkIdNotTaken(gunId, 'gun');
-    this.checkRequestArgs(args, SERVER_GUN_PROPERTIES);
+  addGun(args) {
     let properties = Utils.copyOf(args);
     properties.playerId = null;
     this.writer.insert(
@@ -302,12 +291,14 @@ class FakeServer {
   claimReward(playerId, code) {
     assert(typeof code == 'string');
     code = code.replace(/\s/g, '').toLowerCase();
-    this.checkId(playerId, 'player');
-    let playerPath = this.reader.pathForId(playerId);
-    let gamePath = playerPath.slice(0, 2);
-    let rewardCategoriesPath = gamePath.concat(["rewardCategories"]);
-    let rewardCategories = this.reader.get(rewardCategoriesPath);
-    for (let i = 0; i < rewardCategories.length; i++) {
+    // let playerPath = this.reader.pathForId(playerId);
+    // let gamePath = playerPath.slice(0, 2);
+    let gameId = this.getGameIdForPlayerId(playerId);
+    let game = this.database.gamesById[gameId];
+    let player = game.playersById[playerId];
+
+    // let rewardCategoriesPath = gamePath.concat(["rewardCategories"]);
+    for (let i = 0; i < game.rewardCategories.length; i++) {
       let rewardCategory = rewardCategories[i];
       for (let j = 0; j < rewardCategory.rewards.length; j++) {
         let reward = rewardCategory.rewards[j];
@@ -318,7 +309,7 @@ class FakeServer {
           this.writer.insert(
               playerPath.concat(["rewards"]),
               null,
-              newClaim(Bridge.generateClaimId(), {
+              newClaim(Bridge.ClaimId.generate(), {
                 rewardCategoryId: rewardCategory.id,
                 rewardId: reward.id,
               }));
@@ -328,14 +319,79 @@ class FakeServer {
     }
     assert(false);
   }
-  setGunPlayer(gunId, playerId) {
-    this.checkId(gunId, 'gun');
+  assignGun(args) {
+    let {gunId, playerId} = args;
     let gunPath = this.reader.pathForId(gunId);
     playerId && this.checkId(playerId, 'player');
     this.writer.set(gunPath.concat(["playerId"]), playerId);
   }
-  infect(infectionId, infectorPlayerId, infecteeLifeCode) {
-    this.checkId(infectorPlayerId, 'player');
+  selfInfect(args) {
+    let {playerId} = args;
+    this.setPlayerZombie({playerId: playerId});
+  }
+  joinResistance(args, lifeCodeHint) {
+    let {playerId} = args;
+    assert(Utils.isString(lifeCodeHint));
+    this.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerId, code: lifeCodeHint});
+    this.setPlayerHuman(playerId);
+    this.autoAddPlayerToGroups_(playerId);
+  }
+  joinHorde(args) {
+    let {playerId} = args;
+    this.setPlayerZombie(playerId);
+    this.autoAddPlayerToGroups_(playerId);
+  }
+  autoAddPlayerToGroups_(playerId) {
+    let gameId = this.reader.getGameIdForPlayerId(playerId);
+    let game = this.database.gamesById[gameId];
+    let player = game.playersById[playerId];
+    for (let group of this.database.gamesById[gameId].groups) {
+      if (group.autoAdd) {
+        if (!group.allegianceFilter || group.allegianceFilter == player.allegiance) {
+          this.addPlayerToGroup({groupId: group.id, playerToAddId: playerId});
+        }
+      }
+    }
+  }
+  updateMembershipsOnAllegianceChange(playerId) {
+    let gameId = this.reader.getGameIdForPlayerId(playerId);
+    let game = this.database.gamesById[gameId];
+    let player = game.playersById[playerId];
+    for (let chatRoomMembership of player.chatRoomMemberships) {
+      let chatRoom = game.chatRoomsById[chatRoomMembership.chatRoomId];
+      let group = game.groupsById[chatRoom.groupId];
+      if (group.autoRemove) {
+        if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
+          this.removePlayerFromGroup({groupId: group.id, playerToRemoveId: playerId});
+        }
+      }
+    }
+    for (let chatRoom of this.database.gamesById[gameId].chatRooms) {
+      let group = this.database.gamesById[gameId].groupsById[chatRoom.groupId];
+      if (group.autoAdd) {
+        if (!group.allegianceFilter || group.allegianceFilter == player.allegiance) {
+          this.addPlayerToGroup({gameId: gameId, groupId: group.id, playerToAddId: playerId});
+        }
+      }
+    }
+  }
+  setPlayerZombie(playerId) {
+    let gameId = this.reader.getGameIdForPlayerId(playerId);
+    let playerPath = this.reader.getPlayerPath(gameId, playerId);
+    this.writer.set(playerPath.concat(["infectable"]), false);
+    this.writer.set(playerPath.concat(["allegiance"]), "horde");
+    this.updateMembershipsOnAllegianceChange(playerId);
+  }
+  setPlayerHuman(playerId) {
+    let gameId = this.reader.getGameIdForPlayerId(playerId);
+    let playerPath = this.reader.getPlayerPath(gameId, playerId);
+    this.writer.set(playerPath.concat(["infectable"]), true);
+    this.writer.set(playerPath.concat(["allegiance"]), "resistance");
+    this.updateMembershipsOnAllegianceChange(playerId);
+  }
+  infect(args) {
+    let {infectionId, playerId, infecteeLifeCode} = args;
+    let infectorPlayerId = playerId;
     let gameId = this.reader.getGameIdForPlayerId(infectorPlayerId);
     let players = this.reader.get(this.reader.getPlayerPath(gameId, null));
     let infecteePlayer = null;
@@ -360,18 +416,17 @@ class FakeServer {
     this.writer.insert(
         infecteePlayerPath.concat(["infections"]),
         null,
-        newInfection(Bridge.generateInfectionId(), {
+        newInfection(Bridge.InfectionId.generate(), {
           infectorId: infectorPlayerId,
           time: this.time,
         }));
     infecteePlayer = this.reader.get(infecteePlayerPath);
     if (infecteePlayer.infections.length >= infecteePlayer.lives.length) {
-      this.writer.set(infecteePlayerPath.concat(["infectable"]), false);
-      this.writer.set(infecteePlayerPath.concat(["allegiance"]), "horde");
+      this.setPlayerZombie(infecteePlayer.id);
     }
   }
-  addLife(lifeId, playerId, code) {
-    this.checkId(playerId, 'player');
+  addLife(args) {
+    let {lifeId, playerId, code} = args;
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
     this.writer.insert(
@@ -383,27 +438,28 @@ class FakeServer {
         }));
     let player = this.reader.get(playerPath);
     if (player.lives.length > player.infections.length) {
-      this.writer.set(playerPath.concat(["infectable"]), true);
-      this.writer.set(playerPath.concat(["allegiance"]), "resistance");
+      this.setPlayerHuman(playerId);
     }
   }
-  addQuizQuestion(questionId, gameId, args) {
-    this.checkIdNotTaken(questionId, 'quizQuestion');
-    this.checkId(gameId, 'game');
-    this.checkRequestArgs(args, SERVER_QUIZ_QUESTION_PROPERTIES);
+  updateQuizQuestion(args) {
+    throwError('Implement!');
+  }
+  updateQuizAnswer(args) {
+    throwError('Implement!');
+  }
+  addQuizQuestion(args) {
+    let {gameId, quizQuestionId} = args;
     this.writer.insert(
         this.reader.getQuizQuestionPath(gameId, null),
         null,
-        newQuizQuestion(questionId, args));
+        newQuizQuestion(quizQuestionId, args));
   }
-  addQuizAnswer(answerId, questionId, args) {
-    this.checkIdNotTaken(answerId, 'quizAnswer');
-    this.checkId(questionId, 'quizQuestion');
-    let gameId = this.reader.getGameIdForQuizQuestionId(questionId);
-    this.checkRequestArgs(args, SERVER_QUIZ_ANSWER_PROPERTIES);
+  addQuizAnswer(args) {
+    let {quizAnswerId, quizQuestionId} = args;
+    let gameId = this.reader.getGameIdForQuizQuestionId(quizQuestionId);
     this.writer.insert(
-        this.reader.getQuizAnswerPath(gameId, questionId, null),
+        this.reader.getQuizAnswerPath(gameId, quizQuestionId, null),
         null,
-        newQuizAnswer(answerId, args));
+        newQuizAnswer(quizAnswerId, args));
   }
 }

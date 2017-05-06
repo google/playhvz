@@ -159,10 +159,15 @@ function assert(condition, ...message) {
   return condition;
 }
 
-Utils.findIndexById = function(collection, id) {
+Utils.findIndexById = function(collection, id, expect) {
   assert(collection, "Bad arg");
   let index = collection.findIndex((obj) => (obj.id == id));
-  assert(index >= 0, "Not found!", collection, id);
+
+  if (expect === undefined)
+    expect = true;
+  if (expect)
+    assert(index >= 0, "Not found!", collection, id);
+
   return index;
 }
 
@@ -346,3 +351,45 @@ Utils.matches = function(pattern, path) {
       return false;
   return true;
 }
+
+Utils.mapKeys = function(map) {
+  let result = [];
+  for (let key in map)
+    result.push(key);
+  return result;
+};
+
+Utils.checkObject = function(object, required, optional, typeNameHandler) {
+  if (typeof required == 'string') {
+    // Undefined is fine, typeNameHandler might just do its own asserting
+    assert(typeNameHandler(required, object) !== false, 'Does not meet expectations!');
+  } else if (typeof required == 'function') {
+    assert(required(object), 'Does not meet expectations!');
+  } else if (typeof required == 'object' || typeof optional == 'object') {
+    required = required || {};
+    optional = optional || {};
+    for (let key in required) {
+      assert(key in object, "Property", key, "not present!");
+    }
+    for (let key in object) {
+      assert(key in required || key in optional, "Extra property", key, "!");
+    }
+    // Now lets do some hardcore checking
+    for (let key in object) {
+      if (key == null && key in optional)
+        continue;
+      let value = object[key];
+      let expectation = required[key] || optional[key];
+      if (typeof expectation == 'object') {
+        Utils.checkObject(value, required[key], optional[key], typeNameHandler);
+      } else {
+        Utils.checkObject(value, expectation, undefined, typeNameHandler);
+      }
+    }
+  }
+};
+
+Utils.isNumber = (x) => typeof x == 'number';
+Utils.isString = (x) => typeof x == 'string';
+Utils.isBoolean = (x) => typeof x == 'boolean';
+Utils.isTimestampMs = (x) => x > 1490000000000; // March 2017, milliseconds

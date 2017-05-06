@@ -137,7 +137,7 @@ class FirebaseListener {
       let obj = newUserPlayer(playerId, {playerId: playerId, gameId: gameId});
       this.writer.insert(this.reader.getUserPlayerPath(userId, null), null, obj);
       this.listenForPropertyChanges_(
-          snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS.concat(USER_PLAYER_IGNORED),
+          snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS.concat(["lives", "notifications", "chatRoomMembershipsByChatRoomId"]),
           (property, value) => {
             this.writer.set(this.reader.getUserPlayerPath(userId, playerId).concat([property]), value);
           });
@@ -151,7 +151,7 @@ class FirebaseListener {
       obj.inMemory = false;
       this.writer.insert(this.reader.getGamePath(null), null, obj);
       this.listenForPropertyChanges_(
-          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(GAME_IGNORED),
+          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(["missionIds", "chatRoomIds", "adminUserIds", "notificationCategoryIds", "groupIds"]),
           (property, value) => {
             this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
           });
@@ -179,7 +179,7 @@ class FirebaseListener {
       let obj = newUser(userId, snap.val());
       this.writer.insert(this.reader.getUserPath(null), null, obj);
       this.listenForPropertyChanges_(
-          ref, USER_PROPERTIES, USER_COLLECTIONS.concat(USER_IGNORED),
+          ref, USER_PROPERTIES, USER_COLLECTIONS.concat(["playerIdsByGameId", "gameIdsByPlayerId"]),
           (property, value) => {
             this.writer.set(this.reader.getUserPath(userId).concat([property]), value);
           });
@@ -490,3 +490,4 @@ class FirebaseListener {
     });
   }
 }
+

@@ -26,7 +26,8 @@ class EndToEndTest(unittest.TestCase):
 
   def AssertOk(self, method, data):
     r = self.Post(method, data)
-    self.assertTrue(r.ok, msg='Expected to be about to POST but got: %s\n%s\nfor %s\n%s' % (r.status_code, r.text, method, data))
+    data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
+    self.assertTrue(r.ok, msg='Expected to POST successfully but got: %s\n%s\nfor %s\n%s' % (r.status_code, r.text, method, data))
   
   def AssertFails(self, method, data):
     r = self.Post(method, data)
@@ -58,20 +59,21 @@ class EndToEndTest(unittest.TestCase):
     self.Post('DeleteTestData', {'id': constants.FIREBASE_EMAIL})
   
   def tearDown(self):
-    self.Post('DeleteTestData', {'id': constants.FIREBASE_EMAIL})
+    pass
+    # self.Post('DeleteTestData', {'id': constants.FIREBASE_EMAIL})
   
   def testEndToEnd(self):
     self.identifier = 'test_%d' % (time.time() % 1000)
 
     # Register. Should work then fails.
-    create = {'userToken': self.identifier}
+    create = {'userId': self.Id('userId')}
     self.AssertOk('register', create)
     self.AssertFails('register', create)
 
     # Create and update game.
     create = {
       'gameId': self.Id('gameId'),
-      'userToken': self.identifier,
+      'userId': self.Id('userId'),
       'name': 'test Game',
       'rulesHtml': 'test rules',
       'stunTimer': 10,
@@ -90,7 +92,7 @@ class EndToEndTest(unittest.TestCase):
     # Create/Update player
     create = {
       'gameId': self.Id('gameId'),
-      'userToken': self.identifier,
+      'userId': self.Id('userId'),
       'playerId': self.Id('playerId'),
       'name': 'test Bobby',
       'needGun': True,
@@ -109,8 +111,24 @@ class EndToEndTest(unittest.TestCase):
     self.AssertCreateUpdateSequence('createPlayer', create, 'updatePlayer', update)
 
     create = {
+      'groupId': self.Id('groupId'),
+      'gameId': self.Id('gameId'),
+      'allegiance': 'none',
+      'autoAdd': False,
+      'autoRemove': False,
+      'membersCanAdd': False,
+      'membersCanRemove': False,
+      'playerId': self.Id('playerId'),
+    }
+    update = {
+      'groupId': self.Id('groupId'),
+      'autoRemove': False,
+    }
+    self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
+
+    create = {
       'missionId': self.Id('missionId'),
-      'allegiance': 'resistance',
+      'groupId': self.Id('groupId'),
       'name': 'test Mission',
       'begin': 1,
       'end': 2,
@@ -127,27 +145,11 @@ class EndToEndTest(unittest.TestCase):
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
 
     create = {
-      'groupId': self.Id('groupId'),
-      'gameId': self.Id('gameId'),
-      'allegiance': 'none',
-      'autoAdd': False,
-      'autoRemove': False,
-      'membersCanAdd': False,
-      'membersCanRemove': False,
-      'playerId': self.Id('playerId'),
-    }
-    update = {
-      'groupId': self.Id('groupId'),
-      'allegiance': 'horde',
-      'autoAdd': True,
-    }
-    self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
-
-    create = {
       'gameId': self.Id('gameId'),
       'rewardCategoryId': self.Id('rewardCategoryId'),
       'name': 'test Reward',
       'points': 8,
+      'limitPerPlayer': 2,
     }
     update = {
       'gameId': self.Id('gameId'),
@@ -170,7 +172,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
 
     # Compare a dump of the DB to the JSON string below.
-    expected_raw_data = '{"chatRooms":{},"games":{"game-%(ident)s":{"active":true,"adminUserId":"%(ident)s","groups":{"group-%(ident)s":{"a":true}},"name":"test Game","players":{"player-%(ident)s":{"allegiance":"horde","claims":{"reward-%(ident)s-bleck":{"rewardCategoryId":"rewardCategory-%(ident)s","time":0}},"name":"test Charles","points":5,"profileImageUrl":"http://jpg","user_id":"%(ident)s","volunteer":false}},"rewardCategories":{"rewardCategory-%(ident)s":{"claimed":1,"name":"test Reward","points":5,"rewards":{"reward-%(ident)s-bleck":{"a":true,"playerId":"player-%(ident)s"}}}},"rulesHtml":"test rule","stunTimer":5}},"groups":{"group-%(ident)s":{"allegiance":"horde","autoAdd":true,"autoRemove":false,"gameId":"game-%(ident)s","membersCanAdd":false,"membersCanRemove":false,"players":{"player-%(ident)s":{"a":true}}}},"guns":{"gun-%(ident)s":{"playerId":"player-%(ident)s"}},"missions":{"mission-%(ident)s":{"allegiance":"resistance","begin":1,"detailsHtml":"test Details","end":0,"name":"test Mission"}},"players":{"player-%(ident)s":{"notificationSettings":{"sound":true,"vibrate":true},"canInfect":true,"gameId":"game-%(ident)s","needGun":true,"startAsZombie":true,"userId":"%(ident)s","volunteer":true,"wantsToBeSecretZombie":true}},"users":{"%(ident)s":{"a":true,"players":{"player-%(ident)s":{"gameId":"game-%(ident)s"}}}}}' % {'ident': self.identifier}
+    expected_raw_data = '{"chatRooms":{},"games":{"game-%(ident)s":{"active":true,"adminUsers":{"user-%(ident)s":{"a":true}},"groups":{"group-%(ident)s":{"a":true}},"name":"test Game","players":{"player-%(ident)s":{"allegiance":"horde","claims":{"reward-%(ident)s-bleck":{"rewardCategoryId":"rewardCategory-%(ident)s","time":0}},"name":"test Charles","points":5,"profileImageUrl":"http://jpg","userId":"user-%(ident)s","volunteer":false}},"rulesHtml":"test rule","stunTimer":5}},"groups":{"group-%(ident)s":{"allegiance":"none","autoAdd":false,"autoRemove":false,"gameId":"game-%(ident)s","membersCanAdd":false,"membersCanRemove":false,"players":{"player-%(ident)s":{"a":true}}}},"guns":{"gun-%(ident)s":{"playerId":"player-%(ident)s"}},"missions":{"mission-%(ident)s":{"begin":1,"detailsHtml":"test Details","end":0,"name":"test Mission","groupId":"group-%(ident)s"}},"players":{"player-%(ident)s":{"notificationSettings":{"sound":true,"vibrate":true},"canInfect":true,"gameId":"game-%(ident)s","needGun":true,"startAsZombie":true,"userId":"user-%(ident)s","volunteer":false,"wantsToBeSecretZombie":true}},"users":{"user-%(ident)s":{"a":true,"players":{"player-%(ident)s":{"gameId":"game-%(ident)s"}}}},"rewardCategories":{"rewardCategory-%(ident)s":{"claimed":1,"name":"test Reward","gameId":"game-%(ident)s","points":5,"limitPerPlayer":2,"rewards":{"reward-%(ident)s-bleck":{"a":true,"playerId":"player-%(ident)s"}}}}}' % {'ident': self.identifier}
     r = self.Post('DumpTestData', {'id': constants.FIREBASE_EMAIL})
     expected = json.loads(expected_raw_data)
     actual = r.json()

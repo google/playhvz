@@ -112,7 +112,7 @@
         editGun_: function(gun) {
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
-                this.bridge.updateGun(gun.id, properties);
+                this.bridge.updateGun(Utils.merge({gunId: gun.id}, properties));
               });
         },
 
