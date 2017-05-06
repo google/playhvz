@@ -8,14 +8,22 @@ class InvalidInputError(Exception):
   pass
 
 
+# ID entity types
+ENTITY_TYPES = (
+    'chatRoomId', 'gameId', 'groupId', 'gunId', 'messageId',
+    'missionId', 'playerId', 'rewardCategoryId', 'rewardId', 'userId')
+
+# Map all expected args to an entity type
+KEY_TO_ENTITY = {a: a for a in ENTITY_TYPES}
+KEY_TO_ENTITY.update({'adminUserId': 'userId', 'otherPlayerId': 'playerId'})
+
 # Mapping from a key name to where in Firebase it can be found
 # along with a specific value that can be used to validate existance.
 ENTITY_PATH = {
   'gameId': ['/games/%s', 'name'],
-  'userToken': ['/users/%s', 'a'],
+  'userId': ['/users/%s', 'a'],
   'groupId': ['/groups/%s', 'gameId'],
   'playerId': ['/players/%s', 'userId'],
-  'otherPlayerId': ['/players/%s', 'userId'],
   'gunId': ['/guns/%s', 'a'],
   'missionId': ['/missions/%s', 'name'],
   'chatRoomId': ['/chatRooms/%s', 'name'],
@@ -46,21 +54,26 @@ def ValidateInputs(request, firebase, required, valid):
   # Any keys fooId must start "foo-XXX"
   for key in request:
     if key.endswith('Id'):
-      if not request[key].startswith('%s-' % key[:-2]):
-        raise InvalidInputError('Id %s="%s" must start with "%s-".' % (
-            key, request[key], key[:-2]))
+      if key in KEY_TO_ENTITY:
+        entity = KEY_TO_ENTITY[key]
+        if not request[key].startswith('%s-' % entity[:-2]):
+          raise InvalidInputError('Id %s="%s" must start with "%s-".' % (
+              key, request[key], entity[:-2]))
+      else:
+        raise InvalidInputError('Key %s looks like an undefined entity.' % key)
+
 
   for key in valid:
-    if key not in request:
-      continue
     negate = False
     if key[0] == '!':
       negate = True
       key = key[1:]
+    if key not in request:
+      continue
     data = request[key]
 
-    if key in ENTITY_PATH:
-      path, item = ENTITY_PATH[key]
+    if key in KEY_TO_ENTITY and KEY_TO_ENTITY[key] in ENTITY_PATH:
+      path, item = ENTITY_PATH[KEY_TO_ENTITY[key]]
       val = firebase.get(path % data, item)
       if val is not None and negate:
         raise InvalidInputError('%s %s must not exist but was found.' % (key, data))
@@ -90,16 +103,16 @@ def Register(request, firebase):
 
   Validation:
   Args:
-    userToken: Unique user token added to the user list.
+    userId: Unique userId added to the user list.
 
   Firebase entries:
-    /users/%(userToken)
+    /users/%(userId)
   """
-  valid_args = ['!userToken']
+  valid_args = ['!userId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  return firebase.put('/users', request['userToken'], {'a': True})
+  return firebase.put('/users', request['userId'], {'a': True})
 
 
 def CreateGame(request, firebase):
@@ -110,7 +123,7 @@ def CreateGame(request, firebase):
 
   Args:
     gameId:
-    userToken:
+    userId:
     name:
     rulesHtml: static HTML containing the rule doc.
     stunTimer:
@@ -120,7 +133,7 @@ def CreateGame(request, firebase):
   """
   valid_args = ['!gameId']
   required_args = list(valid_args)
-  required_args.extend(['userToken', 'name', 'rulesHtml', 'stunTimer'])
+  required_args.extend(['userId', 'name', 'rulesHtml', 'stunTimer'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
   put_data = {
@@ -128,7 +141,7 @@ def CreateGame(request, firebase):
     'rulesHtml': request['rulesHtml'],
     'stunTimer': request['stunTimer'],
     'active': True,
-    'adminUserId': request['userToken'],
+    'adminUserId': request['userId'],
   }
   return firebase.put('/games', request['gameId'], put_data)
 
@@ -235,7 +248,7 @@ def CreatePlayer(request, firebase):
   Validation:
   Args:
     gameId:
-    userToken:
+    userId:
     playerId:
     name:
     needGun:
@@ -248,10 +261,10 @@ def CreatePlayer(request, firebase):
 
   Firebase entries:
     /players/%(playerId)
-    /users/%(userToken)/players/%(playerId)
+    /users/%(userId)/players/%(playerId)
     /games/%(gameId)/players/%(playerId)
   """
-  valid_args = ['gameId', 'userToken', '!playerId']
+  valid_args = ['gameId', 'userId', '!playerId']
   required_args = list(valid_args)
   required_args.extend(['name', 'needGun', 'profileImageUrl'])
   required_args.extend(['startAsZombie', 'volunteer', 'beSecretZombie'])
@@ -262,7 +275,7 @@ def CreatePlayer(request, firebase):
 
   game = request['gameId']
   player = request['playerId']
-  user_token = request['userToken']
+  user = request['userId']
   name = request['name']
   need_gun = request['needGun']
   profile_image_url = request['profileImageUrl']
@@ -271,11 +284,11 @@ def CreatePlayer(request, firebase):
   be_secret_zombie = request['beSecretZombie']
 
   player_info = {'gameId': game}
-  results.append(firebase.put('/users/%s/players' % user_token, player, player_info))
+  results.append(firebase.put('/users/%s/players' % user, player, player_info))
 
   player_info = {
     'gameId': game,
-    'userId': user_token,
+    'userId': user,
     'canInfect': start_as_zombie,
     'needGun' : need_gun,
     'startAsZombie' : start_as_zombie,
@@ -294,7 +307,7 @@ def CreatePlayer(request, firebase):
     allegiance = 'resistence'
 
   game_info = {
-    'user_id' : user_token,
+    'user_id' : user,
     'name': name,
     'profileImageUrl' : profile_image_url,
     'points': 0,
@@ -434,7 +447,7 @@ def UpdateMission(request, firebase):
     /missions/%(missionId)
   """
   valid_args = ['missionId', 'groupId']
-  required_args = list(valid_args)
+  required_args = list(['missionId'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
   mission = request['missionId']
@@ -450,7 +463,7 @@ def UpdateMission(request, firebase):
 def CreateChatRoom(request, firebase):
   """Create a new chat room.
 
-  Use the chatId to make a new chat room.
+  Use the chatRoomId to make a new chat room.
   Add the player to the room and set the other room properties.
   Add the chatRoomId to the game's list of chat rooms.
 
@@ -736,9 +749,11 @@ def DeleteTestData(request, firebase):
   
   root_entries = ('chatRooms', 'games', 'groups', 'guns', 'missions', 'players', 'users')
   for entry in root_entries:
-    test_keys = [r for r in firebase.get('/%s' % entry, None) if 'test_' in r]
-    for k in test_keys:
-      firebase.delete('/%s' % entry, k)
+    data = firebase.get('/%s' % entry, None)
+    if data:
+      test_keys = [r for r in data if 'test_' in r]
+      for k in test_keys:
+        firebase.delete('/%s' % entry, k)
 
 
 def DumpTestData(request, firebase):
@@ -750,7 +765,8 @@ def DumpTestData(request, firebase):
   for entry in root_entries:
     res[entry] = {}
     data = firebase.get('/%s' % entry, None)
-    res[entry] = {r: data[r] for r in data if 'test_' in r}
+    if data:
+      res[entry] = {r: data[r] for r in data if 'test_' in r}
   return res
 
 
