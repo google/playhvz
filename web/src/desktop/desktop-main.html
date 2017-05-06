@@ -138,7 +138,7 @@
           </ghv-player-table>
         </ghvz-card>
         
-        <ghvz-card spaced admin half left>
+        <ghvz-card spaced admin left>
           <div class="header">Dev Tools</div>
           <ghvz-dev-tools
               class="content"
@@ -148,7 +148,7 @@
           </ghvz-dev-tools>
         </ghvz-card>
 
-        <ghvz-card spaced scrolling admin half right>
+        <ghvz-card spaced scrolling admin right>
           <div class="header">Guns</div>
           <ghvz-guns
               bridge="[[bridge]]"
@@ -159,7 +159,7 @@
           </ghvz-guns>
         </ghvz-card>
 
-        <ghvz-card spaced scrolling admin half right>
+        <ghvz-card spaced scrolling admin right>
           <div class="header">Rewards</div>
           <ghvz-rewards
               bridge="[[bridge]]"
@@ -170,7 +170,7 @@
           </ghvz-rewards>
         </ghvz-card>
 
-        <ghvz-card spaced scrolling admin half right>
+        <ghvz-card spaced scrolling admin right>
           <div class="header">Notifications</div>
           <ghvz-notifications
               bridge="[[bridge]]"
@@ -192,7 +192,7 @@
       <template is="dom-if" if="[[isPlayer]]">
 
         <template is="dom-if" if="[[canInfect]]">
-          <ghvz-card spaced half left>
+          <ghvz-card spaced left>
             <div class="header">Infect</div>
             <ghvz-infect
                 bridge="[[bridge]]"
@@ -202,12 +202,12 @@
           </ghvz-card>
         </template>
 
-        <ghvz-card spaced half left>
+        <ghvz-card spaced left>
           <div class="header">Rules</div>
           <ghvz-rules game="[[game]]"></ghvz-rules>
         </ghvz-card>
 
-        <ghvz-card spaced half left>
+        <ghvz-card spaced left>
           <div class="header">Next Mission</div>
           <ghvz-next-mission
               bridge="[[bridge]]"
@@ -217,19 +217,19 @@
           </ghvz-next-mission>
         </ghvz-card>
 
-        <ghvz-card spaced scrolling half right>
+        <ghvz-card spaced scrolling right>
           <div class="header">Leaderboard</div>
           <ghvz-leaderboard-summary players="[[game.players]]">
           </ghvz-leaderboard-summary>
         </ghvz-card>
 
-        <ghvz-card spaced half right fullscreen-page="stats">
+        <ghvz-card spaced right fullscreen-page="stats">
           <div class="header">Game Stats</div>
           <ghvz-game-stat-summary game="[[game]]">
           </ghvz-game-stat-summary>
         </ghvz-card>
 
-        <ghvz-card spaced half left>
+        <ghvz-card spaced left>
           <div class="header">Rewards</div>
           <ghvz-claim-reward
               bridge="[[bridge]]"
@@ -239,12 +239,13 @@
         </ghvz-card>
 
         <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
-          <ghvz-card spaced half right>
+          <ghvz-card spaced right>
             <div class="header">
               <ghvz-chat-room-name-label game="[[game]]" chat-room-id="[[membership.chatRoomId]]"></ghvz-chat-room-name-label>
             </div>
             <ghvz-chat-room
                 class="content"
+                small
                 bridge="[[bridge]]"
                 game="[[game]]"
                 current-player="[[player]]"

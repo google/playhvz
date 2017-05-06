@@ -169,14 +169,21 @@
       });
     });
   </script>
-  <style include="iron-flex iron-flex-alignment">
+  <style>
+    :host {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    :host[small] {
+      max-height: 400px;
+    }
     iron-image {
       border-radius: 50%;
       border: 2px solid green;
       width: 40px;
       height:40px;
     }
-
     paper-button.send {
       background-color: rgba(135, 206, 250, .5);
       color: darkslategrey;
@@ -184,7 +191,7 @@
       font-weight: bold;
     }
     .conversation-container {
-      overflow-y: auto;
+      overflow-y: scroll;
     }
     .message-from-other {
       display: flex;
@@ -251,6 +258,8 @@
       background-color: lightgrey;
     }
     .text-input {
+      display: flex;
+      flex-shrink: 0;
       padding-top: 8px;
     }
     .text-input-field {
