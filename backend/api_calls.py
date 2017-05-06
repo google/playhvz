@@ -17,6 +17,9 @@ ENTITY_TYPES = (
 KEY_TO_ENTITY = {a: a for a in ENTITY_TYPES}
 KEY_TO_ENTITY.update({'adminUserId': 'userId', 'otherPlayerId': 'playerId'})
 
+# Used for trawling the full DB.
+ROOT_ENTRIES = ('chatRooms', 'games', 'groups', 'guns', 'missions', 'players', 'users', 'rewardCategories')
+
 # Mapping from a key name to where in Firebase it can be found
 # along with a specific value that can be used to validate existance.
 ENTITY_PATH = {
@@ -27,6 +30,7 @@ ENTITY_PATH = {
   'gunId': ['/guns/%s', 'a'],
   'missionId': ['/missions/%s', 'name'],
   'chatRoomId': ['/chatRooms/%s', 'name'],
+  'rewardCategoryId': ['/rewardCategories/%s', 'name'],
 }
 
 
@@ -79,16 +83,8 @@ def ValidateInputs(request, firebase, required, valid):
         raise InvalidInputError('%s %s must not exist but was found.' % (key, data))
       elif not (val or negate):
         raise InvalidInputError('%s %s is not valid.' % (key, data))
-    elif key == 'rewardCategoryId':
-      path = '/games/%s/rewardCategories/%%s' % request['gameId']
-      item = 'name'
-      val = firebase.get(path % data, item)
-      if val is not None and negate:
-        raise InvalidInputError('%s %s must not exist but was found.' % (key, data))
-      elif not (val or negate):
-        raise InvalidInputError('%s %s is not valid.' % (key, data))
     elif key == 'rewardId':
-      path = '/games/%s/rewardCategories/%s/rewards/%s' % (request['gameId'], request['rewardCategoryId'], data)
+      path = '/rewardCategories/%s/rewards/%s' % (request['rewardCategoryId'], data)
       if not firebase.get(path, None):
         raise InvalidInputError('Reward %s not found.' % data)
     elif key == 'allegiance':
@@ -585,16 +581,16 @@ def AddRewardCategory(request, firebase):
     rewardCategoryId is of valid form.
 
   Args:
-    gameId: The game ID. eg game-1
     rewardCategoryId: reward type, eg rewardCategory-foo
+    gameId: The game ID. eg game-1
     name: Name of the reward
     limitPerPlayer: (int) how many a player can claim
     points: (int) points the reward is worth
 
   Firebase entries:
-    /games/%(gameId)/rewardCategories/%(rewardCategoryId)
+    /rewardCategories/%(rewardCategoryId)
   """
-  valid_args = ['gameId', '!rewardCategoryId']
+  valid_args = ['!rewardCategoryId', 'gameId']
   required_args = list(valid_args)
   required_args.extend(['name', 'points', 'limitPerPlayer'])
   ValidateInputs(request, firebase, required_args, valid_args)
@@ -603,13 +599,14 @@ def AddRewardCategory(request, firebase):
   reward_category = request['rewardCategoryId']
 
   reward_category_data = {
+    'gameId': game,
     'claimed': 0,
     'name': request['name'],
     'points': int(request['points']),
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
-  return firebase.put('/games/%s/rewardCategories' % game, reward_category, reward_category_data)
+  return firebase.put('/rewardCategories', reward_category, reward_category_data)
 
 
 def UpdateRewardCategory(request, firebase):
@@ -619,20 +616,18 @@ def UpdateRewardCategory(request, firebase):
     rewardCategoryId exists.
 
   Args:
-    gameId: The game ID. eg game-1
     rewardCategoryId: reward type, eg rewardCategory-foo
     name: Name of the reward
     limitPerPlayer: (int) how many a player can claim
     points: (int) points the reward is worth
 
   Firebase entries:
-    /games/%(gameId)/rewardCategories/%(rewardCategoryId)
+    /rewardCategories/%(rewardCategoryId)
   """
-  valid_args = ['gameId', 'rewardCategoryId']
+  valid_args = ['rewardCategoryId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  game = request['gameId']
   reward_category = request['rewardCategoryId']
 
   reward_category_data = {}
@@ -640,7 +635,7 @@ def UpdateRewardCategory(request, firebase):
     if k in request:
       reward_category_data[k] = request[k]
 
-  return firebase.patch('/games/%s/rewardCategories/%s' % (game, reward_category), reward_category_data)
+  return firebase.patch('/rewardCategories/%s' % reward_category, reward_category_data)
 
 
 def AddReward(request, firebase):
@@ -649,22 +644,20 @@ def AddReward(request, firebase):
   Validation:
 
   Args:
-    gameId: The game ID.
     rewardId: reward-foo-bar. Must start with the category, ie foo
 
   Firebase entries:
-    /games/%(gameId)/rewardCategories/%(rCId)/rewards/%(rewardId)
+    /rewardCategories/%(rCId)/rewards/%(rewardId)
   """
-  valid_args = ['gameId']
+  valid_args = []
   required_args = list(valid_args)
   required_args.extend(['rewardId'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  game = request['gameId']
   reward = request['rewardId']
   reward_seed = reward.split('-')[1]
   reward_category = 'rewardCategory-%s' % reward_seed
-  path = '/games/%s/rewardCategories/%s/rewards' % (game, reward_category)
+  path = '/rewardCategories/%s/rewards' % reward_category
 
   # Validation the rewardId does not yet exist
   if firebase.get('%s/%s' % (path, reward), 'a'):
@@ -690,9 +683,9 @@ def ClaimReward(request, firebase):
   Firebase entries:
     /games/%(gameId)/players/%(playerId)/claims/%(rewardId)
     /games/%(gameId)/players/%(playerId)/points
-    /games/%(gameId)/rewardCategories/%(rCId)
-    /games/%(gameId)/rewardCategories/%(rCId)/rewards/%(rewardId)
-    /games/%(gameId)/rewardCategories/%(rCId)/rewards/%(rewardId)/playerId
+    /rewardCategories/%(rCId)
+    /rewardCategories/%(rCId)/rewards/%(rewardId)
+    /rewardCategories/%(rCId)/rewards/%(rewardId)/playerId
   """
   valid_args = ['playerId']
   required_args = list(valid_args)
@@ -709,7 +702,7 @@ def ClaimReward(request, firebase):
   reward_category = 'rewardCategory-%s' % reward_category_seed
 
   player_path = '/games/%s/players/%s' % (game, player)
-  reward_category_path = '/games/%s/rewardCategories/%s' % (game, reward_category)
+  reward_category_path = '/rewardCategories/%s' % reward_category
   reward_path = '%s/rewards/%s' % (reward_category_path, reward)
 
   if not firebase.get(reward_path, None):
@@ -753,8 +746,7 @@ def DeleteTestData(request, firebase):
   if request['id'] != constants.FIREBASE_EMAIL:
     return
   
-  root_entries = ('chatRooms', 'games', 'groups', 'guns', 'missions', 'players', 'users')
-  for entry in root_entries:
+  for entry in ROOT_ENTRIES:
     data = firebase.get('/%s' % entry, None)
     if data:
       test_keys = [r for r in data if 'test_' in r]
@@ -767,8 +759,7 @@ def DumpTestData(request, firebase):
     return
   
   res = {}
-  root_entries = ('chatRooms', 'games', 'groups', 'guns', 'missions', 'players', 'users')
-  for entry in root_entries:
+  for entry in ROOT_ENTRIES:
     res[entry] = {}
     data = firebase.get('/%s' % entry, None)
     if data:
