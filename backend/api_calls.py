@@ -25,7 +25,7 @@ ROOT_ENTRIES = ('chatRooms', 'games', 'groups', 'guns', 'missions', 'players', '
 # along with a specific value that can be used to validate existance.
 ENTITY_PATH = {
   'gameId': ['/games/%s', 'name'],
-  'userId': ['/users/%s', 'a'],
+  'userId': ['/users/%s', 'name'],
   'groupId': ['/groups/%s', 'gameId'],
   'playerId': ['/players/%s', 'userId'],
   'gunId': ['/guns/%s', 'a'],
@@ -112,7 +112,6 @@ def Register(request, firebase):
   ValidateInputs(request, firebase, required_args, valid_args)
 
   data = {
-    'a': True,
     'name': request['name'],
   }
   return firebase.put('/users', request['userId'], data)
@@ -147,7 +146,7 @@ def CreateGame(request, firebase):
     'active': True,
   }
   results.append(firebase.put('/games', request['gameId'], put_data))
-  results.append(firebase.put('/games/%s/adminUsers' % request['gameId'], request['userId'], {'a': True}))
+  results.append(firebase.put('/games/%s/adminUsers' % request['gameId'], request['userId'], True))
   return results
 
 
@@ -197,10 +196,10 @@ def AddGameAdmin(request, firebase):
   game = request['gameId']
   user = request['userId']
 
-  if firebase.get('/games/%s/adminUsers/%s' % (game, user), 'a'):
+  if firebase.get('/games/%s/adminUsers' % game, user):
     raise InvalidInputError('User %s is already an admin.' % user)
 
-  return firebase.put('/games/%s/adminUsers/' % game, user, {'a': True})
+  return firebase.put('/games/%s/adminUsers/' % game, user, True)
 
 
 def CreateGroup(request, firebase):
@@ -235,8 +234,8 @@ def CreateGroup(request, firebase):
   group_data = {k: request[k] for k in put_args}
 
   results.append(firebase.put('/groups', request['groupId'], group_data))
-  results.append(firebase.put('/groups/%s/players' % request['groupId'], request['playerId'],  {'a': True}))
-  results.append(firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], {'a': True}))
+  results.append(firebase.put('/groups/%s/players' % request['groupId'], request['playerId'], True))
+  results.append(firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], True))
 
   return results
 
@@ -552,7 +551,7 @@ def CreateChatRoom(request, firebase):
   results = []
   results.append(firebase.put('/chatRooms', chat, put_data))
   results.append(firebase.put('/chatRooms/%s/memberships' % chat, request['playerId'], ""))
-  results.append(firebase.put('/games/%s/chatRooms' % request['gameId'], chat, ""))
+  results.append(firebase.put('/games/%s/chatRooms' % request['gameId'], chat, True))
   return results
 
 
@@ -571,6 +570,7 @@ def AddPlayerToChat(request, firebase):
   Firebase entries:
     /chatRooms/%(chatRoomId)/memberships/%(playerId)
   """
+  results = []
   valid_args = ['chatRoomId', 'playerId', 'otherPlayerId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
@@ -588,7 +588,8 @@ def AddPlayerToChat(request, firebase):
     raise InvalidInputError('Other player is already in the chat.')
   # TODO Check allegiance and other chat settings
 
-  return firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, "")
+  results.append(firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, ""))
+  results.append(firebase.put('/games/%s/chatRooms' % game, chat, True))
 
 
 def SendChatMessage(request, firebase):
