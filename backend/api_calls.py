@@ -778,9 +778,8 @@ def ClaimReward(request, firebase):
     /games/%(gameId)/players/%(playerId)/points
     /rewards/%(rewardId)/playerId
   """
-  valid_args = ['playerId']
+  valid_args = ['playerId', 'rewardId']
   required_args = list(valid_args)
-  required_args.extend(['rewardId'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
   results = []
