@@ -204,7 +204,7 @@ Bridge.QuizAnswerId = {
     needGun: 'Boolean',
     profileImageUrl: 'String',
     startAsZombie: 'String',
-    wantsToBeSecretZombie: 'String',
+    beSecretZombie: 'String',
     volunteer: {
       advertising: 'Boolean',
       logistics: 'Boolean',

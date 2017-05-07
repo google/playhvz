@@ -202,7 +202,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("games/" + gameId + "/adminUsers");
     ref.on("child_added", (snap) => {
       let userId = snap.getKey();
-      let obj = newAdmin(userId, snap.val());
+      let obj = newAdmin(userId, {userId: userId});
       this.writer.insert(this.reader.getAdminPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS.concat(["a"]),

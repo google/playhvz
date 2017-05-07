@@ -105,6 +105,7 @@ class RemoteBridge {
     let {userId} = args;
     return this.requester.sendPostRequest('register', {}, {
       userId: userId,
+      name: 'unused',
     }).then(() => {
       return userId;
     });
