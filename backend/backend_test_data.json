@@ -17,6 +17,7 @@
       "players": {
         "player-%(ident)s": {
           "active": true,
+          "number": 100,
           "allegiance": "horde",
           "claims": {
             "reward-%(ident)s-bleck": {

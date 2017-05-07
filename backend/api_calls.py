@@ -118,8 +118,8 @@ def Register(request, firebase):
   return firebase.put('/users', request['userId'], data)
 
 
-def CreateGame(request, firebase):
-  """Create a new game.
+def AddGame(request, firebase):
+  """Add a new game.
 
   Validation:
     gameId must be valid format.
@@ -203,8 +203,8 @@ def AddGameAdmin(request, firebase):
   return firebase.put('/games/%s/adminUsers/' % game, user, True)
 
 
-def CreateGroup(request, firebase):
-  """Create a new player group.
+def AddGroup(request, firebase):
+  """Add a new player group.
 
   Validation:
 
@@ -269,8 +269,8 @@ def UpdateGroup(request, firebase):
   return firebase.patch('/groups/%s' % request['groupId'], put_data)
 
 
-def CreatePlayer(request, firebase):
-  """Create a new player for a user and put that player into the game.
+def AddPlayer(request, firebase):
+  """Add a new player for a user and put that player into the game.
 
   Player data gets sharded between /games/%(gameId)/players/%(playerId)
   and /players/%(playerId) for public and private info about players.
@@ -349,6 +349,7 @@ def CreatePlayer(request, firebase):
     allegiance = 'resistence'
 
   game_info = {
+    'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None)),
     'userId' : user,
     'name': request['name'],
     'profileImageUrl' : request['profileImageUrl'],
@@ -523,8 +524,8 @@ def UpdateMission(request, firebase):
   return firebase.patch('/missions/%s' % mission, put_data)
 
 
-def CreateChatRoom(request, firebase):
-  """Create a new chat room.
+def AddChatRoom(request, firebase):
+  """Add a new chat room.
 
   Use the chatRoomId to make a new chat room.
   Add the player to the room and set the other room properties.
@@ -794,9 +795,6 @@ def ClaimReward(request, firebase):
   player_path = '/games/%s/players/%s' % (game, player)
   reward_category_path = '/rewardCategories/%s' % reward_category
   reward_path = '/rewards/%s' % reward
-
-  if not firebase.get(reward_path, None):
-    raise InvalidInputError('Reward %s not found.' % reward)
 
   # Validate the user hasn't already claimed it.
   if firebase.get('%s/claims/%s' % (player_path, reward), 'time'):
