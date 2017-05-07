@@ -309,6 +309,7 @@ Bridge.QuizAnswerId = {
 
   const CHAT_ROOM_PROPERTIES = {
     name: 'String',
+    withAdmin: 'Boolean',
   };
   serverMethods.set('createChatRoom', {
     required:

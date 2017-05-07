@@ -126,12 +126,12 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var resistanceGroupId = Bridge.GroupId.generate('resistance');
   server.createGroup({groupId: resistanceGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var resistanceChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: resistanceChatRoomId, groupId: resistanceGroupId, name: "Resistance Comms Hub"});
+  server.createChatRoom({chatRoomId: resistanceChatRoomId, groupId: resistanceGroupId, name: "Resistance Comms Hub", withAdmin: false});
 
   var hordeGroupId = Bridge.GroupId.generate('horde');
   server.createGroup({groupId: hordeGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'horde', autoAdd: true, membersCanAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var zedChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink"});
+  server.createChatRoom({chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink", withAdmin: false});
 
   server.addAdmin({gameId: gameId, userId: minnyUserId});
 
@@ -164,7 +164,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var zedSecondChatRoomGroupId = Bridge.GroupId.generate();
   server.createGroup({groupId: zedSecondChatRoomGroupId, gameId: gameId, ownerPlayerId: zekePlayerId, allegianceFilter: 'horde', autoAdd: true, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   var zedSecondChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: zedSecondChatRoomId, groupId: zedSecondChatRoomGroupId, name: "Zeds Internal Secret Police"});
+  server.createChatRoom({chatRoomId: zedSecondChatRoomId, groupId: zedSecondChatRoomGroupId, name: "Zeds Internal Secret Police", withAdmin: false});
 
   server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, playerToAddId: zekePlayerId});
   server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, playerToAddId: evanPlayerId});
@@ -174,7 +174,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var resistanceSecondChatRoomGroupId = Bridge.GroupId.generate();
   server.createGroup({groupId: resistanceSecondChatRoomGroupId, gameId: gameId, ownerPlayerId: kimPlayerId, allegianceFilter: 'resistance', autoAdd: false, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   var resistanceSecondChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: resistanceSecondChatRoomId, groupId: resistanceSecondChatRoomGroupId, name: "My Chat Room!"});
+  server.createChatRoom({chatRoomId: resistanceSecondChatRoomId, groupId: resistanceSecondChatRoomGroupId, name: "My Chat Room!", withAdmin: false});
 
   server.addPlayerToGroup({groupId: resistanceSecondChatRoomGroupId, playerId: null, playerToAddId: kimPlayerId});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceSecondChatRoomId, playerId: kimPlayerId, message: 'lololol i have a chat room!'});
