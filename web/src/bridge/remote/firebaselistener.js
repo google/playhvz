@@ -329,7 +329,6 @@ class FirebaseListener {
           });
     });
     ref.on("child_removed", (snap) => {
-      debugger;
     });
   }
 
@@ -406,6 +405,14 @@ class FirebaseListener {
           (property, value) => {
             this.writer.set(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId).concat([property]), value);
           });
+    });
+    ref.on("child_removed", (snap) => {
+      let chatRoomId = snap.getKey();
+      let path = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
+      this.writer.remove(
+          path.slice(0, path.length - 1),
+          path.slice(-1)[0],
+          chatRoomId);
     });
   }
 

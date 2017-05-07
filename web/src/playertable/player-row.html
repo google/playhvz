@@ -9,6 +9,7 @@
         is: 'ghvz-player-row',
 
         properties: {
+          game: Object,
           player: {
             type: Object,
             observer: 'onPlayerChanged_',
@@ -30,21 +31,20 @@
           }
         },
 
-        computeLifeCode_: function() {
-          if (this.player.allegiance == 'resistance') {
-            if (this.player.lives.length) {
-              return this.player.lives[this.player.lives.length - 1].code;
-            }
-          }
-          return "";
+        computePlayerProfileLink_(game, playerId) {
+          return '/' + game.id + '/profile/' + playerId;
         },
 
-        computeRewards_: function() {
-          let rewardNames = [];
-          for (const reward of this.player.rewards) {
-            rewardNames.push(this.rewardCategoriesById[reward.rewardCategoryId].name);
+        handleProfileLink_(e) {
+          if (!e.detail.sourceEvent.metaKey &&
+              !e.detail.sourceEvent.shiftKey &&
+              !e.detail.sourceEvent.altKey) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.fire('ghvz-open-page', {
+              page: 'profile/' + this.player.id,
+            });
           }
-          return rewardNames.join(", ");
         },
       });
     });
@@ -53,9 +53,12 @@
     :host {
       display: table-row;
     }
-    :host > div {
+    :host > div, :host > a {
       display: table-cell;
       padding: 4px 8px;
+    }
+    a {
+      color: #4080FF;
     }
   </style>
   <template>
@@ -63,17 +66,20 @@
     <div id="number">
       [[player.number]]
     </div>
-    <div id="name">
+    <a is="name" href="[[computePlayerProfileLink_(game, player.id)]]" on-tap="handleProfileLink_">
       [[player.name]]
-    </div>
+    </a>
     <div id="allegiance">
       [[computeAllegiance_(player.allegiance)]]
     </div>
-    <div id="lifeCode">
-      [[computeLifeCode_(player.lives.*, player.infections.*)]]
+    <div id="phone">
+      [[player.phone]]
     </div>
-    <div id="rewards">
-      [[computeRewards_(player.rewards.*, rewardCategoriesById)]]
+    <div id="gotEquipment">
+      [[player.gotEquipment]]
+    </div>
+    <div id="notes">
+      [[player.notes]]
     </div>
   </template>
 </dom-module>

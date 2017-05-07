@@ -215,7 +215,14 @@ Bridge.QuizAnswerId = {
       chronicler: 'Boolean',
       server: 'Boolean',
       client: 'Boolean',
-    }
+    },
+    notificationSettings: {
+      vibrate: 'Boolean',
+      sound: 'Boolean',
+    },
+    gotEquipment: 'Boolean',
+    notes: 'String',
+    phone: '?String',
   };
   serverMethods.set('createPlayer', {
       required:

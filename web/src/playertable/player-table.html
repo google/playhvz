@@ -13,6 +13,8 @@
 
           rewardCategoriesById: Object,
 
+          game: Object,
+
           players: {
             type: Array,
             value: function() { return []; },
@@ -46,29 +48,22 @@
                 property: "allegiance",
               },
               {
-                name: "Life Code",
+                name: "Phone",
                 sortable: true,
                 filterable: true,
-                getModel: (player) => {
-                  if (player.allegiance == 'resistance') {
-                    if (player.lives.length) {
-                      return player.lives[player.lives.length - 1].code;
-                    }
-                  }
-                  return "";
-                },
+                property: "phone",
               },
               {
-                name: "Rewards",
+                name: "Equipment",
                 sortable: true,
                 filterable: true,
-                getModel: (player) => {
-                  let rewardNames = [];
-                  for (const reward of player.rewards) {
-                    rewardNames.push(this.rewardCategoriesById[reward.rewardCategoryId].name);
-                  }
-                  return rewardNames.join(", ");
-                }
+                property: "gotEquipment",
+              },
+              {
+                name: "Notes",
+                sortable: true,
+                filterable: true,
+                property: "notes",
               },
             ],
             actions: [
@@ -106,6 +101,7 @@
         items="[[players]]">
       <template is="dom-repeat" id="repeater" items="[[players]]" as="player" initial-count="1" target-framerate="5">
         <ghvz-player-row
+            game="[[game]]"
             reward-categories-by-id="[[rewardCategoriesById]]"
             player="[[player]]">
         </ghvz-player-row>

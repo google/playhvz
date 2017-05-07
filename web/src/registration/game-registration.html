@@ -35,7 +35,7 @@
       done_() {
         // As the new player comes down from firebase,
         // <ghvz-app> will detect it and auto-choose it.
-        this.bridge.joinGame(
+        this.bridge.createPlayer(
             Utils.merge(
                 {
                   playerId: Bridge.PlayerId.generate(),

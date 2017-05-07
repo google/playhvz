@@ -21,7 +21,14 @@ function makePlayerProperties(id, userId, gameId, name) {
       chronicler: false,
       server: false,
       client: false,
-    }
+    },
+    notificationSettings: {
+      sound: false,
+      vibrate: true,
+    },
+    notes: '',
+    phone: null,
+    gotEquipment: false,
   };
 }
 
