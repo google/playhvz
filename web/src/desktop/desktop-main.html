@@ -113,6 +113,16 @@
     <ghvz-dashboard>
       
       <template is="dom-if" if="[[isAdmin]]">
+        <ghvz-card spaced admin left>
+          <div class="header">Game</div>
+          <ghvz-create-modify-game
+              modify
+              bridge="[[bridge]]"
+              game="[[game]]"
+              user-id="[[user.id]]">
+          </ghvz-create-modify-game>
+        </ghvz-card>
+
         <ghvz-card spaced admin full>
           <div class="header">Missions</div>
           <ghvz-missions
@@ -198,7 +208,7 @@
         </template>
 
         <template is="dom-if" if="[[canSelfInfect]]">
-          <ghvz-card spaced left>
+          <ghvz-card spaced padded left>
             <div class="header">Transcend</div>
             <ghvz-self-infect
                 bridge="[[bridge]]"

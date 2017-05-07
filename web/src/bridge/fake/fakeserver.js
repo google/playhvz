@@ -48,7 +48,12 @@ class FakeServer {
         playerId);
   }
   updateGame(args) {
-    throwError('Implement!');
+    let {gameId} = args;
+    for (let argName in args) {
+      this.writer.set(
+          this.reader.getGamePath(gameId).concat([argName]),
+          args[argName]);
+    }
   }
   addAdmin(args) {
     let {gameId, userId} = args;

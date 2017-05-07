@@ -25,9 +25,6 @@
       :host {
         display: block;
       }
-      paper-input {
-        padding: 0 16px 16px 16px;
-      }
       paper-button {
         background-color: #03A9F4;
         color: white;
@@ -36,34 +33,12 @@
         text-align: center;
         margin: 0;
       }
-      #infecting,
-      #infected {
-        display: flex;
-      }
-      #infecting paper-input,
-      #infectedMessage {
-        flex: 1;
-      }
-      #infectedMessage {
-        margin: 16px;
-      }
-      #infectContainer,
-      #doneContainer {
-        flex: 0;
-        display: flex;
-        align-items: center;
-        margin: 8px 16px 8px 0;
-      }
     </style>
-    <div id="infecting" hidden$="[[infectedPlayer]]">
-      <div id="infectContainer">
-        <paper-button
-            id="infect"
-            raised
-            on-tap="infect_">
-          Zombify me!
-        </paper-button>
-      </div>
-    </div>
+    <paper-button
+        id="infect"
+        raised
+        on-tap="infect_">
+      Zombify me!
+    </paper-button>
   </template>
 </dom-module>
