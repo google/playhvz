@@ -101,9 +101,10 @@
                 description: "HTML describing the mission",
               },
               {
-                property: "allegianceFilter",
-                label: "Allegiance filter",
-                description: "Either 'resistance' or 'horde'"
+                property: "groupId",
+                label: "Group",
+                description: "Select the group that can see this mission",
+                type: "group",
               }
             ],
           };
@@ -177,6 +178,7 @@
 
     <ghvz-super-form
         id="missionForm"
+        game="[[game]]"
         type-name="Mission"
         blueprint="[[makeFormBlueprint_()]]">
       <ghvz-form-section spaced>

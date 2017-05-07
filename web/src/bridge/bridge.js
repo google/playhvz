@@ -84,75 +84,75 @@ class Bridge {
 }
 
 Bridge.UserId = {
-  generate: () => Utils.generateId('user'),
+  generate: (note) => Utils.generateId('user', note),
   verify: (id) => id.startsWith('user-'),
 };
 Bridge.GameId = {
-  generate: () => Utils.generateId('game'),
+  generate: (note) => Utils.generateId('game', note),
   verify: (id) => id.startsWith('game-'),
 };
 Bridge.PlayerId = {
-  generate: () => Utils.generateId('player'),
+  generate: (note) => Utils.generateId('player', note),
   verify: (id) => id.startsWith('player-'),
 };
 Bridge.LifeId = {
-  generate: () => Utils.generateId('life'),
+  generate: (note) => Utils.generateId('life', note),
   verify: (id) => id.startsWith('life-'),
 };
 Bridge.InfectionId = {
-  generate: () => Utils.generateId('infection'),
+  generate: (note) => Utils.generateId('infection', note),
   verify: (id) => id.startsWith('infection-'),
 };
 Bridge.MissionId = {
-  generate: () => Utils.generateId('mission'),
+  generate: (note) => Utils.generateId('mission', note),
   verify: (id) => id.startsWith('mission-'),
 };
 Bridge.GunId = {
-  generate: () => Utils.generateId('gun'),
+  generate: (note) => Utils.generateId('gun', note),
   verify: (id) => id.startsWith('gun-'),
 };
 Bridge.GroupId = {
-  generate: () => Utils.generateId('group'),
+  generate: (note) => Utils.generateId('group', note),
   verify: (id) => id.startsWith('group-'),
 };
 Bridge.ChatRoomId = {
-  generate: () => Utils.generateId('chatRoom'),
+  generate: (note) => Utils.generateId('chatRoom', note),
   verify: (id) => id.startsWith('chatRoom-'),
 };
 Bridge.MessageId = {
-  generate: () => Utils.generateId('message'),
+  generate: (note) => Utils.generateId('message', note),
   verify: (id) => id.startsWith('message-'),
 };
 Bridge.NotificationCategoryId = {
-  generate: () => Utils.generateId('notificationCategory'),
+  generate: (note) => Utils.generateId('notificationCategory', note),
   verify: (id) => id.startsWith('notificationCategory-'),
 };
 Bridge.NotificationId = {
-  generate: () => Utils.generateId('notification'),
+  generate: (note) => Utils.generateId('notification', note),
   verify: (id) => id.startsWith('notification-'),
 };
 Bridge.RewardCategoryId = {
-  generate: () => Utils.generateId('rewardCategory'),
+  generate: (note) => Utils.generateId('rewardCategory', note),
   verify: (id) => id.startsWith('rewardCategory-'),
 };
 Bridge.RewardId = {
-  generate: () => Utils.generateId('reward'),
+  generate: (note) => Utils.generateId('reward', note),
   verify: (id) => id.startsWith('reward-'),
 };
 Bridge.MembershipId = {
-  generate: () => Utils.generateId('membership'),
+  generate: (note) => Utils.generateId('membership', note),
   verify: (id) => id.startsWith('membership-'),
 };
 Bridge.ClaimId = {
-  generate: () => Utils.generateId('claim'),
+  generate: (note) => Utils.generateId('claim', note),
   verify: (id) => id.startsWith('claim-'),
 };
 Bridge.QuizQuestionId = {
-  generate: () => Utils.generateId('quizQuestion'),
+  generate: (note) => Utils.generateId('quizQuestion', note),
   verify: (id) => id.startsWith('quizQuestion-'),
 };
 Bridge.QuizAnswerId = {
-  generate: () => Utils.generateId('quizAnswer'),
+  generate: (note) => Utils.generateId('quizAnswer', note),
   verify: (id) => id.startsWith('quizAnswer-'),
 };
 

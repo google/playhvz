@@ -13,6 +13,8 @@
             type: Object,
           },
 
+          game: Object,
+
           typeName: {
             type: String,
             value: "",
@@ -171,6 +173,10 @@
           return !field.type || field.type == 'string';
         },
 
+        useGroupField_: function(field) {
+          return field.type == 'group';
+        },
+
         getOptionIndex_(field, value) {
           return field.options.findIndex((option) => option.value == value);
         },
@@ -234,6 +240,10 @@
           <template is="dom-if" if="[[usePaperTextarea_(field)]]">
             <paper-textarea label="[[field.label]]" value="{{field.value}}">
             </paper-textarea>
+          </template>
+          <template is="dom-if" if="[[useGroupField_(field)]]">
+            <ghvz-group-field game="[[game]]" value="{{field.value}}">
+            </ghvz-group-field>
           </template>
           <template is="dom-if" if="[[usePaperCheckbox_(field)]]">
             <paper-checkbox checked="{{field.value}}">

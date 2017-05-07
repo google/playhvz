@@ -123,12 +123,12 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var gameId = "game-2017m";
   server.createGame({gameId: gameId, firstAdminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60});
 
-  var resistanceGroupId = Bridge.GroupId.generate();
+  var resistanceGroupId = Bridge.GroupId.generate('resistance');
   server.createGroup({groupId: resistanceGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var resistanceChatRoomId = Bridge.ChatRoomId.generate();
   server.createChatRoom({chatRoomId: resistanceChatRoomId, groupId: resistanceGroupId, name: "Resistance Comms Hub"});
 
-  var hordeGroupId = Bridge.GroupId.generate();
+  var hordeGroupId = Bridge.GroupId.generate('horde');
   server.createGroup({groupId: hordeGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'horde', autoAdd: true, membersCanAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var zedChatRoomId = Bridge.ChatRoomId.generate();
   server.createChatRoom({chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink"});

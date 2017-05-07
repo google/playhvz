@@ -2,11 +2,15 @@ function Utils() {}
 
 Utils.setDeterministicGenerator = function() {
   var idsByType = {};
-  Utils.generateId = (type) => {
+  Utils.generateId = (type, note) => {
     if (!(type in idsByType)) {
       idsByType[type] = 1;
     }
-    return type + "-" + idsByType[type]++;
+    let result = type + "-";
+    if (note)
+      result += note + "-";
+    result += idsByType[type]++;
+    return result;
   }
 };
 
@@ -14,9 +18,12 @@ Utils.setDeterministicGenerator = function() {
 * Generates a random number to use as an ID. Probability of id collision
 * is negligible.
 */
-Utils.generateId = function(suffix) {
-	if (!suffix) throw "Utils.generateId() called without a suffix";
-	return Math.random() * Math.pow(2, 52) + "-" + suffix;
+Utils.generateId = function(type, note) {
+	if (!type) throw "Utils.generateId() called without a type";
+  let result = type + "-";
+  if (note)
+    result += note + "-";
+	return Math.random() * Math.pow(2, 52);
 }
 
 /*
