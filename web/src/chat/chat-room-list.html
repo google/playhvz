@@ -16,7 +16,7 @@
         },
 
         observers: [
-          'onChatRoomsUpdated_(game.chatRooms.length)',
+          'onChatRoomsUpdated_(game, player.chatRoomMemberships.length)',
         ],
         
         listeners: {
@@ -24,8 +24,9 @@
         },
 
         onChatRoomsUpdated_() {
-          for (let chatRoom of this.game.chatRooms) {
-            console.log(chatRoom);
+          for (let chatRoomMembership of this.player.chatRoomMemberships) {
+            let chatRoomId = chatRoomMembership.chatRoomId;
+            let chatRoom = this.game.chatRoomsById[chatRoomId];
             if (chatRoom.withAdmin) {
               this.adminChatExists = true;
               return;

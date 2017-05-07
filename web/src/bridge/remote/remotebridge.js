@@ -22,31 +22,13 @@ class RemoteBridge {
   signIn() {
     if (this.userId == null) {
       return new Promise((resolve, reject) => {
-        firebase.auth().getRedirectResult()
-            .then((result) => {
-              if (result.user) {
-                this.userId = "user-" + result.user.uid;
-                this.register({
-                  userId: this.userId,
-                  name: firebaseUser.displayName,
-                })
-                    .then(() => {
-                      this.firebaseListener.listenToUser(this.userId)
-                          .then(() => resolve(this.userId))
-                          .catch((e) => {
-                            console.error(e);
-                            this.register({userId: this.userId})
-                                .then(() => {
-                                  this.firebaseListener.listenToUser(this.userId);
-                                });
-                          });
-                    });
-              } else {
-                // This sometimes happens when we redirect away. Let it go.
-              }
-            }).catch((error) => {
-              reject(error.message);
-            });
+        firebase.auth().getRedirectResult().then(() => {
+          // Register, if theyre already registered this is a no-op, thats fine
+          this.register({userId: this.userId}).then((result) => {
+            // Try listening to the user
+            this.firebaseListener.listenToUser(this.userId);
+          });
+        });
         var provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/plus.login');
         firebase.auth().signInWithRedirect(provider);
