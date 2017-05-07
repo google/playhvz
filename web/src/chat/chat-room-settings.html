@@ -81,6 +81,7 @@
       display: block;
     }
     .contents {
+      @apply(--layout-vertical)
       padding: 8px;
     }
   </style>
@@ -102,6 +103,21 @@
           maxlength="40"
           value="{{newName}}">
         </paper-input>
+        <paper-checkbox>
+        x only
+          <div>
+          Auto prune infected/revived players from chat
+          </div>
+        </paper-checkbox>
+        <paper-checkbox>
+        disable 'Add player' option
+        </paper-checkbox>
+        <paper-checkbox>
+        disable leaving the chat room
+        </paper-checkbox>
+        <paper-checkbox>
+        auto add
+        </paper-checkbox>
       </div>
     </ghvz-form>
   </template>

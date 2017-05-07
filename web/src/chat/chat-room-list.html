@@ -11,10 +11,27 @@
           bridge: Object,
           game: String,
           player: Object,
+
+          adminChatExists: Boolean,
         },
 
+        observers: [
+          'onChatRoomsUpdated_(game.chatRooms)',
+        ],
+        
         listeners: {
           'tap': 'captureTap_',
+        },
+
+        onChatRoomsUpdated_() {
+          for (let chatRoom in this.game.chatRooms) {
+            console.log(chatRoom);
+            if (chatRoom.withAdmins) {
+              this.adminChatExists = true;
+              return;
+            }
+          }
+          this.adminChatExists = false;
         },
 
         captureTap_(e) {
@@ -27,6 +44,8 @@
             let action = e.target.dataset.action;
             if (action == 'new') {
               this.$.settings.openForCreate();
+            } else if (action == 'admin') {
+              this.createAdminChat_();
             }
           }
           e.preventDefault();
@@ -35,6 +54,11 @@
 
         computeChatPage_: function(chatRoomId) {
           return "chat/" + chatRoomId;
+        },
+
+        createAdminChat_(bridge, game, player) {
+          console.log("creating admin chat");
+          let name =  this.player.name + " & HvZ CDC";
         },
       });
     });
@@ -63,23 +87,21 @@
       padding-left: 8px;
       padding-right: 8px;
     }
-    .listing {
-      align-items: center;
-      padding-bottom: 8px;
+    .list-item {
       padding-top: 8px;
-      height: 48px;
-      cursor: pointer;
-      color: black;
-      text-decoration: none;
-      text-overflow: ellipsis;
+      padding-bottom: 8px;
     }
     .section {
       border-top: 1px solid #ddd;
       padding: 8px 0;
     }
     .name-label {
+      height: 48px;
+      align-items: center;
       cursor: pointer;
-
+      color: black;
+      text-decoration: none;
+      text-overflow: ellipsis;
       --ghvz-chat-room-name-label-icon: {
         padding-right: 8px;
       }
@@ -89,7 +111,7 @@
     <div class="frame" on-tap="captureTap_">
       <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
         <ghvz-chat-room-name-label
-            class="layout horizontal listing name-label"
+            class="layout horizontal list-item name-label"
             with-icon
             game="[[game]]"
             chat-room-id="[[membership.chatRoomId]]"
@@ -98,10 +120,21 @@
       </template>
     </div>
 
+    <template is="dom-if" if="[[!adminChatExists]]">
+      <div class="list-item">
+        <a href="javascript:void(0)" data-action="admin" class="action">
+          <iron-icon icon="communication:chat"></iron-icon>
+          HvZ CDC Game Admins
+        </a>
+      </div>
+    </template>
+
+    <div class="list-item">
       <a href="javascript:void(0)" data-action="new" class="action">
         <iron-icon icon="icons:add"></iron-icon>
         New chat
       </a>
+    </div>
 
     <ghvz-chat-room-settings 
       id="settings" 
