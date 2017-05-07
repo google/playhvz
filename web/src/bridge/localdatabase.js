@@ -1,5 +1,5 @@
 
-const GUN_PROPERTIES = ["gameId", "userId"];
+const GUN_PROPERTIES = ["gameId", "playerId"];
 const GUN_COLLECTIONS = [];
 function newGun(id, args) {
   let obj = {id: id};

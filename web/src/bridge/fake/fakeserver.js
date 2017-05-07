@@ -295,6 +295,8 @@ class FakeServer {
   }
   addGun(args) {
     let properties = Utils.copyOf(args);
+    properties.id = args.gunId;
+    delete properties.gunId;
     properties.playerId = null;
     this.writer.insert(
         this.reader.getGunPath(null),
@@ -333,9 +335,9 @@ class FakeServer {
     assert(false);
   }
   assignGun(args) {
-    let {gunId, userId} = args;
-    let gunPath = this.reader.pathForId(gunId);
-    this.writer.set(gunPath.concat(["userId"]), userId);
+    let {gunId, playerId} = args;
+    let gunPath = this.reader.getGunPath(gunId);
+    this.writer.set(gunPath.concat(["playerId"]), playerId);
   }
   selfInfect(args) {
     let {playerId} = args;

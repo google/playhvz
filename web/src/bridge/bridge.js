@@ -175,7 +175,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('assignGun', {
     required: {
       gunId: 'GunId',
-      userId: '?UserId',
+      playerId: '?PlayerId',
     },
   });
 
