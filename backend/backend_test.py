@@ -65,6 +65,7 @@ class EndToEndTest(unittest.TestCase):
     actual = r.json()
     a = actual['games']
     a = a[list(a)[0]]['players']
+    a[list(a)[0]]['number'] = 100
     a = a[list(a)[0]]['claims']
     a[list(a)[0]]['time'] = 0
     self.AssertDictEqual(expected, actual)
