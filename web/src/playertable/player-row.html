@@ -22,13 +22,7 @@
         },
 
         computeAllegiance_: function() {
-          if (this.player.allegiance == 'resistance') {
-            return 'Resistance';
-          } else if (this.player.allegiance == 'horde') {
-            return 'Horde';
-          } else {
-            return this.player.allegiance;
-          }
+          return PlayerUtils.computeAllegiance(this.player);
         },
 
         computePlayerProfileLink_(game, playerId) {

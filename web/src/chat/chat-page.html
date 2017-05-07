@@ -14,6 +14,7 @@
           game: String,
           player: Object,
           page: String,
+          isAdmin: Boolean,
 
           currentChatRoom: {
             type: Object,
@@ -85,7 +86,8 @@
         class="chat-room-list" 
         bridge="[[bridge]]"
         game="[[game]]"
-        player="[[player]]">
+        player="[[player]]"
+        is-admin="[[isAdmin]]">
       </ghvz-chat-room-list>
       <div class="vertical-separator"></div>
       <template is="dom-if" if="true">  

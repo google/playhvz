@@ -11,6 +11,7 @@
           bridge: Object,
           gameId: String,
           player: Object,
+          isAdmin: Boolean,
 
           doneEnabled: {
             type: Boolean,
@@ -35,7 +36,7 @@
           this.$.settingsForm.open();
         },
 
-        updateDoneEnabled_: function(newName) {
+        updateDoneEnabled_: function() {
           if (this.newName == "") {
             this.doneEnabled = false;
             return;
@@ -74,6 +75,10 @@
             page: this.computeChatPage_(chatRoomId),
           });
         },
+
+        getPlayerAllegiance_() {
+          return PlayerUtils.computeAllegiance(this.player);
+        },
       });
     });
   </script>
@@ -81,9 +86,24 @@
     :host {
       display: block;
     }
+    paper-checkbox {
+      --paper-checkbox-vertical-align: top;
+      --paper-checkbox-margin: 2px 0 0 0;
+    }
     .contents {
       @apply(--layout-vertical)
       padding: 8px;
+    }
+    .input {
+      padding-top: 16px;
+    }
+    .option {
+      font-size: 16px;
+      padding-top: 16px;
+    }
+    .subtext {
+      color: darkgrey;
+      font-size: 12px;
     }
   </style>
   <template>
@@ -97,6 +117,7 @@
       <div class="contents">
         <paper-input 
           id="chatName"
+          class="input"
           auto-validate
           error-message="Name required!"
           label="Name"
@@ -104,20 +125,31 @@
           maxlength="40"
           value="{{newName}}">
         </paper-input>
-        <paper-checkbox>
-        x only
-          <div>
-          Auto prune infected/revived players from chat
+        <paper-checkbox class="option">
+          [[getPlayerAllegiance_(player)]] only
+          <div class="subtext">
+          Have the server prune players from chat if they are no longer [[getPlayerAllegiance_(player)]]
           </div>
         </paper-checkbox>
-        <paper-checkbox>
-        disable 'Add player' option
+        <paper-checkbox class="option">
+          Disable add players
+          <div class="subtext">
+            Only you control who can be in this chat
+          </div>
         </paper-checkbox>
-        <paper-checkbox>
-        disable leaving the chat room
-        </paper-checkbox>
-        <paper-checkbox>
-        auto add
+        <template is="dom-if" if="[[isAdmin]]">
+          <paper-checkbox class="option">
+            Disable leaving
+            <div class="subtext">
+              Use with care! Players can't leave this chat unless you kick them out
+            </div>
+          </paper-checkbox>
+        </template>
+        <paper-checkbox class="option">
+          Auto add new members to the chat room
+          <div class="subtext">
+            Have the server automatically add players if ....
+          </div>
         </paper-checkbox>
       </div>
     </ghvz-form>

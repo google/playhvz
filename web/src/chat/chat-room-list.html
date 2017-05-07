@@ -11,6 +11,7 @@
           bridge: Object,
           game: String,
           player: Object,
+          isAdmin: Boolean,
 
           adminChatExists: Boolean,
         },
@@ -25,7 +26,6 @@
 
         onChatRoomsUpdated_() {
           for (let chatRoom of this.game.chatRooms) {
-            console.log(chatRoom);
             if (chatRoom.withAdmin) {
               this.adminChatExists = true;
               return;
@@ -167,7 +167,8 @@
       id="settings" 
       bridge="[[bridge]]"
       game-id="[[game.id]]"
-      player="[[player]]">
+      player="[[player]]"
+      is-admin="[[isAdmin]]">
     </ghvz-chat-room-settings>
   </template>
 </dom-module>
