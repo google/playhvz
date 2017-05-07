@@ -5,21 +5,21 @@
 
 To startup the server, run:
 
-sudo npm install -g firebase-tools
+`cd web`
 
-cd web
+`npm install` 
 
-firebase serve
+`firebase login [your username]`
+
+`firebase use --add trogdors-29fa4` (make sure you have the access to this project)
+
+`npm start`
 
 ### Installing a Polymer component
 
 Run:
 
-sudo npm install -g bower
-
-cd web/
-
-bower install paper-button
+`bower install paper-button` under web directory
 
 
 ## Backend

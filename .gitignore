@@ -2,3 +2,4 @@
 firebase-debug.log
 firebase/rules.json
 *.pyc
+node_modules

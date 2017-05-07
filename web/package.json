@@ -1,0 +1,25 @@
+{
+  "name": "ghvz",
+  "version": "0.0.0",
+  "description": "Google Humans vs Zombies",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "firebase serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Verdagon/ghvz.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Verdagon/ghvz/issues"
+  },
+  "homepage": "https://github.com/Verdagon/ghvz#readme",
+  "dependencies": {
+    "firebase": "^3.9.0"
+  },
+  "devDependencies": {
+    "bower": "^1.8.0",
+    "firebase-tools": "^3.7.0"
+  }
+}

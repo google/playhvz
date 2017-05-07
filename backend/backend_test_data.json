@@ -1,0 +1,126 @@
+{
+  "chatRooms": {},
+  "games": {
+    "game-%(ident)s": {
+      "active": true,
+      "adminUsers": {
+        "user-%(ident)s": {
+          "a": true
+        },
+        "user-%(ident)s-2": {
+          "a": true
+        }
+      },
+      "groups": {
+        "group-%(ident)s": {
+          "a": true
+        }
+      },
+      "name": "test Game",
+      "players": {
+        "player-%(ident)s": {
+          "allegiance": "horde",
+          "claims": {
+            "reward-%(ident)s-bleck": {
+              "rewardCategoryId": "rewardCategory-%(ident)s",
+              "time": 0
+            }
+          },
+          "name": "test Charles",
+          "points": 5,
+          "profileImageUrl": "http://jpg",
+          "userId": "user-%(ident)s"
+        }
+      },
+      "rulesHtml": "test rule",
+      "stunTimer": 5
+    }
+  },
+  "groups": {
+    "group-%(ident)s": {
+      "allegiance": "none",
+      "autoAdd": false,
+      "autoRemove": false,
+      "gameId": "game-%(ident)s",
+      "membersCanAdd": false,
+      "membersCanRemove": false,
+      "players": {
+        "player-%(ident)s": {
+          "a": true
+        }
+      }
+    }
+  },
+  "guns": {
+    "gun-%(ident)s": {
+      "userId": "user-%(ident)s"
+    }
+  },
+  "missions": {
+    "mission-%(ident)s": {
+      "begin": 1,
+      "detailsHtml": "test Details",
+      "end": 0,
+      "name": "test Mission",
+      "groupId": "group-%(ident)s"
+    }
+  },
+  "players": {
+    "player-%(ident)s": {
+      "notificationSettings": {
+        "sound": true,
+        "vibrate": true
+      },
+      "canInfect": true,
+      "gameId": "game-%(ident)s",
+      "needGun": true,
+      "startAsZombie": true,
+      "userId": "user-%(ident)s",
+      "volunteer": {
+        "advertising": false,
+        "logistics": false,
+        "communications": false,
+        "moderator": false,
+        "cleric": false,
+        "sorcerer": false,
+        "admin": false,
+        "photographer": false,
+        "chronicler": false,
+        "server": true,
+        "client": false,
+        "mobile": false
+    },
+      "wantsToBeSecretZombie": true
+    }
+  },
+  "users": {
+    "user-%(ident)s": {
+      "a": true,
+      "name": "John",
+      "players": {
+        "player-%(ident)s": {
+          "gameId": "game-%(ident)s"
+        }
+      }
+    },
+    "user-%(ident)s-2": {
+      "a": true,
+      "name": "Bob"
+    }
+  },
+  "rewardCategories": {
+    "rewardCategory-%(ident)s": {
+      "claimed": 1,
+      "name": "test Reward",
+      "gameId": "game-%(ident)s",
+      "points": 5,
+      "limitPerPlayer": 2,
+      "rewards": {
+        "reward-%(ident)s-bleck": {
+          "a": true,
+          "playerId": "player-%(ident)s"
+        }
+      }
+    }
+  }
+}

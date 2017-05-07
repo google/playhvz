@@ -1,5 +1,6 @@
 import constants
 import logging
+import random
 import time
 
 
@@ -100,15 +101,21 @@ def Register(request, firebase):
   Validation:
   Args:
     userId: Unique userId added to the user list.
+    name: A name to use to reference a player.
 
   Firebase entries:
     /users/%(userId)
   """
   valid_args = ['!userId']
   required_args = list(valid_args)
+  required_args.extend(['name'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  return firebase.put('/users', request['userId'], {'a': True})
+  data = {
+    'a': True,
+    'name': request['name'],
+  }
+  return firebase.put('/users', request['userId'], data)
 
 
 def CreateGame(request, firebase):
@@ -168,6 +175,32 @@ def UpdateGame(request, firebase):
       put_data[property] = request[property]
 
   return firebase.patch('/games/%s' % request['gameId'], put_data)
+
+
+def AddGameAdmin(request, firebase):
+  """Add an admin to a game.
+
+  Validation:
+
+  Args:
+    gameId:
+    userId:
+
+  Firebase entries:
+    /games/%(gameId)/adminUsers
+  """
+
+  valid_args = ['gameId', 'userId']
+  required_args = list(valid_args)
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  game = request['gameId']
+  user = request['userId']
+
+  if firebase.get('/games/%s/adminUsers/%s' % (game, user), 'a'):
+    raise InvalidInputError('User %s is already an admin.' % user)
+
+  return firebase.put('/games/%s/adminUsers/' % game, user, {'a': True})
 
 
 def CreateGroup(request, firebase):
@@ -252,10 +285,21 @@ def CreatePlayer(request, firebase):
     needGun:
     profileImageUrl:
     startAsZombie:
-    volunteer:
     beSecretZombie:
     notifySound:
     notifyVibrate:
+    helpAdvertising:
+    helpLogistics:
+    helpCommunications
+    helpModerator
+    helpCleric
+    helpSorcerer
+    helpAdmin
+    helpPhotographer
+    helpChronicler
+    helpServer
+    helpClient
+    helpMobile
 
   Firebase entries:
     /players/%(playerId)
@@ -265,8 +309,9 @@ def CreatePlayer(request, firebase):
   valid_args = ['gameId', 'userId', '!playerId']
   required_args = list(valid_args)
   required_args.extend(['name', 'needGun', 'profileImageUrl'])
-  required_args.extend(['startAsZombie', 'volunteer', 'beSecretZombie'])
+  required_args.extend(['startAsZombie', 'beSecretZombie'])
   required_args.extend(['notifySound', 'notifyVibrate'])
+  required_args.extend(list(constants.PLAYER_VOLUNTEER_ARGS))
   ValidateInputs(request, firebase, required_args, valid_args)
 
   results = []
@@ -274,12 +319,7 @@ def CreatePlayer(request, firebase):
   game = request['gameId']
   player = request['playerId']
   user = request['userId']
-  name = request['name']
-  need_gun = request['needGun']
-  profile_image_url = request['profileImageUrl']
   start_as_zombie = request['startAsZombie']
-  volunteer = request['volunteer']
-  be_secret_zombie = request['beSecretZombie']
 
   player_info = {'gameId': game}
   results.append(firebase.put('/users/%s/players' % user, player, player_info))
@@ -288,17 +328,20 @@ def CreatePlayer(request, firebase):
     'gameId': game,
     'userId': user,
     'canInfect': start_as_zombie,
-    'needGun' : need_gun,
+    'needGun' : request['needGun'],
     'startAsZombie' : start_as_zombie,
-    'volunteer' : volunteer,
-    'wantsToBeSecretZombie': be_secret_zombie,
+    'wantsToBeSecretZombie': request['beSecretZombie'],
   }
   results.append(firebase.put('/players', player, player_info))
+
   settings = {
     'sound': request['notifySound'],
     'vibrate': request['notifyVibrate'],
   }
   results.append(firebase.put('/players/%s' % player, 'notificationSettings', settings))
+
+  volunteer = {v[4].lower() + v[5:]: request[v] for v in constants.PLAYER_VOLUNTEER_ARGS}
+  results.append(firebase.put('/players/%s' % player, 'volunteer', volunteer))
 
   if start_as_zombie:
     allegiance = 'horde'
@@ -307,8 +350,8 @@ def CreatePlayer(request, firebase):
 
   game_info = {
     'userId' : user,
-    'name': name,
-    'profileImageUrl' : profile_image_url,
+    'name': request['name'],
+    'profileImageUrl' : request['profileImageUrl'],
     'points': 0,
     'allegiance': allegiance,
   }
@@ -327,9 +370,20 @@ def UpdatePlayer(request, firebase):
     needGun (optional):
     profileImageUrl (optional):
     startAsZombie (optional):
-    volunteer (optional):
     notifySound:
     notifyVibrate:
+    helpAdvertising:
+    helpLogistics:
+    helpCommunications
+    helpModerator
+    helpCleric
+    helpSorcerer
+    helpAdmin
+    helpPhotographer
+    helpChronicler
+    helpServer
+    helpClient
+    helpMobile
 
   Firebase entries:
     /players/%(playerId)
@@ -343,9 +397,8 @@ def UpdatePlayer(request, firebase):
   player = request['playerId']
   game = firebase.get('/players/%s' % player, 'gameId')
 
-
   player_info = {}
-  for property in ['startAsZombie', 'volunteer', 'needGun', 'wantsToBeSecretZombie']:
+  for property in ['startAsZombie', 'needGun', 'wantsToBeSecretZombie']:
     if property in request:
       player_info[property] = request[property]
 
@@ -354,8 +407,13 @@ def UpdatePlayer(request, firebase):
     if property in request:
       settings[property] = request[property]
 
+  volunteer = {}
+  for property in constants.PLAYER_VOLUNTEER_ARGS:
+    if property in request:
+      volunteer[property[4].lower() + property[5:]] = request[property]
+
   game_info = {}
-  for property in ['name', 'profileImageUrl', 'volunteer']:
+  for property in ['name', 'profileImageUrl']:
     if property in request:
       game_info[property] = request[property]
 
@@ -363,6 +421,8 @@ def UpdatePlayer(request, firebase):
     results.append(firebase.patch('/players/%s' % player, player_info))
   if settings:
     results.append(firebase.patch('/players/%s/notificationSettings' % player, settings))
+  if volunteer:
+    results.append(firebase.patch('/players/%s/volunteer' % player, volunteer))
   if game_info:
     results.append(firebase.patch('/games/%s/players/%s' % (game, player), game_info))
 
@@ -391,20 +451,20 @@ def AssignGun(request, firebase):
 
   Validation:
     Gun must exist.
-    Player must exist.
+    User must exist.
 
   Args:
-    playerId:
+    userId:
     gunId:
 
   Firebase entries:
     /guns/%(gunId)
   """
-  valid_args = ['playerId', 'gunId']
+  valid_args = ['userId', 'gunId']
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
-
-  return firebase.put('/guns', request['gunId'], {'playerId': request['playerId']})
+  data = {'userId': request['userId']}
+  return firebase.put('/guns', request['gunId'], data)
 
 
 def AddMission(request, firebase):
@@ -668,6 +728,37 @@ def AddReward(request, firebase):
   return firebase.put(path, reward, reward_data)
 
 
+def AddRewards(request, firebase):
+  """Add a set of rewards.
+
+  Validation:
+
+  Args:
+    rewardCategoryId:
+    count: How many rewards to generate.
+
+  Firebase entries:
+    /rewardCategories/%(rCId)/rewards/%(rewardId)
+  """
+  results = []
+
+  valid_args = ['rewardCategoryId']
+  required_args = list(valid_args)
+  required_args.extend(['count'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  reward_category = request['rewardCategoryId']
+  reward_seed = reward_category.split('-')[1]
+  path = '/rewardCategories/%s/rewards' % reward_category
+  reward_data = {'playerId': '', 'a': True}
+
+  for i in range(request['count']):
+    reward = 'reward-%s-%s' % (reward_seed, RandomWords(3))
+    results.append({reward: firebase.put(path, reward, reward_data)})
+
+  return results
+
+
 def ClaimReward(request, firebase):
   """Claim a reward for a player.
 
@@ -740,6 +831,15 @@ def ClaimReward(request, firebase):
   results.append(firebase.put('%s/claims' % player_path, reward, claim_data))
 
   return results
+
+
+def RandomWords(n):
+  words = []
+  with open('wordlist.txt') as f:
+    wordlist = f.readlines()
+    for i in range(n):
+      words.append(random.choice(wordlist).strip())
+  return '-'.join(words)
 
 
 def DeleteTestData(request, firebase):
