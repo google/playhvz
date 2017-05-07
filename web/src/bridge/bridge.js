@@ -163,7 +163,7 @@ Bridge.QuizAnswerId = {
   // Users
   serverMethods.set('signIn', {});
   serverMethods.set('register', {
-    required: {userId: '!UserId'}
+    required: {userId: '!UserId', name: 'String'}
   });
 
   // Guns
@@ -175,7 +175,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('assignGun', {
     required: {
       gunId: 'GunId',
-      userId: '?UserId',
+      playerId: '?PlayerId',
     },
   });
 
@@ -191,6 +191,9 @@ Bridge.QuizAnswerId = {
   serverMethods.set('updateGame', {
     required: {gameId: 'GameId'},
     optional: GAME_PROPERTIES,
+  });
+  serverMethods.set('setAdminContact', {
+    required: {gameId: 'GameId', playerId: 'PlayerId'},
   });
 
   // Players

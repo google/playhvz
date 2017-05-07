@@ -29,24 +29,11 @@
           type: Boolean,
           computed: 'computeCanRegister_(game, player)',
         },
-
-        canInfect: {
-          type: Boolean,
-          computed: 'computeCanInfect_(player.infectable)',
-        },
       },
 
       computeIsAdmin_: function(user, game) {
         let admin = game.admins.find((admin) => admin.userId == user.id);
         return !!admin;
-      },
-
-      computeCanInfect_: function(player, game) {
-        if (!player) {
-            console.warn('null player?!');
-        } else {
-          return !player.infectable;
-        }
       },
 
       computeCanRegister_(game, player) {
@@ -102,13 +89,13 @@
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
-      <template is="dom-if" if="[[canInfect]]">
+      <template is="dom-if" if="[[player.canInfect]]">
         <ghvz-card spaced full>
           <div class="header">Infect</div>
           <ghvz-infect
               bridge="[[bridge]]"
-              game="[[game]]"
-              player="[[player]]">
+              game-id="[[game]]"
+              player-id="[[player]]">
           </ghvz-infect>
         </ghvz-card>
       </template>

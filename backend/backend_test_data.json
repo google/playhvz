@@ -29,8 +29,7 @@
           "name": "test Charles",
           "points": 5,
           "profileImageUrl": "http://jpg",
-          "userId": "user-%(ident)s",
-          "volunteer": false
+          "userId": "user-%(ident)s"
         }
       },
       "rulesHtml": "test rule",
@@ -54,7 +53,7 @@
   },
   "guns": {
     "gun-%(ident)s": {
-      "playerId": "player-%(ident)s"
+      "userId": "user-%(ident)s"
     }
   },
   "missions": {
@@ -77,7 +76,20 @@
       "needGun": true,
       "startAsZombie": true,
       "userId": "user-%(ident)s",
-      "volunteer": false,
+      "volunteer": {
+        "advertising": false,
+        "logistics": false,
+        "communications": false,
+        "moderator": false,
+        "cleric": false,
+        "sorcerer": false,
+        "admin": false,
+        "photographer": false,
+        "chronicler": false,
+        "server": true,
+        "client": false,
+        "mobile": false
+    },
       "wantsToBeSecretZombie": true
     }
   },

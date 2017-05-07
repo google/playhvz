@@ -121,15 +121,15 @@ class EndToEndTest(unittest.TestCase):
       'needGun': True,
       'profileImageUrl': 'http://jpg',
       'startAsZombie': True,
-      'volunteer': True,
       'beSecretZombie': True,
       'notifySound': True,
       'notifyVibrate': True,
     }
+    create.update({v: False for v in constants.PLAYER_VOLUNTEER_ARGS})
     update = {
       'playerId': self.Id('playerId'),
       'name': 'test Charles',
-      'volunteer': False,
+      'helpServer': True,
     }
     self.AssertCreateUpdateSequence('createPlayer', create, 'updatePlayer', update)
 
@@ -164,7 +164,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
 	
     create = {'gunId': self.Id('gunId')}
-    update = {'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
+    update = {'gunId': self.Id('gunId'), 'userId': self.Id('userId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
 
     create = {

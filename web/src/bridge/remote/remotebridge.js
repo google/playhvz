@@ -18,7 +18,10 @@ class RemoteBridge {
             .then((result) => {
               if (result.user) {
                 this.userId = "user-" + result.user.uid;
-                this.register({userId: this.userId})
+                this.register({
+                  userId: this.userId,
+                  name: firebaseUser.displayName,
+                })
                     .then(() => {
                       this.firebaseListener.listenToUser(this.userId)
                           .then(() => resolve(this.userId))
@@ -41,7 +44,7 @@ class RemoteBridge {
         firebase.auth().signInWithRedirect(provider);
       });
     } else {
-      return this.register({userId: this.userId});
+      console.error("Impossible");
     }
   }
 
@@ -55,7 +58,10 @@ class RemoteBridge {
                 .then(() => resolve(firebaseUser.uid))
                 .catch((e) => {
                   console.error(e);
-                  this.register({userId: this.userId})
+                  this.register({
+                    userId: this.userId,
+                    name: firebaseUser.displayName,
+                  })
                       .then(() => {
                         this.firebaseListener.listenToUser(this.userId);
                       });
@@ -117,8 +123,8 @@ class RemoteBridge {
     this.requester.sendPostRequest('addGun', {}, {gunId: id});
   }
 
-  assignGun({gunId, userId}) {
-    this.requester.sendPostRequest('assignGun', {}, {gunId: gunId, userId: userId});
+  assignGun({gunId, playerId}) {
+    this.requester.sendPostRequest('assignGun', {}, {gunId: gunId, playerId: playerId});
   }
 
   addPlayerToChatRoom({chatRoomId, playerId}) {

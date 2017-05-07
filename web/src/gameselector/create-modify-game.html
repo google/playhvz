@@ -1,11 +1,11 @@
-<dom-module id="ghvz-create-game">
+<dom-module id="ghvz-create-modify-game">
   <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
       Polymer({
-        is: 'ghvz-create-game',
+        is: 'ghvz-create-modify-game',
 
         properties: {
           bridge: Object,
@@ -17,7 +17,7 @@
           return {
             fields: [
               {
-                property: "gameId",
+                property: "id",
                 label: "Id",
                 description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'."
               },
@@ -39,11 +39,22 @@
           };
         },
 
+        editGame_: function() {
+          this.$.gameForm.openForEditing(this.game)
+              .then((properties) => {
+                properties.gameId = this.game.id;
+                delete properties.id;
+                this.bridge.updateGame(properties);
+              });
+        },
+
         addGame_: function() {
           this.$.gameForm.openForAdding()
               .then((properties) => {
-                if (!properties.gameId.startsWith('game-'))
-                  properties.gameId = 'game-' + properties.gameId;
+                if (!properties.id.startsWith('game-'))
+                  properties.id = 'game-' + properties.id;
+                properties.gameId = properties.id;
+                delete properties.id;
                 properties.stunTimer = +properties.stunTimer;
                 properties.firstAdminUserId = this.userId;
                 this.bridge.createGame(properties);
@@ -54,11 +65,24 @@
   </script>
   <style>
     :host {
+      display: flex;
+    }
+    #create, #modify {
+      display: none;
+    }
+    paper-button {
+      margin: 8px;
+    }
+    :host[create] #create {
+      display: block;
+    }
+    :host[modify] #modify {
       display: block;
     }
   </style>
   <template>
-    <paper-button raised on-tap="addGame_">Create Game</paper-button>
+    <paper-button id="create" raised on-tap="addGame_">Create Game</paper-button>
+    <paper-button id="modify" raised on-tap="editGame_">Modify Game</paper-button>
     <ghvz-super-form
         id="gameForm"
         type-name="Game"

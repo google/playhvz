@@ -202,7 +202,7 @@ class FirebaseListener {
       let obj = newAdmin(userId, snap.val());
       this.writer.insert(this.reader.getAdminPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
-          snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS,
+          snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS.concat(["a"]),
           (property, value) => {
             this.writer.set(this.reader.getAdminPath(gameId, userId).concat([property]), value);
           });

@@ -61,7 +61,8 @@
     <template is="dom-if" if="[[computeShowPage_(showPage.createGame, page)]]">
       <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
         <div class="header">Join Game</div>
-        <ghvz-create-game
+        <ghvz-create-modify-game
+              create
               class="content"
               bridge="[[bridge]]"
               user-id="[[user.id]]">

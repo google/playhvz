@@ -26,8 +26,10 @@ class FakeServer {
     return preferredUserId;
   }
   register(args) {
+    let {userId, name} = args;
     this.writer.insert(this.reader.getUserPath(null), null, {
-      id: args.userId,
+      id: userId,
+      name: name,
       players: [],
     });
   }
@@ -39,8 +41,19 @@ class FakeServer {
         newGame(gameId, args));
     this.addAdmin({gameId: gameId, userId: firstAdminUserId});
   }
+  setAdminContact(args) {
+    let {gameId, playerId} = args;
+    this.writer.set(
+        this.reader.getGamePath(gameId).concat(["adminContactPlayerId"]),
+        playerId);
+  }
   updateGame(args) {
-    throwError('Implement!');
+    let {gameId} = args;
+    for (let argName in args) {
+      this.writer.set(
+          this.reader.getGamePath(gameId).concat([argName]),
+          args[argName]);
+    }
   }
   addAdmin(args) {
     let {gameId, userId} = args;
@@ -58,7 +71,7 @@ class FakeServer {
         newPlayer(playerId, Utils.merge(args, {
             allegiance: '',
             userId: userId,
-            infectable: false,
+            canInfect: false,
             points: 0,
             number: game.players.length
         })));
@@ -282,6 +295,8 @@ class FakeServer {
   }
   addGun(args) {
     let properties = Utils.copyOf(args);
+    properties.id = args.gunId;
+    delete properties.gunId;
     properties.playerId = null;
     this.writer.insert(
         this.reader.getGunPath(null),
@@ -320,9 +335,9 @@ class FakeServer {
     assert(false);
   }
   assignGun(args) {
-    let {gunId, userId} = args;
-    let gunPath = this.reader.pathForId(gunId);
-    this.writer.set(gunPath.concat(["userId"]), userId);
+    let {gunId, playerId} = args;
+    let gunPath = this.reader.getGunPath(gunId);
+    this.writer.set(gunPath.concat(["playerId"]), playerId);
   }
   selfInfect(args) {
     let {playerId} = args;
@@ -377,14 +392,14 @@ class FakeServer {
   setPlayerZombie(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
-    this.writer.set(playerPath.concat(["infectable"]), false);
+    this.writer.set(playerPath.concat(["canInfect"]), true);
     this.writer.set(playerPath.concat(["allegiance"]), "horde");
     this.updateMembershipsOnAllegianceChange(playerId);
   }
   setPlayerHuman(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
-    this.writer.set(playerPath.concat(["infectable"]), true);
+    this.writer.set(playerPath.concat(["canInfect"]), false);
     this.writer.set(playerPath.concat(["allegiance"]), "resistance");
     this.updateMembershipsOnAllegianceChange(playerId);
   }
@@ -423,6 +438,7 @@ class FakeServer {
     if (infecteePlayer.infections.length >= infecteePlayer.lives.length) {
       this.setPlayerZombie(infecteePlayer.id);
     }
+    return infecteePlayer.id;
   }
   addLife(args) {
     let {lifeId, playerId, code} = args;

@@ -10,7 +10,7 @@
         properties: {
           bridge: Object,
           playerId: String,
-          gameId: String,
+          game: String,
           lifeCode: String,
           requesting: {
             type: Boolean,
@@ -34,10 +34,14 @@
 
         infect_: function() {
           this.requesting = true;
-          this.bridge.infect({playerId: this.playerId, lifeCode: this.lifeCode})
+          this.bridge.infect({
+            infectionId: Bridge.InfectionId.generate(),
+            playerId: this.playerId,
+            infecteeLifeCode: this.lifeCode
+          })
               .then(
-                  (player) => {
-                    this.infectedPlayer = player;
+                  (infecteePlayerId) => {
+                    this.infectedPlayer = this.game.playersById[infecteePlayerId];
                     this.requesting = false;
                   },
                   (error) => {
