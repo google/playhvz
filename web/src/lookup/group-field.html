@@ -1,0 +1,39 @@
+<dom-module id="ghvz-group-field">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-group-field',
+
+      properties: {
+        game: Object,
+
+        value: {
+          type: String,
+          notify: true,
+        },
+      },
+    });
+  });
+</script>
+<style>
+  .group {
+    display: block;
+    padding: 8px;
+    cursor: pointer;
+  }
+</style>
+<template>
+  <paper-dropdown-input filter-property="id" label="Pick a group" items="[[game.groups]]" value="{{value}}">
+    <template>
+      <template is="dom-repeat" items="[[items]]" as="group">
+        <div class="group">
+          [[group.id]]
+        </div>
+      </template>
+    </template>
+  </paper-dropdown-input>
+</template>
+</dom-module>
