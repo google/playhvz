@@ -106,7 +106,8 @@ class EndToEndTest(unittest.TestCase):
       'gameId': self.Id('gameId'),
       'userId': '%s-2' % self.Id('userId'),
     }
-    self.AssertCreateUpdateSequence('addGameAdmin', create, None, None)
+    self.AssertOk('addGameAdmin', create)
+    self.AssertFails('addGameAdmin', create)
 
     # Invalid ID
     create['gameId'] = 'foo'
@@ -186,7 +187,8 @@ class EndToEndTest(unittest.TestCase):
       'rewardCategoryId': self.Id('rewardCategoryId'),
       'rewardId': 'reward-%s-bleck' % self.identifier,
     }
-    self.AssertCreateUpdateSequence('addReward', create, None, None)
+    self.AssertOk('addReward', create)
+    self.AssertFails('addReward', create)
     
     claim = {
       'playerId': self.Id('playerId'),

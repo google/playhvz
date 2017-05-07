@@ -4,17 +4,11 @@
     "game-%(ident)s": {
       "active": true,
       "adminUsers": {
-        "user-%(ident)s": {
-          "a": true
-        },
-        "user-%(ident)s-2": {
-          "a": true
-        }
+        "user-%(ident)s": true,
+        "user-%(ident)s-2": true
       },
       "groups": {
-        "group-%(ident)s": {
-          "a": true
-        }
+        "group-%(ident)s": true
       },
       "rewardCategories": {
          "rewardCategory-%(ident)s": true
@@ -48,9 +42,7 @@
       "membersCanAdd": false,
       "membersCanRemove": false,
       "players": {
-        "player-%(ident)s": {
-          "a": true
-        }
+        "player-%(ident)s": true
       }
     }
   },
@@ -98,7 +90,6 @@
   },
   "users": {
     "user-%(ident)s": {
-      "a": true,
       "name": "John",
       "players": {
         "player-%(ident)s": {
@@ -107,7 +98,6 @@
       }
     },
     "user-%(ident)s-2": {
-      "a": true,
       "name": "Bob"
     }
   },
