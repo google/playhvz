@@ -130,14 +130,17 @@ class FirebaseListener {
   }
 
   listenToPrivatePlayers_(userId) {
-    var ref = this.firebaseRoot.child("users/" + userId + "/playerIdsByGameId");
+    var ref = this.firebaseRoot.child("users/" + userId + "/players");
     ref.on("child_added", (snap) => {
-      let gameId = snap.getKey();
-      let playerId = snap.val();
-      let obj = newUserPlayer(playerId, {playerId: playerId, gameId: gameId});
+      let playerId = snap.getKey();
+      let obj = newUserPlayer(playerId, {
+        playerId: playerId,
+        gameId: snap.val().gameId,
+        userId: userId,
+      });
       this.writer.insert(this.reader.getUserPlayerPath(userId, null), null, obj);
       this.listenForPropertyChanges_(
-          snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS.concat(["lives", "notifications", "chatRoomMembershipsByChatRoomId"]),
+          snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
           (property, value) => {
             this.writer.set(this.reader.getUserPlayerPath(userId, playerId).concat([property]), value);
           });
@@ -186,7 +189,7 @@ class FirebaseListener {
         let obj = newUser(userId, snap.val());
         this.writer.insert(this.reader.getUserPath(null), null, obj);
         this.listenForPropertyChanges_(
-            ref, USER_PROPERTIES, USER_COLLECTIONS.concat(["playerIdsByGameId", "gameIdsByPlayerId", "a"]),
+            ref, USER_PROPERTIES, USER_COLLECTIONS.concat(["playerIdsByGameId", "gameIdsByPlayerId", "a", "name"]),
             (property, value) => {
               this.writer.set(this.reader.getUserPath(userId).concat([property]), value);
             });
@@ -362,7 +365,8 @@ class FirebaseListener {
       assert(this.userId != null);
       if (this.userId == userId) {
         this.firebaseRoot.child("/players/" + playerId).once("value")
-            .then((userPlayerSnap) => {
+            .then((privatePlayerSnap) => {
+              obj = Utils.merge(obj, privatePlayerSnap.val());
               this.writer.insert(this.reader.getPlayerPath(gameId, null), null, obj);
               this.listenForPropertyChanges_(
                   gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
@@ -370,10 +374,22 @@ class FirebaseListener {
                     this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
                   });
               this.listenForPropertyChanges_(
-                  userPlayerSnap.ref,
-                  USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS.concat(USER_PLAYER_IGNORED),
+                  privatePlayerSnap.ref,
+                  PRIVATE_PLAYER_PROPERTIES, PRIVATE_PLAYER_COLLECTIONS.concat(["notificationSettings", "volunteer"]),
                   (property, value) => {
                     this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
+                  });
+              this.listenForPropertyChanges_(
+                  privatePlayerSnap.ref.child("volunteer"),
+                  PRIVATE_PLAYER_VOLUNTEER_PROPERTIES, [],
+                  (property, value) => {
+                    this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat(["volunteer", property]), value);
+                  });
+              this.listenForPropertyChanges_(
+                  privatePlayerSnap.ref.child("notificationSettings"),
+                  PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES, [],
+                  (property, value) => {
+                    this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat(["notificationSettings", property]), value);
                   });
               this.listenToClaims_(gameId, playerId);
               this.listenToLives_(playerId, gameId);

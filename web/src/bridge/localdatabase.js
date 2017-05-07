@@ -17,6 +17,11 @@ function newUser(id, args) {
   return obj;
 }
 
+const PRIVATE_PLAYER_PROPERTIES = ["gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantsToBeSecretZombie", "gotEquipment", "phone", "notes"];
+const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
+const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "mobile", "server", "client"];
+const PRIVATE_PLAYER_COLLECTIONS = ["lives"];
+
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
 function newUserPlayer(id, args) {
@@ -134,12 +139,14 @@ function newNotificationCategory(id, args) {
   return obj;
 }
 
-const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "canInfect", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "beSecretZombie", "advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "server", "client", "gotEquipment", "phone", "notes"];
+const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "name", "points", "profileImageUrl"];
 const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships", "groupMemberships"];
 function newPlayer(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, PLAYER_PROPERTIES);
   Utils.addEmptyLists(obj, PLAYER_COLLECTIONS);
+  obj.volunteer = {};
+  obj.notificationSettings = {};
   return obj;
 }
 

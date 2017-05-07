@@ -109,4 +109,17 @@ class RemoteBridge {
       return userId;
     });
   }
+
+  createPlayer(args) {
+    let newArgs = Utils.copyOf(args);
+    delete newArgs.volunteer;
+    for (let key in args.volunteer) {
+      newArgs['help' + key.slice(0, 1).toUpperCase() + key.slice(1)] = args.volunteer[key];
+    }
+    delete newArgs.notificationSettings;
+    for (let key in args.notificationSettings) {
+      newArgs['notify' + key.slice(0, 1).toUpperCase() + key.slice(1)] = args.notificationSettings[key];
+    }
+    return this.requester.sendPostRequest('createPlayer', {}, newArgs);
+  }
 }

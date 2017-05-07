@@ -66,7 +66,7 @@
         generateRandomPreferences_() {
           var needGun = ['yes', 'no'];
           var startAsZombie = ['yes', 'maybe', 'no'];
-          var beSecretZombie = ['yes', 'maybe', 'no'];
+          var wantsToBeSecretZombie = ['yes', 'maybe', 'no'];
           var volunteer = ['yes', 'no'];
 
           var randomValue = function(items) {
@@ -76,7 +76,7 @@
           var preferences = {
             needGun: randomValue(needGun),
             startAsZombie: randomValue(startAsZombie),
-            beSecretZombie: randomValue(beSecretZombie),
+            wantsToBeSecretZombie: randomValue(wantsToBeSecretZombie),
             volunteer: randomValue(volunteer),
           };
           return preferences;

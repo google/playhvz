@@ -8,7 +8,7 @@ function makePlayerProperties(id, userId, gameId, name) {
     needGun: false,
     profileImageUrl: "",
     startAsZombie: "yes",
-    beSecretZombie: "maybe",
+    wantsToBeSecretZombie: "maybe",
     volunteer: {
       advertising: false,
       logistics: false,
