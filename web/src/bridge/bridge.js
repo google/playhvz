@@ -12,6 +12,7 @@ class Bridge {
                 expectations.required,
                 expectations.optional,
                 this.check_.bind(this));
+            assert(this.inner[method]);
             return this.inner[method](...args);
           };
     }
@@ -184,6 +185,7 @@ Bridge.QuizAnswerId = {
     name: 'String',
     rulesHtml: 'String',
     stunTimer: 'Number',
+    active: 'Boolean',
   };
   serverMethods.set('createGame', {
     required: Utils.merge({gameId: '!GameId', firstAdminUserId: 'UserId'}, GAME_PROPERTIES),
@@ -201,8 +203,8 @@ Bridge.QuizAnswerId = {
     name: 'String',
     needGun: 'Boolean',
     profileImageUrl: 'String',
-    startAsZombie: 'Boolean',
-    beSecretZombie: 'Boolean',
+    startAsZombie: 'String',
+    beSecretZombie: 'String',
     volunteer: {
       advertising: 'Boolean',
       logistics: 'Boolean',
@@ -214,6 +216,7 @@ Bridge.QuizAnswerId = {
       photographer: 'Boolean',
       chronicler: 'Boolean',
       server: 'Boolean',
+      mobile: 'Boolean',
       client: 'Boolean',
     },
     notificationSettings: {

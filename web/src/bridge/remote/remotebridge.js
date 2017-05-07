@@ -9,6 +9,14 @@ class RemoteBridge {
     this.requester = new NormalRequester(serverUrl);
 
     this.userId = null;
+
+    for (let methodName of Bridge.METHODS) {
+      if (!this[methodName]) {
+        this[methodName] = function(args) {
+          this.requester.sendPostRequest(methodName, {}, args);
+        };
+      }
+    }
   }
 
   signIn() {
@@ -100,34 +108,5 @@ class RemoteBridge {
     }).then(() => {
       return userId;
     });
-  }
-
-  createGame(args) {
-    this.requester.sendPostRequest('createGame', {}, args);
-  }
-
-  joinGame(playerId, userId, gameId, {name, needGun, profileImageUrl, startAsZombie, volunteer}) {
-    this.requester.sendPostRequest(
-        'joinGame',
-        {id: playerId, userId: userId, gameId: gameId},
-        {
-          name: name,
-          needGun: needGun,
-          profileImageUrl: profileImageUrl,
-          startAsZombie: startAsZombie,
-          volunteer: volunteer,
-        });
-  }
-
-  addGun({id}) {
-    this.requester.sendPostRequest('addGun', {}, {gunId: id});
-  }
-
-  assignGun({gunId, playerId}) {
-    this.requester.sendPostRequest('assignGun', {}, {gunId: gunId, playerId: playerId});
-  }
-
-  addPlayerToChatRoom({chatRoomId, playerId}) {
-    this.requester.sendPostRequest('addPlayerToChatRoom', {}, {chatRoomId: chatRoomId, playerId: playerId});
   }
 }

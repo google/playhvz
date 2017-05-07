@@ -134,7 +134,7 @@ function newNotificationCategory(id, args) {
   return obj;
 }
 
-const PLAYER_PROPERTIES = ["userId", "number", "allegiance", "canInfect", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "beSecretZombie", "advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "server", "client", "gotEquipment", "phone", "notes"];
+const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "canInfect", "name", "needGun", "points", "profileImageUrl", "startAsZombie", "beSecretZombie", "advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "server", "client", "gotEquipment", "phone", "notes"];
 const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships", "groupMemberships"];
 function newPlayer(id, args) {
   let obj = {id: id};
@@ -179,7 +179,7 @@ function newNotification(id, args) {
   return obj;
 }
 
-const REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed", "claimed"];
+const REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed", "claimed", "gameId", "limitPerPlayer"];
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 function newRewardCategory(id, args) {
   let obj = {id: id};

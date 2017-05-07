@@ -57,6 +57,7 @@
                 delete properties.id;
                 properties.stunTimer = +properties.stunTimer;
                 properties.firstAdminUserId = this.userId;
+                properties.active = true;
                 this.bridge.createGame(properties);
               });
         },

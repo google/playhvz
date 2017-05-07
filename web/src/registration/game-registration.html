@@ -42,6 +42,12 @@
                   userId: this.userId,
                   gameId: this.game.id,
                   profileImageUrl: "",
+                  gotEquipment: false,
+                  notes: '',
+                  notificationSettings: {
+                    sound: true,
+                    vibrate: true,
+                  },
                 },
                 this.newPlayerArgs));
         this.fire('ghvz-open-page', {
@@ -59,6 +65,11 @@
 
       handleNamePageDone_(e) {
         this.newPlayerArgs.name = e.detail.value;
+        this.pageNumber++;
+      },
+
+      handlePhonePageDone_(e) {
+        this.newPlayerArgs.phone = e.detail.value;
         this.pageNumber++;
       },
 
@@ -86,11 +97,11 @@
       },
 
       handleVolunteerPositionsPageDone_(e) {
-        this.newPlayerArgs = Utils.merge(this.newPlayerArgs, e.detail.values);
+        this.newPlayerArgs.volunteer = e.detail.values;
         this.pageNumber++;
       },
 
-      nextPage_() {
+      nextPage_(e) {
         this.pageNumber++;
       },
 
@@ -215,6 +226,15 @@
         <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
         <div class="maintext">What user name would you like?</div>
         <div class="subtext">To strike terror in the hearts of your victims. e.g. John Smith, The Destroyer, King Spigglewigget the Flamscrankle. People will see this on the leaderboard, and in the chat rooms.</div>
+      </ghvz-join-game-string-page>
+    </neon-animatable>
+
+    <neon-animatable>
+      <ghvz-join-game-string-page
+          placeholder="Phone Number"
+          on-ghvz-join-game-page-done="handlePhonePageDone_">
+        <div class="maintext">What is your phone number?</div>
+        <div class="subtext">In case we have to reach you quickly while we're in a mission.</div>
       </ghvz-join-game-string-page>
     </neon-animatable>
 

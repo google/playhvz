@@ -7,8 +7,8 @@ function makePlayerProperties(id, userId, gameId, name) {
     name: name,
     needGun: false,
     profileImageUrl: "",
-    startAsZombie: false,
-    beSecretZombie: false,
+    startAsZombie: "yes",
+    beSecretZombie: "maybe",
     volunteer: {
       advertising: false,
       logistics: false,
@@ -19,6 +19,7 @@ function makePlayerProperties(id, userId, gameId, name) {
       admin: false,
       photographer: false,
       chronicler: false,
+      mobile: false,
       server: false,
       client: false,
     },
@@ -128,7 +129,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.register({userId: moldaviUserId, name: "Moldavi"});
 
   var gameId = "game-2017m";
-  server.createGame({gameId: gameId, firstAdminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60});
+  server.createGame({gameId: gameId, firstAdminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60, active: true});
 
   var resistanceGroupId = Bridge.GroupId.generate('resistance');
   server.createGroup({groupId: resistanceGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});

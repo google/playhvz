@@ -477,7 +477,7 @@ class FirebaseListener {
   }
 
   listenToRewardCategories_(gameId) {
-    var collectionRef = this.firebaseRoot.child("games/" + gameId + "/rewardCategoryIds");
+    var collectionRef = this.firebaseRoot.child("games/" + gameId + "/rewardCategories");
     collectionRef.on("child_added", (snap) => {
       let rewardCategoryId = snap.getKey(); // snap.val() is ""
       let ref = this.firebaseRoot.child("rewardCategories/" + rewardCategoryId);

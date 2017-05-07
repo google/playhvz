@@ -23,7 +23,7 @@ Utils.generateId = function(type, note) {
   let result = type + "-";
   if (note)
     result += note + "-";
-	return Math.random() * Math.pow(2, 52);
+	return result + Math.random() * Math.pow(2, 52);
 }
 
 /*
