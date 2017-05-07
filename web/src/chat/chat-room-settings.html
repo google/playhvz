@@ -62,7 +62,8 @@
           this.bridge.createChatRoom({
             chatRoomId: chatRoomId,
             groupId: groupId,
-            name: name
+            name: name,
+            withAdmin: false,
           });
           this.bridge.addPlayerToGroup({
             groupId: groupId,
