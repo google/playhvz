@@ -1,0 +1,69 @@
+<dom-module id="ghvz-self-infect">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-self-infect',
+
+        properties: {
+          bridge: Object,
+          playerId: String,
+          gameId: String,
+        },
+
+        infect_: function() {
+          this.bridge.selfInfect({playerId: this.playerId});
+        },
+      });
+    });
+  </script>
+
+  <template>
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+      paper-input {
+        padding: 0 16px 16px 16px;
+      }
+      paper-button {
+        background-color: #03A9F4;
+        color: white;
+        font-weight: bold;
+        display: block;
+        text-align: center;
+        margin: 0;
+      }
+      #infecting,
+      #infected {
+        display: flex;
+      }
+      #infecting paper-input,
+      #infectedMessage {
+        flex: 1;
+      }
+      #infectedMessage {
+        margin: 16px;
+      }
+      #infectContainer,
+      #doneContainer {
+        flex: 0;
+        display: flex;
+        align-items: center;
+        margin: 8px 16px 8px 0;
+      }
+    </style>
+    <div id="infecting" hidden$="[[infectedPlayer]]">
+      <div id="infectContainer">
+        <paper-button
+            id="infect"
+            raised
+            on-tap="infect_">
+          Zombify me!
+        </paper-button>
+      </div>
+    </div>
+  </template>
+</dom-module>

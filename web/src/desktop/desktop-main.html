@@ -30,9 +30,9 @@
             computed: 'computeCanJoinGame_(game, player)',
           },
 
-          canInfect: {
+          canSelfInfect: {
             type: Boolean,
-            computed: 'computeCanInfect_(player.infectable)',
+            computed: 'computeCanSelfInfect_(player.allegiance)',
           },
         },
 
@@ -41,12 +41,8 @@
           return !!admin;
         },
 
-        computeCanInfect_: function(player, game) {
-          if (!player) {
-            console.warn('null player?!');
-          } else {
-            return !player.infectable;
-          }
+        computeCanSelfInfect_: function(allegiance) {
+          return allegiance == 'resistance';
         },
 
         computeCanJoinGame_(game, player) {
@@ -190,14 +186,25 @@
 
       <template is="dom-if" if="[[isPlayer]]">
 
-        <template is="dom-if" if="[[canInfect]]">
+        <template is="dom-if" if="[[player.canInfect]]">
           <ghvz-card spaced left>
             <div class="header">Infect</div>
             <ghvz-infect
                 bridge="[[bridge]]"
                 game="[[game]]"
-                player="[[player]]">
+                player-id="[[player.id]]">
             </ghvz-infect>
+          </ghvz-card>
+        </template>
+
+        <template is="dom-if" if="[[canSelfInfect]]">
+          <ghvz-card spaced left>
+            <div class="header">Transcend</div>
+            <ghvz-self-infect
+                bridge="[[bridge]]"
+                game-id="[[game.id]]"
+                player-id="[[player.id]]">
+            </ghvz-self-infect>
           </ghvz-card>
         </template>
 

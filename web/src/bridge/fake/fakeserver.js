@@ -66,7 +66,7 @@ class FakeServer {
         newPlayer(playerId, Utils.merge(args, {
             allegiance: '',
             userId: userId,
-            infectable: false,
+            canInfect: false,
             points: 0,
             number: game.players.length
         })));
@@ -385,14 +385,14 @@ class FakeServer {
   setPlayerZombie(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
-    this.writer.set(playerPath.concat(["infectable"]), false);
+    this.writer.set(playerPath.concat(["canInfect"]), true);
     this.writer.set(playerPath.concat(["allegiance"]), "horde");
     this.updateMembershipsOnAllegianceChange(playerId);
   }
   setPlayerHuman(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
-    this.writer.set(playerPath.concat(["infectable"]), true);
+    this.writer.set(playerPath.concat(["canInfect"]), false);
     this.writer.set(playerPath.concat(["allegiance"]), "resistance");
     this.updateMembershipsOnAllegianceChange(playerId);
   }
@@ -431,6 +431,7 @@ class FakeServer {
     if (infecteePlayer.infections.length >= infecteePlayer.lives.length) {
       this.setPlayerZombie(infecteePlayer.id);
     }
+    return infecteePlayer.id;
   }
   addLife(args) {
     let {lifeId, playerId, code} = args;

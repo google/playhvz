@@ -123,7 +123,6 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var gameId = "game-2017m";
   server.createGame({gameId: gameId, firstAdminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60});
 
-
   var resistanceGroupId = Bridge.GroupId.generate();
   server.createGroup({groupId: resistanceGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var resistanceChatRoomId = Bridge.ChatRoomId.generate();

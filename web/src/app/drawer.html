@@ -18,11 +18,6 @@
 
         player: Object,
 
-        canInfect: {
-          type: Boolean,
-          computed: 'computeCanInfect_(player, game, game.players.length)',
-        },
-
         canRegister: {
           type: Boolean,
           computed: 'computeCanRegister_(game, player)',
@@ -41,14 +36,6 @@
 
       listeners: {
         'tap': 'captureTap_',
-      },
-
-      computeCanInfect_: function(player, game) {
-        if (!player) {
-          console.warn('null player?!');
-        } else {
-          return !player.infectable;
-        }
       },
 
       computeCanRegister_(game, player) {
