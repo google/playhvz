@@ -10,6 +10,11 @@
       properties: {
         bridge: Object,
         isDesktop: Boolean,
+        isAdmin: {
+          type: Boolean,
+          computed: 'computeIsAdmin_(user, game, game.admins.length)',
+        },
+
         database: Object,
         user: Object,
         env: String,
@@ -43,6 +48,11 @@
             this.$.playerSelector.select(player);
           }
         }
+      },
+      
+      computeIsAdmin_: function(user) {
+        let admin = this.game.admins.find((admin) => admin.userId == user.id);
+        return !!admin;
       },
 
       openDrawer() {
@@ -88,6 +98,7 @@
       <paper-material drawer>
         <ghvz-drawer
             bridge="[[bridge]]"
+            is-admin="[[isAdmin]]"
             database="[[database]]"
             user="[[user]]"
             game="[[game]]"
@@ -98,6 +109,7 @@
         <template is="dom-if" if="[[isDesktop]]">
           <ghvz-desktop-app
               bridge="[[bridge]]"
+              is-admin="[[isAdmin]]"
               database="[[database]]"
               user="[[user]]"
               game="[[game]]"
@@ -109,6 +121,7 @@
         <template is="dom-if" if="[[!isDesktop]]">
           <ghvz-mobile-app
               bridge="[[bridge]]"
+              is-admin="[[isAdmin]]"
               database="[[database]]"
               user="[[user]]"
               game="[[game]]"

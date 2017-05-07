@@ -1,127 +1,128 @@
 <dom-module id="ghvz-profile-page">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-profile-page',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-profile-page',
 
-        properties: {
-          bridge: Object,
-          database: Object,
-          user: String,
-          game: String,
-          player: Object,
-          page: String,
+      properties: {
+        bridge: Object,
+        isAdmin: Boolean,
+        database: Object,
+        user: String,
+        game: String,
+        player: Object,
+        page: String,
 
-          displayedPlayer: {
-            type: Object,
-            value: null,
-          },
+        displayedPlayer: {
+          type: Object,
+          value: null,
         },
+      },
 
-         observers: [
-          'onPageChanged_(page, game, player)',
-          'onDisplayedPlayerChange_(displayedPlayer)',
-        ],
+       observers: [
+        'onPageChanged_(page, game, player)',
+        'onDisplayedPlayerChange_(displayedPlayer)',
+      ],
 
-        onDisplayedPlayerChange_(displayedPlayer) {
-          if (!displayedPlayer) {
-            return;
-          }
-          this.fire('ghvz-set-card-header-text', {headerText: this.displayedPlayer.name});
-        },
+      onDisplayedPlayerChange_(displayedPlayer) {
+        if (!displayedPlayer) {
+          return;
+        }
+        this.fire('ghvz-set-card-header-text', {headerText: this.displayedPlayer.name});
+      },
 
-        onPageChanged_() {
-          if (!this.page.startsWith('profile')) {
-            return;
-          }
-          var displayedPlayerId = this.page.includes('/') ? this.page.split('/')[1] : "";
-          if (!displayedPlayerId) {
-            displayedPlayerId = this.player.id;
-            var page = "profile/" + displayedPlayerId;
-            this.fire('ghvz-open-page', {page: page});
-          }
-          this.$.playerSelector.select(
-              this.game.players.find(player => player.id == displayedPlayerId));
-        },
+      onPageChanged_() {
+        if (!this.page.startsWith('profile')) {
+          return;
+        }
+        var displayedPlayerId = this.page.includes('/') ? this.page.split('/')[1] : "";
+        if (!displayedPlayerId) {
+          displayedPlayerId = this.player.id;
+          var page = "profile/" + displayedPlayerId;
+          this.fire('ghvz-open-page', {page: page});
+        }
+        this.$.playerSelector.select(
+            this.game.players.find(player => player.id == displayedPlayerId));
+      },
 
-        extractChatRoomIdFromUrl_() {
-          let initialUrl = window.location.pathname;
-          let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
-          if (!match) {
-            return null;
-          }
-          let chatRoomId = match[1];
-          return chatRoomId;
-        },
+      extractChatRoomIdFromUrl_() {
+        let initialUrl = window.location.pathname;
+        let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
+        if (!match) {
+          return null;
+        }
+        let chatRoomId = match[1];
+        return chatRoomId;
+      },
 
-        getAliveStatus_(allegiance) {
-          return allegiance == 'horde';
-        },
+      getAliveStatus_(allegiance) {
+        return allegiance == 'horde';
+      },
 
-        getAliveStatusClass_(allegiance) {
-          return this.getAliveStatus_(allegiance) ? "dead" : "alive";
-        },
+      getAliveStatusClass_(allegiance) {
+        return this.getAliveStatus_(allegiance) ? "dead" : "alive";
+      },
 
-        getAliveStatusLabel_(allegiance) {
-          return this.getAliveStatus_(allegiance) ? "Living Dead" : "Alive";
-        },
-      });
+      getAliveStatusLabel_(allegiance) {
+        return this.getAliveStatus_(allegiance) ? "Living Dead" : "Alive";
+      },
     });
-  </script>
-  <style>
-    :host {
-      display: flex;
-    }
-    iron-image {
-      width: 100px;
-      height:100px;
-      border-radius: 50%;
-    }
-    .alive {
-      display: flex;
-    }
-    .alive iron-image {
-      border: 2px solid fuchsia;
-    }
-    .alive .status {
-      color: fuchsia;
-    }
-    .dead {
-      display: flex;
-    }
-    .dead iron-image {
-      border: 2px solid forestgreen;
-    }
-    .dead .status {
-      color: forestgreen;
-    }
-    .info {
-      flex-grow: 1;
-      font-size: 14px;
-      padding: 8px;
-    }
-    .name {
-      font-size: 24px;
-      padding-top: 16px;
-      padding-bottom: 16px;
-    }
-    .profile-pic {
-      width: 116px;
-      height:116px;
-      padding: 16px;
-    }
-    .status {}
-    .sub-item {
-      padding-top: 8px;
-      padding-bottom: 8px;
-    }
-  </style>
-  <template>
-    <array-selector id="playerSelector" items="[[game.players]]" selected="{{displayedPlayer}}"></array-selector>
-
+  });
+</script>
+<style>
+  #flexThing {
+    display: flex;
+  }
+  iron-image {
+    width: 100px;
+    height:100px;
+    border-radius: 50%;
+  }
+  .alive {
+    display: flex;
+  }
+  .alive iron-image {
+    border: 2px solid fuchsia;
+  }
+  .alive .status {
+    color: fuchsia;
+  }
+  .dead {
+    display: flex;
+  }
+  .dead iron-image {
+    border: 2px solid forestgreen;
+  }
+  .dead .status {
+    color: forestgreen;
+  }
+  .info {
+    flex-grow: 1;
+    font-size: 14px;
+    padding: 8px;
+  }
+  .name {
+    font-size: 24px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+  .profile-pic {
+    width: 116px;
+    height:116px;
+    padding: 16px;
+  }
+  .status {}
+  .sub-item {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+</style>
+<template>
+  <array-selector id="playerSelector" items="[[game.players]]" selected="{{displayedPlayer}}"></array-selector>
+  <div id="flexThing">
     <div class$="[[getAliveStatusClass_(displayedPlayer.allegiance)]]">
       <div class="profile-pic">
         <iron-image
@@ -145,5 +146,34 @@
         </div>
       </div>
     </div>
+  </div>
+  <template is="dom-if" if="[[isAdmin]]">
+    <div id="details">
+      <div>Need gun: <b>[[player.needGun]]</b></div>
+      <div>Can be starting zombie: <b>[[player.startAsZombie]]</b></div>
+      <div>Can be secret zombie: <b>[[player.beSecretZombie]]</b></div>
+      <div>Got equipment: <b>[[player.gotEquipment]]</b></div>
+      <div>Phone: <b>[[player.phone]]</b></div>
+      <div>Notifications should sound: <b>[[player.notificationSettings.sound]]</b></div>
+      <div>Notifications should vibrate: <b>[[player.notificationSettings.vibrate]]</b></div>
+      <div>
+        Volunteered for:
+        <b>
+          <template is="dom-if if="[[player.volunteer.advertising]]">Advertising</template>
+          <template is="dom-if if="[[player.volunteer.logistics]]">Logistics</template>
+          <template is="dom-if if="[[player.volunteer.communications]]">Communications</template>
+          <template is="dom-if if="[[player.volunteer.moderator]]">Moderator</template>
+          <template is="dom-if if="[[player.volunteer.cleric]]">Cleric</template>
+          <template is="dom-if if="[[player.volunteer.sorcerer]]">Sorcerer</template>
+          <template is="dom-if if="[[player.volunteer.admin]]">Admin</template>
+          <template is="dom-if if="[[player.volunteer.photographer]]">Photographer</template>
+          <template is="dom-if if="[[player.volunteer.chronicler]]">Chronicler</template>
+          <template is="dom-if if="[[player.volunteer.server]]">Server</template>
+          <template is="dom-if if="[[player.volunteer.client]]">Client</template>
+        </b>
+      </div>
+      <div>Notes: [[player.notes]]</div>
+    </div>
   </template>
+</template>
 </dom-module>

@@ -10,6 +10,7 @@
 
         properties: {
           bridge: Object,
+          isAdmin: Boolean,
           database: Object,
           user: Object,
           game: Object,
@@ -54,13 +55,14 @@
       </ghvz-desktop-main-page>
     </template>
     <ghvz-display-page
-      bridge="[[bridge]]"
-      database="[[database]]"
-      user="[[user]]"
-      game="[[game]]"
-      player="[[player]]"
-      player-id="[[playerId]]"
-      page="[[page]]">
+        bridge="[[bridge]]"
+        is-admin="[[isAdmin]]"
+        database="[[database]]"
+        user="[[user]]"
+        game="[[game]]"
+        player="[[player]]"
+        player-id="[[playerId]]"
+        page="[[page]]">
     </ghvz-display-page>
   </template>
 </dom-module>

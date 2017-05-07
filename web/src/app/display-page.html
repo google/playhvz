@@ -21,6 +21,8 @@
             value: false,
           },
 
+          isAdmin: Boolean,
+
           showPage: {
             type: Object,
             value: {
@@ -113,6 +115,7 @@
         <ghvz-profile-page
               class="content"
               bridge="[[bridge]]"
+              is-admin="[[isAdmin]]"
               game="[[game]]"
               player="[[player]]"
               page="[[page]]">
