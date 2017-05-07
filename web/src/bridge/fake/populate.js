@@ -41,7 +41,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
   let playerIds = [];
   for (let i = 0; i < numPlayers; i++) {
     let userId = Bridge.UserId.generate();
-    server.register({userId: userId});
+    server.register({userId: userId, name: "User " + i});
     let playerId = Bridge.PlayerId.generate();
     server.createPlayer(makePlayerProperties(playerId, userId, gameId, 'Player' + i));
     playerIds.push(playerId);
@@ -103,25 +103,26 @@ function populatePlayersHeavy(server, gameId) {
 function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   // registered, admin, and joined
   var kimUserId = Bridge.UserId.generate();
-  server.register({userId: kimUserId});
+  server.register({userId: kimUserId, name: "Kim"});
   // registered, thats it
   let reggieUserId = Bridge.UserId.generate();
-  server.register({userId: reggieUserId});
+  server.register({userId: reggieUserId, name: "Reggie"});
   // registered and is admin, not joined
   let minnyUserId = Bridge.UserId.generate();
-  server.register({userId: minnyUserId});
+  server.register({userId: minnyUserId, name: "Minny"});
   // registered and joined
   var evanUserId = Bridge.UserId.generate();
-  server.register({userId: evanUserId});
+  server.register({userId: evanUserId, name: "Evan"});
   // just some other zombie dude in a chat room...
   var zekeUserId = Bridge.UserId.generate();
-  server.register({userId: zekeUserId});
+  server.register({userId: zekeUserId, name: "Zeke"});
   // Just some other human dude in a chat room...
   var moldaviUserId = Bridge.UserId.generate();
-  server.register({userId: moldaviUserId});
+  server.register({userId: moldaviUserId, name: "Moldavi"});
 
   var gameId = "game-2017m";
   server.createGame({gameId: gameId, firstAdminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60});
+
 
   var resistanceGroupId = Bridge.GroupId.generate();
   server.createGroup({groupId: resistanceGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
@@ -140,7 +141,9 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.joinResistance({playerId: kimPlayerId}, "glarple zerp wobbledob");
 
   var moldaviPlayerId = Bridge.PlayerId.generate();
+  server.addAdmin({gameId: gameId, userId: moldaviUserId});
   server.createPlayer(makePlayerProperties(moldaviPlayerId, moldaviUserId, gameId, 'Moldavi'));
+  server.setAdminContact({gameId: gameId, playerId: moldaviPlayerId});
   server.joinResistance({playerId: moldaviPlayerId}, "zooble flipwoogly");
   
   var evanPlayerId = Bridge.PlayerId.generate();

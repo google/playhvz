@@ -38,7 +38,10 @@
 
       onZombify_(allegiance) {
         if (allegiance == 'horde') {
-          this.$$("#dialog").close();
+          let dialog = this.$$("#dialog");
+          if (dialog) {
+            dialog.close();
+          }
         }
       }
     });

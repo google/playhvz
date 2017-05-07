@@ -28,7 +28,7 @@ class FakeBridge {
     return new Promise((resolve, reject) => {
       if (!this.userId) {
         this.userId = Bridge.UserId.generate();
-        this.server.register(this.userId, {});
+        this.server.register({userId: this.userId, name: "Person Namey"});
       }
       this.server.signIn(this.userId)
           .then((userId) => {

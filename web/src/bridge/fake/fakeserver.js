@@ -26,8 +26,10 @@ class FakeServer {
     return preferredUserId;
   }
   register(args) {
+    let {userId, name} = args;
     this.writer.insert(this.reader.getUserPath(null), null, {
-      id: args.userId,
+      id: userId,
+      name: name,
       players: [],
     });
   }
@@ -38,6 +40,12 @@ class FakeServer {
         null,
         newGame(gameId, args));
     this.addAdmin({gameId: gameId, userId: firstAdminUserId});
+  }
+  setAdminContact(args) {
+    let {gameId, playerId} = args;
+    this.writer.set(
+        this.reader.getGamePath(gameId).concat(["adminContactPlayerId"]),
+        playerId);
   }
   updateGame(args) {
     throwError('Implement!');
