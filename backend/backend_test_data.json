@@ -16,6 +16,9 @@
           "a": true
         }
       },
+      "rewardCategories": {
+         "rewardCategory-%(ident)s": true
+      },
       "name": "test Game",
       "players": {
         "player-%(ident)s": {

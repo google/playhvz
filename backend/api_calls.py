@@ -650,6 +650,7 @@ def AddRewardCategory(request, firebase):
   Firebase entries:
     /rewardCategories/%(rewardCategoryId)
   """
+  results = []
   valid_args = ['!rewardCategoryId', 'gameId']
   required_args = list(valid_args)
   required_args.extend(['name', 'points', 'limitPerPlayer'])
@@ -666,7 +667,9 @@ def AddRewardCategory(request, firebase):
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
-  return firebase.put('/rewardCategories', reward_category, reward_category_data)
+  results.append(firebase.put('/rewardCategories', reward_category, reward_category_data))
+  results.append(firebase.put('/games/%s/rewardCategories' % game, reward_category, True))
+  return results
 
 
 def UpdateRewardCategory(request, firebase):
