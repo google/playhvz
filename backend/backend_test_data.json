@@ -16,6 +16,7 @@
       "name": "test Game",
       "players": {
         "player-%(ident)s": {
+          "active": true,
           "allegiance": "horde",
           "claims": {
             "reward-%(ident)s-bleck": {
@@ -107,13 +108,13 @@
       "name": "test Reward",
       "gameId": "game-%(ident)s",
       "points": 5,
-      "limitPerPlayer": 2,
-      "rewards": {
-        "reward-%(ident)s-bleck": {
-          "a": true,
-          "playerId": "player-%(ident)s"
-        }
-      }
+      "limitPerPlayer": 2
+    }
+  },
+  "rewards": {
+    "reward-%(ident)s-bleck": {
+      "a": true,
+      "playerId": "player-%(ident)s"
     }
   }
 }
