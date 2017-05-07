@@ -112,7 +112,7 @@
         editGun_: function(gun) {
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
-                this.bridge.updateGun(gun.id, properties);
+                this.bridge.updateGun(Utils.merge({gunId: gun.id}, properties));
               });
         },
 
@@ -124,7 +124,7 @@
           let playerOrNull = e.detail.playerOrNull;
           this.bridge.assignGun({
             gunId: this.editingGunIdOrNull,
-            playerId: playerOrNull && playerOrNull.id || "",
+            userId: playerOrNull && playerOrNull.userId || "",
           });
           this.appendChild(this.$.travelingPlayerField);
         },

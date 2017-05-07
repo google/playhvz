@@ -8,8 +8,9 @@ class FakeBridge {
     this.gatedWriter = new GatedWriter(destination, false);
     var mappingWriter = new MappingWriter(this.gatedWriter);
     var fakeServer = new FakeServer(mappingWriter, new Date().getTime());
-    var cloningFakeSerer = new CloningWrapper(fakeServer, SERVER_METHODS);
-    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, SERVER_METHODS, 100);
+    var checkedServer = new CheckedServer(fakeServer, Bridge.SERVER_METHODS_MAP);
+    var cloningFakeSerer = new CloningWrapper(checkedServer, Bridge.SERVER_METHODS);
+    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, Bridge.SERVER_METHODS, 100);
     this.server = delayingCloningFakeServer;
 
     setTimeout(() => this.performOperations_(), 37);
@@ -17,18 +18,16 @@ class FakeBridge {
     window.fakeBridge = this;
 
     this.userId =
-        populateFakeServer(fakeServer, isRegistered, isAdmin, isJoined);
+        populateFakeServer(checkedServer, isRegistered, isAdmin, isJoined);
 
-    for (const funcName of SERVER_METHODS) {
-      if (funcName != 'signIn') {
-        this[funcName] = (...args) => this.server[funcName](...args);
-      }
+    for (const funcName of Bridge.SERVER_METHODS) {
+      this[funcName] = (...args) => this.server[funcName](...args);
     }
   }
   signIn() {
     return new Promise((resolve, reject) => {
       if (!this.userId) {
-        this.userId = Bridge.generateUserId();
+        this.userId = Bridge.UserId.generate();
         this.server.register(this.userId, {});
       }
       this.server.signIn(this.userId)

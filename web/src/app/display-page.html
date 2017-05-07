@@ -30,6 +30,7 @@
               'notifications': 'notifications',
               'profile': 'profile',
               'stats': 'stats',
+              'createGame': 'createGame',
             },
           },
         },
@@ -57,6 +58,17 @@
     }
   </style>
   <template>
+    <template is="dom-if" if="[[computeShowPage_(showPage.createGame, page)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Join Game</div>
+        <ghvz-create-game
+              class="content"
+              bridge="[[bridge]]"
+              user-id="[[user.id]]">
+        </ghvz-create-game>
+      </ghvz-card>
+    </template>
+
     <template is="dom-if" if="[[computeShowPage_(showPage.chat, page)]]">
       <ghvz-card expand spaced$="[[!isMobile]]" with-menu="[[isMobile]]">
         <ghvz-chat-page

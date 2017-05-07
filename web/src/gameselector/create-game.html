@@ -1,0 +1,72 @@
+<dom-module id="ghvz-create-game">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-create-game',
+
+        properties: {
+          bridge: Object,
+          userId: String,
+        },
+
+
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "gameId",
+                label: "Id",
+                description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'."
+              },
+              {
+                property: "name",
+                label: "Name",
+              },
+              {
+                property: "rulesHtml",
+                label: "Rules html",
+                description: "HTML describing the rules",
+              },
+              {
+                property: "stunTimer",
+                label: "Stun timer (in seconds)",
+                description: "(in seconds)"
+              }
+            ],
+          };
+        },
+
+        addGame_: function() {
+          this.$.gameForm.openForAdding()
+              .then((properties) => {
+                if (!properties.gameId.startsWith('game-'))
+                  properties.gameId = 'game-' + properties.gameId;
+                properties.stunTimer = +properties.stunTimer;
+                properties.firstAdminUserId = this.userId;
+                this.bridge.createGame(properties);
+              });
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <paper-button raised on-tap="addGame_">Create Game</paper-button>
+    <ghvz-super-form
+        id="gameForm"
+        type-name="Game"
+        blueprint="[[makeFormBlueprint_()]]">
+      <ghvz-form-section spaced>
+        For timestamps, use <a href="https://www.epochconverter.com/">epochconverter</a>.
+        Timestamps are in milliseconds.
+      </ghvz-form-section>
+    </ghvz-super-form>
+  </template>
+</dom-module>

@@ -136,19 +136,19 @@
                 sendTime: Math.floor(new Date().getTime()),
               })
               .then((properties) => {
-                this.bridge.addNotificationCategory(
-                    Utils.generateId("notificationCategory"),
-                    this.gameId,
-                    properties);
+                this.bridge.addNotificationCategory(Utils.merge(properties, {
+                    id: Utils.generateId("notificationCategory"),
+                    gameId: this.gameId,
+                }));
               });
         },
 
         startEditingCategory_: function(category) {
           this.$.form.openForEditing(category)
               .then((newProperties) => {
-                this.bridge.updateNotificationCategory(
-                    category.id,
-                    newProperties);
+                this.bridge.updateNotificationCategory(Utils.merge(newProperties, {
+                    notificationCategoryId: category.id
+                }));
               });
         },
 

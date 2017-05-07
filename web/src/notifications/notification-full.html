@@ -39,7 +39,7 @@
               this.category.previewMessage;
           this.$.contents.innerHTML = newHtml;
           if (!this.notification.seenTime) {
-            this.bridge.markNotificationSeen(this.notification.id);
+            this.bridge.markNotificationSeen({notificationId: this.notification.id});
           }
         },
       });

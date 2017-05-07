@@ -12,12 +12,10 @@
           game: Object,
         },
 
-        assembleParams() {
-          return null;
-        },
+        observers: ['rulesChanged_(game.rulesHtml)'],
 
-        handleResponse(response) {
-          this.$.rules.innerHTML = this.$.ajax.lastResponse;
+        rulesChanged_(rulesHtml) {
+          this.$.rules.innerHTML = rulesHtml;
         }
       });
     });
@@ -29,15 +27,6 @@
         margin: 16px;
       }
     </style>
-    <iron-ajax
-        id="ajax"
-        auto
-        url="[[game.rulesUrl]]"
-        params="[[assembleParams(game.rulesUrl)]]"
-        handle-as="text"
-        on-response="handleResponse"
-        debounce-duration="300">
-    </iron-ajax>
     <div id="rules"></div>
   </template>
 </dom-module>
