@@ -10,6 +10,7 @@
 
         properties: {
           bridge: Object,
+          isAdmin: Boolean,
           database: Object,
           user: Object,
           game: Object,
@@ -20,8 +21,6 @@
             type: Boolean,
             value: false,
           },
-
-          isAdmin: Boolean,
 
           showPage: {
             type: Object,
@@ -80,7 +79,8 @@
             game="[[game]]"
             user="[[user]]"
             player="[[player]]"
-            page="[[page]]">
+            page="[[page]]"
+            is-admin="[[isAdmin]]">
         </ghvz-chat-page>
       </ghvz-card>
     </template>
