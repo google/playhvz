@@ -113,7 +113,7 @@
     <ghvz-dashboard>
       
       <template is="dom-if" if="[[isAdmin]]">
-        <ghvz-card spaced admin left>
+        <ghvz-card spaced admin left padded>
           <div class="header">Game</div>
           <ghvz-create-modify-game
               modify
@@ -169,7 +169,7 @@
           <div class="header">Rewards</div>
           <ghvz-rewards
               bridge="[[bridge]]"
-              game="[[game]]"
+              game-id="[[game.id]]"
               players-by-id="[[game.playersById]]"
               reward-categories="[[game.rewardCategories]]"
               reward-categories-by-id="[[game.rewardCategoriesById]]">

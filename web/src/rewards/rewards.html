@@ -11,6 +11,8 @@
         properties: {
           bridge: Object,
 
+          gameId: String,
+
           rewardCategories: Array,
           rewardCategoriesById: Object,
           playersById: Object,
@@ -70,6 +72,13 @@
                 property: "name",
                 label: "Name",
                 description: "Title of the category. Users will see this next to the icon in their profile and when they hover over the icon.",
+                width: "half",
+              },
+              {
+                property: "seed",
+                label: "Seed",
+                width: "half",
+                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
               },
               {
                 property: "points",
@@ -79,10 +88,11 @@
                 description: "Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).",
               },
               {
-                property: "seed",
-                label: "Seed",
+                property: "limitPerPlayer",
+                type: "number",
+                label: "Limit per player",
                 width: "half",
-                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
+                description: "Maximum number of rewards of this category a player can claim.",
               },
             ],
           };
@@ -92,7 +102,7 @@
           this.$.categoryForm.openForAdding()
               .then((properties) => {
                 this.bridge.addRewardCategory(Utils.merge(properties, {
-                    id: Utils.generateId("rewardCategory"),
+                    rewardCategoryId: Bridge.RewardCategoryId.generate(),
                     gameId: this.gameId
                 }));
               });

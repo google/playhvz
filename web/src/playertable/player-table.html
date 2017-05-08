@@ -31,7 +31,7 @@
             columns: [
               {
                 property: "number",
-                name: "Number",
+                name: "#",
                 sortable: true,
                 filterable: true
               },
@@ -48,12 +48,6 @@
                 property: "allegiance",
               },
               {
-                name: "Phone",
-                sortable: true,
-                filterable: true,
-                property: "phone",
-              },
-              {
                 name: "Equipment",
                 sortable: true,
                 filterable: true,
@@ -68,24 +62,74 @@
             ],
             actions: [
               {
-                action: "delete",
-                name: "Delete",
-                handler: (player) => {
-                  var index = this.players.indexOf(player);
-                  this.splice('players', index, 1);
-                }
-              },
-              {
                 action: "infect",
-                name: "Infect"
+                name: "Infect",
+                handler: (player) => {
+                  this.bridge.infect({
+                    playerId: null,
+                    infectionId: Bridge.InfectionId.generate(),
+                    infecteeLifeCode: null,
+                    infecteePlayerId: player.id,
+                  });
+                },
               },
               {
                 action: "revive",
-                name: "Revive"
+                name: "Add Life",
+                handler: (player) => {
+                  this.bridge.addLife({
+                    playerId: player.id,
+                    lifeId: Bridge.LifeId.generate(),
+                  });
+                },
               },
               {
-                action: "ban",
-                name: "Ban"
+                name: "Set Got Equipment",
+                handler: (player) => {
+                  this.bridge.updatePlayer({
+                    playerId: player.id,
+                    gotEquipment: true,
+                  });
+                }
+              },
+              {
+                name: "Unset Got Equipment",
+                handler: (player) => {
+                  this.bridge.updatePlayer({
+                    playerId: player.id,
+                    gotEquipment: false,
+                  });
+                }
+              },
+              {
+                name: "Set Notes",
+                handler: (player) => {
+                  let notes = prompt("Set the new notes for this player", player.notes);
+                  if (notes != null) {
+                    this.bridge.updatePlayer({
+                      playerId: player.id,
+                      notes: notes,
+                    });
+                  }
+                }
+              },
+              {
+                name: "Deactivate",
+                handler: (player) => {
+                  this.bridge.updatePlayer({
+                    playerId: player.id,
+                    active: false,
+                  });
+                }
+              },
+              {
+                name: "Activate",
+                handler: (player) => {
+                  this.bridge.updatePlayer({
+                    playerId: player.id,
+                    active: true,
+                  });
+                }
               },
             ],
           };

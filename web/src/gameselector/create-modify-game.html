@@ -10,8 +10,17 @@
         properties: {
           bridge: Object,
           userId: String,
+          game: {
+            type: Object,
+            value: null,
+          }
         },
 
+        observers: ['onRulesChanged_(game.rulesHtml)'],
+
+        onRulesChanged_(rulesHtml) {
+          this.$$("#rules").innerHTML = rulesHtml;
+        },
 
         makeFormBlueprint_: function() {
           return {
@@ -19,22 +28,28 @@
               {
                 property: "id",
                 label: "Id",
-                description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'."
+                description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
+                width: "third",
               },
               {
                 property: "name",
                 label: "Name",
+                width: "third",
+                description: "Full name for the game.",
+              },
+              {
+                property: "stunTimer",
+                label: "Stun timer (in seconds)",
+                description: "Stun timer, in seconds.",
+                type: 'number',
+                width: "third",
               },
               {
                 property: "rulesHtml",
                 label: "Rules html",
                 description: "HTML describing the rules",
+                type: 'text',
               },
-              {
-                property: "stunTimer",
-                label: "Stun timer (in seconds)",
-                description: "(in seconds)"
-              }
             ],
           };
         },
@@ -51,14 +66,56 @@
         addGame_: function() {
           this.$.gameForm.openForAdding()
               .then((properties) => {
-                if (!properties.id.startsWith('game-'))
-                  properties.id = 'game-' + properties.id;
-                properties.gameId = properties.id;
-                delete properties.id;
-                properties.stunTimer = +properties.stunTimer;
-                properties.firstAdminUserId = this.userId;
-                properties.active = true;
-                this.bridge.createGame(properties);
+                let gameId = properties.id;
+                if (!gameId.startsWith('game-'))
+                  gameId = 'game-' + properties.id;
+                this.bridge.createGame({
+                  gameId: gameId,
+                  stunTimer: +properties.stunTimer,
+                  firstAdminUserId: this.userId,
+                  active: true,
+                  rulesHtml: properties.rulesHtml,
+                  name: properties.name,
+                });
+                var resistanceGroupId = Bridge.GroupId.generate('resistance');
+                this.bridge.createGroup({
+                  groupId: resistanceGroupId,
+                  gameId: gameId,
+                  ownerPlayerId: null,
+                  allegianceFilter: 'resistance',
+                  autoAdd: true,
+                  autoRemove: true,
+                  membersCanAdd: false,
+                  membersCanRemove: false,
+                });
+                var resistanceChatRoomId = Bridge.ChatRoomId.generate();
+                this.bridge.createChatRoom({
+                  chatRoomId: resistanceChatRoomId,
+                  gameId: gameId,
+                  groupId: resistanceGroupId,
+                  name: "Resistance Comms Hub",
+                  withAdmin: false
+                });
+                var hordeGroupId = Bridge.GroupId.generate('horde');
+                this.bridge.createGroup({
+                  groupId: hordeGroupId,
+                  gameId: gameId,
+                  ownerPlayerId: null,
+                  allegianceFilter: 'horde',
+                  autoAdd: true,
+                  membersCanAdd: true,
+                  autoRemove: true,
+                  membersCanAdd: false,
+                  membersCanRemove: false,
+                });
+                var zedChatRoomId = Bridge.ChatRoomId.generate();
+                this.bridge.createChatRoom({
+                  chatRoomId: zedChatRoomId,
+                  gameId: gameId,
+                  groupId: hordeGroupId,
+                  name: "Horde ZedLink",
+                  withAdmin: false,
+                });
               });
         },
       });
@@ -72,7 +129,11 @@
       display: none;
     }
     paper-button {
-      margin: 8px;
+      background-color: #9C27B0;
+      color: white;
+    }
+    :host[modify] paper-button {
+      margin: 0 0 8px 0;
     }
     :host[create] #create {
       display: block;
@@ -80,10 +141,12 @@
     :host[modify] #modify {
       display: block;
     }
+    #rules {
+      margin-top: 8px;
+    }
   </style>
   <template>
     <paper-button id="create" raised on-tap="addGame_">Create Game</paper-button>
-    <paper-button id="modify" raised on-tap="editGame_">Modify Game</paper-button>
     <ghvz-super-form
         id="gameForm"
         type-name="Game"
@@ -93,5 +156,13 @@
         Timestamps are in milliseconds.
       </ghvz-form-section>
     </ghvz-super-form>
+
+    <div hidden$="[[!game]]">
+      <paper-button id="modify" raised on-tap="editGame_">Modify Game</paper-button>
+      <div>ID: <b>[[game.id]]</b></div>
+      <div>Name: <b>[[game.name]]</b></div>
+      <div>Stun Timer: <b>[[game.stunTimer]]</b></div>
+      <div id="rules"></div>
+    </div>
   </template>
 </dom-module>

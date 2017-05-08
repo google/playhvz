@@ -122,7 +122,7 @@ class FirebaseListener {
       let obj = newGun(gunId, snap.val());
       this.writer.insert(this.reader.getGunPath(null), null, obj);
       this.listenForPropertyChanges_(
-          snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS,
+          snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS.concat(["a"]),
           (property, value) => {
             this.writer.set(this.reader.getGunPath(gunId).concat([property]), value);
           });

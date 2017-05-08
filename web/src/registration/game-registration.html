@@ -68,11 +68,6 @@
         this.pageNumber++;
       },
 
-      handlePhonePageDone_(e) {
-        this.newPlayerArgs.phone = e.detail.value;
-        this.pageNumber++;
-      },
-
       handleGunPageDone_(e) {
         this.newPlayerArgs.needGun = e.detail.value;
         this.pageNumber++;
@@ -226,15 +221,6 @@
         <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
         <div class="maintext">What user name would you like?</div>
         <div class="subtext">To strike terror in the hearts of your victims. e.g. John Smith, The Destroyer, King Spigglewigget the Flamscrankle. People will see this on the leaderboard, and in the chat rooms.</div>
-      </ghvz-join-game-string-page>
-    </neon-animatable>
-
-    <neon-animatable>
-      <ghvz-join-game-string-page
-          placeholder="Phone Number"
-          on-ghvz-join-game-page-done="handlePhonePageDone_">
-        <div class="maintext">What is your phone number?</div>
-        <div class="subtext">In case we have to reach you quickly while we're in a mission.</div>
       </ghvz-join-game-string-page>
     </neon-animatable>
 

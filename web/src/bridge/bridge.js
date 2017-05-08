@@ -223,9 +223,9 @@ Bridge.QuizAnswerId = {
       vibrate: 'Boolean',
       sound: 'Boolean',
     },
+    active: 'Boolean',
     gotEquipment: 'Boolean',
     notes: 'String',
-    phone: '?String',
   };
   serverMethods.set('createPlayer', {
       required:
@@ -281,6 +281,7 @@ Bridge.QuizAnswerId = {
     name: 'String',
     points: 'Number',
     seed: 'String',
+    limitPerPlayer: 'Number',
   };
   serverMethods.set('addRewardCategory', {
     required:
@@ -324,7 +325,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('createChatRoom', {
     required:
         Utils.merge(
-            {chatRoomId: '!ChatRoomId', groupId: 'GroupId'},
+            {chatRoomId: '!ChatRoomId', gameId: 'GameId', groupId: 'GroupId'},
             CHAT_ROOM_PROPERTIES)
   });
   serverMethods.set('updateChatRoom', {
@@ -375,15 +376,15 @@ Bridge.QuizAnswerId = {
     required: {
       playerId: 'PlayerId',
       lifeId: '!LifeId',
-      code: 'String',
     }
   });
 
   serverMethods.set('infect', {
     required: {
       infectionId: '!InfectionId',
-      playerId: 'PlayerId',
-      infecteeLifeCode: 'String'
+      playerId: '?PlayerId',
+      infecteeLifeCode: '?String',
+      infecteePlayerId: '?PlayerId',
     },
   });
 

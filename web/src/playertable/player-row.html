@@ -40,6 +40,9 @@
             });
           }
         },
+        computeGotEquipmentString_(gotEquipment) {
+          return gotEquipment ? "Yes" : "No";
+        },
       });
     });
   </script>
@@ -54,23 +57,23 @@
     a {
       color: #4080FF;
     }
+    #name[inactive] {
+      text-decoration: line-through;
+    }
   </style>
   <template>
     <ghvz-table-control-cell id="control" item="[[player]]"></ghvz-table-control-cell>
     <div id="number">
       [[player.number]]
     </div>
-    <a is="name" href="[[computePlayerProfileLink_(game, player.id)]]" on-tap="handleProfileLink_">
+    <a id="name" href="[[computePlayerProfileLink_(game, player.id)]]" on-tap="handleProfileLink_" inactive$="[[!player.active]]">
       [[player.name]]
     </a>
     <div id="allegiance">
       [[computeAllegiance_(player.allegiance)]]
     </div>
-    <div id="phone">
-      [[player.phone]]
-    </div>
     <div id="gotEquipment">
-      [[player.gotEquipment]]
+      [[computeGotEquipmentString_(player.gotEquipment)]]
     </div>
     <div id="notes">
       [[player.notes]]

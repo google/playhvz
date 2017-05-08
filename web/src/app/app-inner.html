@@ -71,12 +71,18 @@
 </script>
 <style>
   :host {
-    display: block;
+    display: flex;
     width: 100%;
     height: 100%;
+    align-items: center;
+    justify-content: center;
   }
   div[main] {
     overflow-y: auto;
+  }
+  paper-spinner {
+    width: 32px;
+    height: 32px;
   }
 </style>
 <template>
@@ -90,6 +96,7 @@
       active="[[userActive]]">
   </ghvz-inactive-dialog>
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
+  <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
     <paper-button on-tap="signIn_">Sign In With Google</paper-button>
   </template>

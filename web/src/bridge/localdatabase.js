@@ -17,7 +17,7 @@ function newUser(id, args) {
   return obj;
 }
 
-const PRIVATE_PLAYER_PROPERTIES = ["gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantsToBeSecretZombie", "gotEquipment", "phone", "notes"];
+const PRIVATE_PLAYER_PROPERTIES = ["gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantsToBeSecretZombie", "gotEquipment", "notes"];
 const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
 const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "mobile", "server", "client"];
 const PRIVATE_PLAYER_COLLECTIONS = ["lives"];

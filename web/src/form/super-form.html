@@ -87,6 +87,8 @@
               let newValue;
               if (field.type == 'boolean') {
                 newValue = false;
+              } else if (field.type == 'number') {
+                newValue = 0;
               } else if (field.type == 'enum') {
                 newValue = field.options[0].value;
               } else if (field.type == 'timestamp') {
@@ -102,7 +104,12 @@
         assembleValues_() {
           let values = {};
           for (let field of this.fields) {
-            values[field.property] = field.value;
+            let value = field.value;
+            switch (field.type) {
+              case 'number': value = +value; break;
+              case 'boolean': value = !!value; break;
+            }
+            values[field.property] = value;
           }
           return values;
         },
@@ -170,7 +177,7 @@
         },
 
         usePaperInput_: function(field) {
-          return !field.type || field.type == 'string';
+          return !field.type || field.type == 'string' || field.type == 'number';
         },
 
         useGroupField_: function(field) {
@@ -199,12 +206,6 @@
   <style>
     ghvz-form-section {
       margin: 8px;
-    }
-    paper-input, paper-textarea {
-      margin-top: -20px; /* because the label takes so much space */
-    }
-    ghvz-form ghvz-form-section:first-child {
-      margin-top: 20px;
     }
   </style>
   <template>
@@ -238,7 +239,7 @@
             </ghvz-timestamp-picker>
           </template>
           <template is="dom-if" if="[[usePaperTextarea_(field)]]">
-            <paper-textarea label="[[field.label]]" value="{{field.value}}">
+            <paper-textarea no-label-float label="[[field.label]]" value="{{field.value}}">
             </paper-textarea>
           </template>
           <template is="dom-if" if="[[useGroupField_(field)]]">
@@ -251,7 +252,7 @@
             </paper-checkbox>
           </template>
           <template is="dom-if" if="[[usePaperInput_(field)]]">
-            <paper-input label="[[field.label]]" value="{{field.value}}">
+            <paper-input type="[[field.type]]" no-label-float label="[[field.label]]" value="{{field.value}}">
             </paper-input>
           </template>
         </ghvz-form-section>

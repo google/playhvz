@@ -2,6 +2,7 @@
 function makePlayerProperties(id, userId, gameId, name) {
   return {
     playerId: id,
+    active: true,
     userId: userId,
     gameId: gameId,
     name: name,
@@ -28,7 +29,6 @@ function makePlayerProperties(id, userId, gameId, name) {
       vibrate: true,
     },
     notes: '',
-    phone: null,
     gotEquipment: false,
   };
 }
@@ -59,7 +59,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
   for (let i = zombiesEndIndex; i < playerIds.length; i++) {
     let lifeCode = "life-" + lifeCodeNumber++;
     lifeCodesByPlayerId[playerIds[i]] = lifeCode;
-    server.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerIds[i], code: lifeCode});
+    server.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerIds[i]}, lifeCode);
     // numHumans++;
   }
   // console.log(server.time, numHumans, numZombies);
@@ -70,7 +70,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       let infecteeId = playerIds[zombiesEndIndex + j];
       let infecteeLifeCode = lifeCodesByPlayerId[infecteeId];
       server.inner.setTime(dayStartTimestamp + j * 11 * 60 * 1000); // infections are spread by 11 minutes
-      server.infect({infectionId: Bridge.InfectionId.generate(), playerId: infectorId, infecteeLifeCode: infecteeLifeCode});
+      server.infect({infectionId: Bridge.InfectionId.generate(), playerId: infectorId, infecteeLifeCode: infecteeLifeCode, infecteePlayerId: null});
       // console.log(server.time, --numHumans, ++numZombies);
     }
     zombiesEndIndex *= 2;
@@ -81,7 +81,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       for (let j = 0; j < numStartingZombies; j++) {
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
-        server.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerIds[j], code: lifeCode});
+        server.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerIds[j]}, lifeCode);
         // console.log(server.time, ++numHumans, --numZombies);
       }
       zombiesStartIndex = numStartingZombies;
@@ -92,7 +92,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       for (let j = zombiesStartIndex; j < zombiesStartIndex + 3; j++) {
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
-        server.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerIds[j], code: lifeCode});
+        server.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerIds[j]}, lifeCode);
         // console.log(server.time, ++numHumans, --numZombies);
       }
       zombiesStartIndex += 3;
@@ -137,12 +137,12 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var resistanceGroupId = Bridge.GroupId.generate('resistance');
   server.createGroup({groupId: resistanceGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var resistanceChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: resistanceChatRoomId, groupId: resistanceGroupId, name: "Resistance Comms Hub", withAdmin: false});
+  server.createChatRoom({gameId: gameId, chatRoomId: resistanceChatRoomId, groupId: resistanceGroupId, name: "Resistance Comms Hub", withAdmin: false});
 
   var hordeGroupId = Bridge.GroupId.generate('horde');
   server.createGroup({groupId: hordeGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'horde', autoAdd: true, membersCanAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var zedChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink", withAdmin: false});
+  server.createChatRoom({gameId: gameId, chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink", withAdmin: false});
 
   server.addAdmin({gameId: gameId, userId: minnyUserId});
 
@@ -187,7 +187,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var zedSecondChatRoomGroupId = Bridge.GroupId.generate();
   server.createGroup({groupId: zedSecondChatRoomGroupId, gameId: gameId, ownerPlayerId: zekePlayerId, allegianceFilter: 'horde', autoAdd: true, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   var zedSecondChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: zedSecondChatRoomId, groupId: zedSecondChatRoomGroupId, name: "Zeds Internal Secret Police", withAdmin: false});
+  server.createChatRoom({gameId: gameId, chatRoomId: zedSecondChatRoomId, groupId: zedSecondChatRoomGroupId, name: "Zeds Internal Secret Police", withAdmin: false});
 
   server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, playerToAddId: zekePlayerId});
   server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, playerToAddId: evanPlayerId});
@@ -197,7 +197,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var resistanceSecondChatRoomGroupId = Bridge.GroupId.generate();
   server.createGroup({groupId: resistanceSecondChatRoomGroupId, gameId: gameId, ownerPlayerId: kimPlayerId, allegianceFilter: 'resistance', autoAdd: false, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   var resistanceSecondChatRoomId = Bridge.ChatRoomId.generate();
-  server.createChatRoom({chatRoomId: resistanceSecondChatRoomId, groupId: resistanceSecondChatRoomGroupId, name: "My Chat Room!", withAdmin: false});
+  server.createChatRoom({gameId: gameId, chatRoomId: resistanceSecondChatRoomId, groupId: resistanceSecondChatRoomGroupId, name: "My Chat Room!", withAdmin: false});
 
   server.addPlayerToGroup({groupId: resistanceSecondChatRoomGroupId, playerId: null, playerToAddId: kimPlayerId});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceSecondChatRoomId, playerId: kimPlayerId, message: 'lololol i have a chat room!'});
@@ -221,7 +221,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var secondMissionId = Bridge.MissionId.generate();
   server.addMission({missionId: secondMissionId, gameId: gameId, beginTime: new Date().getTime() - 10 * 1000, endTime: new Date().getTime() + 60 * 60 * 1000, name: "second mission!", detailsHtml: ZOMBIE_MISSION_HTML, groupId: hordeGroupId});
   var rewardCategoryId = Bridge.RewardCategoryId.generate();
-  server.addRewardCategory({rewardCategoryId: rewardCategoryId, gameId: gameId, name: "signed up!", points: 2, seed: "derp"});
+  server.addRewardCategory({rewardCategoryId: rewardCategoryId, gameId: gameId, name: "signed up!", points: 2, seed: "derp", limitPerPlayer: 1});
   server.addReward({gameId: gameId, rewardId: Bridge.RewardId.generate(), rewardCategoryId: rewardCategoryId});
   server.addReward({gameId: gameId, rewardId: Bridge.RewardId.generate(), rewardCategoryId: rewardCategoryId});
   server.addReward({gameId: gameId, rewardId: Bridge.RewardId.generate(), rewardCategoryId: rewardCategoryId});

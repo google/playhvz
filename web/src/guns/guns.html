@@ -94,7 +94,7 @@
           return {
             fields: [
               {
-                property: "id",
+                property: "gunId",
                 label: "ID",
                 description: "ID on the gun, example 1404.",
               },
@@ -105,7 +105,12 @@
         addGun_: function() {
           this.$.gunForm.openForAdding()
               .then((properties) => {
-                this.bridge.addGun(properties);
+                let gunId = properties.gunId;
+                if (!gunId.startsWith('gun-'))
+                  gunId = 'gun-' + gunId;
+                this.bridge.addGun({
+                  gunId: gunId,
+                });
               });
         },
 

@@ -345,8 +345,7 @@ class FakeServer {
   }
   joinResistance(args, lifeCodeHint) {
     let {playerId} = args;
-    assert(Utils.isString(lifeCodeHint));
-    this.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerId, code: lifeCodeHint});
+    this.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerId}, lifeCodeHint);
     this.setPlayerHuman(playerId);
     this.autoAddPlayerToGroups_(playerId);
   }
@@ -354,6 +353,18 @@ class FakeServer {
     let {playerId} = args;
     this.setPlayerZombie(playerId);
     this.autoAddPlayerToGroups_(playerId);
+  }
+  autoRemovePlayerFromGroups_(playerId) {
+    let gameId = this.reader.getGameIdForPlayerId(playerId);
+    let game = this.database.gamesById[gameId];
+    let player = game.playersById[playerId];
+    for (let group of this.database.gamesById[gameId].groups) {
+      if (group.autoRemove) {
+        if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
+          this.removePlayerFromGroup({groupId: group.id, playerToRemoveId: playerId});
+        }
+      }
+    }
   }
   autoAddPlayerToGroups_(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
@@ -371,7 +382,8 @@ class FakeServer {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];
-    for (let chatRoomMembership of player.chatRoomMemberships) {
+    let oldChatRoomMemberships = player.chatRoomMemberships.slice();
+    for (let chatRoomMembership of oldChatRoomMemberships) {
       let chatRoom = game.chatRoomsById[chatRoomMembership.chatRoomId];
       let group = game.groupsById[chatRoom.groupId];
       if (group.autoRemove) {
@@ -403,25 +415,33 @@ class FakeServer {
     this.writer.set(playerPath.concat(["allegiance"]), "resistance");
     this.updateMembershipsOnAllegianceChange(playerId);
   }
-  infect(args) {
-    let {infectionId, playerId, infecteeLifeCode} = args;
-    let infectorPlayerId = playerId;
-    let gameId = this.reader.getGameIdForPlayerId(infectorPlayerId);
+  findPlayerByIdOrLifeCode_(gameId, playerId, lifeCode) {
     let players = this.reader.get(this.reader.getPlayerPath(gameId, null));
-    let infecteePlayer = null;
-    for (let i = 0; i < players.length; i++) {
-      let player = players[i];
-      if (player.lives.length) {
-        let life = player.lives[player.lives.length - 1];
-        if (life.code == infecteeLifeCode) {
-          infecteePlayer = player;
-          break;
+    assert(playerId || lifeCode);
+    if (playerId) {
+      let player = this.reader.get(this.reader.getPlayerPath(gameId, playerId));
+      if (!player) {
+        throw 'No player found with id ' + playerId;
+      }
+      return player;
+    } else {
+      for (let i = 0; i < players.length; i++) {
+        let player = players[i];
+        if (player.lives.length) {
+          let life = player.lives[player.lives.length - 1];
+          if (life.code == lifeCode) {
+            return player;
+          }
         }
       }
-    }
-    if (!infecteePlayer) {
       throw 'No player found with life code ' + infecteeLifeCode;
     }
+  }
+  infect(args) {
+    let {infectionId, playerId, infecteeLifeCode, infecteePlayerId} = args;
+    let infectorPlayerId = playerId;
+    let gameId = this.reader.getGameIdForPlayerId(infectorPlayerId || infecteePlayerId);
+    let infecteePlayer = this.findPlayerByIdOrLifeCode_(gameId, infecteePlayerId, infecteeLifeCode);
     let infectorPlayerPath = this.reader.getPlayerPath(gameId, infectorPlayerId);
     this.writer.set(
         this.reader.getPlayerPath(gameId, infectorPlayerId).concat(["points"]),
@@ -440,8 +460,9 @@ class FakeServer {
     }
     return infecteePlayer.id;
   }
-  addLife(args) {
-    let {lifeId, playerId, code} = args;
+  addLife(args, codeHint) {
+    let {lifeId, playerId} = args;
+    let code = codeHint || "codefor-" + lifeId;
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
     this.writer.insert(

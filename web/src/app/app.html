@@ -73,7 +73,12 @@ paper-input-container {
 
         showSignInButton: {
           type: Boolean,
-          computed: 'computeShowSignInButton_(userId, user)',
+          value: false,
+        },
+
+        showLoadingSpinner: {
+          type: Boolean,
+          value: true,
         },
 
         database: {
@@ -83,7 +88,7 @@ paper-input-container {
 
         userId: {
           type: String,
-          value: null,
+          value: undefined,
         },
 
         gameId: {
@@ -111,7 +116,7 @@ paper-input-container {
       },
 
       observers: [
-        'onUserIdChanged_(userId, database.users.splices)',
+        'onUserIdChanged_(userId, database.users.length)',
         'onGameIdChanged_(bridge, gameId, database.games.splices)',
         // 'onPlayerIdChanged_(playerId, game.playersById)'
         'autoNavigate_(database.games.splices)',
@@ -137,6 +142,10 @@ paper-input-container {
       },
 
       onUserIdChanged_() {
+        this.showLoadingSpinner = false;
+        if (this.userId == null) {
+          this.showSignInButton = true;
+        }
         if (!this.user) {
           let user = this.database.users.find(user => user.id == this.userId);
           if (user) {
@@ -169,7 +178,9 @@ paper-input-container {
         this.bridge = this.makeBridge_();
         this.bridge.attemptAutoSignIn()
             .then((userId) => this.userId = userId)
-            .catch((e) => {}); // do nothing
+            .catch((e) => {
+              this.userId = null
+            });
         window.onpopstate = this.handlePopState_.bind(this);
       },
 
@@ -196,7 +207,8 @@ paper-input-container {
 
       // Called on any change in userId, gameId, playerId, or games.splices.
       autoNavigate_() {
-        if (this.userId && !this.gameId) {
+        let [, page] = this.extractUrl_();
+        if (this.userId && page != 'createGame' && !this.gameId) {
           // Try to figure out what game to put them in.
           let [gameId, ] = this.extractUrl_();
           if (gameId) {
@@ -240,7 +252,6 @@ paper-input-container {
             return;
           }
         }
-        let [, page] = this.extractUrl_();
         if (this.userId && !this.page && page == 'createGame') {
           // Async so we dont accidentally cause calls into firebaselistener
           // while we're already reacting to something from it.
@@ -339,7 +350,8 @@ paper-input-container {
       game="[[game]]"
       player-id="[[playerId]]"
       page="[[page]]"
-      show-sign-in-button="[[showSignInButton]]">
+      show-sign-in-button="[[showSignInButton]]"
+      show-loading-spinner="[[showLoadingSpinner]]">
   </ghvz-app-inner>
 </template>
 </dom-module>

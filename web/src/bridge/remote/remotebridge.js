@@ -22,16 +22,31 @@ class RemoteBridge {
   signIn() {
     if (this.userId == null) {
       return new Promise((resolve, reject) => {
-        firebase.auth().getRedirectResult().then(() => {
-          // Register, if theyre already registered this is a no-op, thats fine
-          this.register({userId: this.userId}).then((result) => {
-            // Try listening to the user
-            this.firebaseListener.listenToUser(this.userId);
-          });
-        });
-        var provider = new firebase.auth.GoogleAuthProvider();
-        provider.addScope('https://www.googleapis.com/auth/plus.login');
-        firebase.auth().signInWithRedirect(provider);
+        firebase.auth().getRedirectResult()
+            .then((result) => {
+              if (result.user) {
+                this.userId = "user-" + result.user.uid;
+                this.register({userId: this.userId, name: 'unused'}).then(() => {
+                  this.firebaseListener.listenToUser(this.userId)
+                      .then(() => resolve(this.userId))
+                      .catch((e) => {
+                        this.register({userId: this.userId})
+                            .then(() => {
+                              this.firebaseListener.listenToUser(this.userId);
+                            })
+                            .catch((error) => {
+                              reject(error);
+                            });
+                      });
+                });
+              } else {
+                // This sometimes happens when we redirect away. Let it go.
+              }
+            })
+            .catch((error) => {
+              reject(error.message);
+            });
+        firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
       });
     } else {
       console.error("Impossible");
@@ -45,18 +60,15 @@ class RemoteBridge {
           if (this.userId == null) {
             this.userId = "user-" + firebaseUser.uid;
             this.firebaseListener.listenToUser(this.userId)
-                .then(() => resolve(firebaseUser.uid))
+                .then(() => {
+                  resolve(this.userId);
+                })
                 .catch((e) => {
-                  console.error(e);
-                  this.register({
-                    userId: this.userId,
-                    name: firebaseUser.displayName,
-                  })
-                      .then(() => {
-                        this.firebaseListener.listenToUser(this.userId);
-                      });
+                  this.register({userId: this.userId, name: 'unused'}).then(() => {
+                    this.firebaseListener.listenToUser(this.userId);
+                    resolve(this.userId);
+                  });
                 });
-            resolve(this.userId);
           } else {
             // Sometimes we get spurious auth changes.
             // As long as we stick with the same user, its fine.
