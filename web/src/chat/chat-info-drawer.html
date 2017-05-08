@@ -82,12 +82,6 @@
       overflow-y: auto;
       height: 100%;
     }
-    iron-image {
-      border-radius: 50%;
-      border: 2px solid green;
-      width: 40px;
-      height:40px;
-    }
     .drawer-item {
       display: flex;
       align-items: center;
@@ -170,15 +164,10 @@
         <template is="dom-repeat" items="[[playersInChatRoom]]">
           <div class="layout horizontal player-entry">
             <div class="layout horizontal player-info"
-              on-tap="captureTap_"
-              data-action="profile"
-              data-player-id$="[[item.id]]">
-              <iron-image
-                style
-                src="[[item.profileImageUrl]]"
-                id="profile-pic" 
-                sizing="cover">
-              </iron-image>
+                on-tap="captureTap_"
+                data-action="profile"
+                data-player-id$="[[item.id]]">
+              <ghvz-player-avatar medium game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
               <div class='player-name'>
                 [[item.name]]
               </div>

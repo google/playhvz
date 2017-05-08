@@ -320,7 +320,6 @@
     <div id="conversationContainer" class="conversation-container">
       <template is="dom-repeat" items="[[chatRoom.messages]]">
         <div class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
-          <!-- Display message text -->
           <div class="display-message">
             <div class="player-name">
               [[getName_(item.playerId, game.players.length)]]
@@ -332,7 +331,6 @@
               </paper-tooltip>
             </div>
           </div>
-          <!-- Display player avatar -->
           <div class="display-avatar">
             <ghvz-player-avatar small game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
           </div>

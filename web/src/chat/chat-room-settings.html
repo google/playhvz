@@ -125,12 +125,26 @@
           maxlength="40"
           value="{{newName}}">
         </paper-input>
-        <paper-checkbox class="option">
-          [[getPlayerAllegiance_(player)]] only
-          <div class="subtext">
-          Have the server prune players from chat if they are no longer [[getPlayerAllegiance_(player)]]
-          </div>
-        </paper-checkbox>
+        <template is="dom-if" if="[[!isAdmin]]">
+          <paper-checkbox class="option">
+            [[getPlayerAllegiance_(player)]] only
+            <div class="subtext">
+            Have the server prune players from chat if they are no longer [[getPlayerAllegiance_(player)]]
+            </div>
+          </paper-checkbox>
+        </template>
+        <template is="dom-if" if="[[isAdmin]]">
+          <paper-checkbox class="option">
+            Set alliegance filter
+            <div class="subtext">
+            Have the server prune players from chat if they are no longer the specified alliegance
+            </div>
+          </paper-checkbox>
+          <!-- <radio-group>
+            <paper-radio-button> Resistance </paper-radio-button>
+            <paper-radio-button> Horde </paper-radio-button>
+          </radio-group> -->
+        </template>
         <paper-checkbox class="option">
           Disable add players
           <div class="subtext">
@@ -144,13 +158,13 @@
               Use with care! Players can't leave this chat unless you kick them out
             </div>
           </paper-checkbox>
+          <paper-checkbox class="option">
+            Automatically add members
+            <div class="subtext">
+              Auto add new players based on the Alliegance filter, if no alliegance filter is set auto add all players in the game to this chat
+            </div>
+          </paper-checkbox>  
         </template>
-        <paper-checkbox class="option">
-          Auto add new members to the chat room
-          <div class="subtext">
-            Have the server automatically add players if ....
-          </div>
-        </paper-checkbox>
       </div>
     </ghvz-form>
   </template>

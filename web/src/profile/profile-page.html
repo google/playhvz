@@ -84,17 +84,11 @@
   .alive {
     display: flex;
   }
-  .alive iron-image {
-    border: 2px solid fuchsia;
-  }
   .alive .status {
     color: fuchsia;
   }
   .dead {
     display: flex;
-  }
-  .dead iron-image {
-    border: 2px solid forestgreen;
   }
   .dead .status {
     color: forestgreen;
@@ -109,10 +103,8 @@
     padding-top: 16px;
     padding-bottom: 16px;
   }
-  .profile-pic {
-    width: 116px;
-    height:116px;
-    padding: 16px;
+  .display-avatar {
+    padding: 24px;
   }
   .status {}
   .sub-item {
@@ -124,12 +116,12 @@
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{displayedPlayer}}"></array-selector>
   <div id="flexThing">
     <div class$="[[getAliveStatusClass_(displayedPlayer.allegiance)]]">
-      <div class="profile-pic">
-        <iron-image
-          id="profile-pic" 
-          src="[[displayedPlayer.profileImageUrl]]"
-          sizing="cover">
-        </iron-image>
+      <div class="display-avatar">
+        <ghvz-player-avatar 
+            large  
+            game="[[game]]" 
+            player-id="[[displayedPlayer.id]]">  
+          </ghvz-player-avatar>
       </div>
       <div class="info">
         <div class="name">
