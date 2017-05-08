@@ -334,15 +334,7 @@
           </div>
           <!-- Display player avatar -->
           <div class="display-avatar">
-            <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
-            <div 
-              style$="background-image: url('[[getProfilePic_(item.playerId, game.players.length)]]')"
-              class="profile-pic"
-              on-tap="openPlayerProfile_">
-            </div>
-            <paper-tooltip position="top" animation-delay="0">
-              [[getName_(item.playerId, game.players.length)]]
-            </paper-tooltip>
+            <ghvz-player-avatar small game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
           </div>
         </div> 
       </template>
