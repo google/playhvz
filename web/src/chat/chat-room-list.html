@@ -135,6 +135,20 @@
         padding-right: 8px;
       }
     }
+    iron-icon {
+      flex-shrink: 0;
+      padding-right: 8px;
+    }
+    .with-admin {
+      display: flex;
+      align-items: center;
+      padding-left: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+      padding: 0 8px;
+    }
   </style>
   <template>
     <div class="frame" on-tap="captureTap_">
@@ -151,7 +165,7 @@
 
     <template is="dom-if" if="[[!adminChatExists]]">
       <div class="list-item">
-        <a href="javascript:void(0)" data-action="admin" class="action">
+        <a href="javascript:void(0)" data-action="admin" class="with-admin">
           <iron-icon icon="communication:chat"></iron-icon>
           HvZ CDC Game Admins
         </a>
