@@ -193,12 +193,6 @@
     :host[small] {
       max-height: 400px;
     }
-    iron-image {
-      border-radius: 50%;
-      border: 2px solid green;
-      width: 40px;
-      height:40px;
-    }
     paper-button.send {
       background-color: rgba(135, 206, 250, .5);
       color: darkslategrey;
@@ -213,19 +207,27 @@
     .message-from-other {
       display: flex;
       justify-content: flex-start;
+      position: relative;
     }
     .message-from-me {
       display: flex;
       justify-content: flex-end;
+      position: relative;
     }
     .player-name {
+      padding-top: 8px;
       font-size: 10px;
+      opacity: .6;
     }
     .message-from-me .player-name {
       align-self: flex-end;
     }
     .message-from-other .player-name {
       align-self: flex-start;
+    }
+    .display-avatar {
+      position: absolute;
+      top: 14px;
     }
     .display-sender {}
     .hide-sender {}
@@ -245,8 +247,7 @@
       display: none;
     }
     .hide-sender .display-avatar {
-      visibility: hidden;
-      height: 0px;
+      display: none;
     }
     .display-message {
       align-self: center;
@@ -254,9 +255,19 @@
     }
     .message-from-me .display-message {
       padding-right: 8px;
+      margin-right: 28px;
     }
     .message-from-other .display-message {
       padding-left: 8px;
+      margin-left: 28px;
+    }
+    .profile-pic {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-size: 100% auto;
+      background-position: center center;
+      border: 2px solid green;
     }
     .message-text {
       border-radius: 16px;
@@ -268,6 +279,16 @@
       white-space: pre-wrap;
       word-wrap: break-word;
       word-break: break-word;
+    }
+    .message-text-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .message-from-me .message-text-container {
+      flex-direction: row;
+    }
+    .message-from-other .message-text-container {
+      flex-direction: row-reverse;
     }
     .message-from-me .message-text {
       align-self: flex-end;
@@ -304,20 +325,21 @@
             <div class="player-name">
               [[getName_(item.playerId, game.players.length)]]
             </div>
-            <div class="message-text">[[item.message]]</div>
-            <paper-tooltip position="top" animation-delay="0">
-              [[getTime_(item.time)]]
-            </paper-tooltip>
+            <div class="message-text-container">
+              <div class="message-text">[[item.message]]</div>
+              <paper-tooltip position="top" animation-delay="0">
+                [[getTime_(item.time)]]
+              </paper-tooltip>
+            </div>
           </div>
           <!-- Display player avatar -->
           <div class="display-avatar">
             <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
-            <iron-image
-              src="[[getProfilePic_(item.playerId, game.players.length)]]"
-              id="profile-pic" 
-              sizing="cover"
+            <div 
+              style$="background-image: url('[[getProfilePic_(item.playerId, game.players.length)]]')"
+              class="profile-pic"
               on-tap="openPlayerProfile_">
-            </iron-image>
+            </div>
             <paper-tooltip position="top" animation-delay="0">
               [[getName_(item.playerId, game.players.length)]]
             </paper-tooltip>

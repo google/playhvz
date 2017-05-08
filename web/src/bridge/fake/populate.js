@@ -127,6 +127,9 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   // Just some other human dude in a chat room...
   var moldaviUserId = Bridge.UserId.generate();
   server.register({userId: moldaviUserId, name: "Moldavi"});
+  // Just some other human dude in a chat room...
+  var jackUserId = Bridge.UserId.generate();
+  server.register({userId: jackUserId, name: "Jack"});
 
   var gameId = "game-2017m";
   server.createGame({gameId: gameId, firstAdminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60, active: true});
@@ -149,9 +152,15 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
 
   var moldaviPlayerId = Bridge.PlayerId.generate();
   server.addAdmin({gameId: gameId, userId: moldaviUserId});
-  server.createPlayer(makePlayerProperties(moldaviPlayerId, moldaviUserId, gameId, 'Moldavi'));
+  server.createPlayer(makePlayerProperties(moldaviPlayerId, moldaviUserId, gameId, 'Moldavi the Moldavish'));
   server.setAdminContact({gameId: gameId, playerId: moldaviPlayerId});
   server.joinResistance({playerId: moldaviPlayerId}, "zooble flipwoogly");
+  
+  var jackPlayerId = Bridge.PlayerId.generate();
+  server.addAdmin({gameId: gameId, userId: jackUserId});
+  server.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 'Jack Slayer the Bean Slasher'));
+  server.setAdminContact({gameId: gameId, playerId: jackPlayerId});
+  server.joinResistance({playerId: jackPlayerId}, "grobble forgbobbly");
   
   var evanPlayerId = Bridge.PlayerId.generate();
   server.createPlayer(makePlayerProperties(evanPlayerId, evanUserId, gameId, 'Evanpocalypse'));
@@ -162,8 +171,14 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.joinHorde({playerId: zekePlayerId});
 
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: kimPlayerId, message: 'yo dawg i hear the zeds r comin!'});
+  server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'man what i would do for some garlic rolls!'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'https://www.youtube.com/watch?v=GrHPTWTSFgc'});
+  server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
+  server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
+  server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
+  server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
+  server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
 
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: zedChatRoomId, playerId: zekePlayerId, message: 'zeds rule!'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'hoomans drool!'});
@@ -190,6 +205,9 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   server.updatePlayer({playerId: kimPlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/GoKTAX0zAEt6PlzUkTn7tMeK-q1hwKDpzWsMJHBntuyR7ZKVtFXjRkbFOEMqrqxPWJ-7dbCXD7NbVgHd7VmkYD8bDzsjd23XYk0KyALC3BElIk65vKajjjRD_X2_VkLPOVejrZLpPpa2ebQVUHJF5UXVlkst0m6RRqs2SumRzC7EMmEeq9x_TurwKUJmj7PhNBPCeoDEh51jAIc-ZqvRfDegLgq-HtoyJAo91lbD6jqA2-TFufJfiPd4nOWnKhZkQmarxA8LQT0kOu7r3M5F-GH3pCbQqpH1zraha8CqvKxMGLW1i4CbDs1beXatKTdjYhb1D_MVnJ6h7O4WX3GULwNTRSIFVOrogNWm4jWLMKfKt3NfXYUsCOMhlpAI3Q8o1Qgbotfud4_HcRvvs6C6i17X-oQm8282rFu6aQiLXOv55FfiMnjnkbTokOA1OGDQrkBPbSVumz9ZE3Hr-J7w_G8itxqThsSzwtK6p5YR_9lnepWe0HRNKfUZ2x-a2ndT9m6aRXC_ymWHQGfdGPvTfHOPxUpY8mtX2vknmj_dn4dIuir1PpcN0DJVVuyuww3sOn-1YRFh80gBFvwFuMnKwz8GY8IX5gZmbrrBsy_FmwFDIvBcwNjZKd9fH2gkK5rk1AlWv12LsPBsrRIEaLvcSq7Iim9XSsiivzcNrLFG=w294-h488-no'});
   server.updatePlayer({playerId: evanPlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/WP1fewVG0CvERcnQnmxjf84IjnEBoDQBgdaxbNAECRa433neObfAjv_xI35DN67WhcCL9y-mgXmfYrZEBeJ2PYrtIeCK3KSdJ4HiEDUqxaaGsJAtu5C5ZjcABUHoySueEwO0yJWfhWPVbGoAFdP-ZquoXSF3yz4gnlN76W-ltDBglclLxKs-hR9dTjf_DiX9yGmmb5y8mp1Jb8BEw9Q-zx_j9EFkgTI0EA6T10pogxsfAWkrwXO7t37D0vI2OxzHJA51EQ4LZw1oZsIN7Uyqnh06LAJ_ykYhW2xuSCpu7QY7UPm9IbDcsDqj1eap7xvV9JW_EW2Y8Km5nS0ZoAd-Eo3zUe-2YFTc0OAVDwgbhowzo1gUeqfCEtxVHuT36Aq2LWayB6DzOL9TqubcF7qmjtNy_UIr-RY1d69xN-KqjFBoWLtS6rDhQurrfJNd5x-MYOEjCMrbsGmSXE8L7PskM3e_3-ZhIqfMn2I-4zeEZIUG8U2iHRWK-blaqsSY8uhmzNG6sqF-liyINagQF4l35oy7tpobueWs7aDjRrcJrGiQDrGHYV1E67J64Ae9FqXPHmORRpYcihQc6pI0JAmaiWwMJoqD0QMJF9koaDYANPEGbWlnWc_lFzhCO_L8yCkVtJIIItQv-loypR6XqILK32eoGeatnp5Q0x0OEm3W=s240-no'});
   server.updatePlayer({playerId: zekePlayerId, profileImageUrl: 'https://s-media-cache-ak0.pinimg.com/736x/31/92/2e/31922e8b045a7ada368f774ce34e20c0.jpg'});
+  server.updatePlayer({playerId: moldaviPlayerId, profileImageUrl: 'https://katiekhau.files.wordpress.com/2012/05/scan-9.jpeg'});
+  server.updatePlayer({playerId: jackPlayerId, profileImageUrl: 'https://sdl-stickershop.line.naver.jp/products/0/0/1/1009925/android/main.png'});
+  
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'hi'});
 
   if (Utils.getParameterByName('populate', 'light') == 'heavy') {
