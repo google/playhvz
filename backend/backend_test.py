@@ -19,15 +19,15 @@ class EndToEndTest(unittest.TestCase):
 
   def GetFirebase(self):
     auth = firebase.FirebaseAuthentication(
-				constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
+        constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
-				'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
     return db
 
   def AssertOk(self, method, data):
     r = self.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
-    self.assertTrue(r.ok, msg='Expected to POST successfully but got: %s\n%s\nfor %s\n%s' % (r.status_code, r.text, method, data))
+    self.assertTrue(r.ok, msg='Expected to POST 200 [ %s ] but got %d:\n%s\nfor: %s' % (method, r.status_code, r.text, data))
   
   def AssertFails(self, method, data):
     r = self.Post(method, data)
@@ -91,7 +91,7 @@ class EndToEndTest(unittest.TestCase):
     # Create and update game.
     create = {
       'gameId': self.Id('gameId'),
-      'userId': self.Id('userId'),
+      'adminUserId': self.Id('userId'),
       'name': 'test Game',
       'rulesHtml': 'test rules',
       'stunTimer': 10,
@@ -138,18 +138,30 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'groupId': self.Id('groupId'),
       'gameId': self.Id('gameId'),
-      'allegiance': 'none',
+      'allegianceFilter': 'none',
       'autoAdd': False,
       'autoRemove': False,
       'membersCanAdd': False,
       'membersCanRemove': False,
-      'playerId': self.Id('playerId'),
+      'ownerPlayerId': self.Id('playerId'),
     }
     update = {
       'groupId': self.Id('groupId'),
       'autoRemove': False,
     }
     self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
+
+    create = {
+      'chatRoomId': self.Id('chatRoomId'),
+      'groupId': self.Id('groupId'),
+      'name': 'test Chat',
+      'withAdmins': False
+    }
+    update = {
+      'chatRoomId': self.Id('chatRoomId'),
+      'name': 'test Chat Room'
+    }
+    self.AssertCreateUpdateSequence('createChatRoom', create, 'updateChatRoom', update)
 
     create = {
       'missionId': self.Id('missionId'),
@@ -164,9 +176,9 @@ class EndToEndTest(unittest.TestCase):
       'end': 0,
     }
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
-	
+
     create = {'gunId': self.Id('gunId')}
-    update = {'gunId': self.Id('gunId'), 'userId': self.Id('userId')}
+    update = {'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
 
     create = {
