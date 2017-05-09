@@ -15,6 +15,10 @@
           player: Object,
           page: String,
           isAdmin: Boolean,
+          isMobile: {
+            type: Boolean,
+            value: false,
+          },
 
           currentChatRoom: {
             type: Object,
@@ -117,7 +121,7 @@
   </style>
   <template>
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
-    <div id="container" is-mobile$="[[isMobile]] class="flex layout horizontal" style="height: 100%;">
+    <div id="container" is-mobile$="[[isMobile]]" class="flex layout horizontal" style="height: 100%;">
       <template is="dom-if" if="[[showChatRoomList]]">
         <ghvz-chat-room-list 
             class="chat-room-list" 
