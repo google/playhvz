@@ -1,7 +1,7 @@
 'use strict';
 
 class FakeBridge {
-  constructor(destination, isRegistered, isAdmin, isJoined) {
+  constructor(destination) {
     Utils.setDeterministicGenerator();
 
     this.databaseOperations = [];
@@ -18,7 +18,7 @@ class FakeBridge {
     window.fakeBridge = this;
 
     this.userId =
-        populateFakeServer(checkedServer, isRegistered, isAdmin, isJoined);
+        populateFakeServer(checkedServer);
 
     for (const funcName of Bridge.SERVER_METHODS) {
       this[funcName] = (...args) => this.server[funcName](...args);

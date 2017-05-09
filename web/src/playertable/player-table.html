@@ -113,24 +113,6 @@
                   }
                 }
               },
-              {
-                name: "Deactivate",
-                handler: (player) => {
-                  this.bridge.updatePlayer({
-                    playerId: player.id,
-                    active: false,
-                  });
-                }
-              },
-              {
-                name: "Activate",
-                handler: (player) => {
-                  this.bridge.updatePlayer({
-                    playerId: player.id,
-                    active: true,
-                  });
-                }
-              },
             ],
           };
         },

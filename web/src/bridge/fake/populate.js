@@ -6,6 +6,7 @@ function makePlayerProperties(id, userId, gameId, name) {
     userId: userId,
     gameId: gameId,
     name: name,
+    canInfect: false,
     needGun: false,
     profileImageUrl: "",
     startAsZombie: "yes",
@@ -108,7 +109,7 @@ function populatePlayersHeavy(server, gameId) {
   populatePlayers(server, gameId, 300, 7, 5, 3);
 }
 
-function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
+function populateFakeServer(server) {
   // registered, admin, and joined
   var kimUserId = Bridge.UserId.generate();
   server.register({userId: kimUserId, name: "Kim"});
@@ -159,7 +160,6 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
   var jackPlayerId = Bridge.PlayerId.generate();
   server.addAdmin({gameId: gameId, userId: jackUserId});
   server.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 'Jack Slayer the Bean Slasher'));
-  server.setAdminContact({gameId: gameId, playerId: jackPlayerId});
   server.joinResistance({playerId: jackPlayerId}, "grobble forgbobbly");
   
   var evanPlayerId = Bridge.PlayerId.generate();
@@ -349,23 +349,7 @@ function populateFakeServer(server, isRegistered, isAdmin, isJoined) {
     isCorrect: true,
   });
 
-  if (isRegistered) {
-    if (isAdmin) {
-      if (isJoined) {
-        return kimUserId;
-      } else {
-        return minnyUserId;
-      }
-    } else {
-      if (isJoined) {
-        return evanUserId;
-      } else {
-        return reggieUserId;
-      }
-    }
-  } else {
-    return null;
-  }
+  return Utils.getParameterByName('actAsUserId', kimUserId);
 }
 
 const HUMAN_MISSION_HTML = `

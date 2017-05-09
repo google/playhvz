@@ -49,11 +49,7 @@ class Bridge {
 
   static makeInnerBridge_(env, appWriter) {
     if (env == 'fake') {
-      return new FakeBridge(
-          appWriter,
-          Utils.getParameterByName('registered', 'true') == 'true',
-          Utils.getParameterByName('admin', 'true') == 'true',
-          Utils.getParameterByName('joined', 'true') == 'true');
+      return new FakeBridge(appWriter);
     } else {
       let config;
       let serverUrl;
@@ -202,6 +198,7 @@ Bridge.QuizAnswerId = {
   const PLAYER_PROPERTIES = {
     name: 'String',
     needGun: 'Boolean',
+    canInfect: 'Boolean',
     profileImageUrl: 'String',
     startAsZombie: 'String',
     beSecretZombie: 'String',

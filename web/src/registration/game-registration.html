@@ -41,6 +41,8 @@
                   playerId: Bridge.PlayerId.generate(),
                   userId: this.userId,
                   gameId: this.game.id,
+                  active: true,
+                  canInfect: false,
                   profileImageUrl: "",
                   gotEquipment: false,
                   notes: '',
@@ -87,6 +89,20 @@
         if (e.detail.value) {
           this.pageNumber++;
         } else {
+          this.newPlayerArgs.volunteer = {
+            advertising: false,
+            logistics: false,
+            communications: false,
+            moderator: false,
+            cleric: false,
+            sorcerer: false,
+            admin: false,
+            photographer: false,
+            chronicler: false,
+            server: false,
+            client: false,
+            mobile: false,
+          };
           this.pageNumber += 2;
         }
       },

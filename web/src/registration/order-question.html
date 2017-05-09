@@ -134,14 +134,8 @@
     margin: 8px 0
   }
   .answer paper-material {
-    padding: 8px;;
-    display: flex;
-    flex-direction: row;
-  }
-  .text {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
+    padding: 8px;
+    overflow: hidden;
   }
   paper-button {
     background-color: #03A9F4;
@@ -157,6 +151,9 @@
   #rulesHeader {
     margin-top: 32px;
     margin-bottom: 16px;
+  }
+  .button-container {
+    float: right;
   }
 </style>
 <template>
@@ -177,11 +174,11 @@
       <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
         <iron-collapse class="answer" opened data-answer-id$="[[answer.id]]">
           <paper-material>
-            <div class="text">
-              [[answer.text]]
-            </div>
             <div class="button-container">
               <paper-button raised on-tap="onAnswerTapped_">Choose</paper-button>
+            </div>
+            <div class="text">
+              [[answer.text]]
             </div>
           </paper-material>
         </iron-collapse>

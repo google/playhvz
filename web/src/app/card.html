@@ -17,7 +17,12 @@
           withMenu: {
             type: Boolean,
             value: false,
-          }
+          },
+
+          withBack: {
+            type: Boolean,
+            value: false,
+          },
         },
 
         listeners: {
@@ -36,6 +41,12 @@
         openFullscreen_() {
           this.fire('ghvz-open-page', {
             page: this.fullscreenPage,
+          });
+        },
+
+        back_() {
+          this.fire('ghvz-open-page', {
+            page: 'main',
           });
         },
 
@@ -119,6 +130,10 @@
       <div class="header">
         <template is="dom-if" if="[[withMenu]]">
           <paper-icon-button id="menu" icon="icons:menu" raised on-tap="openDrawer_">
+          </paper-icon-button>
+        </template>
+        <template is="dom-if" if="[[withBack]]">
+          <paper-icon-button id="menu" icon="icons:left-arrow" raised on-tap="back_">
           </paper-icon-button>
         </template>
         <div id="header" class="text" pad-left$="[[!withMenu]]"><content select=".header"></div>
