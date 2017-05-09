@@ -59,6 +59,8 @@ def HandleError(e):
 @app.errorhandler(500)
 def HandleError(e):
   """Pretty print data validation errors."""
+  if getattr(e, 'message', None):
+    logging.warn(e.message)
   return '500: %r %r' % (type(e), e), 500
 
 
@@ -76,6 +78,7 @@ methods = {
   'addMission': api_calls.AddMission,
   'updateMission': api_calls.UpdateMission,
   'createChatRoom': api_calls.AddChatRoom,
+  'updateChatRoom': api_calls.UpdateChatRoom,
   'addPlayerToChat': api_calls.AddPlayerToChat,
   'sendChatMessage': api_calls.SendChatMessage,
   'addRewardCategory': api_calls.AddRewardCategory,

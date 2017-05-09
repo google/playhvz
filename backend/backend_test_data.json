@@ -1,5 +1,11 @@
 {
-  "chatRooms": {},
+  "chatRooms": {
+    "chatRoom-%(ident)s" : {
+      "groupId" : "group-%(ident)s",
+      "name" : "test Chat Room",
+      "withAdmins" : false
+    }
+  },
   "games": {
     "game-%(ident)s": {
       "active": true,
@@ -10,6 +16,7 @@
       "groups": {
         "group-%(ident)s": true
       },
+      "chatRooms": {"chatRoom-%(ident)s": true},
       "rewardCategories": {
          "rewardCategory-%(ident)s": true
       },
