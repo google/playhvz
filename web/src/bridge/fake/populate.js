@@ -262,92 +262,92 @@ function populateFakeServer(server) {
     isCorrect: true,
   });
 
-  let infectQuestionId = Bridge.QuizQuestionId.generate();
-  server.addQuizQuestion({quizQuestionId: infectQuestionId, gameId: gameId,
-    text: "When you're a zombie, and you touch a human, what do you do?",
-    type: 'order',
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
-    text: "Crouch/sit down,",
-    order: 0,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
-    text: "Ask the human for their life code,",
-    order: 1,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
-    text: "For 50 seconds, don't move from your spot (unless safety requires it),",
-    order: 2,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
-    text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
-    order: 3,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
-    text: "Stand up, return to mauling humans,",
-    order: 4,
-    isCorrect: true,
-  });
+  // let infectQuestionId = Bridge.QuizQuestionId.generate();
+  // server.addQuizQuestion({quizQuestionId: infectQuestionId, gameId: gameId,
+  //   text: "When you're a zombie, and you touch a human, what do you do?",
+  //   type: 'order',
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
+  //   text: "Crouch/sit down,",
+  //   order: 0,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
+  //   text: "Ask the human for their life code,",
+  //   order: 1,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
+  //   text: "For 50 seconds, don't move from your spot (unless safety requires it),",
+  //   order: 2,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
+  //   text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
+  //   order: 3,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: infectQuestionId,
+  //   text: "Stand up, return to mauling humans,",
+  //   order: 4,
+  //   isCorrect: true,
+  // });
 
-  let crossQuestionId = Bridge.QuizQuestionId.generate();
-  server.addQuizQuestion({quizQuestionId: crossQuestionId, gameId: gameId,
-    text: "When you want to cross the street, what do you do?",
-    type: 'order',
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Count to 15, then take off your armband,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Raise your nerf gun in the air so you're visible,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Start walking across the street, looking both ways for cars,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Get within 15 feet of a crosswalk button (now you're out of play),",
-    order: 0,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Press the crosswalk button,",
-    order: 1,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "When the walk signal appears, walk (not run) across the crosswalk,",
-    order: 2,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Once you're across, count \"3 resistance, 2 resistance, 1 resistance!\" and go,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Wait until there are no more players in the crosswalk,",
-    order: 3,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "Have a human count \"3 resistance, 2 resistance, 1 resistance, go!\" and the humans are in play,",
-    order: 4,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
-    text: "When the humans go, have a zombie count \"3 zombie horde, 2 zombie horde, 1 zombie horde, go!\" and the zombies are in play,",
-    order: 5,
-    isCorrect: true,
-  });
+  // let crossQuestionId = Bridge.QuizQuestionId.generate();
+  // server.addQuizQuestion({quizQuestionId: crossQuestionId, gameId: gameId,
+  //   text: "When you want to cross the street, what do you do?",
+  //   type: 'order',
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Count to 15, then take off your armband,",
+  //   order: 0,
+  //   isCorrect: false,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Raise your nerf gun in the air so you're visible,",
+  //   order: 0,
+  //   isCorrect: false,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Start walking across the street, looking both ways for cars,",
+  //   order: 0,
+  //   isCorrect: false,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Get within 15 feet of a crosswalk button (now you're out of play),",
+  //   order: 0,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Press the crosswalk button,",
+  //   order: 1,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "When the walk signal appears, walk (not run) across the crosswalk,",
+  //   order: 2,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Once you're across, count \"3 resistance, 2 resistance, 1 resistance!\" and go,",
+  //   order: 0,
+  //   isCorrect: false,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Wait until there are no more players in the crosswalk,",
+  //   order: 3,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "Have a human count \"3 resistance, 2 resistance, 1 resistance, go!\" and the humans are in play,",
+  //   order: 4,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: Bridge.QuizAnswerId.generate(), quizQuestionId: crossQuestionId,
+  //   text: "When the humans go, have a zombie count \"3 zombie horde, 2 zombie horde, 1 zombie horde, go!\" and the zombies are in play,",
+  //   order: 5,
+  //   isCorrect: true,
+  // });
 
   return Utils.getParameterByName('actAsUserId', kimUserId);
 }
