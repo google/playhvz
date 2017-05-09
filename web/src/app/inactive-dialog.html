@@ -43,6 +43,16 @@
             dialog.close();
           }
         }
+      },
+
+      openFaq_() {
+        let dialog = this.$$("#dialog");
+        if (dialog) {
+          dialog.close();
+        }
+        this.fire('ghvz-open-page', {
+          page: 'faq',
+        });
       }
     });
   });
@@ -52,28 +62,25 @@
     max-width: 500px;
     padding-bottom: 16px;
   }
+  a {
+    text-decoration: none;
+  }
   .buttons {
-    display: block !important;
-    padding: 0 24px !important;
   }
   paper-button {
     background-color: #03A9F4;
     color: white;
     font-weight: bold;
-    display: block;
-    text-align: center;
-    margin: 8px 0;
   }
 </style>
 <template>
   <template is="dom-if" if="[[player]]">
     <paper-dialog modal id="dialog" on-iron-overlay-closed="onClosed_">
       <h2>Welcome back! Still human?</h2>
-      <p>Just in case something changed and nobody's told the system yet, are you still a human?</p>
-      <p>(We do this check whenever you've been gone for more than 5 minutes to get you into the correct chat rooms as soon as we can! Please let us know if the 5 minute period is too short, too long, too annoying, or any ideas for this!)</p>
+      <p><a href="javascript:void(0)" on-tap="openFaq_">(Why do I see this?)</a></p>
       <div class="buttons">
-        <paper-button dialog-dismiss>My inevitable death has not yet come!</paper-button>
-        <paper-button dialog-confirm>I'VE JOINED THE GLORIOUS UNDEAD, BRING ME TO MY HORDE!</paper-button>
+        <paper-button dialog-dismiss>Yes, I'm human!</paper-button>
+        <paper-button dialog-confirm>No, glory to the horde!</paper-button>
       </div>
     </paper-dialog>
   </template>

@@ -31,7 +31,7 @@ function newUserPlayer(id, args) {
   return obj;
 }
 
-const GAME_PROPERTIES = ["active", "name", "number", "rulesHtml", "stunTimer", "contactAdminPlayerId"];
+const GAME_PROPERTIES = ["active", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "contactAdminPlayerId"];
 const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
 function newGame(id, args) {
   let obj = {id: id};

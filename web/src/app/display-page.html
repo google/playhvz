@@ -36,6 +36,8 @@
               'notifications': 'notifications',
               'profile': 'profile',
               'stats': 'stats',
+              'rules': 'rules',
+              'faq': 'faq',
               'createGame': 'createGame',
             },
           },
@@ -119,6 +121,20 @@
             player="[[player]]"
             page="[[page]]">
         </ghvz-notifications-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.rules, mostRecentSubpage)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Rules</div>
+        <ghvz-rules game="[[game]]"></ghvz-rules>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.faq, mostRecentSubpage)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">FAQ</div>
+        <ghvz-faq-page game="[[game]]"></ghvz-faq-page>
       </ghvz-card>
     </template>
 
