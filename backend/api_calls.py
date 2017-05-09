@@ -552,7 +552,6 @@ def AddChatRoom(request, firebase):
 
   Args:
     chatRoomId:
-    
 
   Firebase entries:
     /chatRooms/%(chatRoomId)
@@ -566,7 +565,7 @@ def AddChatRoom(request, firebase):
 
   chat = request['chatRoomId']
   game = GroupToGame(request['groupId'])
-  
+
   put_data = {
     'groupId': request['groupId'],
     'gameId': request['gameId'],
@@ -863,7 +862,7 @@ def RandomWords(n):
 def DeleteTestData(request, firebase):
   if request['id'] != constants.FIREBASE_EMAIL:
     return
-  
+
   for entry in ROOT_ENTRIES:
     data = firebase.get('/%s' % entry, None)
     if data:
@@ -875,7 +874,7 @@ def DeleteTestData(request, firebase):
 def DumpTestData(request, firebase):
   if request['id'] != constants.FIREBASE_EMAIL:
     return
-  
+
   res = {}
   for entry in ROOT_ENTRIES:
     res[entry] = {}

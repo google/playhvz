@@ -19,9 +19,9 @@ class EndToEndTest(unittest.TestCase):
 
   def GetFirebase(self):
     auth = firebase.FirebaseAuthentication(
-				constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
+        constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
-				'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
     return db
 
   def AssertOk(self, method, data):
@@ -164,7 +164,7 @@ class EndToEndTest(unittest.TestCase):
       'end': 0,
     }
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
-	
+
     create = {'gunId': self.Id('gunId')}
     update = {'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
