@@ -63,7 +63,14 @@
   }
 </style>
 <template>
-  
+  <ghvz-unseen-notifications
+      id="notifications"
+      bridge="[[bridge]]"
+      categories-by-id="[[game.notificationCategoriesById]]"
+      categories="[[game.notificationCategories]]"
+      player="[[player]]">
+  </ghvz-unseen-notifications>
+
   <neon-animated-pages id="pages" class="flex" selected="0">
     <neon-animatable>
       <ghvz-mobile-main-page

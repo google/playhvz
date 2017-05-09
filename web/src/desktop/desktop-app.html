@@ -43,8 +43,22 @@
       width: 100%;
       box-sizing: border-box;
     }
+    #notifications {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 1;
+      max-width: 50%;
+    }
   </style>
   <template>
+    <ghvz-unseen-notifications
+        id="notifications"
+        bridge="[[bridge]]"
+        categories-by-id="[[game.notificationCategoriesById]]"
+        categories="[[game.notificationCategories]]"
+        player="[[player]]">
+    </ghvz-unseen-notifications>
     <template is="dom-if" if="[[showMainPage_]]">
       <ghvz-desktop-main-page
         bridge="[[bridge]]"

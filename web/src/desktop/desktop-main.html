@@ -67,13 +67,6 @@
       position: relative;
       background-color: #f4f4f4;
     }
-    #notifications {
-      position: fixed;
-      top: 0;
-      right: 0;
-      z-index: 1;
-      max-width: 50%;
-    }
     .content {
       margin: 16px;
     }
@@ -102,14 +95,6 @@
     }
   </style>
   <template>
-    <ghvz-unseen-notifications
-        id="notifications"
-        bridge="[[bridge]]"
-        categories-by-id="[[game.notificationCategoriesById]]"
-        categories="[[game.notificationCategories]]"
-        player="[[player]]">
-    </ghvz-unseen-notifications>
-
     <ghvz-dashboard>
       
       <template is="dom-if" if="[[isAdmin]]">

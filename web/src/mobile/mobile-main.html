@@ -74,14 +74,6 @@
   <ghvz-card full expand with-menu>
     <div class="header">Humans vs Zombies</div>
     
-    <ghvz-unseen-notifications
-        id="notifications"
-        bridge="[[bridge]]"
-        categories-by-id="[[game.notificationCategoriesById]]"
-        categories="[[game.notificationCategories]]"
-        player="[[player]]">
-    </ghvz-unseen-notifications>
-
     <template is="dom-if" if="[[canRegister]]">
       <ghvz-card expand spaced>
         <div class="header">Join Game</div>
