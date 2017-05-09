@@ -1,0 +1,54 @@
+
+<dom-module id="ghvz-missions-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-missions-page',
+
+      properties: {
+        bridge: Object,
+
+        game: Object,
+
+        playerId: String,
+      },
+
+      formatTime_: function(time) {
+        return Utils.formatTime(time);
+      },
+
+      shorten(html) {
+        if (html.length > 20)
+          return html.slice(0, 17) + '...';
+        return html;
+      },
+    });
+  });
+</script>
+<style>
+  paper-input {
+    display: block;
+    width: 100%;
+    --paper-input-container-underline: {
+      border-bottom-color: #C0C0C0;
+    }
+    margin-bottom: 4px;
+  }
+</style>
+<template>
+  <template is="dom-repeat" items="[[game.missions]]" as="mission">
+    <ghvz-card spaced>
+      <div class="header">[[mission.name]]</div>
+      <ghvz-mission
+          bridge="[[bridge]]"
+          game-id="[[game.id]]"
+          player-id="[[playerId]]"
+          mission="[[mission]]">
+      </ghvz-mission>
+    </ghvz-card>
+  </template>
+</template>
+</dom-module>
