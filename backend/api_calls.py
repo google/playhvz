@@ -551,32 +551,49 @@ def AddChatRoom(request, firebase):
   Validation:
 
   Args:
-    chatRoomId:
-    
+    chatRoomId: Id to use for this chat room.
+    groupId: 
+    name: Chat room name, can be updated.
+    withAdmins: bool, used by the client.
 
   Firebase entries:
     /chatRooms/%(chatRoomId)
-    /chatRooms/%(chatRoomId)/memberships
     /games/%(gameId)/chatRooms
   """
   valid_args = ['!chatRoomId', 'groupId']
   required_args = list(valid_args)
-  required_args.extend(['name'])
+  required_args.extend(['name', 'withAdmins'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
   chat = request['chatRoomId']
-  game = GroupToGame(request['groupId'])
-  
-  put_data = {
-    'groupId': request['groupId'],
-    'gameId': request['gameId'],
-    'name': request['name'],
-  }
+  game = GroupToGame(firebase, request['groupId'])
 
+  put_data = {k: request[k] for k in ('groupId', 'name', 'withAdmins')}
   results = []
   results.append(firebase.put('/chatRooms', chat, put_data))
   results.append(firebase.put('/games/%s/chatRooms' % game, chat, True))
   return results
+
+
+def UpdateChatRoom(request, firebase):
+  """Update a chat room.
+
+  Validation:
+
+  Args:
+    chatRoomId: Chat room ID
+    name: Chat room name (optional)
+
+  Firebase entries:
+    /chatRooms/%(chatRoomId)
+  """
+  valid_args = ['chatRoomId']
+  required_args = list(valid_args)
+  required_args.extend(['name'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  put_data = {'name': request['name']}
+  return firebase.patch('/chatRooms/%s' % request['chatRoomId'], put_data)
 
 
 # TODO convert to add player to group?
@@ -863,7 +880,7 @@ def RandomWords(n):
 def DeleteTestData(request, firebase):
   if request['id'] != constants.FIREBASE_EMAIL:
     return
-  
+
   for entry in ROOT_ENTRIES:
     data = firebase.get('/%s' % entry, None)
     if data:
@@ -875,7 +892,7 @@ def DeleteTestData(request, firebase):
 def DumpTestData(request, firebase):
   if request['id'] != constants.FIREBASE_EMAIL:
     return
-  
+
   res = {}
   for entry in ROOT_ENTRIES:
     res[entry] = {}
