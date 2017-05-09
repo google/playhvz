@@ -20,11 +20,37 @@
             type: Object,
             value: null,
           },
+
+          showChatRoom: {
+            type: Boolean,
+            computed: 'computeShowChatRoom_(isMobile, page)',
+          },
+
+          showChatRoomList: {
+            type: Boolean,
+            computed: 'computeShowChatRoomList_(isMobile, page)',
+          },
         },
 
         observers: [
           'onPageChanged_(page, game.chatRooms.*)',
         ],
+
+        computeShowChatRoomList_(isMobile, page) {
+          if (isMobile) {
+            return !this.computeShowChatRoom_(isMobile, page);
+          } else {
+            return true;
+          }
+        },
+
+        computeShowChatRoom_(isMobile, page) {
+          if (isMobile) {
+            return page.includes('/') && page.split('/')[1];
+          } else {
+            return true;
+          }
+        },
 
         onPageChanged_() {
           if (!this.page.startsWith('chat')) {
@@ -38,14 +64,23 @@
               return;
             }
           }
-          if (this.game.chatRooms.length > 0) {
-            this.async(() => {
-              chatRoomId = this.game.chatRooms[0].id;
-              var page = "chat/" + chatRoomId;
-              this.fire('ghvz-open-page', {
-                page: page,
+          // If we get here, then there wasn't a chat room, it was just /chat in the url
+          // (or there was a chat room id but we couldnt find that chat room)
+          if (this.isMobile) {
+            // If we get here, that means we're at /chat and on mobile. In this case
+            // we just want to show the chat list.
+          } else {
+            // If we get here, that means we're at /chat and on desktop. In this case
+            // we want to just pick a chat room and show it.
+            if (this.game.chatRooms.length > 0) {
+              this.async(() => {
+                chatRoomId = this.game.chatRooms[0].id;
+                var page = "chat/" + chatRoomId;
+                this.fire('ghvz-open-page', {
+                  page: page,
+                });
               });
-            });
+            }
           }
         },
 
@@ -73,29 +108,36 @@
       max-width: 15%;
       overflow-y: auto;
     }
+    #container[is-mobile] .chat-room-list {
+      max-width: 100%;
+    }
     .vertical-separator {
       border-right: 1px solid darkgray;
     }
   </style>
   <template>
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
-    <div class="flex layout horizontal" style="height: 100%;">
-      <ghvz-chat-room-list 
-        class="chat-room-list" 
-        bridge="[[bridge]]"
-        game="[[game]]"
-        player="[[player]]"
-        is-admin="[[isAdmin]]">
-      </ghvz-chat-room-list>
-      <div class="vertical-separator"></div>
-      <template is="dom-if" if="true">  
-        <ghvz-chat-room
-          bridge="[[bridge]]"
-          game="[[game]]"
-          current-player="[[player]]"
-          chat-room="[[currentChatRoom]]"
-          class="chat-window">
-        </ghvz-chat-room>
+    <div id="container" is-mobile$="[[isMobile]] class="flex layout horizontal" style="height: 100%;">
+      <template is="dom-if" if="[[showChatRoomList]]">
+        <ghvz-chat-room-list 
+            class="chat-room-list" 
+            bridge="[[bridge]]"
+            game="[[game]]"
+            player="[[player]]"
+            is-admin="[[isAdmin]]">
+        </ghvz-chat-room-list>
+      </template>
+      <template is="dom-if" if="[[showChatRoom]]">
+        <div class="vertical-separator"></div>
+        <template is="dom-if" if="true">  
+          <ghvz-chat-room
+              bridge="[[bridge]]"
+              game="[[game]]"
+              current-player="[[player]]"
+              chat-room="[[currentChatRoom]]"
+              class="chat-window">
+          </ghvz-chat-room>
+        </template>
       </template>
     </div>
   </template>
