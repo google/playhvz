@@ -37,12 +37,13 @@
   },
   "groups": {
     "group-%(ident)s": {
-      "allegiance": "none",
+      "allegianceFilter": "none",
       "autoAdd": false,
       "autoRemove": false,
       "gameId": "game-%(ident)s",
       "membersCanAdd": false,
       "membersCanRemove": false,
+      "ownerPlayerId": "player-%(ident)s",
       "players": {
         "player-%(ident)s": true
       }
@@ -50,7 +51,7 @@
   },
   "guns": {
     "gun-%(ident)s": {
-      "userId": "user-%(ident)s"
+      "playerId": "player-%(ident)s"
     }
   },
   "missions": {
