@@ -236,7 +236,16 @@ paper-input-container {
               });
               return;
             } else {
-              // We can't figure out what game they want. Abort.
+              // They dont have any user players, so lets just choose a random game.
+              if (this.database.games.length) {
+                // Async so we dont accidentally cause calls into firebaselistener
+                // while we're already reacting to something from it.
+                this.async(() => {
+                  this.gameId = this.database.games[0].id;
+                });
+              } else {
+                // No games, abort.
+              }
             }
           }
         }
