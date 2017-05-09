@@ -322,7 +322,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('createChatRoom', {
     required:
         Utils.merge(
-            {chatRoomId: '!ChatRoomId', gameId: 'GameId', groupId: 'GroupId'},
+            {chatRoomId: '!ChatRoomId', groupId: 'GroupId'},
             CHAT_ROOM_PROPERTIES)
   });
   serverMethods.set('updateChatRoom', {

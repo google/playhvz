@@ -34,6 +34,11 @@
 
         openForCreate: function() {
           this.$.settingsForm.open();
+          if (this.isAdmin) {
+            this.async(() => {
+              this.$$('paper-listbox').selected = 0;
+            });
+          }
         },
 
         updateDoneEnabled_: function() {
@@ -48,16 +53,46 @@
           this.doneEnabled = false;
           let name = this.$.chatName.value;
 
+          let autoRemove = false;
+          let allegianceFilter = '';
+          if (this.isAdmin) {
+            autoRemove = this.$$("#autoRemove").checked;
+            allegianceFilter = this.$$('#allegianceFilter').selectedItem.dataset.value;
+          } else {
+            let filter = this.$$("#allegianceFilter").checked;
+            if (filter) {
+              allegianceFilter = this.player.allegiance;
+              if (allegianceFilter) {
+                autoRemove = true;
+              }
+            }
+          }
+
+          let autoAdd = false;
+          if (this.isAdmin) {
+            autoAdd = this.$$("#autoAdd").checked;
+          }
+
+          let membersCanAdd = true;
+          if (this.isAdmin) {
+            membersCanAdd = this.$$("#membersCanAdd").checked;
+          }
+
+          let membersCanRemove = true;
+          if (this.isAdmin) {
+            membersCanRemove = this.$$("#membersCanRemove").checked;
+          }
+
           let groupId = Bridge.GroupId.generate();
           this.bridge.createGroup({
             groupId: groupId,
             gameId: this.gameId,
             ownerPlayerId: this.player.id,
-            allegianceFilter: '',
-            autoAdd: false,
-            autoRemove: false,
-            membersCanAdd: true,
-            membersCanRemove: false,
+            allegianceFilter: allegianceFilter,
+            autoAdd: autoAdd,
+            autoRemove: autoRemove,
+            membersCanAdd: membersCanAdd,
+            membersCanRemove: membersCanRemove,
           });
           var chatRoomId = Bridge.ChatRoomId.generate();
           this.bridge.createChatRoom({
@@ -126,7 +161,7 @@
           value="{{newName}}">
         </paper-input>
         <template is="dom-if" if="[[!isAdmin]]">
-          <paper-checkbox class="option">
+          <paper-checkbox id="allegianceFilter" class="option">
             [[getPlayerAllegiance_(player)]] only
             <div class="subtext">
             Have the server prune players from chat if they are no longer [[getPlayerAllegiance_(player)]]
@@ -134,34 +169,38 @@
           </paper-checkbox>
         </template>
         <template is="dom-if" if="[[isAdmin]]">
-          <paper-checkbox class="option">
-            Set alliegance filter
-            <div class="subtext">
-            Have the server prune players from chat if they are no longer the specified alliegance
-            </div>
-          </paper-checkbox>
-          <!-- <radio-group>
-            <paper-radio-button> Resistance </paper-radio-button>
-            <paper-radio-button> Horde </paper-radio-button>
-          </radio-group> -->
+          <paper-dropdown-menu id="allegianceFilter" label="Allegiance Filter">
+            <paper-listbox class="dropdown-content">
+              <paper-item data-value="">Everyone</paper-item>
+              <paper-item data-value="resistance">Resistance</paper-item>
+              <paper-item data-value="horde">Horde</paper-item>
+            </paper-listbox>
+          </paper-dropdown-menu>
+          Have the server prune players from chat if they are no longer the specified alliegance
         </template>
-        <paper-checkbox class="option">
-          Disable add players
+        <paper-checkbox id="membersCanAdd" checked class="option">
+          Allow members adding other players
           <div class="subtext">
-            Only you control who can be in this chat
+            If unchecked, only you control who can be in this chat
           </div>
         </paper-checkbox>
         <template is="dom-if" if="[[isAdmin]]">
-          <paper-checkbox class="option">
-            Disable leaving
+          <paper-checkbox id="membersCanRemove" checked class="option">
+            Enable members' leaving/kicking
             <div class="subtext">
-              Use with care! Players can't leave this chat unless you kick them out
+              Use with care! If unchecked, players can't leave this chat unless you kick them out
             </div>
           </paper-checkbox>
-          <paper-checkbox class="option">
+          <paper-checkbox id="autoAdd" class="option">
             Automatically add members
             <div class="subtext">
               Auto add new players based on the Alliegance filter, if no alliegance filter is set auto add all players in the game to this chat
+            </div>
+          </paper-checkbox>  
+          <paper-checkbox id="autoRemove" class="option">
+            Automatically remove members
+            <div class="subtext">
+              Auto remove players based on the Alliegance filter, if no alliegance filter is set then this will do nothing.
             </div>
           </paper-checkbox>  
         </template>
