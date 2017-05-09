@@ -68,15 +68,17 @@
         player="[[player]]">
       </ghvz-desktop-main-page>
     </template>
-    <ghvz-display-page
-        bridge="[[bridge]]"
-        is-admin="[[isAdmin]]"
-        database="[[database]]"
-        user="[[user]]"
-        game="[[game]]"
-        player="[[player]]"
-        player-id="[[playerId]]"
-        page="[[page]]">
-    </ghvz-display-page>
+    <template is="dom-if" if="[[!showMainPage_]]">
+      <ghvz-display-page
+          bridge="[[bridge]]"
+          is-admin="[[isAdmin]]"
+          database="[[database]]"
+          user="[[user]]"
+          game="[[game]]"
+          player="[[player]]"
+          player-id="[[playerId]]"
+          page="[[page]]">
+      </ghvz-display-page>
+    </template>
   </template>
 </dom-module>
