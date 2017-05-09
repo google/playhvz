@@ -50,8 +50,8 @@ let references = [
   ["games", null, "rewardCategories", null, "rewards", null, "id", null],
   ["games", null, "rewardCategories", null, "rewards", null, "playerId", null],
   ["guns", null, "id", null],
-  ["guns", null, "gameId", null],
-  ["guns", null, "playerId", null],
+  //["guns", null, "gameId", null],
+  //["guns", null, "playerId", null],
   ["users", null, "id", null],
   // ["users", null, "players", null, "id", null], We leave this out because we wont find the definition for the player until we deep listen the game
   ["users", null, "players", null, "gameId", null],
