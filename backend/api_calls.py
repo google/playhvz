@@ -26,8 +26,9 @@ KEY_TO_ENTITY.update({
 })
 
 # Used for trawling the full DB.
-ROOT_ENTRIES = ('chatRooms', 'games', 'groups', 'guns', 'missions', 'players',
-                'users', 'rewardCategories', 'rewards', 'notifications')
+ROOT_ENTRIES = (
+    'chatRooms', 'games', 'groups', 'guns', 'missions', 'players',
+    'users', 'rewardCategories', 'rewards', 'notifications')
 
 # Mapping from a key name to where in Firebase it can be found
 # along with a specific value that can be used to validate existance.
@@ -120,6 +121,19 @@ def PlayerToGame(firebase, player):
   return firebase.get('/players/%s' % player, 'gameId')
 
 
+def ChatToGroup(firebase, chat):
+  """Map a chat to a group."""
+  return firebase.get('/chatRooms/%s' % chat, 'groupId')
+
+
+def ChatToGame(firebase, chat):
+  """Map a chat to a group."""
+  group = ChatToGroup(firebase, chat)
+  if group is None:
+    return None
+  return GroupToGame(group)
+
+
 def Register(request, firebase):
   """Register a new user in the DB.
 
@@ -136,9 +150,7 @@ def Register(request, firebase):
   required_args.extend(['name'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  data = {
-    'name': request['name'],
-  }
+  data = {'name': request['name']}
   return firebase.put('/users', request['userId'], data)
 
 
@@ -598,6 +610,78 @@ def UpdateChatRoom(request, firebase):
   return firebase.patch('/chatRooms/%s' % request['chatRoomId'], put_data)
 
 
+def SendChatMessage(request, firebase):
+  """Record a chat message.
+
+  Validation:
+    Player is in the chat room (via the group).
+    The messageId is not used yet in this chat rom.
+
+  Args:
+    chatRoomId: Chat room to send the message to.
+    playerId: Player sending the message.
+    messageId: Unique ID to use for the message.
+    message: The message to send.
+
+  Firebase entries:
+    /chatRooms/%(chatRoomId)/messages
+  """
+  valid_args = ['chatRoomId', 'playerId']
+  required_args = list(valid_args)
+  required_args.extend(['messageId', 'message'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  chat = request['chatRoomId']
+  messageId = request['messageId']
+  group = ChatToGroup(firebase, chat)
+  if firebase.get('/chatRooms/%s/messages' % chat, messageId):
+    raise InvalidInputError('That message ID was already used.')
+  if not firebase.get('/groups/%s/players' % group, request['playerId']):
+    raise InvalidInputError('You are not a member of that chat room.')
+
+  # TODO Scan message for any @all or @player to turn into notifications.
+
+  put_data = {
+    'playerId': request['playerId'],
+    'message': request['message'],
+    'time': int(time.time())
+  }
+  return firebase.put('/chatRooms/%s/messages' % chat, messageId, put_data)
+
+
+def AckChatMessage(request, firebase):
+  """Ack a chat message which sets the ack to the timestamp of that message.
+
+  Validation:
+    Player is in the chat room (via the group).
+
+  Args:
+    chatRoomId: Chat room to send the message to.
+    playerId: Player sending the message.
+    messageId: Unique ID to use for the message.
+
+  Firebase entries:
+    /chatRooms/%(chatRoomId)/acks
+  """
+  valid_args = ['chatRoomId', 'playerId']
+  required_args = list(valid_args)
+  required_args.extend(['messageId'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  chat = request['chatRoomId']
+  messageId = request['messageId']
+  playerId = request['playerId']
+  group = ChatToGroup(firebase, chat)
+  message = firebase.get('/chatRooms/%s/messages' % chat, messageId)
+
+  if message is None:
+    raise InvalidInputError('That message ID is not valid.')
+  if not firebase.get('/groups/%s/players' % group, playerId):
+    raise InvalidInputError('You are not a member of that chat room.')
+
+  return firebase.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
+
+
 # TODO convert to add player to group?
 def AddPlayerToChat(request, firebase):
   """Add a new player to a chat room.
@@ -633,49 +717,6 @@ def AddPlayerToChat(request, firebase):
 
   results.append(firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, ""))
   results.append(firebase.put('/games/%s/chatRooms' % game, chat, True))
-
-
-def SendChatMessage(request, firebase):
-  """Send a message to a chat room.
-
-  Validation:
-    Player is a member of the chat room.
-
-  Args:
-    chatRoomId: The chat room to update.
-    playerId: The player sending the message.
-    messageId: The ID of the new message.
-    message: The message to add (string).
-
-  Firebase entries:
-    /chatRooms/%(chatRoomId)/memberships/%(playerId)
-    /chatRooms/%(chatRoomId)/messages
-  """
-  valid_args = ['chatRoomId', 'playerId']
-  required_args = list(valid_args)
-  required_args.extend(['messageId', 'message'])
-  ValidateInputs(request, firebase, required_args, valid_args)
-
-  game = PlayerToGame(firebase, player)
-  chat = request['chatRoomId']
-  player = request['playerId']
-  messageId = request['messageId']
-  message = request['message']
-
-  # TODO Map the chat to a group and check the group for membership
-  # Validate player is in the chat room
-  if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
-    raise InvalidInputError('You are not a member of that chat room.')
-  if firebase.get('/chatRooms/%s/messages/%s' % (chat, messageId), None):
-    raise InvalidInputError('That message ID was already posted.')
-
-  message_data = {
-    'message': message,
-    'playerId': player,
-    'time': int(time.time()),
-  }
-
-  return firebase.put('/chatRooms/%s/messages' % chat, messageId, message_data)
 
 
 def AddRewardCategory(request, firebase):
