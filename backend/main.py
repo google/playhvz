@@ -11,11 +11,12 @@ import requests_toolbelt.adapters.appengine
 
 import api_calls
 import constants
+import notifications
+import secrets
 
 
 requests_toolbelt.adapters.appengine.monkeypatch()
 HTTP_REQUEST = google.auth.transport.requests.Request()
-
 
 app = Flask(__name__)
 flask_cors.CORS(app)
@@ -26,9 +27,9 @@ def GetFirebase():
   db = getattr(g, '_database', None)
   if db is None:
     auth = firebase.FirebaseAuthentication(
-				constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
+        secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
-				'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
     g._database = db
   return db
 
@@ -59,8 +60,7 @@ def HandleError(e):
 @app.errorhandler(500)
 def HandleError(e):
   """Pretty print data validation errors."""
-  if getattr(e, 'message', None):
-    logging.warn(e.message)
+  logging.exception(e)
   return '500: %r %r' % (type(e), e), 500
 
 
@@ -86,6 +86,9 @@ methods = {
   'addReward': api_calls.AddReward,
   'addRewards': api_calls.AddRewards,
   'claimReward': api_calls.ClaimReward,
+  'sendNotification': api_calls.SendNotification,
+  'updateNotification': api_calls.UpdateNotification,
+  'markNotificationSeen': api_calls.MarkNotificationSeen,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
 }
@@ -112,6 +115,15 @@ def get_testdata():
 def GetGun():
   gun = request.args['gunId']
   return jsonify(GetFirebase().get('/guns', gun))
+
+
+@app.route('/cronNotification', methods=['GET'])
+def CronNotification():
+  cron_key = 'X-Appengine-Cron'
+  if cron_key not in request.headers or not request.headers[cron_key]:
+    return 'Unauthorized', 403
+  notifications.ExecuteNotifications(None, GetFirebase())
+  return 'OK'
 
 
 @app.route('/api/<method>', methods=['POST'])
