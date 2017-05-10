@@ -1,8 +1,10 @@
-import constants
 import logging
 import random
 import time
 import textwrap
+
+import constants
+import secrets
 
 
 class InvalidInputError(Exception):
@@ -1004,7 +1006,7 @@ def MarkNotificationSeen(request, firebase):
 
 
 def DeleteTestData(request, firebase):
-  if request['id'] != constants.FIREBASE_EMAIL:
+  if request['id'] != secrets.FIREBASE_EMAIL:
     return
 
   for entry in ROOT_ENTRIES:
@@ -1016,7 +1018,7 @@ def DeleteTestData(request, firebase):
 
 
 def DumpTestData(request, firebase):
-  if request['id'] != constants.FIREBASE_EMAIL:
+  if request['id'] != secrets.FIREBASE_EMAIL:
     return
 
   res = {}

@@ -12,6 +12,7 @@ import requests_toolbelt.adapters.appengine
 import api_calls
 import constants
 import notifications
+import secrets
 
 
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -26,7 +27,7 @@ def GetFirebase():
   db = getattr(g, '_database', None)
   if db is None:
     auth = firebase.FirebaseAuthentication(
-        constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
+        secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
         'https://trogdors-29fa4.firebaseio.com', authentication=auth)
     g._database = db

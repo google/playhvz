@@ -8,6 +8,7 @@ import time
 import unittest
 
 import constants
+import secrets
 
 
 class EndToEndTest(unittest.TestCase):
@@ -19,7 +20,7 @@ class EndToEndTest(unittest.TestCase):
 
   def GetFirebase(self):
     auth = firebase.FirebaseAuthentication(
-        constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
+        secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
         'https://trogdors-29fa4.firebaseio.com', authentication=auth)
     return db
@@ -60,7 +61,7 @@ class EndToEndTest(unittest.TestCase):
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.Post('DumpTestData', {'id': constants.FIREBASE_EMAIL})
+    r = self.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL})
     expected = json.loads(expected_raw)
     actual = r.json()
     a = actual['games']
@@ -71,11 +72,11 @@ class EndToEndTest(unittest.TestCase):
     self.AssertDictEqual(expected, actual)
 
   def setUp(self):
-    self.Post('DeleteTestData', {'id': constants.FIREBASE_EMAIL})
+    self.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
   
   def tearDown(self):
     pass
-    # self.Post('DeleteTestData', {'id': constants.FIREBASE_EMAIL})
+    # self.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
   
   def testEndToEnd(self):
     self.identifier = 'test_%d' % (time.time() % 1000)
