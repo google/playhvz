@@ -252,7 +252,7 @@ def AddGroup(request, firebase):
     autoRemove: Automatically remove players to this group based on allegiance.
     membersCanAdd: Group members can add other players.
     membersCanRemove: Group members can add other players.
-    ownerPlayerId: player who is the owner of this group.
+    ownerPlayerId: (optional) player who is the owner of this group.
 
   Firebase entries:
     /groups/%(groupId)
@@ -261,17 +261,21 @@ def AddGroup(request, firebase):
   """
   results = []
   valid_args = ['!groupId', 'gameId', 'ownerPlayerId', 'allegianceFilter']
-  required_args = list(valid_args)
+  required_args = ['groupId', 'gameId', 'allegianceFilter']
   required_args.extend(['autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_args = list(required_args)
-  put_args.remove('!groupId')
+  put_args = set(required_args) - set(['groupId'])
   group_data = {k: request[k] for k in put_args}
+  if 'ownerPlayerId' in request:
+    group_data['ownerPlayerId'] = request['ownerPlayerId']
 
   results.append(firebase.put('/groups', request['groupId'], group_data))
-  results.append(firebase.put('/groups/%s/players' % request['groupId'], request['ownerPlayerId'], True))
   results.append(firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], True))
+  if 'ownerPlayerId' in request:
+    results.append(firebase.put('/groups/%s/players' % request['groupId'], request['ownerPlayerId'], True))
+
+  # TODO We may need to populate a group automatically on creation.
 
   return results
 
