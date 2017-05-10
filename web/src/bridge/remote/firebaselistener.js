@@ -508,7 +508,7 @@ class FirebaseListener {
     });
   }
 
-  listenToMissions_(rewardCategoryId) {
+  listenToRewards_(rewardCategoryId) {
     var collectionRef = this.firebaseRoot.child("rewardCategories/" + rewardCategoryId + "/rewards");
     collectionRef.on("child_added", (snap) => {
       let rewardId = snap.getKey(); // snap.val() is ""
