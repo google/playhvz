@@ -385,7 +385,7 @@ def AddPlayer(request, firebase):
     allegiance = 'resistence'
 
   game_info = {
-    'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None)),
+    'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None, {'shallow': True})),
     'userId' : user,
     'name': request['name'],
     'profileImageUrl' : request['profileImageUrl'],
@@ -708,7 +708,7 @@ def AddPlayerToChat(request, firebase):
   otherPlayer = request['otherPlayerId']
 
   # Validate player is in the chat room
-  if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
+  if firebase.get('/chatRooms/%s/memberships' % chat, player) is None:
     raise InvalidInputError('You are not a member of that chat room.')
   # Validate otherPlayer is not in the chat room
   if firebase.get('/chatRooms/%s/memberships' % chat, otherPlayer) is not None:
@@ -886,7 +886,7 @@ def ClaimReward(request, firebase):
   # Check the limitPerPlayer
   reward_limit = int(firebase.get(reward_category_path, 'limitPerPlayer'))
   if reward_limit:
-    claims = firebase.get('%s/claims' % player_path, None)
+    claims = firebase.get(player_path, 'claims', {'shallow': True})
     if claims:
       claims = [c for c in claims if c.startswith('reward-%s' % reward_category_seed)]
       if len(claims) >= reward_limit:
@@ -1051,7 +1051,7 @@ def DeleteTestData(request, firebase):
     return
 
   for entry in ROOT_ENTRIES:
-    data = firebase.get('/%s' % entry, None)
+    data = firebase.get('/', entry, {'shallow': True})
     if data:
       test_keys = [r for r in data if 'test_' in r]
       for k in test_keys:
@@ -1065,7 +1065,7 @@ def DumpTestData(request, firebase):
   res = {}
   for entry in ROOT_ENTRIES:
     res[entry] = {}
-    data = firebase.get('/%s' % entry, None)
+    data = firebase.get('/', entry)
     if data:
       res[entry] = {r: data[r] for r in data if 'test_' in r}
   return res
