@@ -15,10 +15,18 @@
         },
         numToShow: {
           type: Number,
-          value: 3,
+          value: 0,
         },
+        computedPlayerList: {
+          type: Array,
+          computed: 'computePlayerList_(players, numToShow)'
+        }
       },
-
+      computePlayerList_(players, numToShow) {
+        console.log(numToShow)
+        return players.sort((p1, p2) => p2.points - p1.points)
+          .slice(0, numToShow || players.length);
+      },
       makeTableBlueprint_: function() {
         return {
           itemsRepeater: this.$.repeater,
@@ -56,10 +64,6 @@
   .row {
     display: table-row;
   }
-  /* Show only first 3 */
-  .row + .row + .row + .row {
-    display: none;
-  }
   .cell {
     display: table-cell;
     padding: 4px 12px;
@@ -69,8 +73,8 @@
   <ghvz-table
       id="leaderboardTable"
       blueprint="[[makeTableBlueprint_()]]"
-      items="[[players]]">
-    <template is="dom-repeat" id="repeater" items="[[players]]" as="player" initial-count="1" target-framerate="5">
+      items="[[computedPlayerList]]">
+    <template is="dom-repeat" id="repeater" items="[[computedPlayerList]]" as="player" initial-count="1" target-framerate="5">
       <div class="row">
         <ghvz-table-control-cell item="[[player]]"></ghvz-table-control-cell>
         <div class="cell">[[player.name]]</div>

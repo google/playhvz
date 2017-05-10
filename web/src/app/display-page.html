@@ -21,7 +21,7 @@
           },
 
           mostRecentSubpage: String,
-          
+
           isMobile: {
             type: Boolean,
             value: false,
@@ -218,6 +218,15 @@
             game="[[game]]"
             player-id="[[player.id]]">
         </ghvz-missions-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.leaderboard, mostRecentSubpage)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Leaderboard</div>
+        <ghvz-leaderboard-summary
+            players="[[game.players]]">
+        </ghvz-leaderboard-summary>
       </ghvz-card>
     </template>
 
