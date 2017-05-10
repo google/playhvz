@@ -1,0 +1,29 @@
+<dom-module id="ghvz-rules-section">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-rules-section',
+
+      properties: {
+        title: String,
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    margin: 16px 0;
+  }
+  .title {
+    font-weight: bold;
+  }
+</style>
+<template>
+  <div class="title">[[title]]</div>
+  <content/>
+</template>
+</dom-module>
