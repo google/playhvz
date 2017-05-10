@@ -100,12 +100,12 @@
       <template is="dom-if" if="[[isAdmin]]">
         <ghvz-card spaced admin left padded>
           <div class="header">Game</div>
-          <ghvz-create-modify-game
+          <ghvz-game-details
               modify
               bridge="[[bridge]]"
               game="[[game]]"
               user-id="[[user.id]]">
-          </ghvz-create-modify-game>
+          </ghvz-game-details>
         </ghvz-card>
 
         <ghvz-card spaced admin full>
@@ -204,7 +204,7 @@
           </ghvz-card>
         </template>
 
-        <ghvz-card spaced left>
+        <ghvz-card spaced left padded>
           <div class="header">Rules</div>
           <ghvz-rules game="[[game]]"></ghvz-rules>
         </ghvz-card>

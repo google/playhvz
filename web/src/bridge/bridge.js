@@ -121,8 +121,8 @@ Bridge.MessageId = {
   verify: (id) => id.startsWith('message-'),
 };
 Bridge.NotificationCategoryId = {
-  generate: (note) => Utils.generateId('notificationCategory', note),
-  verify: (id) => id.startsWith('notificationCategory-'),
+  generate: (note) => Utils.generateId('notification', note),
+  verify: (id) => id.startsWith('notification-'),
 };
 Bridge.NotificationId = {
   generate: (note) => Utils.generateId('notification', note),
@@ -392,24 +392,26 @@ Bridge.QuizAnswerId = {
     previewMessage: 'String',
     sound: 'Boolean',
     vibrate: 'Boolean',
-    email: 'Boolean',
+    groupId: '?GroupId',
+    playerId: '?PlayerId',
+    // email: 'Boolean',
     app: 'Boolean',
     destination: '?String',
     sendTime: 'TimestampMs',
     allegianceFilter: 'String',
     icon: '?String',
   };
-  serverMethods.set('addNotificationCategory', {
+  serverMethods.set('sendNotification', {
     required:
         Utils.merge(
             {
-              notificationCategoryId: '!NotificationCategoryId',
-              gameId: 'GameId'
+              notificationId: '!NotificationCategoryId',
+              // gameId: 'GameId'
             },
             NOTIFICATION_CATEGORY_PROPERTIES),
   });
-  serverMethods.set('updateNotificationCategory', {
-    required: {notificationCategoryId: 'NotificationCategoryId'},
+  serverMethods.set('updateNotification', {
+    required: {notificationId: 'NotificationCategoryId'},
     optional: NOTIFICATION_CATEGORY_PROPERTIES,
   });
 

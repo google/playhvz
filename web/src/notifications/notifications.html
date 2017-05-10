@@ -81,11 +81,9 @@
                 description: "When to send this notification. Enter now or a past time to send immediately.",
               },
               {
-                property: "allegianceFilter",
-                label: "Seed",
+                property: "groupId",
                 width: "half",
-                type: "enum",
-                options: [{value: "everyone", name: "Everyone"}, {value: "resistance", name: "Resistance"}, {value: "horde", name: "Horde"}],
+                type: "group",
                 description: "Who to send this message to.",
               },
               {
@@ -136,9 +134,10 @@
                 sendTime: Math.floor(new Date().getTime()),
               })
               .then((properties) => {
-                this.bridge.addNotificationCategory(Utils.merge(properties, {
-                    id: Utils.generateId("notificationCategory"),
-                    gameId: this.gameId,
+                delete properties.email;
+                this.bridge.sendNotification(Utils.merge(properties, {
+                    notificationId: Bridge.NotificationCategoryId.generate(),
+                    //gameId: this.gameId,
                 }));
               });
         },

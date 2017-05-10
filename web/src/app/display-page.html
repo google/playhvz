@@ -34,6 +34,7 @@
               'joinGame': 'joinGame',
               'createGame': 'createGame',
               'adminDevTools': 'adminDevTools',
+              'adminGame': 'adminGame',
               'adminGuns': 'adminGuns',
               'adminMissions': 'adminMissions',
               'adminNotifications': 'adminNotifications',
@@ -84,12 +85,12 @@
     <template is="dom-if" if="[[computeShowPage_(showPage.createGame, mostRecentSubpage)]]">
       <ghvz-card expand padded full$="[[isMobile]]" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
         <div class="header">Create Game</div>
-        <ghvz-create-modify-game
+        <ghvz-game-details
               create
               class="content"
               bridge="[[bridge]]"
               user-id="[[user.id]]">
-        </ghvz-create-game>
+        </ghvz-game-details>
       </ghvz-card>
     </template>
 
@@ -179,6 +180,17 @@
             bridge="[[bridge]]"
             game="[[game]]"
             missions="[[game.missions]]">
+        </ghvz-missions>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.adminGame, mostRecentSubpage)]]">
+      <ghvz-card padded expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Game</div>
+        <ghvz-game-details
+            modify
+            bridge="[[bridge]]"
+            game="[[game]]">
         </ghvz-missions>
       </ghvz-card>
     </template>

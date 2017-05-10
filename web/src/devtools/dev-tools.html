@@ -21,7 +21,7 @@
 
           this.$.form.addEventListener('iron-form-submit', function(event) {
             // Generate a fake Player
-            var playerId = Utils.generateId("player");
+            var playerId = Bridge.generatePlayerId("player");
             var name = event.detail.playerName;
             var userId = this.userId;
             var points = Math.floor(Math.random() * 100);
@@ -32,7 +32,7 @@
 
             // This code is bad and i should feel bad... ¯\_(ツ)_/¯
             if (event.detail.useCurrentUserId == "no") {
-              userId = Utils.generateId('user');
+              userId = Bridge.generateUserId();
               this.bridge.register({
                 userId: userId
               });

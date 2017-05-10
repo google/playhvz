@@ -14,9 +14,13 @@
 
         observers: ['rulesChanged_(game.rulesHtml)'],
 
+        attached() {
+        },
+
         rulesChanged_(rulesHtml) {
           this.$.rules.innerHTML = rulesHtml;
-        }
+          this.scopeSubtree(this.$.rules);
+        },
       });
     });
   </script>
@@ -24,7 +28,9 @@
     <style>
       :host {
         display: block;
-        margin: 16px;
+      }
+      ul {
+        margin: 0;
       }
     </style>
     <div id="rules"></div>
