@@ -1,7 +1,10 @@
-import constants
 import logging
 import random
 import time
+import textwrap
+
+import constants
+import secrets
 
 
 class InvalidInputError(Exception):
@@ -12,7 +15,8 @@ class InvalidInputError(Exception):
 # ID entity types
 ENTITY_TYPES = (
     'chatRoomId', 'gameId', 'groupId', 'gunId', 'messageId',
-    'missionId', 'playerId', 'rewardCategoryId', 'rewardId', 'userId')
+    'missionId', 'playerId', 'rewardCategoryId', 'rewardId', 'userId',
+    'notificationId')
 
 # Map all expected args to an entity type
 KEY_TO_ENTITY = {a: a for a in ENTITY_TYPES}
@@ -22,7 +26,9 @@ KEY_TO_ENTITY.update({
 })
 
 # Used for trawling the full DB.
-ROOT_ENTRIES = ('chatRooms', 'games', 'groups', 'guns', 'missions', 'players', 'users', 'rewardCategories', 'rewards')
+ROOT_ENTRIES = (
+    'chatRooms', 'games', 'groups', 'guns', 'missions', 'players',
+    'users', 'rewardCategories', 'rewards', 'notifications')
 
 # Mapping from a key name to where in Firebase it can be found
 # along with a specific value that can be used to validate existance.
@@ -36,6 +42,7 @@ ENTITY_PATH = {
   'chatRoomId': ['/chatRooms/%s', 'name'],
   'rewardCategoryId': ['/rewardCategories/%s', 'name'],
   'rewardId': ['/rewards/%s', 'a'],
+  'notificationId': ['/notifications/%s', None],
 }
 
 
@@ -114,6 +121,19 @@ def PlayerToGame(firebase, player):
   return firebase.get('/players/%s' % player, 'gameId')
 
 
+def ChatToGroup(firebase, chat):
+  """Map a chat to a group."""
+  return firebase.get('/chatRooms/%s' % chat, 'groupId')
+
+
+def ChatToGame(firebase, chat):
+  """Map a chat to a group."""
+  group = ChatToGroup(firebase, chat)
+  if group is None:
+    return None
+  return GroupToGame(group)
+
+
 def Register(request, firebase):
   """Register a new user in the DB.
 
@@ -130,9 +150,7 @@ def Register(request, firebase):
   required_args.extend(['name'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  data = {
-    'name': request['name'],
-  }
+  data = {'name': request['name']}
   return firebase.put('/users', request['userId'], data)
 
 
@@ -544,18 +562,14 @@ def UpdateMission(request, firebase):
 
 def AddChatRoom(request, firebase):
   """Add a new chat room.
-
   Use the chatRoomId to make a new chat room.
   Add the chatRoomId to the game's list of chat rooms.
-
   Validation:
-
   Args:
     chatRoomId: Id to use for this chat room.
-    groupId: 
+    groupId:
     name: Chat room name, can be updated.
     withAdmins: bool, used by the client.
-
   Firebase entries:
     /chatRooms/%(chatRoomId)
     /games/%(gameId)/chatRooms
@@ -596,6 +610,78 @@ def UpdateChatRoom(request, firebase):
   return firebase.patch('/chatRooms/%s' % request['chatRoomId'], put_data)
 
 
+def SendChatMessage(request, firebase):
+  """Record a chat message.
+
+  Validation:
+    Player is in the chat room (via the group).
+    The messageId is not used yet in this chat rom.
+
+  Args:
+    chatRoomId: Chat room to send the message to.
+    playerId: Player sending the message.
+    messageId: Unique ID to use for the message.
+    message: The message to send.
+
+  Firebase entries:
+    /chatRooms/%(chatRoomId)/messages
+  """
+  valid_args = ['chatRoomId', 'playerId']
+  required_args = list(valid_args)
+  required_args.extend(['messageId', 'message'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  chat = request['chatRoomId']
+  messageId = request['messageId']
+  group = ChatToGroup(firebase, chat)
+  if firebase.get('/chatRooms/%s/messages' % chat, messageId):
+    raise InvalidInputError('That message ID was already used.')
+  if not firebase.get('/groups/%s/players' % group, request['playerId']):
+    raise InvalidInputError('You are not a member of that chat room.')
+
+  # TODO Scan message for any @all or @player to turn into notifications.
+
+  put_data = {
+    'playerId': request['playerId'],
+    'message': request['message'],
+    'time': int(time.time())
+  }
+  return firebase.put('/chatRooms/%s/messages' % chat, messageId, put_data)
+
+
+def AckChatMessage(request, firebase):
+  """Ack a chat message which sets the ack to the timestamp of that message.
+
+  Validation:
+    Player is in the chat room (via the group).
+
+  Args:
+    chatRoomId: Chat room to send the message to.
+    playerId: Player sending the message.
+    messageId: Unique ID to use for the message.
+
+  Firebase entries:
+    /chatRooms/%(chatRoomId)/acks
+  """
+  valid_args = ['chatRoomId', 'playerId']
+  required_args = list(valid_args)
+  required_args.extend(['messageId'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  chat = request['chatRoomId']
+  messageId = request['messageId']
+  playerId = request['playerId']
+  group = ChatToGroup(firebase, chat)
+  message = firebase.get('/chatRooms/%s/messages' % chat, messageId)
+
+  if message is None:
+    raise InvalidInputError('That message ID is not valid.')
+  if not firebase.get('/groups/%s/players' % group, playerId):
+    raise InvalidInputError('You are not a member of that chat room.')
+
+  return firebase.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
+
+
 # TODO convert to add player to group?
 def AddPlayerToChat(request, firebase):
   """Add a new player to a chat room.
@@ -631,49 +717,6 @@ def AddPlayerToChat(request, firebase):
 
   results.append(firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, ""))
   results.append(firebase.put('/games/%s/chatRooms' % game, chat, True))
-
-
-def SendChatMessage(request, firebase):
-  """Send a message to a chat room.
-
-  Validation:
-    Player is a member of the chat room.
-
-  Args:
-    chatRoomId: The chat room to update.
-    playerId: The player sending the message.
-    messageId: The ID of the new message.
-    message: The message to add (string).
-
-  Firebase entries:
-    /chatRooms/%(chatRoomId)/memberships/%(playerId)
-    /chatRooms/%(chatRoomId)/messages
-  """
-  valid_args = ['chatRoomId', 'playerId']
-  required_args = list(valid_args)
-  required_args.extend(['messageId', 'message'])
-  ValidateInputs(request, firebase, required_args, valid_args)
-
-  game = PlayerToGame(firebase, player)
-  chat = request['chatRoomId']
-  player = request['playerId']
-  messageId = request['messageId']
-  message = request['message']
-
-  # TODO Map the chat to a group and check the group for membership
-  # Validate player is in the chat room
-  if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
-    raise InvalidInputError('You are not a member of that chat room.')
-  if firebase.get('/chatRooms/%s/messages/%s' % (chat, messageId), None):
-    raise InvalidInputError('That message ID was already posted.')
-
-  message_data = {
-    'message': message,
-    'playerId': player,
-    'time': int(time.time()),
-  }
-
-  return firebase.put('/chatRooms/%s/messages' % chat, messageId, message_data)
 
 
 def AddRewardCategory(request, firebase):
@@ -877,8 +920,134 @@ def RandomWords(n):
   return '-'.join(words)
 
 
+def SendNotification(request, firebase):
+  """Queue a notification to be sent.
+
+  Validation:
+    notificationId does not exist.
+    groupId or playerId exists.
+
+  Args:
+    notificationId: Queued Notification id to create.
+    message: Message to send to client.
+    previewMessage: Short preview of the message comments. If empty, one will be generated.
+    app: Whether to send as a push notification to the iOS/Android/Web clients.
+    vibrate: Whether the notification should vibrate on iOS/Android.
+    sound: Whether the notification should play a sound on iOS/Android.
+    destination: URL that notification should open when clicked.
+    sendTime: When to spawn notifications from this template. UNIX timestamp.
+    playerId: Player id to send message to. Cannot be mixed with groupId.
+    groupId: Who to send the notifications to. Cannot be mixed with playerId.
+    icon: An icon code to show.
+
+  Firebase entries:
+    /notifications/%(notificationId)
+"""
+  valid_args = ['!notificationId']
+  if 'groupId' in request and 'playerId' not in request:
+    valid_args.append('groupId')
+  elif 'playerId' in request and 'groupId' not in request:
+    valid_args.append('playerId')
+  else:
+    raise InvalidInputError('Must include either a playerId or a groupId')
+
+  required_args = list(valid_args)
+  required_args.extend(['message', 'app', 'vibrate', 'sound', 'destination',
+                        'sendTime', 'groupId', 'icon'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+  current_time = time.time()
+  if 'sendTime' in request and current_time > int(request['sendTime']):
+    raise InvalidInputError('sendTime must not be in the past!')
+
+  if 'previewMessage' not in request:
+    request['previewMessage'] = textwrap.wrap(request['message'], 100)[0]
+
+  put_data = {}
+  properties = ['message', 'app', 'vibrate', 'sound', 'destination', 'sendTime',
+                'groupId', 'playerId', 'icon', 'previewMessage']
+
+  for property in properties:
+    if property in request:
+      put_data[property] = request[property]
+
+  return firebase.put('/notifications',
+                      request['notificationId'], put_data)
+
+
+def UpdateNotification(request, firebase):
+  """Update a queued notification.
+
+  Validation:
+    notificationId exists.
+
+  Args:
+    notificationId: Queued Notification id to create.
+    message: Message to send to client.
+    previewMessage: Short preview of the message conents. Optional.
+    app: Whether to send as a push notification to the iOS/Android/Web clients.
+    vibrate: Whether the notification should vibrate on iOS/Android.
+    sound: Whether the notification should play a sound on iOS/Android.
+    destination: URL that notification should open when clicked.
+    sendTime: When to spawn notifications from this template. UNIX timestamp.
+    playerId: Player id to send message to.
+    groupId: Who to send the notifications to.
+    icon: An icon code to show.
+
+  Firebase entries:
+    /notifications/%(notificationId)
+"""
+  valid_args = ['notificationId']
+  required_args = list(valid_args)
+  ValidateInputs(request, firebase, required_args, valid_args)
+
+  put_data = {}
+  properties = ['message', 'app', 'vibrate', 'sound', 'destination', 'sendTime',
+                'groupId', 'playerId', 'icon']
+
+  current_time = time.time()
+  if 'sendTime' in request and current_time > int(request['sendTime']):
+    raise InvalidInputError('sendTime must not be in the past!')
+
+  notification = firebase.get('/notifications', request['notificationId'])
+  # This shouldn't happen since we validated this above...
+  if not notification:
+    raise InvalidInputError('notificationId must exist!')
+  if current_time > int(notification['sendTime']) or 'sent' in notification:
+    raise InvalidInputError('Cannot modify sent notification.')
+
+  for property in properties:
+    if property in request:
+      put_data[property] = request[property]
+
+  return firebase.patch('/notifications/%s' % request['notificationId'], put_data)
+
+
+def MarkNotificationSeen(request, firebase):
+  """Updates the notification's seenTime.
+
+  Validation:
+    notificationId must exist.
+    playerId must exist.
+
+  Args:
+    notificationId: Notification Id to update.
+    playerId: Player who saw notification.
+
+  Firebase entries:
+    /players/%(playerId)/notifications/%(notificationId)
+"""
+  valid_args = ['notificationId', 'playerId']
+  required_args = list(valid_args)
+  ValidateInputs(request, firebase, required_args, valid_args)
+  put_data = {
+    'time': time.time()
+  }
+  return firebase.patch('/player/%s/notifications/%s' % (
+      request['playerId'], request['notificationId']), put_data)
+
+
 def DeleteTestData(request, firebase):
-  if request['id'] != constants.FIREBASE_EMAIL:
+  if request['id'] != secrets.FIREBASE_EMAIL:
     return
 
   for entry in ROOT_ENTRIES:
@@ -890,7 +1059,7 @@ def DeleteTestData(request, firebase):
 
 
 def DumpTestData(request, firebase):
-  if request['id'] != constants.FIREBASE_EMAIL:
+  if request['id'] != secrets.FIREBASE_EMAIL:
     return
 
   res = {}

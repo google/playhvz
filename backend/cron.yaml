@@ -1,0 +1,4 @@
+cron:
+- description: Notification execution handler
+  url: /cronNotification
+  schedule: every 1 mins

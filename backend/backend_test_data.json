@@ -3,7 +3,17 @@
     "chatRoom-%(ident)s" : {
       "groupId" : "group-%(ident)s",
       "name" : "test Chat Room",
-      "withAdmins" : false
+      "withAdmins" : false,
+      "acks": {
+	"player-%(ident)s": 0
+      },
+      "messages": {
+	"message-%(ident)s": {
+	  "message": "test Message",
+	  "playerId": "player-%(ident)s",
+	  "time": 0
+	}
+      }
     }
   },
   "games": {
@@ -120,6 +130,7 @@
       "limitPerPlayer": 2
     }
   },
+  "notifications": {},
   "rewards": {
     "reward-%(ident)s-bleck": {
       "a": true,

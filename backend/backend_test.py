@@ -8,6 +8,7 @@ import time
 import unittest
 
 import constants
+import secrets
 
 
 class EndToEndTest(unittest.TestCase):
@@ -19,7 +20,7 @@ class EndToEndTest(unittest.TestCase):
 
   def GetFirebase(self):
     auth = firebase.FirebaseAuthentication(
-        constants.FIREBASE_SECRET, constants.FIREBASE_EMAIL, admin=True)
+        secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
         'https://trogdors-29fa4.firebaseio.com', authentication=auth)
     return db
@@ -31,6 +32,7 @@ class EndToEndTest(unittest.TestCase):
   
   def AssertFails(self, method, data):
     r = self.Post(method, data)
+    data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertEqual(500, r.status_code,
         msg='Expected 500 but got %d for %s\n%r' % (r.status_code, method, data))
 
@@ -60,22 +62,30 @@ class EndToEndTest(unittest.TestCase):
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.Post('DumpTestData', {'id': constants.FIREBASE_EMAIL})
+    r = self.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL})
     expected = json.loads(expected_raw)
     actual = r.json()
-    a = actual['games']
-    a = a[list(a)[0]]['players']
-    a[list(a)[0]]['number'] = 100
-    a = a[list(a)[0]]['claims']
-    a[list(a)[0]]['time'] = 0
+    self.CleanTestData(actual)
     self.AssertDictEqual(expected, actual)
 
+  def CleanTestData(self, data):
+    for k, v in data.iteritems():
+      if k == 'number':
+        data[k] = 100
+      elif k == 'time':
+        data[k] = 0
+      elif k == 'acks':
+        for playerId in v:
+          v[playerId] = 0
+      elif type(v) == dict:
+        self.CleanTestData(v)
+
   def setUp(self):
-    self.Post('DeleteTestData', {'id': constants.FIREBASE_EMAIL})
+    self.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
   
   def tearDown(self):
     pass
-    # self.Post('DeleteTestData', {'id': constants.FIREBASE_EMAIL})
+    # self.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
   
   def testEndToEnd(self):
     self.identifier = 'test_%d' % (time.time() % 1000)
@@ -164,6 +174,19 @@ class EndToEndTest(unittest.TestCase):
     self.AssertCreateUpdateSequence('createChatRoom', create, 'updateChatRoom', update)
 
     create = {
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId'),
+      'message': 'test Message',
+    }
+    update = {
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId'),
+    }
+    self.AssertCreateUpdateSequence('sendChatMessage', create, 'ackChatMessage', update)
+
+    create = {
       'missionId': self.Id('missionId'),
       'groupId': self.Id('groupId'),
       'name': 'test Mission',
@@ -209,12 +232,6 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
     self.AssertDataMatches()
-
-
-# Endpoints not yet tested
-#  createChatRoom
-#  addPlayerToChat
-#  sendChatMessage
 
 
 if __name__ == '__main__':
