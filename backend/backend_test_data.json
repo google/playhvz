@@ -127,7 +127,10 @@
       "name": "test Reward",
       "gameId": "game-%(ident)s",
       "points": 5,
-      "limitPerPlayer": 2
+      "limitPerPlayer": 2,
+      "rewards": {
+        "reward-%(ident)s-bleck": true
+      }
     }
   },
   "notifications": {},
