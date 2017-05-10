@@ -252,7 +252,7 @@ def AddGroup(request, firebase):
     autoRemove: Automatically remove players to this group based on allegiance.
     membersCanAdd: Group members can add other players.
     membersCanRemove: Group members can add other players.
-    ownerPlayerId: player who is the owner of this group.
+    ownerPlayerId: (optional) player who is the owner of this group.
 
   Firebase entries:
     /groups/%(groupId)
@@ -261,17 +261,21 @@ def AddGroup(request, firebase):
   """
   results = []
   valid_args = ['!groupId', 'gameId', 'ownerPlayerId', 'allegianceFilter']
-  required_args = list(valid_args)
+  required_args = ['groupId', 'gameId', 'allegianceFilter']
   required_args.extend(['autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_args = list(required_args)
-  put_args.remove('!groupId')
+  put_args = set(required_args) - set(['groupId'])
   group_data = {k: request[k] for k in put_args}
+  if 'ownerPlayerId' in request:
+    group_data['ownerPlayerId'] = request['ownerPlayerId']
 
   results.append(firebase.put('/groups', request['groupId'], group_data))
-  results.append(firebase.put('/groups/%s/players' % request['groupId'], request['ownerPlayerId'], True))
   results.append(firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], True))
+  if 'ownerPlayerId' in request:
+    results.append(firebase.put('/groups/%s/players' % request['groupId'], request['ownerPlayerId'], True))
+
+  # TODO We may need to populate a group automatically on creation.
 
   return results
 
@@ -385,7 +389,7 @@ def AddPlayer(request, firebase):
     allegiance = 'resistence'
 
   game_info = {
-    'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None)),
+    'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None, {'shallow': True})),
     'userId' : user,
     'name': request['name'],
     'profileImageUrl' : request['profileImageUrl'],
@@ -708,7 +712,7 @@ def AddPlayerToChat(request, firebase):
   otherPlayer = request['otherPlayerId']
 
   # Validate player is in the chat room
-  if firebase.get('/chatRooms/%s/memberships/%s' % (chat, player), None) is None:
+  if firebase.get('/chatRooms/%s/memberships' % chat, player) is None:
     raise InvalidInputError('You are not a member of that chat room.')
   # Validate otherPlayer is not in the chat room
   if firebase.get('/chatRooms/%s/memberships' % chat, otherPlayer) is not None:
@@ -886,7 +890,7 @@ def ClaimReward(request, firebase):
   # Check the limitPerPlayer
   reward_limit = int(firebase.get(reward_category_path, 'limitPerPlayer'))
   if reward_limit:
-    claims = firebase.get('%s/claims' % player_path, None)
+    claims = firebase.get(player_path, 'claims', {'shallow': True})
     if claims:
       claims = [c for c in claims if c.startswith('reward-%s' % reward_category_seed)]
       if len(claims) >= reward_limit:
@@ -1051,7 +1055,7 @@ def DeleteTestData(request, firebase):
     return
 
   for entry in ROOT_ENTRIES:
-    data = firebase.get('/%s' % entry, None)
+    data = firebase.get('/', entry, {'shallow': True})
     if data:
       test_keys = [r for r in data if 'test_' in r]
       for k in test_keys:
@@ -1065,7 +1069,7 @@ def DumpTestData(request, firebase):
   res = {}
   for entry in ROOT_ENTRIES:
     res[entry] = {}
-    data = firebase.get('/%s' % entry, None)
+    data = firebase.get('/', entry)
     if data:
       res[entry] = {r: data[r] for r in data if 'test_' in r}
   return res
