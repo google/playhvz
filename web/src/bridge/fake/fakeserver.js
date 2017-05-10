@@ -34,12 +34,12 @@ class FakeServer {
     });
   }
   createGame(args) {
-    let {gameId, firstAdminUserId} = args;
+    let {gameId, adminUserId} = args;
     this.writer.insert(
         this.reader.getGamePath(null),
         null,
         newGame(gameId, args));
-    this.addAdmin({gameId: gameId, userId: firstAdminUserId});
+    this.addAdmin({gameId: gameId, userId: adminUserId});
   }
   setAdminContact(args) {
     let {gameId, playerId} = args;

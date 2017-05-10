@@ -72,7 +72,7 @@
                 this.bridge.createGame({
                   gameId: gameId,
                   stunTimer: +properties.stunTimer,
-                  firstAdminUserId: this.userId,
+                  adminUserId: this.userId,
                   active: true,
                   rulesHtml: properties.rulesHtml,
                   name: properties.name,
@@ -93,7 +93,7 @@
                   chatRoomId: resistanceChatRoomId,
                   groupId: resistanceGroupId,
                   name: "Resistance Comms Hub",
-                  withAdmin: false
+                  withAdmins: false
                 });
                 var hordeGroupId = Bridge.GroupId.generate('horde');
                 this.bridge.createGroup({
@@ -112,7 +112,7 @@
                   chatRoomId: zedChatRoomId,
                   groupId: hordeGroupId,
                   name: "Horde ZedLink",
-                  withAdmin: false,
+                  withAdmins: false,
                 });
               });
         },

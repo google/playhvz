@@ -67,7 +67,7 @@ function newGroup(id, args) {
   return obj;
 }
 
-const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmin"];
+const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmins"];
 const CHAT_ROOM_COLLECTIONS = ["messages"];
 function newChatRoom(id, args) {
   let obj = {id: id};

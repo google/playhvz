@@ -122,7 +122,7 @@
         },
 
         computePlayerName_: function(playerIdOrNull) {
-          return playerIdOrNull ? this.playersById[playerIdOrNull].name : '(none)';
+          return playerIdOrNull && this.playersById[playerIdOrNull] && this.playersById[playerIdOrNull].name || '(none)';
         },
 
         onSetGunPlayer_: function(e) {

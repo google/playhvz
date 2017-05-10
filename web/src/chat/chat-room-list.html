@@ -28,7 +28,7 @@
           for (let chatRoomMembership of this.player.chatRoomMemberships) {
             let chatRoomId = chatRoomMembership.chatRoomId;
             let chatRoom = this.game.chatRoomsById[chatRoomId];
-            if (chatRoom.withAdmin) {
+            if (chatRoom.withAdmins) {
               this.adminChatExists = true;
               return;
             }
@@ -60,7 +60,7 @@
 
         createAdminChat_(bridge, game, player) {
           let name =  this.player.name + " & HvZ CDC";
-          let groupId = Bridge.GroupId.generate('withadmin');
+          let groupId = Bridge.GroupId.generate('withadmins');
           this.bridge.createGroup({
             groupId: groupId,
             gameId: this.game.id,
@@ -71,12 +71,12 @@
             membersCanAdd: false,
             membersCanRemove: false,
           });
-          let chatRoomId = Bridge.ChatRoomId.generate('withadmin');
+          let chatRoomId = Bridge.ChatRoomId.generate('withadmins');
           this.bridge.createChatRoom({
             chatRoomId: chatRoomId,
             groupId: groupId,
             name: name,
-            withAdmin: true,
+            withAdmins: true,
           });
           this.bridge.addPlayerToGroup({
             groupId: groupId,

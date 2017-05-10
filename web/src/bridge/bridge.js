@@ -184,7 +184,7 @@ Bridge.QuizAnswerId = {
     active: 'Boolean',
   };
   serverMethods.set('createGame', {
-    required: Utils.merge({gameId: '!GameId', firstAdminUserId: 'UserId'}, GAME_PROPERTIES),
+    required: Utils.merge({gameId: '!GameId', adminUserId: 'UserId'}, GAME_PROPERTIES),
   });
   serverMethods.set('updateGame', {
     required: {gameId: 'GameId'},
@@ -317,7 +317,7 @@ Bridge.QuizAnswerId = {
 
   const CHAT_ROOM_PROPERTIES = {
     name: 'String',
-    withAdmin: 'Boolean',
+    withAdmins: 'Boolean',
   };
   serverMethods.set('createChatRoom', {
     required:

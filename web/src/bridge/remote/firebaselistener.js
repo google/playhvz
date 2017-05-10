@@ -159,9 +159,9 @@ class FirebaseListener {
             this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
           });
     });
-    this.firebaseRoot.child("games").on("child_removed", (snap) => {
-      this.splice(this.reader.getGamePath(), this.reader.getGameIndex(snap.getKey()), 1);
-    });
+    // this.firebaseRoot.child("games").on("child_removed", (snap) => {
+    //   this.splice(this.reader.getGamePath(), this.reader.getGameIndex(snap.getKey()), 1);
+    // });
   }
 
   deepListenToGame(gameId) {
