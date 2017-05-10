@@ -301,8 +301,9 @@ Bridge.QuizAnswerId = {
 
   serverMethods.set('addRewards', {
     required: {
-      gameId: 'GameId',
-      numNewRewards: 'Number',
+      // gameId: 'GameId',
+      rewardCategoryId: 'RewardCategoryId',
+      count: 'Number',
     },
   });
 

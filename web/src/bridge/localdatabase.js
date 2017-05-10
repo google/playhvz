@@ -58,7 +58,7 @@ function newQuizAnswer(id, args) {
   return obj;
 }
 
-const GROUP_PROPERTIES = ["gameId", "allegianceFilter", "autoAdd", "membersCanAdd", "autoRemove"];
+const GROUP_PROPERTIES = ["gameId", "allegianceFilter", "autoAdd", "membersCanAdd", "membersCanRemove", "autoRemove", "ownerPlayerId"];
 const GROUP_COLLECTIONS = ["memberships"];
 function newGroup(id, args) {
   let obj = {id: id};

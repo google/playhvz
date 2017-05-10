@@ -35,6 +35,26 @@
             type: Boolean,
             value: false,
           },
+
+          canAdd: {
+            type: Boolean,
+            computed: 'computeCanAdd_(player.id, group.ownerPlayerId, group.membersCanAdd)',
+          },
+
+          canRemove: {
+            type: Boolean,
+            computed: 'computeCanRemove_(player.id, group.ownerPlayerId, group.membersCanRemove)',
+          },
+
+          showActionsSection: {
+            type: Boolean,
+            computed: 'computeShowActionsSection_(canAdd, canRemove)',
+          },
+
+          showPlayerDropdown: {
+            type: Boolean,
+            computed: 'computeShowPlayerDropdown_(canRemove)',
+          },
         },
 
         observers: [
@@ -42,6 +62,22 @@
           'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
+
+        computeCanAdd_(playerId, ownerPlayerId, membersCanAdd) {
+          return playerId == ownerPlayerId || membersCanAdd;
+        },
+
+        computeCanRemove_(playerId, ownerPlayerId, membersCanRemove) {
+          return playerId == ownerPlayerId || membersCanRemove;
+        },
+
+        computeShowActionsSection_(canAdd, canRemove) {
+          return canAdd || canRemove;
+        },
+
+        computeShowPlayerDropdown_(canRemove) {
+          return canRemove;
+        },
 
         onChatRoomChanged_() {
           this.onChatMembershipsChanged_();
@@ -144,20 +180,26 @@
       <div class="drawer-header">
         [[chatRoom.name]]
       </div>
-      <div class="drawer-section">
-        <a href="javascript:void(0)" data-action="add" class="drawer-item">
-          <iron-icon icon="icons:add"></iron-icon>
-          Add player
-        </a>
-        <a href="javascript:void(0)" data-action="notifications" class="drawer-item">
-          <iron-icon icon="social:notifications"></iron-icon>
-          Notifications
-        </a>
-        <a href="javascript:void(0)" data-action="leave" class="drawer-item">
-          <iron-icon icon="communication:call-made"></iron-icon>
-          Leave
-        </a>
-      </div>
+      <template is="dom-if" if="[[showActionsSection]]">
+        <div class="drawer-section">
+          <template is="dom-if" if="[[canAdd]]">
+            <a href="javascript:void(0)" data-action="add" class="drawer-item">
+              <iron-icon icon="icons:add"></iron-icon>
+              Add player
+            </a>
+          </template>
+          <!-- <a href="javascript:void(0)" data-action="notifications" class="drawer-item">
+            <iron-icon icon="social:notifications"></iron-icon>
+            Notifications
+          </a> -->
+          <template is="dom-if" if="[[canRemove]]">
+            <a href="javascript:void(0)" data-action="leave" class="drawer-item">
+              <iron-icon icon="communication:call-made"></iron-icon>
+              Leave
+            </a>
+          </template>
+        </div>
+      </template>
 
       <div class="drawer-section">
         <div class="info-label">[[group.memberships.length]] members</div>
@@ -172,28 +214,32 @@
                 [[item.name]]
               </div>
             </div>
-            <paper-menu-button restore-focus-on-close="[[booleanFalse]]">
-              <paper-icon-button 
-                class="dropdown-trigger" 
-                icon="icons:more-vert">
-              </paper-icon-button>
-              <paper-menu 
-                class="dropdown-content" 
-                selected="{{selectedMenuItem}}">
-                <paper-item 
-                  on-tap="captureTap_" 
-                  data-action="ping" 
-                  data-player-id$="[[item.id]]">
-                  ping
-                </paper-item>
-                <paper-item 
-                  on-tap="captureTap_" 
-                  data-action="kick" 
-                  data-player-id$="[[item.id]]">
-                  kick
-                </paper-item>
-              </paper-menu>
-            </paper-menu-button>
+            <template is="dom-if" if="[[showPlayerDropdown]]">
+              <paper-menu-button restore-focus-on-close="[[booleanFalse]]">
+                <paper-icon-button
+                  class="dropdown-trigger" 
+                  icon="icons:more-vert">
+                </paper-icon-button>
+                <paper-menu 
+                  class="dropdown-content" 
+                  selected="{{selectedMenuItem}}">
+                  <!-- <paper-item 
+                    on-tap="captureTap_" 
+                    data-action="ping" 
+                    data-player-id$="[[item.id]]">
+                    ping
+                  </paper-item> -->
+                  <template is="dom-if" if="[[canRemove]]">
+                    <paper-item 
+                      on-tap="captureTap_" 
+                      data-action="kick" 
+                      data-player-id$="[[item.id]]">
+                      Kick
+                    </paper-item>
+                  </template>
+                </paper-menu>
+              </paper-menu-button>
+            </template>
           </div>
         </template>
       </div> 

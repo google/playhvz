@@ -146,8 +146,9 @@
 
         addRewards_() {
           this.bridge.addRewards({
+            // gameId: this.gameId,
             rewardCategoryId: this.currentRewardCategory.id,
-            numRewards: this.numNewRewards
+            count: +this.numNewRewards,
           });
           this.numNewRewards = "";
         },

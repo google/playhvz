@@ -255,8 +255,7 @@ class FirebaseListener {
                 (property, value) => {
                   this.writer.set(this.reader.getMissionPath(gameId, missionId).concat([property]), value);
                 });
-          })
-          .catch((e) => assert(e.code == 'PERMISSION_DENIED', e));
+          });
     });
   }
 
@@ -275,8 +274,7 @@ class FirebaseListener {
                   this.writer.set(this.reader.getGroupPath(gameId, groupId).concat([property]), value);
                 });
             this.listenToGroupMemberships_(gameId, groupId);
-          })
-          .catch((e) => assert(e.code == 'PERMISSION_DENIED', e));
+          });
     });
   }
 
@@ -295,8 +293,7 @@ class FirebaseListener {
                   this.writer.set(this.reader.getChatRoomPath(gameId, chatRoomId).concat([property]), value);
                 });
             this.listenToChatRoomMessages_(gameId, chatRoomId);
-          })
-          .catch((e) => assert(e.code == 'PERMISSION_DENIED', e));
+          });
     });
   }
 
@@ -314,8 +311,7 @@ class FirebaseListener {
                 (property, value) => {
                   this.writer.set(this.reader.getNotificationCategoryPath(gameId, notificationCategoryId).concat([property]), value);
                 });
-          })
-          .catch((e) => assert(e.code == 'PERMISSION_DENIED', e));
+          });
     });
   }
 
@@ -512,16 +508,20 @@ class FirebaseListener {
     });
   }
 
-  listenToRewards_(gameId, rewardCategoryId) {
-    var ref = this.firebaseRoot.child("games/" + gameId + "/rewardCategories/" + rewardCategoryId + "/rewards");
-    ref.on("child_added", (snap) => {
-      let rewardId = snap.getKey();
-      let obj = newReward(rewardId, snap.val());
-      this.writer.insert(this.reader.getRewardPath(gameId, rewardCategoryId, null), null, obj);
-      this.listenForPropertyChanges_(
-          snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
+  listenToMissions_(rewardCategoryId) {
+    var collectionRef = this.firebaseRoot.child("rewardCategories/" + rewardCategoryId + "/rewards");
+    collectionRef.on("child_added", (snap) => {
+      let rewardId = snap.getKey(); // snap.val() is ""
+      let ref = this.firebaseRoot.child("rewards/" + rewardId);
+      ref.once("value")
+          .then((snap) => {
+            let obj = newReward(rewardId, snap.val());
+            this.writer.insert(this.reader.getRewardPath(gameId, rewardCategoryId, null), null, obj);
+            this.listenForPropertyChanges_(
+                snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
+                (property, value) => {
+                  this.writer.set(this.reader.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
+                });
           });
     });
   }
