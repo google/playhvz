@@ -112,7 +112,7 @@ function newMessage(id, args) {
   return obj;
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "allegianceFilter"];
+const MISSION_PROPERTIES = ["gameId", "name", "begin", "end", "detailsHtml", "groupId"];
 const MISSION_COLLECTIONS = [];
 function newMission(id, args) {
   let obj = {id: id};

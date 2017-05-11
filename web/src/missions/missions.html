@@ -21,8 +21,8 @@
             type: Object,
             value: () => ({
               name: "",
-              beginTime: "",
-              endTime: "",
+              begin: "",
+              end: "",
               detailsHtml: "",
             }),
           },
@@ -45,12 +45,12 @@
                 filterable: true,
               },
               {
-                property: "beginTime",
+                property: "begin",
                 name: "Begin",
                 sortable: true,
               },
               {
-                property: "endTime",
+                property: "end",
                 name: "End",
                 sortable: true,
               },
@@ -82,14 +82,14 @@
                 label: "Name",
               },
               {
-                property: "beginTime",
+                property: "begin",
                 label: "Begin timestamp",
                 width: "half",
                 description: "(in milliseconds)",
                 type: "timestamp",
               },
               {
-                property: "endTime",
+                property: "end",
                 label: "End timestamp",
                 width: "half",
                 description: "(in milliseconds)",
@@ -170,8 +170,8 @@
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
           <div class="cell">[[mission.name]]</div>
           <div class="cell">[[mission.allegianceFilter]]</div>
-          <div class="cell">[[formatTime_(mission.beginTime)]]</div>
-          <div class="cell">[[formatTime_(mission.endTime)]]</div>
+          <div class="cell">[[formatTime_(mission.begin)]]</div>
+          <div class="cell">[[formatTime_(mission.end)]]</div>
           <div class="cell">[[shorten(mission.detailsHtml)]]</div>
         </div>
       </template>

@@ -63,6 +63,16 @@ class Bridge {
           storageBucket: "trogdors-29fa4.appspot.com",
           messagingSenderId: "625580091272"
         };
+      } else if (env == 'localprod') {
+        serverUrl = "http://127.0.0.1:8080/"; // we dont have a dev frontend
+        config = {
+          apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+          authDomain: "trogdors-29fa4.firebaseapp.com",
+          databaseURL: "https://trogdors-29fa4.firebaseio.com",
+          projectId: "trogdors-29fa4",
+          storageBucket: "trogdors-29fa4.appspot.com",
+          messagingSenderId: "625580091272"
+        };
       } else if (env == 'dev') {
         serverUrl = "trololol"; // we dont have a dev frontend
         config = {
@@ -238,8 +248,8 @@ Bridge.QuizAnswerId = {
 
   // Missions
   const MISSION_PROPERTIES = {
-    beginTime: 'TimestampMs',
-    endTime: 'TimestampMs',
+    begin: 'TimestampMs',
+    end: 'TimestampMs',
     name: 'String',
     detailsHtml: 'String',
     groupId: 'GroupId',

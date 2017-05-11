@@ -10,7 +10,6 @@
 // Because of that, destinationBatchedWriter needs to be a BatchedWriter.
 class FirebaseListener {
   constructor(destinationBatchedWriter, firebaseRoot) {
-
     // This is a plain object, which will have all of our games, guns, users,
     // and everything below them.
     let privateDatabaseCopyObject = {};
@@ -73,9 +72,9 @@ class FirebaseListener {
 
     this.firebaseRoot = firebaseRoot;
   }
-  listenToGame(gameId) {
+  listenToGame(gameId, currentPlayerId) {
     this.listenToGame = () => throwError("Can't call listenToGame twice!");
-    this.deepListenToGame(gameId);
+    this.deepListenToGame(gameId, currentPlayerId);
   }
   listenToUser(userId) {
     return this.deepListenToUser(userId)
@@ -158,22 +157,22 @@ class FirebaseListener {
           (property, value) => {
             this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
           });
+      this.listenToAdmins_(gameId);
     });
     // this.firebaseRoot.child("games").on("child_removed", (snap) => {
     //   this.splice(this.reader.getGamePath(), this.reader.getGameIndex(snap.getKey()), 1);
     // });
   }
 
-  deepListenToGame(gameId) {
+  deepListenToGame(gameId, currentPlayerId) {
     this.writer.set(this.reader.getGamePath(gameId).concat(["loaded"]), true);
     this.listenToPlayers_(gameId);
-    this.listenToAdmins_(gameId);
-    this.listenToMissions_(gameId);
-    this.listenToGroups_(gameId);
-    this.listenToChatRooms_(gameId);
-    this.listenToQuizQuestions_(gameId);
-    this.listenToRewardCategories_(gameId);
-    this.listenToNotificationCategories_(gameId);
+    this.listenToMissions_(gameId, currentPlayerId);
+    this.listenToGroups_(gameId, currentPlayerId);
+    this.listenToChatRooms_(gameId, currentPlayerId);
+    this.listenToRewardCategories_(gameId, currentPlayerId);
+    this.listenToNotificationCategories_(gameId, currentPlayerId);
+    this.listenToQuizQuestions_(gameId, currentPlayerId);
   }
 
   deepListenToUser(userId) {
@@ -241,26 +240,31 @@ class FirebaseListener {
     });
   }
 
-  listenToMissions_(gameId) {
-    var collectionRef = this.firebaseRoot.child("games/" + gameId + "/missionIds");
+  listenToMissions_(gameId, currentPlayerId) {
+    let collectionRef =
+        currentPlayerId ?
+            this.firebaseRoot.child("players/" + currentPlayerId + "/missions") :
+            this.firebaseRoot.child("games/" + gameId + "/missions");
     collectionRef.on("child_added", (snap) => {
       let missionId = snap.getKey(); // snap.val() is ""
       let ref = this.firebaseRoot.child("missions/" + missionId);
-      ref.once("value")
-          .then((snap) => {
-            let obj = newMission(missionId, snap.val());
-            this.writer.insert(this.reader.getMissionPath(gameId, null), null, obj);
-            this.listenForPropertyChanges_(
-                snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
-                (property, value) => {
-                  this.writer.set(this.reader.getMissionPath(gameId, missionId).concat([property]), value);
-                });
-          });
+      ref.once("value").then((snap) => {
+        let obj = newMission(missionId, snap.val());
+        this.writer.insert(this.reader.getMissionPath(gameId, null), null, obj);
+        this.listenForPropertyChanges_(
+            snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
+            (property, value) => {
+              this.writer.set(this.reader.getMissionPath(gameId, missionId).concat([property]), value);
+            });
+      });
     });
   }
 
-  listenToGroups_(gameId) {
-    var collectionRef = this.firebaseRoot.child("games/" + gameId + "/groupIds");
+  listenToGroups_(gameId, currentPlayerId) {
+    let collectionRef =
+        currentPlayerId ?
+            this.firebaseRoot.child("players/" + currentPlayerId + "/groups") :
+            this.firebaseRoot.child("games/" + gameId + "/groups");
     collectionRef.on("child_added", (snap) => {
       let groupId = snap.getKey(); // snap.val() is ""
       let ref = this.firebaseRoot.child("groups/" + groupId);
@@ -278,8 +282,11 @@ class FirebaseListener {
     });
   }
 
-  listenToChatRooms_(gameId) {
-    var collectionRef = this.firebaseRoot.child("games/" + gameId + "/chatRoomIds");
+  listenToChatRooms_(gameId, currentPlayerId) {
+    let collectionRef =
+        currentPlayerId ?
+            this.firebaseRoot.child("players/" + currentPlayerId + "/chatRooms") :
+            this.firebaseRoot.child("games/" + gameId + "/chatRooms");
     collectionRef.on("child_added", (snap) => {
       let chatRoomId = snap.getKey(); // snap.val() is ""
       let ref = this.firebaseRoot.child("chatRooms/" + chatRoomId);
@@ -297,8 +304,11 @@ class FirebaseListener {
     });
   }
 
-  listenToNotificationCategories_(gameId) {
-    var collectionRef = this.firebaseRoot.child("games/" + gameId + "/notificationCategoryIds");
+  listenToNotificationCategories_(gameId, currentPlayerId) {
+    let collectionRef =
+        currentPlayerId ?
+            this.firebaseRoot.child("players/" + currentPlayerId + "/notificationCategories") :
+            this.firebaseRoot.child("games/" + gameId + "/notificationCategories");
     collectionRef.on("child_added", (snap) => {
       let notificationCategoryId = snap.getKey(); // snap.val() is ""
       let ref = this.firebaseRoot.child("notificationCategories/" + notificationCategoryId);
@@ -391,7 +401,7 @@ class FirebaseListener {
               this.listenToLives_(playerId, gameId);
               this.listenToInfections_(gameId, playerId);
               this.listenToNotifications_(playerId, gameId);
-              this.listenToPlayerChatRoomMemberships_(gameId, playerId);
+              // this.listenToPlayerChatRoomMemberships_(gameId, playerId);
             });
       } else {
         this.writer.insert(this.reader.getPlayerPath(gameId, null), null, obj);
@@ -406,27 +416,27 @@ class FirebaseListener {
     });
   }
 
-  listenToPlayerChatRoomMemberships_(gameId, playerId) {
-    var ref = this.firebaseRoot.child("/players/" + playerId + "/chatRoomMembershipsByChatRoomId");
-    ref.on("child_added", (snap) => {
-      let chatRoomId = snap.getKey();
-      let obj = newPlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId});
-      this.writer.insert(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null), null, obj);
-      this.listenForPropertyChanges_(
-          snap.ref, PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES, PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId).concat([property]), value);
-          });
-    });
-    ref.on("child_removed", (snap) => {
-      let chatRoomId = snap.getKey();
-      let path = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
-      this.writer.remove(
-          path.slice(0, path.length - 1),
-          path.slice(-1)[0],
-          chatRoomId);
-    });
-  }
+  // listenToPlayerChatRoomMemberships_(gameId, playerId) {
+  //   var ref = this.firebaseRoot.child("/players/" + playerId + "/chatRoomMembershipsByChatRoomId");
+  //   ref.on("child_added", (snap) => {
+  //     let chatRoomId = snap.getKey();
+  //     let obj = newPlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId});
+  //     this.writer.insert(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null), null, obj);
+  //     this.listenForPropertyChanges_(
+  //         snap.ref, PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES, PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
+  //         (property, value) => {
+  //           this.writer.set(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId).concat([property]), value);
+  //         });
+  //   });
+  //   ref.on("child_removed", (snap) => {
+  //     let chatRoomId = snap.getKey();
+  //     let path = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
+  //     this.writer.remove(
+  //         path.slice(0, path.length - 1),
+  //         path.slice(-1)[0],
+  //         chatRoomId);
+  //   });
+  // }
 
   listenToClaims_(gameId, playerId) {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/claims");

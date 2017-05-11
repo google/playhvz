@@ -217,9 +217,9 @@ function populateFakeServer(server) {
   }
 
   var firstMissionId = Bridge.MissionId.generate();
-  server.addMission({missionId: firstMissionId, gameId: gameId, beginTime: new Date().getTime() - 10 * 1000, endTime: new Date().getTime() + 60 * 60 * 1000, name: "first mission!", detailsHtml: HUMAN_MISSION_HTML, groupId: resistanceGroupId});
+  server.addMission({missionId: firstMissionId, gameId: gameId, begin: new Date().getTime() - 10 * 1000, end: new Date().getTime() + 60 * 60 * 1000, name: "first mission!", detailsHtml: HUMAN_MISSION_HTML, groupId: resistanceGroupId});
   var secondMissionId = Bridge.MissionId.generate();
-  server.addMission({missionId: secondMissionId, gameId: gameId, beginTime: new Date().getTime() - 10 * 1000, endTime: new Date().getTime() + 60 * 60 * 1000, name: "second mission!", detailsHtml: ZOMBIE_MISSION_HTML, groupId: hordeGroupId});
+  server.addMission({missionId: secondMissionId, gameId: gameId, begin: new Date().getTime() - 10 * 1000, end: new Date().getTime() + 60 * 60 * 1000, name: "second mission!", detailsHtml: ZOMBIE_MISSION_HTML, groupId: hordeGroupId});
   var rewardCategoryId = Bridge.RewardCategoryId.generate();
   server.addRewardCategory({rewardCategoryId: rewardCategoryId, gameId: gameId, name: "signed up!", points: 2, seed: "derp", limitPerPlayer: 1});
   server.addReward({gameId: gameId, rewardId: Bridge.RewardId.generate(), rewardCategoryId: rewardCategoryId});

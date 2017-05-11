@@ -27,7 +27,7 @@
         ready_: function(missions) {
           let nextMission;
           for (const mission of missions) {
-            if (new Date().getTime() < mission.endTime) {
+            if (new Date().getTime() < mission.end) {
               nextMission = mission;
               break;
             }

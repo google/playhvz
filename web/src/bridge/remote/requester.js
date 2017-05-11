@@ -20,6 +20,12 @@ class NormalRequester {
     this.headers = headers;
   }
   sendRequest_(verb, path, urlParams, body) {
+    for (var key in body) {
+      if (body[key] == null) {
+        delete body[key];
+      }
+    }
+
     const requestId = this.nextRequestId++;
     let [promise, resolve, reject] = newPromise();
     var request = new XMLHttpRequest();

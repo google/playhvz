@@ -101,6 +101,11 @@ paper-input-container {
           value: null,
         },
 
+        listening: {
+          type: Boolean,
+          value: false,
+        },
+
         user: Object,
 
         game: Object,
@@ -155,11 +160,20 @@ paper-input-container {
       },
 
       onGameIdChanged_() {
-        if (!this.game) {
+        if (this.gameId) {
           let game = this.database.games.find(game => game.id == this.gameId);
           if (game) {
-            this.bridge.listenToGame(this.gameId);
-            this.$.gameSelector.select(game);
+            let playerId = undefined;
+            let isAdmin = this.userId && game.admins.find(admin => admin.userId == this.userId);
+            if (isAdmin) {
+              playerId = null;
+            } else if (this.playerId) {
+              playerId = this.playerId;
+            }
+            if (playerId !== undefined) {
+              this.bridge.listenToGame(this.gameId, playerId);
+              this.$.gameSelector.select(game);
+            }
           }
         }
       },

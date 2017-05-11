@@ -63,6 +63,11 @@
                 let gameId = properties.id;
                 if (!gameId.startsWith('game-'))
                   gameId = 'game-' + properties.id;
+                var resistanceGroupId = Bridge.GroupId.generate('resistance');
+                var resistanceChatRoomId = Bridge.ChatRoomId.generate();
+                var hordeGroupId = Bridge.GroupId.generate('horde');
+                var hordeChatRoomId = Bridge.ChatRoomId.generate();
+
                 this.bridge.createGame({
                   gameId: gameId,
                   stunTimer: +properties.stunTimer,
@@ -70,43 +75,50 @@
                   active: true,
                   rulesHtml: properties.rulesHtml,
                   name: properties.name,
-                });
-                var resistanceGroupId = Bridge.GroupId.generate();
-                this.bridge.createGroup({
-                  groupId: resistanceGroupId,
-                  gameId: gameId,
-                  ownerPlayerId: null,
-                  allegianceFilter: 'resistance',
-                  autoAdd: true,
-                  autoRemove: true,
-                  membersCanAdd: false,
-                  membersCanRemove: false,
-                });
-                var resistanceChatRoomId = Bridge.ChatRoomId.generate();
-                this.bridge.createChatRoom({
-                  chatRoomId: resistanceChatRoomId,
-                  groupId: resistanceGroupId,
-                  name: "Resistance Comms Hub",
-                  withAdmins: false
-                });
-                var hordeGroupId = Bridge.GroupId.generate();
-                this.bridge.createGroup({
-                  groupId: hordeGroupId,
-                  gameId: gameId,
-                  ownerPlayerId: null,
-                  allegianceFilter: 'horde',
-                  autoAdd: true,
-                  membersCanAdd: true,
-                  autoRemove: true,
-                  membersCanAdd: false,
-                  membersCanRemove: false,
-                });
-                var zedChatRoomId = Bridge.ChatRoomId.generate();
-                this.bridge.createChatRoom({
-                  chatRoomId: zedChatRoomId,
-                  groupId: hordeGroupId,
-                  name: "Horde ZedLink",
-                  withAdmins: false,
+                }).then((response) => {
+                  return this.bridge.createGroup({
+                    groupId: resistanceGroupId,
+                    gameId: gameId,
+                    ownerPlayerId: null,
+                    allegianceFilter: 'resistance',
+                    autoAdd: true,
+                    autoRemove: true,
+                    membersCanAdd: false,
+                    membersCanRemove: false,
+                  });
+                }).then((response) => {
+                  return this.bridge.createChatRoom({
+                    chatRoomId: resistanceChatRoomId,
+                    groupId: resistanceGroupId,
+                    name: "Resistance Comms Hub",
+                    withAdmins: false
+                  });
+                }).then((response) => {
+                  return this.bridge.createGroup({
+                    groupId: hordeGroupId,
+                    gameId: gameId,
+                    ownerPlayerId: null,
+                    allegianceFilter: 'horde',
+                    autoAdd: true,
+                    membersCanAdd: true,
+                    autoRemove: true,
+                    membersCanAdd: false,
+                    membersCanRemove: false,
+                  });
+                }).then((response) => {
+                  return this.bridge.createChatRoom({
+                    chatRoomId: hordeChatRoomId,
+                    groupId: hordeGroupId,
+                    name: "Horde ZedLink",
+                    withAdmins: false,
+                  });
+                }).then((response) => {
+                  this.fire('ghvz-select-game', {
+                    gameId: gameId,
+                  });
+                  this.fire('ghvz-open-page', {
+                    page: 'main',
+                  });
                 });
               });
         },
