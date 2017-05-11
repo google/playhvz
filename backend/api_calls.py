@@ -247,6 +247,7 @@ def AddGroup(request, firebase):
   Args:
     groupId: New ID to use to create the group.
     gameId: The game associated with this group.
+    name: Group name.
     allegianceFilter: Which allegiance this group is associated with.
     autoAdd: Automatically add players to this group based on allegiance.
     autoRemove: Automatically remove players to this group based on allegiance.
@@ -261,14 +262,12 @@ def AddGroup(request, firebase):
   """
   results = []
   valid_args = ['!groupId', 'gameId', 'ownerPlayerId', 'allegianceFilter']
-  required_args = ['groupId', 'gameId', 'allegianceFilter']
+  required_args = ['name', 'groupId', 'gameId', 'allegianceFilter']
   required_args.extend(['autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_args = set(required_args) - set(['groupId'])
-  group_data = {k: request[k] for k in put_args}
-  if 'ownerPlayerId' in request:
-    group_data['ownerPlayerId'] = request['ownerPlayerId']
+  put_args = set(required_args + ['ownerPlayerId']) - set(['groupId'])
+  group_data = {k: request[k] for k in put_args if k in request}
 
   results.append(firebase.put('/groups', request['groupId'], group_data))
   results.append(firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], True))
@@ -287,7 +286,7 @@ def UpdateGroup(request, firebase):
 
   Args:
     groupId:
-    allegiance (optional):
+    name (optional):
     autoAdd (optional):
     autoRemove (optional):
     membersCanAdd (optional):
@@ -302,7 +301,7 @@ def UpdateGroup(request, firebase):
   ValidateInputs(request, firebase, required_args, valid_args)
 
   put_data = {}
-  for property in ['allegiance', 'autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove', 'ownerPlayerId']:
+  for property in ['name', 'autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove', 'ownerPlayerId']:
     if property in request:
       put_data[property] = request[property]
 
