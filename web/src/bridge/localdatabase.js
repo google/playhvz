@@ -58,7 +58,7 @@ function newQuizAnswer(id, args) {
   return obj;
 }
 
-const GROUP_PROPERTIES = ["gameId", "allegianceFilter", "autoAdd", "membersCanAdd", "membersCanRemove", "autoRemove", "ownerPlayerId"];
+const GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "membersCanAdd", "membersCanRemove", "autoRemove", "ownerPlayerId"];
 const GROUP_COLLECTIONS = ["memberships"];
 function newGroup(id, args) {
   let obj = {id: id};
@@ -68,7 +68,7 @@ function newGroup(id, args) {
 }
 
 const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmins"];
-const CHAT_ROOM_COLLECTIONS = ["messages"];
+const CHAT_ROOM_COLLECTIONS = ["messages", "acks"];
 function newChatRoom(id, args) {
   let obj = {id: id};
   Utils.copyProperties(obj, args, CHAT_ROOM_PROPERTIES);

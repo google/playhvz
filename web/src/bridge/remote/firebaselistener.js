@@ -26,6 +26,12 @@ class FirebaseListener {
                 // The simple reader will read from our plain object.
                 privateDatabaseCopyObject));
 
+    // Just makes one and returns it, but also saves it so we can later flip on the consistency checking
+    let makeConsistentWriter = (destination) => {
+      this.consistentWriter = new ConsistentWriter(destination);//, false); // false means its not consistency checking yet
+      return this.consistentWriter;
+    };
+
     // Whenever we want to change the database, we write to this writer.
     // (a writer is just something that has set/push/remove methods).
     this.writer =
@@ -53,7 +59,7 @@ class FirebaseListener {
                     // This ConsistentWriter will hold back all of its writes
                     // until the right moment, when releasing all of the writes
                     // would result in a consistent object (no dangling id references).
-                    new ConsistentWriter(
+                    makeConsistentWriter(
                         // The ConsistentWriter expects a GatedWriter, which it can
                         // open and close as it wills (when its consistent, really).
                         // This TimedGatedWriter is a subclass of GatedWriter which
@@ -72,9 +78,19 @@ class FirebaseListener {
 
     this.firebaseRoot = firebaseRoot;
   }
-  listenToGame(gameId, currentPlayerId) {
-    this.listenToGame = () => throwError("Can't call listenToGame twice!");
-    this.deepListenToGame(gameId, currentPlayerId);
+  listenToGamePublic(gameId) {
+    this.listenToGamePublic = () => throwError("Can't call listenToGamePublic twice!");
+    this.writer.set(this.reader.getGamePath(gameId).concat(["loaded"]), true);
+    this.listenToQuizQuestions_(gameId);
+  }
+  listenToGamePrivate(gameId, currentPlayerId) {
+    this.listenToGamePrivate = () => throwError("Can't call listenToGamePrivate twice!");
+    this.listenToPlayers_(gameId);
+    this.listenToMissions_(gameId, currentPlayerId);
+    this.listenToGroups_(gameId, currentPlayerId);
+    this.listenToChatRooms_(gameId, currentPlayerId);
+    this.listenToRewardCategories_(gameId, currentPlayerId);
+    this.listenToNotificationCategories_(gameId, currentPlayerId);
   }
   listenToUser(userId) {
     return this.deepListenToUser(userId)
@@ -162,17 +178,6 @@ class FirebaseListener {
     // this.firebaseRoot.child("games").on("child_removed", (snap) => {
     //   this.splice(this.reader.getGamePath(), this.reader.getGameIndex(snap.getKey()), 1);
     // });
-  }
-
-  deepListenToGame(gameId, currentPlayerId) {
-    this.writer.set(this.reader.getGamePath(gameId).concat(["loaded"]), true);
-    this.listenToPlayers_(gameId);
-    this.listenToMissions_(gameId, currentPlayerId);
-    this.listenToGroups_(gameId, currentPlayerId);
-    this.listenToChatRooms_(gameId, currentPlayerId);
-    this.listenToRewardCategories_(gameId, currentPlayerId);
-    this.listenToNotificationCategories_(gameId, currentPlayerId);
-    this.listenToQuizQuestions_(gameId, currentPlayerId);
   }
 
   deepListenToUser(userId) {
@@ -273,7 +278,7 @@ class FirebaseListener {
             let obj = newGroup(groupId, snap.val());
             this.writer.insert(this.reader.getGroupPath(gameId, null), null, obj);
             this.listenForPropertyChanges_(
-                snap.ref, GROUP_PROPERTIES, GROUP_COLLECTIONS,
+                snap.ref, GROUP_PROPERTIES, GROUP_COLLECTIONS.concat(["players"]),
                 (property, value) => {
                   this.writer.set(this.reader.getGroupPath(gameId, groupId).concat([property]), value);
                 });
@@ -326,7 +331,7 @@ class FirebaseListener {
   }
 
   listenToGroupMemberships_(gameId, groupId) {
-    var ref = this.firebaseRoot.child("/groups/" + groupId + "/memberships");
+    var ref = this.firebaseRoot.child("/groups/" + groupId + "/players");
     ref.on("child_added", (snap) => {
       let playerId = snap.getKey();
       let obj = newGroupMembership(playerId, {playerId: playerId});

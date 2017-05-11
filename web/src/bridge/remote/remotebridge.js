@@ -91,8 +91,12 @@ class RemoteBridge {
         });
   }
 
-  listenToGame(gameId) {
-    this.firebaseListener.listenToGame(gameId);
+  listenToGamePublic(gameId) {
+    this.firebaseListener.listenToGamePublic(gameId);
+  }
+
+  listenToGamePrivate(playerId) {
+    this.firebaseListener.listenToGamePrivate(playerId);
   }
 
   register(args) {

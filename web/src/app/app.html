@@ -101,7 +101,11 @@ paper-input-container {
           value: null,
         },
 
-        listening: {
+        listeningToGamePublic: {
+          type: Boolean,
+          value: false,
+        },
+        listeningToGamePrivate: {
           type: Boolean,
           value: false,
         },
@@ -122,7 +126,7 @@ paper-input-container {
 
       observers: [
         'onUserIdChanged_(userId, database.users.length)',
-        'onGameIdChanged_(bridge, gameId, database.games.splices)',
+        'autoNavigate_(game.admins.length)',
         // 'onPlayerIdChanged_(playerId, game.playersById)'
         'autoNavigate_(database.games.splices)',
         'autoNavigate_(database.users.splices)',
@@ -155,25 +159,6 @@ paper-input-container {
           let user = this.database.users.find(user => user.id == this.userId);
           if (user) {
             this.$.userSelector.select(user);
-          }
-        }
-      },
-
-      onGameIdChanged_() {
-        if (this.gameId) {
-          let game = this.database.games.find(game => game.id == this.gameId);
-          if (game) {
-            let playerId = undefined;
-            let isAdmin = this.userId && game.admins.find(admin => admin.userId == this.userId);
-            if (isAdmin) {
-              playerId = null;
-            } else if (this.playerId) {
-              playerId = this.playerId;
-            }
-            if (playerId !== undefined) {
-              this.bridge.listenToGame(this.gameId, playerId);
-              this.$.gameSelector.select(game);
-            }
           }
         }
       },
@@ -261,6 +246,27 @@ paper-input-container {
                 // No games, abort.
               }
             }
+          }
+        }
+        if (this.gameId && !this.game) {
+          let game = this.database.games.find(game => game.id == this.gameId);
+          if (game && !this.listeningToGamePublic) {
+            this.listeningToGamePublic = true;
+            this.bridge.listenToGamePublic(this.gameId);
+            this.$.gameSelector.select(game);
+          }
+        }
+        if (this.game && !this.listeningToGamePrivate) {
+          let playerId = undefined;
+          let isAdmin = this.userId && this.game.admins.find(admin => admin.userId == this.userId);
+          if (isAdmin) {
+            playerId = null;
+          } else if (this.playerId) {
+            playerId = this.playerId;
+          }
+          if (playerId !== undefined) {
+            this.listeningToGamePrivate = true;
+            this.bridge.listenToGamePrivate(this.gameId, playerId);
           }
         }
         if (this.user && this.gameId && !this.playerId) {

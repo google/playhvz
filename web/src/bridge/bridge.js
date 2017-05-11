@@ -22,8 +22,13 @@ class Bridge {
     return this.inner.attemptAutoSignIn();
   }
 
-  listenToGame(gameId) {
-    return this.inner.listenToGame(gameId);
+  listenToGamePublic(gameId) {
+    return this.inner.listenToGamePublic(gameId);
+  }
+
+  // playerId null means try to access as admin
+  listenToGamePrivate(gameId, playerId) {
+    return this.inner.listenToGamePrivate(gameId, playerId);
   }
 
   check_(typeName, value) {
