@@ -52,10 +52,13 @@ class EndToEndTest(unittest.TestCase):
     self.assertDictEqual(expected, actual, msg=msg)
 
 
-  def Id(self, key):
+  def Id(self, key, num=0):
     if key.endswith('Id'):
       key = key[:-2]
-    return '%s-%s' % (key, self.identifier)
+    ident = '%s-%s' % (key, self.identifier)
+    if num:
+      ident = '%s-%d' % (ident, num)
+    return ident
 
   def AssertDataMatches(self):
     # Compare a dump of the DB to the JSON string below.
@@ -91,11 +94,13 @@ class EndToEndTest(unittest.TestCase):
     self.identifier = 'test_%d' % (time.time() % 1000)
 
     # Register. Should work then fails.
-    create = {'userId': self.Id('userId'), 'name': 'John'}
+    create = {'userId': self.Id('userId'), 'name': 'Angel'}
     self.AssertOk('register', create)
     self.AssertFails('register', create)
 
     create = {'userId': '%s-2' % self.Id('userId'), 'name': 'Bob'}
+    self.Post('register', create)
+    create = {'userId': '%s-3' % self.Id('userId'), 'name': 'Charles'}
     self.Post('register', create)
 
     # Create and update game.
@@ -145,6 +150,10 @@ class EndToEndTest(unittest.TestCase):
       'helpServer': True,
     }
     self.AssertCreateUpdateSequence('createPlayer', create, 'updatePlayer', update)
+    create['playerId'] = self.Id('playerId', 2)
+    self.AssertOk('createPlayer', create)
+    create['playerId'] = self.Id('playerId', 3)
+    self.AssertOk('createPlayer', create)
 
     create = {
       'groupId': self.Id('groupId'),
@@ -162,6 +171,33 @@ class EndToEndTest(unittest.TestCase):
       'autoRemove': False,
     }
     self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
+    create.update({
+      'groupId': self.Id('groupId', 2),
+      'name': 'group Bar',
+      'membersCanAdd': True
+    })
+    self.Post('createGroup', create)
+
+    update = {
+      'playerId': self.Id('playerId'),
+      'otherPlayerId': self.Id('playerId', 2),
+      'groupId': self.Id('groupId')
+    }
+    # Owner adds player-2 to both groups
+    self.AssertOk('addPlayerToGroup', update)
+    self.AssertFails('addPlayerToGroup', update)
+    update['groupId'] = self.Id('groupId', 2)
+    self.AssertOk('addPlayerToGroup', update)
+    # Player-2 can add player-3 to one group but not other -- membersCanAdd
+    update = {
+      'playerId': self.Id('playerId', 2),
+      'otherPlayerId': self.Id('playerId', 3),
+      'groupId': self.Id('groupId')
+    }
+    self.AssertFails('addPlayerToGroup', update)
+    update['groupId'] = self.Id('groupId', 2)
+    self.AssertOk('addPlayerToGroup', update)
+    self.AssertFails('addPlayerToGroup', update)
 
     create = {
       'chatRoomId': self.Id('chatRoomId'),

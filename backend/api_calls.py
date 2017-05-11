@@ -691,41 +691,64 @@ def AckChatMessage(request, firebase):
   return firebase.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
 
 
-# TODO convert to add player to group?
-def AddPlayerToChat(request, firebase):
-  """Add a new player to a chat room.
+def AddPlayerToGroup(request, firebase):
+  """Add a player to a group.
+
+  Either a member of the group adds another player or an admin adds a player.
 
   Validation:
-    Player doing the adding is a member of the room.
+    * Player doing the adding is a member of the group AND the group suppoers adding
+      or
+      The player is the group owner.
+    * otherPlayerId is not already in the group.
+    * Both players and the groupId all point to the same game. TODO
 
   Args:
-    chatRoomId: The chat room ID to add the player to.
+    groupId: The group to add a player to.
+    playerId: The player doing the adding (unless an admin).
     otherPlayerId: The player being added.
-    playerId: The player doing the adding.
 
   Firebase entries:
-    /chatRooms/%(chatRoomId)/memberships/%(playerId)
+    /groups/%(groupId)/players/%(playerId)
   """
-  results = []
-  valid_args = ['chatRoomId', 'playerId', 'otherPlayerId']
-  required_args = list(valid_args)
+  valid_args = ['groupId', 'playerId', 'otherPlayerId']
+  required_args = ['groupId', 'otherPlayerId']
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  game = PlayerToGame(firebase, player)
-  chat = request['chatRoomId']
+  if 'playerId' not in request:
+    raise InvalidInputError('playerId is required unless you are an admin (not supported yet).')
+  elif not firebase.get(/players'/%s' % request['playerId'], 'userId'):
+    raise InvalidInputError('PlayerID %s does not exist.' % request['playerId'])
+
+  results = []
+
+  group = request['groupId']
   player = request['playerId']
   otherPlayer = request['otherPlayerId']
+  game = PlayerToGame(firebase, player)
 
-  # Validate player is in the chat room
-  if firebase.get('/chatRooms/%s/memberships' % chat, player) is None:
-    raise InvalidInputError('You are not a member of that chat room.')
-  # Validate otherPlayer is not in the chat room
-  if firebase.get('/chatRooms/%s/memberships' % chat, otherPlayer) is not None:
+  if game != PlayerToGame(firebase, otherPlayer):
+    raise InvalidInputError('Other player is not in the same game as you.')
+  if game != GroupToGame(firebase, group):
+    raise InvalidInputError('That group is not part of your active game.')
+
+  # Validate otherPlayer is not in the group
+  if firebase.get('/groups/%s/players' % group, otherPlayer):
     raise InvalidInputError('Other player is already in the chat.')
-  # TODO Check allegiance and other chat settings
 
-  results.append(firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, ""))
-  results.append(firebase.put('/games/%s/chatRooms' % game, chat, True))
+  # Player must be the owner or (be in the group and group allows adding).
+  if player == firebase.get('/groups/%s' % group, 'ownerPlayerId'):
+    pass
+  else:
+    # Validate player is in the chat room.
+    if not firebase.get('/groups/%s/players' % group, player):
+      raise InvalidInputError('You are not a member of that group nor an owner.')
+    # Validate players are allowed to add other players.
+    if not firebase.get('/groups/%s' % group, 'membersCanAdd'):
+      raise InvalidInputError('Players are not allowed to add to this group.')
+
+  results.append(firebase.put('/groups/%s/players' % group, otherPlayer, True))
+  return results
 
 
 def AddRewardCategory(request, firebase):
