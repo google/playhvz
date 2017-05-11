@@ -95,8 +95,8 @@ class RemoteBridge {
     this.firebaseListener.listenToGamePublic(gameId);
   }
 
-  listenToGamePrivate(playerId) {
-    this.firebaseListener.listenToGamePrivate(playerId);
+  listenToGamePrivate(gameId, playerId) {
+    this.firebaseListener.listenToGamePrivate(gameId, playerId);
   }
 
   register(args) {

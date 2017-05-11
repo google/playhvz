@@ -85,7 +85,8 @@ class FirebaseListener {
   }
   listenToGamePrivate(gameId, currentPlayerId) {
     this.listenToGamePrivate = () => throwError("Can't call listenToGamePrivate twice!");
-    this.listenToPlayers_(gameId);
+    assert(currentPlayerId === null || currentPlayerId);
+    this.listenToPlayers_(gameId, currentPlayerId);
     this.listenToMissions_(gameId, currentPlayerId);
     this.listenToGroups_(gameId, currentPlayerId);
     this.listenToChatRooms_(gameId, currentPlayerId);
