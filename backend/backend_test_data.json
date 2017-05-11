@@ -70,7 +70,8 @@
   },
   "guns": {
     "gun-%(ident)s": {
-      "playerId": "player-%(ident)s"
+      "playerId": "player-%(ident)s",
+      "a": true
     }
   },
   "missions": {
