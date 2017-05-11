@@ -85,6 +85,7 @@
 
           let groupId = Bridge.GroupId.generate();
           this.bridge.createGroup({
+            name: "Group for " + player.id + "'s chat room",
             groupId: groupId,
             gameId: this.gameId,
             ownerPlayerId: this.player.id,
@@ -104,7 +105,7 @@
           this.bridge.addPlayerToGroup({
             groupId: groupId,
             playerId: this.player.id,
-            playerToAddId: this.player.id
+            otherPlayerId: this.player.id
           });
           this.fire('ghvz-open-page', {
             page: this.computeChatPage_(chatRoomId),

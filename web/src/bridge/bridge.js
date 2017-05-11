@@ -273,6 +273,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('selfInfect', {required: {playerId: 'PlayerId'}});
 
   const GROUP_PROPERTIES = {
+    name: 'String',
     allegianceFilter: 'String',
     ownerPlayerId: '?PlayerId',
     autoAdd: 'Boolean',
@@ -356,7 +357,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('addPlayerToGroup', {
     required: {
       groupId: 'GroupId',
-      playerToAddId: 'PlayerId',
+      otherPlayerId: 'PlayerId',
       playerId: '?PlayerId',
     },
   });
@@ -364,7 +365,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('removePlayerFromGroup', {
     required: {
       groupId: 'GroupId',
-      playerToRemoveId: 'PlayerId',
+      otherPlayerId: 'PlayerId',
       playerId: '?PlayerId',
     },
   });
@@ -413,7 +414,7 @@ Bridge.QuizAnswerId = {
     app: 'Boolean',
     destination: '?String',
     sendTime: 'TimestampMs',
-    allegianceFilter: 'String',
+    // allegianceFilter: 'String',
     icon: '?String',
   };
   serverMethods.set('sendNotification', {

@@ -381,7 +381,7 @@ class FirebaseListener {
               obj = Utils.merge(obj, privatePlayerSnap.val());
               this.writer.insert(this.reader.getPlayerPath(gameId, null), null, obj);
               this.listenForPropertyChanges_(
-                  gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
+                  gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS.concat(["canInfect"]),
                   (property, value) => {
                     this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
                   });
@@ -412,7 +412,7 @@ class FirebaseListener {
       } else {
         this.writer.insert(this.reader.getPlayerPath(gameId, null), null, obj);
         this.listenForPropertyChanges_(
-            gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS,
+            gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS.concat(["canInfect"]),
             (property, value) => {
               this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
             });

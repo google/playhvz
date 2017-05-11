@@ -136,12 +136,12 @@ function populateFakeServer(server) {
   server.createGame({gameId: gameId, adminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60, active: true});
 
   var resistanceGroupId = Bridge.GroupId.generate('resistance');
-  server.createGroup({groupId: resistanceGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
+  server.createGroup({groupId: resistanceGroupId, name: "Resistance", gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var resistanceChatRoomId = Bridge.ChatRoomId.generate();
   server.createChatRoom({chatRoomId: resistanceChatRoomId, groupId: resistanceGroupId, name: "Resistance Comms Hub", withAdmins: false});
 
   var hordeGroupId = Bridge.GroupId.generate('horde');
-  server.createGroup({groupId: hordeGroupId, gameId: gameId, ownerPlayerId: null, allegianceFilter: 'horde', autoAdd: true, membersCanAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
+  server.createGroup({groupId: hordeGroupId, name: "Horde", gameId: gameId, ownerPlayerId: null, allegianceFilter: 'horde', autoAdd: true, membersCanAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var zedChatRoomId = Bridge.ChatRoomId.generate();
   server.createChatRoom({chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink", withAdmins: false});
 
@@ -185,21 +185,21 @@ function populateFakeServer(server) {
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'monkeys eat stool!'});
 
   var zedSecondChatRoomGroupId = Bridge.GroupId.generate();
-  server.createGroup({groupId: zedSecondChatRoomGroupId, gameId: gameId, ownerPlayerId: zekePlayerId, allegianceFilter: 'horde', autoAdd: true, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   var zedSecondChatRoomId = Bridge.ChatRoomId.generate();
+  server.createGroup({groupId: zedSecondChatRoomGroupId, name: "Group for " + zedSecondChatRoomId, gameId: gameId, ownerPlayerId: zekePlayerId, allegianceFilter: 'horde', autoAdd: true, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   server.createChatRoom({chatRoomId: zedSecondChatRoomId, groupId: zedSecondChatRoomGroupId, name: "Zeds Internal Secret Police", withAdmins: false});
 
-  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, playerToAddId: zekePlayerId});
-  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, playerToAddId: evanPlayerId});
+  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: zekePlayerId});
+  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: evanPlayerId});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: zedSecondChatRoomId, playerId: evanPlayerId, message: 'lololol we be zed police'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: zedSecondChatRoomId, playerId: zekePlayerId, message: 'lololol oink oink'});
 
   var resistanceSecondChatRoomGroupId = Bridge.GroupId.generate();
-  server.createGroup({groupId: resistanceSecondChatRoomGroupId, gameId: gameId, ownerPlayerId: kimPlayerId, allegianceFilter: 'resistance', autoAdd: false, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   var resistanceSecondChatRoomId = Bridge.ChatRoomId.generate();
+  server.createGroup({groupId: resistanceSecondChatRoomGroupId, name: "Group for " + resistanceSecondChatRoomId, gameId: gameId, ownerPlayerId: kimPlayerId, allegianceFilter: 'resistance', autoAdd: false, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   server.createChatRoom({chatRoomId: resistanceSecondChatRoomId, groupId: resistanceSecondChatRoomGroupId, name: "My Chat Room!", withAdmins: false});
 
-  server.addPlayerToGroup({groupId: resistanceSecondChatRoomGroupId, playerId: null, playerToAddId: kimPlayerId});
+  server.addPlayerToGroup({groupId: resistanceSecondChatRoomGroupId, playerId: null, otherPlayerId: kimPlayerId});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceSecondChatRoomId, playerId: kimPlayerId, message: 'lololol i have a chat room!'});
 
   server.updatePlayer({playerId: kimPlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/GoKTAX0zAEt6PlzUkTn7tMeK-q1hwKDpzWsMJHBntuyR7ZKVtFXjRkbFOEMqrqxPWJ-7dbCXD7NbVgHd7VmkYD8bDzsjd23XYk0KyALC3BElIk65vKajjjRD_X2_VkLPOVejrZLpPpa2ebQVUHJF5UXVlkst0m6RRqs2SumRzC7EMmEeq9x_TurwKUJmj7PhNBPCeoDEh51jAIc-ZqvRfDegLgq-HtoyJAo91lbD6jqA2-TFufJfiPd4nOWnKhZkQmarxA8LQT0kOu7r3M5F-GH3pCbQqpH1zraha8CqvKxMGLW1i4CbDs1beXatKTdjYhb1D_MVnJ6h7O4WX3GULwNTRSIFVOrogNWm4jWLMKfKt3NfXYUsCOMhlpAI3Q8o1Qgbotfud4_HcRvvs6C6i17X-oQm8282rFu6aQiLXOv55FfiMnjnkbTokOA1OGDQrkBPbSVumz9ZE3Hr-J7w_G8itxqThsSzwtK6p5YR_9lnepWe0HRNKfUZ2x-a2ndT9m6aRXC_ymWHQGfdGPvTfHOPxUpY8mtX2vknmj_dn4dIuir1PpcN0DJVVuyuww3sOn-1YRFh80gBFvwFuMnKwz8GY8IX5gZmbrrBsy_FmwFDIvBcwNjZKd9fH2gkK5rk1AlWv12LsPBsrRIEaLvcSq7Iim9XSsiivzcNrLFG=w294-h488-no'});

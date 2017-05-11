@@ -717,7 +717,7 @@ def AddPlayerToGroup(request, firebase):
 
   if 'playerId' not in request:
     raise InvalidInputError('playerId is required unless you are an admin (not supported yet).')
-  elif not firebase.get(/players'/%s' % request['playerId'], 'userId'):
+  elif not firebase.get('/players/%s' % request['playerId'], 'userId'):
     raise InvalidInputError('PlayerID %s does not exist.' % request['playerId'])
 
   results = []

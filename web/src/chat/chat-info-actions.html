@@ -68,7 +68,7 @@
           this.bridge.addPlayerToGroup({
             groupId: this.chatRoom.groupId,
             playerId: this.playerId,
-            playerToAddId: newPlayer.id
+            otherPlayerId: newPlayer.id
           });
         },
 
@@ -80,7 +80,7 @@
           this.bridge.removePlayerFromGroup({
             groupId: this.chatRoom.groupId,
             playerId: this.playerId,
-            playerToRemoveId: this.playerId,
+            otherPlayerId: this.playerId,
           });
         },
 
@@ -98,7 +98,7 @@
           this.bridge.removePlayerFromGroup({
             groupId: this.chatRoom.groupId,
             playerId: this.playerId,
-            playerToRemoveId: this.kickPlayer.id,
+            otherPlayerId: this.kickPlayer.id,
           });
         },
       });

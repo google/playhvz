@@ -84,6 +84,20 @@
                 },
               },
               {
+                action: "addToGroup",
+                name: "Add to Group",
+                handler: (player) => {
+                  this.$.addToGroupForm.openForAdding()
+                      .then((properties) => {
+                        this.bridge.addPlayerToGroup({
+                          playerId: null,
+                          otherPlayerId: player.id,
+                          groupId: properties.groupId,
+                        });
+                      });
+                },
+              },
+              {
                 name: "Set Got Equipment",
                 handler: (player) => {
                   this.bridge.updatePlayer({
@@ -121,6 +135,14 @@
     });
   </script>
   <template>
+
+    <ghvz-super-form
+        id="addToGroupForm"
+        game="[[game]]"
+        type-name="Game"
+        blueprint='{"fields": [{"property": "groupId", "type": "group"}]}'>
+    </ghvz-super-form>
+
     <ghvz-table
         selectable
         blueprint="[[makeTableBlueprint_()]]"

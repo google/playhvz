@@ -11,6 +11,7 @@
         properties: {
           bridge: Object,
 
+          game: Object,
           notificationCategories: Array,
           notificationCategoriesById: Object,
         },
@@ -115,6 +116,18 @@
                 description: "Android/iOS only: whether to vibrate.",
               },
               {
+                property: "destination",
+                label: "Destination",
+                description: "When clicked, will go to this url.",
+                width: "half",
+              },
+              {
+                property: "icon",
+                label: "Icon",
+                description: "Polymer icon code of icon to show.",
+                width: "half",
+              },
+              {
                 property: "previewMessage",
                 label: "Preview Message",
                 description: "The small message that will appear in the notification box.",
@@ -137,6 +150,7 @@
                 delete properties.email;
                 this.bridge.sendNotification(Utils.merge(properties, {
                     notificationId: Bridge.NotificationCategoryId.generate(),
+                    playerId: null,
                     //gameId: this.gameId,
                 }));
               });
@@ -200,6 +214,7 @@
 
     <ghvz-super-form
         id="form"
+        game="[[game]]"
         type-name="Notification Category"
         blueprint="[[makeFormBlueprint_()]]">
     </ghvz-super-form>
