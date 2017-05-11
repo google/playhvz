@@ -247,6 +247,7 @@ def AddGroup(request, firebase):
   Args:
     groupId: New ID to use to create the group.
     gameId: The game associated with this group.
+    name: Group name.
     allegianceFilter: Which allegiance this group is associated with.
     autoAdd: Automatically add players to this group based on allegiance.
     autoRemove: Automatically remove players to this group based on allegiance.
@@ -261,14 +262,12 @@ def AddGroup(request, firebase):
   """
   results = []
   valid_args = ['!groupId', 'gameId', 'ownerPlayerId', 'allegianceFilter']
-  required_args = ['groupId', 'gameId', 'allegianceFilter']
+  required_args = ['name', 'groupId', 'gameId', 'allegianceFilter']
   required_args.extend(['autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove'])
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  put_args = set(required_args) - set(['groupId'])
-  group_data = {k: request[k] for k in put_args}
-  if 'ownerPlayerId' in request:
-    group_data['ownerPlayerId'] = request['ownerPlayerId']
+  put_args = set(required_args + ['ownerPlayerId']) - set(['groupId'])
+  group_data = {k: request[k] for k in put_args if k in request}
 
   results.append(firebase.put('/groups', request['groupId'], group_data))
   results.append(firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], True))
@@ -287,7 +286,7 @@ def UpdateGroup(request, firebase):
 
   Args:
     groupId:
-    allegiance (optional):
+    name (optional):
     autoAdd (optional):
     autoRemove (optional):
     membersCanAdd (optional):
@@ -302,7 +301,7 @@ def UpdateGroup(request, firebase):
   ValidateInputs(request, firebase, required_args, valid_args)
 
   put_data = {}
-  for property in ['allegiance', 'autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove', 'ownerPlayerId']:
+  for property in ['name', 'autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove', 'ownerPlayerId']:
     if property in request:
       put_data[property] = request[property]
 
@@ -805,6 +804,7 @@ def AddReward(request, firebase):
 
   Firebase entries:
     /rewards/%(rewardId)
+    /rewardCategories/%(rcID)/rewards/%(rewardId)
   """
   valid_args = ['!rewardId']
   required_args = list(valid_args)
@@ -817,9 +817,11 @@ def AddReward(request, firebase):
   if not EntityExists(firebase, 'rewardCategoryId', reward_category):
     raise InvalidInputError('Reward seed %s matches no category.' % reward)
 
+  results = []
   reward_data = {'playerId': '', 'a': True}
-
-  return firebase.put('/rewards', reward, reward_data)
+  results.append(firebase.put('/rewards', reward, reward_data))
+  results.append(firebase.put('/rewardCategories/%s/rewards' % reward_category, reward, True))
+  return results
 
 
 def AddRewards(request, firebase):
@@ -964,7 +966,7 @@ def SendNotification(request, firebase):
   required_args.extend(['message', 'app', 'vibrate', 'sound', 'destination',
                         'sendTime', 'groupId', 'icon'])
   ValidateInputs(request, firebase, required_args, valid_args)
-  current_time = time.time()
+  current_time = int(time.time())
   if 'sendTime' in request and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
 
@@ -1013,7 +1015,7 @@ def UpdateNotification(request, firebase):
   properties = ['message', 'app', 'vibrate', 'sound', 'destination', 'sendTime',
                 'groupId', 'playerId', 'icon']
 
-  current_time = time.time()
+  current_time = int(time.time())
   if 'sendTime' in request and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
 
@@ -1049,7 +1051,7 @@ def MarkNotificationSeen(request, firebase):
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
   put_data = {
-    'time': time.time()
+    'time': int(time.time())
   }
   return firebase.patch('/player/%s/notifications/%s' % (
       request['playerId'], request['notificationId']), put_data)

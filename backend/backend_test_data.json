@@ -27,6 +27,7 @@
         "group-%(ident)s": true
       },
       "chatRooms": {"chatRoom-%(ident)s": true},
+      "missions": {"mission-%(ident)s": true},
       "rewardCategories": {
          "rewardCategory-%(ident)s": true
       },
@@ -61,6 +62,7 @@
       "membersCanAdd": false,
       "membersCanRemove": false,
       "ownerPlayerId": "player-%(ident)s",
+      "name": "group Foo",
       "players": {
         "player-%(ident)s": true
       }
@@ -127,7 +129,10 @@
       "name": "test Reward",
       "gameId": "game-%(ident)s",
       "points": 5,
-      "limitPerPlayer": 2
+      "limitPerPlayer": 2,
+      "rewards": {
+        "reward-%(ident)s-bleck": true
+      }
     }
   },
   "notifications": {},

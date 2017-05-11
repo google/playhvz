@@ -148,6 +148,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'groupId': self.Id('groupId'),
       'gameId': self.Id('gameId'),
+      'name': 'group Foo',
       'allegianceFilter': 'none',
       'autoAdd': False,
       'autoRemove': False,
