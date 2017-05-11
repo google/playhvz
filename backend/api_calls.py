@@ -1081,6 +1081,27 @@ def MarkNotificationSeen(request, firebase):
       request['playerId'], request['notificationId']), put_data)
 
 
+def RegisterUserDevice(request, firebase):
+  """Register a user device to a userId.
+
+  Validation:
+    userId must exist.
+
+  Args:
+    userId: User id to associate with.
+    deviceToken: Ionic device token.
+
+  Firebase entries:
+    /users/%(userId)/deviceToken
+"""
+  valid_args = ['userId']
+  required_args = list(valid_args)
+  required_args.extend(['deviceToken'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+  put_data = {'deviceToken': request['deviceToken']}
+  return firebase.patch('/users/%s', put_data)
+
+
 def DeleteTestData(request, firebase):
   if request['id'] != secrets.FIREBASE_EMAIL:
     return
