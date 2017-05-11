@@ -697,7 +697,7 @@ def AddPlayerToGroup(request, firebase):
   Either a member of the group adds another player or an admin adds a player.
 
   Validation:
-    * Player doing the adding is a member of the group AND the group suppoers adding
+    * Player doing the adding is a member of the group AND the group supports adding
       or
       The player is the group owner.
     * otherPlayerId is not already in the group.
