@@ -804,6 +804,7 @@ def AddReward(request, firebase):
 
   Firebase entries:
     /rewards/%(rewardId)
+    /rewardCategories/%(rcID)/rewards/%(rewardId)
   """
   valid_args = ['!rewardId']
   required_args = list(valid_args)
@@ -816,9 +817,11 @@ def AddReward(request, firebase):
   if not EntityExists(firebase, 'rewardCategoryId', reward_category):
     raise InvalidInputError('Reward seed %s matches no category.' % reward)
 
+  results = []
   reward_data = {'playerId': '', 'a': True}
-
-  return firebase.put('/rewards', reward, reward_data)
+  results.append(firebase.put('/rewards', reward, reward_data))
+  results.append(firebase.put('/rewardCategories/%s/rewards' % reward_category, reward, True))
+  return results
 
 
 def AddRewards(request, firebase):
