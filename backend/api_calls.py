@@ -964,7 +964,7 @@ def SendNotification(request, firebase):
   required_args.extend(['message', 'app', 'vibrate', 'sound', 'destination',
                         'sendTime', 'groupId', 'icon'])
   ValidateInputs(request, firebase, required_args, valid_args)
-  current_time = time.time()
+  current_time = int(time.time())
   if 'sendTime' in request and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
 
@@ -1013,7 +1013,7 @@ def UpdateNotification(request, firebase):
   properties = ['message', 'app', 'vibrate', 'sound', 'destination', 'sendTime',
                 'groupId', 'playerId', 'icon']
 
-  current_time = time.time()
+  current_time = int(time.time())
   if 'sendTime' in request and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
 
@@ -1049,7 +1049,7 @@ def MarkNotificationSeen(request, firebase):
   required_args = list(valid_args)
   ValidateInputs(request, firebase, required_args, valid_args)
   put_data = {
-    'time': time.time()
+    'time': int(time.time())
   }
   return firebase.patch('/player/%s/notifications/%s' % (
       request['playerId'], request['notificationId']), put_data)
