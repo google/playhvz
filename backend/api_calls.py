@@ -351,6 +351,7 @@ def AddPlayer(request, firebase):
   required_args.extend(['name', 'needGun', 'profileImageUrl'])
   required_args.extend(['startAsZombie', 'beSecretZombie'])
   required_args.extend(['notifySound', 'notifyVibrate'])
+  required_args.extend(['gotEquipment'])
   required_args.extend(list(constants.PLAYER_VOLUNTEER_ARGS))
   ValidateInputs(request, firebase, required_args, valid_args)
 
