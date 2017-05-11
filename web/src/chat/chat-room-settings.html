@@ -54,7 +54,7 @@
           let name = this.$.chatName.value;
 
           let autoRemove = false;
-          let allegianceFilter = '';
+          let allegianceFilter = 'none';
           if (this.isAdmin) {
             autoRemove = this.$$("#autoRemove").checked;
             allegianceFilter = this.$$('#allegianceFilter').selectedItem.dataset.value;
@@ -84,6 +84,7 @@
           }
 
           let groupId = Bridge.GroupId.generate();
+            var chatRoomId = Bridge.ChatRoomId.generate();
           this.bridge.createGroup({
             name: "Group for " + player.id + "'s chat room",
             groupId: groupId,
@@ -94,21 +95,23 @@
             autoRemove: autoRemove,
             membersCanAdd: membersCanAdd,
             membersCanRemove: membersCanRemove,
-          });
-          var chatRoomId = Bridge.ChatRoomId.generate();
-          this.bridge.createChatRoom({
-            chatRoomId: chatRoomId,
-            groupId: groupId,
-            name: name,
-            withAdmins: false,
-          });
-          this.bridge.addPlayerToGroup({
-            groupId: groupId,
-            playerId: this.player.id,
-            otherPlayerId: this.player.id
-          });
-          this.fire('ghvz-open-page', {
-            page: this.computeChatPage_(chatRoomId),
+          }).then(() => {
+            return this.bridge.createChatRoom({
+              chatRoomId: chatRoomId,
+              groupId: groupId,
+              name: name,
+              withAdmins: false,
+            });
+          // }).then(() => {
+          //   return this.bridge.addPlayerToGroup({
+          //     groupId: groupId,
+          //     playerId: this.player.id,
+          //     otherPlayerId: this.player.id
+          //   });
+          }).then(() => {
+            this.fire('ghvz-open-page', {
+              page: this.computeChatPage_(chatRoomId),
+            });
           });
         },
 
@@ -166,16 +169,18 @@
         </paper-input>
         <template is="dom-if" if="[[!isAdmin]]">
           <paper-checkbox id="allegianceFilter" class="option">
-            [[getPlayerAllegiance_(player)]] only
-            <div class="subtext">
-            Have the server prune players from chat if they are no longer [[getPlayerAllegiance_(player)]]
-            </div>
+            <template is="dom-if" if="[[player]]">
+              [[getPlayerAllegiance_(player)]] only
+              <div class="subtext">
+              Have the server prune players from chat if they are no longer [[getPlayerAllegiance_(player)]]
+              </div>
+            </template>
           </paper-checkbox>
         </template>
         <template is="dom-if" if="[[isAdmin]]">
           <paper-dropdown-menu id="allegianceFilter" label="Allegiance Filter">
             <paper-listbox class="dropdown-content">
-              <paper-item data-value="">Everyone</paper-item>
+              <paper-item data-value="none">Everyone</paper-item>
               <paper-item data-value="resistance">Resistance</paper-item>
               <paper-item data-value="horde">Horde</paper-item>
             </paper-listbox>

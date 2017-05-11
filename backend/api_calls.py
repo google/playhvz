@@ -387,7 +387,7 @@ def AddPlayer(request, firebase):
   if request['startAsZombie']:
     allegiance = 'horde'
   else:
-    allegiance = 'resistence'
+    allegiance = 'resistance'
 
   game_info = {
     'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None, {'shallow': True})),
