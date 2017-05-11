@@ -133,6 +133,7 @@ class EndToEndTest(unittest.TestCase):
       'needGun': True,
       'profileImageUrl': 'http://jpg',
       'startAsZombie': True,
+      'gotEquipment': True,
       'beSecretZombie': True,
       'notifySound': True,
       'notifyVibrate': True,
