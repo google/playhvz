@@ -532,7 +532,12 @@ def AddMission(request, firebase):
 
   mission_data = {k: request[k] for k in required_args if k[0] != '!'}
 
-  return firebase.put('/missions', request['missionId'], mission_data)
+  game = GroupToGame(firebase, request['groupId'])
+
+  results = []
+  results.append(firebase.put('/missions', request['missionId'], mission_data))
+  results.append(firebase.put('/games/%s/missions' % game, request['missionId'], True))
+  return results
 
 
 def UpdateMission(request, firebase):
