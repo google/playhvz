@@ -1,3 +1,15 @@
+population-over-time.html
+DETAILS
+ACTIVITY
+Today
+
+You uploaded an item
+00:12
+HTML
+population-over-time.html
+No recorded activity before 10 May 2017
+Maximised
+
 <dom-module id="ghvz-population-over-time">
 <script>
   // Not sure why this HTMLImports.whenReady is really needed.
@@ -24,12 +36,46 @@
         this.chartLoaded = true;
       },
 
+      generateHistogram(
+          /* {<time:string,{zed:int, human:int}>} */ histo,
+          /* {min: -1, max: -1} */ times) {
+        for (let player of this.game.players) {
+          for (let infection of player.infections) {
+            times.min = times.min == -1 || infection.time < times.min ? infection.time : times.min;
+            times.max = times.max == -1 || infection.time > times.max ? infection.time : times.max;
+            histo[infection.time] = !!histo[infection.time] ? histo[infection.time] : {};
+            histo[infection.time].zed = !!histo[infection.time].zed ? histo[infection.time].zed++ : histo[infection.time].zed = 1;
+          }
+          for (let live of player.lives) {
+            times.min = times.min == -1 || live.time < times.min ? live.time : times.min;
+            times.max = times.max == -1 || live.time > times.max ? live.time : times.max;
+            histo[live.time] = !!histo[live.time] ? histo[live.time] : {};
+            histo[live.time].human = !!histo[live.time].human ? histo[live.time].human++ : histo[live.time].human = 1;
+          }
+        }
+      },
+
       drawPopulationOverTimeChart(chartLoaded, game) {
         // console.log(this.game);
         // for (let player of this.game.players) {
         //   console.log("player", player.id, "lives", player.lives, "infections", player.infections);
         // }
 
+		/* DO NOT UN-COMMENT UNLESS CAN RUN IT ON THE TEST SERVER
+        var histo = {};
+        var times = {min: -1, max: -1};
+        generateHistogram(histo, times);
+
+        // TODO: Breakdown histogram by some metric before passing it on to be visualized (or supply a measure in the histogram)
+        var arrayData = [];
+        for (let key in histo) {
+          arrayData.push([key, histo[key].human, histo[key].zed]);
+        }
+        // Sort by timestamp
+        arrayData = arrayData.sort(function(a,b) { return parseInt(a[0]) - parseInt(b[0]); });
+        arrayData.unshift(['Day', 'Human', 'Zed']);
+		*/
+		 
         var data = google.visualization.arrayToDataTable([
           ['Day', 'Human', 'Zed'],
           ['0',  199,      1],
