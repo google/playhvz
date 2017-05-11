@@ -317,12 +317,13 @@ def AddPlayer(request, firebase):
 
   Validation:
   Args:
-    gameId:
-    userId:
-    playerId:
-    name:
-    needGun:
-    profileImageUrl:
+    gameId: ID of the game this player is for.
+    userId: ID of this user.
+    playerId: ID to use.
+    name: Player's name.
+    needGun: Needs a gun for the game.
+    profileImageUrl: URL of an image to use for the profile.
+    gotEquipment: Is borrowing GHvZ equipment.
     startAsZombie:
     beSecretZombie:
     notifySound:
@@ -358,7 +359,6 @@ def AddPlayer(request, firebase):
   game = request['gameId']
   player = request['playerId']
   user = request['userId']
-  start_as_zombie = request['startAsZombie']
 
   player_info = {'gameId': game}
   results.append(firebase.put('/users/%s/players' % user, player, player_info))
@@ -366,9 +366,10 @@ def AddPlayer(request, firebase):
   player_info = {
     'gameId': game,
     'userId': user,
-    'canInfect': start_as_zombie,
+    'canInfect': (request['startAsZombie'] or request['beSecretZombie']),
     'needGun' : request['needGun'],
-    'startAsZombie' : start_as_zombie,
+    'gotEquipment' : request['gotEquipment'],
+    'startAsZombie' : request['startAsZombie'],
     'wantsToBeSecretZombie': request['beSecretZombie'],
   }
   results.append(firebase.put('/players', player, player_info))
@@ -382,7 +383,7 @@ def AddPlayer(request, firebase):
   volunteer = {v[4].lower() + v[5:]: request[v] for v in constants.PLAYER_VOLUNTEER_ARGS}
   results.append(firebase.put('/players/%s' % player, 'volunteer', volunteer))
 
-  if start_as_zombie:
+  if request['startAsZombie']:
     allegiance = 'horde'
   else:
     allegiance = 'resistence'

@@ -106,7 +106,8 @@
         "server": true,
         "client": false,
         "mobile": false
-    },
+      },
+      "gotEquipment": true,
       "wantsToBeSecretZombie": true
     }
   },
