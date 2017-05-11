@@ -14,6 +14,7 @@
           chatRoom: Object,
           group: Object,
           player: Object,
+          isAdmin: Boolean,
 
           playersInChatRoom: {
             type: Object,
@@ -38,12 +39,12 @@
 
           canAdd: {
             type: Boolean,
-            computed: 'computeCanAdd_(player.id, group.ownerPlayerId, group.membersCanAdd)',
+            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.membersCanAdd)',
           },
 
           canRemove: {
             type: Boolean,
-            computed: 'computeCanRemove_(player.id, group.ownerPlayerId, group.membersCanRemove)',
+            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.membersCanRemove)',
           },
 
           showActionsSection: {
@@ -63,12 +64,12 @@
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
 
-        computeCanAdd_(playerId, ownerPlayerId, membersCanAdd) {
-          return playerId == ownerPlayerId || membersCanAdd;
+        computeCanAdd_(isAdmin, playerId, ownerPlayerId, membersCanAdd) {
+          return isAdmin || playerId == ownerPlayerId || membersCanAdd;
         },
 
-        computeCanRemove_(playerId, ownerPlayerId, membersCanRemove) {
-          return playerId == ownerPlayerId || membersCanRemove;
+        computeCanRemove_(isAdmin, playerId, ownerPlayerId, membersCanRemove) {
+          return isAdmin || playerId == ownerPlayerId || membersCanRemove;
         },
 
         computeShowActionsSection_(canAdd, canRemove) {

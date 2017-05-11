@@ -240,20 +240,39 @@
           </ghvz-claim-reward>
         </ghvz-card>
 
-        <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
-          <ghvz-card spaced right>
-            <div class="header">
-              <ghvz-chat-room-name-label game="[[game]]" chat-room-id="[[membership.chatRoomId]]"></ghvz-chat-room-name-label>
-            </div>
-            <ghvz-chat-room
-                small
-                bridge="[[bridge]]"
-                game="[[game]]"
-                is-admin="[[isAdmin]]"
-                current-player="[[player]]"
-                chat-room-id="[[membership.chatRoomId]]">
-            </ghvz-chat-room>
-          </ghvz-card>
+        <template is="dom-if" if="[[isAdmin]]">
+          <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
+            <ghvz-card spaced right>
+              <div class="header">
+                <ghvz-chat-room-name-label game="[[game]]" chat-room-id="[[chatRoom.id]]"></ghvz-chat-room-name-label>
+              </div>
+              <ghvz-chat-room
+                  small
+                  bridge="[[bridge]]"
+                  game="[[game]]"
+                  is-admin="[[isAdmin]]"
+                  current-player="[[player]]"
+                  chat-room-id="[[chatRoom.id]]">
+              </ghvz-chat-room>
+            </ghvz-card>
+          </template>
+        </template>
+        <template is="dom-if" if="[[!isAdmin]]">
+          <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
+            <ghvz-card spaced right>
+              <div class="header">
+                <ghvz-chat-room-name-label game="[[game]]" chat-room-id="[[membership.chatRoomId]]"></ghvz-chat-room-name-label>
+              </div>
+              <ghvz-chat-room
+                  small
+                  bridge="[[bridge]]"
+                  game="[[game]]"
+                  is-admin="[[isAdmin]]"
+                  current-player="[[player]]"
+                  chat-room-id="[[membership.chatRoomId]]">
+              </ghvz-chat-room>
+            </ghvz-card>
+          </template>
         </template>
       </template>
 

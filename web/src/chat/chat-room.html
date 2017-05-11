@@ -12,6 +12,7 @@
           game: Object,
           currentPlayer: Object,
           chatRoomId: String,
+          isAdmin: Boolean,
 
           isAttached: {
             type: Boolean,
@@ -365,6 +366,7 @@
           <ghvz-chat-info-drawer
               bridge="[[bridge]]"
               game="[[game]]"
+              is-admin="[[isAdmin]]"
               chat-room="[[chatRoom]]"
               player="[[currentPlayer]]">
           </ghvz-chat-info-drawer>
