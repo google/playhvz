@@ -787,11 +787,7 @@ def AddReward(request, firebase):
   if not helpers.EntityExists(firebase, 'rewardCategoryId', reward_category):
     raise InvalidInputError('Reward seed %s matches no category.' % reward)
 
-  results = []
-  reward_data = {'playerId': '', 'a': True}
-  results.append(firebase.put('/rewards', reward, reward_data))
-  results.append(firebase.put('/rewardCategories/%s/rewards' % reward_category, reward, True))
-  return results
+  return AddRewardToDb(firebase, reward)
 
 
 def AddRewards(request, firebase):
@@ -805,6 +801,7 @@ def AddRewards(request, firebase):
 
   Firebase entries:
     /rewards/%(rewardId)
+    /rewardCategories/%(rcID)/rewards/%(rewardId)
   """
   results = []
 
@@ -819,9 +816,22 @@ def AddRewards(request, firebase):
 
   for i in range(request['count']):
     reward = 'reward-%s-%s' % (reward_seed, RandomWords(3))
-    results.append({reward: firebase.put('/rewards', reward, reward_data)})
+    results.append(AddRewardToDb(firebase, reward))
 
   return results
+
+
+def AddRewardToDb(firebase, reward):
+  """Put a new reward into the DB.
+
+  Firebase entries:
+    /rewards/%(rewardId)
+    /rewardCategories/%(rcID)/rewards/%(rewardId)
+  """
+  firebase.put('/rewards', reward, {'playerId': '', 'a': True})
+  reward_category = 'rewardCategory-%s' % reward.split('-')[1]
+  firebase.put('/rewardCategories/%s/rewards' % reward_category, reward, True)
+  return 'Added reward %s (category %s)' % (reward, reward_category)
 
 
 def ClaimReward(request, firebase):
