@@ -697,7 +697,7 @@ def AddPlayerToGroup(request, firebase):
   Either a member of the group adds another player or an admin adds a player.
 
   Validation:
-    * Player doing the adding is a member of the group AND the group suppoers adding
+    * Player doing the adding is a member of the group AND the group supports adding
       or
       The player is the group owner.
     * otherPlayerId is not already in the group.
@@ -1079,6 +1079,27 @@ def MarkNotificationSeen(request, firebase):
   }
   return firebase.patch('/player/%s/notifications/%s' % (
       request['playerId'], request['notificationId']), put_data)
+
+
+def RegisterUserDevice(request, firebase):
+  """Register a user device to a userId.
+
+  Validation:
+    userId must exist.
+
+  Args:
+    userId: User id to associate with.
+    deviceToken: Ionic device token.
+
+  Firebase entries:
+    /users/%(userId)/deviceToken
+"""
+  valid_args = ['userId']
+  required_args = list(valid_args)
+  required_args.extend(['deviceToken'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+  put_data = {'deviceToken': request['deviceToken']}
+  return firebase.patch('/users/%s', put_data)
 
 
 def DeleteTestData(request, firebase):

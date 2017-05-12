@@ -3,3 +3,6 @@
 # Then rename from secrets_.py to secrets.py
 FIREBASE_SECRET = ''
 FIREBASE_EMAIL = ''
+IONIC_TOKEN = ''
+IONIC_APPID = ''
+IONIC_SECURITY_TAG = ''

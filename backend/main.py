@@ -88,6 +88,7 @@ methods = {
   'addRewards': api_calls.AddRewards,
   'claimReward': api_calls.ClaimReward,
   'sendNotification': api_calls.SendNotification,
+  'registerUserDevice': api_calls.RegisterUserDevice,
   'updateNotification': api_calls.UpdateNotification,
   'markNotificationSeen': api_calls.MarkNotificationSeen,
   'DeleteTestData': api_calls.DeleteTestData,
