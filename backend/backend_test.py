@@ -93,7 +93,7 @@ class EndToEndTest(unittest.TestCase):
   def testEndToEnd(self):
     self.identifier = 'test_%d' % (time.time() % 1000)
 
-    # Register. Should work then fails.
+    # Register users.
     create = {'userId': self.Id('userId'), 'name': 'Angel'}
     self.AssertOk('register', create)
     self.AssertFails('register', create)
@@ -103,7 +103,7 @@ class EndToEndTest(unittest.TestCase):
     create = {'userId': '%s-3' % self.Id('userId'), 'name': 'Charles'}
     self.Post('register', create)
 
-    # Create and update game.
+    # Create the game.
     create = {
       'gameId': self.Id('gameId'),
       'adminUserId': self.Id('userId'),
@@ -129,7 +129,7 @@ class EndToEndTest(unittest.TestCase):
     create['gameId'] = 'foo'
     self.AssertFails('createGame', create)
 
-    # Create/Update player
+    # Create players.
     create = {
       'gameId': self.Id('gameId'),
       'userId': self.Id('userId'),
@@ -155,6 +155,7 @@ class EndToEndTest(unittest.TestCase):
     create['playerId'] = self.Id('playerId', 3)
     self.AssertOk('createPlayer', create)
 
+    # Create groups
     create = {
       'groupId': self.Id('groupId'),
       'gameId': self.Id('gameId'),
@@ -178,27 +179,7 @@ class EndToEndTest(unittest.TestCase):
     })
     self.Post('createGroup', create)
 
-    update = {
-      'playerId': self.Id('playerId'),
-      'otherPlayerId': self.Id('playerId', 2),
-      'groupId': self.Id('groupId')
-    }
-    # Owner adds player-2 to both groups
-    self.AssertOk('addPlayerToGroup', update)
-    self.AssertFails('addPlayerToGroup', update)
-    update['groupId'] = self.Id('groupId', 2)
-    self.AssertOk('addPlayerToGroup', update)
-    # Player-2 can add player-3 to one group but not other -- membersCanAdd
-    update = {
-      'playerId': self.Id('playerId', 2),
-      'otherPlayerId': self.Id('playerId', 3),
-      'groupId': self.Id('groupId')
-    }
-    self.AssertFails('addPlayerToGroup', update)
-    update['groupId'] = self.Id('groupId', 2)
-    self.AssertOk('addPlayerToGroup', update)
-    self.AssertFails('addPlayerToGroup', update)
-
+    # Create chat rooms
     create = {
       'chatRoomId': self.Id('chatRoomId'),
       'groupId': self.Id('groupId'),
@@ -224,6 +205,7 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertCreateUpdateSequence('sendChatMessage', create, 'ackChatMessage', update)
 
+    # Create missions
     create = {
       'missionId': self.Id('missionId'),
       'groupId': self.Id('groupId'),
@@ -238,6 +220,29 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
 
+    # Add players to groups.
+    update = {
+      'playerId': self.Id('playerId'),
+      'otherPlayerId': self.Id('playerId', 2),
+      'groupId': self.Id('groupId')
+    }
+    # Owner adds player-2 to both groups
+    self.AssertOk('addPlayerToGroup', update)
+    self.AssertFails('addPlayerToGroup', update)
+    update['groupId'] = self.Id('groupId', 2)
+    self.AssertOk('addPlayerToGroup', update)
+    # Player-2 can add player-3 to one group but not other -- membersCanAdd
+    update = {
+      'playerId': self.Id('playerId', 2),
+      'otherPlayerId': self.Id('playerId', 3),
+      'groupId': self.Id('groupId')
+    }
+    self.AssertFails('addPlayerToGroup', update)
+    update['groupId'] = self.Id('groupId', 2)
+    self.AssertOk('addPlayerToGroup', update)
+    self.AssertFails('addPlayerToGroup', update)
+
+    # Create and assign guns
     create = {'gunId': self.Id('gunId')}
     update = {'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
@@ -256,6 +261,7 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertCreateUpdateSequence('addRewardCategory', create, 'updateRewardCategory', update)
 
+    # Add and claim some rewards
     create = {
       'gameId': self.Id('gameId'),
       'rewardCategoryId': self.Id('rewardCategoryId'),

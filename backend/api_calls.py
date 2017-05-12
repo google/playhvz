@@ -116,6 +116,22 @@ def GroupToGame(firebase, group):
   return firebase.get('/groups/%s' % group, 'gameId')
 
 
+def GroupToEntity(firebase, group, entity):
+  rooms = firebase.get(
+      '/', entity, {'orderBy': '"groupId"', 'equalTo': '"%s"' % group})
+  if rooms:
+    return rooms.keys()
+  return []
+
+
+def GroupToMissions(firebase, group):
+  return GroupToEntity(firebase, group, 'missions')
+
+
+def GroupToChats(firebase, group):
+  return GroupToEntity(firebase, group, 'chatRooms')
+
+
 def PlayerToGame(firebase, player):
   """Map a player to a game."""
   return firebase.get('/players/%s' % player, 'gameId')
@@ -710,6 +726,8 @@ def AddPlayerToGroup(request, firebase):
 
   Firebase entries:
     /groups/%(groupId)/players/%(playerId)
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
   """
   valid_args = ['groupId', 'playerId', 'otherPlayerId']
   required_args = ['groupId', 'otherPlayerId']
@@ -748,7 +766,66 @@ def AddPlayerToGroup(request, firebase):
       raise InvalidInputError('Players are not allowed to add to this group.')
 
   results.append(firebase.put('/groups/%s/players' % group, otherPlayer, True))
+  results.append(AddPlayerGroupMappings(firebase, group, otherPlayer))
   return results
+
+
+def AddPlayerGroupMappings(firebase, group, player):
+  """Add mappings when a player is added to a group.
+
+  When a player is added to a group, find chats and missions associated with
+  that group and add those chats and missions to the list of chats and missions
+  the player is in.
+
+  Args:
+    firebase:
+    group: Group ID the player was added to.
+    player: The player ID in question.
+
+  Firebase entries:
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
+  """
+  chats = GroupToChats(firebase, group)
+  for chat in chats:
+    firebase.put('/players/%s/chatRooms' % player, chat, True)
+
+  missions = GroupToMissions(firebase, group)
+  for mission in missions:
+    firebase.put('/players/%s/missions' % player, mission, True)
+
+  return [
+      'Added player %s to %d chats: %r' % (player, len(chats), chats),
+      'Added player %s to %d missions: %r' % (player, len(missions), missions)]
+
+
+def RemovePlayerGroupMappings(firebase, group, player):
+  """Remive mappings when a player is removed from a group.
+
+  When a player is removed from a group, find chats and missions associated with
+  that group and remove those chats and missions from the list of chats and missions
+  the player is in.
+
+  Args:
+    firebase:
+    group: Group ID the player was added to.
+    player: The player ID in question.
+
+  Firebase entries:
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
+  """
+  chats = GroupToChats(firebase, group)
+  for chat in chats:
+    firebase.delete('/players/%s/chatRooms' % player, chat)
+
+  missions = GroupToMissions(firebase, group)
+  for mission in missions:
+    firebase.delete('/players/%s/missions' % player, mission)
+
+  return [
+      'Removed player %s from %d chats.' % (player, len(chats)),
+      'Removed player %s from %d missions.' % (player, len(missions))]
 
 
 def AddRewardCategory(request, firebase):

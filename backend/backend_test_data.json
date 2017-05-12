@@ -129,6 +129,8 @@
       "needGun": true,
       "startAsZombie": true,
       "userId": "user-%(ident)s",
+      "gotEquipment": true,
+      "wantsToBeSecretZombie": true,
       "volunteer": {
         "advertising": false,
         "logistics": false,
@@ -142,9 +144,7 @@
         "server": true,
         "client": false,
         "mobile": false
-      },
-      "gotEquipment": true,
-      "wantsToBeSecretZombie": true
+      }
     },
     "player-%(ident)s-2": {
       "notificationSettings": {
@@ -156,6 +156,10 @@
       "needGun": true,
       "startAsZombie": true,
       "userId": "user-%(ident)s",
+      "gotEquipment": true,
+      "wantsToBeSecretZombie": true,
+      "missions": {"mission-%(ident)s": true},
+      "chatRooms": {"chatRoom-%(ident)s": true},
       "volunteer": {
         "advertising": false,
         "logistics": false,
@@ -169,8 +173,7 @@
         "server": false,
         "client": false,
         "mobile": false
-    },
-      "wantsToBeSecretZombie": true
+      }
     },
     "player-%(ident)s-3": {
       "notificationSettings": {
@@ -182,6 +185,8 @@
       "needGun": true,
       "startAsZombie": true,
       "userId": "user-%(ident)s",
+      "gotEquipment": true,
+      "wantsToBeSecretZombie": true,
       "volunteer": {
         "advertising": false,
         "logistics": false,
@@ -195,8 +200,7 @@
         "server": false,
         "client": false,
         "mobile": false
-    },
-      "wantsToBeSecretZombie": true
+      }
     }
   },
   "users": {
