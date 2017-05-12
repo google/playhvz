@@ -28,6 +28,10 @@
         "phonegap-plugin-push": {
             "SENDER_ID": "721599614458",
             "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "cordova-plugin-googleplus": {
+            "REVERSED_CLIENT_ID": "myreversedclientid",
+            "PACKAGE_NAME": "com.ghvz.ghvz"
         }
     },
     "dependent_plugins": {}

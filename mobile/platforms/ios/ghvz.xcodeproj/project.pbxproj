@@ -25,6 +25,19 @@
 		A81EAA30713F447396B1CEC6 /* CDVDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = CF8E654484A74A9FA3398E87 /* CDVDevice.m */; };
 		B03E5D5486594960B35A1398 /* CDVStatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = DDEFB3DB92544E8FABA79DF7 /* CDVStatusBar.m */; };
 		DAE45629388045D183736FC7 /* PushPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C9546B4970F413FB6790DF5 /* PushPlugin.m */; };
+		742E2384325A42208FE6CDD0 /* GooglePlus.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D55F1F66BE4417E8F03FBF1 /* GooglePlus.m */; };
+		66C74AEC54C5471D8BC8B6A5 /* GoogleAppUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC4D2782ABDB41B5808828A2 /* GoogleAppUtilities.framework */; };
+		F229DA15A1DC40BDB2267988 /* GoogleAuthUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA57415026AB4E97BD6212C1 /* GoogleAuthUtilities.framework */; };
+		37934B84679A471DBC612C2C /* GoogleNetworkingUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A491DB2AC34E4CFBB65D073D /* GoogleNetworkingUtilities.framework */; };
+		F8C4390016EE4E0D85C3D390 /* GoogleSignIn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40DFFC4E64984B00A6E88275 /* GoogleSignIn.framework */; };
+		787EAF9D07E849C68B3526ED /* GoogleSymbolUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42AA2DEA70364C27ACC6529B /* GoogleSymbolUtilities.framework */; };
+		24F37AD693164429BD6A209B /* GoogleUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 307C837B90A5488789FDD12C /* GoogleUtilities.framework */; };
+		4B29AAD78FAB4425A37FCF99 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6559D1D2AFD40E89B196D1A /* CoreText.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		7FFDFA08AFCD4CF0A3900DE6 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9B5DBE674384326874DFE3C /* SafariServices.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A93EE96A492A43DABFFDA87B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 265C2514C30E402180CA4A33 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		AFE62A519EA24A89B3AD8433 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F331FB43F855451A8C98CE2D /* SystemConfiguration.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D037D6328F3C48DEAF1B3067 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5961B8D258324D8DBA5CFE44 /* libz.dylib */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A1D12FA52B2A4C88BCF455F1 /* ghvz.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 28220E2063AB4FC881D67F68 /* ghvz.entitlements */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,6 +98,20 @@
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		ED33DF2A687741AEAF9F8254 /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ghvz/config.xml; sourceTree = "<group>"; };
+		0D55F1F66BE4417E8F03FBF1 /* GooglePlus.m */ = {isa = PBXFileReference; name = "GooglePlus.m"; path = "cordova-plugin-googleplus/GooglePlus.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		A47ABB0540624EDA80FF31D8 /* GooglePlus.h */ = {isa = PBXFileReference; name = "GooglePlus.h"; path = "cordova-plugin-googleplus/GooglePlus.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		BC4D2782ABDB41B5808828A2 /* GoogleAppUtilities.framework */ = {isa = PBXFileReference; name = "GoogleAppUtilities.framework"; path = "ghvz/Plugins/cordova-plugin-googleplus/GoogleAppUtilities.framework"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		BA57415026AB4E97BD6212C1 /* GoogleAuthUtilities.framework */ = {isa = PBXFileReference; name = "GoogleAuthUtilities.framework"; path = "ghvz/Plugins/cordova-plugin-googleplus/GoogleAuthUtilities.framework"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		A491DB2AC34E4CFBB65D073D /* GoogleNetworkingUtilities.framework */ = {isa = PBXFileReference; name = "GoogleNetworkingUtilities.framework"; path = "ghvz/Plugins/cordova-plugin-googleplus/GoogleNetworkingUtilities.framework"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		40DFFC4E64984B00A6E88275 /* GoogleSignIn.framework */ = {isa = PBXFileReference; name = "GoogleSignIn.framework"; path = "ghvz/Plugins/cordova-plugin-googleplus/GoogleSignIn.framework"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		42AA2DEA70364C27ACC6529B /* GoogleSymbolUtilities.framework */ = {isa = PBXFileReference; name = "GoogleSymbolUtilities.framework"; path = "ghvz/Plugins/cordova-plugin-googleplus/GoogleSymbolUtilities.framework"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		307C837B90A5488789FDD12C /* GoogleUtilities.framework */ = {isa = PBXFileReference; name = "GoogleUtilities.framework"; path = "ghvz/Plugins/cordova-plugin-googleplus/GoogleUtilities.framework"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		F6559D1D2AFD40E89B196D1A /* CoreText.framework */ = {isa = PBXFileReference; name = "CoreText.framework"; path = "System/Library/Frameworks/CoreText.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		B9B5DBE674384326874DFE3C /* SafariServices.framework */ = {isa = PBXFileReference; name = "SafariServices.framework"; path = "System/Library/Frameworks/SafariServices.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		265C2514C30E402180CA4A33 /* Security.framework */ = {isa = PBXFileReference; name = "Security.framework"; path = "System/Library/Frameworks/Security.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		F331FB43F855451A8C98CE2D /* SystemConfiguration.framework */ = {isa = PBXFileReference; name = "SystemConfiguration.framework"; path = "System/Library/Frameworks/SystemConfiguration.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		5961B8D258324D8DBA5CFE44 /* libz.dylib */ = {isa = PBXFileReference; name = "libz.dylib"; path = "usr/lib/libz.dylib"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = compiled.mach-o.dylib; explicitFileType = undefined; includeInIndex = 0; };
+		28220E2063AB4FC881D67F68 /* ghvz.entitlements */ = {isa = PBXFileReference; lastKnownFileType = unknown; name = "ghvz.entitlements"; path = "ghvz.entitlements"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +124,17 @@
 				5B0719B8CE6B4D78858942A1 /* libsqlite3.tbd in Frameworks */,
 				4DAD71F824EF4578A9864212 /* libz.tbd in Frameworks */,
 				311FBB3E4B121BE9CE2AB122 /* libPods-ghvz.a in Frameworks */,
+				66C74AEC54C5471D8BC8B6A5 /* GoogleAppUtilities.framework in Frameworks */,
+				F229DA15A1DC40BDB2267988 /* GoogleAuthUtilities.framework in Frameworks */,
+				37934B84679A471DBC612C2C /* GoogleNetworkingUtilities.framework in Frameworks */,
+				F8C4390016EE4E0D85C3D390 /* GoogleSignIn.framework in Frameworks */,
+				787EAF9D07E849C68B3526ED /* GoogleSymbolUtilities.framework in Frameworks */,
+				24F37AD693164429BD6A209B /* GoogleUtilities.framework in Frameworks */,
+				4B29AAD78FAB4425A37FCF99 /* CoreText.framework in Frameworks */,
+				7FFDFA08AFCD4CF0A3900DE6 /* SafariServices.framework in Frameworks */,
+				A93EE96A492A43DABFFDA87B /* Security.framework in Frameworks */,
+				AFE62A519EA24A89B3AD8433 /* SystemConfiguration.framework in Frameworks */,
+				D037D6328F3C48DEAF1B3067 /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,6 +198,7 @@
 				3047A50E1AB8057F00498E2A /* config */,
 				8D1107310486CEB800E47090 /* ghvz-Info.plist */,
 				6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */,
+				28220E2063AB4FC881D67F68 /* ghvz.entitlements */,
 			);
 			name = Resources;
 			path = ghvz/Resources;
@@ -172,6 +211,17 @@
 				A5DCFBBB6FF34430B3261674 /* libsqlite3.tbd */,
 				859FD0DA04A148CA89C4B1B5 /* libz.tbd */,
 				898BF6719999BA4F83CA2C82 /* libPods-ghvz.a */,
+				BC4D2782ABDB41B5808828A2 /* GoogleAppUtilities.framework */,
+				BA57415026AB4E97BD6212C1 /* GoogleAuthUtilities.framework */,
+				A491DB2AC34E4CFBB65D073D /* GoogleNetworkingUtilities.framework */,
+				40DFFC4E64984B00A6E88275 /* GoogleSignIn.framework */,
+				42AA2DEA70364C27ACC6529B /* GoogleSymbolUtilities.framework */,
+				307C837B90A5488789FDD12C /* GoogleUtilities.framework */,
+				F6559D1D2AFD40E89B196D1A /* CoreText.framework */,
+				B9B5DBE674384326874DFE3C /* SafariServices.framework */,
+				265C2514C30E402180CA4A33 /* Security.framework */,
+				F331FB43F855451A8C98CE2D /* SystemConfiguration.framework */,
+				5961B8D258324D8DBA5CFE44 /* libz.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -213,6 +263,8 @@
 				3C9546B4970F413FB6790DF5 /* PushPlugin.m */,
 				534C85547D3C453EAA4085BE /* AppDelegate+notification.h */,
 				AA2403E0C948401399AEA94C /* PushPlugin.h */,
+				0D55F1F66BE4417E8F03FBF1 /* GooglePlus.m */,
+				A47ABB0540624EDA80FF31D8 /* GooglePlus.h */,
 			);
 			name = Plugins;
 			path = ghvz/Plugins;
@@ -313,6 +365,7 @@
 				302D95F214D2391D003F00A1 /* MainViewController.xib in Resources */,
 				0207DA581B56EA530066E2B4 /* Images.xcassets in Resources */,
 				6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */,
+				A1D12FA52B2A4C88BCF455F1 /* ghvz.entitlements in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,6 +450,7 @@
 				7601E77DA5744A15BA59B7E3 /* IonicKeyboard.m in Sources */,
 				60309D9D7DC94CE0BCF49AA8 /* AppDelegate+notification.m in Sources */,
 				DAE45629388045D183736FC7 /* PushPlugin.m in Sources */,
+				742E2384325A42208FE6CDD0 /* GooglePlus.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -434,6 +488,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ghvz.ghvz;
 				PRODUCT_NAME = ghvz;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+				);
+				CODE_SIGN_ENTITLEMENTS = "ghvz/Resources/ghvz.entitlements";
 			};
 			name = Debug;
 		};
@@ -458,6 +522,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ghvz.ghvz;
 				PRODUCT_NAME = ghvz;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+					"\"ghvz/Plugins/cordova-plugin-googleplus\"",
+				);
+				CODE_SIGN_ENTITLEMENTS = "ghvz/Resources/ghvz.entitlements";
 			};
 			name = Release;
 		};
@@ -492,6 +566,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
+				CODE_SIGN_ENTITLEMENTS = "ghvz/Resources/ghvz.entitlements";
 			};
 			name = Debug;
 		};
@@ -524,6 +599,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
+				CODE_SIGN_ENTITLEMENTS = "ghvz/Resources/ghvz.entitlements";
 			};
 			name = Release;
 		};

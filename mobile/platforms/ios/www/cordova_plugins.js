@@ -56,6 +56,14 @@ module.exports = [
         "clobbers": [
             "PushNotification"
         ]
+    },
+    {
+        "id": "cordova-plugin-googleplus.GooglePlus",
+        "file": "plugins/cordova-plugin-googleplus/www/GooglePlus.js",
+        "pluginId": "cordova-plugin-googleplus",
+        "clobbers": [
+            "window.plugins.googleplus"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -67,7 +75,8 @@ module.exports.metadata =
     "cordova-plugin-statusbar": "2.2.1",
     "cordova-plugin-whitelist": "1.3.1",
     "ionic-plugin-keyboard": "2.2.1",
-    "phonegap-plugin-push": "1.10.2"
+    "phonegap-plugin-push": "1.10.2",
+    "cordova-plugin-googleplus": "5.1.1"
 };
 // BOTTOM OF METADATA
 });

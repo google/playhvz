@@ -50,11 +50,21 @@
     "phonegap-plugin-push": {
         "source": {
             "type": "registry",
-            "id": "phonegap-plugin-push@1.6.0"
+            "id": "phonegap-plugin-push@~1.10.2"
         },
         "is_top_level": true,
         "variables": {
-            "SENDER_ID": "721599614458"
+            "SENDER_ID": "625580091272"
+        }
+    },
+    "cordova-plugin-googleplus": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-googleplus@~5.1.1"
+        },
+        "is_top_level": true,
+        "variables": {
+            "REVERSED_CLIENT_ID": "myreversedclientid"
         }
     }
 }

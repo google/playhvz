@@ -101,13 +101,16 @@
     <orderEntry type="jdk" jdkName="Android API 25 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="play-services-gcm-10.2.1" level="project" />
+    <orderEntry type="library" exported="" name="play-services-auth-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="support-v13-23.4.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-basement-10.2.1" level="project" />
+    <orderEntry type="library" exported="" name="play-services-auth-base-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-tasks-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-24.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-24.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-iid-10.2.1" level="project" />
+    <orderEntry type="library" exported="" name="play-services-identity-10.2.1" level="project" />
     <orderEntry type="library" exported="" name="ShortcutBadger-1.1.14" level="project" />
     <orderEntry type="module" module-name="CordovaLib" exported="" />
   </component>

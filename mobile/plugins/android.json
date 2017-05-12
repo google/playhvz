@@ -28,6 +28,9 @@
         "phonegap-plugin-push": {
             "SENDER_ID": "721599614458",
             "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "cordova-plugin-googleplus": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
         }
     },
     "dependent_plugins": {}

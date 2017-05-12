@@ -46,7 +46,7 @@ import java.util.Random;
 @SuppressLint("NewApi")
 public class GCMIntentService extends GcmListenerService implements PushConstants {
 
-    private static final String LOG_TAG = "PushPlugin_GCMIntentService";
+    private static final String LOG_TAG = "Push_GCMIntentService";
     private static HashMap<Integer, ArrayList<String>> messageMap = new HashMap<Integer, ArrayList<String>>();
 
     public void setNotification(int notId, String message){
@@ -706,6 +706,10 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
     }
 
     private Bitmap getCircleBitmap(Bitmap bitmap) {
+        if (bitmap == null) {
+            return null;
+        }
+        
         final Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(output);
         final int color = Color.RED;
