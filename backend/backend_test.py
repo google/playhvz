@@ -130,7 +130,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertFails('createGame', create)
 
     # Create players.
-    create = {
+    create_player = {
       'gameId': self.Id('gameId'),
       'userId': self.Id('userId'),
       'playerId': self.Id('playerId'),
@@ -143,17 +143,17 @@ class EndToEndTest(unittest.TestCase):
       'notifySound': True,
       'notifyVibrate': True,
     }
-    create.update({v: False for v in constants.PLAYER_VOLUNTEER_ARGS})
+    create_player.update({v: False for v in constants.PLAYER_VOLUNTEER_ARGS})
     update = {
       'playerId': self.Id('playerId'),
       'name': 'test Charles',
       'helpServer': True,
     }
-    self.AssertCreateUpdateSequence('createPlayer', create, 'updatePlayer', update)
-    create['playerId'] = self.Id('playerId', 2)
-    self.AssertOk('createPlayer', create)
-    create['playerId'] = self.Id('playerId', 3)
-    self.AssertOk('createPlayer', create)
+    self.AssertCreateUpdateSequence('createPlayer', create_player, 'updatePlayer', update)
+    create_player['playerId'] = self.Id('playerId', 2)
+    self.AssertOk('createPlayer', create_player)
+    create_player['playerId'] = self.Id('playerId', 3)
+    self.AssertOk('createPlayer', create_player)
 
     # Create groups
     create = {
@@ -169,7 +169,7 @@ class EndToEndTest(unittest.TestCase):
     }
     update = {
       'groupId': self.Id('groupId'),
-      'autoRemove': False,
+      'autoAdd': True,
     }
     self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
     create.update({
@@ -179,6 +179,9 @@ class EndToEndTest(unittest.TestCase):
       'membersCanRemove': True,
     })
     self.Post('createGroup', create)
+
+    create_player['playerId'] = self.Id('playerId', 4)
+    self.AssertOk('createPlayer', create_player)
 
     # Create chat rooms
     create = {
@@ -220,6 +223,9 @@ class EndToEndTest(unittest.TestCase):
       'end': 0,
     }
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
+
+    create_player['playerId'] = self.Id('playerId', 5)
+    self.AssertOk('createPlayer', create_player)
 
     # Add players to groups.
     update = {

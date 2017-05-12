@@ -8,9 +8,7 @@ import db_helpers as helpers
 import secrets
 
 
-class InvalidInputError(Exception):
-  """Error used when the inputs fail to pass validation."""
-  pass
+InvalidInputError = helpers.InvalidInputError
 
 
 # Used for trawling the full DB.
@@ -284,6 +282,8 @@ def AddPlayer(request, firebase):
     'allegiance': allegiance,
   }
   results.append(firebase.put('/games/%s/players' % game, player, game_info))
+
+  AutoUpdatePlayerGroups(firebase, player, new_player=True)
 
   return results
 
@@ -758,6 +758,40 @@ def RemovePlayerGroupMappings(firebase, group, player):
   return [
       'Removed player %s from %d chats.' % (player, len(chats)),
       'Removed player %s from %d missions.' % (player, len(missions))]
+
+
+def AutoUpdatePlayerGroups(firebase, player, new_player=False):
+  """Auto add/remove a player from groups.
+
+  When a player changes allegiances, automatically add/remove them
+  from groups.
+  If new player, there is no group removal and we need to add to groups without
+  an allegiance.
+
+  Args:
+    player: A player ID
+    new_player: This is a new player vs allegiance switch.
+
+  Firebase entries:
+    /groups/%(groupId)/players/%(playerId)
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
+  """
+  game = helpers.PlayerToGame(firebase, player)
+  allegiance = helpers.PlayerAllegiance(firebase, player)
+  groups = firebase.get('/games/%s' % game, 'groups') or []
+  for group_id in groups:
+    group = firebase.get('/groups', group_id)
+    if group['autoAdd'] and group['allegianceFilter'] == allegiance:
+      firebase.put('/groups/%s/players' % group_id, player, True)
+      AddPlayerGroupMappings(firebase, group_id, player)
+    elif (not new_player and group['autoRemove'] and
+          group['allegianceFilter'] != allegiance):
+      firebase.delete('/groups/%s/players' % group_id, player)
+      RemovePlayerGroupMappings(firebase, group_id, player)
+    elif new_player and group['autoAdd'] and group['allegianceFilter'] == 'none':
+      firebase.put('/groups/%s/players' % group_id, player, True)
+      AddPlayerGroupMappings(firebase, group_id, player)
 
 
 def AddRewardCategory(request, firebase):
