@@ -1,0 +1,19 @@
+#!/bin/bash
+
+err {
+  printf 'Error: %s\n' >&2
+  exit 1
+}
+
+if [[ $PWD != */backend ]]; then
+  printf 'Please run this script from the backend directory.\n'
+  exit 1
+fi
+
+bash ./setup_secrets.bash || err 'setup_secrets failed'
+cmd=( pip install -r requirements.txt -t lib )
+[[ -d lib ]] && cmd+=( --upgrade )
+"${cmd[@]}" || err 'pip failed'
+gcloud app deploy app.yaml || err 'gcloud failed'
+
+# vim:ts=2:sw=2:expandtab
