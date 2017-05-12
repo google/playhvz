@@ -22,8 +22,13 @@ class Bridge {
     return this.inner.attemptAutoSignIn();
   }
 
-  listenToGame(gameId) {
-    return this.inner.listenToGame(gameId);
+  listenToGamePublic(gameId) {
+    return this.inner.listenToGamePublic(gameId);
+  }
+
+  // playerId null means try to access as admin
+  listenToGamePrivate(gameId, playerId) {
+    return this.inner.listenToGamePrivate(gameId, playerId);
   }
 
   check_(typeName, value) {
@@ -268,6 +273,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('selfInfect', {required: {playerId: 'PlayerId'}});
 
   const GROUP_PROPERTIES = {
+    name: 'String',
     allegianceFilter: 'String',
     ownerPlayerId: '?PlayerId',
     autoAdd: 'Boolean',
@@ -351,7 +357,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('addPlayerToGroup', {
     required: {
       groupId: 'GroupId',
-      playerToAddId: 'PlayerId',
+      otherPlayerId: 'PlayerId',
       playerId: '?PlayerId',
     },
   });
@@ -359,7 +365,7 @@ Bridge.QuizAnswerId = {
   serverMethods.set('removePlayerFromGroup', {
     required: {
       groupId: 'GroupId',
-      playerToRemoveId: 'PlayerId',
+      otherPlayerId: 'PlayerId',
       playerId: '?PlayerId',
     },
   });
@@ -408,7 +414,7 @@ Bridge.QuizAnswerId = {
     app: 'Boolean',
     destination: '?String',
     sendTime: 'TimestampMs',
-    allegianceFilter: 'String',
+    // allegianceFilter: 'String',
     icon: '?String',
   };
   serverMethods.set('sendNotification', {

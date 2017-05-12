@@ -48,7 +48,10 @@ class FakeBridge {
       }
     });
   }
-  listenToGame(gameId) {
+  listenToGamePublic(gameId) {
+    // Do nothing. This method is really just an optimization.
+  }
+  listenToGamePrivate(gameId, playerId) {
     // Do nothing. This method is really just an optimization.
   }
   performOperations_() {

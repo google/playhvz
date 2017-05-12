@@ -15,6 +15,10 @@
           notify: true,
         },
       },
+
+      onItemTapped_(e) {
+        this.value = e.target.dataset.groupId;
+      },
     });
   });
 </script>
@@ -26,12 +30,12 @@
   }
 </style>
 <template>
-  <paper-dropdown-input filter-property="id" label="Pick a group" items="[[game.groups]]" value="{{value}}">
+  <paper-dropdown-input filter-property="id" label="Pick a group" items="[[game.groups]]">
     <template>
       <template is="dom-repeat" items="[[items]]" as="group">
-        <div class="group">
-          [[group.id]]
-        </div>
+        <paper-item class="group" data-group-id$="[[group.id]]" on-tap="onItemTapped_">
+          [[group.name]] - [[group.id]]
+        </paper-item>
       </template>
     </template>
   </paper-dropdown-input>

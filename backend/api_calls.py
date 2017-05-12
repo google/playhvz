@@ -116,6 +116,22 @@ def GroupToGame(firebase, group):
   return firebase.get('/groups/%s' % group, 'gameId')
 
 
+def GroupToEntity(firebase, group, entity):
+  rooms = firebase.get(
+      '/', entity, {'orderBy': '"groupId"', 'equalTo': '"%s"' % group})
+  if rooms:
+    return rooms.keys()
+  return []
+
+
+def GroupToMissions(firebase, group):
+  return GroupToEntity(firebase, group, 'missions')
+
+
+def GroupToChats(firebase, group):
+  return GroupToEntity(firebase, group, 'chatRooms')
+
+
 def PlayerToGame(firebase, player):
   """Map a player to a game."""
   return firebase.get('/players/%s' % player, 'gameId')
@@ -317,12 +333,13 @@ def AddPlayer(request, firebase):
 
   Validation:
   Args:
-    gameId:
-    userId:
-    playerId:
-    name:
-    needGun:
-    profileImageUrl:
+    gameId: ID of the game this player is for.
+    userId: ID of this user.
+    playerId: ID to use.
+    name: Player's name.
+    needGun: Needs a gun for the game.
+    profileImageUrl: URL of an image to use for the profile.
+    gotEquipment: Is borrowing GHvZ equipment.
     startAsZombie:
     beSecretZombie:
     notifySound:
@@ -350,6 +367,7 @@ def AddPlayer(request, firebase):
   required_args.extend(['name', 'needGun', 'profileImageUrl'])
   required_args.extend(['startAsZombie', 'beSecretZombie'])
   required_args.extend(['notifySound', 'notifyVibrate'])
+  required_args.extend(['gotEquipment'])
   required_args.extend(list(constants.PLAYER_VOLUNTEER_ARGS))
   ValidateInputs(request, firebase, required_args, valid_args)
 
@@ -358,7 +376,6 @@ def AddPlayer(request, firebase):
   game = request['gameId']
   player = request['playerId']
   user = request['userId']
-  start_as_zombie = request['startAsZombie']
 
   player_info = {'gameId': game}
   results.append(firebase.put('/users/%s/players' % user, player, player_info))
@@ -366,9 +383,10 @@ def AddPlayer(request, firebase):
   player_info = {
     'gameId': game,
     'userId': user,
-    'canInfect': start_as_zombie,
+    'canInfect': (request['startAsZombie'] or request['beSecretZombie']),
     'needGun' : request['needGun'],
-    'startAsZombie' : start_as_zombie,
+    'gotEquipment' : request['gotEquipment'],
+    'startAsZombie' : request['startAsZombie'],
     'wantsToBeSecretZombie': request['beSecretZombie'],
   }
   results.append(firebase.put('/players', player, player_info))
@@ -382,10 +400,10 @@ def AddPlayer(request, firebase):
   volunteer = {v[4].lower() + v[5:]: request[v] for v in constants.PLAYER_VOLUNTEER_ARGS}
   results.append(firebase.put('/players/%s' % player, 'volunteer', volunteer))
 
-  if start_as_zombie:
+  if request['startAsZombie']:
     allegiance = 'horde'
   else:
-    allegiance = 'resistence'
+    allegiance = 'resistance'
 
   game_info = {
     'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None, {'shallow': True})),
@@ -689,41 +707,125 @@ def AckChatMessage(request, firebase):
   return firebase.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
 
 
-# TODO convert to add player to group?
-def AddPlayerToChat(request, firebase):
-  """Add a new player to a chat room.
+def AddPlayerToGroup(request, firebase):
+  """Add a player to a group.
+
+  Either a member of the group adds another player or an admin adds a player.
 
   Validation:
-    Player doing the adding is a member of the room.
+    * Player doing the adding is a member of the group AND the group supports adding
+      or
+      The player is the group owner.
+    * otherPlayerId is not already in the group.
+    * Both players and the groupId all point to the same game. TODO
 
   Args:
-    chatRoomId: The chat room ID to add the player to.
+    groupId: The group to add a player to.
+    playerId: The player doing the adding (unless an admin).
     otherPlayerId: The player being added.
-    playerId: The player doing the adding.
 
   Firebase entries:
-    /chatRooms/%(chatRoomId)/memberships/%(playerId)
+    /groups/%(groupId)/players/%(playerId)
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
   """
-  results = []
-  valid_args = ['chatRoomId', 'playerId', 'otherPlayerId']
-  required_args = list(valid_args)
+  valid_args = ['groupId', 'playerId', 'otherPlayerId']
+  required_args = ['groupId', 'otherPlayerId']
   ValidateInputs(request, firebase, required_args, valid_args)
 
-  game = PlayerToGame(firebase, player)
-  chat = request['chatRoomId']
+  if 'playerId' not in request:
+    raise InvalidInputError('playerId is required unless you are an admin (not supported yet).')
+  elif not firebase.get('/players/%s' % request['playerId'], 'userId'):
+    raise InvalidInputError('PlayerID %s does not exist.' % request['playerId'])
+
+  results = []
+
+  group = request['groupId']
   player = request['playerId']
   otherPlayer = request['otherPlayerId']
+  game = PlayerToGame(firebase, player)
 
-  # Validate player is in the chat room
-  if firebase.get('/chatRooms/%s/memberships' % chat, player) is None:
-    raise InvalidInputError('You are not a member of that chat room.')
-  # Validate otherPlayer is not in the chat room
-  if firebase.get('/chatRooms/%s/memberships' % chat, otherPlayer) is not None:
+  if game != PlayerToGame(firebase, otherPlayer):
+    raise InvalidInputError('Other player is not in the same game as you.')
+  if game != GroupToGame(firebase, group):
+    raise InvalidInputError('That group is not part of your active game.')
+
+  # Validate otherPlayer is not in the group
+  if firebase.get('/groups/%s/players' % group, otherPlayer):
     raise InvalidInputError('Other player is already in the chat.')
-  # TODO Check allegiance and other chat settings
 
-  results.append(firebase.put('/chatRooms/%s/memberships' % chat, otherPlayer, ""))
-  results.append(firebase.put('/games/%s/chatRooms' % game, chat, True))
+  # Player must be the owner or (be in the group and group allows adding).
+  if player == firebase.get('/groups/%s' % group, 'ownerPlayerId'):
+    pass
+  else:
+    # Validate player is in the chat room.
+    if not firebase.get('/groups/%s/players' % group, player):
+      raise InvalidInputError('You are not a member of that group nor an owner.')
+    # Validate players are allowed to add other players.
+    if not firebase.get('/groups/%s' % group, 'membersCanAdd'):
+      raise InvalidInputError('Players are not allowed to add to this group.')
+
+  results.append(firebase.put('/groups/%s/players' % group, otherPlayer, True))
+  results.append(AddPlayerGroupMappings(firebase, group, otherPlayer))
+  return results
+
+
+def AddPlayerGroupMappings(firebase, group, player):
+  """Add mappings when a player is added to a group.
+
+  When a player is added to a group, find chats and missions associated with
+  that group and add those chats and missions to the list of chats and missions
+  the player is in.
+
+  Args:
+    firebase:
+    group: Group ID the player was added to.
+    player: The player ID in question.
+
+  Firebase entries:
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
+  """
+  chats = GroupToChats(firebase, group)
+  for chat in chats:
+    firebase.put('/players/%s/chatRooms' % player, chat, True)
+
+  missions = GroupToMissions(firebase, group)
+  for mission in missions:
+    firebase.put('/players/%s/missions' % player, mission, True)
+
+  return [
+      'Added player %s to %d chats: %r' % (player, len(chats), chats),
+      'Added player %s to %d missions: %r' % (player, len(missions), missions)]
+
+
+def RemovePlayerGroupMappings(firebase, group, player):
+  """Remive mappings when a player is removed from a group.
+
+  When a player is removed from a group, find chats and missions associated with
+  that group and remove those chats and missions from the list of chats and missions
+  the player is in.
+
+  Args:
+    firebase:
+    group: Group ID the player was added to.
+    player: The player ID in question.
+
+  Firebase entries:
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
+  """
+  chats = GroupToChats(firebase, group)
+  for chat in chats:
+    firebase.delete('/players/%s/chatRooms' % player, chat)
+
+  missions = GroupToMissions(firebase, group)
+  for mission in missions:
+    firebase.delete('/players/%s/missions' % player, mission)
+
+  return [
+      'Removed player %s from %d chats.' % (player, len(chats)),
+      'Removed player %s from %d missions.' % (player, len(missions))]
 
 
 def AddRewardCategory(request, firebase):
@@ -1054,6 +1156,27 @@ def MarkNotificationSeen(request, firebase):
   }
   return firebase.patch('/player/%s/notifications/%s' % (
       request['playerId'], request['notificationId']), put_data)
+
+
+def RegisterUserDevice(request, firebase):
+  """Register a user device to a userId.
+
+  Validation:
+    userId must exist.
+
+  Args:
+    userId: User id to associate with.
+    deviceToken: Ionic device token.
+
+  Firebase entries:
+    /users/%(userId)/deviceToken
+"""
+  valid_args = ['userId']
+  required_args = list(valid_args)
+  required_args.extend(['deviceToken'])
+  ValidateInputs(request, firebase, required_args, valid_args)
+  put_data = {'deviceToken': request['deviceToken']}
+  return firebase.patch('/users/%s', put_data)
 
 
 def DeleteTestData(request, firebase):

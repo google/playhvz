@@ -245,7 +245,9 @@
           <template is="dom-if" if="[[useGroupField_(field)]]">
             <ghvz-group-field game="[[game]]" value="{{field.value}}">
             </ghvz-group-field>
-            (Start typing 'group' if nothing shows up)
+            <div>
+              (Start typing 'group' if nothing shows up)
+            </div>
           </template>
           <template is="dom-if" if="[[usePaperCheckbox_(field)]]">
             <paper-checkbox checked="{{field.value}}">

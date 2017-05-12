@@ -39,8 +39,8 @@
                 filterable: true,
               },
               {
-                property: "allegianceFilter",
-                name: "Allegiance",
+                property: "groupId",
+                name: "Group",
                 sortable: true,
                 filterable: true,
               },
@@ -169,7 +169,9 @@
         <div class="row">
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
           <div class="cell">[[mission.name]]</div>
-          <div class="cell">[[mission.allegianceFilter]]</div>
+          <div class="cell">
+            <ghvz-group-name-label game="[[game]]" group-id="[[mission.groupId]]"></ghvz-group-name-label>
+          </div>
           <div class="cell">[[formatTime_(mission.begin)]]</div>
           <div class="cell">[[formatTime_(mission.end)]]</div>
           <div class="cell">[[shorten(mission.detailsHtml)]]</div>

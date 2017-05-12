@@ -54,7 +54,7 @@ let references = [
   //["guns", null, "playerId", null],
   ["users", null, "id", null],
   // ["users", null, "players", null, "id", null], We leave this out because we wont find the definition for the player until we deep listen the game
-  ["users", null, "players", null, "gameId", null],
+  // ["users", null, "players", null, "gameId", null],
 ];
 
 function matchesAnyDefinition(path) {
@@ -111,6 +111,7 @@ class ConsistentWriter {
   noteReferencesAndDefinitions(path, value) {
     findDefinitions(path, value, (wholePath, value) => {
       let id = wholePath.slice(-1)[0];
+      // assert(id.includes("-"));
       if (this.definedById[id] === undefined) {
         console.log("Found definition for id", id);
         this.definedById[id] = true;
@@ -134,6 +135,7 @@ class ConsistentWriter {
     findReferences(path, value, (wholePath) => {
       let id = wholePath.slice(-1)[0];
       if (id) { // Some IDs are optional, like gun's playerId
+        // assert(id.includes("-"));
         assert(typeof id == 'string');
         if (this.definedById[id] === undefined) {
           this.definedById[id] = false;

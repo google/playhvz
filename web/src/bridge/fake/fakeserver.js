@@ -84,7 +84,7 @@ class FakeServer {
         }));
   }
   createGroup(args) {
-    let {ownerPlayerId, gameId, groupId, playerId} = args;
+    let {gameId, groupId} = args;
     this.writer.insert(
         this.reader.getGroupPath(gameId, null),
         null,
@@ -120,13 +120,13 @@ class FakeServer {
   }
 
   addPlayerToGroup(args) {
-    let {groupId, playerToAddId} = args;
+    let {groupId, otherPlayerId} = args;
     let gameId = this.reader.getGameIdForGroupId(groupId);
     let game = this.database.gamesById[gameId];
-    let player = game.playersById[playerToAddId];
+    let player = game.playersById[otherPlayerId];
     let group = game.groupsById[groupId];
 
-    let existingMembership = group.membershipsByPlayerId[playerToAddId];
+    let existingMembership = group.membershipsByPlayerId[otherPlayerId];
     if (existingMembership)
       return;
 
@@ -136,22 +136,22 @@ class FakeServer {
     this.writer.insert(
         this.reader.getMembershipPath(gameId, groupId, null),
         null,
-        newGroupMembership(playerToAddId, {playerId: playerToAddId}));
+        newGroupMembership(otherPlayerId, {playerId: otherPlayerId}));
     this.writer.insert(
-        this.reader.getPlayerGroupMembershipPath(gameId, playerToAddId, null),
+        this.reader.getPlayerGroupMembershipPath(gameId, otherPlayerId, null),
         null,
         newPlayerGroupMembership(groupId, {groupId: groupId}));
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.groupId == groupId) {
-        this.addPlayerToChatRoom_(gameId, groupId, chatRoom.id, playerToAddId);
+        this.addPlayerToChatRoom_(gameId, groupId, chatRoom.id, otherPlayerId);
       }
     }
   }
 
   removePlayerFromGroup(args) {
-    let {groupId, playerToRemoveId} = args;
-    let playerId = playerToRemoveId;
+    let {groupId, otherPlayerId} = args;
+    let playerId = otherPlayerId;
     let gameId = this.reader.getGameIdForGroupId(groupId);
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];
@@ -242,6 +242,12 @@ class FakeServer {
     for (let argName in args) {
       this.writer.set(rewardCategoryPath.concat([argName]), args[argName]);
     }
+  }
+  updateNotification(args) {
+    this.updateNotificationCategory(args);
+  }
+  sendNotification(args) {
+    this.addNotificationCategory(args);
   }
   addNotificationCategory(args) {
     let {gameId, notificationCategoryId} = args;
@@ -361,7 +367,7 @@ class FakeServer {
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoRemove) {
         if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
-          this.removePlayerFromGroup({groupId: group.id, playerToRemoveId: playerId});
+          this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
         }
       }
     }
@@ -373,7 +379,7 @@ class FakeServer {
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoAdd) {
         if (!group.allegianceFilter || group.allegianceFilter == player.allegiance) {
-          this.addPlayerToGroup({groupId: group.id, playerToAddId: playerId});
+          this.addPlayerToGroup({groupId: group.id, otherPlayerId: playerId});
         }
       }
     }
@@ -388,7 +394,7 @@ class FakeServer {
       let group = game.groupsById[chatRoom.groupId];
       if (group.autoRemove) {
         if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
-          this.removePlayerFromGroup({groupId: group.id, playerToRemoveId: playerId});
+          this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
         }
       }
     }
@@ -396,7 +402,7 @@ class FakeServer {
       let group = this.database.gamesById[gameId].groupsById[chatRoom.groupId];
       if (group.autoAdd) {
         if (!group.allegianceFilter || group.allegianceFilter == player.allegiance) {
-          this.addPlayerToGroup({gameId: gameId, groupId: group.id, playerToAddId: playerId});
+          this.addPlayerToGroup({gameId: gameId, groupId: group.id, otherPlayerId: playerId});
         }
       }
     }

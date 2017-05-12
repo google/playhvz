@@ -62,9 +62,10 @@
           let name =  this.player.name + " & HvZ CDC";
           let groupId = Bridge.GroupId.generate('withadmins');
           this.bridge.createGroup({
+            name: "Group for " + player.id + "'s chat room",
             groupId: groupId,
             gameId: this.game.id,
-            allegianceFilter: '',
+            allegianceFilter: 'none',
             ownerPlayerId: this.player.id,
             autoAdd: false,
             autoRemove: false,
@@ -80,12 +81,12 @@
           });
           this.bridge.addPlayerToGroup({
             groupId: groupId,
-            playerToAddId: this.player.id,
+            otherPlayerId: this.player.id,
             playerId: this.player.id,
           });
           this.bridge.addPlayerToGroup({
             groupId: groupId,
-            playerToAddId: this.game.adminContactPlayerId,
+            otherPlayerId: this.game.adminContactPlayerId,
             playerId: this.player.id,
           });
         },
