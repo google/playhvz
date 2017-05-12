@@ -49,6 +49,6 @@ dest="${0%/*}"
 [[ "$0" != */* ]] && dest='./'
 cp "$conf" "$dest/secrets.py"
 
-printf 'Done! Creeated %s and copied it to %s\n' "$conf" "$dest/secrets.py"
+printf 'Done! Created %s and copied it to %s\n' "$conf" "$dest/secrets.py"
 
 # vim:ts=2:sw=2:expandtab
