@@ -243,6 +243,12 @@ class FakeServer {
       this.writer.set(rewardCategoryPath.concat([argName]), args[argName]);
     }
   }
+  updateNotification(args) {
+    this.updateNotificationCategory(args);
+  }
+  sendNotification(args) {
+    this.addNotificationCategory(args);
+  }
   addNotificationCategory(args) {
     let {gameId, notificationCategoryId} = args;
     this.writer.insert(

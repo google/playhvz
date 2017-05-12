@@ -137,6 +137,8 @@
         summonTravelingPlayerField_: function(e) {
           let gunId = e.target.dataset.gunId;
           this.editingGunIdOrNull = gunId;
+          this.$.travelingPlayerField.playerInputValue = '';
+          this.$.travelingPlayerField.matchingPlayerOrNull = null;
           this.$.travelingPlayerField.playerIdOrNull = this.gunsById[gunId].playerId;
           let cell = e.target.closest('.cell');
           cell.insertBefore(this.$.travelingPlayerField, cell.childNodes[0]);

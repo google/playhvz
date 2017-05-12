@@ -229,12 +229,12 @@ function populateFakeServer(server) {
   for (let i = 0; i < 80; i++) {
     server.addGun({gunId: "gun-" + 1404 + i});
   }
-  let mission1AlertNotificationCategoryId = Bridge.NotificationCategoryId.generate();
-  server.addNotificationCategory({notificationCategoryId: mission1AlertNotificationCategoryId, gameId: gameId, name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});
-  server.addNotification({gameId: gameId, notificationId: Bridge.NotificationId.generate(), playerId: kimPlayerId, notificationCategoryId: mission1AlertNotificationCategoryId, previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null, icon: null});
-  let chatNotificationCategoryId = Bridge.NotificationCategoryId.generate();
-  server.addNotificationCategory({notificationCategoryId: chatNotificationCategoryId, gameId: gameId, name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
-  server.addNotification({gameId: gameId, notificationId: Bridge.NotificationId.generate(), playerId: kimPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Evanpocalypse!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
+  // let mission1AlertNotificationCategoryId = Bridge.NotificationCategoryId.generate();
+  // server.addNotificationCategory({notificationCategoryId: mission1AlertNotificationCategoryId, gameId: gameId, name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});
+  // server.addNotification({gameId: gameId, notificationId: Bridge.NotificationId.generate(), playerId: kimPlayerId, notificationCategoryId: mission1AlertNotificationCategoryId, previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null, icon: null});
+  // let chatNotificationCategoryId = Bridge.NotificationCategoryId.generate();
+  // server.addNotificationCategory({notificationCategoryId: chatNotificationCategoryId, gameId: gameId, name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
+  // server.addNotification({gameId: gameId, notificationId: Bridge.NotificationId.generate(), playerId: kimPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Evanpocalypse!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
 
   let stunQuestionId = Bridge.QuizQuestionId.generate();
   server.addQuizQuestion({quizQuestionId: stunQuestionId, gameId: gameId,
@@ -349,7 +349,29 @@ function populateFakeServer(server) {
   //   isCorrect: true,
   // });
 
-  return Utils.getParameterByName('actAsUserId', kimUserId);
+  let userId = Utils.getParameterByName('userId', null);
+  if (userId) {
+    return userId;
+  }
+  let registered = Utils.getParameterByName('registered', 'true') == 'true';
+  let admin = Utils.getParameterByName('admin', 'true') == 'true';
+  let joined = Utils.getParameterByName('joined', 'true') == 'true';
+  let human = Utils.getParameterByName('human', 'true') == 'true';
+
+  if (!registered)
+    return null;
+  if (admin && joined && human)
+    return kimUserId;
+  else if (admin && !joined)
+    return minnyUserId;
+  else if (!admin && !joined)
+    return reggieUserId;
+  if (admin && joined && human)
+    return kimUserId; // moldaviUserId would work too
+  else if (joined && !human)
+    return zekeUserId; // evanUserId would work too
+
+  throwError('Invalid combination of url params userId, registered, admin, joined, human');
 }
 
 const HUMAN_MISSION_HTML = `
