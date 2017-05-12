@@ -175,7 +175,8 @@ class EndToEndTest(unittest.TestCase):
     create.update({
       'groupId': self.Id('groupId', 2),
       'name': 'group Bar',
-      'membersCanAdd': True
+      'membersCanAdd': True,
+      'membersCanRemove': True,
     })
     self.Post('createGroup', create)
 
@@ -241,6 +242,8 @@ class EndToEndTest(unittest.TestCase):
     update['groupId'] = self.Id('groupId', 2)
     self.AssertOk('addPlayerToGroup', update)
     self.AssertFails('addPlayerToGroup', update)
+    self.AssertOk('removePlayerFromGroup', update)
+    self.AssertFails('removePlayerFromGroup', update)
 
     # Create and assign guns
     create = {'gunId': self.Id('gunId')}

@@ -586,7 +586,7 @@ def AddPlayerToGroup(request, firebase):
       or
       The player is the group owner.
     * otherPlayerId is not already in the group.
-    * Both players and the groupId all point to the same game. TODO
+    * Both players and the groupId all point to the same game.
 
   Args:
     groupId: The group to add a player to.
@@ -604,7 +604,7 @@ def AddPlayerToGroup(request, firebase):
 
   if 'playerId' not in request:
     raise InvalidInputError('playerId is required unless you are an admin (not supported yet).')
-  elif not firebase.get('/players/%s' % request['playerId'], 'userId'):
+  elif not helpers.EntityExists(firebase, 'playerId', request['playerId']):
     raise InvalidInputError('PlayerID %s does not exist.' % request['playerId'])
 
   results = []
@@ -636,6 +636,69 @@ def AddPlayerToGroup(request, firebase):
 
   results.append(firebase.put('/groups/%s/players' % group, otherPlayer, True))
   results.append(AddPlayerGroupMappings(firebase, group, otherPlayer))
+  return results
+
+
+def RemovePlayerFromGroup(request, firebase):
+  """Remove a player from a group.
+
+  Either a member of the group or the admin adds a player.
+
+  Validation:
+    * Player doing the removing is a member of the group AND the group supports removing
+      or
+      The player is the group owner.
+    * otherPlayerId is in the group.
+    * Both players and the groupId all point to the same game.
+
+  Args:
+    groupId: The group to remove a player from.
+    playerId: The player doing the removing (unless an admin).
+    otherPlayerId: The player being removed.
+
+  Firebase entries:
+    /groups/%(groupId)/players/%(playerId)
+    /players/%(playerId)/chatRooms/
+    /players/%(playerId)/missions/
+  """
+  valid_args = ['groupId', 'playerId', 'otherPlayerId']
+  required_args = ['groupId', 'otherPlayerId']
+  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+
+  if 'playerId' not in request:
+    raise InvalidInputError('playerId is required unless you are an admin (not supported yet).')
+  elif not helpers.EntityExists(firebase, 'playerId', request['playerId']):
+    raise InvalidInputError('PlayerID %s does not exist.' % request['playerId'])
+
+  results = []
+
+  group = request['groupId']
+  player = request['playerId']
+  otherPlayer = request['otherPlayerId']
+  game = helpers.PlayerToGame(firebase, player)
+
+  if game != helpers.PlayerToGame(firebase, otherPlayer):
+    raise InvalidInputError('Other player is not in the same game as you.')
+  if game != helpers.GroupToGame(firebase, group):
+    raise InvalidInputError('That group is not part of your active game.')
+
+  # Validate otherPlayer is in the group
+  if not firebase.get('/groups/%s/players' % group, otherPlayer):
+    raise InvalidInputError('Other player is not in the chat.')
+
+  # Player must be the owner or (be in the group and group allows adding).
+  if player == firebase.get('/groups/%s' % group, 'ownerPlayerId'):
+    pass
+  else:
+    # Validate player is in the chat room.
+    if not firebase.get('/groups/%s/players' % group, player):
+      raise InvalidInputError('You are not a member of that group nor an owner.')
+    # Validate players are allowed to remove other players.
+    if not firebase.get('/groups/%s' % group, 'membersCanRemove'):
+      raise InvalidInputError('Players are not allowed to remove from this group.')
+
+  results.append(firebase.delete('/groups/%s/players' % group, otherPlayer))
+  results.append(RemovePlayerGroupMappings(firebase, group, otherPlayer))
   return results
 
 
