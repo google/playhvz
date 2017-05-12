@@ -11,13 +11,10 @@ import {
   templateUrl: 'home.html'
 })
 export class HomePage {
+  authToken: string;
 
   constructor(public googleAuth: GoogleAuth, public user: User, public push: Push) {
-  this.googleAuth.login().then((authLoginResult) => {
-    console.log("BLAHDSLKFJSLDFJS");
-    console.log('user: ', authLoginResult);  
-    console.log(authLoginResult.token); 
-  });
+    this.login();
 
   	this.push.register().then((t: PushToken) => {
   		return this.push.saveToken(t);})
@@ -25,19 +22,24 @@ export class HomePage {
   		console.log('Token saved:', t.token);
 	   });
 
-	this.push.rx.notification()
-  		.subscribe((msg) => {
-    	alert(msg.title + ': ' + msg.text);
-  	});
+  	this.push.rx.notification()
+    		.subscribe((msg) => {
+      	alert(msg.title + ': ' + msg.text);
+    	});
   }
 
-  loginUser() {
-    console.log("SPLIG");
-    this.googleAuth.login().then((authLoginResult) => {
-    console.log("BLAHDSLKFJSLDFJS");
-    console.log('user: ', authLoginResult);  
-    console.log(authLoginResult.token); 
-  });
+  login() {
+    this.googleAuth.login().then(
+      (authLoginResult) => {
+        this.authToken = authLoginResult.token; 
+      },
+      (err) => {
+        alert('Oops! Trouble signing you in. Error: ' + err);
+      }
+    );
   }
 
+  logout() {
+    this.googleAuth.logout();
+  }
 }

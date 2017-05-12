@@ -12,8 +12,14 @@ const cloudSettings: CloudSettings = {
   'core': {
     'app_id': '59b0c21d'
   },
+  'auth': {
+    'google': {
+      'webClientId': '*****replacewithWebClientIdFromDoc****',
+      'scope': ['https://www.googleapis.com/auth/userinfo.email'],
+    }
+  },
   'push': {
-    'sender_id': '625580091272', // dev
+    'sender_id': '625580091272',
     'pluginConfig': {
       'ios': {
         'badge': true,
