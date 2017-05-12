@@ -8,6 +8,7 @@ fi
 bash ./setup_secrets.bash
 cmd=( pip install -r requirements.txt -t lib )
 [[ -d lib ]] && cmd+=( --upgrade )
+"${cmd[@]}"
 gcloud app deploy app.yaml
 
 # vim:ts=2:sw=2:expandtab
