@@ -1,0 +1,5 @@
+# [START app_yaml]
+runtime: nodejs
+env: flex
+service: test-frontend
+# [END app_yaml]

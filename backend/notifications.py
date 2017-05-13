@@ -2,7 +2,7 @@ import logging
 import time
 
 import ionic
-import secrets
+import secrets_
 
 def HandleNotification(firebase, ionic_client, notification_id, notification):
   """Helper function to propogate a notification."""

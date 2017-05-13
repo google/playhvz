@@ -58,9 +58,10 @@ def ValidateInputs(request, firebase, required, valid):
       key = key[1:]
     r_keys.add(key)
   supplied = set(request.keys())
+  print supplied
 
   if r_keys - supplied:
-    raise InvalidInputError('Missing required input.\n Missing: %s.\n Required: %s' % (
+    raise api_calls.InvalidInputError('Missing required input.\n Missing: %s.\n Required: %s' % (
         ', '.join(r_keys - supplied), ', '.join(required)))
 
   # Any keys fooId must start "foo-XXX"
@@ -69,10 +70,10 @@ def ValidateInputs(request, firebase, required, valid):
       if key in KEY_TO_ENTITY:
         entity = KEY_TO_ENTITY[key]
         if not request[key].startswith('%s-' % entity[:-2]):
-          raise InvalidInputError('Id %s="%s" must start with "%s-".' % (
+          raise api_calls.InvalidInputError('Id %s="%s" must start with "%s-".' % (
               key, request[key], entity[:-2]))
       else:
-        raise InvalidInputError('Key %s looks like an undefined entity.' % key)
+        raise api_calls.InvalidInputError('Key %s looks like an undefined entity.' % key)
 
 
   for key in valid:
@@ -87,14 +88,14 @@ def ValidateInputs(request, firebase, required, valid):
     if key in KEY_TO_ENTITY and KEY_TO_ENTITY[key] in ENTITY_PATH:
       exists = EntityExists(firebase, key, data)
       if negate and exists:
-        raise InvalidInputError('%s %s must not exist but was found.' % (key, data))
+        raise api_calls.InvalidInputError('%s %s must not exist but was found.' % (key, data))
       elif not negate and not exists:
-        raise InvalidInputError('%s %s is not valid.' % (key, data))
+        raise api_calls.InvalidInputError('%s %s is not valid.' % (key, data))
     elif key in ('allegiance', 'allegianceFilter'):
       if data not in constants.ALLEGIANCES:
-        raise InvalidInputError('Allegiance %s is not valid.' % data)
+        raise api_calls.InvalidInputError('Allegiance %s is not valid.' % data)
     else:
-      raise InvalidInputError('Unhandled arg validation: "%s"' % key)
+      raise api_calls.InvalidInputError('Unhandled arg validation: "%s"' % key)
 
 
 def GroupToGame(firebase, group):
@@ -111,11 +112,40 @@ def GroupToEntity(firebase, group, entity):
 
 
 def GroupToMissions(firebase, group):
-  return GroupToEntity(firebase, group, 'missions')
+  missions = []
+  game = GroupToGame(firebase, group)
+  potentials = firebase.get('/games/%s/missions/' % game, None)
+  if not potentials:
+    return missions
+  for mission in potentials:
+    print 'unprocessed mission:'
+    print mission
+    if firebase.get('/missions/%s' % mission, 'groupId') == group:
+      print 'mission:'
+      print mission
+      missions.append(mission)
+    else:
+      print firebase.get('/missions/%s' % mission, 'groupId')
+  return missions
 
 
 def GroupToChats(firebase, group):
-  return GroupToEntity(firebase, group, 'chatRooms')
+  chats = []
+  game = GroupToGame(firebase, group)
+  chatRooms = firebase.get('/games/%s/chatRooms' % game, None)
+  if not chatRooms:
+    return chats
+  for room in chatRooms:
+    print 'unprocessed room:'
+    print room
+    if firebase.get('/chatRooms/%s' % room, 'groupId') == group:
+      print 'room: '
+      print room
+      chats.append(room)
+    else:
+      print firebase.get('/chatRooms/%s' % room, 'groupId')
+
+  return chats
 
 
 def PlayerToGame(firebase, player):
@@ -134,5 +164,3 @@ def ChatToGame(firebase, chat):
   if group is None:
     return None
   return GroupToGame(group)
-
-

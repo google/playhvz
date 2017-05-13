@@ -61,7 +61,7 @@ getPlayerId(userId, gameId) {
   "" + root.users[userId].playerIdsByGameId[gameId]
 }
 getCurrentPlayerId(gameId) {
-  getPlayerId(auth.uid, gameId)
+  getPlayerId('user-' + auth.uid, gameId)
 }
 getCurrentGamePlayer(gameId) {
   getGamePlayer(gameId, getCurrentPlayerId(gameId))
@@ -70,7 +70,7 @@ getPrivatePlayer(userId, playerId) {
   root.players[playerId]
 }
 getCurrentPrivatePlayer(gameId) {
-  getPrivatePlayer(auth.uid, getCurrentPlayerId(gameId))
+  getPrivatePlayer('user-' + auth.uid, getCurrentPlayerId(gameId))
 }
 
 isMember(chatRoom, playerId) {
@@ -78,11 +78,11 @@ isMember(chatRoom, playerId) {
 }
 
 isAdmin(gameId) {
-  root.games[gameId].admins[auth.uid] != null
+  root.games[gameId].admins['user-' + auth.uid] != null
 }
 
 isServer() {
-  auth.uid == 'ZiD9uLhDnrLq2n416MjWjn0JOrci6H0oGm7bKyVN'
+  'user-' + auth.uid == '6Wz8DUB0hxaDhGf5hNT1yetQ3H3pHhTHNvKil9Vb'
 }
 
 type Message {
@@ -257,14 +257,14 @@ type PrivatePlayer {
   gameId: GameId;
   userId: UserId;
   notifications: Map<NotificationCategoryId, Map<NotificationId, Notification>>;
-  lives: Map<LifeId, PrivatePlayerLife>;
+  lifecodes: Map<LifeId, PrivatePlayerLife>;
   chatRoomMembershipsByChatRoomId: Map<ChatRoomId, Empty>;
   beSecretZombie: Boolean;
 
   read() {
     isServer() ||
     isAdmin(this.gameId) ||
-    auth.uid == this.userId
+    'user-' + auth.uid == this.userId
   }
   validate() {
     key() == this.gameId && // Get rid of this once https://github.com/firebase/bolt/issues/95 is resolved
@@ -281,7 +281,7 @@ type User {
   }
   read() {
     isServer() ||
-    auth.uid == key()
+    'user-' + auth.uid == key()
   }
 }
 
@@ -321,9 +321,9 @@ type GameNotificationCategory extends Empty {
 
 type Game {
   gameId: GameId; // Get rid of this once https://github.com/firebase/bolt/issues/95 is resolved
-  adminUserIds: Map<UserId, Admin>;
-  chatRoomIds: Map<ChatRoomId, GameChatRoom>;
-  missionIds: Map<MissionId, GameMission>;
+  adminUser: Map<UserId, Admin>;
+  chatRooms: Map<ChatRoomId, GameChatRoom>;
+  mission: Map<MissionId, GameMission>;
   name: String;
   notificationCategoryIds: Map<NotificationCategoryId, GameNotificationCategory>;
   players: Map<PlayerId, GamePlayer>;

@@ -1,7 +1,7 @@
 runtime: python27
 api_version: 1
 threadsafe: true
-service: default
+service: test-backend
 
 handlers:
 - url: /.*
@@ -9,4 +9,4 @@ handlers:
 
 env_variables:
   # Replace with your Firebase project ID.
-  FIREBASE_PROJECT_ID: 'trogdors-29fa4'
+  FIREBASE_PROJECT_ID: 'humansvszombies-24348'

@@ -55,7 +55,7 @@ class NormalRequester {
             (urlParamsStr && "&") +
             key + "=" + encodeURIComponent(urlParams[key]);
       }
-      let url = this.serverUrl + 'api/' + path + (urlParamsStr && "?" + urlParamsStr);
+      let url = this.serverUrl + '/api/' + path + (urlParamsStr && "?" + urlParamsStr);
       request.open(verb, url, true);
 
       let headers = Utils.copyOf(this.headers);
@@ -67,8 +67,11 @@ class NormalRequester {
       body.userToken = userToken;
 
       if (body) {
+				console.log("body found");
+				console.log(JSON.stringify(body));
         request.send(JSON.stringify(body));
       } else {
+				console.log("no body");
         request.send();
       }
     });

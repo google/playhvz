@@ -51,7 +51,7 @@ paper-input-container {
           type: String,
           value: () => {
             var env = Utils.getParameterByName('env');
-            var defaultEnv = 'fake';
+            var defaultEnv = 'localprod';
             if (window.location.hostname == "dev.googlehvz.com")
               defaultEnv = 'env';
             if (window.location.hostname == "googlehvz.com")

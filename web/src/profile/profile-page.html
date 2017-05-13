@@ -19,7 +19,7 @@
         page: String,
         lifeCode: {
           type: String,
-          computed: 'computeLifeCode_(player.allegiance, player.lives.length)',
+          computed: 'computeLifeCode_(player.allegiance, player.lifecodes.length)',
         }
       },
 
@@ -31,8 +31,8 @@
 
       computeLifeCode_() {
         if (this.player.allegiance == 'resistance') {
-          if (this.player.lives.length) {
-            return this.player.lives[this.player.lives.length - 1].code;
+          if (this.player.lifecodes.length) {
+            return this.player.lifecodes[this.player.lifecodes.length - 1].code;
           }
         }
         return null;

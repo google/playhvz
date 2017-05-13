@@ -20,7 +20,7 @@ function newUser(id, args) {
 const PRIVATE_PLAYER_PROPERTIES = ["gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantsToBeSecretZombie", "gotEquipment", "notes"];
 const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
 const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "mobile", "server", "client"];
-const PRIVATE_PLAYER_COLLECTIONS = ["lives"];
+const PRIVATE_PLAYER_COLLECTIONS = ["lifecodes", "chatRooms"];
 
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
@@ -203,4 +203,3 @@ function newReward(id, args) {
   Utils.addEmptyLists(obj, REWARD_COLLECTIONS);
   return obj;
 }
-

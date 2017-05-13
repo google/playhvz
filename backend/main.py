@@ -12,7 +12,7 @@ import requests_toolbelt.adapters.appengine
 import api_calls
 import constants
 import notifications
-import secrets
+import secrets_ as secrets
 
 
 requests_toolbelt.adapters.appengine.monkeypatch()
@@ -29,7 +29,7 @@ def GetFirebase():
     auth = firebase.FirebaseAuthentication(
         secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
-        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+        'https://humansvszombies-24348.firebaseio.com', authentication=auth)
     g._database = db
   return db
 
@@ -91,6 +91,7 @@ methods = {
   'registerUserDevice': api_calls.RegisterUserDevice,
   'updateNotification': api_calls.UpdateNotification,
   'markNotificationSeen': api_calls.MarkNotificationSeen,
+  'selfInfect': api_calls.SelfInfect,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
 }
@@ -133,7 +134,12 @@ def RouteRequest(method):
   if method not in methods:
     raise AppError('Invalid method %s' % method)
   f = methods[method]
-
+  print 'args: '
+  print request.args
+  print 'json: '
+  print request.get_json()
+  print 'data: '
+  print request.get_data()
   return jsonify(f(request.get_json(), GetFirebase()))
 
 # vim:ts=2:sw=2:expandtab

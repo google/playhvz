@@ -1,3 +1,4 @@
+import datetime
 import logging
 import random
 import time
@@ -5,12 +6,17 @@ import textwrap
 
 import constants
 import db_helpers as helpers
-import secrets
+import secrets_
 
 
 class InvalidInputError(Exception):
   """Error used when the inputs fail to pass validation."""
-  pass
+  def __init__(self, value):
+    print value
+    self.parameter = value
+  def __str__(self):
+    print 'invalid input: ' + repr(self.parameter)
+    return 'invalid input: ' + repr(self.parameter)
 
 
 # Used for trawling the full DB.
@@ -30,6 +36,8 @@ def Register(request, firebase):
   Firebase entries:
     /users/%(userId)
   """
+  print "Register: "
+  print request
   valid_args = ['!userId']
   required_args = list(valid_args)
   required_args.extend(['name'])
@@ -249,10 +257,15 @@ def AddPlayer(request, firebase):
   player_info = {'gameId': game}
   results.append(firebase.put('/users/%s/players' % user, player, player_info))
 
+  if request['startAsZombie'] and request['startAsZombie'] == 'yes':
+    allegiance = 'horde'
+  else:
+    allegiance = 'resistance'
+
   player_info = {
     'gameId': game,
     'userId': user,
-    'canInfect': (request['startAsZombie'] or request['beSecretZombie']),
+    'canInfect': (allegiance == 'horde'),
     'needGun' : request['needGun'],
     'gotEquipment' : request['gotEquipment'],
     'startAsZombie' : request['startAsZombie'],
@@ -269,11 +282,6 @@ def AddPlayer(request, firebase):
   volunteer = {v[4].lower() + v[5:]: request[v] for v in constants.PLAYER_VOLUNTEER_ARGS}
   results.append(firebase.put('/players/%s' % player, 'volunteer', volunteer))
 
-  if request['startAsZombie']:
-    allegiance = 'horde'
-  else:
-    allegiance = 'resistance'
-
   game_info = {
     'number': random.randint(0, 99) + 100 * len(firebase.get('/players', None, {'shallow': True})),
     'userId' : user,
@@ -284,6 +292,19 @@ def AddPlayer(request, firebase):
     'allegiance': allegiance,
   }
   results.append(firebase.put('/games/%s/players' % game, player, game_info))
+
+  lives = {}
+  if allegiance == 'resistance':
+    lifecode = 'life-' + str(random.randint(0,999)) + '-' + request['name'][0:3]
+    lives = {lifecode: True}
+    results.append(firebase.put('/players/%s' % player, 'lifecodes', lives))
+
+  groups = firebase.get('/games/%s/groups' % game, None, {'shallow': True})
+  starter_groups = [g for g in groups if g.find(allegiance) > -1 ]
+
+  for group in starter_groups:
+    results.append(firebase.put('groups/%s/memberships' % group, player, True))
+    results.append(AddPlayerGroupMappings(firebase, group, player))
 
   return results
 
@@ -1025,6 +1046,42 @@ def MarkNotificationSeen(request, firebase):
   }
   return firebase.patch('/player/%s/notifications/%s' % (
       request['playerId'], request['notificationId']), put_data)
+
+def SelfInfect(request, firebase):
+  results = []
+  valid_args = ['playerId']
+  required_args = list(valid_args)
+  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+
+  player = request['playerId']
+  game = helpers.PlayerToGame(firebase, player)
+
+  game_player_info = {'allegiance': 'horde'}
+  results.append(firebase.patch('/games/%s/players/%s' % (game, player), game_player_info))
+  player_info = {'canInfect': 'Yes'}
+  results.append(firebase.patch('/players/%s' % player, player_info))
+  results.append(OnAllegianceChange(player, game, 'horde', firebase))
+
+def OnAllegianceChange(player, game, allegiance, firebase):
+  results = []
+
+  groups = firebase.get('/games/%s/groups' % game, None, {'shallow': True})
+  for group in groups:
+    if not firebase.get('/groups/%s/memberships' % group, player):
+      continue
+    allegiance_filter = firebase.get('/groups/%s' % group, 'allegianceFilter')
+    if allegiance_filter != 'none' and allegiance_filter != allegiance:
+      results.append(firebase.delete('/groups/%s/memberships' % group, player))
+      results.append(RemovePlayerGroupMappings(firebase, group, player))
+
+  starter_groups = [g for g in groups if g.find(allegiance) > -1 ]
+  print 'starters:'
+  print starter_groups
+
+  for group in starter_groups:
+    results.append(firebase.put('groups/%s/memberships' % group, player, True))
+    results.append(AddPlayerGroupMappings(firebase, group, player))
+
 
 
 def RegisterUserDevice(request, firebase):

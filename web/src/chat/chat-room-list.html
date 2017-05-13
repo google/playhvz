@@ -19,7 +19,7 @@
         observers: [
           'onChatRoomsUpdated_(game, player.chatRoomMemberships.length)',
         ],
-        
+
         listeners: {
           'tap': 'captureTap_',
         },
@@ -62,7 +62,7 @@
           let name =  this.player.name + " & HvZ CDC";
           let groupId = Bridge.GroupId.generate('withadmins');
           this.bridge.createGroup({
-            name: "Group for " + player.id + "'s chat room",
+            name: "Group for " + this.player.id + "'s chat room",
             groupId: groupId,
             gameId: this.game.id,
             allegianceFilter: 'none',

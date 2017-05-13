@@ -53,6 +53,7 @@ class Bridge {
   }
 
   static makeInnerBridge_(env, appWriter) {
+		env = 'localprod';
     if (env == 'fake') {
       return new FakeBridge(appWriter);
     } else {
@@ -69,14 +70,14 @@ class Bridge {
           messagingSenderId: "625580091272"
         };
       } else if (env == 'localprod') {
-        serverUrl = "http://127.0.0.1:8080/"; // we dont have a dev frontend
+        serverUrl = "https://test-backend-dot-humansvszombies-24348.appspot.com"; // we dont have a dev frontend
         config = {
-          apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
-          authDomain: "trogdors-29fa4.firebaseapp.com",
-          databaseURL: "https://trogdors-29fa4.firebaseio.com",
-          projectId: "trogdors-29fa4",
-          storageBucket: "trogdors-29fa4.appspot.com",
-          messagingSenderId: "625580091272"
+          apiKey: "AIzaSyBolWBgSu9r1vwLY4_0FX_7ARzoUJGxz1U",
+          authDomain: "humansvszombies-24348.firebaseapp.com",
+          databaseURL: "https://humansvszombies-24348.firebaseio.com",
+          projectId: "humansvszombies-24348",
+          storageBucket: "humansvszombies-24348.appspot.com",
+          messagingSenderId: "1049953798815"
         };
       } else if (env == 'dev') {
         serverUrl = "trololol"; // we dont have a dev frontend

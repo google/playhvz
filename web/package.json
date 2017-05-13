@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "firebase serve"
+		"start": "firebase deploy"
   },
   "repository": {
     "type": "git",
@@ -16,7 +16,11 @@
   },
   "homepage": "https://github.com/Verdagon/ghvz#readme",
   "dependencies": {
-    "firebase": "^3.9.0"
+    "@google-cloud/storage": "^1.1.0",
+    "appengine": "git://github.com/GoogleCloudPlatform/appengine-nodejs.git",
+    "express": "^4.15.2",
+    "firebase": "~3.9.0",
+		"firebase-tools": "^3.7.0"
   },
   "devDependencies": {
     "bower": "^1.8.0",

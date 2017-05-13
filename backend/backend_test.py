@@ -22,7 +22,7 @@ class EndToEndTest(unittest.TestCase):
     auth = firebase.FirebaseAuthentication(
         secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
-        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+        'https://humansvszombies-24348.firebaseio.com', authentication=auth)
     return db
 
   def AssertOk(self, method, data):

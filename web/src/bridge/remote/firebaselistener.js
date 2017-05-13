@@ -107,6 +107,8 @@ class FirebaseListener {
       if (properties.includes(change.getKey())) {
         setCallback(change.getKey(), change.val());
       } else {
+				console.log("properties", properties);
+				console.log("ignored", ignored);
         assert(
             ignored.includes(change.getKey()),
             "Unexpected child_added!", "Child key:", change.getKey(), "Child value:", change.val(), arguments);
@@ -542,4 +544,3 @@ class FirebaseListener {
     });
   }
 }
-
