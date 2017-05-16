@@ -72,6 +72,7 @@ methods = {
   'createGroup': api_calls.AddGroup,
   'updateGroup': api_calls.UpdateGroup,
   'addPlayerToGroup': api_calls.AddPlayerToGroup,
+  'removePlayerFromGroup': api_calls.RemovePlayerFromGroup,
   'createPlayer': api_calls.AddPlayer,
   'addGun': api_calls.AddGun,
   'assignGun': api_calls.AssignGun,

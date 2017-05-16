@@ -79,13 +79,12 @@
       "autoRemove": false,
       "gameId": "game-%(ident)s",
       "membersCanAdd": true,
-      "membersCanRemove": false,
+      "membersCanRemove": true,
       "ownerPlayerId": "player-%(ident)s",
       "name": "group Bar",
       "players": {
         "player-%(ident)s": true,
-        "player-%(ident)s-2": true,
-        "player-%(ident)s-3": true
+        "player-%(ident)s-2": true
       }
     },
     "group-%(ident)s": {
