@@ -46,7 +46,7 @@ if ! [[ -r "$conf" ]]; then
 fi
 
 dest="${0%/*}"
-[[ "$0" != */* ]] && dest='./'
+[[ "$0" != */* ]] && dest='.'
 cp "$conf" "$dest/secrets.py"
 
 printf 'Done! Created %s and copied it to %s\n' "$conf" "$dest/secrets.py"

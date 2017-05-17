@@ -32,6 +32,11 @@ ENTITY_PATH = {
 }
 
 
+class InvalidInputError(Exception):
+  """Error used when the inputs fail to pass validation."""
+  pass
+
+
 def EntityExists(firebase, key, value):
   path, item = ENTITY_PATH[KEY_TO_ENTITY[key]]
   return (firebase.get(path % value, item) is not None)
@@ -121,6 +126,12 @@ def GroupToChats(firebase, group):
 def PlayerToGame(firebase, player):
   """Map a player to a game."""
   return firebase.get('/players/%s' % player, 'gameId')
+
+
+def PlayerAllegiance(firebase, player):
+  """Map a player to an allegiance."""
+  game = PlayerToGame(firebase, player)
+  return firebase.get('/games/%s/players/%s' % (game, player), 'allegiance')
 
 
 def ChatToGroup(firebase, chat):
