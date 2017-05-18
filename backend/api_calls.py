@@ -1146,13 +1146,39 @@ def RegisterUserDevice(request, firebase):
 
   Firebase entries:
     /users/%(userId)/deviceToken
-"""
+  """
   valid_args = ['userId']
   required_args = list(valid_args)
   required_args.extend(['deviceToken'])
   helpers.ValidateInputs(request, firebase, required_args, valid_args)
   put_data = {'deviceToken': request['deviceToken']}
   return firebase.patch('/users/%s', put_data)
+
+
+def AddLife(request, firebase):
+  """Add a new player life.
+
+  Validation:
+
+  Args:
+    playerId: The player who gets the new life.
+
+  Firebase entry:
+    /game/%(gameId)/players/%(playerId)/lives
+    /lives/%(lifeCode)
+  """
+  valid_args = ['playerId']
+  required_args = list(valid_args)
+  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+
+  player_id = request['playerId']
+  game_id = helpers.PlayerToGame(firebase, player_id)
+  life_code = RandomWords(3)
+
+  results = []
+  results.append(firebase.put('/games/%s/players/%s/lives' % (game_id, player_id), life_code, True))
+  results.append(firebase.put('/lives', life_code, player_id))
+  return results
 
 
 def DeleteTestData(request, firebase):

@@ -92,6 +92,7 @@ methods = {
   'registerUserDevice': api_calls.RegisterUserDevice,
   'updateNotification': api_calls.UpdateNotification,
   'markNotificationSeen': api_calls.MarkNotificationSeen,
+  'addLife': api_calls.AddLife,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
 }
