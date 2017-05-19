@@ -38,7 +38,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getGamePath(null),
         null,
-        newGame(gameId, args));
+        new Model.Game(gameId, args));
     this.addAdmin({gameId: gameId, userId: adminUserId});
   }
   setAdminContact(args) {
@@ -60,7 +60,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getAdminPath(gameId, null),
         null,
-        newAdmin(userId, {userId: userId}));
+        new Model.Admin(userId, {userId: userId}));
   }
   createPlayer(args) {
     let {gameId, playerId, userId} = args;
@@ -68,7 +68,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getPlayerPath(gameId, null),
         null,
-        newPlayer(playerId, Utils.merge(args, {
+        new Model.Player(playerId, Utils.merge(args, {
             allegiance: '',
             userId: userId,
             canInfect: false,
@@ -78,7 +78,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getUserPlayerPath(userId, null),
         null,
-        newUserPlayer(playerId, {
+        new Model.UserPlayer(playerId, {
             gameId: gameId,
             playerId: playerId
         }));
@@ -88,7 +88,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getGroupPath(gameId, null),
         null,
-        newGroup(groupId, args));
+        new Model.Group(groupId, args));
   }
   updateGroup(args) {
     throwError('Implement!');
@@ -96,13 +96,32 @@ class FakeServer {
   setLastSeenChatTime(args) {
     throwError('Implement!');
   }
+  createMap(args) {
+    let {groupId, mapId} = args;
+    let gameId = this.reader.getGameIdForGroupId(groupId);
+    this.writer.insert(
+        this.reader.getMapPath(gameId, null),
+        null,
+        new Model.Map(mapId, args));
+  }
+  updateMap(args) {
+    throwError('Implement!');
+  }
+  addPoint(args) {
+    let {pointId, mapId} = args;
+    let gameId = this.reader.getGameIdForMapId(mapId);
+    this.writer.insert(
+        this.reader.getPointPath(gameId, mapId, null),
+        null,
+        new Model.Point(pointId, args));
+  }
   createChatRoom(args) {
     let {groupId, chatRoomId} = args;
     let gameId = this.reader.getGameIdForGroupId(groupId);
     this.writer.insert(
         this.reader.getChatRoomPath(gameId, null),
         null,
-        newChatRoom(chatRoomId, Utils.merge(args, {
+        new Model.ChatRoom(chatRoomId, Utils.merge(args, {
           groupId: groupId,
         })));
   }
@@ -136,11 +155,11 @@ class FakeServer {
     this.writer.insert(
         this.reader.getMembershipPath(gameId, groupId, null),
         null,
-        newGroupMembership(otherPlayerId, {playerId: otherPlayerId}));
+        new Model.GroupMembership(otherPlayerId, {playerId: otherPlayerId}));
     this.writer.insert(
         this.reader.getPlayerGroupMembershipPath(gameId, otherPlayerId, null),
         null,
-        newPlayerGroupMembership(groupId, {groupId: groupId}));
+        new Model.PlayerGroupMembership(groupId, {groupId: groupId}));
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.groupId == groupId) {
@@ -185,7 +204,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null),
         null,
-        newPlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId}));
+        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId}));
   }
 
   removePlayerFromChatRoom_(gameId, groupId, chatRoomId, playerId) {
@@ -198,7 +217,7 @@ class FakeServer {
   }
 
   sendChatMessage(args) {
-    let {chatRoomId, playerId, messageId, message} = args;
+    let {chatRoomId, playerId, messageId} = args;
 
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     let game = this.database.gamesById[gameId];
@@ -209,7 +228,7 @@ class FakeServer {
       this.writer.insert(
           this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
           null,
-          newMessage(messageId, Utils.merge(args, {
+          new Model.Message(messageId, Utils.merge(args, {
             time: this.time,
             playerId: playerId,
           })));
@@ -217,12 +236,37 @@ class FakeServer {
       throw 'Can\'t send message to chat room without membership';
     }
   }
+
+  addChatMessageRequest(args) {
+    let {messageId, requestId} = args;
+    let chatRoomId = this.reader.getChatRoomIdForMessageId(messageId);
+    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
+    this.writer.insert(
+        this.reader.getRequestPath(gameId, chatRoomId, messageId, null),
+        null,
+        new Model.Request(requestId, Utils.merge(args, {
+          time: this.time,
+        })));
+  }
+
+  addChatMessageResponse(args) {
+    let {messageId, responseId} = args;
+    let chatRoomId = this.reader.getChatRoomIdForMessageId(messageId);
+    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
+    this.writer.insert(
+        this.reader.getResponsePath(gameId, chatRoomId, messageId, null),
+        null,
+        new Model.Response(responseId, Utils.merge(args, {
+          time: this.time,
+        })));
+  }
+
   addMission(args) {
     let {gameId, missionId} = args;
     this.writer.insert(
         this.reader.getMissionPath(gameId, null),
         null,
-        newMission(missionId, args));
+        new Model.Mission(missionId, args));
   }
   updateMission(args) {
     let missionPath = this.reader.pathForId(missionId);
@@ -235,7 +279,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getRewardCategoryPath(gameId, null),
         null,
-        newRewardCategory(rewardCategoryId, args));
+        new Model.RewardCategory(rewardCategoryId, args));
   }
   updateRewardCategory(args) {
     let rewardCategoryPath = this.reader.pathForId(rewardCategoryId);
@@ -254,7 +298,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getNotificationCategoryPath(gameId, null),
         null,
-        newNotificationCategory(notificationCategoryId, args));
+        new Model.NotificationCategory(notificationCategoryId, args));
   }
   addNotification(args) {
     let {notificationCategoryId, notificationId, playerId} = args;
@@ -265,7 +309,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getNotificationPath(gameId, playerId, null),
         null,
-        newNotification(notificationId, properties));
+        new Model.Notification(notificationId, properties));
   }
   updateNotificationCategory(args) {
     let notificationCategoryPath = this.reader.pathForId(notificationCategoryId);
@@ -286,7 +330,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getRewardPath(gameId, rewardCategoryId, null),
         null,
-        newReward(rewardId, Utils.merge(args, {
+        new Model.Reward(rewardId, Utils.merge(args, {
           code: "" + Math.random(),
           rewardCategoryId: rewardCategoryId,
           playerId: null,
@@ -330,7 +374,7 @@ class FakeServer {
           this.writer.insert(
               playerPath.concat(["rewards"]),
               null,
-              newClaim(Bridge.ClaimId.generate(), {
+              new Model.Claim(Bridge.ClaimId.generate(), {
                 rewardCategoryId: rewardCategory.id,
                 rewardId: reward.id,
               }));
@@ -456,7 +500,7 @@ class FakeServer {
     this.writer.insert(
         infecteePlayerPath.concat(["infections"]),
         null,
-        newInfection(Bridge.InfectionId.generate(), {
+        new Model.Infection(Bridge.InfectionId.generate(), {
           infectorId: infectorPlayerId,
           time: this.time,
         }));
@@ -474,7 +518,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getLifePath(gameId, playerId, null),
         null,
-        newLife(lifeId, {
+        new Model.Life(lifeId, {
           code: code,
           time: this.time,
         }));
@@ -494,7 +538,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getQuizQuestionPath(gameId, null),
         null,
-        newQuizQuestion(quizQuestionId, args));
+        new Model.QuizQuestion(quizQuestionId, args));
   }
   addQuizAnswer(args) {
     let {quizAnswerId, quizQuestionId} = args;
@@ -502,6 +546,6 @@ class FakeServer {
     this.writer.insert(
         this.reader.getQuizAnswerPath(gameId, quizQuestionId, null),
         null,
-        newQuizAnswer(quizAnswerId, args));
+        new Model.QuizAnswer(quizAnswerId, args));
   }
 }

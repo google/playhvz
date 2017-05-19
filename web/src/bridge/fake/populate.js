@@ -158,7 +158,6 @@ function populateFakeServer(server) {
   server.joinResistance({playerId: moldaviPlayerId}, "zooble flipwoogly");
   
   var jackPlayerId = Bridge.PlayerId.generate();
-  server.addAdmin({gameId: gameId, userId: jackUserId});
   server.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 'Jack Slayer the Bean Slasher'));
   server.joinResistance({playerId: jackPlayerId}, "grobble forgbobbly");
   
@@ -175,8 +174,12 @@ function populateFakeServer(server) {
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'man what i would do for some garlic rolls!'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'https://www.youtube.com/watch?v=GrHPTWTSFgc'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
-  server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
+  let messageId = Bridge.MessageId.generate();
+  server.sendChatMessage({messageId: messageId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee?'});
+  server.addChatMessageRequest({requestId: Bridge.RequestId.generate(), messageId: messageId, playerId: jackPlayerId, type: 'ack'});
+  server.addChatMessageRequest({requestId: Bridge.RequestId.generate(), messageId: messageId, playerId: kimPlayerId, type: 'ack'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
+  server.addChatMessageResponse({responseId: Bridge.ResponseId.generate(), playerId: jackPlayerId, messageId: messageId, text: null});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
 
@@ -207,6 +210,13 @@ function populateFakeServer(server) {
   server.updatePlayer({playerId: zekePlayerId, profileImageUrl: 'https://s-media-cache-ak0.pinimg.com/736x/31/92/2e/31922e8b045a7ada368f774ce34e20c0.jpg'});
   server.updatePlayer({playerId: moldaviPlayerId, profileImageUrl: 'https://katiekhau.files.wordpress.com/2012/05/scan-9.jpeg'});
   server.updatePlayer({playerId: jackPlayerId, profileImageUrl: 'https://sdl-stickershop.line.naver.jp/products/0/0/1/1009925/android/main.png'});
+
+  var resistanceMapId = Bridge.MapId.generate();
+  server.createMap({mapId: resistanceMapId, groupId: resistanceGroupId, name: "Resistance Players"});
+  server.addPoint({pointId: Bridge.PointId.generate(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
+  server.addPoint({pointId: Bridge.PointId.generate(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
+  server.addPoint({pointId: Bridge.PointId.generate(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
+  server.addPoint({pointId: Bridge.PointId.generate(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
   
   server.sendChatMessage({messageId: Bridge.MessageId.generate(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'hi'});
 
@@ -362,14 +372,15 @@ function populateFakeServer(server) {
     return null;
   if (admin && joined && human)
     return kimUserId;
-  else if (admin && !joined)
+  if (admin && !joined)
     return minnyUserId;
-  else if (!admin && !joined)
+
+  if (!admin && !joined)
     return reggieUserId;
-  if (admin && joined && human)
-    return kimUserId; // moldaviUserId would work too
-  else if (joined && !human)
+  if (!admin && joined && !human)
     return zekeUserId; // evanUserId would work too
+  if (!admin && joined && human)
+    return jackUserId;
 
   throwError('Invalid combination of url params userId, registered, admin, joined, human');
 }

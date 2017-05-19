@@ -190,6 +190,23 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), chatRoomId)]);
     return path;
   }
+  getMapPath(gameId, mapId) {
+    assert(gameId);
+    assert(typeof mapId == 'string' || mapId == null);
+    let path = this.getGamePath(gameId).concat(["maps"]);
+    if (mapId)
+      path = path.concat([Utils.findIndexById(this.get(path), mapId)]);
+    return path;
+  }
+  getPointPath(gameId, mapId, pointId) {
+    assert(gameId);
+    assert(mapId);
+    assert(typeof pointId == 'string' || pointId == null);
+    let path = this.getMapPath(gameId, mapId).concat(["points"]);
+    if (pointId)
+      path = path.concat([Utils.findIndexById(this.get(path), pointId)]);
+    return path;
+  }
   // getChatRoomMembershipPath(gameId, chatRoomId, membershipId) {
   //   assert(gameId);
   //   assert(chatRoomId);
@@ -207,7 +224,26 @@ class PathFindingReader {
     if (messageId)
       path = path.concat([Utils.findIndexById(this.get(path), messageId)]);
     return path;
-    return obj;
+  }
+  getRequestPath(gameId, chatRoomId, messageId, requestId) {
+    assert(gameId);
+    assert(chatRoomId);
+    assert(messageId);
+    assert(typeof requestId == 'string' || requestId == null);
+    let path = this.getChatRoomMessagePath(gameId, chatRoomId, messageId).concat(["requests"]);
+    if (requestId)
+      path = path.concat([Utils.findIndexById(this.get(path), requestId)]);
+    return path;
+  }
+  getResponsePath(gameId, chatRoomId, messageId, responseId) {
+    assert(gameId);
+    assert(chatRoomId);
+    assert(messageId);
+    assert(typeof responseId == 'string' || responseId == null);
+    let path = this.getChatRoomMessagePath(gameId, chatRoomId, messageId).concat(["responses"]);
+    if (responseId)
+      path = path.concat([Utils.findIndexById(this.get(path), responseId)]);
+    return path;
   }
   getGameIdAndPlayerIdForNotificationId(notificationId) {
     let path = this.pathForId_(notificationId);
@@ -238,12 +274,20 @@ class PathFindingReader {
     else
       return null;
   }
+  getChatRoomIdForMessageId(messageId, expect) {
+    let path = this.pathForId_(messageId);
+    return this.source.get(path.slice(0, 4)).id;
+  }
   getGameIdForQuizQuestionId(quizQuestionId, expect) {
     let path = this.pathForId_(quizQuestionId);
     return this.source.get(path.slice(0, 2)).id;
   }
   getGameIdForChatRoomId(chatRoomId) {
     let path = this.pathForId_(chatRoomId);
+    return this.source.get(path.slice(0, 2)).id;
+  }
+  getGameIdForMapId(mapId) {
+    let path = this.pathForId_(mapId);
     return this.source.get(path.slice(0, 2)).id;
   }
   getGameIdForGroupId(groupId) {

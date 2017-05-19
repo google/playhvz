@@ -127,6 +127,10 @@ Bridge.GroupId = {
   generate: (note) => Utils.generateId('group', note),
   verify: (id) => id.startsWith('group-'),
 };
+Bridge.MapId = {
+  generate: (note) => Utils.generateId('map', note),
+  verify: (id) => id.startsWith('map-'),
+};
 Bridge.ChatRoomId = {
   generate: (note) => Utils.generateId('chatRoom', note),
   verify: (id) => id.startsWith('chatRoom-'),
@@ -134,6 +138,14 @@ Bridge.ChatRoomId = {
 Bridge.MessageId = {
   generate: (note) => Utils.generateId('message', note),
   verify: (id) => id.startsWith('message-'),
+};
+Bridge.RequestId = {
+  generate: (note) => Utils.generateId('request', note),
+  verify: (id) => id.startsWith('request-'),
+};
+Bridge.ResponseId = {
+  generate: (note) => Utils.generateId('response', note),
+  verify: (id) => id.startsWith('response-'),
 };
 Bridge.NotificationCategoryId = {
   generate: (note) => Utils.generateId('notification', note),
@@ -146,6 +158,10 @@ Bridge.NotificationId = {
 Bridge.RewardCategoryId = {
   generate: (note) => Utils.generateId('rewardCategory', note),
   verify: (id) => id.startsWith('rewardCategory-'),
+};
+Bridge.PointId = {
+  generate: (note) => Utils.generateId('point', note),
+  verify: (id) => id.startsWith('point-'),
 };
 Bridge.RewardId = {
   generate: (note) => Utils.generateId('reward', note),
@@ -354,6 +370,34 @@ Bridge.QuizAnswerId = {
     },
   });
 
+  const MAP_PROPERTIES = {
+    name: 'String',
+  };
+  serverMethods.set('createMap', {
+    required:
+        Utils.merge(
+            {mapId: '!MapId', groupId: 'GroupId'},
+            MAP_PROPERTIES)
+  });
+  serverMethods.set('updateMap', {
+    required: {mapId: 'MapId'},
+    optional: MAP_PROPERTIES,
+  });
+
+  const POINT_PROPERTIES = {
+    name: 'String',
+    playerId: '?PlayerId',
+    color: 'String',
+    latitude: 'Number',
+    longitude: 'Number',
+  };
+  serverMethods.set('addPoint', {
+    required:
+        Utils.merge(
+            {pointId: '!PointId', mapId: 'MapId'},
+            POINT_PROPERTIES)
+  });
+
   serverMethods.set('addPlayerToGroup', {
     required: {
       groupId: 'GroupId',
@@ -383,6 +427,24 @@ Bridge.QuizAnswerId = {
       chatRoomId: 'ChatRoomId',
       playerId: 'PlayerId',
       message: 'String',
+    },
+  });
+
+  serverMethods.set('addChatMessageRequest', {
+    required: {
+      requestId: '!RequestId',
+      messageId: 'MessageId',
+      playerId: 'PlayerId',
+      type: 'String',
+    },
+  });
+
+  serverMethods.set('addChatMessageResponse', {
+    required: {
+      responseId: '!ResponseId',
+      messageId: 'MessageId',
+      playerId: 'PlayerId',
+      text: '?String',
     },
   });
 
