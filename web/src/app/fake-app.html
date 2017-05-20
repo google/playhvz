@@ -16,54 +16,126 @@
 
         userOptions: Array,
 
-        url: String,
+        alreadyReadUrl: {
+          type: Boolean,
+          value: false,
+        },
 
         database: {
           type: Object,
-          value: () => ({}),
+          value: () => ({
+            games: [],
+            gamesById: {},
+            guns: [],
+            gunsById: {},
+            users: [],
+            usersById: {},
+          }),
         },
 
-        userIds: {
+        loadedUserIds: {
           type: Array,
           value: () => [],
+        },
+
+        focusedLoadedUserIndex: {
+          type: Number,
+          value: undefined,
         },
       },
 
       attached() {
+        let idGenerator = new FakeIdGenerator();
+
         let userIds = {
-          kimUserId: Bridge.UserId.generate(),
-          reggieUserId: Bridge.UserId.generate(),
-          minnyUserId: Bridge.UserId.generate(),
-          evanUserId: Bridge.UserId.generate(),
-          zekeUserId: Bridge.UserId.generate(),
-          moldaviUserId: Bridge.UserId.generate(),
-          jackUserId: Bridge.UserId.generate(),
+          kimUserId: idGenerator.newUserId(),
+          reggieUserId: idGenerator.newUserId(),
+          minnyUserId: idGenerator.newUserId(),
+          evanUserId: idGenerator.newUserId(),
+          zekeUserId: idGenerator.newUserId(),
+          moldaviUserId: idGenerator.newUserId(),
+          jackUserId: idGenerator.newUserId(),
         };
 
         this.userOptions = [
-          {loaded: false, name: 'reggie', userId: userIds.reggieUserId, description: 'Registered, not admin, not joined'},
-          {loaded: false, name: 'minny', userId: userIds.minnyUserId, description: 'Registered, admin, not joined'},
-          {loaded: false, name: 'kim', userId: userIds.kimUserId, description: 'Registered, admin, joined, human'},
-          {loaded: false, name: 'moldavi', userId: userIds.moldaviUserId, description: 'Registered, admin, joined, human, is keeper of the owls'},
-          {loaded: false, name: 'evan', userId: userIds.evanUserId, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, name: 'zeke', userId: userIds.zekeUserId, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, name: 'jack', userId: userIds.jackUserId, description: 'Registered, not admin, joined, human'},
+          {loaded: false, focused: false, url: '', name: 'reggie', userId: userIds.reggieUserId, description: 'Registered, not admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'minny', userId: userIds.minnyUserId, description: 'Registered, admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'kim', userId: userIds.kimUserId, description: 'Registered, admin, joined, human'},
+          {loaded: false, focused: false, url: '', name: 'moldavi', userId: userIds.moldaviUserId, description: 'Registered, admin, joined, human, is keeper of the owls'},
+          {loaded: false, focused: false, url: '', name: 'evan', userId: userIds.evanUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'zeke', userId: userIds.zekeUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'jack', userId: userIds.jackUserId, description: 'Registered, not admin, joined, human'},
         ];
 
         this.bridge = 
             new Bridge(
-                new FakeIdGenerator(),
+                idGenerator,
                 new FakeBridge(
                     userIds,
+                    idGenerator,
                     new BatchedPolymerWriter(this, 'database')));
+
+        let userName = Utils.getParameterByName('user', 'kim');
+        let userOption = this.userOptions.find((option) => option.name == userName);
+        if (userOption)
+          this.loadUser_(userOption.userId);
       },
 
-      loadUser_(e) {
-        e.model.option.userId 
+      // This will only read the url once.
+      // After that, will just load the main page.
+      getUrl_() {
+        if (this.alreadyReadUrl) {
+          return '';
+        } else {
+          this.alreadyReadUrl = true;
+          return window.location.pathname;
+        }
       },
 
-      unloadUser_(e) {
+      loadUser_(userId) {
+        let optionIndex = this.userOptions.findIndex((option) => option.userId == userId);
+        let option = this.userOptions[optionIndex];
 
+        if (option.focused) {
+          return;
+        }
+
+        if (this.focusedLoadedUserIndex != null) {
+          let focusedUserId = this.loadedUserIds[this.focusedLoadedUserIndex];
+          let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == focusedUserId);
+          this.set('userOptions.' + focusedOptionIndex + '.focused', false);
+        }
+        if (!option.loaded) {
+          this.push('loadedUserIds', userId);
+        }
+
+        this.focusedLoadedUserIndex = this.loadedUserIds.indexOf(userId);
+        this.set('userOptions.' + optionIndex + '.loaded', true);
+        this.set('userOptions.' + optionIndex + '.focused', true);
+      },
+
+      loadUserTapped_(e) {
+        this.loadUser_(e.model.option.userId);
+      },
+
+      unloadUserTapped_(e) {
+        let option = e.model.option;
+        let userId = option.userId;
+        let optionIndex = this.userOptions.indexOf(option);
+        let loadedUserIndex = this.loadedUserIds.indexOf(userId);
+
+        let focusedUserId = this.loadedUserIds[this.focusedLoadedUserIndex];
+        if (focusedUserId == userId) {
+          this.focusedLoadedUserIndex = this.loadedUserIds.length ? this.loadedUserIds.length - 1 : null;
+        }
+
+        this.splice('loadedUserIds', loadedUserIndex, 1);
+        this.set('userOptions.' + optionIndex + '.focused', false);
+        this.set('userOptions.' + optionIndex + '.loaded', false);
+
+        if (focusedUserId != userId) {
+          this.focusedLoadedUserIndex = this.loadedUserIds.indexOf(focusedUserId);
+        }
       },
     });
   });
@@ -78,48 +150,67 @@
   #options {
     display: flex;
     padding: 2px;
+    background-color: #add8e6;
+  }
+  .option {
+    height: 24px;
+    display: flex;
+    align-items: center;
   }
   paper-button {
     background-color: #03A9F4;
     color: white;
     padding: 0;
   }
+  .option[focused] paper-button {
+    background-color: black;
+  }
+  paper-icon-button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-right: 8px;
+  }
   #pages {
     flex-grow: 1;
   }
 </style>
 <template>
-  <div id="options">
-    <template is="dom-repeat" items="[[userOptions]]" as="option">
-      <div id$="[[option.name]]">
-        <paper-button
-            raised
-            hidden$="[[option.loaded]]"
-            on-tap="loadUser_">
-          [[option.name]]
-        </paper-button>
-
-        <paper-button
-            raised
-            hidden$="[[!option.loaded]]"
-            on-tap="loadUser_">
-          Unload [[option.name]]
-        </paper-button>
-      </div>
-      <paper-tooltip for="[[option.name]]">[[option.description]]</paper-tooltip>
-    </template>
-  </div>
-  <neon-animated-pages id="pages">
-    <template is="dom-repeat" items="[[userIds]]" as="userId">
+  <neon-animated-pages
+      id="pages"
+      selected="[[focusedLoadedUserIndex]]">
+    <template is="dom-repeat" items="[[loadedUserIds]]" as="userId">
       <neon-animatable>
         <ghvz-app
             bridge="[[bridge]]"
             database="[[database]]"
-            url="[[url]]"
+            url="[[getUrl_()]]"
             user-id="[[userId]]">
         </ghvz-app>
       </neon-animatable>
     </template>
   </neon-animated-pages>
+  <div id="options">
+    <template is="dom-repeat" items="[[userOptions]]" as="option">
+      <div>
+        <div class="option" focused$="[[option.focused]]">
+          <paper-button
+              raised
+              on-tap="loadUserTapped_">
+            [[option.name]]
+          </paper-button>
+
+          <paper-icon-button
+              hidden$="[[!option.loaded]]"
+              icon="icons:close"
+              on-tap="unloadUserTapped_">
+          </paper-icon-button>
+        </div>
+        <paper-tooltip fit-to-visible-bounds position="top">
+          [[option.description]]
+        </paper-tooltip>
+      </div>
+    </template>
+  </div>
 </template>
 </dom-module>

@@ -8,11 +8,10 @@
       is: 'ghvz-app',
 
       properties: {
-        env: String,
-
-        bridge: {
-          type: Object,
-        },
+        bridge: Object,
+        database: Object,
+        url: String,
+        userId: String,
 
         showSignInButton: {
           type: Boolean,
@@ -22,16 +21,6 @@
         showLoadingSpinner: {
           type: Boolean,
           value: true,
-        },
-
-        database: {
-          type: Object,
-          value: () => ({}),
-        },
-
-        userId: {
-          type: String,
-          value: undefined,
         },
 
         gameId: {
@@ -65,23 +54,25 @@
           type: String,
           value: '',
         },
+
+        url: String,
       },
 
       observers: [
-        'onUserIdChanged_(userId, database.users.length)',
-        'autoNavigate_(game.admins.length)',
+        'onUserIdChanged_(bridge, database, userId, database.users.length)',
+        'autoNavigate_(bridge, database, game.admins.length)',
         // 'onPlayerIdChanged_(playerId, game.playersById)'
-        'autoNavigate_(database.games.splices)',
-        'autoNavigate_(database.users.splices)',
-        'autoNavigate_(game.players.length)',
-        'autoNavigate_(game.players.splices)',
-        'autoNavigate_(user.players.length)',
-        'autoNavigate_(user.players.splices)',
-        'autoNavigate_(userId)',
-        'autoNavigate_(user)',
-        'autoNavigate_(gameId)',
-        'autoNavigate_(game)',
-        'autoNavigate_(playerId)',
+        'autoNavigate_(bridge, database, database.games.splices)',
+        'autoNavigate_(bridge, database, database.users.splices)',
+        'autoNavigate_(bridge, database, game.players.length)',
+        'autoNavigate_(bridge, database, game.players.splices)',
+        'autoNavigate_(bridge, database, user.players.length)',
+        'autoNavigate_(bridge, database, user.players.splices)',
+        'autoNavigate_(bridge, database, userId)',
+        'autoNavigate_(bridge, database, user)',
+        'autoNavigate_(bridge, database, gameId)',
+        'autoNavigate_(bridge, database, game)',
+        'autoNavigate_(bridge, database, playerId)',
       ],
 
       listeners: {
@@ -117,13 +108,14 @@
       // },
 
       attached() {
-        this.bridge = this.makeBridge_();
-        this.bridge.attemptAutoSignIn()
-            .then((userId) => this.userId = userId)
-            .catch((e) => {
-              this.userId = null
-            });
-        window.onpopstate = this.handlePopState_.bind(this);
+        // userId might have been given to us, such as when we're doing fake
+        if (!this.userId) {
+          this.bridge.attemptAutoSignIn()
+              .then((userId) => this.userId = userId)
+              .catch((e) => {
+                this.userId = null
+              });
+        }
       },
 
       makeBridgeDelegate_: function() {
@@ -225,7 +217,9 @@
           // while we're already reacting to something from it.
           this.async(() => {
             this.page = page;
-            window.history.replaceState({}, "", this.assembleUrl_(null, this.page));
+            this.fire('ghvz-replace-url', {
+              url: this.assembleUrl_(null, this.page),
+            });
           });
           return;
         }

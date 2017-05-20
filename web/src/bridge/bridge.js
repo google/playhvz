@@ -19,7 +19,7 @@ class Bridge {
           };
     }
 
-    for (let methodName in idGenerator) {
+    for (let methodName of Utils.getAllFuncNames(idGenerator)) {
       this[methodName] = (...args) => this.idGenerator[methodName](...args);
     }
   }
@@ -53,9 +53,12 @@ class Bridge {
       return Utils.isTimestampMs(value);
     if (typeName.startsWith('!'))
       typeName = typeName.slice(1);
-    assert(typeName in Bridge);
-    Bridge[typeName].verify(value);
-    // todo, put existence checks here
+
+    assert(('verify' + typeName) in this.idGenerator);
+    assert(value);
+
+    // Such as Bridge.UserId.verify
+    this.idGenerator['verify' + typeName](value);
   }
 }
 

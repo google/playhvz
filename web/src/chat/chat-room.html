@@ -89,7 +89,7 @@
             return;
           }
           this.bridge.sendChatMessage({
-            messageId: Bridge.MessageId.generate(), 
+            messageId: this.bridge.newMessageId(), 
             chatRoomId: this.chatRoom.id, 
             playerId: this.currentPlayer.id, 
             message: this.$.messageInput.value

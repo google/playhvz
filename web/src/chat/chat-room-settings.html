@@ -83,8 +83,8 @@
             membersCanRemove = this.$$("#membersCanRemove").checked;
           }
 
-          let groupId = Bridge.GroupId.generate();
-            var chatRoomId = Bridge.ChatRoomId.generate();
+          let groupId = this.bridge.newGroupId();
+            var chatRoomId = this.bridge.newChatRoomId();
           this.bridge.createGroup({
             name: "Group for " + player.id + "'s chat room",
             groupId: groupId,

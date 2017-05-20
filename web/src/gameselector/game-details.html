@@ -63,10 +63,10 @@
                 let gameId = properties.id;
                 if (!gameId.startsWith('game-'))
                   gameId = 'game-' + properties.id;
-                var resistanceGroupId = Bridge.GroupId.generate('resistance');
-                var resistanceChatRoomId = Bridge.ChatRoomId.generate();
-                var hordeGroupId = Bridge.GroupId.generate('horde');
-                var hordeChatRoomId = Bridge.ChatRoomId.generate();
+                var resistanceGroupId = this.bridge.newGroupId('resistance');
+                var resistanceChatRoomId = this.bridge.newChatRoomId();
+                var hordeGroupId = this.bridge.newGroupId('horde');
+                var hordeChatRoomId = this.bridge.newChatRoomId();
 
                 this.bridge.createGame({
                   gameId: gameId,
