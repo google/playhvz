@@ -56,7 +56,8 @@
     background-color: #03A9F4;
     color: white;
     margin: 0;
-    display: block;
+    /* This works around a mysterious polymer bug which causes buttons to disappear */
+    transform: translate3d(0px, 0px, 0px);
   }
 </style>
 <template>
