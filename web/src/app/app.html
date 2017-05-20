@@ -1,42 +1,3 @@
-<style>
-body {
-  font-family: 'Roboto', 'Noto', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-/* whoever designed the default paper-menu needs to be shot */
-paper-menu,
-paper-listbox {
-  padding: 0 !important;
-}
-paper-menu .iron-selected,
-paper-listbox .iron-selected {
-  font-weight: inherit !important;
-}
-paper-menu paper-item,
-paper-listbox paper-item {
-  min-height: 36px !important;
-  white-space: nowrap;
-}
-paper-listbox paper-item::before,
-paper-listbox paper-item::after,
-paper-menu paper-item::before,
-paper-menu paper-item::after {
-  display: none;
-}
-paper-listbox paper-item:hover,
-paper-menu paper-item:hover {
-  background-color: #F0F0F0 !important;
-  cursor: pointer;
-}
-
-paper-input-container {
-  padding: 0 !important;
-}
-</style>
-
 <dom-module id="ghvz-app">
 <script>
   // Not sure why this HTMLImports.whenReady is really needed.
@@ -47,28 +8,10 @@ paper-input-container {
       is: 'ghvz-app',
 
       properties: {
-        env: {
-          type: String,
-          value: () => {
-            var env = Utils.getParameterByName('env');
-            var defaultEnv = 'fake';
-            if (window.location.hostname == "dev.googlehvz.com")
-              defaultEnv = 'env';
-            if (window.location.hostname == "googlehvz.com")
-              defaultEnv = 'prod';
-            if (!env)
-              env = defaultEnv;
-            return env;
-          },
-        },
+        env: String,
 
         bridge: {
           type: Object,
-        },
-
-        isDesktop: {
-          type: Boolean,
-          value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
         },
 
         showSignInButton: {
@@ -181,10 +124,6 @@ paper-input-container {
               this.userId = null
             });
         window.onpopstate = this.handlePopState_.bind(this);
-      },
-
-      makeBridge_() {
-        return new Bridge(this.env, this.makeBridgeDelegate_());
       },
 
       makeBridgeDelegate_: function() {
@@ -372,7 +311,6 @@ paper-input-container {
   <ghvz-app-inner
       id="inner"
       bridge="[[bridge]]"
-      is-desktop="[[isDesktop]]"
       env="[[env]]"
       database="[[database]]"
       user="[[user]]"

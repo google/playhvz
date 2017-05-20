@@ -109,27 +109,15 @@ function populatePlayersHeavy(server, gameId) {
   populatePlayers(server, gameId, 300, 7, 5, 3);
 }
 
-function populateFakeServer(server) {
-  // registered, admin, and joined
-  var kimUserId = Bridge.UserId.generate();
+function populateFakeServer(server, userIds) {
+  let {kimUserId, reggieUserId, minnyUserId, evanUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
+
   server.register({userId: kimUserId, name: "Kim"});
-  // registered, thats it
-  let reggieUserId = Bridge.UserId.generate();
   server.register({userId: reggieUserId, name: "Reggie"});
-  // registered and is admin, not joined
-  let minnyUserId = Bridge.UserId.generate();
   server.register({userId: minnyUserId, name: "Minny"});
-  // registered and joined
-  var evanUserId = Bridge.UserId.generate();
   server.register({userId: evanUserId, name: "Evan"});
-  // just some other zombie dude in a chat room...
-  var zekeUserId = Bridge.UserId.generate();
   server.register({userId: zekeUserId, name: "Zeke"});
-  // Just some other human dude in a chat room...
-  var moldaviUserId = Bridge.UserId.generate();
   server.register({userId: moldaviUserId, name: "Moldavi"});
-  // Just some other human dude in a chat room...
-  var jackUserId = Bridge.UserId.generate();
   server.register({userId: jackUserId, name: "Jack"});
 
   var gameId = "game-2017m";
@@ -358,31 +346,6 @@ function populateFakeServer(server) {
   //   order: 5,
   //   isCorrect: true,
   // });
-
-  let userId = Utils.getParameterByName('userId', null);
-  if (userId) {
-    return userId;
-  }
-  let registered = Utils.getParameterByName('registered', 'true') == 'true';
-  let admin = Utils.getParameterByName('admin', 'true') == 'true';
-  let joined = Utils.getParameterByName('joined', 'true') == 'true';
-  let human = Utils.getParameterByName('human', 'true') == 'true';
-
-  if (!registered)
-    return null;
-  if (admin && joined && human)
-    return kimUserId;
-  if (admin && !joined)
-    return minnyUserId;
-
-  if (!admin && !joined)
-    return reggieUserId;
-  if (!admin && joined && !human)
-    return zekeUserId; // evanUserId would work too
-  if (!admin && joined && human)
-    return jackUserId;
-
-  throwError('Invalid combination of url params userId, registered, admin, joined, human');
 }
 
 const HUMAN_MISSION_HTML = `

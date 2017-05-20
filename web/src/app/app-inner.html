@@ -9,7 +9,12 @@
 
       properties: {
         bridge: Object,
-        isDesktop: Boolean,
+        
+        isDesktop: {
+          type: Boolean,
+          value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
+        },
+
         isAdmin: {
           type: Boolean,
           computed: 'computeIsAdmin_(user, game, game.admins.length)',
