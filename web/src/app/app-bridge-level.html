@@ -1,0 +1,52 @@
+<dom-module id="ghvz-app-bridge-level">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-app-bridge-level',
+
+      properties: {
+        env: {
+          type: String,
+          value: () => {
+            var env = Utils.getParameterByName('env');
+            var defaultEnv = 'fake';
+            if (window.location.hostname == "dev.googlehvz.com")
+              defaultEnv = 'dev';
+            if (window.location.hostname == "googlehvz.com")
+              defaultEnv = 'prod';
+            if (!env)
+              env = defaultEnv;
+            return env;
+          },
+        },
+      },
+
+      isRealEnv(env) {
+        return env == 'prod' || env == 'dev' || env == 'localprod';
+      },
+
+      isFakeEnv(env) {
+        return !this.isRealEnv(env);
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+<template>
+  <template is="dom-if" if="[[isRealEnv(env)]]">
+    <ghvz-app env="[[env]]"></ghvz-app>
+  </template>
+  <template is="dom-if" if="[[isFakeEnv(env)]]">
+    <ghvz-fake-app></ghvz-fake-app>
+  </template>
+</template>
+</dom-module>

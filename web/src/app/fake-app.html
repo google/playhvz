@@ -1,0 +1,125 @@
+<dom-module id="ghvz-fake-app">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-fake-app',
+
+      properties: {
+        env: String,
+
+        bridge: {
+          type: Object,
+        },
+
+        userOptions: Array,
+
+        url: String,
+
+        database: {
+          type: Object,
+          value: () => ({}),
+        },
+
+        userIds: {
+          type: Array,
+          value: () => [],
+        },
+      },
+
+      attached() {
+        let userIds = {
+          kimUserId: Bridge.UserId.generate(),
+          reggieUserId: Bridge.UserId.generate(),
+          minnyUserId: Bridge.UserId.generate(),
+          evanUserId: Bridge.UserId.generate(),
+          zekeUserId: Bridge.UserId.generate(),
+          moldaviUserId: Bridge.UserId.generate(),
+          jackUserId: Bridge.UserId.generate(),
+        };
+
+        this.userOptions = [
+          {loaded: false, name: 'reggie', userId: userIds.reggieUserId, description: 'Registered, not admin, not joined'},
+          {loaded: false, name: 'minny', userId: userIds.minnyUserId, description: 'Registered, admin, not joined'},
+          {loaded: false, name: 'kim', userId: userIds.kimUserId, description: 'Registered, admin, joined, human'},
+          {loaded: false, name: 'moldavi', userId: userIds.moldaviUserId, description: 'Registered, admin, joined, human, is keeper of the owls'},
+          {loaded: false, name: 'evan', userId: userIds.evanUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, name: 'zeke', userId: userIds.zekeUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, name: 'jack', userId: userIds.jackUserId, description: 'Registered, not admin, joined, human'},
+        ];
+
+        this.bridge = 
+            new Bridge(
+                new FakeIdGenerator(),
+                new FakeBridge(
+                    userIds,
+                    new BatchedPolymerWriter(this, 'database')));
+      },
+
+      loadUser_(e) {
+        e.model.option.userId 
+      },
+
+      unloadUser_(e) {
+
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+  #options {
+    display: flex;
+    padding: 2px;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+    padding: 0;
+  }
+  #pages {
+    flex-grow: 1;
+  }
+</style>
+<template>
+  <div id="options">
+    <template is="dom-repeat" items="[[userOptions]]" as="option">
+      <div id$="[[option.name]]">
+        <paper-button
+            raised
+            hidden$="[[option.loaded]]"
+            on-tap="loadUser_">
+          [[option.name]]
+        </paper-button>
+
+        <paper-button
+            raised
+            hidden$="[[!option.loaded]]"
+            on-tap="loadUser_">
+          Unload [[option.name]]
+        </paper-button>
+      </div>
+      <paper-tooltip for="[[option.name]]">[[option.description]]</paper-tooltip>
+    </template>
+  </div>
+  <neon-animated-pages id="pages">
+    <template is="dom-repeat" items="[[userIds]]" as="userId">
+      <neon-animatable>
+        <ghvz-app
+            bridge="[[bridge]]"
+            database="[[database]]"
+            url="[[url]]"
+            user-id="[[userId]]">
+        </ghvz-app>
+      </neon-animatable>
+    </template>
+  </neon-animated-pages>
+</template>
+</dom-module>
