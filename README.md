@@ -9,9 +9,9 @@ To startup the server, run:
 
 `npm install` 
 
-`firebase login [your username]`
+`./node_modules/firebase-tools/bin/firebase login [your username]`
 
-`firebase use --add trogdors-29fa4` (make sure you have the access to this project)
+`./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4` (make sure you have the access to this project)
 
 `npm start`
 
