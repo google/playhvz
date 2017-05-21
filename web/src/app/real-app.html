@@ -12,6 +12,7 @@
 
         bridge: {
           type: Object,
+          computed: 'computeBridge_(env)',
         },
 
         url: String,
@@ -41,7 +42,6 @@
       },
 
       attached() {
-        this.bridge = this.makeBridge_();
         this.bridge.attemptAutoSignIn()
             .then((userId) => this.userId = userId)
             .catch((e) => {
@@ -50,7 +50,12 @@
         window.onpopstate = this.handlePopState_.bind(this);
       },
 
-      makeBridge_() {
+      handlePopState_(e) {
+        this.$.app.handlePopState(e);
+      },
+
+      computeBridge_(env) {
+        assert(env);
         let config;
         let serverUrl;
         if (env == 'prod') {

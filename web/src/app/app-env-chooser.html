@@ -1,11 +1,11 @@
-<dom-module id="ghvz-app-bridge-level">
+<dom-module id="ghvz-app-env-chooser">
 <script>
   // Not sure why this HTMLImports.whenReady is really needed.
   // Something about polymer initialization order.
   // I think we're not supposed to need this.
   HTMLImports.whenReady(() => {
     Polymer({
-      is: 'ghvz-app-bridge-level',
+      is: 'ghvz-app-env-chooser',
 
       properties: {
         env: {
@@ -43,7 +43,7 @@
 </style>
 <template>
   <template is="dom-if" if="[[isRealEnv(env)]]">
-    <ghvz-app env="[[env]]"></ghvz-app>
+    <ghvz-real-app env="[[env]]"></ghvz-real-app>
   </template>
   <template is="dom-if" if="[[isFakeEnv(env)]]">
     <ghvz-fake-app></ghvz-fake-app>
