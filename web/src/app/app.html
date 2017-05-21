@@ -231,7 +231,9 @@
               this.page = page;
             } else {
               this.page = 'main';
-              window.history.replaceState({}, "", this.assembleUrl_(this.gameId, this.page));
+              this.fire('ghvz-replace-url', {
+                url: this.assembleUrl_(this.gameId, this.page),
+              });
             }
           });
           return;
@@ -251,8 +253,9 @@
 
       handleOpenPage_(e) {
         this.page = e.detail.page;
-        window.history.pushState(
-            {page: this.page}, "", this.assembleUrl_(this.gameId, this.page));
+        this.fire('ghvz-push-url', {
+          url: this.assembleUrl_(this.gameId, this.page),
+        });
       },
 
       handlePopState_(e) {

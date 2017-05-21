@@ -15,7 +15,11 @@ class FakeBridge {
 
     window.fakeBridge = this;
 
-    populateFakeServer(checkedServer, userIds);
+    populateUsers(checkedServer, userIds);
+
+    if (Utils.getParameterByName('populate', 'game') == 'game') {
+      populateGame(checkedServer, userIds);
+    }
 
     for (const funcName of Bridge.SERVER_METHODS) {
       this[funcName] = (...args) => this.server[funcName](...args);

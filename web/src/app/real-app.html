@@ -29,10 +29,15 @@
 
       listeners: {
         'ghvz-replace-url': 'replaceUrl_',
+        'ghvz-push-url': 'pushUrl_',
       },
 
       replaceUrl_(e) {
         window.history.replaceState({}, "", e.detail.url);
+      },
+
+      pushUrl_(e) {
+        window.history.pushState({}, "", e.detail.url);
       },
 
       attached() {

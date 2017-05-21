@@ -1,4 +1,16 @@
 
+function populateUsers(server, userIds) {
+  let {kimUserId, reggieUserId, minnyUserId, evanUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
+
+  server.register({userId: kimUserId, name: "Kim"});
+  server.register({userId: reggieUserId, name: "Reggie"});
+  server.register({userId: minnyUserId, name: "Minny"});
+  server.register({userId: evanUserId, name: "Evan"});
+  server.register({userId: zekeUserId, name: "Zeke"});
+  server.register({userId: moldaviUserId, name: "Moldavi"});
+  server.register({userId: jackUserId, name: "Jack"});
+}
+
 function makePlayerProperties(id, userId, gameId, name) {
   return {
     playerId: id,
@@ -109,16 +121,8 @@ function populatePlayersHeavy(server, gameId) {
   populatePlayers(server, gameId, 300, 7, 5, 3);
 }
 
-function populateFakeServer(server, userIds) {
+function populateGame(server, userIds) {
   let {kimUserId, reggieUserId, minnyUserId, evanUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
-
-  server.register({userId: kimUserId, name: "Kim"});
-  server.register({userId: reggieUserId, name: "Reggie"});
-  server.register({userId: minnyUserId, name: "Minny"});
-  server.register({userId: evanUserId, name: "Evan"});
-  server.register({userId: zekeUserId, name: "Zeke"});
-  server.register({userId: moldaviUserId, name: "Moldavi"});
-  server.register({userId: jackUserId, name: "Jack"});
 
   var gameId = "game-2017m";
   server.createGame({gameId: gameId, adminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60, active: true});
