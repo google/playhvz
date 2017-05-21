@@ -255,7 +255,7 @@
             </paper-checkbox>
           </template>
           <template is="dom-if" if="[[usePaperInput_(field)]]">
-            <paper-input type="[[field.type]]" no-label-float label="[[field.label]]" value="{{field.value}}">
+            <paper-input id$="[[field.property]]Input" type="[[field.type]]" no-label-float label="[[field.label]]" value="{{field.value}}">
             </paper-input>
           </template>
         </ghvz-form-section>
