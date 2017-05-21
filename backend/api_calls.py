@@ -794,6 +794,131 @@ def AutoUpdatePlayerGroups(firebase, player_id, new_player=False):
       AddPlayerGroupMappings(firebase, group_id, player_id)
 
 
+# TODO Decide how to make a life code as used up.
+def Infect(request, firebase):
+  """Infect a player via life code.
+
+  Infect a human and get 100 points.
+
+  Args:
+    playerId: The person doing the infecting.
+    lifeCodeId: The life code being taken/infected, makes to the victom.
+
+
+  Validation:
+    Valid IDs. Infector can infect or is self-infecting. Infectee is human.
+
+  Firebase entries:
+    /games/%(gameId)/players/%(playerId)
+    /groups/%(groupId) indirectly
+  """
+  valid_args = ['playerId', 'lifeCodeId']
+  required_args = list(valid_args)
+  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+
+  player_id = request['playerId']
+  life_code_id = request['lifeCodeId']
+  victim_id = helpers.LifeCodeToPlayer(firebase, request['lifeCodeId'])
+  game_id = helpers.PlayerToGame(firebase, player_id)
+
+  player = {
+    'allegiance': firebase.get('/games/%s/players/%s' % (game_id, player_id), 'allegiance'),
+    'can_infect': firebase.get('/players/%s' % player_id, 'canInfect')
+  }
+  victim = {
+    'allegiance': firebase.get('/games/%s/players/%s' % (game_id, victim_id), 'allegiance'),
+    'can_infect': firebase.get('/players/%s' % victim_id, 'canInfect')
+  }
+
+  # Both players must be in the same game.
+  if helpers.PlayerToGame(firebase, victim_id) != game_id:
+    raise InvalidInputError('Those players are not part of the same game!')
+  # The infector must be able to infect or be doing a self-infect
+  if player_id != victim_id and not player['can_infect']:
+    raise InvalidInputError('You cannot infect another player at the present time.')
+  # The victim must be human to be infected
+  if victim['allegiance'] != constants.HUMAN:
+    raise InvalidInputError('Your victim is not human and cannot be infected.')
+
+  results = []
+
+  # Add points and an infection entry for a successful infection
+  if player_id != victim_id:
+    results.append(helpers.AddPoints(firebase, player_id, 100))
+    infect_path = '/games/%s/players/%s/infections' % (game_id, victim_id)
+    infect_data = {
+      'infectorId': player_id,
+      'lifeCodeId': life_code_id,
+      'time': int(time.time()),
+    }
+    results.append(firebase.put(infect_path, request['lifeCodeId'], infect_data))
+
+  # If secret zombie, set the victim to secret zombie and the infector to zombie
+  # Else set the victom to zombie
+  if player_id != victim_id and player['allegiance'] == constants.HUMAN:
+    logging.warn('Secret infection')
+    SetPlayerAllegiance(firebase, victim_id, allegiance=constants.HUMAN, can_infect=True)
+    SetPlayerAllegiance(firebase, player_id, allegiance=constants.ZOMBIE, can_infect=True)
+  else:
+    logging.warn('Normal infection')
+    SetPlayerAllegiance(firebase, victim_id, allegiance=constants.ZOMBIE, can_infect=True)
+
+  return results
+
+
+def SetAllegiance(request, firebase):
+  """Set the allegiance of a player.
+
+  Used (by admins?) to set a player to human, zombie or secret zombie.
+  Shares code with Infect().
+
+  Args:
+    playerId: The player to update.
+    allegiance: Human or zombie.
+    canInfect: If they can infect. With allegiance, gives a secret zombie.
+
+  Validation:
+    Zombies must be able to infect.
+    TODO Must be admin to call?
+
+  Firebase entries:
+    /games/%(gameId)/players/%(playerId)
+    /groups/%(groupId) indirectly
+  """
+  valid_args = ['playerId', 'allegiance']
+  required_args = list(valid_args)
+  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+
+  if request['allegiance'] == constants.ZOMBIE and not request['canInfect']:
+    raise InvalidInputError('Zombies can always infect.')
+  return SetPlayerAllegiance(firebase, request['playerId'], request['allegiance'], request['canInfect'])
+
+
+def SetPlayerAllegiance(firebase, player_id, allegiance, can_infect):
+  """Helper to set the allegiance of a player.
+
+  Args:
+    player_id: The player to update.
+    allegiance: Human vs zombie.
+    can_infect: Can they infect. Must be true for zombies.
+
+  Validation:
+    None.
+
+  Firebase entries:
+    /games/%(gameId)/players/%(playerId)/allegiance
+    /players/%(playerId)/canInfect
+    /groups/%(groupId) indirectly
+  """
+  game_id = helpers.PlayerToGame(firebase, player_id)
+  results = [
+    firebase.put('/games/%s/players/%s' % (game_id, player_id), 'allegiance', allegiance),
+    firebase.put('/players/%s' % player_id, 'canInfect', can_infect),
+    AutoUpdatePlayerGroups(firebase, player_id, new_player=False)
+  ]
+  return results
+
+
 def AddRewardCategory(request, firebase):
   """Add a new reward group.
 
@@ -955,48 +1080,48 @@ def ClaimReward(request, firebase):
   results = []
 
   player = request['playerId']
-  reward = request['rewardId']
+  reward_id = request['rewardId']
   game = helpers.PlayerToGame(firebase, player)
 
-  reward_category_seed = reward.split('-')[1]
+  reward_category_seed = reward_id.split('-')[1]
   reward_category = 'rewardCategory-%s' % reward_category_seed
 
   player_path = '/games/%s/players/%s' % (game, player)
   reward_category_path = '/rewardCategories/%s' % reward_category
-  reward_path = '/rewards/%s' % reward
+  reward_path = '/rewards/%s' % reward_id
+
+  reward_category =  firebase.get(reward_category_path, None)
 
   # Validate the user hasn't already claimed it.
-  if firebase.get('%s/claims/%s' % (player_path, reward), 'time'):
+  if firebase.get('%s/claims/%s' % (player_path, reward_id), 'time'):
     raise InvalidInputError('Reward was already claimed by this player.')
   # Validate the reward was not yet claimed by another player.
   if firebase.get(reward_path, 'playerId') != "":
     raise InvalidInputError('Reward was already claimed.')
   # Check the limitPerPlayer
-  reward_limit = int(firebase.get(reward_category_path, 'limitPerPlayer'))
-  if reward_limit:
+  if 'limitPerPlayer' in reward_category:
+    limit = int(reward_category['limitPerPlayer'])
     claims = firebase.get(player_path, 'claims', {'shallow': True})
     if claims:
       claims = [c for c in claims if c.startswith('reward-%s' % reward_category_seed)]
-      if len(claims) >= reward_limit:
-        raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % reward_limit)
+      if len(claims) >= limit:
+        raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % limit)
 
   results.append(firebase.patch(reward_path, {'playerId': player}))
 
-  current_points = int(firebase.get(player_path, 'points'))
-  reward_points = int(firebase.get(reward_category_path, 'points'))
-  new_player_points = current_points + reward_points
+  reward_points = int(reward_category['points'])
+  rewards_claimed = int(reward_category['claimed'])
 
-  rewards_claimed = int(firebase.get(reward_category_path, 'claimed'))
-
-  results.append('Player points = %d + %d => %d' % (current_points, reward_points, new_player_points))
+  results.append(helpers.AddPoints(firebase, player, reward_points))
   results.append('Claim count %d => %d' % (rewards_claimed, rewards_claimed + 1))
   results.append(firebase.patch(reward_category_path, {'claimed': rewards_claimed + 1}))
-  results.append(firebase.patch(player_path, {'points': new_player_points}))
   results.append(firebase.patch(reward_path, {'playerId': player}))
   claim_data = {'rewardCategoryId': reward_category, 'time': int(time.time())}
-  results.append(firebase.put('%s/claims' % player_path, reward, claim_data))
+  results.append(firebase.put('%s/claims' % player_path, reward_id, claim_data))
 
   return results
+
+
 
 
 def RandomWords(n):
@@ -1173,11 +1298,13 @@ def AddLife(request, firebase):
 
   player_id = request['playerId']
   game_id = helpers.PlayerToGame(firebase, player_id)
-  life_code = RandomWords(3)
+  life_code_id = 'lifeCode-%s' % RandomWords(3)
 
-  results = []
-  results.append(firebase.put('/games/%s/players/%s/lives' % (game_id, player_id), life_code, True))
-  results.append(firebase.put('/lives', life_code, player_id))
+  results = [
+    'Life code: %s' % life_code_id,
+    firebase.put('/games/%s/players/%s/lives' % (game_id, player_id), life_code_id, True),
+    firebase.put('/lives', life_code_id, player_id)
+  ]
   return results
 
 

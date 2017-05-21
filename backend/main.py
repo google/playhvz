@@ -93,6 +93,8 @@ methods = {
   'updateNotification': api_calls.UpdateNotification,
   'markNotificationSeen': api_calls.MarkNotificationSeen,
   'addLife': api_calls.AddLife,
+  'infect': api_calls.Infect,
+  'setAllegiance': api_calls.SetAllegiance,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
 }
