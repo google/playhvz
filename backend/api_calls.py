@@ -942,7 +942,7 @@ def AddRewardCategory(request, firebase):
   helpers.ValidateInputs(request, firebase, required_args, valid_args)
 
   game = request['gameId']
-  reward_category = request['rewardCategoryId']
+  reward_category_id = request['rewardCategoryId']
 
   reward_category_data = {
     'gameId': game,
@@ -952,8 +952,8 @@ def AddRewardCategory(request, firebase):
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
-  results.append(firebase.put('/rewardCategories', reward_category, reward_category_data))
-  results.append(firebase.put('/games/%s/rewardCategories' % game, reward_category, True))
+  results.append(firebase.put('/rewardCategories', reward_category_id, reward_category_data))
+  results.append(firebase.put('/games/%s/rewardCategories' % game, reward_category_id, True))
   return results
 
 
@@ -976,14 +976,14 @@ def UpdateRewardCategory(request, firebase):
   required_args = list(valid_args)
   helpers.ValidateInputs(request, firebase, required_args, valid_args)
 
-  reward_category = request['rewardCategoryId']
+  reward_category_id = request['rewardCategoryId']
 
   reward_category_data = {}
   for k in ('name', 'points', 'limitPerPlayer'):
     if k in request:
       reward_category_data[k] = request[k]
 
-  return firebase.patch('/rewardCategories/%s' % reward_category, reward_category_data)
+  return firebase.patch('/rewardCategories/%s' % reward_category_id, reward_category_data)
 
 
 def AddReward(request, firebase):
@@ -1003,10 +1003,10 @@ def AddReward(request, firebase):
   helpers.ValidateInputs(request, firebase, required_args, valid_args)
 
   reward = request['rewardId']
-  reward_category = 'rewardCategory-%s' % reward.split('-')[1]
+  reward_category_id = 'rewardCategory-%s' % reward.split('-')[1]
 
   # Validation the rewardCategory
-  if not helpers.EntityExists(firebase, 'rewardCategoryId', reward_category):
+  if not helpers.EntityExists(firebase, 'rewardCategoryId', reward_category_id):
     raise InvalidInputError('Reward seed %s matches no category.' % reward)
 
   return AddRewardToDb(firebase, reward)
@@ -1032,8 +1032,8 @@ def AddRewards(request, firebase):
   required_args.extend(['count'])
   helpers.ValidateInputs(request, firebase, required_args, valid_args)
 
-  reward_category = request['rewardCategoryId']
-  reward_seed = reward_category.split('-')[1]
+  reward_category_id = request['rewardCategoryId']
+  reward_seed = reward_category_id.split('-')[1]
   reward_data = {'playerId': '', 'a': True}
 
   for i in range(request['count']):
@@ -1051,9 +1051,9 @@ def AddRewardToDb(firebase, reward):
     /rewardCategories/%(rcID)/rewards/%(rewardId)
   """
   firebase.put('/rewards', reward, {'playerId': '', 'a': True})
-  reward_category = 'rewardCategory-%s' % reward.split('-')[1]
-  firebase.put('/rewardCategories/%s/rewards' % reward_category, reward, True)
-  return 'Added reward %s (category %s)' % (reward, reward_category)
+  reward_category_id = 'rewardCategory-%s' % reward.split('-')[1]
+  firebase.put('/rewardCategories/%s/rewards' % reward_category_id, reward, True)
+  return 'Added reward %s (category %s)' % (reward, reward_category_id)
 
 
 def ClaimReward(request, firebase):
@@ -1084,10 +1084,10 @@ def ClaimReward(request, firebase):
   game = helpers.PlayerToGame(firebase, player)
 
   reward_category_seed = reward_id.split('-')[1]
-  reward_category = 'rewardCategory-%s' % reward_category_seed
+  reward_category_id = 'rewardCategory-%s' % reward_category_seed
 
   player_path = '/games/%s/players/%s' % (game, player)
-  reward_category_path = '/rewardCategories/%s' % reward_category
+  reward_category_path = '/rewardCategories/%s' % reward_category_id
   reward_path = '/rewards/%s' % reward_id
 
   reward_category =  firebase.get(reward_category_path, None)
@@ -1116,7 +1116,7 @@ def ClaimReward(request, firebase):
   results.append('Claim count %d => %d' % (rewards_claimed, rewards_claimed + 1))
   results.append(firebase.patch(reward_category_path, {'claimed': rewards_claimed + 1}))
   results.append(firebase.patch(reward_path, {'playerId': player}))
-  claim_data = {'rewardCategoryId': reward_category, 'time': int(time.time())}
+  claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time())}
   results.append(firebase.put('%s/claims' % player_path, reward_id, claim_data))
 
   return results
