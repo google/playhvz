@@ -240,28 +240,64 @@ class FakeServer {
     }
   }
 
-  addChatMessageRequest(args) {
-    let {messageId, requestId} = args;
-    let chatRoomId = this.reader.getChatRoomIdForMessageId(messageId);
+  addRequest(args) {
+    let {requestId, chatRoomId} = args;
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     this.writer.insert(
-        this.reader.getRequestPath(gameId, chatRoomId, messageId, null),
+        this.reader.getRequestPath(gameId, chatRoomId, null),
         null,
         new Model.Request(requestId, Utils.merge(args, {
           time: this.time,
         })));
   }
 
-  addChatMessageResponse(args) {
-    let {messageId, responseId} = args;
-    let chatRoomId = this.reader.getChatRoomIdForMessageId(messageId);
+  sendRequestToPlayer(args) {
+    let {requestId, responseId, playerId} = args;
+    let chatRoomId = this.reader.getChatRoomIdForRequestId(requestId);
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     this.writer.insert(
-        this.reader.getResponsePath(gameId, chatRoomId, messageId, null),
+        this.reader.getResponsePath(gameId, chatRoomId, requestId, null),
         null,
-        new Model.Response(responseId, Utils.merge(args, {
-          time: this.time,
-        })));
+        new Model.Response(responseId, {
+          playerId: playerId,
+          time: null,
+          text: null,
+        }));
+  }
+
+  respondToRequest(args) {
+    let {responseId, text} = args;
+    let requestId = this.reader.getRequestIdForResponseId(responseId);
+    let chatRoomId = this.reader.getChatRoomIdForMessageId(requestId);
+    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
+    let request = this.get(this.reader.getRequestPath(gameId, chatRoomId, requestId));
+    let responsePath = this.reader.getResponsePath(gameId, chatRoomId, requestId, responseId);
+    let response = this.get(responsePath);
+    if (request.type == 'ack')
+      assert(text === null);
+    else if (request.type == 'text')
+      assert(typeof text == 'string' && text);
+    else
+      throwError('Bad request type');
+    this.writer.set(responsePath.concat(["time"]), this.time);
+    this.writer.set(responsePath.concat(["text"]), responseText);
+  }
+
+  respondToRequest(args) {
+    let {responseId, text} = args;
+    let requestId = this.reader.getRequestIdForResponseId(responseId);
+    let chatRoomId = this.reader.getChatRoomIdForRequestId(requestId);
+    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
+    let responsePath = this.reader.getResponsePath(gameId, chatRoomId, requestId, responseId);
+    let request = this.reader.get(this.reader.getRequestPath(gameId, chatRoomId, requestId));
+    if (request.type == 'ack')
+      assert(text === null);
+    else if (request.type == 'text')
+      assert(typeof text == 'string' && text);
+    else
+      throwError('Bad request type');
+    this.writer.set(responsePath.concat(["time"]), this.time);
+    this.writer.set(responsePath.concat(["text"]), text);
   }
 
   addMission(args) {

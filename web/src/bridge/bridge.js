@@ -374,20 +374,27 @@ class FakeIdGenerator extends IdGenerator {
     },
   });
 
-  serverMethods.set('addChatMessageRequest', {
+  serverMethods.set('addRequest', {
     required: {
       requestId: '!RequestId',
-      messageId: 'MessageId',
+      chatRoomId: 'ChatRoomId',
       playerId: 'PlayerId',
+      text: 'String',
       type: 'String',
     },
   });
 
-  serverMethods.set('addChatMessageResponse', {
+  serverMethods.set('sendRequestToPlayer', {
     required: {
+      requestId: 'RequestId',
       responseId: '!ResponseId',
-      messageId: 'MessageId',
       playerId: 'PlayerId',
+    },
+  });
+
+  serverMethods.set('respondToRequest', {
+    required: {
+      responseId: 'ResponseId',
       text: '?String',
     },
   });

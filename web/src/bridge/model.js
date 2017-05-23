@@ -61,7 +61,7 @@ Model.Group = function(id, args) {
 }
 
 const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmins"];
-const CHAT_ROOM_COLLECTIONS = ["messages", "acks"];
+const CHAT_ROOM_COLLECTIONS = ["messages", "requests"];
 Model.ChatRoom = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, CHAT_ROOM_PROPERTIES);
@@ -109,22 +109,22 @@ Model.PlayerGroupMembership = function(id, args) {
 }
 
 const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
-const MESSAGE_COLLECTIONS = ["requests", "responses"];
+const MESSAGE_COLLECTIONS = [];
 Model.Message = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, MESSAGE_PROPERTIES);
   Utils.addEmptyLists(this, MESSAGE_COLLECTIONS);
 }
 
-const REQUEST_PROPERTIES = ["time", "playerId", "type"];
-const REQUEST_COLLECTIONS = [];
+const REQUEST_PROPERTIES = ["playerId", "time", "text", "type"];
+const REQUEST_COLLECTIONS = ["responses"];
 Model.Request = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, REQUEST_PROPERTIES);
   Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
 }
 
-const RESPONSE_PROPERTIES = ["time", "playerId", "text"];
+const RESPONSE_PROPERTIES = ["playerId", "time", "text"];
 const RESPONSE_COLLECTIONS = [];
 Model.Response = function(id, args) {
   this.id = id;
