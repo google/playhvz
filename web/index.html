@@ -94,6 +94,9 @@
 <script src="/src/bridge/consistentwriter.js"></script>
 <script src="/src/bridge/pathfindingreader.js"></script>
 
+<link rel="import" href="/src/app/app-env-chooser.html">
+<link rel="import" href="/src/app/real-app.html">
+<link rel="import" href="/src/app/fake-app.html">
 <link rel="import" href="/src/app/app.html">
 <link rel="import" href="/src/app/app-inner.html">
 <link rel="import" href="/src/app/card.html">
@@ -168,14 +171,51 @@
 <link rel="import" href="/src/table/table.html">
 
 <style>
-html, body {
-  width: 100%;
-  height: 100%;
-}
+  html, body {
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* whoever designed the default paper-menu needs to be shot */
+  paper-menu,
+  paper-listbox {
+    padding: 0 !important;
+  }
+  paper-menu .iron-selected,
+  paper-listbox .iron-selected {
+    font-weight: inherit !important;
+  }
+  paper-menu paper-item,
+  paper-listbox paper-item {
+    min-height: 36px !important;
+    white-space: nowrap;
+  }
+  paper-listbox paper-item::before,
+  paper-listbox paper-item::after,
+  paper-menu paper-item::before,
+  paper-menu paper-item::after {
+    display: none;
+  }
+  paper-listbox paper-item:hover,
+  paper-menu paper-item:hover {
+    background-color: #F0F0F0 !important;
+    cursor: pointer;
+  }
+
+  paper-input-container {
+    padding: 0 !important;
+  }
 </style>
 
 </head>
 <body>
-  <ghvz-app></ghvz-app>
+  <ghvz-app-env-chooser></ghvz-app-env-chooser>
 </body>
 </html>

@@ -1,7 +1,9 @@
 'use strict';
 
 class FakeServer {
-  constructor(destination, time) {
+  constructor(idGenerator, destination, time) {
+    this.idGenerator = idGenerator;
+    
     this.database = {};
     var writer = new SimpleWriter(this.database);
     var mappingWriter = new MappingWriter(writer);
@@ -338,7 +340,7 @@ class FakeServer {
   }
   addRewards(rewardCategoryId, numToAdd) {
     for (let i = 0; i < numToAdd; i++) {
-      let rewardId = Bridge.RewardId.generate();
+      let rewardId = this.idGenerator.newRewardId();
       let code = Math.random() * Math.pow(2, 52);
       this.addReward({id: rewardId, rewardCategoryId: rewardCategoryId, code: code});
     }
@@ -374,7 +376,7 @@ class FakeServer {
           this.writer.insert(
               playerPath.concat(["rewards"]),
               null,
-              new Model.Claim(Bridge.ClaimId.generate(), {
+              new Model.Claim(this.idGenerator.newClaimId(), {
                 rewardCategoryId: rewardCategory.id,
                 rewardId: reward.id,
               }));
@@ -395,7 +397,7 @@ class FakeServer {
   }
   joinResistance(args, lifeCodeHint) {
     let {playerId} = args;
-    this.addLife({lifeId: Bridge.LifeId.generate(), playerId: playerId}, lifeCodeHint);
+    this.addLife({lifeId: this.idGenerator.newLifeId(), playerId: playerId}, lifeCodeHint);
     this.setPlayerHuman(playerId);
     this.autoAddPlayerToGroups_(playerId);
   }
@@ -500,7 +502,7 @@ class FakeServer {
     this.writer.insert(
         infecteePlayerPath.concat(["infections"]),
         null,
-        new Model.Infection(Bridge.InfectionId.generate(), {
+        new Model.Infection(this.idGenerator.newInfectionId(), {
           infectorId: infectorPlayerId,
           time: this.time,
         }));

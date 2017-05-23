@@ -67,7 +67,7 @@
                 handler: (player) => {
                   this.bridge.infect({
                     playerId: null,
-                    infectionId: Bridge.InfectionId.generate(),
+                    infectionId: this.bridge.newInfectionId(),
                     infecteeLifeCode: null,
                     infecteePlayerId: player.id,
                   });
@@ -79,7 +79,7 @@
                 handler: (player) => {
                   this.bridge.addLife({
                     playerId: player.id,
-                    lifeId: Bridge.LifeId.generate(),
+                    lifeId: this.bridge.newLifeId(),
                   });
                 },
               },

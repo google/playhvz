@@ -4,4 +4,4 @@ firebase/rules.json
 *.pyc
 node_modules
 npm-debug.log
-
+geckodriver.log

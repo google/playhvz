@@ -116,7 +116,7 @@
               .then((properties) => {
                 this.bridge.addMission(
                   Utils.merge(properties, {
-                    missionId: Bridge.MissionId.generate(),
+                    missionId: this.bridge.newMissionId(),
                     gameId: this.game.id}));
               });
         },

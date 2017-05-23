@@ -60,7 +60,7 @@
 
         createAdminChat_(bridge, game, player) {
           let name =  this.player.name + " & HvZ CDC";
-          let groupId = Bridge.GroupId.generate('withadmins');
+          let groupId = this.bridge.newGroupId('withadmins');
           this.bridge.createGroup({
             name: "Group for " + player.id + "'s chat room",
             groupId: groupId,
@@ -72,7 +72,7 @@
             membersCanAdd: false,
             membersCanRemove: false,
           });
-          let chatRoomId = Bridge.ChatRoomId.generate('withadmins');
+          let chatRoomId = this.bridge.newChatRoomId('withadmins');
           this.bridge.createChatRoom({
             chatRoomId: chatRoomId,
             groupId: groupId,

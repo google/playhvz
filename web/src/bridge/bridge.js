@@ -1,8 +1,10 @@
 'use strict';
 
 class Bridge {
-  constructor(env, appWriter) {
-    this.inner = Bridge.makeInnerBridge_(env, appWriter);
+  constructor(idGenerator, inner) {
+    this.inner = inner;
+
+    this.idGenerator = idGenerator;
 
     for (let [method, expectations] of Bridge.METHODS_MAP) {
       this[method] =
@@ -15,6 +17,10 @@ class Bridge {
             assert(this.inner[method]);
             return this.inner[method](...args);
           };
+    }
+
+    for (let methodName of Utils.getAllFuncNames(idGenerator)) {
+      this[methodName] = (...args) => this.idGenerator[methodName](...args);
     }
   }
 
@@ -47,142 +53,82 @@ class Bridge {
       return Utils.isTimestampMs(value);
     if (typeName.startsWith('!'))
       typeName = typeName.slice(1);
-    assert(typeName in Bridge);
-    Bridge[typeName].verify(value);
-    // todo, put existence checks here
-  }
 
-  static makeInnerBridge_(env, appWriter) {
-    if (env == 'fake') {
-      return new FakeBridge(appWriter);
-    } else {
-      let config;
-      let serverUrl;
-      if (env == 'prod') {
-        serverUrl = "https://humansvszombies-24348.appspot.com/";
-        config = {
-          apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
-          authDomain: "trogdors-29fa4.firebaseapp.com",
-          databaseURL: "https://trogdors-29fa4.firebaseio.com",
-          projectId: "trogdors-29fa4",
-          storageBucket: "trogdors-29fa4.appspot.com",
-          messagingSenderId: "625580091272"
-        };
-      } else if (env == 'localprod') {
-        serverUrl = "http://127.0.0.1:8080/"; // we dont have a dev frontend
-        config = {
-          apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
-          authDomain: "trogdors-29fa4.firebaseapp.com",
-          databaseURL: "https://trogdors-29fa4.firebaseio.com",
-          projectId: "trogdors-29fa4",
-          storageBucket: "trogdors-29fa4.appspot.com",
-          messagingSenderId: "625580091272"
-        };
-      } else if (env == 'dev') {
-        serverUrl = "trololol"; // we dont have a dev frontend
-        config = {
-          apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
-          authDomain: "zeds-dbe0f.firebaseapp.com",
-          databaseURL: "https://zeds-dbe0f.firebaseio.com",
-          storageBucket: "zeds-dbe0f.appspot.com",
-          messagingSenderId: "721599614458",
-        };
-      } else {
-        throwError("Bad env:", env);
-      }
-      return new RemoteBridge(serverUrl, config, appWriter);
-    }
+    assert(('verify' + typeName) in this.idGenerator);
+    assert(value);
+
+    // Such as Bridge.UserId.verify
+    this.idGenerator['verify' + typeName](value);
   }
 }
 
-Bridge.UserId = {
-  generate: (note) => Utils.generateId('user', note),
-  verify: (id) => id.startsWith('user-'),
-};
-Bridge.GameId = {
-  generate: (note) => Utils.generateId('game', note),
-  verify: (id) => id.startsWith('game-'),
-};
-Bridge.PlayerId = {
-  generate: (note) => Utils.generateId('player', note),
-  verify: (id) => id.startsWith('player-'),
-};
-Bridge.LifeId = {
-  generate: (note) => Utils.generateId('life', note),
-  verify: (id) => id.startsWith('life-'),
-};
-Bridge.InfectionId = {
-  generate: (note) => Utils.generateId('infection', note),
-  verify: (id) => id.startsWith('infection-'),
-};
-Bridge.MissionId = {
-  generate: (note) => Utils.generateId('mission', note),
-  verify: (id) => id.startsWith('mission-'),
-};
-Bridge.GunId = {
-  generate: (note) => Utils.generateId('gun', note),
-  verify: (id) => id.startsWith('gun-'),
-};
-Bridge.GroupId = {
-  generate: (note) => Utils.generateId('group', note),
-  verify: (id) => id.startsWith('group-'),
-};
-Bridge.MapId = {
-  generate: (note) => Utils.generateId('map', note),
-  verify: (id) => id.startsWith('map-'),
-};
-Bridge.ChatRoomId = {
-  generate: (note) => Utils.generateId('chatRoom', note),
-  verify: (id) => id.startsWith('chatRoom-'),
-};
-Bridge.MessageId = {
-  generate: (note) => Utils.generateId('message', note),
-  verify: (id) => id.startsWith('message-'),
-};
-Bridge.RequestId = {
-  generate: (note) => Utils.generateId('request', note),
-  verify: (id) => id.startsWith('request-'),
-};
-Bridge.ResponseId = {
-  generate: (note) => Utils.generateId('response', note),
-  verify: (id) => id.startsWith('response-'),
-};
-Bridge.NotificationCategoryId = {
-  generate: (note) => Utils.generateId('notification', note),
-  verify: (id) => id.startsWith('notification-'),
-};
-Bridge.NotificationId = {
-  generate: (note) => Utils.generateId('notification', note),
-  verify: (id) => id.startsWith('notification-'),
-};
-Bridge.RewardCategoryId = {
-  generate: (note) => Utils.generateId('rewardCategory', note),
-  verify: (id) => id.startsWith('rewardCategory-'),
-};
-Bridge.PointId = {
-  generate: (note) => Utils.generateId('point', note),
-  verify: (id) => id.startsWith('point-'),
-};
-Bridge.RewardId = {
-  generate: (note) => Utils.generateId('reward', note),
-  verify: (id) => id.startsWith('reward-'),
-};
-Bridge.MembershipId = {
-  generate: (note) => Utils.generateId('membership', note),
-  verify: (id) => id.startsWith('membership-'),
-};
-Bridge.ClaimId = {
-  generate: (note) => Utils.generateId('claim', note),
-  verify: (id) => id.startsWith('claim-'),
-};
-Bridge.QuizQuestionId = {
-  generate: (note) => Utils.generateId('quizQuestion', note),
-  verify: (id) => id.startsWith('quizQuestion-'),
-};
-Bridge.QuizAnswerId = {
-  generate: (note) => Utils.generateId('quizAnswer', note),
-  verify: (id) => id.startsWith('quizAnswer-'),
-};
+class IdGenerator {
+  generateId(type, note) { return Utils.generateId(type, note); }
+  verify(type, id) { return id.startsWith(type + '-'); }
+
+  newChatRoomId(note) { return this.generateId('chatRoom', note); }
+  verifyChatRoomId(id) { return this.verify('chatRoom', id); }
+  newClaimId(note) { return this.generateId('claim', note); }
+  verifyClaimId(id) { return this.verify('claim', id); }
+  newGameId(note) { return this.generateId('game', note); }
+  verifyGameId(id) { return this.verify('game', id); }
+  newGroupId(note) { return this.generateId('group', note); }
+  verifyGroupId(id) { return this.verify('group', id); }
+  newGunId(note) { return this.generateId('gun', note); }
+  verifyGunId(id) { return this.verify('gun', id); }
+  newInfectionId(note) { return this.generateId('infection', note); }
+  verifyInfectionId(id) { return this.verify('infection', id); }
+  newLifeId(note) { return this.generateId('life', note); }
+  verifyLifeId(id) { return this.verify('life', id); }
+  newMapId(note) { return this.generateId('map', note); }
+  verifyMapId(id) { return this.verify('map', id); }
+  newMembershipId(note) { return this.generateId('membership', note); }
+  verifyMembershipId(id) { return this.verify('membership', id); }
+  newMessageId(note) { return this.generateId('message', note); }
+  verifyMessageId(id) { return this.verify('message', id); }
+  newMissionId(note) { return this.generateId('mission', note); }
+  verifyMissionId(id) { return this.verify('mission', id); }
+  newNotificationCategoryId(note) { return this.generateId('notification', note); }
+  verifyNotificationCategoryId(id) { return this.verify('notification', id); }
+  newNotificationId(note) { return this.generateId('notification', note); }
+  verifyNotificationId(id) { return this.verify('notification', id); }
+  newPlayerId(note) { return this.generateId('player', note); }
+  verifyPlayerId(id) { return this.verify('player', id); }
+  newPointId(note) { return this.generateId('point', note); }
+  verifyPointId(id) { return this.verify('point', id); }
+  newQuizAnswerId(note) { return this.generateId('quizAnswer', note); }
+  verifyQuizAnswerId(id) { return this.verify('quizAnswer', id); }
+  newQuizQuestionId(note) { return this.generateId('quizQuestion', note); }
+  verifyQuizQuestionId(id) { return this.verify('quizQuestion', id); }
+  newRequestId(note) { return this.generateId('request', note); }
+  verifyRequestId(id) { return this.verify('request', id); }
+  newResponseId(note) { return this.generateId('response', note); }
+  verifyResponseId(id) { return this.verify('response', id); }
+  newRewardCategoryId(note) { return this.generateId('rewardCategory', note); }
+  verifyRewardCategoryId(id) { return this.verify('rewardCategory', id); }
+  newRewardId(note) { return this.generateId('reward', note); }
+  verifyRewardId(id) { return this.verify('reward', id); }
+  newUserId(note) { return this.generateId('user', note); }
+  verifyUserId(id) { return this.verify('user', id); }
+}
+
+class FakeIdGenerator extends IdGenerator {
+  constructor() {
+    super();
+    this.idsByType = {};
+  }
+
+  generateId(type, note) {
+    if (!(type in this.idsByType)) {
+      this.idsByType[type] = 1;
+    }
+    let result = type + "-";
+    if (note)
+      result += note + "-";
+    result += this.idsByType[type]++;
+    return result;
+  }
+}
 
 // Sets Bridge.METHODS_MAP and Bridge.serverMethods
 (function() {

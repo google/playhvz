@@ -1,14 +1,12 @@
 'use strict';
 
 class FakeBridge {
-  constructor(destination) {
-    Utils.setDeterministicGenerator();
-
+  constructor(userIds, idGenerator, destination) {
     this.databaseOperations = [];
     this.gatedWriter = new GatedWriter(destination, false);
     var mappingWriter = new MappingWriter(this.gatedWriter);
-    var fakeServer = new FakeServer(mappingWriter, new Date().getTime());
-    var checkedServer = new CheckedServer(fakeServer, Bridge.SERVER_METHODS_MAP);
+    var fakeServer = new FakeServer(idGenerator, mappingWriter, new Date().getTime());
+    var checkedServer = new CheckedServer(idGenerator, fakeServer, Bridge.SERVER_METHODS_MAP);
     var cloningFakeSerer = new CloningWrapper(checkedServer, Bridge.SERVER_METHODS);
     var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, Bridge.SERVER_METHODS, 100);
     this.server = delayingCloningFakeServer;
@@ -17,8 +15,11 @@ class FakeBridge {
 
     window.fakeBridge = this;
 
-    this.userId =
-        populateFakeServer(checkedServer);
+    populateUsers(checkedServer, userIds);
+
+    if (Utils.getParameterByName('populate', 'game') == 'game') {
+      populateGame(checkedServer, userIds);
+    }
 
     for (const funcName of Bridge.SERVER_METHODS) {
       this[funcName] = (...args) => this.server[funcName](...args);
@@ -27,7 +28,7 @@ class FakeBridge {
   signIn() {
     return new Promise((resolve, reject) => {
       if (!this.userId) {
-        this.userId = Bridge.UserId.generate();
+        this.userId = this.bridge.newUserId();
         this.server.register({userId: this.userId, name: "Person Namey"});
       }
       this.server.signIn(this.userId)

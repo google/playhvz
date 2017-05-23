@@ -1,0 +1,216 @@
+<dom-module id="ghvz-fake-app">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-fake-app',
+
+      properties: {
+        env: String,
+
+        bridge: {
+          type: Object,
+        },
+
+        userOptions: Array,
+
+        alreadyReadUrl: {
+          type: Boolean,
+          value: false,
+        },
+
+        database: {
+          type: Object,
+          value: () => ({
+            games: [],
+            gamesById: {},
+            guns: [],
+            gunsById: {},
+            users: [],
+            usersById: {},
+          }),
+        },
+
+        loadedUserIds: {
+          type: Array,
+          value: () => [],
+        },
+
+        focusedLoadedUserIndex: {
+          type: Number,
+          value: undefined,
+        },
+      },
+
+      attached() {
+        let idGenerator = new FakeIdGenerator();
+
+        let userIds = {
+          kimUserId: idGenerator.newUserId(),
+          reggieUserId: idGenerator.newUserId(),
+          minnyUserId: idGenerator.newUserId(),
+          evanUserId: idGenerator.newUserId(),
+          zekeUserId: idGenerator.newUserId(),
+          moldaviUserId: idGenerator.newUserId(),
+          jackUserId: idGenerator.newUserId(),
+        };
+
+        this.userOptions = [
+          {loaded: false, focused: false, url: '', name: 'reggie', userId: userIds.reggieUserId, description: 'Registered, not admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'minny', userId: userIds.minnyUserId, description: 'Registered, admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'kim', userId: userIds.kimUserId, description: 'Registered, admin, joined, human'},
+          {loaded: false, focused: false, url: '', name: 'moldavi', userId: userIds.moldaviUserId, description: 'Registered, admin, joined, human, is keeper of the owls'},
+          {loaded: false, focused: false, url: '', name: 'evan', userId: userIds.evanUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'zeke', userId: userIds.zekeUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'jack', userId: userIds.jackUserId, description: 'Registered, not admin, joined, human'},
+        ];
+
+        this.bridge = 
+            new Bridge(
+                idGenerator,
+                new FakeBridge(
+                    userIds,
+                    idGenerator,
+                    new BatchedPolymerWriter(this, 'database')));
+
+        let userName = Utils.getParameterByName('user', 'kim');
+        let userOption = this.userOptions.find((option) => option.name == userName);
+        if (userOption)
+          this.loadUser_(userOption.userId);
+      },
+
+      // This will only read the url once.
+      // After that, will just load the main page.
+      getUrl_() {
+        if (this.alreadyReadUrl) {
+          return '';
+        } else {
+          this.alreadyReadUrl = true;
+          return window.location.pathname;
+        }
+      },
+
+      loadUser_(userId) {
+        let optionIndex = this.userOptions.findIndex((option) => option.userId == userId);
+        let option = this.userOptions[optionIndex];
+
+        if (option.focused) {
+          return;
+        }
+
+        if (this.focusedLoadedUserIndex != null) {
+          let focusedUserId = this.loadedUserIds[this.focusedLoadedUserIndex];
+          let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == focusedUserId);
+          this.set('userOptions.' + focusedOptionIndex + '.focused', false);
+        }
+        if (!option.loaded) {
+          this.push('loadedUserIds', userId);
+        }
+
+        this.focusedLoadedUserIndex = this.loadedUserIds.indexOf(userId);
+        this.set('userOptions.' + optionIndex + '.loaded', true);
+        this.set('userOptions.' + optionIndex + '.focused', true);
+      },
+
+      loadUserTapped_(e) {
+        this.loadUser_(e.model.option.userId);
+      },
+
+      unloadUserTapped_(e) {
+        let option = e.model.option;
+        let userId = option.userId;
+        let optionIndex = this.userOptions.indexOf(option);
+        let loadedUserIndex = this.loadedUserIds.indexOf(userId);
+
+        let focusedUserId = this.loadedUserIds[this.focusedLoadedUserIndex];
+        if (focusedUserId == userId) {
+          this.focusedLoadedUserIndex = this.loadedUserIds.length ? this.loadedUserIds.length - 1 : null;
+        }
+
+        this.splice('loadedUserIds', loadedUserIndex, 1);
+        this.set('userOptions.' + optionIndex + '.focused', false);
+        this.set('userOptions.' + optionIndex + '.loaded', false);
+
+        if (focusedUserId != userId) {
+          this.focusedLoadedUserIndex = this.loadedUserIds.indexOf(focusedUserId);
+        }
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+  #options {
+    display: flex;
+    padding: 2px;
+    background-color: #add8e6;
+  }
+  .option {
+    height: 24px;
+    display: flex;
+    align-items: center;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+    padding: 0;
+  }
+  .option[focused] paper-button {
+    background-color: black;
+  }
+  paper-icon-button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-right: 8px;
+  }
+  #pages {
+    flex-grow: 1;
+  }
+</style>
+<template>
+  <neon-animated-pages
+      id="pages"
+      selected="[[focusedLoadedUserIndex]]">
+    <template is="dom-repeat" items="[[loadedUserIds]]" as="userId">
+      <neon-animatable>
+        <ghvz-app
+            bridge="[[bridge]]"
+            database="[[database]]"
+            url="[[getUrl_()]]"
+            user-id="[[userId]]">
+        </ghvz-app>
+      </neon-animatable>
+    </template>
+  </neon-animated-pages>
+  <div id="options">
+    <template is="dom-repeat" items="[[userOptions]]" as="option">
+      <div>
+        <div class="option" focused$="[[option.focused]]">
+          <paper-button
+              raised
+              on-tap="loadUserTapped_">
+            [[option.name]]
+          </paper-button>
+
+          <paper-icon-button
+              hidden$="[[!option.loaded]]"
+              icon="icons:close"
+              on-tap="unloadUserTapped_">
+          </paper-icon-button>
+        </div>
+        <paper-tooltip fit-to-visible-bounds position="top">
+          [[option.description]]
+        </paper-tooltip>
+      </div>
+    </template>
+  </div>
+</template>
+</dom-module>

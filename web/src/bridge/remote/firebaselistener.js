@@ -186,7 +186,7 @@ class FirebaseListener {
   listenToGuns() {
     this.firebaseRoot.child("guns").on("child_added", (snap) => {
       let gunId = snap.getKey();
-      let obj = new Gun(gunId, snap.val());
+      let obj = new Model.Gun(gunId, snap.val());
       this.writer.insert(this.reader.getGunPath(null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS.concat(["a"]),
@@ -200,7 +200,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("users/" + userId + "/players");
     ref.on("child_added", (snap) => {
       let playerId = snap.getKey();
-      let obj = new UserPlayer(playerId, {
+      let obj = new Model.UserPlayer(playerId, {
         playerId: playerId,
         gameId: snap.val().gameId,
         userId: userId,
@@ -217,7 +217,7 @@ class FirebaseListener {
   shallowListenToGames() {
     this.firebaseRoot.child("games").on("child_added", (snap) => {
       let gameId = snap.getKey();
-      let obj = new Game(gameId, snap.val());
+      let obj = new Model.Game(gameId, snap.val());
       obj.inMemory = false;
       this.writer.insert(this.reader.getGamePath(null), null, obj);
       this.listenForPropertyChanges_(
@@ -242,7 +242,7 @@ class FirebaseListener {
           return;
         }
         resolve();
-        let obj = new User(userId, snap.val());
+        let obj = new Model.User(userId, snap.val());
         this.writer.insert(this.reader.getUserPath(null), null, obj);
         this.listenForPropertyChanges_(
             ref, USER_PROPERTIES, USER_COLLECTIONS.concat(["playerIdsByGameId", "gameIdsByPlayerId", "a", "name"]),
@@ -258,7 +258,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("games/" + gameId + "/adminUsers");
     ref.on("child_added", (snap) => {
       let userId = snap.getKey();
-      let obj = new Admin(userId, {userId: userId});
+      let obj = new Model.Admin(userId, {userId: userId});
       this.writer.insert(this.reader.getAdminPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS.concat(["a"]),
@@ -272,7 +272,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("games/" + gameId + "/quizQuestions");
     ref.on("child_added", (snap) => {
       let quizQuestionId = snap.getKey();
-      let obj = new QuizQuestion(quizQuestionId, snap.val());
+      let obj = new Model.QuizQuestion(quizQuestionId, snap.val());
       this.writer.insert(this.reader.getQuizQuestionPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
@@ -287,7 +287,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("games/" + gameId + "/quizQuestions/" + quizQuestionId + "/answers");
     ref.on("child_added", (snap) => {
       let quizAnswerId = snap.getKey();
-      let obj = new QuizAnswer(quizAnswerId, snap.val());
+      let obj = new Model.QuizAnswer(quizAnswerId, snap.val());
       this.writer.insert(this.reader.getQuizAnswerPath(gameId, quizQuestionId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
@@ -306,7 +306,7 @@ class FirebaseListener {
       let missionId = snap.getKey(); // snap.val() is ""
       let ref = this.firebaseRoot.child("missions/" + missionId);
       ref.once("value").then((snap) => {
-        let obj = new Mission(missionId, snap.val());
+        let obj = new Model.Mission(missionId, snap.val());
         this.writer.insert(this.reader.getMissionPath(gameId, null), null, obj);
         this.listenForPropertyChanges_(
             snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
@@ -327,7 +327,7 @@ class FirebaseListener {
       let ref = this.firebaseRoot.child("groups/" + groupId);
       ref.once("value")
           .then((snap) => {
-            let obj = new Group(groupId, snap.val());
+            let obj = new Model.Group(groupId, snap.val());
             this.writer.insert(this.reader.getGroupPath(gameId, null), null, obj);
             this.listenForPropertyChanges_(
                 snap.ref, GROUP_PROPERTIES, GROUP_COLLECTIONS.concat(["players"]),
@@ -349,7 +349,7 @@ class FirebaseListener {
       let ref = this.firebaseRoot.child("chatRooms/" + chatRoomId);
       ref.once("value")
           .then((snap) => {
-            let obj = new ChatRoom(chatRoomId, snap.val());
+            let obj = new Model.ChatRoom(chatRoomId, snap.val());
             this.writer.insert(this.reader.getChatRoomPath(gameId, null), null, obj);
             this.listenForPropertyChanges_(
                 snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
@@ -371,7 +371,7 @@ class FirebaseListener {
       let ref = this.firebaseRoot.child("notificationCategories/" + notificationCategoryId);
       ref.once("value")
           .then((snap) => {
-            let obj = new NotificationCategory(notificationCategoryId, snap.val());
+            let obj = new Model.NotificationCategory(notificationCategoryId, snap.val());
             this.writer.insert(this.reader.getNotificationCategoryPath(gameId, null), null, obj);
             this.listenForPropertyChanges_(
                 snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
@@ -386,7 +386,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("/groups/" + groupId + "/players");
     ref.on("child_added", (snap) => {
       let playerId = snap.getKey();
-      let obj = new GroupMembership(playerId, {playerId: playerId});
+      let obj = new Model.GroupMembership(playerId, {playerId: playerId});
       this.writer.insert(this.reader.getGroupMembershipPath(gameId, groupId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, GROUP_MEMBERSHIP_PROPERTIES, GROUP_MEMBERSHIP_COLLECTIONS,
@@ -402,7 +402,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("/chatRooms/" + chatRoomId + "/messages");
     ref.on("child_added", (snap) => {
       let messageId = snap.getKey();
-      let obj = new Message(messageId, snap.val());
+      let obj = new Model.Message(messageId, snap.val());
       let insertIndex =
           Utils.findInsertIndex(
               this.reader.get(this.reader.getChatRoomMessagePath(gameId, chatRoomId, null)),
@@ -423,7 +423,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players");
     ref.on("child_added", (gamePlayerSnap) => {
       let playerId = gamePlayerSnap.getKey();
-      let obj = new Player(playerId, gamePlayerSnap.val());
+      let obj = new Model.Player(playerId, gamePlayerSnap.val());
       let userId = obj.userId;
       assert(this.userId != null);
       if (this.userId == userId) {
@@ -477,7 +477,7 @@ class FirebaseListener {
   //   var ref = this.firebaseRoot.child("/players/" + playerId + "/chatRoomMembershipsByChatRoomId");
   //   ref.on("child_added", (snap) => {
   //     let chatRoomId = snap.getKey();
-  //     let obj = new PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId});
+  //     let obj = new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId});
   //     this.writer.insert(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null), null, obj);
   //     this.listenForPropertyChanges_(
   //         snap.ref, PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES, PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
@@ -499,7 +499,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/claims");
     ref.on("child_added", (snap) => {
       let claimId = snap.getKey();
-      let obj = new Claim(claimId, snap.val());
+      let obj = new Model.Claim(claimId, snap.val());
       this.writer.insert(this.reader.getClaimPath(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, CLAIM_PROPERTIES, CLAIM_COLLECTIONS,
@@ -513,7 +513,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("players/" + playerId + "/lives");
     ref.on("child_added", (snap) => {
       let lifeId = snap.getKey();
-      let obj = new Life(lifeId, snap.val());
+      let obj = new Model.Life(lifeId, snap.val());
       this.writer.insert(this.reader.getLifePath(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, LIFE_PROPERTIES, LIFE_COLLECTIONS,
@@ -527,7 +527,7 @@ class FirebaseListener {
     var ref = this.firebaseRoot.child("games/" + gameId + "/players/" + playerId + "/infections");
     ref.on("child_added", (snap) => {
       let infectionId = snap.getKey();
-      let obj = new Infection(infectionId, snap.val());
+      let obj = new Model.Infection(infectionId, snap.val());
       this.writer.insert(this.reader.getInfectionPath(gameId, playerId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, INFECTION_PROPERTIES, INFECTION_COLLECTIONS,
@@ -543,7 +543,7 @@ class FirebaseListener {
       let notificationCategoryId = snap.getKey();
       snap.ref.on("child_added", (snap) => {
         let notificationId = snap.getKey();
-        let obj = new Notification(notificationId, snap.val());
+        let obj = new Model.Notification(notificationId, snap.val());
         obj.notificationCategoryId = notificationCategoryId;
         this.writer.insert(this.reader.getNotificationPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
@@ -562,7 +562,7 @@ class FirebaseListener {
       let ref = this.firebaseRoot.child("rewardCategories/" + rewardCategoryId);
       ref.once("value")
           .then((snap) => {
-            let obj = new RewardCategory(rewardCategoryId, snap.val());
+            let obj = new Model.RewardCategory(rewardCategoryId, snap.val());
 
             this.writer.insert(this.reader.getRewardCategoryPath(gameId, null), null, obj);
             this.listenForPropertyChanges_(
@@ -582,7 +582,7 @@ class FirebaseListener {
       let ref = this.firebaseRoot.child("rewards/" + rewardId);
       ref.once("value")
           .then((snap) => {
-            let obj = new Reward(rewardId, snap.val());
+            let obj = new Model.Reward(rewardId, snap.val());
             this.writer.insert(this.reader.getRewardPath(gameId, rewardCategoryId, null), null, obj);
             this.listenForPropertyChanges_(
                 snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,

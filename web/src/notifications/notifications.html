@@ -149,7 +149,7 @@
               .then((properties) => {
                 delete properties.email;
                 this.bridge.sendNotification(Utils.merge(properties, {
-                    notificationId: Bridge.NotificationCategoryId.generate(),
+                    notificationId: this.bridge.newNotificationCategoryId(),
                     playerId: null,
                     //gameId: this.gameId,
                 }));

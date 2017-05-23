@@ -102,7 +102,7 @@
           this.$.categoryForm.openForAdding()
               .then((properties) => {
                 this.bridge.addRewardCategory(Utils.merge(properties, {
-                    rewardCategoryId: Bridge.RewardCategoryId.generate(),
+                    rewardCategoryId: this.bridge.newRewardCategoryId(),
                     gameId: this.gameId
                 }));
               });

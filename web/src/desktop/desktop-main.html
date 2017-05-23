@@ -96,7 +96,7 @@
   </style>
   <template>
     <ghvz-dashboard>
-      
+
       <template is="dom-if" if="[[isAdmin]]">
         <ghvz-card spaced admin left padded>
           <div class="header">Game</div>
@@ -128,8 +128,8 @@
               players-by-id="[[game.playersById]]">
           </ghv-player-table>
         </ghvz-card>
-        
-        <ghvz-card spaced admin left>
+
+        <!-- <ghvz-card spaced admin left>
           <div class="header">Dev Tools</div>
           <ghvz-dev-tools
               class="content"
@@ -137,7 +137,7 @@
               game="[[game]]"
               user="[[user]]">
           </ghvz-dev-tools>
-        </ghvz-card>
+        </ghvz-card> -->
 
         <ghvz-card spaced scrolling admin right>
           <div class="header">Guns</div>
@@ -221,7 +221,9 @@
 
         <ghvz-card spaced scrolling right>
           <div class="header">Leaderboard</div>
-          <ghvz-leaderboard-summary players="[[game.players]]">
+          <ghvz-leaderboard-summary
+              players="[[game.players]]"
+              num-to-show="3">
           </ghvz-leaderboard-summary>
         </ghvz-card>
 

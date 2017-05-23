@@ -1,6 +1,8 @@
 
 class CheckedServer {
-  constructor(inner, methods) {
+  constructor(idGenerator, inner, methods) {
+    this.idGenerator = idGenerator;
+
     this.inner = inner;
     assert(this.inner.reader);
 
@@ -38,10 +40,11 @@ class CheckedServer {
       typeName = typeName.slice(1);
     }
 
-    assert(typeName in Bridge);
+    assert(('verify' + typeName) in this.idGenerator);
+    assert(value);
 
     // Such as Bridge.UserId.verify
-    Bridge[typeName].verify(value);
+    this.idGenerator['verify' + typeName](value);
 
     let found = this.reader.idExists(value, true);
     if (shouldExist) {

@@ -1,0 +1,138 @@
+<dom-module id="ghvz-real-app">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-real-app',
+
+      properties: {
+        env: String,
+
+        bridge: {
+          type: Object,
+          computed: 'computeBridge_(env)',
+        },
+
+        url: String,
+
+        database: {
+          type: Object,
+          value: () => ({}),
+        },
+
+        userId: {
+          type: String,
+          value: undefined,
+        },
+      },
+
+      listeners: {
+        'ghvz-replace-url': 'replaceUrl_',
+        'ghvz-push-url': 'pushUrl_',
+      },
+
+      replaceUrl_(e) {
+        window.history.replaceState({}, "", e.detail.url);
+      },
+
+      pushUrl_(e) {
+        window.history.pushState({}, "", e.detail.url);
+      },
+
+      attached() {
+        this.bridge.attemptAutoSignIn()
+            .then((userId) => this.userId = userId)
+            .catch((e) => {
+              this.userId = null
+            });
+        window.onpopstate = this.handlePopState_.bind(this);
+      },
+
+      handlePopState_(e) {
+        this.$.app.handlePopState(e);
+      },
+
+      computeBridge_(env) {
+        assert(env);
+        let config;
+        let serverUrl;
+        if (env == 'prod') {
+          serverUrl = "https://humansvszombies-24348.appspot.com/";
+          config = {
+            apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+            authDomain: "trogdors-29fa4.firebaseapp.com",
+            databaseURL: "https://trogdors-29fa4.firebaseio.com",
+            projectId: "trogdors-29fa4",
+            storageBucket: "trogdors-29fa4.appspot.com",
+            messagingSenderId: "625580091272"
+          };
+        } else if (env == 'localprod') {
+          serverUrl = "http://127.0.0.1:8080/"; // we dont have a dev frontend
+          config = {
+            apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+            authDomain: "trogdors-29fa4.firebaseapp.com",
+            databaseURL: "https://trogdors-29fa4.firebaseio.com",
+            projectId: "trogdors-29fa4",
+            storageBucket: "trogdors-29fa4.appspot.com",
+            messagingSenderId: "625580091272"
+          };
+        } else if (env == 'dev') {
+          serverUrl = "trololol"; // we dont have a dev frontend
+          config = {
+            apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
+            authDomain: "zeds-dbe0f.firebaseapp.com",
+            databaseURL: "https://zeds-dbe0f.firebaseio.com",
+            storageBucket: "zeds-dbe0f.appspot.com",
+            messagingSenderId: "721599614458",
+          };
+        } else {
+          throwError("Bad env:", env);
+        }
+
+        return new Bridge(
+            new IdGenerator(),
+            new RemoteBridge(
+                serverUrl,
+                config,
+                new BatchedPolymerWriter(this, 'database')));
+      },
+
+      extractUrl_() {
+        let initialUrl = window.location.pathname;
+        let nonGamePageMatch = /^\/(\w+)$/.exec(initialUrl);
+        if (nonGamePageMatch) {
+          let page = nonGamePageMatch[1];
+          return [null, page];
+        }
+        let gamePageMatch = /^\/(game-[\w-]+)(?:\/([\w/-]+))?/.exec(initialUrl);
+        if (gamePageMatch) {
+          let gameNumber = gamePageMatch[1];
+          if (!gamePageMatch[2]) {
+            return [gameNumber, null, null];
+          }
+          let page = gamePageMatch[2];
+          return [gameNumber, page];
+        }
+        return [null, null, null];
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+<template>
+  <ghvz-app
+      bridge="[[bridge]]"
+      database="[[database]]"
+      url="[[url]]"
+      user-id="[[userId]]">
+  </ghvz-app>
+</template>
+</dom-module>
