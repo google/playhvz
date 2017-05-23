@@ -53,8 +53,8 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
   let lifeCodeNumber = 1001;
 
   // For console logging only
-  // let numHumans = 0;
-  // let numZombies = numStartingZombies;
+  let numHumans = 0;
+  let numZombies = numStartingZombies;
 
   // Make that many players, start that many of them as zombies, and simulate that
   // many days. In each of the days, each zombie infects a human.
@@ -73,9 +73,10 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
     let lifeCode = "life-" + lifeCodeNumber++;
     lifeCodesByPlayerId[playerIds[i]] = lifeCode;
     server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[i]}, lifeCode);
-    // numHumans++;
+    console.log("Adding first life to player", playerIds[i]);
+    numHumans++;
   }
-  // console.log(server.time, numHumans, numZombies);
+  // console.log(server.inner.time, numHumans, numZombies);
   for (let i = 0; i < numDays; i++) {
     let dayStartTimestamp = gameStartTimestamp + i * 24 * 60 * 60 * 1000; // 24 hours
     for (let j = zombiesStartIndex; j < zombiesEndIndex; j++) {
@@ -84,7 +85,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       let infecteeLifeCode = lifeCodesByPlayerId[infecteeId];
       server.inner.setTime(dayStartTimestamp + j * 11 * 60 * 1000); // infections are spread by 11 minutes
       server.infect({infectionId: server.idGenerator.newInfectionId(), playerId: infectorId, infecteeLifeCode: infecteeLifeCode, infecteePlayerId: null});
-      // console.log(server.time, --numHumans, ++numZombies);
+      console.log("At", server.inner.time, "humans:", --numHumans, "zombies:", ++numZombies);
     }
     zombiesEndIndex *= 2;
 
@@ -95,7 +96,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[j]}, lifeCode);
-        // console.log(server.time, ++numHumans, --numZombies);
+        console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
       }
       zombiesStartIndex = numStartingZombies;
     }
@@ -106,7 +107,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[j]}, lifeCode);
-        // console.log(server.time, ++numHumans, --numZombies);
+        console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
       }
       zombiesStartIndex += 3;
     }
@@ -121,7 +122,7 @@ function populatePlayersHeavy(server, gameId) {
   populatePlayers(server, gameId, 300, 7, 5, 3);
 }
 
-function populateGame(server, userIds) {
+function populateGame(server, userIds, populateLotsOfPlayers) {
   let {kimUserId, reggieUserId, minnyUserId, evanUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
 
   var gameId = "game-2017m";
@@ -212,7 +213,7 @@ function populateGame(server, userIds) {
   
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'hi'});
 
-  if (Utils.getParameterByName('populate', 'light') == 'heavy') {
+  if (populateLotsOfPlayers) {
     populatePlayersHeavy(server, gameId);
   } else {
     populatePlayersLight(server, gameId);

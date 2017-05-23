@@ -18,6 +18,7 @@
       var component = document.currentScript.parentElement;
       var drawCurrentPopulationChart = function() {
         var numZombies = 0;
+        debugger;
         for (let player of this.game.players) {
           numZombies += !!player.canInfect;
         }

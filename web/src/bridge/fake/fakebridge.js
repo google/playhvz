@@ -17,8 +17,10 @@ class FakeBridge {
 
     populateUsers(checkedServer, userIds);
 
-    if (Utils.getParameterByName('populate', 'game') == 'game') {
-      populateGame(checkedServer, userIds);
+    let populate = Utils.getParameterByName('populate', 'light');
+    assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
+    if (populate != 'none') {
+      populateGame(checkedServer, userIds, populate == 'heavy');
     }
 
     for (const funcName of Bridge.SERVER_METHODS) {
