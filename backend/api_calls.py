@@ -794,11 +794,11 @@ def AutoUpdatePlayerGroups(firebase, player_id, new_player=False):
       AddPlayerGroupMappings(firebase, group_id, player_id)
 
 
-# TODO Decide how to make a life code as used up.
+# TODO Decide how to mark a life code as used up.
 def Infect(request, firebase):
   """Infect a player via life code.
 
-  Infect a human and get 100 points.
+  Infect a human and gets points.
 
   Args:
     playerId: The person doing the infecting.
@@ -844,7 +844,7 @@ def Infect(request, firebase):
 
   # Add points and an infection entry for a successful infection
   if player_id != victim_id:
-    results.append(helpers.AddPoints(firebase, player_id, 100))
+    results.append(helpers.AddPoints(firebase, player_id, constants.POINTS_INFECT))
     infect_path = '/games/%s/players/%s/infections' % (game_id, victim_id)
     infect_data = {
       'infectorId': player_id,
