@@ -55,45 +55,56 @@ class MappingWriter {
   constructor(destination) {
     this.destination = destination;
   }
-  set(path, value) {
-    this.mapify_(path, value);
 
-    // For example if we're setting ["guns"] to [],
-    // we also want to set ["gunsById"] to {}.
-    if (value instanceof Array) {
-      let mapPath = this.mapifyPath_(path);
-      if (mapPath) {
-        this.destination.set(mapPath, this.arrayToMap_(value));
+  batchedWrite(operations) {
+    let newBatch = [];
+    for (let operation of operations) {
+      let {type, path, value, index, id} = operation;
+      switch (type) {
+        case 'set':
+          this.mapify_(path, value);
+
+          // For example if we're setting ["guns"] to [],
+          // we also want to set ["gunsById"] to {}.
+          if (value instanceof Array) {
+            let mapPath = this.mapifyPath_(path);
+            if (mapPath) {
+              newBatch.push({type: 'set', path: mapPath, value: this.arrayToMap_(value)});
+            }
+          }
+          newBatch.push(operation);
+          break;
+        case 'insert':
+          assert(path instanceof Array);
+          assert(typeof value == 'object');
+          assert(path);
+          assert(value);
+          assert(index == null || typeof index == 'number');
+          // If the given value has arrays itself, construct the corresponding
+          // maps for those.
+          this.mapify_(path.concat([index]), value);
+          // If the array we're inserting into has a corresponding map,
+          // then set the element in that map.
+          let mapPath = this.mapifyPath_(path);
+          if (mapPath) {
+            newBatch.push({type: 'insert', path: mapPath, index: value.id, value: value});
+          }
+          // And finally, add to the array.
+          newBatch.push(operation);
+          break;
+        case 'remove':
+          assert(id == null || typeof id == 'string');
+          newBatch.push({type: 'remove', path: path, index: index, id: null});
+          if (id != null) {
+            let mapPath = this.mapifyPath_(path);
+            newBatch.push({type: 'remove', path: mapPath, index: null, id: id});
+          }
+          break;
       }
     }
-    this.destination.set(path, value);
+    this.destination.batchedWrite(newBatch);
   }
-  insert(path, indexOrNull, value) {
-    assert(path instanceof Array);
-    assert(typeof value == 'object');
-    assert(path);
-    assert(value);
-    assert(indexOrNull == null || typeof indexOrNull == 'number');
-    // If the given value has arrays itself, construct the corresponding
-    // maps for those.
-    this.mapify_(path.concat([indexOrNull]), value);
-    // If the array we're inserting into has a corresponding map,
-    // then set the element in that map.
-    let mapPath = this.mapifyPath_(path);
-    if (mapPath) {
-      this.destination.insert(mapPath, value.id, value);
-    }
-    // And finally, add to the array.
-    this.destination.insert(path, indexOrNull, value);
-  }
-  remove(path, index, id) {
-    assert(id == null || typeof id == 'string');
-    if (id != null) {
-      let mapPath = this.mapifyPath_(path);
-      this.destination.remove(mapPath, id);
-    }
-    this.destination.remove(path, index);
-  }
+
   // Takes an object, looks for arrays in there, and if we have any
   // mapping for them, adds a map.
   mapify_(path, value) {

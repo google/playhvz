@@ -31,25 +31,23 @@ Utils.merge = function(...objs) {
 
 Utils.mergeInto = function(dest, source) {
   for (var key in source) {
-    if (key in dest) {
-      if (dest[key] instanceof Array) {
-        let destArray = dest[key];
-        assert(source[key] instanceof Array);
-        let sourceArray = source[key];
-        for (let sourceElement of sourceArray) {
-          destArray.push(sourceElement);
-        }
-      } else if (typeof dest[key] == 'object') {
-        let destObj = dest[key];
-        assert(typeof source[key] == 'object');
-        let sourceObj = source[key];
-        Utils.mergeInto(destObj, sourceObj);
-      } else {
-        dest[key] = source[key]; // overwrite
+    if (dest[key] instanceof Array) {
+      let destArray = dest[key];
+      assert(source[key] instanceof Array);
+      let sourceArray = source[key];
+      for (let sourceElement of sourceArray) {
+        destArray.push(sourceElement);
       }
-    } else {
-      dest[key] = source[key];
+      continue;
     }
+    if (dest[key] && typeof dest[key] == 'object') {
+      let destObj = dest[key];
+      assert(typeof source[key] == 'object');
+      let sourceObj = source[key];
+      Utils.mergeInto(destObj, sourceObj);
+      continue;
+    }
+    dest[key] = source[key];
   }
 };
 
@@ -214,24 +212,6 @@ Utils.addEmptyLists = function(object, lists) {
   return object;
 }
 
-// Figures out where we should insert an object in an array.
-// All objects must have "index" property to guide us.
-Utils.findInsertIndex = function(collection, newObjectIndex) {
-  assert(collection);
-  // For example if we want to insert an object like this:
-  // {index: 5}
-  // into an array that looks like this:
-  // [{index: 0}, {index: 1}, {index: 4}, {index:6}]
-  // then we'd want to insert it at index 3, so the resulting array would be:
-  // [{index: 0}, {index: 1}, {index: 4}, {index: 5}, {index:6}]
-  let insertIndex = collection.findIndex((existing) => existing.index > newObjectIndex);
-  // If we couldnt find one greater than us, then we must be the greatest.
-  // Insert us at the end.
-  if (insertIndex < 0)
-    insertIndex = collection.length;
-  return insertIndex;
-}
-
 Utils.getParameterByName = function(name, defaultValue) {
   let url = window.location.href;
   name = name.replace(/[\[\]]/g, "\\$&");
@@ -355,6 +335,7 @@ Utils.mapKeys = function(map) {
 Utils.checkObject = function(object, required, optional, typeNameHandler) {
   if (typeof required == 'string') {
     // Undefined is fine, typeNameHandler might just do its own asserting
+    assert(typeof typeNameHandler == 'function');
     assert(typeNameHandler(required, object) !== false, 'Does not meet expectations!');
   } else if (typeof required == 'function') {
     assert(required(object), 'Does not meet expectations!');

@@ -8,7 +8,8 @@ class FakeServer {
     var writer = new SimpleWriter(this.database);
     var mappingWriter = new MappingWriter(writer);
     var teeWriter = new TeeWriter(mappingWriter, new CloningWriter(destination), true);
-    this.writer = teeWriter;
+    var batchingWriter = new BatchingWriter(teeWriter);
+    this.writer = batchingWriter;
 
     this.reader = new PathFindingReader(new SimpleReader(this.database));
 
@@ -434,18 +435,17 @@ class FakeServer {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];
-    let oldChatRoomMemberships = player.chatRoomMemberships.slice();
-    for (let chatRoomMembership of oldChatRoomMemberships) {
-      let chatRoom = game.chatRoomsById[chatRoomMembership.chatRoomId];
-      let group = game.groupsById[chatRoom.groupId];
+
+    for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoRemove) {
         if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
-          this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
+          if (group.memberships.find(m => m.playerId == playerId)) {
+            this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
+          }
         }
       }
     }
-    for (let chatRoom of this.database.gamesById[gameId].chatRooms) {
-      let group = this.database.gamesById[gameId].groupsById[chatRoom.groupId];
+    for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoAdd) {
         if (!group.allegianceFilter || group.allegianceFilter == player.allegiance) {
           this.addPlayerToGroup({gameId: gameId, groupId: group.id, otherPlayerId: playerId});

@@ -28,13 +28,11 @@ class Bridge {
     return this.inner.attemptAutoSignIn();
   }
 
-  listenToGamePublic(gameId) {
-    return this.inner.listenToGamePublic(gameId);
+  listenToGameAsAdmin(...args) {
+    return this.inner.listenToGameAsAdmin(...args);
   }
-
-  // playerId null means try to access as admin
-  listenToGamePrivate(gameId, playerId) {
-    return this.inner.listenToGamePrivate(gameId, playerId);
+  listenToGameAsNonAdmin(...args) {
+    return this.inner.listenToGameAsNonAdmin(...args);
   }
 
   check_(typeName, value) {
@@ -506,9 +504,8 @@ class FakeIdGenerator extends IdGenerator {
   let bridgeMethods = new Map(serverMethods);
 
   bridgeMethods.set('attemptAutoSignIn', {});
-  bridgeMethods.set('listenToGame', {
-    required: 'GameId',
-  });
+  bridgeMethods.set('listenToGameAsAdmin', {});
+  bridgeMethods.set('listenToGameAsNonAdmin', {});
 
   Bridge.METHODS_MAP = bridgeMethods;
   Bridge.METHODS = Array.from(bridgeMethods.keys());

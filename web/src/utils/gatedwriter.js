@@ -5,21 +5,8 @@ class GatedWriter {
     this.waitingOperations = [];
     this.gateOpen = gateOpen;
   }
-  set(path, value) {
-    this.waitingOperations.push(
-        {type: 'set', path: path, value: value});
-    if (this.gateOpen)
-      this.send_();
-  }
-  insert(path, index, value) {
-    this.waitingOperations.push(
-        {type: 'insert', path: path, value: value, index: index});
-    if (this.gateOpen)
-      this.send_();
-  }
-  remove(path, index) {
-    this.waitingOperations.push(
-        {type: 'remove', path: path, index: index});
+  batchedWrite(operations) {
+    this.waitingOperations.push(...operations);
     if (this.gateOpen)
       this.send_();
   }

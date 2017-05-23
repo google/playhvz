@@ -26,19 +26,22 @@ class RemoteBridge {
             .then((result) => {
               if (result.user) {
                 this.userId = "user-" + result.user.uid;
-                this.register({userId: this.userId, name: 'unused'}).then(() => {
+                // this.register({userId: this.userId, name: 'unused'}).then(() => {
                   this.firebaseListener.listenToUser(this.userId)
-                      .then(() => resolve(this.userId))
-                      .catch((e) => {
-                        this.register({userId: this.userId})
-                            .then(() => {
-                              this.firebaseListener.listenToUser(this.userId);
-                            })
-                            .catch((error) => {
-                              reject(error);
-                            });
+                      .then((exists) => {
+                        if (exists) {
+                          resolve(this.userId);
+                        } else {
+                          this.register({userId: this.userId})
+                              .then(() => {
+                                this.firebaseListener.listenToUser(this.userId);
+                              })
+                              .catch((error) => {
+                                reject(error);
+                              });
+                        }
                       });
-                });
+                // });
               } else {
                 // This sometimes happens when we redirect away. Let it go.
               }
@@ -60,14 +63,15 @@ class RemoteBridge {
           if (this.userId == null) {
             this.userId = "user-" + firebaseUser.uid;
             this.firebaseListener.listenToUser(this.userId)
-                .then(() => {
-                  resolve(this.userId);
-                })
-                .catch((e) => {
-                  this.register({userId: this.userId, name: 'unused'}).then(() => {
-                    this.firebaseListener.listenToUser(this.userId);
+                .then((exists) => {
+                  if (exists) {
                     resolve(this.userId);
-                  });
+                  } else {
+                    this.register({userId: this.userId, name: 'unused'}).then(() => {
+                      this.firebaseListener.listenToUser(this.userId);
+                      resolve(this.userId);
+                    });
+                  }
                 });
           } else {
             // Sometimes we get spurious auth changes.
@@ -91,12 +95,12 @@ class RemoteBridge {
         });
   }
 
-  listenToGamePublic(gameId) {
-    this.firebaseListener.listenToGamePublic(gameId);
+  listenToGameAsAdmin(gameId) {
+    this.firebaseListener.listenToGameAsAdmin(gameId);
   }
 
-  listenToGamePrivate(gameId, playerId) {
-    this.firebaseListener.listenToGamePrivate(gameId, playerId);
+  listenToGameAsNonAdmin(gameId, playerId) {
+    this.firebaseListener.listenToGameAsNonAdmin(gameId, playerId);
   }
 
   register(args) {
