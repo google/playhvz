@@ -73,7 +73,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
     let lifeCode = "life-" + lifeCodeNumber++;
     lifeCodesByPlayerId[playerIds[i]] = lifeCode;
     server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[i]}, lifeCode);
-    console.log("Adding first life to player", playerIds[i]);
+    // console.log("Adding first life to player", playerIds[i]);
     numHumans++;
   }
   // console.log(server.inner.time, numHumans, numZombies);
@@ -85,7 +85,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       let infecteeLifeCode = lifeCodesByPlayerId[infecteeId];
       server.inner.setTime(dayStartTimestamp + j * 11 * 60 * 1000); // infections are spread by 11 minutes
       server.infect({infectionId: server.idGenerator.newInfectionId(), playerId: infectorId, infecteeLifeCode: infecteeLifeCode, infecteePlayerId: null});
-      console.log("At", server.inner.time, "humans:", --numHumans, "zombies:", ++numZombies);
+      // console.log("At", server.inner.time, "humans:", --numHumans, "zombies:", ++numZombies);
     }
     zombiesEndIndex *= 2;
 
@@ -96,7 +96,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[j]}, lifeCode);
-        console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
+        // console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
       }
       zombiesStartIndex = numStartingZombies;
     }
@@ -107,7 +107,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[j]}, lifeCode);
-        console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
+        // console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
       }
       zombiesStartIndex += 3;
     }

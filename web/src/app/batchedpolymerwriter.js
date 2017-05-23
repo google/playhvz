@@ -8,7 +8,6 @@ class BatchedPolymerWriter {
     let notifies = [];
     let property = this.component.get(this.propertyName);
     for (let operation of operations) {
-      console.log(Utils.copyOf(operation));
       let {type, path, value, id, index} = operation;
       let targetPath = this.propertyName + '.' + path.join(".");
       switch (type) {
