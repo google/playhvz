@@ -16,12 +16,17 @@
   <template>
     <script type="text/javascript">
       var component = document.currentScript.parentElement;
-
       var drawCurrentPopulationChart = function() {
+        var numZombies = 0;
+        for (let player of this.game.players) {
+          numZombies += !!player.canInfect;
+        }
+        var numHumans = this.game.players.length - numZombies;
+
         var data = google.visualization.arrayToDataTable([
           ['Type', 'Number'],
-          ['Human',  20],
-          ['Zombie',  56],
+          ['Human',  numHumans],
+          ['Zombie',  numZombies],
           ]);
 
         var options = {
