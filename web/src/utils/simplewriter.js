@@ -3,13 +3,21 @@ class SimpleWriter {
   constructor(destination) {
     this.destination = destination;
   }
-  set(path, value) {
-    Utils.set(this.destination, path, value);
-  }
-  insert(path, index, value) {
-    Utils.insert(this.destination, path, index, value);
-  }
-  remove(path, index) {
-    Utils.remove(this.destination, path, index);
+  batchedWrite(operations) {
+    for (let operation of operations) {
+      let {type, path, index, id, value} = operation;
+      switch (type) {
+        case 'set':
+          Utils.set(this.destination, path, value);
+          break;
+        case 'insert':
+          assert(path);
+          Utils.insert(this.destination, path, index, value);
+          break;
+        case 'remove':
+          Utils.remove(this.destination, path, index != null ? index : id);
+          break;
+      }
+    }
   }
 }

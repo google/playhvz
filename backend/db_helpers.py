@@ -6,7 +6,7 @@ import constants
 ENTITY_TYPES = (
     'chatRoomId', 'gameId', 'groupId', 'gunId', 'messageId',
     'missionId', 'playerId', 'rewardCategoryId', 'rewardId', 'userId',
-    'notificationId')
+    'notificationId', 'lifeCodeId')
 
 # Map all expected args to an entity type
 KEY_TO_ENTITY = {a: a for a in ENTITY_TYPES}
@@ -29,6 +29,7 @@ ENTITY_PATH = {
   'rewardCategoryId': ['/rewardCategories/%s', 'name'],
   'rewardId': ['/rewards/%s', 'a'],
   'notificationId': ['/notifications/%s', None],
+  'lifeCodeId': ['/lives/%s', None],
 }
 
 
@@ -147,3 +148,20 @@ def ChatToGame(firebase, chat):
   return GroupToGame(group)
 
 
+def LifeCodeToPlayer(firebase, life_code):
+  """Map a life code to a player."""
+  return firebase.get('/lives', life_code)
+
+
+def AddPoints(firebase, player_id, points):
+  """Add points to a player."""
+  game_id = PlayerToGame(firebase, player_id)
+  player_path = '/games/%s/players/%s' % (game_id, player_id)
+  current_points = int(firebase.get(player_path, 'points'))
+  new_points = current_points + points
+  firebase.put(player_path, 'points', new_points)
+  return 'Player points = %d + %d => %d' % (current_points, points, new_points)
+
+
+
+# vim:ts=2:sw=2:expandtab

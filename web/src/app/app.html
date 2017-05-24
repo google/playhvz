@@ -181,23 +181,21 @@
         }
         if (this.gameId && !this.game) {
           let game = this.database.games.find(game => game.id == this.gameId);
-          if (game && !this.listeningToGamePublic) {
-            this.listeningToGamePublic = true;
-            this.bridge.listenToGamePublic(this.gameId);
+          // if (game && !this.listeningToGamePublic) {
+            // this.listeningToGamePublic = true;
+            // this.bridge.listenToGame(this.gameId);
             this.$.gameSelector.select(game);
-          }
+          // }
         }
         if (this.game && !this.listeningToGamePrivate) {
           let playerId = undefined;
           let isAdmin = this.userId && this.game.admins.find(admin => admin.userId == this.userId);
           if (isAdmin) {
-            playerId = null;
-          } else if (this.playerId) {
-            playerId = this.playerId;
-          }
-          if (playerId !== undefined) {
             this.listeningToGamePrivate = true;
-            this.bridge.listenToGamePrivate(this.gameId, playerId);
+            this.bridge.listenToGameAsAdmin({gameId: this.gameId});
+          } else if (this.playerId) {
+            this.listeningToGamePrivate = true;
+            this.bridge.listenToGameAsNonAdmin({gameId: this.gameId, playerId: this.playerId});
           }
         }
         if (this.user && this.gameId && !this.playerId) {

@@ -27,13 +27,13 @@ let references = [
   ["games", null, "chatRooms", null, "gameId", null],
   ["games", null, "chatRooms", null, "groupId", null],
   ["games", null, "chatRooms", null, "id", null],
-  ["games", null, "chatRooms", null, "id", null],
   ["games", null, "chatRooms", null, "messages", null, "id", null],
   ["games", null, "chatRooms", null, "messages", null, "playerId", null],
   ["games", null, "groups", null, "memberships", null, "id", null],
   ["games", null, "groups", null, "memberships", null, "playerId", null],
   ["games", null, "groups", null, "membershipsByPlayerId", null],
   ["games", null, "missions", null, "gameId", null],
+  ["games", null, "missions", null, "groupId", null],
   ["games", null, "missions", null, "id", null],
   ["games", null, "notificationCategories", null, "gameId", null],
   ["games", null, "notificationCategories", null, "id", null],
@@ -44,6 +44,8 @@ let references = [
   ["games", null, "players", null, "infections", null, "id", null],
   ["games", null, "players", null, "infections", null, "infectorId", null],
   ["games", null, "players", null, "lives", null, "id", null],
+  ["games", null, "players", null, "chatRoomMemberships", null, "chatRoomId", null],
+  ["games", null, "players", null, "missionMemberships", null, "missionId", null],
   ["games", null, "players", null, "notifications", null, "id", null],
   ["games", null, "players", null, "notifications", null, "notificationCategoryId", null],
   ["games", null, "rewardCategories", null, "id", null],
@@ -128,6 +130,9 @@ class ConsistentWriter {
         this.definedById[id] = true;
         assert(this.numUndefined);
         this.numUndefined--;
+        if (this.numUndefined == 0) {
+          console.log('Model is now consistent!');
+        }
       } else {
         assert(false);
       }
@@ -139,6 +144,9 @@ class ConsistentWriter {
         assert(typeof id == 'string');
         if (this.definedById[id] === undefined) {
           this.definedById[id] = false;
+          if (this.numUndefined == 0) {
+            console.log('Model is now inconsistent!');
+          }
           this.numUndefined++;
           console.log("Found reference to", id, ", is hanging!");
         } else {
@@ -148,24 +156,25 @@ class ConsistentWriter {
     });
   }
 
-  set(path, value) {
+  batchedWrite(operations) {
     this.destination.closeGate();
-    this.destination.set(path, value)
-    this.noteReferencesAndDefinitions(path, value);
+    for (let operation of operations) {
+      let {type, path, value, index} = operation;
+      switch (type) {
+        case 'set':
+          this.noteReferencesAndDefinitions(path, value);
+          break;
+        case 'insert':
+          this.noteReferencesAndDefinitions(path.concat([index]), value);
+          break;
+        case 'remove':
+          assert(false);
+          break;
+      }
+    }
+    this.destination.batchedWrite(operations);
     if (this.numUndefined == 0) {
       this.destination.openGate();
     }
-  }
-  insert(path, index, value) {
-    this.destination.closeGate();
-    this.destination.insert(path, index, value);
-    this.noteReferencesAndDefinitions(path.concat([index]), value);
-    if (this.numUndefined == 0) {
-      this.destination.openGate();
-    }
-  }
-  remove(path, index) {
-    assert(false); // implement
-    //this.destination.remove(path, index, value);
   }
 }

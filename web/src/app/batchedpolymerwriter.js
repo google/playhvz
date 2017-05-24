@@ -8,7 +8,8 @@ class BatchedPolymerWriter {
     let notifies = [];
     let property = this.component.get(this.propertyName);
     for (let operation of operations) {
-      let {type, path, value, index} = operation;
+      console.log(operation);
+      let {type, path, value, id, index} = operation;
       let targetPath = this.propertyName + '.' + path.join(".");
       switch (type) {
         case 'set':
@@ -50,7 +51,7 @@ class BatchedPolymerWriter {
               this.component.notifyPath(targetPath + "." + index, null);
             });
           }
-          Utils.remove(property, path, index);
+          Utils.remove(property, path, index != null ? index : id);
           break;
         default:
           throwError('Unknown operation:', operation);

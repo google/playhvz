@@ -73,7 +73,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
     let lifeCode = "life-" + lifeCodeNumber++;
     lifeCodesByPlayerId[playerIds[i]] = lifeCode;
     server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[i]}, lifeCode);
-    console.log("Adding first life to player", playerIds[i]);
+    // console.log("Adding first life to player", playerIds[i]);
     numHumans++;
   }
   // console.log(server.inner.time, numHumans, numZombies);
@@ -85,7 +85,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       let infecteeLifeCode = lifeCodesByPlayerId[infecteeId];
       server.inner.setTime(dayStartTimestamp + j * 11 * 60 * 1000); // infections are spread by 11 minutes
       server.infect({infectionId: server.idGenerator.newInfectionId(), playerId: infectorId, infecteeLifeCode: infecteeLifeCode, infecteePlayerId: null});
-      console.log("At", server.inner.time, "humans:", --numHumans, "zombies:", ++numZombies);
+      // console.log("At", server.inner.time, "humans:", --numHumans, "zombies:", ++numZombies);
     }
     zombiesEndIndex *= 2;
 
@@ -96,7 +96,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[j]}, lifeCode);
-        console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
+        // console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
       }
       zombiesStartIndex = numStartingZombies;
     }
@@ -107,7 +107,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         server.addLife({lifeId: server.idGenerator.newLifeId(), playerId: playerIds[j]}, lifeCode);
-        console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
+        // console.log("At", server.inner.time, "humans:", ++numHumans, "zombies:", --numZombies);
       }
       zombiesStartIndex += 3;
     }
@@ -167,15 +167,11 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'man what i would do for some garlic rolls!'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'https://www.youtube.com/watch?v=GrHPTWTSFgc'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
-  let messageId = server.idGenerator.newMessageId();
-  server.sendChatMessage({messageId: messageId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee?'});
-  server.addChatMessageRequest({requestId: server.idGenerator.newRequestId(), messageId: messageId, playerId: jackPlayerId, type: 'ack'});
-  server.addChatMessageRequest({requestId: server.idGenerator.newRequestId(), messageId: messageId, playerId: kimPlayerId, type: 'ack'});
+  
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
-  server.addChatMessageResponse({responseId: server.idGenerator.newResponseId(), playerId: jackPlayerId, messageId: messageId, text: null});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
-
+  
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: zekePlayerId, message: 'zeds rule!'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'hoomans drool!'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'monkeys eat stool!'});
@@ -239,31 +235,38 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   // server.addNotificationCategory({notificationCategoryId: chatNotificationCategoryId, gameId: gameId, name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
   // server.addNotification({gameId: gameId, notificationId: server.idGenerator.newNotificationId(), playerId: kimPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Evanpocalypse!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
 
-  let stunQuestionId = server.idGenerator.newQuizQuestionId();
-  server.addQuizQuestion({quizQuestionId: stunQuestionId, gameId: gameId,
-    text: "When you're a zombie, and a human shoots you with a nerf dart, what do you do?",
-    type: 'order',
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
-    text: "Crouch/sit down,",
-    order: 0,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
-    text: "For 50 seconds, don't move from your spot (unless safety requires it),",
-    order: 1,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
-    text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
-    order: 2,
-    isCorrect: true,
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
-    text: "Stand up, return to mauling humans,",
-    order: 3,
-    isCorrect: true,
-  });
+  let requestId = server.idGenerator.newRequestId();
+  let firstResponseId = server.idGenerator.newResponseId();
+  server.addRequest({requestId: requestId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, text: 'yee?', type: 'ack'});
+  server.sendRequestToPlayer({responseId: firstResponseId, requestId: requestId, playerId: jackPlayerId});
+  server.sendRequestToPlayer({responseId: server.idGenerator.newResponseId(), requestId: requestId, playerId: kimPlayerId});
+  server.respondToRequest({responseId: firstResponseId, text: null});
+  
+  // let stunQuestionId = server.idGenerator.newQuizQuestionId();
+  // server.addQuizQuestion({quizQuestionId: stunQuestionId, gameId: gameId,
+  //   text: "When you're a zombie, and a human shoots you with a nerf dart, what do you do?",
+  //   type: 'order',
+  // });
+  // server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  //   text: "Crouch/sit down,",
+  //   order: 0,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  //   text: "For 50 seconds, don't move from your spot (unless safety requires it),",
+  //   order: 1,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  //   text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
+  //   order: 2,
+  //   isCorrect: true,
+  // });
+  // server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  //   text: "Stand up, return to mauling humans,",
+  //   order: 3,
+  //   isCorrect: true,
+  // });
 
   // let infectQuestionId = server.idGenerator.newQuizQuestionId();
   // server.addQuizQuestion({quizQuestionId: infectQuestionId, gameId: gameId,

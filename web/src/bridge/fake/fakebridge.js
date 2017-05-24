@@ -51,10 +51,10 @@ class FakeBridge {
       }
     });
   }
-  listenToGamePublic(gameId) {
+  listenToGameAsAdmin(gameId) {
     // Do nothing. This method is really just an optimization.
   }
-  listenToGamePrivate(gameId, playerId) {
+  listenToGameAsNonAdmin(gameId, playerId) {
     // Do nothing. This method is really just an optimization.
   }
   performOperations_() {

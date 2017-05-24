@@ -42,7 +42,7 @@
         },
 
         observers: [
-          'onChatRoomIdChange_(chatRoomId, game.chatRoomsById)',
+          'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
           'onChatRoomChange_(chatRoom)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
@@ -54,6 +54,7 @@
         },
 
         onChatRoomIdChange_(chatRoomId) {
+          assert(this.game.chatRoomsById[chatRoomId]);
           this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
         },
 
