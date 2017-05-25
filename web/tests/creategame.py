@@ -37,6 +37,8 @@ class Driver:
   def FindElement(self, by, locator, wait_long=True):
     return Element(self.driver, FindElement(self.driver, by, locator, wait_long = wait_long))
 
+  def Quit(self):
+    self.driver.quit()
 
 class Element:
   def __init__(self, driver, element):
@@ -56,46 +58,46 @@ class Element:
 # Create a new instance of the Firefox driver
 driver = webdriver.Chrome()
 
-# go to the google home page
-driver.get("http://localhost:5000/createGame?user=minny&populate=none")
-
-driver = Driver(driver)
-
-driver.FindElement(By.ID, 'root', wait_long=True)
-# ID
-# XPATH
-# LINK_TEXT
-# PARTIAL_LINK_TEXT
-# NAME
-# TAG_NAME
-# CLASS_NAME
-# CSS_SELECTOR
-
-driver.FindElement(By.ID, 'createGame').Click()
-
-(driver.FindElement(By.ID, 'idInput')
-    .FindElement(By.TAG_NAME, 'input')
-    .SendKeys('mygame'))
-
-(driver.FindElement(By.ID, 'nameInput')
-    .FindElement(By.TAG_NAME, 'input')
-    .SendKeys('My Game'))
-
-(driver.FindElement(By.ID, 'stunTimerInput')
-    .FindElement(By.TAG_NAME, 'input')
-    .SendKeys('60'))
-
-time.sleep(5)
-
-
-
 try:
-  pass
-    # # we have to wait for the page to refresh, the last thing that seems to be updated is the title
-    # WebDriverWait(driver, 10).until(EC.title_contains("cheese!"))
+  # go to the google home page
+  driver.get("http://localhost:5000/createGame?user=minny&populate=none")
 
-    # # You should see "cheese! - Google Search"
-    # print driver.title
+  driver = Driver(driver)
+
+  driver.FindElement(By.ID, 'root', wait_long=True)
+  # ID
+  # XPATH
+  # LINK_TEXT
+  # PARTIAL_LINK_TEXT
+  # NAME
+  # TAG_NAME
+  # CLASS_NAME
+  # CSS_SELECTOR
+
+  driver.FindElement(By.ID, 'createGame').Click()
+
+  (driver.FindElement(By.ID, 'idInput')
+      .FindElement(By.TAG_NAME, 'input')
+      .SendKeys('mygame'))
+
+  (driver.FindElement(By.ID, 'nameInput')
+      .FindElement(By.TAG_NAME, 'input')
+      .SendKeys('My Game'))
+
+  (driver.FindElement(By.ID, 'stunTimerInput')
+      .FindElement(By.TAG_NAME, 'input')
+      .SendKeys('60'))
+
+  (driver.FindElement(By.ID, 'rulesHtmlInput')
+      .FindElement(By.TAG_NAME, 'textarea')
+      .SendKeys('<i>lol</i>'))
+  
+  (driver.FindElement(By.ID, 'gameForm')
+      .FindElement(By.ID, 'done')
+      .Click())
+
+  driver.FindElement(By.TAG_NAME, 'ghvz-player-table')
 
 finally:
-    driver.quit()
+  # driver.Quit()
+  pass

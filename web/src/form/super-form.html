@@ -200,6 +200,10 @@
         getFieldId_(field) {
           return "field-" + field.property;
         },
+
+        onInputFocused_(e) {
+          e.target.$.input.select();
+        },
       });
     });
   </script>
@@ -239,7 +243,11 @@
             </ghvz-timestamp-picker>
           </template>
           <template is="dom-if" if="[[usePaperTextarea_(field)]]">
-            <paper-textarea no-label-float label="[[field.label]]" value="{{field.value}}">
+            <paper-textarea
+                id$="[[field.property]]Input"
+                no-label-float
+                label="[[field.label]]"
+                value="{{field.value}}">
             </paper-textarea>
           </template>
           <template is="dom-if" if="[[useGroupField_(field)]]">
@@ -255,7 +263,13 @@
             </paper-checkbox>
           </template>
           <template is="dom-if" if="[[usePaperInput_(field)]]">
-            <paper-input id$="[[field.property]]Input" type="[[field.type]]" no-label-float label="[[field.label]]" value="{{field.value}}">
+            <paper-input
+                id$="[[field.property]]Input"
+                type="[[field.type]]"
+                no-label-float
+                label="[[field.label]]"
+                value="{{field.value}}"
+                on-focus="onInputFocused_">
             </paper-input>
           </template>
         </ghvz-form-section>

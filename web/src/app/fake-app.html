@@ -55,7 +55,7 @@
           {loaded: false, focused: false, url: '', name: 'jack', userId: userIds.jackUserId, description: 'Registered, not admin, joined, human'},
         ];
 
-        this.bridge = 
+        this.bridge =
             new Bridge(
                 idGenerator,
                 new FakeBridge(
@@ -63,10 +63,10 @@
                     idGenerator,
                     new BatchedPolymerWriter(this, 'database')));
 
-        // let userName = Utils.getParameterByName('user', 'kim');
-        // let userOption = this.userOptions.find((option) => option.name == userName);
-        // if (userOption)
-        //   this.loadUser_(userOption.userId);
+        let userName = Utils.getParameterByName('user', 'kim');
+        let userOption = this.userOptions.find((option) => option.name == userName);
+        if (userOption)
+          this.loadUser_(userOption.userId);
       },
 
       // This will only read the url once.
