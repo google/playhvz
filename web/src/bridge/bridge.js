@@ -511,6 +511,7 @@ class FakeIdGenerator extends IdGenerator {
   let bridgeMethods = new Map(serverMethods);
 
   bridgeMethods.set('attemptAutoSignIn', {});
+  bridgeMethods.set('listenToDatabase', {});
   bridgeMethods.set('listenToGameAsAdmin', {});
   bridgeMethods.set('listenToGameAsNonAdmin', {});
 

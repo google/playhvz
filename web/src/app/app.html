@@ -8,8 +8,24 @@
       is: 'ghvz-app',
 
       properties: {
-        bridge: Object,
-        database: Object,
+        bridge: {
+          type: Object,
+          value: undefined,
+          observer: 'onBridgeChanged_',
+        },
+
+        database: {
+          type: Object,
+          value: () => ({
+            games: [],
+            gamesById: {},
+            guns: [],
+            gunsById: {},
+            users: [],
+            usersById: {},
+          }),
+        },
+
         url: String,
         userId: String,
 
@@ -84,6 +100,17 @@
         'ghvz-select-game': 'handleSelectGame_',
       },
 
+      onBridgeChanged_(newBridge, oldBridge) {
+        if (!oldBridge && newBridge) {
+          this.bridgeListenCanceler =
+              newBridge.listenToDatabase(new BatchedPolymerWriter(this, 'database'));
+        }
+      },
+
+      detached() {
+        this.bridgeListenCanceler();
+      },
+
       onUserIdChanged_() {
         this.showLoadingSpinner = false;
         if (this.userId == null) {
@@ -116,10 +143,6 @@
                 this.userId = null
               });
         }
-      },
-
-      makeBridgeDelegate_: function() {
-        return new BatchedPolymerWriter(this, 'database');
       },
 
       computeShowSignInButton_(userId, user) {

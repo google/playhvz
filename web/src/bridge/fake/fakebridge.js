@@ -1,17 +1,16 @@
 'use strict';
 
 class FakeBridge {
-  constructor(userIds, idGenerator, destination) {
+  constructor(userIds, idGenerator) {
     this.databaseOperations = [];
-    this.gatedWriter = new GatedWriter(destination, false);
-    var mappingWriter = new MappingWriter(this.gatedWriter);
-    var fakeServer = new FakeServer(idGenerator, mappingWriter, new Date().getTime());
+    this.unmappedDatabase = {};
+    this.teeWriter = new TeeWriter();
+    this.teeWriter.addDestination(new SimpleWriter(this.unmappedDatabase));
+    var fakeServer = new FakeServer(idGenerator, this.teeWriter, new Date().getTime());
     var checkedServer = new CheckedServer(idGenerator, fakeServer, Bridge.SERVER_METHODS_MAP);
     var cloningFakeSerer = new CloningWrapper(checkedServer, Bridge.SERVER_METHODS);
     var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, Bridge.SERVER_METHODS, 100);
     this.server = delayingCloningFakeServer;
-
-    setTimeout(() => this.performOperations_(), 37);
 
     window.fakeBridge = this;
 
@@ -51,16 +50,43 @@ class FakeBridge {
       }
     });
   }
+  listenToDatabase(destination, batchDuration) {
+    var gatedWriter = new GatedWriter(new MappingWriter(destination), false);
+    gatedWriter.batchedWrite([
+      {
+        type: 'set',
+        path: ['games'],
+        value: Utils.copyOf(this.unmappedDatabase.games),
+      },
+      {
+        type: 'set',
+        path: ['guns'],
+        value: Utils.copyOf(this.unmappedDatabase.guns),
+      },
+      {
+        type: 'set',
+        path: ['users'],
+        value: Utils.copyOf(this.unmappedDatabase.users),
+      }
+    ]);
+    this.teeWriter.addDestination(gatedWriter);
+
+    var interval =
+        setInterval(() => {
+          gatedWriter.openGate();
+          gatedWriter.closeGate();
+        }, batchDuration);
+
+    return () => {
+      clearInterval(interval);
+      this.teeWriter.removeDestination(gatedWriter);
+    };
+  }
   listenToGameAsAdmin(gameId) {
     // Do nothing. This method is really just an optimization.
   }
   listenToGameAsNonAdmin(gameId, playerId) {
     // Do nothing. This method is really just an optimization.
-  }
-  performOperations_() {
-    this.gatedWriter.openGate();
-    this.gatedWriter.closeGate();
-    setTimeout(() => this.performOperations_(), 100);
   }
 }
 

@@ -21,25 +21,13 @@
           value: false,
         },
 
-        database: {
+        appsByUserId: {
           type: Object,
-          value: () => ({
-            games: [],
-            gamesById: {},
-            guns: [],
-            gunsById: {},
-            users: [],
-            usersById: {},
-          }),
+          value: () => ({}),
         },
 
-        loadedUserIds: {
-          type: Array,
-          value: () => [],
-        },
-
-        focusedLoadedUserIndex: {
-          type: Number,
+        focusedUserId: {
+          type: String,
           value: undefined,
         },
       },
@@ -75,10 +63,10 @@
                     idGenerator,
                     new BatchedPolymerWriter(this, 'database')));
 
-        let userName = Utils.getParameterByName('user', 'kim');
-        let userOption = this.userOptions.find((option) => option.name == userName);
-        if (userOption)
-          this.loadUser_(userOption.userId);
+        // let userName = Utils.getParameterByName('user', 'kim');
+        // let userOption = this.userOptions.find((option) => option.name == userName);
+        // if (userOption)
+        //   this.loadUser_(userOption.userId);
       },
 
       // This will only read the url once.
@@ -100,18 +88,24 @@
           return;
         }
 
-        if (this.focusedLoadedUserIndex != null) {
-          let focusedUserId = this.loadedUserIds[this.focusedLoadedUserIndex];
-          let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == focusedUserId);
+        if (this.focusedUserId != null) {
+          let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == this.focusedUserId);
           this.set('userOptions.' + focusedOptionIndex + '.focused', false);
+          this.appsByUserId[this.focusedUserId].style.display = 'none';
         }
         if (!option.loaded) {
-          this.push('loadedUserIds', userId);
+          let app = document.createElement('ghvz-app');
+          app.bridge = this.bridge;
+          app.url = this.getUrl_();
+          app.userId = userId;
+          this.appsByUserId[userId] = app;
+          this.$.apps.appendChild(app);
         }
+        this.appsByUserId[userId].style.display = 'block';
 
-        this.focusedLoadedUserIndex = this.loadedUserIds.indexOf(userId);
         this.set('userOptions.' + optionIndex + '.loaded', true);
         this.set('userOptions.' + optionIndex + '.focused', true);
+        this.focusedUserId = userId;
       },
 
       loadUserTapped_(e) {
@@ -122,20 +116,15 @@
         let option = e.model.option;
         let userId = option.userId;
         let optionIndex = this.userOptions.indexOf(option);
-        let loadedUserIndex = this.loadedUserIds.indexOf(userId);
 
-        let focusedUserId = this.loadedUserIds[this.focusedLoadedUserIndex];
-        if (focusedUserId == userId) {
-          this.focusedLoadedUserIndex = this.loadedUserIds.length ? this.loadedUserIds.length - 1 : null;
+        if (this.focusedUserId == userId) {
+          this.focusedUserId = null;
         }
 
-        this.splice('loadedUserIds', loadedUserIndex, 1);
+        this.appsByUserId[userId].remove();
+        delete this.appsByUserId[userId];
         this.set('userOptions.' + optionIndex + '.focused', false);
         this.set('userOptions.' + optionIndex + '.loaded', false);
-
-        if (focusedUserId != userId) {
-          this.focusedLoadedUserIndex = this.loadedUserIds.indexOf(focusedUserId);
-        }
       },
     });
   });
@@ -150,6 +139,7 @@
   #options {
     display: flex;
     padding: 2px;
+    position: relative;
     background-color: #add8e6;
   }
   .option {
@@ -171,25 +161,12 @@
     padding: 0;
     margin-right: 8px;
   }
-  #pages {
+  #apps {
     flex-grow: 1;
   }
 </style>
 <template>
-  <neon-animated-pages
-      id="pages"
-      selected="[[focusedLoadedUserIndex]]">
-    <template is="dom-repeat" items="[[loadedUserIds]]" as="userId">
-      <neon-animatable>
-        <ghvz-app
-            bridge="[[bridge]]"
-            database="[[database]]"
-            url="[[getUrl_()]]"
-            user-id="[[userId]]">
-        </ghvz-app>
-      </neon-animatable>
-    </template>
-  </neon-animated-pages>
+  <div id="apps"></div>
   <div id="options">
     <template is="dom-repeat" items="[[userOptions]]" as="option">
       <div>

@@ -67,9 +67,10 @@ class MappingWriter {
           // For example if we're setting ["guns"] to [],
           // we also want to set ["gunsById"] to {}.
           if (value instanceof Array) {
+            let mapping = findMapping(path);
             let mapPath = this.mapifyPath_(path);
             if (mapPath) {
-              newBatch.push({type: 'set', path: mapPath, value: this.arrayToMap_(value)});
+              newBatch.push({type: 'set', path: mapPath, value: this.arrayToMap_(value, mapping.keyBy)});
             }
           }
           newBatch.push(operation);

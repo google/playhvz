@@ -7,7 +7,7 @@ class FakeServer {
     this.database = {};
     var writer = new SimpleWriter(this.database);
     var mappingWriter = new MappingWriter(writer);
-    var teeWriter = new TeeWriter(mappingWriter, new CloningWriter(destination), true);
+    var teeWriter = new TeeWriter(mappingWriter, new CloningWriter(destination));
     var batchingWriter = new BatchingWriter(teeWriter);
     this.writer = batchingWriter;
 
