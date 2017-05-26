@@ -6,65 +6,71 @@ from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.webdriver.common.by import By
 
-def InnerFindElement(driver, by, locator, container):
-  if container is None:
-    return driver.find_element(by, locator)
-  else:
-    return container.find_element(by, locator)
+def FindElement(driver, path):
+  element = None
+  for step in path:
+    by, locator = step
+    if element is None:
+      element = driver.find_element(by, locator)
+    else:
+      element = element.find_element(by, locator)
+    assert element is not None
+  assert element is not None
+  return element
 
-def FindElement(driver, by, locator, container = None, wait_long = False):
+def Retry(callback, wait_long = False):
   sleep_durations = [.5, .5, .5, .5, 1, 1]
   if wait_long:
     sleep_durations = [1, 1, 1, 1, 1, 1, 2, 4, 8]
   for i in range(0, len(sleep_durations) + 1):
-    print 'Trying to find element id %s, attempt %d' % (locator, i)
     try:
-      input_element = InnerFindElement(driver, by, locator, container)
-      if input_element is None:
-        raise NoSuchElementException('Found no element by id "%s"' % id)
-      return input_element
-    except NoSuchElementException:
+      return callback()
+    except (NoSuchElementException, AssertionError) as e:
       if i == len(sleep_durations):
-        raise NoSuchElementException('Found no element by id "%s"' % id)
+        raise e
       else:
         time.sleep(sleep_durations[i])
 
 
-class Driver:
+class RetryingDriver:
   def __init__(self, driver):
     self.driver = driver
 
-  def FindElement(self, by, locator, wait_long=True):
-    return Element(self.driver, FindElement(self.driver, by, locator, wait_long = wait_long))
+  def FindElement(self, path, wait_long = False):
+    return Retry(lambda: FindElement(self.driver, path), wait_long=wait_long)
+
+  def Click(self, path):
+    return Retry(lambda: FindElement(self.driver, path).click())
+
+  def SendKeys(self, path, keys):
+    return Retry(lambda: FindElement(self.driver, path).send_keys(keys))
+
+  def ExpectContainsInner(self, path, needle):
+    element = FindElement(self.driver, path)
+    if needle not in element.text:
+      raise AssertionError('Element doesnt contain text: %s' % needle)
+
+  def ExpectContains(self, path, needle):
+    return Retry(lambda: self.ExpectContainsInner(path, needle))
 
   def Quit(self):
     self.driver.quit()
 
-class Element:
-  def __init__(self, driver, element):
-    self.driver = driver
-    self.element = element
-
-  def FindElement(self, by, locator, wait_long=True):
-    return Element(driver, FindElement(self.driver, by, locator, container = self.element, wait_long = wait_long))
-
-  def Click(self):
-    self.element.click()
-
-  def SendKeys(self, keys):
-    self.element.send_keys(keys)
+  # def FindElement(self, by, locator, wait_long=True):
+  #   return Element(driver, FindElement(self.driver, by, locator, container = self.element, wait_long = wait_long))
+      
 
 
 # Create a new instance of the Firefox driver
-driver = webdriver.Chrome()
+selenium_driver = webdriver.Chrome()
 
 try:
   # go to the google home page
-  driver.get("http://localhost:5000/createGame?user=minny&populate=none")
+  selenium_driver.get("http://localhost:5000/createGame?user=minny&populate=none")
 
-  driver = Driver(driver)
+  driver = RetryingDriver(selenium_driver)
 
-  driver.FindElement(By.ID, 'root', wait_long=True)
+  driver.FindElement([[By.ID, 'root']], wait_long=True)
   # ID
   # XPATH
   # LINK_TEXT
@@ -74,29 +80,29 @@ try:
   # CLASS_NAME
   # CSS_SELECTOR
 
-  driver.FindElement(By.ID, 'createGame').Click()
+  driver.Click([[By.ID, 'createGame']])
 
-  (driver.FindElement(By.ID, 'idInput')
-      .FindElement(By.TAG_NAME, 'input')
-      .SendKeys('mygame'))
+  driver.SendKeys(
+      [[By.ID, 'idInput'], [By.TAG_NAME, 'input']],
+      'mygame')
 
-  (driver.FindElement(By.ID, 'nameInput')
-      .FindElement(By.TAG_NAME, 'input')
-      .SendKeys('My Game'))
+  driver.SendKeys(
+      [[By.ID, 'nameInput'], [By.TAG_NAME, 'input']],
+      'My Game')
 
-  (driver.FindElement(By.ID, 'stunTimerInput')
-      .FindElement(By.TAG_NAME, 'input')
-      .SendKeys('60'))
-
-  (driver.FindElement(By.ID, 'rulesHtmlInput')
-      .FindElement(By.TAG_NAME, 'textarea')
-      .SendKeys('<i>lol</i>'))
+  driver.SendKeys(
+      [[By.ID, 'stunTimerInput'], [By.TAG_NAME, 'input']],
+      '60')
   
-  (driver.FindElement(By.ID, 'gameForm')
-      .FindElement(By.ID, 'done')
-      .Click())
+  driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
 
-  driver.FindElement(By.TAG_NAME, 'ghvz-player-table')
+  driver.ExpectContains(
+      [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'name']],
+      'My Game')
+
+  driver.ExpectContains(
+      [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'stunTimer']],
+      '60')
 
 finally:
   # driver.Quit()

@@ -1,0 +1,38 @@
+<dom-module id="ghvz-player-selector">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-player-selector',
+
+      properties: {
+        game: Object,
+        playerId: String,
+        player: {
+          type: Object,
+          notify: true,
+        },
+      },
+
+      observers: ['onPlayerIdChanged_(game, playerId)'],
+
+      onPlayerIdChanged_(game, playerId) {
+        console.log('changed!');
+        if (this.game && this.playerId && !this.player) {
+          assert(this.game.players);
+          let player = this.game.players.find(player => player.id == this.playerId);
+          assert(player);
+          this.$.playerSelector.select(player);
+        }
+      },
+    });
+  });
+</script>
+<style>
+</style>
+<template>
+  <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
+</template>
+</dom-module>

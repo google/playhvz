@@ -29,16 +29,6 @@
         url: String,
         userId: String,
 
-        showSignInButton: {
-          type: Boolean,
-          value: false,
-        },
-
-        showLoadingSpinner: {
-          type: Boolean,
-          value: true,
-        },
-
         gameId: {
           type: String,
           value: null,
@@ -62,9 +52,7 @@
 
         game: Object,
 
-        // Up to the components below us to figure out the player, because a
-        // polymer bug with array-selector doesnt let us do it here
-        // player: Object
+        player: Object,
 
         page: {
           type: String,
@@ -72,6 +60,26 @@
         },
 
         url: String,
+
+        isDesktop: {
+          type: Boolean,
+          value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
+        },
+
+        isAdmin: {
+          type: Boolean,
+          computed: 'computeIsAdmin_(user, game, game.admins.length)',
+        },
+
+        showSignInButton: {
+          type: Boolean,
+          value: false,
+        },
+
+        showLoadingSpinner: {
+          type: Boolean,
+          value: true,
+        },
       },
 
       observers: [
@@ -92,8 +100,6 @@
       ],
 
       listeners: {
-        'ghvz-sign-in': 'signIn_',
-        'ghvz-sign-out': 'signOut_',
         'ghvz-open-page': 'handleOpenPage_',
         'ghvz-open-drawer': 'openDrawer_',
         'ghvz-close-drawer': 'closeDrawer_',
@@ -128,6 +134,9 @@
 
       handleSelectGame_(e) {
         this.gameId = e.detail.gameId;
+        this.fire('ghvz-open-page', {
+          page: 'main',
+        });
       },
 
       // Because of a polymer array-selector bug, we can't do this =(
@@ -158,6 +167,19 @@
 
       signOut_() {
         this.bridge.signOut();
+      },
+
+      computeIsAdmin_: function(user) {
+        let admin = this.game.admins.find((admin) => admin.userId == user.id);
+        return !!admin;
+      },
+
+      openDrawer_() {
+        this.$$("#drawer").openDrawer();
+      },
+
+      closeDrawer_() {
+        this.$$("#drawer").closeDrawer();
       },
 
       // Called on any change in userId, gameId, playerId, or games.splices.
@@ -303,25 +325,26 @@
         }
         return [null, null, null];
       },
-
-      openDrawer_() {
-        this.$.inner.openDrawer();
-      },
-
-      closeDrawer_() {
-        this.$.inner.closeDrawer();
-      },
     });
   });
 </script>
 <style>
   :host {
-    display: block;
+    display: flex;
     width: 100%;
     height: 100%;
     position: absolute;
     left: 0;
     top: 0;
+    align-items: center;
+    justify-content: center;
+  }
+  div[main] {
+    overflow-y: auto;
+  }
+  paper-spinner {
+    width: 32px;
+    height: 32px;
   }
 </style>
 <template>
@@ -329,19 +352,66 @@
   <array-selector id="gameSelector" items="[[database.games]]" selected="{{game}}"></array-selector>
   <!-- Because of a polymer bug, this doesnt work:
       <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
-      so instead we have to make a component below us do it.
-      That's actually why ghvz-app-inner was made in the first place... -->
-  <ghvz-app-inner
-      id="inner"
-      bridge="[[bridge]]"
+      so instead we have to make a component below us do it. -->
+  <ghvz-player-selector id="playerSelector" game="[[game]]" player-id="[[playerId]]" player="{{player}}"></ghvz-player-selector>
+  <ghvz-active
       env="[[env]]"
-      database="[[database]]"
-      user="[[user]]"
-      game="[[game]]"
-      player-id="[[playerId]]"
-      page="[[page]]"
-      show-sign-in-button="[[showSignInButton]]"
-      show-loading-spinner="[[showLoadingSpinner]]">
-  </ghvz-app-inner>
+      active="{{userActive}}">
+  </ghvz-active>
+  <ghvz-inactive-dialog
+      bridge="[[bridge]]"
+      player="[[player]]"
+      active="[[userActive]]">
+  </ghvz-inactive-dialog>
+  <ghvz-unseen-notifications
+      id="notifications"
+      bridge="[[bridge]]"
+      categories-by-id="[[game.notificationCategoriesById]]"
+      categories="[[game.notificationCategories]]"
+      player="[[player]]">
+  </ghvz-unseen-notifications>
+  <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
+  <template is="dom-if" if="[[showSignInButton]]">
+    <paper-button on-tap="signIn_">Sign In With Google</paper-button>
+  </template>
+  <template is="dom-if" if="[[user]]">
+    <paper-drawer-panel id="drawer" disable-swipe>
+      <paper-material drawer>
+        <ghvz-drawer
+            bridge="[[bridge]]"
+            is-admin="[[isAdmin]]"
+            database="[[database]]"
+            user="[[user]]"
+            game="[[game]]"
+            player="[[player]]">
+        </ghvz-drawer>
+      </paper-material>
+      <div main>
+        <template is="dom-if" if="[[isDesktop]]">
+          <ghvz-desktop-app
+              bridge="[[bridge]]"
+              is-admin="[[isAdmin]]"
+              database="[[database]]"
+              user="[[user]]"
+              game="[[game]]"
+              player="[[player]]"
+              player-id="[[playerId]]"
+              page="[[page]]">
+          </ghvz-desktop-app>
+        </template>
+        <template is="dom-if" if="[[!isDesktop]]">
+          <ghvz-mobile-app
+              bridge="[[bridge]]"
+              is-admin="[[isAdmin]]"
+              database="[[database]]"
+              user="[[user]]"
+              game="[[game]]"
+              player="[[player]]"
+              page="[[page]]">
+          </ghvz-mobile-app>
+        </template>
+      </div>
+    </paper-drawer-panel>
+  </template>
 </template>
 </dom-module>
