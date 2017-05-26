@@ -65,7 +65,6 @@
     :host {
       display: block;
       position: relative;
-      background-color: #f4f4f4;
     }
     .content {
       margin: 16px;
@@ -97,82 +96,6 @@
   <template>
     <ghvz-dashboard>
 
-      <template is="dom-if" if="[[isAdmin]]">
-        <ghvz-card spaced admin left padded>
-          <div class="header">Game</div>
-          <ghvz-game-details
-              modify
-              bridge="[[bridge]]"
-              game="[[game]]"
-              user-id="[[user.id]]">
-          </ghvz-game-details>
-        </ghvz-card>
-
-        <ghvz-card spaced admin full>
-          <div class="header">Missions</div>
-          <ghvz-missions
-              bridge="[[bridge]]"
-              game="[[game]]"
-              missions="[[game.missions]]">
-          </ghvz-missions>
-        </ghvz-card>
-
-        <ghvz-card spaced scrolling admin full>
-          <div class="header">Players</div>
-          <ghvz-player-table
-              id="playerTableModule"
-              game="[[game]]"
-              bridge="[[bridge]]"
-              reward-categories-by-id="[[game.rewardCategoriesById]]"
-              players="[[game.players]]"
-              players-by-id="[[game.playersById]]">
-          </ghv-player-table>
-        </ghvz-card>
-
-        <!-- <ghvz-card spaced admin left>
-          <div class="header">Dev Tools</div>
-          <ghvz-dev-tools
-              class="content"
-              bridge="[[bridge]]"
-              game="[[game]]"
-              user="[[user]]">
-          </ghvz-dev-tools>
-        </ghvz-card> -->
-
-        <ghvz-card spaced scrolling admin right>
-          <div class="header">Guns</div>
-          <ghvz-guns
-              bridge="[[bridge]]"
-              guns="[[database.guns]]"
-              guns-by-id="[[database.gunsById]]"
-              players="[[game.players]]"
-              players-by-id="[[game.playersById]]">
-          </ghvz-guns>
-        </ghvz-card>
-
-        <ghvz-card spaced scrolling admin right>
-          <div class="header">Rewards</div>
-          <ghvz-rewards
-              bridge="[[bridge]]"
-              game-id="[[game.id]]"
-              players-by-id="[[game.playersById]]"
-              reward-categories="[[game.rewardCategories]]"
-              reward-categories-by-id="[[game.rewardCategoriesById]]">
-          </ghvz-rewards>
-        </ghvz-card>
-
-        <ghvz-card spaced scrolling admin right>
-          <div class="header">Notifications</div>
-          <ghvz-notifications
-              bridge="[[bridge]]"
-              game="[[game]]"
-              players-by-id="[[game.playersById]]"
-              notification-categories="[[game.notificationCategories]]"
-              notification-categories-by-id="[[game.notificationCategoriesById]]">
-          </ghvz-notifications>
-        </ghvz-card>
-      </template>
-
       <template is="dom-if" if="[[canJoinGame]]">
         <ghvz-card spaced full padded>
           <div class="header">Join Game</div>
@@ -193,7 +116,7 @@
           </ghvz-card>
         </template>
 
-        <template is="dom-if" if="[[canSelfInfect]]">
+        <!-- <template is="dom-if" if="[[canSelfInfect]]">
           <ghvz-card spaced padded left>
             <div class="header">Transcend</div>
             <ghvz-self-infect
@@ -202,7 +125,7 @@
                 player-id="[[player.id]]">
             </ghvz-self-infect>
           </ghvz-card>
-        </template>
+        </template> -->
 
         <ghvz-card spaced left padded>
           <div class="header">Rules</div>

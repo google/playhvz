@@ -17,6 +17,11 @@
           player: Object,
           page: String,
 
+          isMobile: {
+            type: Boolean,
+            value: false,
+          },
+
           showMainPage: {
             type: Boolean,
             value: false,
@@ -37,7 +42,6 @@
     :host {
       display: block;
       position: relative;
-      background-color: #f4f4f4;
       padding: 8px;
       height: 100%;
       width: 100%;
@@ -73,6 +77,7 @@
           bridge="[[bridge]]"
           is-admin="[[isAdmin]]"
           database="[[database]]"
+          is-mobile="[[isMobile]]"
           user="[[user]]"
           game="[[game]]"
           player="[[player]]"

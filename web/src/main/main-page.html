@@ -1,0 +1,54 @@
+
+<dom-module id="ghvz-main-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-main-page',
+
+      properties: {
+        bridge: Object,
+        isMobile: Boolean,
+        database: Object,
+        user: Object,
+        game: Object,
+        player: Object,
+        page: {
+          type: String,
+          observer: 'onPageChanged_',
+        },
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+<template>
+  <template is="dom-if" if="[[!isMobile]]">
+    <ghvz-desktop-main-page
+        bridge="[[bridge]]"
+        database="[[database]]"
+        game="[[game]]"
+        user="[[user]]"
+        player="[[player]]">
+    </ghvz-desktop-main-page>
+  </template>
+  <template is="dom-if" if="[[isMobile]]">
+    <ghvz-mobile-main-page
+        bridge="[[bridge]]"
+        database="[[database]]"
+        game="[[game]]"
+        user="[[user]]"
+        player="[[player]]">
+    </ghvz-mobile-main-page>
+  </template>
+</template>
+</dom-module>

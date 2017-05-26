@@ -112,8 +112,10 @@
     font-weight: 500;
   }
   .drawer-section {
-    border-top: 1px solid #ddd;
     padding: 8px 0;
+  }
+  .drawer-section#playerPages {
+    border-top: 1px solid #ddd;
   }
   #confidential {
     padding: 4px 12px 8px;
@@ -131,53 +133,59 @@
       Remember, don't post confidential info!</div>
     </div>
 
-    <a href="javascript:void(0)" data-page="main" class="drawer-item">
-      <iron-icon icon="icons:dashboard"></iron-icon>
-      Dashboard
-    </a>
-
-    <template is="dom-if" if="[[canRegister]]">
-      <a href="javascript:void(0)" data-page="joinGame" class="drawer-item">
-        <iron-icon icon="social:person-add"></iron-icon>
-        Register
-      </a>
-    </template>
-
     <template is="dom-if" if="[[isAdmin]]">
-      <div class="drawer-section">
+      <div id="adminPages" class="drawer-section">
+        <a href="javascript:void(0)" data-page="adminMain" class="drawer-item">
+          <iron-icon icon="icons:dashboard"></iron-icon>
+          Admin Dashboard
+        </a>
         <a href="javascript:void(0)" data-page="adminGame" class="drawer-item admin">
           <iron-icon icon="icons:group-work"></iron-icon>
-          Game Details
+          Admin Game Details
         </a>
         <a href="javascript:void(0)" data-page="adminMissions" class="drawer-item admin">
           <iron-icon icon="icons:group-work"></iron-icon>
-          Missions
+          Admin Missions
         </a>
         <a href="javascript:void(0)" data-page="adminPlayers" class="drawer-item admin">
           <iron-icon icon="social:group"></iron-icon>
-          Players
+          Admin Players
         </a>
         <a href="javascript:void(0)" data-page="adminDevTools" class="drawer-item admin">
           <iron-icon icon="device:developer-mode"></iron-icon>
-          Dev Tools
+          Admin Dev Tools
         </a>
         <a href="javascript:void(0)" data-page="adminGuns" class="drawer-item admin">
           <iron-icon icon="icons:favorite"></iron-icon>
-          Guns
+          Admin Guns
         </a>
         <a href="javascript:void(0)" data-page="adminRewards" class="drawer-item admin">
           <iron-icon icon="icons:stars"></iron-icon>
-          Rewards
+          Admin Rewards
         </a>
         <a href="javascript:void(0)" data-page="adminNotifications" class="drawer-item admin">
           <iron-icon icon="notification:sms"></iron-icon>
-          Notifications
+          Admin Notifications
+        </a>
+      </div>
+    </template>
+
+    <template is="dom-if" if="[[canRegister]]">
+      <div id="playerPages" class="drawer-section">
+        <a href="javascript:void(0)" data-page="joinGame" class="drawer-item">
+          <iron-icon icon="social:person-add"></iron-icon>
+          Register
         </a>
       </div>
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
-      <div class="drawer-section">
+      <div id="playerPages" class="drawer-section">
+        <a href="javascript:void(0)" data-page="main" class="drawer-item">
+          <iron-icon icon="icons:dashboard"></iron-icon>
+          Dashboard
+        </a>
+
         <a href="javascript:void(0)" data-page="profile" class="drawer-item">
           <iron-icon icon="icons:account-box"></iron-icon>
           My Profile

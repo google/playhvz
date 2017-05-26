@@ -93,10 +93,7 @@
 
         return new Bridge(
             new IdGenerator(),
-            new RemoteBridge(
-                serverUrl,
-                config,
-                new BatchedPolymerWriter(this, 'database')));
+            new RemoteBridge(serverUrl, config));
       },
 
       extractUrl_() {

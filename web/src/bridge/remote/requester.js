@@ -47,7 +47,9 @@ class NormalRequester {
       promise: promise,
     });
 
-    firebase.auth().currentUser.getToken(false).then((userToken) => {
+    let auth = firebase.auth();
+    let currentUser = auth.currentUser;
+    currentUser.getToken(false).then((userToken) => {
       urlParams = urlParams || {};
       var urlParamsStr = "";
       for (var key in urlParams) {

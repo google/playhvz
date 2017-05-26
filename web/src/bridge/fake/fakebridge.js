@@ -50,7 +50,7 @@ class FakeBridge {
       }
     });
   }
-  listenToDatabase(destination, batchDuration) {
+  listenToDatabase({destination}) {
     var gatedWriter = new GatedWriter(new MappingWriter(destination), false);
     gatedWriter.batchedWrite([
       {
@@ -75,7 +75,7 @@ class FakeBridge {
         setInterval(() => {
           gatedWriter.openGate();
           gatedWriter.closeGate();
-        }, batchDuration);
+        }, 100);
 
     return () => {
       clearInterval(interval);

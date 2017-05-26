@@ -91,6 +91,7 @@
   }
 </style>
 <template>
+  <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
   <ghvz-active
       env="[[env]]"
       active="{{userActive}}">
@@ -100,7 +101,13 @@
       player="[[player]]"
       active="[[userActive]]">
   </ghvz-inactive-dialog>
-  <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
+  <ghvz-unseen-notifications
+      id="notifications"
+      bridge="[[bridge]]"
+      categories-by-id="[[game.notificationCategoriesById]]"
+      categories="[[game.notificationCategories]]"
+      player="[[player]]">
+  </ghvz-unseen-notifications>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
     <paper-button on-tap="signIn_">Sign In With Google</paper-button>

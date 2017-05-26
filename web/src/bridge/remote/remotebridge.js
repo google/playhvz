@@ -1,10 +1,10 @@
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig, writer) {
+  constructor(serverUrl, firebaseConfig) {
 
     firebase.initializeApp(firebaseConfig);
     this.firebaseListener =
-        new FirebaseListener(writer, firebase.app().database().ref());
+        new FirebaseListener(firebase.app().database().ref());
 
     this.requester = new NormalRequester(serverUrl);
 
@@ -93,6 +93,10 @@ class RemoteBridge {
         }).catch((error) => {
           console.error(error);
         });
+  }
+
+  listenToDatabase({destination}) {
+    this.firebaseListener.listenToDatabase(destination);
   }
 
   listenToGameAsAdmin(gameId) {

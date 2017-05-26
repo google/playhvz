@@ -1,38 +1,75 @@
 
 <dom-module id="ghvz-rules">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-rules',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-rules',
 
-        properties: {
-          game: Object,
+      properties: {
+        game: Object,
+        isAdmin: {
+          type: Boolean,
+          value: false,
         },
+      },
 
-        observers: ['rulesChanged_(game.rulesHtml)'],
+      observers: ['rulesChanged_(game.rulesHtml)'],
 
-        attached() {
-        },
+      attached() {
+        this.fire('ghvz-add-toolbar-button', { button: this.$.update });
+      },
 
-        rulesChanged_(rulesHtml) {
-          this.$.rules.innerHTML = rulesHtml;
-          this.scopeSubtree(this.$.rules);
-        },
-      });
+      rulesChanged_(rulesHtml) {
+        this.$.rules.innerHTML = rulesHtml;
+        this.scopeSubtree(this.$.rules);
+      },
+
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+            {
+              property: "rulesHtml",
+              label: "Rules html",
+              description: "HTML describing the rules",
+              type: 'text',
+            },
+          ],
+        };
+      },
+
+      updateRules_: function() {
+        this.$.rulesForm.openForEditing({
+          rulesHtml: this.game.rulesHtml,
+        }).then((properties) => {
+          this.bridge.updateGame({
+            gameId: this.game.id,
+            rulesHtml: properties.rulesHtml
+          });
+        });
+      },
+
     });
-  </script>
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-      ul {
-        margin: 0;
-      }
-    </style>
-    <div id="rules"></div>
-  </template>
+  });
+</script>
+<style>
+  :host {
+    display: block;
+  }
+  ul {
+    margin: 0;
+  }
+</style>
+<template>
+  <paper-icon-button hidden$="[[!isAdmin]]" id="update" icon="icons:create" on-tap="updateRules_">
+  </paper-icon-button>
+  <ghvz-super-form
+      id="rulesForm"
+      type-name="Rules"
+      blueprint="[[makeFormBlueprint_()]]">
+  </ghvz-super-form>
+  <div id="rules"></div>
+</template>
 </dom-module>

@@ -22,24 +22,14 @@
 
           mostRecentSubpage: String,
 
-          isMobile: {
-            type: Boolean,
-            value: false,
-          },
+          isMobile: Boolean,
 
           showPage: {
             type: Object,
             value: {
-              // 'main' is handled by either desktop-app or mobile-app
+              'main': 'main',
               'joinGame': 'joinGame',
               'createGame': 'createGame',
-              'adminDevTools': 'adminDevTools',
-              'adminGame': 'adminGame',
-              'adminGuns': 'adminGuns',
-              'adminMissions': 'adminMissions',
-              'adminNotifications': 'adminNotifications',
-              'adminPlayers': 'adminPlayers',
-              'adminRewards': 'adminRewards',
               'chat': 'chat',
               'faq': 'faq',
               'leaderboard': 'leaderboard',
@@ -49,6 +39,14 @@
               'rules': 'rules',
               'stats': 'stats',
               'missions': 'missions',
+              'adminMain': 'adminMain',
+              'adminDevTools': 'adminDevTools',
+              'adminGame': 'adminGame',
+              'adminGuns': 'adminGuns',
+              'adminMissions': 'adminMissions',
+              'adminNotifications': 'adminNotifications',
+              'adminPlayers': 'adminPlayers',
+              'adminRewards': 'adminRewards',
             },
           },
         },
@@ -72,7 +70,6 @@
     :host {
       display: block;
       position: relative;
-      background-color: #f4f4f4;
       height: 100%;
       width: 100%;
       box-sizing: border-box;
@@ -82,15 +79,36 @@
     }
   </style>
   <template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.adminMain, mostRecentSubpage)]]">
+      <ghvz-admin-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user="[[user]]"
+          is-mobile="[[isMobile]]"
+          player="[[player]]">
+      </ghvz-admin-page>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.main, mostRecentSubpage)]]">
+      <ghvz-main-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user="[[user]]"
+          player="[[player]]">
+      </ghvz-main-page>
+    </template>
+
     <template is="dom-if" if="[[computeShowPage_(showPage.createGame, mostRecentSubpage)]]">
       <ghvz-card expand padded full$="[[isMobile]]" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
         <div class="header">Create Game</div>
-        <ghvz-game-details
-              create
+        <ghvz-create-game
               class="content"
               bridge="[[bridge]]"
               user-id="[[user.id]]">
-        </ghvz-game-details>
+        </ghvz-create-game>
       </ghvz-card>
     </template>
 

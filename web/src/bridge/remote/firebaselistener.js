@@ -60,7 +60,9 @@ const REWARD_COLLECTIONS = [];
 // groups; the whole story is consistent before and after these batches.
 // Because of that, destinationBatchedWriter needs to be a BatchedWriter.
 class FirebaseListener {
-  constructor(destinationBatchedWriter, firebaseRoot) {
+  constructor(firebaseRoot) {
+    this.destination = new TeeWriter();
+
     // This is a plain object, which will have all of our games, guns, users,
     // and everything below them.
     let privateDatabaseCopyObject = {};
@@ -124,14 +126,17 @@ class FirebaseListener {
                                 // writer the FirebaseListener was given (supposedly,
                                 // a writer which writes to something that the UI pays
                                 // attention to)
-                                destinationBatchedWriter, true))))));
+                                this.destination, true))))));
+    this.firebaseRoot = firebaseRoot;
+  }
+  listenToDatabase(destination) {
+    this.destination.addDestination(destination);
     // Set up the initial structure. Gotta have a games, users, and guns array.
     this.writer.set(this.reader.getGunPath(null), []);
     this.writer.set(this.reader.getGamePath(null), []);
     this.writer.set(this.reader.getUserPath(null), []);
     assert(this.reader.source.source.games);
 
-    this.firebaseRoot = firebaseRoot;
   }
   listenForPropertyChanges_(collectionRef, properties, ignored, setCallback) {
     collectionRef.on("child_added", (change) => {

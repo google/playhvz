@@ -1,0 +1,132 @@
+<dom-module id="ghvz-create-game">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-create-game',
+
+      properties: {
+        bridge: Object,
+        userId: String,
+        game: {
+          type: Object,
+          value: null,
+        }
+      },
+
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+            {
+              property: "id",
+              label: "Id",
+              description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
+              width: "third",
+            },
+            {
+              property: "name",
+              label: "Name",
+              width: "third",
+              description: "Full name for the game.",
+            },
+            {
+              property: "stunTimer",
+              label: "Stun timer (in seconds)",
+              description: "Stun timer, in seconds.",
+              type: 'number',
+              width: "third",
+            },
+          ],
+        };
+      },
+
+      addGame_: function() {
+        this.$.gameForm.openForAdding({})
+            .then((properties) => {
+              let gameId = properties.id;
+              if (!gameId.startsWith('game-'))
+                gameId = 'game-' + properties.id;
+              var resistanceGroupId = this.bridge.newGroupId('resistance');
+              var resistanceChatRoomId = this.bridge.newChatRoomId();
+              var hordeGroupId = this.bridge.newGroupId('horde');
+              var hordeChatRoomId = this.bridge.newChatRoomId();
+
+              this.bridge.createGame({
+                gameId: gameId,
+                stunTimer: +properties.stunTimer,
+                adminUserId: this.userId,
+                active: true,
+                rulesHtml: '',
+                name: properties.name,
+              }).then((response) => {
+                return this.bridge.createGroup({
+                  groupId: resistanceGroupId,
+                  gameId: gameId,
+                  name: "Resistance",
+                  ownerPlayerId: null,
+                  allegianceFilter: 'resistance',
+                  autoAdd: true,
+                  autoRemove: true,
+                  membersCanAdd: false,
+                  membersCanRemove: false,
+                });
+              }).then((response) => {
+                return this.bridge.createChatRoom({
+                  chatRoomId: resistanceChatRoomId,
+                  groupId: resistanceGroupId,
+                  name: "Resistance Comms Hub",
+                  withAdmins: false
+                });
+              }).then((response) => {
+                return this.bridge.createGroup({
+                  groupId: hordeGroupId,
+                  gameId: gameId,
+                  name: "Horde",
+                  ownerPlayerId: null,
+                  allegianceFilter: 'horde',
+                  autoAdd: true,
+                  membersCanAdd: true,
+                  autoRemove: true,
+                  membersCanAdd: false,
+                  membersCanRemove: false,
+                });
+              }).then((response) => {
+                return this.bridge.createChatRoom({
+                  chatRoomId: hordeChatRoomId,
+                  groupId: hordeGroupId,
+                  name: "Horde ZedLink",
+                  withAdmins: false,
+                });
+              }).then((response) => {
+                this.fire('ghvz-select-game', {
+                  gameId: gameId,
+                });
+                this.fire('ghvz-open-page', {
+                  page: 'adminMain',
+                });
+              });
+            });
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: flex;
+  }
+  paper-button {
+    background-color: #9C27B0;
+    color: white;
+  }
+</style>
+<template>
+  <paper-button id="createGame" raised on-tap="addGame_">Create Game</paper-button>
+  <ghvz-super-form
+      id="gameForm"
+      type-name="Game"
+      blueprint="[[makeFormBlueprint_()]]">
+  </ghvz-super-form>
+</template>
+</dom-module>

@@ -1,0 +1,174 @@
+
+<dom-module id="ghvz-desktop-admin-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-desktop-admin-page',
+
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: String,
+          game: String,
+          player: Object,
+
+          isPlayer: {
+            type: Boolean,
+            computed: 'computeIsPlayer_(player)',
+          },
+
+          canJoinGame: {
+            type: Boolean,
+            computed: 'computeCanJoinGame_(game, player)',
+          },
+
+          canSelfInfect: {
+            type: Boolean,
+            computed: 'computeCanSelfInfect_(player.allegiance)',
+          },
+        },
+
+        computeCanSelfInfect_: function(allegiance) {
+          return allegiance == 'resistance';
+        },
+
+        computeCanJoinGame_(game, player) {
+          return game && !player;
+        },
+
+        computeIsPlayer_(player) {
+          return !!player;
+        },
+
+        joinGame_() {
+          this.fire('ghvz-open-page', {
+            page: 'joinGame',
+          });
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+      position: relative;
+    }
+    .content {
+      margin: 16px;
+    }
+    #viewControls paper-checkbox {
+      margin-left: 16px;
+    }
+    #topControls {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+      align-items: center;
+    }
+    #info {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 16px;
+      align-items: center;
+    }
+    .info {
+      margin-left: 32px;
+      text-align: center;
+    }
+    paper-button {
+      background-color: #03A9F4;
+      color: white;
+    }
+  </style>
+  <template>
+    <ghvz-dashboard>
+
+      <ghvz-card spaced admin left padded>
+        <div class="header">Game</div>
+        <ghvz-game-details
+            modify
+            bridge="[[bridge]]"
+            game="[[game]]"
+            user-id="[[user.id]]">
+        </ghvz-game-details>
+      </ghvz-card>
+
+      <ghvz-card spaced admin left padded>
+        <div class="header">Rules</div>
+        <ghvz-rules
+            is-admin
+            bridge="[[bridge]]"
+            game="[[game]]">
+        </ghvz-rules>
+      </ghvz-card>
+
+      <ghvz-card spaced admin full>
+        <div class="header">Missions</div>
+        <ghvz-missions
+            bridge="[[bridge]]"
+            game="[[game]]"
+            missions="[[game.missions]]">
+        </ghvz-missions>
+      </ghvz-card>
+
+      <ghvz-card spaced scrolling admin full>
+        <div class="header">Players</div>
+        <ghvz-player-table
+            id="playerTableModule"
+            game="[[game]]"
+            bridge="[[bridge]]"
+            reward-categories-by-id="[[game.rewardCategoriesById]]"
+            players="[[game.players]]"
+            players-by-id="[[game.playersById]]">
+        </ghv-player-table>
+      </ghvz-card>
+
+      <!-- <ghvz-card spaced admin left>
+        <div class="header">Dev Tools</div>
+        <ghvz-dev-tools
+            class="content"
+            bridge="[[bridge]]"
+            game="[[game]]"
+            user="[[user]]">
+        </ghvz-dev-tools>
+      </ghvz-card> -->
+
+      <ghvz-card spaced scrolling admin right>
+        <div class="header">Guns</div>
+        <ghvz-guns
+            bridge="[[bridge]]"
+            guns="[[database.guns]]"
+            guns-by-id="[[database.gunsById]]"
+            players="[[game.players]]"
+            players-by-id="[[game.playersById]]">
+        </ghvz-guns>
+      </ghvz-card>
+
+      <ghvz-card spaced scrolling admin right>
+        <div class="header">Rewards</div>
+        <ghvz-rewards
+            bridge="[[bridge]]"
+            game-id="[[game.id]]"
+            players-by-id="[[game.playersById]]"
+            reward-categories="[[game.rewardCategories]]"
+            reward-categories-by-id="[[game.rewardCategoriesById]]">
+        </ghvz-rewards>
+      </ghvz-card>
+
+      <ghvz-card spaced scrolling admin right>
+        <div class="header">Notifications</div>
+        <ghvz-notifications
+            bridge="[[bridge]]"
+            game="[[game]]"
+            players-by-id="[[game.playersById]]"
+            notification-categories="[[game.notificationCategories]]"
+            notification-categories-by-id="[[game.notificationCategoriesById]]">
+        </ghvz-notifications>
+      </ghvz-card>
+
+    </ghvz-dashboard>
+  </template>
+</dom-module>
