@@ -22,12 +22,12 @@ ENTITY_PATH = {
   'gameId': ['/games/%s', 'name'],
   'userId': ['/users/%s', 'name'],
   'groupId': ['/groups/%s', 'gameId'],
-  'playerId': ['/players/%s', 'userId'],
+  'playerId': ['/playersPrivate/%s', 'userId'],
   'gunId': ['/guns/%s', 'a'],
   'missionId': ['/missions/%s', 'name'],
   'chatRoomId': ['/chatRooms/%s', 'name'],
   'rewardCategoryId': ['/rewardCategories/%s', 'name'],
-  'rewardId': ['/rewards/%s', 'a'],
+  'rewardId': ['/rewards/%s', 'code'],
   'notificationId': ['/notifications/%s', None],
   'lifeCodeId': ['/lives/%s', None],
 }
@@ -108,6 +108,47 @@ def GroupToGame(firebase, group):
   return firebase.get('/groups/%s' % group, 'gameId')
 
 
+def RewardCodeToRewardCategoryId(firebase, game_id, reward_code, expect=True):
+  reward_category_short_name = reward_code.split('-')[0]
+  print "lizard1 " + reward_category_short_name
+  print {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id}
+  reward_categories = firebase.get(
+      '/',
+      'rewardCategories',
+      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+  print "lizard2"
+  print reward_categories
+  if reward_categories is not None:
+    print "lizard3"
+    for reward_category_id, reward_category in reward_categories.iteritems():
+      print "lizard4"
+      print reward_category_id
+      print reward_category
+      if reward_category['shortName'] == reward_category_short_name:
+        return reward_category_id
+  if expect:
+    raise InvalidInputError('No reward category for shortName %s' % reward_category_short_name)
+    print "lizardnone"
+  return None
+
+
+def RewardCodeToRewardId(firebase, game_id, reward_code, expect=True):
+  reward_category_id = RewardCodeToRewardCategoryId(firebase, game_id, reward_code, expect)
+  if reward_category_id is None:
+    return None
+  rewards = firebase.get(
+      '/',
+      'rewards',
+      {'orderBy': '"rewardCategoryId"', 'equalTo': '"%s"' % reward_category_id})
+  if rewards is not None:
+    for reward_id, reward in rewards.iteritems():
+      if reward['code'] == reward_code:
+        return reward_id
+  if expect:
+    raise InvalidInputError('No reward for code %s' % reward_code)
+  return None
+
+
 def GroupToEntity(firebase, group, entity):
   rooms = firebase.get(
       '/', entity, {'orderBy': '"groupId"', 'equalTo': '"%s"' % group})
@@ -126,13 +167,12 @@ def GroupToChats(firebase, group):
 
 def PlayerToGame(firebase, player):
   """Map a player to a game."""
-  return firebase.get('/players/%s' % player, 'gameId')
+  return firebase.get('/playersPrivate/%s' % player, 'gameId')
 
 
 def PlayerAllegiance(firebase, player):
   """Map a player to an allegiance."""
-  game = PlayerToGame(firebase, player)
-  return firebase.get('/games/%s/players/%s' % (game, player), 'allegiance')
+  return firebase.get('playersPublic/%s' % player, 'allegiance')
 
 
 def ChatToGroup(firebase, chat):
@@ -155,8 +195,7 @@ def LifeCodeToPlayer(firebase, life_code):
 
 def AddPoints(firebase, player_id, points):
   """Add points to a player."""
-  game_id = PlayerToGame(firebase, player_id)
-  player_path = '/games/%s/players/%s' % (game_id, player_id)
+  player_path = '/playersPublic/%s' % player_id
   current_points = int(firebase.get(player_path, 'points'))
   new_points = current_points + points
   firebase.put(player_path, 'points', new_points)

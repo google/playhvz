@@ -8,11 +8,11 @@
 	"player-%(ident)s": 0
       },
       "messages": {
-	"message-%(ident)s": {
-	  "message": "test Message",
-	  "playerId": "player-%(ident)s",
-	  "time": 0
-	}
+      	"message-%(ident)s": {
+      	  "message": "test Message",
+      	  "playerId": "player-%(ident)s",
+      	  "time": 0
+      	}
       }
     }
   },
@@ -24,8 +24,8 @@
         "user-%(ident)s-2": true
       },
       "groups": {
-	"group-%(ident)s": true,
-	"group-%(ident)s-2": true
+        "group-%(ident)s": true,
+        "group-%(ident)s-2": true
       },
       "chatRooms": {"chatRoom-%(ident)s": true},
       "missions": {"mission-%(ident)s": true},
@@ -34,42 +34,11 @@
       },
       "name": "test Game",
       "players": {
-        "player-%(ident)s": {
-          "active": true,
-          "number": 100,
-          "allegiance": "horde",
-          "claims": {
-            "reward-%(ident)s-bleck": {
-              "rewardCategoryId": "rewardCategory-%(ident)s",
-              "time": 0
-            }
-          },
-          "name": "test Charles",
-          "points": 5,
-          "profileImageUrl": "http://jpg",
-          "userId": "user-%(ident)s"
-        },
-        "player-%(ident)s-2": {
-          "active": true,
-          "number": 100,
-          "allegiance": "horde",
-          "name": "test Bobby",
-          "points": 0,
-          "profileImageUrl": "http://jpg",
-          "userId": "user-%(ident)s"
-        },
-        "player-%(ident)s-3": {
-          "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
-          "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s"
-        },
-        "player-%(ident)s-4": {
-          "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
-          "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s"
-        },
-        "player-%(ident)s-5": {
-          "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
-          "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s"
-        }
+        "player-%(ident)s": true,
+        "player-%(ident)s-2": true,
+        "player-%(ident)s-3": true,
+        "player-%(ident)s-4": true,
+        "player-%(ident)s-5": true
       },
       "rulesHtml": "test rule",
       "stunTimer": 5
@@ -122,7 +91,45 @@
       "groupId": "group-%(ident)s"
     }
   },
-  "players": {
+  "playersPublic": {
+    "player-%(ident)s": {
+      "active": true,
+      "number": 100,
+      "allegiance": "horde",
+      "claims": {
+        "reward-%(ident)s": {
+          "rewardCategoryId": "rewardCategory-%(ident)s",
+          "time": 0
+        }
+      },
+      "name": "test Charles",
+      "points": 5,
+      "profileImageUrl": "http://jpg",
+      "userId": "user-%(ident)s"
+    },
+    "player-%(ident)s-2": {
+      "active": true,
+      "number": 100,
+      "allegiance": "horde",
+      "name": "test Bobby",
+      "points": 0,
+      "profileImageUrl": "http://jpg",
+      "userId": "user-%(ident)s"
+    },
+    "player-%(ident)s-3": {
+      "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
+      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s"
+    },
+    "player-%(ident)s-4": {
+      "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
+      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s"
+    },
+    "player-%(ident)s-5": {
+      "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
+      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s"
+    }
+  },
+  "playersPrivate": {
     "player-%(ident)s": {
       "notificationSettings": {
         "sound": true,
@@ -246,18 +253,20 @@
       "claimed": 1,
       "name": "test Reward",
       "gameId": "game-%(ident)s",
+      "shortName": "testrew",
       "points": 5,
       "limitPerPlayer": 2,
       "rewards": {
-        "reward-%(ident)s-bleck": true
+        "reward-%(ident)s": true
       }
     }
   },
   "notifications": {},
   "rewards": {
-    "reward-%(ident)s-bleck": {
-      "a": true,
-      "playerId": "player-%(ident)s"
+    "reward-%(ident)s": {
+      "code": "testrew-purple-striker-balloon",
+      "playerId": "player-%(ident)s",
+      "rewardCategoryId": "rewardCategory-%(ident)s"
     }
   }
 }

@@ -4,7 +4,7 @@ import difflib
 import json
 import pprint
 import requests
-import time
+import random
 import unittest
 
 import constants
@@ -52,11 +52,11 @@ class EndToEndTest(unittest.TestCase):
     self.assertDictEqual(expected, actual, msg=msg)
 
 
-  def Id(self, key, num=0):
+  def Id(self, key, num=None):
     if key.endswith('Id'):
       key = key[:-2]
     ident = '%s-%s' % (key, self.identifier)
-    if num:
+    if num is not None:
       ident = '%s-%d' % (ident, num)
     return ident
 
@@ -89,9 +89,9 @@ class EndToEndTest(unittest.TestCase):
   def tearDown(self):
     pass
     # self.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
-  
+
   def testEndToEnd(self):
-    self.identifier = 'test_%d' % (time.time() % 1000)
+    self.identifier = 'test-%d' % random.randint(0, 2**52)
 
     # Register users.
     create = {'userId': self.Id('userId'), 'name': 'Angel'}
@@ -262,6 +262,7 @@ class EndToEndTest(unittest.TestCase):
       'name': 'test Reward',
       'points': 8,
       'limitPerPlayer': 2,
+      'shortName': 'testrew',
     }
     update = {
       'gameId': self.Id('gameId'),
@@ -274,14 +275,16 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'rewardCategoryId': self.Id('rewardCategoryId'),
-      'rewardId': 'reward-%s-bleck' % self.identifier,
+      'rewardId': self.Id('reward'),
+      'code': 'testrew-purple-striker-balloon'
     }
     self.AssertOk('addReward', create)
     self.AssertFails('addReward', create)
     
     claim = {
+      'gameId': self.Id('gameId'),
       'playerId': self.Id('playerId'),
-      'rewardId': 'reward-%s-bleck' % self.identifier,
+      'rewardCode': 'testrew-purple-striker-balloon',
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
     self.AssertDataMatches()
