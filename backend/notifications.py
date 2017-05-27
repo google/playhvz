@@ -23,7 +23,7 @@ def HandleNotification(firebase, ionic_client, notification_id, notification):
     return
 
   for player in players:
-    firebase.put('/players/%s/notifications' % player,
+    firebase.put('/playersPrivate/%s/notifications' % player,
                   notification_id, notification)
 
   if 'app' in notification:

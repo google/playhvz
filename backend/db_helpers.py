@@ -110,25 +110,16 @@ def GroupToGame(firebase, group):
 
 def RewardCodeToRewardCategoryId(firebase, game_id, reward_code, expect=True):
   reward_category_short_name = reward_code.split('-')[0]
-  print "lizard1 " + reward_category_short_name
-  print {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id}
   reward_categories = firebase.get(
       '/',
       'rewardCategories',
       {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
-  print "lizard2"
-  print reward_categories
   if reward_categories is not None:
-    print "lizard3"
     for reward_category_id, reward_category in reward_categories.iteritems():
-      print "lizard4"
-      print reward_category_id
-      print reward_category
       if reward_category['shortName'] == reward_category_short_name:
         return reward_category_id
   if expect:
     raise InvalidInputError('No reward category for shortName %s' % reward_category_short_name)
-    print "lizardnone"
   return None
 
 

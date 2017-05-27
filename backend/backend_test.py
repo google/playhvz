@@ -52,12 +52,10 @@ class EndToEndTest(unittest.TestCase):
     self.assertDictEqual(expected, actual, msg=msg)
 
 
-  def Id(self, key, num=None):
+  def Id(self, key, num=1):
     if key.endswith('Id'):
       key = key[:-2]
-    ident = '%s-%s' % (key, self.identifier)
-    if num is not None:
-      ident = '%s-%d' % (ident, num)
+    ident = '%s-%s-%d' % (key, self.identifier, num)
     return ident
 
   def AssertDataMatches(self):
@@ -98,9 +96,9 @@ class EndToEndTest(unittest.TestCase):
     self.AssertOk('register', create)
     self.AssertFails('register', create)
 
-    create = {'userId': '%s-2' % self.Id('userId'), 'name': 'Bob'}
+    create = {'userId': self.Id('userId', 2), 'name': 'Bob'}
     self.Post('register', create)
-    create = {'userId': '%s-3' % self.Id('userId'), 'name': 'Charles'}
+    create = {'userId': self.Id('userId', 3), 'name': 'Charles'}
     self.Post('register', create)
 
     # Create the game.
@@ -109,6 +107,7 @@ class EndToEndTest(unittest.TestCase):
       'adminUserId': self.Id('userId'),
       'name': 'test Game',
       'rulesHtml': 'test rules',
+      'shortName': 'tgame',
       'stunTimer': 10,
     }
     update = {
@@ -120,7 +119,7 @@ class EndToEndTest(unittest.TestCase):
 
     create = {
       'gameId': self.Id('gameId'),
-      'userId': '%s-2' % self.Id('userId'),
+      'userId': self.Id('userId', 2),
     }
     self.AssertOk('addGameAdmin', create)
     self.AssertFails('addGameAdmin', create)
