@@ -26,6 +26,8 @@ const GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
 const GROUP_MEMBERSHIP_COLLECTIONS = [];
 const PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId"];
 const PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
+const PLAYER_MISSION_MEMBERSHIP_PROPERTIES = ["missionId"];
+const PLAYER_MISSION_MEMBERSHIP_COLLECTIONS = [];
 const PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
 const PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
 const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
@@ -46,7 +48,7 @@ const INFECTION_PROPERTIES = ["time", "infectorId"];
 const INFECTION_COLLECTIONS = [];
 const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "notificationCategoryId", "seenTime", "sound", "vibrate", "app", "email", "destination"];
 const NOTIFICATION_COLLECTIONS = [];
-const REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed", "claimed", "gameId", "limitPerPlayer"];
+const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "seed", "claimed", "gameId", "limitPerPlayer"];
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 const REWARD_PROPERTIES = ["playerId", "code"];
 const REWARD_COLLECTIONS = [];
@@ -342,8 +344,8 @@ class FirebaseListener {
 
   listenToPlayerPrivate_(gameId, playerId) {
     Promise.all([
-        this.listenOnce_(`games/${gameId}/players/${playerId}`),
-        this.listenOnce_(`players/${playerId}`)])
+        this.listenOnce_(`/playersPublic/${playerId}`),
+        this.listenOnce_(`/playersPrivate/${playerId}`)])
         .then(([publicSnap, privateSnap]) => {
       let properties = Utils.merge(publicSnap.val(), privateSnap.val());
       this.loadPlayer_(gameId, playerId, properties);
@@ -370,26 +372,26 @@ class FirebaseListener {
           (property, value) => {
             this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat(["notificationSettings", property]), value);
           });
-      this.firebaseRoot.child(`games/${gameId}/players/${playerId}/claims`)
+      this.firebaseRoot.child(`/playersPublic/${playerId}/claims`)
           .on("child_added", (snap) => this.listenToClaim_(gameId, playerId, snap.getKey()));
-      this.firebaseRoot.child(`games/${gameId}/players/${playerId}/infections`)
+      this.firebaseRoot.child(`/playersPublic/${playerId}/infections`)
           .on("child_added", (snap) => this.listenToInfection_(gameId, playerId, snap.getKey()));
-      this.firebaseRoot.child(`games/${gameId}/players/${playerId}/lives`)
+      this.firebaseRoot.child(`/playersPublic/${playerId}/lives`)
           .on("child_added", (snap) => this.listenToLifePrivate_(gameId, playerId, snap.getKey()));
-      this.firebaseRoot.child(`games/${gameId}/players/${playerId}/notifications`)
+      this.firebaseRoot.child(`/playersPrivate/${playerId}/notifications`)
           .on("child_added", (snap) => {
         let notificationId = snap.getKey();
         let notificationCategoryId = snap.getKey();
         this.listenToNotification_(gameId, playerId, notificationId);
         this.listenToNotificationCategory_(gameId, notificationCategoryId);
       });
-      this.firebaseRoot.child(`players/${playerId}/chatRooms`)
+      this.firebaseRoot.child(`playersPrivate/${playerId}/chatRooms`)
           .on("child_added", (snap) => {
         let chatRoomId = snap.getKey();
         this.listenToPlayerChatRoomMembership_(gameId, playerId, chatRoomId);
         this.listenToChatRoom_(gameId, chatRoomId);
       });
-      this.firebaseRoot.child(`players/${playerId}/missions`)
+      this.firebaseRoot.child(`playersPrivate/${playerId}/missions`)
           .on("child_added", (snap) => {
         let missionId = snap.getKey();
         this.listenToPlayerMissionMembership_(gameId, playerId, missionId);
@@ -399,32 +401,32 @@ class FirebaseListener {
   }
 
   listenToPlayerPublic_(gameId, playerId) {
-    this.listenOnce_(`games/${gameId}/players/${playerId}`).then((snap) => {
+    this.listenOnce_(`playersPublic/${playerId}`).then((snap) => {
       this.loadPlayer_(gameId, playerId, snap.val());
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS.concat(["canInfect"]),
           (property, value) => {
             this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
           });
-      this.firebaseRoot.child(`games/${gameId}/players/${playerId}/claims`)
+      this.firebaseRoot.child(`/playersPublic/${playerId}/claims`)
           .on("child_added", (snap) => this.listenToClaim_(gameId, playerId, snap.getKey()));
-      this.firebaseRoot.child(`games/${gameId}/players/${playerId}/infections`)
+      this.firebaseRoot.child(`/playersPublic/${playerId}/infections`)
           .on("child_added", (snap) => this.listenToInfection_(gameId, playerId, snap.getKey()));
-      this.firebaseRoot.child(`games/${gameId}/players/${playerId}/lives`)
+      this.firebaseRoot.child(`/playersPublic/${playerId}/lives`)
           .on("child_added", (snap) => this.listenToLifePublic_(gameId, playerId, snap.getKey()));
       });
   }
 
   listenToLifePublic_(gameId, playerId, lifeId) {
-    this.listenOnce_("games/${gameId}/players/${playerId}/lives/" + lifeId).then((snap) => {
+    this.listenOnce_("games/${gameId}/playersPublic/${playerId}/lives/" + lifeId).then((snap) => {
       this.loadLife_(gameId, playerId, lifeId, snap.val());
     });
   }
 
   listenToLifePrivate_(gameId, playerId, lifeId) {
     Promise.all([
-        this.listenOnce_("games/${gameId}/players/${playerId}/lives/" + lifeId),
-        this.listenOnce_("players/${playerId}/lives/" + lifeId)])
+        this.listenOnce_("/playersPublic/${playerId}/lives/" + lifeId),
+        this.listenOnce_("playersPrivate/${playerId}/lives/" + lifeId)])
         .then(([publicSnap, privateSnap]) => {
       let properties = Utils.merge(publicSnap.val(), privateSnap.val());
       this.loadLife_(gameId, playerId, lifeId, properties);
@@ -437,7 +439,7 @@ class FirebaseListener {
   }
 
   listenToClaim_(gameId, playerId, claimId) {
-    var ref = this.firebaseRoot.child(`games/${gameId}/players/${playerId}/claims`);
+    var ref = this.firebaseRoot.child(`playersPublic/${playerId}/claims`);
     ref.on("child_added", (snap) => {
       let claimId = snap.getKey();
       let obj = new Model.Claim(claimId, snap.val());
@@ -551,6 +553,26 @@ class FirebaseListener {
     // });
   }
 
+  listenToPlayerMissionMembership_(gameId, playerId, missionId) {
+    this.listenOnce_(`/players/${playerId}/missions/${missionId}`).then((snap) => {
+      let obj = new Model.PlayerMissionMembership(missionId, {missionId: missionId});
+      this.writer.insert(this.reader.getPlayerMissionMembershipPath(gameId, playerId, null), null, obj);
+      this.listenForPropertyChanges_(
+          snap.ref, PLAYER_MISSION_MEMBERSHIP_PROPERTIES, PLAYER_MISSION_MEMBERSHIP_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getPlayerMissionMembershipPath(gameId, playerId, missionId).concat([property]), value);
+          });
+    });
+    // ref.on("child_removed", (snap) => {
+    //   let chatRoomId = snap.getKey();
+    //   let path = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
+    //   this.writer.remove(
+    //       path.slice(0, path.length - 1),
+    //       path.slice(-1)[0],
+    //       chatRoomId);
+    // });
+  }
+
   listenToGroupMembership_(gameId, groupId, playerId) {
     this.listenOnce_(`/groups/${groupId}/players/${playerId}`).then((snap) => {
       let obj = new Model.GroupMembership(playerId, {playerId: playerId});
@@ -564,6 +586,37 @@ class FirebaseListener {
     // ref.on("child_removed", (snap) => {
     // });
   }
+
+
+  listenToRewardCategory_(gameId, rewardCategoryId) {
+    this.listenOnce_(`/rewardCategories/${rewardCategoryId}`).then((snap) => {
+      let obj = new Model.RewardCategory(rewardCategoryId, snap.val());
+      this.writer.insert(this.reader.getRewardCategoryPath(gameId, null), null, obj);
+      this.listenForPropertyChanges_(
+          snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getRewardCategoryPath(gameId, rewardCategoryId).concat([property]), value);
+          });
+      this.firebaseRoot.child(`/rewardCategories/${rewardCategoryId}/rewards`)
+          .on("child_added", (snap) => this.listenToReward_(gameId, rewardCategoryId, snap.getKey()));
+    });
+  }
+
+  listenToReward_(gameId, rewardCategoryId, rewardId) {
+    this.listenOnce_(`/rewardCategories/${rewardCategoryId}/rewards/${rewardId}`).then((snap) => {
+      let obj = new Model.Reward(rewardId, snap.val());
+      this.writer.insert(this.reader.getRewardPath(gameId, rewardCategoryId, null), null, obj);
+      this.listenForPropertyChanges_(
+          snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
+          });
+    });
+  }
+
+
+
+
 
 
 
@@ -733,43 +786,6 @@ class FirebaseListener {
   //   });
   // }
 
-  // listenToRewardCategories_(gameId) {
-  //   var collectionRef = this.firebaseRoot.child(`games/${gameId}/rewardCategories`);
-  //   collectionRef.on("child_added", (snap) => {
-  //     let rewardCategoryId = snap.getKey(); // snap.val() is ""
-  //     let ref = this.firebaseRoot.child("rewardCategories/" + rewardCategoryId);
-  //     ref.once("value")
-  //         .then((snap) => {
-  //           let obj = new Model.RewardCategory(rewardCategoryId, snap.val());
-
-  //           this.writer.insert(this.reader.getRewardCategoryPath(gameId, null), null, obj);
-  //           this.listenForPropertyChanges_(
-  //               snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
-  //               (property, value) => {
-  //                 this.writer.set(this.reader.getRewardCategoryPath(gameId, rewardCategoryId).concat([property]), value);
-  //               });
-  //           this.listenToRewards_(gameId, rewardCategoryId);
-  //         });
-  //   });
-  // }
-
-  // listenToRewards_(rewardCategoryId) {
-  //   var collectionRef = this.firebaseRoot.child(`rewardCategories/${rewardCategoryId}/rewards`);
-  //   collectionRef.on("child_added", (snap) => {
-  //     let rewardId = snap.getKey(); // snap.val() is ""
-  //     let ref = this.firebaseRoot.child("rewards/" + rewardId);
-  //     ref.once("value")
-  //         .then((snap) => {
-  //           let obj = new Model.Reward(rewardId, snap.val());
-  //           this.writer.insert(this.reader.getRewardPath(gameId, rewardCategoryId, null), null, obj);
-  //           this.listenForPropertyChanges_(
-  //               snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
-  //               (property, value) => {
-  //                 this.writer.set(this.reader.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
-  //               });
-  //         });
-  //   });
-  // }
 }
 
 return FirebaseListener;

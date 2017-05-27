@@ -100,6 +100,14 @@ Model.PlayerChatRoomMembership = function(id, args) {
   Utils.addEmptyLists(this, PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
 }
 
+const PLAYER_MISSION_MEMBERSHIP_PROPERTIES = ["missionId"];
+const PLAYER_MISSION_MEMBERSHIP_COLLECTIONS = [];
+Model.PlayerMissionMembership = function(id, args) {
+  this.id = id;
+  Utils.copyProperties(this, args, PLAYER_MISSION_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(this, PLAYER_MISSION_MEMBERSHIP_COLLECTIONS);
+}
+
 const PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
 const PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
 Model.PlayerGroupMembership = function(id, args) {
@@ -157,7 +165,7 @@ Model.NotificationCategory = function(id, args) {
 }
 
 const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantsToBeSecretZombie", "gotEquipment", "notes"];
-const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships", "groupMemberships"];
+const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships"];
 const PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "mobile", "server", "client"];
 const PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
 Model.Player = function(id, args) {
@@ -202,7 +210,7 @@ Model.Notification = function(id, args) {
   Utils.addEmptyLists(this, NOTIFICATION_COLLECTIONS);
 }
 
-const REWARD_CATEGORY_PROPERTIES = ["name", "points", "seed", "claimed", "gameId", "limitPerPlayer"];
+const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "seed", "claimed", "gameId", "limitPerPlayer"];
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 Model.RewardCategory = function(id, args) {
   this.id = id;

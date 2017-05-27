@@ -124,6 +124,15 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), chatRoomId, expect)]);
     return path;
   }
+  getPlayerMissionMembershipPath(gameId, playerId, missionId, expect) {
+    assert(gameId);
+    assert(playerId);
+    assert(typeof missionId == 'string' || missionId == null);
+    let path = this.getPlayerPath(gameId, playerId).concat(["missionMemberships"]);
+    if (missionId)
+      path = path.concat([Utils.findIndexById(this.get(path), missionId, expect)]);
+    return path;
+  }
   getAdminPath(gameId, userId) {
     assert(gameId);
     assert(typeof userId == 'string' || userId == null);
