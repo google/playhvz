@@ -1,127 +1,25 @@
 <dom-module id="ghvz-dev-tools">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-dev-tools',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-dev-tools',
 
-        properties: {
-          bridge: Object,
-          gameId: String,
-          userId: String,
-        },
+      properties: {
+        bridge: Object,
+      },
 
-        ready() {
-          this.$.form.addEventListener('iron-form-presubmit', function(event) {
-            this.$.form.request.params['gameId'] = this.gameId;
-            this.$.form.request.params['userId'] = this.userId;
-          }.bind(this));
-
-          this.$.form.addEventListener('iron-form-submit', function(event) {
-            // Generate a fake Player
-            var playerId = Bridge.generatePlayerId("player");
-            var name = event.detail.playerName;
-            var userId = this.userId;
-            var points = Math.floor(Math.random() * 100);
-            var imageUrl = 'https://goo.gl/Nr0e8Y';
-            if (!name) {
-              name = Math.random().toString(36).substring(4, 8);
-            }
-
-            // This code is bad and i should feel bad... ¯\_(ツ)_/¯
-            if (event.detail.useCurrentUserId == "no") {
-              userId = Bridge.generateUserId();
-              this.bridge.register({
-                userId: userId
-              });
-            }
-
-            this.bridge.joinGame(
-              userId, 
-              event.detail.gameId, 
-              playerId, 
-              name, 
-              this.generateRandomPreferences_());
-            
-            this.bridge.awardPoints(playerId, points);
-
-            this.bridge.setPlayerProfileImageUrl(playerId, imageUrl);
-
-            this.bridge.getPlayerById(playerId)
-            .then((player) => {
-              console.log(player);
-            });
-          }.bind(this));
-        },
-
-        submit_: function(event) {
-          this.$.form.submit();
-        },
-
-        /**
-        * Generate a random set of user preferences.
-        */
-        generateRandomPreferences_() {
-          var needGun = ['yes', 'no'];
-          var startAsZombie = ['yes', 'maybe', 'no'];
-          var wantsToBeSecretZombie = ['yes', 'maybe', 'no'];
-          var volunteer = ['yes', 'no'];
-
-          var randomValue = function(items) {
-            return items[Math.floor(Math.random()*items.length)];
-          }
-
-          var preferences = {
-            needGun: randomValue(needGun),
-            startAsZombie: randomValue(startAsZombie),
-            wantsToBeSecretZombie: randomValue(wantsToBeSecretZombie),
-            volunteer: randomValue(volunteer),
-          };
-          return preferences;
-        },
-      });
+      populate_() {
+        populateGame(this.bridge, FAKE_USER_IDS, false);
+      },
     });
-  </script>
-
-  <template>
-    <style>
-      .maintext {
-        margin-bottom: 16px;
-        margin-top: 16px;
-      }
-      .subtext {
-        padding-bottom: 16px;
-        color: grey;
-      }
-      .section {
-        margin-top: 24px;
-        margin-bottom: 24px;
-      }
-      .radio-style {
-        display: block;
-        margin-top: 8px;
-        margin-bottom: 8px;
-      }
-    </style>
-    <form is="iron-form" method="get" action="/" id="form">
-      <div class="maintext">Use current UserId or generate new one?</div>
-      <paper-radio-group attr-for-selected="value" selected="yes">
-        <paper-radio-button name="useCurrentUserId" value="no">
-          new
-        </paper-radio-button>
-        <paper-radio-button name="useCurrentUserId" style="padding-right: 30px;" value="yes">
-          current
-        </paper-radio-button>
-      </paper-radio-group>
-      <paper-input name="playerName" no-label-float label="[optional] Name">
-      </paper-input>
-
-      <paper-button style="margin: 16px" raised on-click="submit_">
-        Generate Player
-      </paper-button>
-    </div>
-  </form>
+  });
+</script>
+<style>
+</style>
+<template>
+  <paper-button on-tap="populate_">Populate</paper-button>
 </template>
 </dom-module>

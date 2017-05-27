@@ -29,6 +29,13 @@
         },
         
         isAdmin: Boolean,
+
+        canUseDevTools: {
+          type: Boolean,
+          value: function() {
+            return Utils.getParameterByName('devTools', false) !== false;
+          },
+        },
       },
 
       listeners: {
@@ -132,6 +139,13 @@
     <div id="confidential">
       Remember, don't post confidential info!</div>
     </div>
+
+    <template is="dom-if" if="[[canUseDevTools]]">
+      <a href="javascript:void(0)" data-page="devTools" class="drawer-item">
+        <iron-icon icon="icons:dashboard"></iron-icon>
+        Dev Tools
+      </a>
+    </template>
 
     <template is="dom-if" if="[[isAdmin]]">
       <div id="adminPages" class="drawer-section">

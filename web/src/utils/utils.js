@@ -151,11 +151,10 @@ function assert(condition, ...message) {
 }
 
 Utils.findIndexById = function(collection, id, expect) {
+  expect = expect !== false;
   assert(collection, "Bad arg");
   let index = collection.findIndex((obj) => (obj.id == id));
 
-  if (expect === undefined)
-    expect = true;
   if (expect)
     assert(index >= 0, "Not found!", collection, id);
 

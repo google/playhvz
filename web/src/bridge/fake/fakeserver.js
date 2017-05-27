@@ -3,17 +3,19 @@
 class FakeServer {
   constructor(idGenerator, destination, time) {
     this.idGenerator = idGenerator;
-    
+
     this.database = {};
     var writer = new SimpleWriter(this.database);
     var mappingWriter = new MappingWriter(writer);
-    var teeWriter = new TeeWriter(mappingWriter, new CloningWriter(destination));
+    var teeWriter = new TeeWriter(
+        mappingWriter,
+        new CloningWriter(destination));
     var batchingWriter = new BatchingWriter(teeWriter);
     this.writer = batchingWriter;
 
     this.reader = new PathFindingReader(new SimpleReader(this.database));
 
-    this.time = time;
+    this.timeOffset = 0;
 
     this.writer.set(this.reader.getGunPath(null), []);
     this.writer.set(this.reader.getGamePath(null), []);
@@ -21,8 +23,12 @@ class FakeServer {
 
     window.fakeServer = this;
   }
-  setTime(time) {
-    this.time = time;
+  setTimeOffset(args) {
+    let {offsetMs} = args;
+    this.timeOffset = offsetMs;
+  }
+  getTime_() {
+    return new Date().getTime() + this.timeOffset;
   }
   signIn(preferredUserId) {
     assert(preferredUserId);
@@ -72,7 +78,7 @@ class FakeServer {
         this.reader.getPlayerPath(gameId, null),
         null,
         new Model.Player(playerId, Utils.merge(args, {
-            allegiance: '',
+            allegiance: 'none',
             userId: userId,
             canInfect: false,
             points: 0,
@@ -232,7 +238,7 @@ class FakeServer {
           this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
           null,
           new Model.Message(messageId, Utils.merge(args, {
-            time: this.time,
+            time: this.getTime_(),
             playerId: playerId,
           })));
     } else {
@@ -240,25 +246,25 @@ class FakeServer {
     }
   }
 
-  addRequest(args) {
-    let {requestId, chatRoomId} = args;
+  addRequestCategory(args) {
+    let {requestCategoryId, chatRoomId} = args;
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     this.writer.insert(
-        this.reader.getRequestPath(gameId, chatRoomId, null),
+        this.reader.getRequestCategoryPath(gameId, chatRoomId, null),
         null,
-        new Model.Request(requestId, Utils.merge(args, {
-          time: this.time,
+        new Model.RequestCategory(requestCategoryId, Utils.merge(args, {
+          time: this.getTime_(),
         })));
   }
 
-  sendRequestToPlayer(args) {
-    let {requestId, responseId, playerId} = args;
-    let chatRoomId = this.reader.getChatRoomIdForRequestId(requestId);
+  addRequest(args) {
+    let {requestId, requestCategoryId, playerId} = args;
+    let chatRoomId = this.reader.getChatRoomIdForRequestCategoryId(requestCategoryId);
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     this.writer.insert(
-        this.reader.getResponsePath(gameId, chatRoomId, requestId, null),
+        this.reader.getRequestPath(gameId, chatRoomId, requestCategoryId, null),
         null,
-        new Model.Response(responseId, {
+        new Model.Request(requestId, {
           playerId: playerId,
           time: null,
           text: null,
@@ -266,38 +272,21 @@ class FakeServer {
   }
 
   respondToRequest(args) {
-    let {responseId, text} = args;
-    let requestId = this.reader.getRequestIdForResponseId(responseId);
+    let {requestId, text} = args;
+    let requestCategoryId = this.reader.getRequestCategoryIdForRequestId(requestId);
     let chatRoomId = this.reader.getChatRoomIdForMessageId(requestId);
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
-    let request = this.get(this.reader.getRequestPath(gameId, chatRoomId, requestId));
-    let responsePath = this.reader.getResponsePath(gameId, chatRoomId, requestId, responseId);
-    let response = this.get(responsePath);
-    if (request.type == 'ack')
+    let requestCategory = this.reader.get(this.reader.getRequestCategoryPath(gameId, chatRoomId, requestCategoryId));
+    let requestPath = this.reader.getRequestPath(gameId, chatRoomId, requestCategoryId, requestId);
+    let request = this.reader.get(requestPath);
+    if (requestCategory.type == 'ack')
       assert(text === null);
-    else if (request.type == 'text')
+    else if (requestCategory.type == 'text')
       assert(typeof text == 'string' && text);
     else
       throwError('Bad request type');
-    this.writer.set(responsePath.concat(["time"]), this.time);
-    this.writer.set(responsePath.concat(["text"]), responseText);
-  }
-
-  respondToRequest(args) {
-    let {responseId, text} = args;
-    let requestId = this.reader.getRequestIdForResponseId(responseId);
-    let chatRoomId = this.reader.getChatRoomIdForRequestId(requestId);
-    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
-    let responsePath = this.reader.getResponsePath(gameId, chatRoomId, requestId, responseId);
-    let request = this.reader.get(this.reader.getRequestPath(gameId, chatRoomId, requestId));
-    if (request.type == 'ack')
-      assert(text === null);
-    else if (request.type == 'text')
-      assert(typeof text == 'string' && text);
-    else
-      throwError('Bad request type');
-    this.writer.set(responsePath.concat(["time"]), this.time);
-    this.writer.set(responsePath.concat(["text"]), text);
+    this.writer.set(requestPath.concat(["time"]), this.getTime_());
+    this.writer.set(requestPath.concat(["text"]), text);
   }
 
   addMission(args) {
@@ -361,7 +350,7 @@ class FakeServer {
     let [gameId, playerId] = this.reader.getGameIdAndPlayerIdForNotificationId(notificationId);
     this.writer.set(
         this.reader.getNotificationPath(gameId, playerId, notificationId).concat(["seenTime"]),
-        this.time);
+        this.getTime_());
   }
   addReward(args) {
     let {rewardCategoryId, rewardId} = args;
@@ -434,14 +423,17 @@ class FakeServer {
   }
   joinResistance(args, lifeCodeHint) {
     let {playerId} = args;
+
+    let gameId = this.reader.getGameIdForPlayerId(playerId);
+    let player = this.reader.get(this.reader.getPlayerPath(gameId, playerId));
+    assert(player.allegiance == 'none');
+
     this.addLife({lifeId: this.idGenerator.newLifeId(), playerId: playerId}, lifeCodeHint);
     this.setPlayerHuman(playerId);
-    this.autoAddPlayerToGroups_(playerId);
   }
   joinHorde(args) {
     let {playerId} = args;
     this.setPlayerZombie(playerId);
-    this.autoAddPlayerToGroups_(playerId);
   }
   autoRemovePlayerFromGroups_(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
@@ -540,7 +532,7 @@ class FakeServer {
         null,
         new Model.Infection(this.idGenerator.newInfectionId(), {
           infectorId: infectorPlayerId,
-          time: this.time,
+          time: this.getTime_(),
         }));
     infecteePlayer = this.reader.get(infecteePlayerPath);
     if (infecteePlayer.infections.length >= infecteePlayer.lives.length) {
@@ -558,7 +550,7 @@ class FakeServer {
         null,
         new Model.Life(lifeId, {
           code: code,
-          time: this.time,
+          time: this.getTime_(),
         }));
     let player = this.reader.get(playerPath);
     if (player.lives.length > player.infections.length) {

@@ -112,10 +112,16 @@
           canInfect: true,
         });
       },
+      seePrivateInfo_(isAdmin, currentPlayerId, playerId) {
+        return isAdmin || currentPlayerId == playerId;
+      },
     });
   });
 </script>
 <style>
+  :host {
+    display: block;
+  }
   #flexThing {
     display: flex;
   }
@@ -191,45 +197,49 @@
       </div>
     </div>
   </div>
-  <template is="dom-if" if="[[isAdmin]]">
+  <template is="dom-if" if="[[seePrivateInfo_(isAdmin, currentPlayerId, playerId)]]">
     <div id="details">
-      <div>Active: <b>[[computeBooleanText_(player.active)]]</b></div>
-      <div>Can infect: <b>[[computeBooleanText_(player.canInfect)]]</b></div>
-      <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
-      <div>Can be starting zombie: <b>[[computeBooleanText_(player.startAsZombie)]]</b></div>
-      <div>Can be secret zombie: <b>[[computeBooleanText_(player.wantsToBeSecretZombie)]]</b></div>
-      <div>Got equipment: <b>[[computeBooleanText_(player.gotEquipment)]]</b></div>
       <div>Notifications should sound: <b>[[computeBooleanText_(player.notificationSettings.sound)]]</b></div>
       <div>Notifications should vibrate: <b>[[computeBooleanText_(player.notificationSettings.vibrate)]]</b></div>
-      <div>
-        Volunteered for:
-        <b>
-          <template is="dom-if if="[[player.volunteer.advertising]]">Advertising</template>
-          <template is="dom-if if="[[player.volunteer.logistics]]">Logistics</template>
-          <template is="dom-if if="[[player.volunteer.communications]]">Communications</template>
-          <template is="dom-if if="[[player.volunteer.moderator]]">Moderator</template>
-          <template is="dom-if if="[[player.volunteer.cleric]]">Cleric</template>
-          <template is="dom-if if="[[player.volunteer.sorcerer]]">Sorcerer</template>
-          <template is="dom-if if="[[player.volunteer.admin]]">Admin</template>
-          <template is="dom-if if="[[player.volunteer.photographer]]">Photographer</template>
-          <template is="dom-if if="[[player.volunteer.chronicler]]">Chronicler</template>
-          <template is="dom-if if="[[player.volunteer.server]]">Server</template>
-          <template is="dom-if if="[[player.volunteer.client]]">Client</template>
-        </b>
-      </div>
-      <template is="dom-if" if="[[player.active]]">
-        <paper-button raised on-tap="deactivate_">Deactivate</paper-button>
+
+      <template is="dom-if" if="[[isAdmin]]">
+        <div>
+          Volunteered for:
+          <b>
+            <template is="dom-if if="[[player.volunteer.advertising]]">Advertising</template>
+            <template is="dom-if if="[[player.volunteer.logistics]]">Logistics</template>
+            <template is="dom-if if="[[player.volunteer.communications]]">Communications</template>
+            <template is="dom-if if="[[player.volunteer.moderator]]">Moderator</template>
+            <template is="dom-if if="[[player.volunteer.cleric]]">Cleric</template>
+            <template is="dom-if if="[[player.volunteer.sorcerer]]">Sorcerer</template>
+            <template is="dom-if if="[[player.volunteer.admin]]">Admin</template>
+            <template is="dom-if if="[[player.volunteer.photographer]]">Photographer</template>
+            <template is="dom-if if="[[player.volunteer.chronicler]]">Chronicler</template>
+            <template is="dom-if if="[[player.volunteer.server]]">Server</template>
+            <template is="dom-if if="[[player.volunteer.client]]">Client</template>
+          </b>
+        </div>
+        <div>Active: <b>[[computeBooleanText_(player.active)]]</b></div>
+        <div>Can infect: <b>[[computeBooleanText_(player.canInfect)]]</b></div>
+        <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
+        <div>Can be starting zombie: <b>[[computeBooleanText_(player.startAsZombie)]]</b></div>
+        <div>Can be secret zombie: <b>[[computeBooleanText_(player.wantsToBeSecretZombie)]]</b></div>
+        <div>Got equipment: <b>[[computeBooleanText_(player.gotEquipment)]]</b></div>
+        <template is="dom-if" if="[[player.active]]">
+          <paper-button raised on-tap="deactivate_">Deactivate</paper-button>
+        </template>
+        <template is="dom-if" if="[[!player.active]]">
+          <paper-button raised on-tap="activate_">Activate</paper-button>
+        </template>
+        <template is="dom-if" if="[[player.canInfect]]">
+          <paper-button raised on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
+        </template>
+        <template is="dom-if" if="[[!player.canInfect]]">
+          <paper-button raised on-tap="setCanInfect_">Set Can Infect</paper-button>
+        </template>
+        <div>Notes: [[player.notes]]</div>
       </template>
-      <template is="dom-if" if="[[!player.active]]">
-        <paper-button raised on-tap="activate_">Activate</paper-button>
-      </template>
-      <template is="dom-if" if="[[player.canInfect]]">
-        <paper-button raised on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
-      </template>
-      <template is="dom-if" if="[[!player.canInfect]]">
-        <paper-button raised on-tap="setCanInfect_">Set Can Infect</paper-button>
-      </template>
-      <div>Notes: [[player.notes]]</div>
+      
       <template is="dom-repeat" items="[[player.lives]]" as="life">
         <div>
           Life, at [[computeDateText_(life.time)]],

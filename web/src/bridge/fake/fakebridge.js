@@ -1,7 +1,7 @@
 'use strict';
 
 class FakeBridge {
-  constructor(userIds, idGenerator) {
+  constructor(idGenerator) {
     this.databaseOperations = [];
     this.unmappedDatabase = {};
     this.teeWriter = new TeeWriter();
@@ -13,14 +13,6 @@ class FakeBridge {
     this.server = delayingCloningFakeServer;
 
     window.fakeBridge = this;
-
-    populateUsers(checkedServer, userIds);
-
-    let populate = Utils.getParameterByName('populate', 'light');
-    assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
-    if (populate != 'none') {
-      populateGame(checkedServer, userIds, populate == 'heavy');
-    }
 
     for (const funcName of Bridge.SERVER_METHODS) {
       this[funcName] = (...args) => this.server[funcName](...args);
@@ -52,7 +44,8 @@ class FakeBridge {
   }
   listenToDatabase({destination}) {
     var gatedWriter = new GatedWriter(new MappingWriter(destination), false);
-    gatedWriter.batchedWrite([
+    var cloningWriter = new CloningWriter(gatedWriter);
+    cloningWriter.batchedWrite([
       {
         type: 'set',
         path: ['games'],
@@ -69,7 +62,7 @@ class FakeBridge {
         value: Utils.copyOf(this.unmappedDatabase.users),
       }
     ]);
-    this.teeWriter.addDestination(gatedWriter);
+    this.teeWriter.addDestination(cloningWriter);
 
     var interval =
         setInterval(() => {
@@ -79,7 +72,7 @@ class FakeBridge {
 
     return () => {
       clearInterval(interval);
-      this.teeWriter.removeDestination(gatedWriter);
+      this.teeWriter.removeDestination(cloningWriter);
     };
   }
   listenToGameAsAdmin(gameId) {

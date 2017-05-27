@@ -37,7 +37,8 @@
           this.bridge.infect({
             infectionId: this.bridge.newInfectionId(),
             playerId: this.playerId,
-            infecteeLifeCode: this.lifeCode
+            infecteeLifeCode: this.lifeCode,
+            infecteePlayerId: null,
           })
               .then(
                   (infecteePlayerId) => {

@@ -8,6 +8,7 @@ import flask_cors
 import google.auth.transport.requests
 import google.oauth2.id_token
 import requests_toolbelt.adapters.appengine
+import json
 
 import api_calls
 import constants
@@ -138,6 +139,6 @@ def RouteRequest(method):
     raise AppError('Invalid method %s' % method)
   f = methods[method]
 
-  return jsonify(f(request.get_json(), GetFirebase()))
+  return jsonify(f(json.loads(request.data), GetFirebase()))
 
 # vim:ts=2:sw=2:expandtab

@@ -61,7 +61,7 @@ Model.Group = function(id, args) {
 }
 
 const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmins"];
-const CHAT_ROOM_COLLECTIONS = ["messages", "requests"];
+const CHAT_ROOM_COLLECTIONS = ["messages", "requestCategories"];
 Model.ChatRoom = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, CHAT_ROOM_PROPERTIES);
@@ -124,20 +124,20 @@ Model.Message = function(id, args) {
   Utils.addEmptyLists(this, MESSAGE_COLLECTIONS);
 }
 
-const REQUEST_PROPERTIES = ["playerId", "time", "text", "type"];
-const REQUEST_COLLECTIONS = ["responses"];
+const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type"];
+const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
+Model.RequestCategory = function(id, args) {
+  this.id = id;
+  Utils.copyProperties(this, args, REQUEST_CATEGORY_PROPERTIES);
+  Utils.addEmptyLists(this, REQUEST_CATEGORY_COLLECTIONS);
+}
+
+const REQUEST_PROPERTIES = ["playerId", "responseTime", "responseText"];
+const REQUEST_COLLECTIONS = [];
 Model.Request = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, REQUEST_PROPERTIES);
   Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
-}
-
-const RESPONSE_PROPERTIES = ["playerId", "time", "text"];
-const RESPONSE_COLLECTIONS = [];
-Model.Response = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, RESPONSE_PROPERTIES);
-  Utils.addEmptyLists(this, RESPONSE_COLLECTIONS);
 }
 
 const MISSION_PROPERTIES = ["gameId", "name", "begin", "end", "detailsHtml", "groupId"];

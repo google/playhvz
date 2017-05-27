@@ -1,11 +1,20 @@
+let FAKE_USER_IDS = {
+  zellaUserId: 'user-vITrvbEGVvh9A4WLXxWFYMbzQP02', // hvzzella@gmail.com
+  reggieUserId: 'user-reggie',
+  minnyUserId: 'user-minny',
+  drakeUserId: 'user-NeNOfho4yeMZncSmX9OZ3xfBQx72', // hvzdrake@gmail.com
+  zekeUserId: 'user-qcLGfbZMLiaUZ8so1qfxT1LLuuF3', // verdagon9@gmail.com
+  moldaviUserId: 'user-zeke',
+  jackUserId: 'user-jack',
+};
 
 function populateUsers(server, userIds) {
-  let {kimUserId, reggieUserId, minnyUserId, evanUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
+  let {zellaUserId, reggieUserId, minnyUserId, drakeUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
 
-  server.register({userId: kimUserId, name: "Kim"});
+  server.register({userId: zellaUserId, name: "Zella"});
   server.register({userId: reggieUserId, name: "Reggie"});
   server.register({userId: minnyUserId, name: "Minny"});
-  server.register({userId: evanUserId, name: "Evan"});
+  server.register({userId: drakeUserId, name: "Drake"});
   server.register({userId: zekeUserId, name: "Zeke"});
   server.register({userId: moldaviUserId, name: "Moldavi"});
   server.register({userId: jackUserId, name: "Jack"});
@@ -49,7 +58,7 @@ function makePlayerProperties(id, userId, gameId, name) {
 function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays, numShuffles) {
   let zombiesStartIndex = 0;
   let zombiesEndIndex = numStartingZombies;
-  let gameStartTimestamp = new Date().getTime();
+  let gameStartOffset = 0;
   let lifeCodeNumber = 1001;
 
   // For console logging only
@@ -78,12 +87,12 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
   }
   // console.log(server.inner.time, numHumans, numZombies);
   for (let i = 0; i < numDays; i++) {
-    let dayStartTimestamp = gameStartTimestamp + i * 24 * 60 * 60 * 1000; // 24 hours
+    let dayStartOffset = gameStartOffset + i * 24 * 60 * 60 * 1000; // 24 hours
     for (let j = zombiesStartIndex; j < zombiesEndIndex; j++) {
       let infectorId = playerIds[j];
       let infecteeId = playerIds[zombiesEndIndex + j];
       let infecteeLifeCode = lifeCodesByPlayerId[infecteeId];
-      server.inner.setTime(dayStartTimestamp + j * 11 * 60 * 1000); // infections are spread by 11 minutes
+      server.setTimeOffset({offsetMs: dayStartOffset + j * 11 * 60 * 1000}); // infections are spread by 11 minutes
       server.infect({infectionId: server.idGenerator.newInfectionId(), playerId: infectorId, infecteeLifeCode: infecteeLifeCode, infecteePlayerId: null});
       // console.log("At", server.inner.time, "humans:", --numHumans, "zombies:", ++numZombies);
     }
@@ -91,7 +100,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
 
     if (i == 0) {
       // End of first day, revive the starting zombies
-      server.inner.setTime(dayStartTimestamp + i * 12 * 60 * 60 * 1000); // 12 hours past day start
+      server.setTimeOffset({offsetMs: dayStartOffset + i * 12 * 60 * 60 * 1000}); // 12 hours past day start
       for (let j = 0; j < numStartingZombies; j++) {
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
@@ -101,7 +110,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       zombiesStartIndex = numStartingZombies;
     }
     if (i == 1) {
-      server.inner.setTime(dayStartTimestamp + i * 12 * 60 * 60 * 1000); // 12 hours past day start
+      server.setTimeOffset({offsetMs: dayStartOffset + i * 12 * 60 * 60 * 1000}); // 12 hours past day start
       // End of second day, revive a 3 random humans
       for (let j = zombiesStartIndex; j < zombiesStartIndex + 3; j++) {
         let lifeCode = "life-" + lifeCodeNumber++;
@@ -123,10 +132,10 @@ function populatePlayersHeavy(server, gameId) {
 }
 
 function populateGame(server, userIds, populateLotsOfPlayers) {
-  let {kimUserId, reggieUserId, minnyUserId, evanUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
+  let {zellaUserId, reggieUserId, minnyUserId, drakeUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
 
-  var gameId = "game-2017m";
-  server.createGame({gameId: gameId, adminUserId: kimUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60, active: true});
+  var gameId = server.idGenerator.newGameId("poptest");
+  server.createGame({gameId: gameId, adminUserId: zellaUserId, name: "Test game", rulesHtml: "<b>Dont be a deck</b>", stunTimer: 60, active: true});
 
   var resistanceGroupId = server.idGenerator.newGroupId('resistance');
   server.createGroup({groupId: resistanceGroupId, name: "Resistance", gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
@@ -140,9 +149,9 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
 
   server.addAdmin({gameId: gameId, userId: minnyUserId});
 
-  var kimPlayerId = server.idGenerator.newPlayerId();
-  server.createPlayer(makePlayerProperties(kimPlayerId, kimUserId, gameId, 'Kim the Ultimate'));
-  server.joinResistance({playerId: kimPlayerId}, "glarple zerp wobbledob");
+  var zellaPlayerId = server.idGenerator.newPlayerId();
+  server.createPlayer(makePlayerProperties(zellaPlayerId, zellaUserId, gameId, 'Zella the Ultimate'));
+  server.joinResistance({playerId: zellaPlayerId}, "glarple zerp wobbledob");
 
   var moldaviPlayerId = server.idGenerator.newPlayerId();
   server.addAdmin({gameId: gameId, userId: moldaviUserId});
@@ -154,15 +163,15 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 'Jack Slayer the Bean Slasher'));
   server.joinResistance({playerId: jackPlayerId}, "grobble forgbobbly");
   
-  var evanPlayerId = server.idGenerator.newPlayerId();
-  server.createPlayer(makePlayerProperties(evanPlayerId, evanUserId, gameId, 'Evanpocalypse'));
-  server.joinHorde({playerId: evanPlayerId});
+  var drakePlayerId = server.idGenerator.newPlayerId();
+  server.createPlayer(makePlayerProperties(drakePlayerId, drakeUserId, gameId, 'Drackan'));
+  server.joinHorde({playerId: drakePlayerId});
 
   var zekePlayerId = server.idGenerator.newPlayerId();
   server.createPlayer(makePlayerProperties(zekePlayerId, zekeUserId, gameId, 'Zeke'));
   server.joinHorde({playerId: zekePlayerId});
 
-  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: kimPlayerId, message: 'yo dawg i hear the zeds r comin!'});
+  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: zellaPlayerId, message: 'yo dawg i hear the zeds r comin!'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'man what i would do for some garlic rolls!'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'https://www.youtube.com/watch?v=GrHPTWTSFgc'});
@@ -173,8 +182,8 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
   
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: zekePlayerId, message: 'zeds rule!'});
-  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'hoomans drool!'});
-  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'monkeys eat stool!'});
+  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hoomans drool!'});
+  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'monkeys eat stool!'});
 
   var zedSecondChatRoomGroupId = server.idGenerator.newGroupId();
   var zedSecondChatRoomId = server.idGenerator.newChatRoomId();
@@ -182,20 +191,20 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.createChatRoom({chatRoomId: zedSecondChatRoomId, groupId: zedSecondChatRoomGroupId, name: "Zeds Internal Secret Police", withAdmins: false});
 
   server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: zekePlayerId});
-  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: evanPlayerId});
-  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedSecondChatRoomId, playerId: evanPlayerId, message: 'lololol we be zed police'});
+  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: drakePlayerId});
+  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedSecondChatRoomId, playerId: drakePlayerId, message: 'lololol we be zed police'});
   server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedSecondChatRoomId, playerId: zekePlayerId, message: 'lololol oink oink'});
 
   var resistanceSecondChatRoomGroupId = server.idGenerator.newGroupId();
   var resistanceSecondChatRoomId = server.idGenerator.newChatRoomId();
-  server.createGroup({groupId: resistanceSecondChatRoomGroupId, name: "Group for " + resistanceSecondChatRoomId, gameId: gameId, ownerPlayerId: kimPlayerId, allegianceFilter: 'resistance', autoAdd: false, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
+  server.createGroup({groupId: resistanceSecondChatRoomGroupId, name: "Group for " + resistanceSecondChatRoomId, gameId: gameId, ownerPlayerId: zellaPlayerId, allegianceFilter: 'resistance', autoAdd: false, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   server.createChatRoom({chatRoomId: resistanceSecondChatRoomId, groupId: resistanceSecondChatRoomGroupId, name: "My Chat Room!", withAdmins: false});
 
-  server.addPlayerToGroup({groupId: resistanceSecondChatRoomGroupId, playerId: null, otherPlayerId: kimPlayerId});
-  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceSecondChatRoomId, playerId: kimPlayerId, message: 'lololol i have a chat room!'});
+  server.addPlayerToGroup({groupId: resistanceSecondChatRoomGroupId, playerId: null, otherPlayerId: zellaPlayerId});
+  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceSecondChatRoomId, playerId: zellaPlayerId, message: 'lololol i have a chat room!'});
 
-  server.updatePlayer({playerId: kimPlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/GoKTAX0zAEt6PlzUkTn7tMeK-q1hwKDpzWsMJHBntuyR7ZKVtFXjRkbFOEMqrqxPWJ-7dbCXD7NbVgHd7VmkYD8bDzsjd23XYk0KyALC3BElIk65vKajjjRD_X2_VkLPOVejrZLpPpa2ebQVUHJF5UXVlkst0m6RRqs2SumRzC7EMmEeq9x_TurwKUJmj7PhNBPCeoDEh51jAIc-ZqvRfDegLgq-HtoyJAo91lbD6jqA2-TFufJfiPd4nOWnKhZkQmarxA8LQT0kOu7r3M5F-GH3pCbQqpH1zraha8CqvKxMGLW1i4CbDs1beXatKTdjYhb1D_MVnJ6h7O4WX3GULwNTRSIFVOrogNWm4jWLMKfKt3NfXYUsCOMhlpAI3Q8o1Qgbotfud4_HcRvvs6C6i17X-oQm8282rFu6aQiLXOv55FfiMnjnkbTokOA1OGDQrkBPbSVumz9ZE3Hr-J7w_G8itxqThsSzwtK6p5YR_9lnepWe0HRNKfUZ2x-a2ndT9m6aRXC_ymWHQGfdGPvTfHOPxUpY8mtX2vknmj_dn4dIuir1PpcN0DJVVuyuww3sOn-1YRFh80gBFvwFuMnKwz8GY8IX5gZmbrrBsy_FmwFDIvBcwNjZKd9fH2gkK5rk1AlWv12LsPBsrRIEaLvcSq7Iim9XSsiivzcNrLFG=w294-h488-no'});
-  server.updatePlayer({playerId: evanPlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/WP1fewVG0CvERcnQnmxjf84IjnEBoDQBgdaxbNAECRa433neObfAjv_xI35DN67WhcCL9y-mgXmfYrZEBeJ2PYrtIeCK3KSdJ4HiEDUqxaaGsJAtu5C5ZjcABUHoySueEwO0yJWfhWPVbGoAFdP-ZquoXSF3yz4gnlN76W-ltDBglclLxKs-hR9dTjf_DiX9yGmmb5y8mp1Jb8BEw9Q-zx_j9EFkgTI0EA6T10pogxsfAWkrwXO7t37D0vI2OxzHJA51EQ4LZw1oZsIN7Uyqnh06LAJ_ykYhW2xuSCpu7QY7UPm9IbDcsDqj1eap7xvV9JW_EW2Y8Km5nS0ZoAd-Eo3zUe-2YFTc0OAVDwgbhowzo1gUeqfCEtxVHuT36Aq2LWayB6DzOL9TqubcF7qmjtNy_UIr-RY1d69xN-KqjFBoWLtS6rDhQurrfJNd5x-MYOEjCMrbsGmSXE8L7PskM3e_3-ZhIqfMn2I-4zeEZIUG8U2iHRWK-blaqsSY8uhmzNG6sqF-liyINagQF4l35oy7tpobueWs7aDjRrcJrGiQDrGHYV1E67J64Ae9FqXPHmORRpYcihQc6pI0JAmaiWwMJoqD0QMJF9koaDYANPEGbWlnWc_lFzhCO_L8yCkVtJIIItQv-loypR6XqILK32eoGeatnp5Q0x0OEm3W=s240-no'});
+  server.updatePlayer({playerId: zellaPlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/GoKTAX0zAEt6PlzUkTn7tMeK-q1hwKDpzWsMJHBntuyR7ZKVtFXjRkbFOEMqrqxPWJ-7dbCXD7NbVgHd7VmkYD8bDzsjd23XYk0KyALC3BElIk65vKajjjRD_X2_VkLPOVejrZLpPpa2ebQVUHJF5UXVlkst0m6RRqs2SumRzC7EMmEeq9x_TurwKUJmj7PhNBPCeoDEh51jAIc-ZqvRfDegLgq-HtoyJAo91lbD6jqA2-TFufJfiPd4nOWnKhZkQmarxA8LQT0kOu7r3M5F-GH3pCbQqpH1zraha8CqvKxMGLW1i4CbDs1beXatKTdjYhb1D_MVnJ6h7O4WX3GULwNTRSIFVOrogNWm4jWLMKfKt3NfXYUsCOMhlpAI3Q8o1Qgbotfud4_HcRvvs6C6i17X-oQm8282rFu6aQiLXOv55FfiMnjnkbTokOA1OGDQrkBPbSVumz9ZE3Hr-J7w_G8itxqThsSzwtK6p5YR_9lnepWe0HRNKfUZ2x-a2ndT9m6aRXC_ymWHQGfdGPvTfHOPxUpY8mtX2vknmj_dn4dIuir1PpcN0DJVVuyuww3sOn-1YRFh80gBFvwFuMnKwz8GY8IX5gZmbrrBsy_FmwFDIvBcwNjZKd9fH2gkK5rk1AlWv12LsPBsrRIEaLvcSq7Iim9XSsiivzcNrLFG=w294-h488-no'});
+  server.updatePlayer({playerId: drakePlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/WP1fewVG0CvERcnQnmxjf84IjnEBoDQBgdaxbNAECRa433neObfAjv_xI35DN67WhcCL9y-mgXmfYrZEBeJ2PYrtIeCK3KSdJ4HiEDUqxaaGsJAtu5C5ZjcABUHoySueEwO0yJWfhWPVbGoAFdP-ZquoXSF3yz4gnlN76W-ltDBglclLxKs-hR9dTjf_DiX9yGmmb5y8mp1Jb8BEw9Q-zx_j9EFkgTI0EA6T10pogxsfAWkrwXO7t37D0vI2OxzHJA51EQ4LZw1oZsIN7Uyqnh06LAJ_ykYhW2xuSCpu7QY7UPm9IbDcsDqj1eap7xvV9JW_EW2Y8Km5nS0ZoAd-Eo3zUe-2YFTc0OAVDwgbhowzo1gUeqfCEtxVHuT36Aq2LWayB6DzOL9TqubcF7qmjtNy_UIr-RY1d69xN-KqjFBoWLtS6rDhQurrfJNd5x-MYOEjCMrbsGmSXE8L7PskM3e_3-ZhIqfMn2I-4zeEZIUG8U2iHRWK-blaqsSY8uhmzNG6sqF-liyINagQF4l35oy7tpobueWs7aDjRrcJrGiQDrGHYV1E67J64Ae9FqXPHmORRpYcihQc6pI0JAmaiWwMJoqD0QMJF9koaDYANPEGbWlnWc_lFzhCO_L8yCkVtJIIItQv-loypR6XqILK32eoGeatnp5Q0x0OEm3W=s240-no'});
   server.updatePlayer({playerId: zekePlayerId, profileImageUrl: 'https://s-media-cache-ak0.pinimg.com/736x/31/92/2e/31922e8b045a7ada368f774ce34e20c0.jpg'});
   server.updatePlayer({playerId: moldaviPlayerId, profileImageUrl: 'https://katiekhau.files.wordpress.com/2012/05/scan-9.jpeg'});
   server.updatePlayer({playerId: jackPlayerId, profileImageUrl: 'https://sdl-stickershop.line.naver.jp/products/0/0/1/1009925/android/main.png'});
@@ -207,7 +216,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.addPoint({pointId: server.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
   server.addPoint({pointId: server.idGenerator.newPointId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
   
-  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: evanPlayerId, message: 'hi'});
+  server.sendChatMessage({messageId: server.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hi'});
 
   if (populateLotsOfPlayers) {
     populatePlayersHeavy(server, gameId);
@@ -224,23 +233,23 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId});
   server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId});
   server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId});
-  // server.claimReward(evanPlayerId, "flarklebark");
+  // server.claimReward(drakePlayerId, "flarklebark");
   for (let i = 0; i < 80; i++) {
     server.addGun({gunId: "gun-" + 1404 + i});
   }
   // let mission1AlertNotificationCategoryId = server.idGenerator.newNotificationCategoryId();
   // server.addNotificationCategory({notificationCategoryId: mission1AlertNotificationCategoryId, gameId: gameId, name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});
-  // server.addNotification({gameId: gameId, notificationId: server.idGenerator.newNotificationId(), playerId: kimPlayerId, notificationCategoryId: mission1AlertNotificationCategoryId, previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null, icon: null});
+  // server.addNotification({gameId: gameId, notificationId: server.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: mission1AlertNotificationCategoryId, previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null, icon: null});
   // let chatNotificationCategoryId = server.idGenerator.newNotificationCategoryId();
   // server.addNotificationCategory({notificationCategoryId: chatNotificationCategoryId, gameId: gameId, name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
-  // server.addNotification({gameId: gameId, notificationId: server.idGenerator.newNotificationId(), playerId: kimPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Evanpocalypse!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
+  // server.addNotification({gameId: gameId, notificationId: server.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Drackan!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
 
+  let requestCategoryId = server.idGenerator.newRequestCategoryId();
   let requestId = server.idGenerator.newRequestId();
-  let firstResponseId = server.idGenerator.newResponseId();
-  server.addRequest({requestId: requestId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, text: 'yee?', type: 'ack'});
-  server.sendRequestToPlayer({responseId: firstResponseId, requestId: requestId, playerId: jackPlayerId});
-  server.sendRequestToPlayer({responseId: server.idGenerator.newResponseId(), requestId: requestId, playerId: kimPlayerId});
-  server.respondToRequest({responseId: firstResponseId, text: null});
+  server.addRequestCategory({requestCategoryId: requestCategoryId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, text: 'yee?', type: 'ack'});
+  server.addRequest({requestId: requestId, requestCategoryId: requestCategoryId, playerId: jackPlayerId});
+  server.addRequest({requestId: server.idGenerator.newRequestId(), requestCategoryId: requestCategoryId, playerId: zellaPlayerId});
+  server.respondToRequest({requestId: requestId, text: null});
   
   // let stunQuestionId = server.idGenerator.newQuizQuestionId();
   // server.addQuizQuestion({quizQuestionId: stunQuestionId, gameId: gameId,

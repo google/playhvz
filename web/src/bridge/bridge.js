@@ -10,7 +10,7 @@ class Bridge {
       this[method] =
           (...args) => {
             Utils.checkObject(
-                ...args,
+                args[0],
                 expectations.required,
                 expectations.optional,
                 this.check_.bind(this));
@@ -100,8 +100,8 @@ class IdGenerator {
   verifyQuizQuestionId(id) { return this.verify('quizQuestion', id); }
   newRequestId(note) { return this.generateId('request', note); }
   verifyRequestId(id) { return this.verify('request', id); }
-  newResponseId(note) { return this.generateId('response', note); }
-  verifyResponseId(id) { return this.verify('response', id); }
+  newRequestCategoryId(note) { return this.generateId('requestCategory', note); }
+  verifyRequestCategoryId(id) { return this.verify('requestCategory', id); }
   newRewardCategoryId(note) { return this.generateId('rewardCategory', note); }
   verifyRewardCategoryId(id) { return this.verify('rewardCategory', id); }
   newRewardId(note) { return this.generateId('reward', note); }
@@ -131,6 +131,10 @@ class FakeIdGenerator extends IdGenerator {
 // Sets Bridge.METHODS_MAP and Bridge.serverMethods
 (function() {
   let serverMethods = new Map();
+
+  serverMethods.set('setTimeOffset', {
+    required: {offsetMs: 'Number'},
+  });
 
   // Users
   serverMethods.set('signIn', {});
@@ -374,9 +378,9 @@ class FakeIdGenerator extends IdGenerator {
     },
   });
 
-  serverMethods.set('addRequest', {
+  serverMethods.set('addRequestCategory', {
     required: {
-      requestId: '!RequestId',
+      requestCategoryId: '!RequestCategoryId',
       chatRoomId: 'ChatRoomId',
       playerId: 'PlayerId',
       text: 'String',
@@ -384,17 +388,17 @@ class FakeIdGenerator extends IdGenerator {
     },
   });
 
-  serverMethods.set('sendRequestToPlayer', {
+  serverMethods.set('addRequest', {
     required: {
-      requestId: 'RequestId',
-      responseId: '!ResponseId',
+      requestCategoryId: 'RequestCategoryId',
+      requestId: '!RequestId',
       playerId: 'PlayerId',
     },
   });
 
   serverMethods.set('respondToRequest', {
     required: {
-      responseId: 'ResponseId',
+      requestId: 'RequestId',
       text: '?String',
     },
   });

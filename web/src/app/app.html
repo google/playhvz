@@ -185,7 +185,7 @@
       // Called on any change in userId, gameId, playerId, or games.splices.
       autoNavigate_() {
         let [, page] = this.extractUrl_();
-        if (this.userId && page != 'createGame' && !this.gameId) {
+        if (this.userId && page != 'createGame' && page != 'devTools' && !this.gameId) {
           // Try to figure out what game to put them in.
           let [gameId, ] = this.extractUrl_();
           if (gameId) {
@@ -257,7 +257,7 @@
             return;
           }
         }
-        if (this.userId && !this.page && page == 'createGame') {
+        if (this.userId && !this.page && (page == 'createGame' || page == 'devTools')) {
           // Async so we dont accidentally cause calls into firebaselistener
           // while we're already reacting to something from it.
           this.async(() => {
@@ -325,6 +325,10 @@
         }
         return [null, null, null];
       },
+
+      computeResponsiveWidth_(isDesktop) {
+        return isDesktop ? "0" : null;
+      }
     });
   });
 </script>
@@ -375,7 +379,7 @@
     <paper-button on-tap="signIn_">Sign In With Google</paper-button>
   </template>
   <template is="dom-if" if="[[user]]">
-    <paper-drawer-panel id="drawer" disable-swipe>
+    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isDesktop)]]">
       <paper-material drawer>
         <ghvz-drawer
             bridge="[[bridge]]"

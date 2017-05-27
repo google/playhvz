@@ -18,10 +18,8 @@
 
       observers: ['onPlayerIdChanged_(game.players.length, playerId)'],
 
-      onPlayerIdChanged_(game, playerId) {
-        console.log('changed!');
+      onPlayerIdChanged_() {
         if (this.game && this.playerId && !this.player) {
-          assert(this.game.players);
           let player = this.game.players.find(player => player.id == this.playerId);
           if (player)
             this.$.playerSelector.select(player);

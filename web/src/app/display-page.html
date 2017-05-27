@@ -30,6 +30,7 @@
               'main': 'main',
               'joinGame': 'joinGame',
               'createGame': 'createGame',
+              'devTools': 'devTools',
               'chat': 'chat',
               'faq': 'faq',
               'leaderboard': 'leaderboard',
@@ -109,6 +110,17 @@
               bridge="[[bridge]]"
               user-id="[[user.id]]">
         </ghvz-create-game>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.devTools, mostRecentSubpage)]]">
+      <ghvz-card expand padded full$="[[isMobile]]" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Create Game</div>
+        <ghvz-dev-tools
+              class="content"
+              bridge="[[bridge]]"
+              user-id="[[user.id]]">
+        </ghvz-dev-tools>
       </ghvz-card>
     </template>
 

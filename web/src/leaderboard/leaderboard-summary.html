@@ -23,8 +23,8 @@
         }
       },
       computePlayerList_(players, numToShow) {
-        console.log(numToShow)
-        return players.sort((p1, p2) => p2.points - p1.points)
+        // commented out because it changes the model
+        return players//.sort((p1, p2) => p2.points - p1.points)
           .slice(0, numToShow || players.length);
       },
       makeTableBlueprint_: function() {

@@ -35,35 +35,32 @@
       attached() {
         let idGenerator = new FakeIdGenerator();
 
-        let userIds = {
-          kimUserId: idGenerator.newUserId(),
-          reggieUserId: idGenerator.newUserId(),
-          minnyUserId: idGenerator.newUserId(),
-          evanUserId: idGenerator.newUserId(),
-          zekeUserId: idGenerator.newUserId(),
-          moldaviUserId: idGenerator.newUserId(),
-          jackUserId: idGenerator.newUserId(),
-        };
-
         this.userOptions = [
-          {loaded: false, focused: false, url: '', name: 'reggie', userId: userIds.reggieUserId, description: 'Registered, not admin, not joined'},
-          {loaded: false, focused: false, url: '', name: 'minny', userId: userIds.minnyUserId, description: 'Registered, admin, not joined'},
-          {loaded: false, focused: false, url: '', name: 'kim', userId: userIds.kimUserId, description: 'Registered, admin, joined, human'},
-          {loaded: false, focused: false, url: '', name: 'moldavi', userId: userIds.moldaviUserId, description: 'Registered, admin, joined, human, is keeper of the owls'},
-          {loaded: false, focused: false, url: '', name: 'evan', userId: userIds.evanUserId, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, focused: false, url: '', name: 'zeke', userId: userIds.zekeUserId, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, focused: false, url: '', name: 'jack', userId: userIds.jackUserId, description: 'Registered, not admin, joined, human'},
+          {loaded: false, focused: false, url: '', name: 'reggie', userId: FAKE_USER_IDS.reggieUserId, description: 'Registered, not admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'minny', userId: FAKE_USER_IDS.minnyUserId, description: 'Registered, admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'zella', userId: FAKE_USER_IDS.zellaUserId, description: 'Registered, admin, joined, human'},
+          {loaded: false, focused: false, url: '', name: 'moldavi', userId: FAKE_USER_IDS.moldaviUserId, description: 'Registered, admin, joined, human, is keeper of the owls'},
+          {loaded: false, focused: false, url: '', name: 'drake', userId: FAKE_USER_IDS.drakeUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'zeke', userId: FAKE_USER_IDS.zekeUserId, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'jack', userId: FAKE_USER_IDS.jackUserId, description: 'Registered, not admin, joined, human'},
         ];
 
         this.bridge =
             new Bridge(
                 idGenerator,
                 new FakeBridge(
-                    userIds,
                     idGenerator,
                     new BatchedPolymerWriter(this, 'database')));
 
-        let userName = Utils.getParameterByName('user', 'kim');
+        populateUsers(this.bridge, FAKE_USER_IDS);
+
+        let populate = Utils.getParameterByName('populate', 'light');
+        assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
+        if (populate != 'none') {
+          populateGame(this.bridge, FAKE_USER_IDS, populate == 'heavy');
+        }
+
+        let userName = Utils.getParameterByName('user', 'zella');
         let userOption = this.userOptions.find((option) => option.name == userName);
         if (userOption)
           this.loadUser_(userOption.userId);

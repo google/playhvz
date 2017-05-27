@@ -115,7 +115,7 @@ class ConsistentWriter {
       let id = wholePath.slice(-1)[0];
       // assert(id.includes("-"));
       if (this.definedById[id] === undefined) {
-        console.log("Found definition for id", id);
+        // console.log("Found definition for id", id);
         this.definedById[id] = true;
       } else if (this.definedById[id] === true) {
         // Lets say we receive ["games"] and then ["games", 4, "stunTimer"]
@@ -126,12 +126,12 @@ class ConsistentWriter {
         // ["games", 4, "stunTimer"]
         // So its not particularly worrying if we get here.
       } else if (this.definedById[id] === false) {
-        console.log("Found definition for id", id, ", no longer hanging!");
+        // console.log("Found definition for id", id, ", no longer hanging!");
         this.definedById[id] = true;
         assert(this.numUndefined);
         this.numUndefined--;
         if (this.numUndefined == 0) {
-          console.log('Model is now consistent!');
+          // console.log('Model is now consistent!');
         }
       } else {
         assert(false);
@@ -145,12 +145,12 @@ class ConsistentWriter {
         if (this.definedById[id] === undefined) {
           this.definedById[id] = false;
           if (this.numUndefined == 0) {
-            console.log('Model is now inconsistent!');
+            // console.log('Model is now inconsistent!');
           }
           this.numUndefined++;
-          console.log("Found reference to", id, ", is hanging!");
+          // console.log("Found reference to", id, ", is hanging!");
         } else {
-          console.log("Found reference to", id, "already defined");
+          // console.log("Found reference to", id, "already defined");
         }
       }
     });
