@@ -143,7 +143,7 @@ class FakeIdGenerator extends IdGenerator {
   // Users
   serverMethods.set('signIn', {});
   serverMethods.set('register', {
-    required: {userId: '!UserId'}
+    required: {userId: 'String'}
   });
 
   // Guns
@@ -281,6 +281,7 @@ class FakeIdGenerator extends IdGenerator {
       gameId: 'GameId',
       rewardId: '!RewardId',
       rewardCategoryId: 'RewardCategoryId',
+      code: '?String',
     },
   });
 
@@ -296,7 +297,7 @@ class FakeIdGenerator extends IdGenerator {
     required: {
       gameId: 'GameId',
       playerId: 'PlayerId',
-      rewardId: 'RewardId',
+      rewardCode: 'String',
     },
   });
 
@@ -420,6 +421,7 @@ class FakeIdGenerator extends IdGenerator {
     required: {
       playerId: 'PlayerId',
       lifeId: '!LifeId',
+      lifeCode: '?String',
     }
   });
 

@@ -356,13 +356,13 @@ class FakeServer {
         this.getTime_());
   }
   addReward(args) {
-    let {rewardCategoryId, rewardId} = args;
+    let {rewardCategoryId, rewardId, code} = args;
     let gameId = this.reader.getGameIdForRewardCategoryId(rewardCategoryId);
     this.writer.insert(
         this.reader.getRewardPath(gameId, rewardCategoryId, null),
         null,
         new Model.Reward(rewardId, Utils.merge(args, {
-          code: "" + Math.random(),
+          code: code || "" + Math.random(),
           rewardCategoryId: rewardCategoryId,
           playerId: null,
         })));
@@ -384,26 +384,26 @@ class FakeServer {
         null,
         properties);
   }
-  claimReward(playerId, code) {
-    assert(typeof code == 'string');
-    code = code.replace(/\s/g, '').toLowerCase();
+  claimReward({gameId, playerId, rewardCode}) {
+    assert(typeof rewardCode == 'string');
+    rewardCode = rewardCode.replace(/\s/g, '').toLowerCase();
     // let playerPath = this.reader.pathForId(playerId);
     // let gamePath = playerPath.slice(0, 2);
-    let gameId = this.getGameIdForPlayerId(playerId);
+    // let gameId = this.reader.getGameIdForPlayerId(playerId);
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];
 
     // let rewardCategoriesPath = gamePath.concat(["rewardCategories"]);
     for (let i = 0; i < game.rewardCategories.length; i++) {
-      let rewardCategory = rewardCategories[i];
+      let rewardCategory = game.rewardCategories[i];
       for (let j = 0; j < rewardCategory.rewards.length; j++) {
         let reward = rewardCategory.rewards[j];
-        if (reward.code.replace(/\s/g, '').toLowerCase() == code) {
+        if (reward.code.replace(/\s/g, '').toLowerCase() == rewardCode) {
           this.writer.set(
-              gamePath.concat(["rewardCategories", i, "rewards", j, "playerId"]),
+              this.reader.getRewardPath(gameId, rewardCategory.id, reward.id).concat(["playerId"]),
               playerId);
           this.writer.insert(
-              playerPath.concat(["rewards"]),
+              this.reader.getClaimPath(gameId, playerId, null),
               null,
               new Model.Claim(this.idGenerator.newClaimId(), {
                 rewardCategoryId: rewardCategory.id,

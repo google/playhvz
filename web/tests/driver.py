@@ -34,9 +34,9 @@ def Retry(callback, wait_long = False):
 
 
 class RetryingDriver:
-  def __init__(self):
+  def __init__(self, url):
     self.driver = webdriver.Chrome()
-    self.driver.get("http://localhost:5000/createGame?user=minny&populate=none")
+    self.driver.get(url)
 
   def FindElement(self, path, wait_long = False):
     return Retry(lambda: FindElement(self.driver, path), wait_long=wait_long)

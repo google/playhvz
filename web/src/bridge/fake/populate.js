@@ -72,7 +72,7 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
   let playerIds = [];
   for (let i = 0; i < numPlayers; i++) {
     let userId = server.idGenerator.newUserId();
-    server.register({userId: userId, name: "User " + i});
+    server.register({userId: userId});
     let playerId = server.idGenerator.newPlayerId();
     server.createPlayer(makePlayerProperties(playerId, userId, gameId, 'Player' + i));
     playerIds.push(playerId);
@@ -94,7 +94,13 @@ function populatePlayers(server, gameId, numPlayers, numStartingZombies, numDays
       let victimId = playerIds[zombiesEndIndex + j];
       let victimLifeCode = lifeCodesByPlayerId[victimId];
       server.setTimeOffset({offsetMs: dayStartOffset + j * 11 * 60 * 1000}); // infections are spread by 11 minutes
-      server.infect({infectionId: server.idGenerator.newInfectionId(), playerId: infectorId, victimLifeCode: victimLifeCode, victimPlayerId: null});
+      server.infect({
+        gameId: gameId,
+        infectionId: server.idGenerator.newInfectionId(),
+        infectorPlayerId: infectorId,
+        victimLifeCode: victimLifeCode,
+        victimPlayerId: null
+      });
       // console.log("At", server.inner.time, "humans:", --numHumans, "zombies:", ++numZombies);
     }
     zombiesEndIndex *= 2;
@@ -160,11 +166,11 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.addAdmin({gameId: gameId, userId: moldaviUserId});
   server.createPlayer(makePlayerProperties(moldaviPlayerId, moldaviUserId, gameId, 'Moldavi the Moldavish'));
   server.setAdminContact({gameId: gameId, playerId: moldaviPlayerId});
-  server.joinResistance({playerId: moldaviPlayerId}, "zooble flipwoogly");
+  server.joinResistance({playerId: moldaviPlayerId, lifeCode: "zooble flipwoogly", lifeId: null});
   
   var jackPlayerId = server.idGenerator.newPlayerId();
   server.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 'Jack Slayer the Bean Slasher'));
-  server.joinResistance({playerId: jackPlayerId}, "grobble forgbobbly");
+  server.joinResistance({playerId: jackPlayerId, lifeCode: "grobble forgbobbly", lifeId: null});
   
   var drakePlayerId = server.idGenerator.newPlayerId();
   server.createPlayer(makePlayerProperties(drakePlayerId, drakeUserId, gameId, 'Drackan'));
@@ -257,10 +263,19 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
 
   var rewardCategoryId = server.idGenerator.newRewardCategoryId();
   server.addRewardCategory({rewardCategoryId: rewardCategoryId, gameId: gameId, name: "signed up!", points: 2, seed: "derp", limitPerPlayer: 1});
-  server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId});
-  server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId});
-  server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId});
-  server.claimReward(drakePlayerId, "flarklebark");
+  server.addReward({
+    gameId: gameId,
+    rewardId: server.idGenerator.newRewardId(),
+    rewardCategoryId: rewardCategoryId,
+    code: "flarklebark",
+  });
+  server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId, code: null});
+  server.addReward({gameId: gameId, rewardId: server.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId, code: null});
+  server.claimReward({
+    gameId: gameId,
+    playerId: drakePlayerId,
+    rewardCode: "flarklebark",
+  });
   for (let i = 0; i < 80; i++) {
     server.addGun({gunId: "gun-" + 1404 + i});
   }
