@@ -24,7 +24,7 @@
 
         userId: {
           type: String,
-          value: undefined,
+          value: null,
         },
       },
 
@@ -42,11 +42,11 @@
       },
 
       attached() {
-        this.bridge.attemptAutoSignIn()
-            .then((userId) => this.userId = userId)
-            .catch((e) => {
-              this.userId = null
-            });
+        // this.bridge.attemptAutoSignIn()
+        //     .then((userId) => this.userId = userId)
+        //     .catch((e) => {
+        //       this.userId = null
+        //     });
         window.onpopstate = this.handlePopState_.bind(this);
       },
 

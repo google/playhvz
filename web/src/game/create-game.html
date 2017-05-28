@@ -62,8 +62,8 @@
                 name: properties.name,
               });
               this.bridge.createGroup({
-                groupId: resistanceGroupId,
                 gameId: gameId,
+                groupId: resistanceGroupId,
                 name: "Resistance",
                 ownerPlayerId: null,
                 allegianceFilter: 'resistance',
@@ -73,6 +73,7 @@
                 membersCanRemove: false,
               });
               this.bridge.createChatRoom({
+                gameId: gameId,
                 chatRoomId: resistanceChatRoomId,
                 groupId: resistanceGroupId,
                 name: "Resistance Comms Hub",
@@ -91,6 +92,7 @@
                 membersCanRemove: false,
               });
               this.bridge.createChatRoom({
+                gameId: gameId,
                 chatRoomId: hordeChatRoomId,
                 groupId: hordeGroupId,
                 name: "Horde ZedLink",

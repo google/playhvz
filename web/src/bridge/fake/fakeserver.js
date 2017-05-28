@@ -30,9 +30,11 @@ class FakeServer {
   getTime_() {
     return new Date().getTime() + this.timeOffset;
   }
-  signIn(preferredUserId) {
-    assert(preferredUserId);
-    return preferredUserId;
+  signIn(args) {
+    let {userId} = args;
+    assert(userId);
+    this.reader.getUserPath(userId);
+    return userId;
   }
   register(args) {
     let {userId, name} = args;
@@ -41,6 +43,7 @@ class FakeServer {
       name: name,
       players: [],
     });
+    return userId;
   }
   createGame(args) {
     let {gameId, adminUserId} = args;

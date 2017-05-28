@@ -11,7 +11,6 @@
         bridge: {
           type: Object,
           value: undefined,
-          observer: 'onBridgeChanged_',
         },
 
         database: {
@@ -84,6 +83,7 @@
       },
 
       observers: [
+        'start_(bridge, userId)',
         'onUserIdChanged_(bridge, database, userId, database.users.length)',
         'autoNavigate_(bridge, database, game.admins.length)',
         'autoNavigate_(bridge, database, database.games.splices)',
@@ -106,24 +106,33 @@
         'ghvz-select-game': 'handleSelectGame_',
       },
 
-      onBridgeChanged_(newBridge, oldBridge) {
-        if (!oldBridge && newBridge) {
+      start_(bridge, userId) {
+        if (!this.listeningToDatabase) {
+          this.listeningToDatabase = true;
           this.bridgeListenCanceler =
-              newBridge.listenToDatabase({
+              this.bridge.listenToDatabase({
                 destination: new BatchedPolymerWriter(this, 'database')
               });
         }
+
+        this.bridge.attemptAutoSignIn({userId: this.userId})
+            .then((userId) => {
+              this.userId = userId;
+              this.onUserIdChanged_();
+            })
+            .catch((e) => {
+              this.onUserIdChanged_();
+            });
       },
 
       detached() {
         this.bridgeListenCanceler();
       },
 
+      // Called manually and also by observers
       onUserIdChanged_() {
         this.showLoadingSpinner = false;
-        if (this.userId == null) {
-          this.showSignInButton = true;
-        }
+        this.showSignInButton = (!this.userId || !this.user);
         if (!this.user) {
           let user = this.database.users.find(user => user.id == this.userId);
           if (user) {
@@ -145,24 +154,17 @@
         }
       },
 
-      attached() {
-        // userId might have been given to us, such as when we're doing fake
-        if (!this.userId) {
-          this.bridge.attemptAutoSignIn()
-              .then((userId) => this.userId = userId)
-              .catch((e) => {
-                this.userId = null
-              });
-        }
-      },
-
       computeShowSignInButton_(userId, user) {
         return !userId || !user;
       },
 
       signIn_: function() {
-        this.bridge.signIn()
-            .then((userId) => this.userId = userId);
+        this.bridge.signIn({userId: this.userId})
+            .then((userId) => {
+              // We might already have our user id, in the case of fake
+              this.userId = userId;
+              this.onUserIdChanged_();
+            });
       },
 
       signOut_() {

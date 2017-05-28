@@ -66,7 +66,7 @@ class Bridge {
 
 class IdGenerator {
   generateId(type, note) { return Utils.generateId(type, note); }
-  verify(type, id) { return id.startsWith(type + '-'); }
+  verify(type, id) { return id == null || (typeof id == 'string' && id.startsWith(type + '-')); }
 
   newChatRoomId(note) { return this.generateId('chatRoom', note); }
   verifyChatRoomId(id) { return this.verify('chatRoom', id); }

@@ -15,32 +15,19 @@ class FakeBridge {
     window.fakeBridge = this;
 
     for (const funcName of Bridge.SERVER_METHODS) {
-      this[funcName] = (...args) => this.server[funcName](...args);
+      if (!this[funcName])
+        this[funcName] = (...args) => this.server[funcName](...args);
     }
   }
-  signIn() {
-    return new Promise((resolve, reject) => {
-      if (!this.userId) {
-        this.userId = this.bridge.newUserId();
-        this.server.register({userId: this.userId});
-      }
-      this.server.signIn(this.userId)
-          .then((userId) => {
-            resolve(userId);
-          });
-    });
+  signIn({userId}) {
+    assert(userId);
+    this.server.register({userId: userId});
+    return this.server.signIn({userId: userId});
   }
-  attemptAutoSignIn() {
-    return new Promise((resolve, reject) => {
-      if (this.userId) {
-        this.server.signIn(this.userId)
-            .then((userId) => {
-              resolve(userId);
-            });
-      } else {
-        reject('Nope!');
-      }
-    });
+  attemptAutoSignIn({userId}) {
+    assert(userId);
+    this.server.register({userId: userId});
+    return this.server.signIn({userId: userId});
   }
   listenToDatabase({destination}) {
     var gatedWriter = new GatedWriter(new MappingWriter(destination), false);

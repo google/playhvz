@@ -19,7 +19,7 @@ class RemoteBridge {
     }
   }
 
-  signIn() {
+  signIn({}) {
     if (this.userId == null) {
       return new Promise((resolve, reject) => {
         firebase.auth().getRedirectResult()
@@ -51,7 +51,7 @@ class RemoteBridge {
         firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
       });
     } else {
-      console.error("Impossible");
+      throwError("Impossible");
     }
   }
 
