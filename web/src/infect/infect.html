@@ -89,9 +89,13 @@
         align-items: center;
         margin: 8px 16px 8px 0;
       }
+      #victimName {
+        font-weight: bold;
+      }
     </style>
     <div id="infecting" hidden$="[[infectedPlayer]]">
       <paper-input
+          id="lifeCodeInput"
           label="Human's life code"
           value="{{lifeCode}}">
       </paper-input>
@@ -107,7 +111,10 @@
     </div>
     <div id="infected" hidden$="[[!infectedPlayer]]">
       <div id="infectedMessage">
-        <div>Congratulations, you've infected <b>[[infectedPlayer.name]]</b>!</div>
+        <div>
+          Congratulations, you've infected
+          <span id="victimName">[[infectedPlayer.name]]</span>!
+        </div>
         <div>Glory to the horde!</div>
       </div>
       <div id="doneContainer">

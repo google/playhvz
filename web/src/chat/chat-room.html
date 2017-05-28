@@ -320,6 +320,9 @@
     <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
     </paper-icon-button>
 
+    <!-- For webdrivers -->
+    <div name$="ChatRoom: [[chatRoom.name]]"></div>
+
     <div id="conversationContainer" class="conversation-container">
       <template is="dom-repeat" items="[[chatRoom.messages]]">
         <div class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">

@@ -34,21 +34,40 @@ def Retry(callback, wait_long = False):
 
 
 class RetryingDriver:
-  def __init__(self, url):
+  def __init__(self, user = "zella", page = ""):
     self.driver = webdriver.Chrome()
+    self.user = user
+    url = "http://localhost:5000/%s?user=%s" % (page, user)
     self.driver.get(url)
 
+    self.FindElementInner([[By.ID, 'root']], wait_long=True)
+
+  def FindElementInner(self, path, wait_long = False):
+    return Retry(
+        lambda: FindElement(self.driver, path),
+        wait_long=wait_long)
+
+  def ClickInner(self, path):
+    return Retry(lambda: self.FindElementInner(path).click())
+
+  def SwitchUser(self, user):
+    self.user = user
+    self.ClickInner([[By.ID, user + 'Button']])
+    self.FindElementInner([[By.ID, user + 'App']])
+
   def FindElement(self, path, wait_long = False):
-    return Retry(lambda: FindElement(self.driver, path), wait_long=wait_long)
+    return self.FindElementInner(
+        [[By.ID, self.user + "App"]] + path,
+        wait_long)
 
   def Click(self, path):
-    return Retry(lambda: FindElement(self.driver, path).click())
+    return self.ClickInner([[By.ID, self.user + "App"]] + path)
 
   def SendKeys(self, path, keys):
-    return Retry(lambda: FindElement(self.driver, path).send_keys(keys))
+    return Retry(lambda: self.FindElement(path).send_keys(keys))
 
   def ExpectContainsInner(self, path, needle):
-    element = FindElement(self.driver, path)
+    element = self.FindElement(path)
     if needle not in element.text:
       raise AssertionError('Element doesnt contain text: %s' % needle)
 

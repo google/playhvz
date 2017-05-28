@@ -94,6 +94,7 @@
           app.bridge = this.bridge;
           app.url = this.getUrl_();
           app.userId = userId;
+          app.id = option.name + "App";
           this.appsByUserId[userId] = app;
           this.$.apps.appendChild(app);
         }
@@ -170,6 +171,7 @@
         <div class="option" focused$="[[option.focused]]">
           <paper-button
               raised
+              id$="[[option.name]]Button"
               on-tap="loadUserTapped_">
             [[option.name]]
           </paper-button>
@@ -180,9 +182,11 @@
               on-tap="unloadUserTapped_">
           </paper-icon-button>
         </div>
+        <!--
+        These tooltips seem to interfere with webdrivers...
         <paper-tooltip fit-to-visible-bounds position="top">
           [[option.description]]
-        </paper-tooltip>
+        </paper-tooltip> -->
       </div>
     </template>
   </div>
