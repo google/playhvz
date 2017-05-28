@@ -22,7 +22,7 @@ class FakeBridge {
     return new Promise((resolve, reject) => {
       if (!this.userId) {
         this.userId = this.bridge.newUserId();
-        this.server.register({userId: this.userId, name: "Person Namey"});
+        this.server.register({userId: this.userId});
       }
       this.server.signIn(this.userId)
           .then((userId) => {
@@ -80,6 +80,9 @@ class FakeBridge {
   }
   listenToGameAsNonAdmin(gameId, playerId) {
     // Do nothing. This method is really just an optimization.
+  }
+  setPlayerId(playerId) {
+    // Do nothing. This method was just for security.
   }
 }
 

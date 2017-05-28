@@ -52,11 +52,10 @@
                     idGenerator,
                     new BatchedPolymerWriter(this, 'database')));
 
-        populateUsers(this.bridge, FAKE_USER_IDS);
-
         let populate = Utils.getParameterByName('populate', 'light');
         assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
         if (populate != 'none') {
+          populateUsers(this.bridge, FAKE_USER_IDS);
           populateGame(this.bridge, FAKE_USER_IDS, populate == 'heavy');
         }
 

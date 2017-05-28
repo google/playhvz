@@ -421,14 +421,18 @@ class FakeServer {
     let {playerId} = args;
     this.setPlayerZombie(playerId);
   }
-  joinResistance(args, lifeCodeHint) {
-    let {playerId} = args;
+  joinResistance(args) {
+    let {playerId, lifeCode} = args;
 
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let player = this.reader.get(this.reader.getPlayerPath(gameId, playerId));
     assert(player.allegiance == 'none');
 
-    this.addLife({lifeId: this.idGenerator.newLifeId(), playerId: playerId}, lifeCodeHint);
+    this.addLife({
+      lifeId: this.idGenerator.newLifeId(),
+      playerId: playerId,
+      lifeCode: lifeCode
+    });
     this.setPlayerHuman(playerId);
   }
   joinHorde(args) {
@@ -514,35 +518,34 @@ class FakeServer {
           }
         }
       }
-      throw 'No player found with life code ' + infecteeLifeCode;
+      throw 'No player found with life code ' + lifeCode;
     }
   }
   infect(args) {
-    let {infectionId, playerId, infecteeLifeCode, infecteePlayerId} = args;
+    let {infectionId, playerId, victimLifeCode, victimPlayerId, gameId} = args;
     let infectorPlayerId = playerId;
-    let gameId = this.reader.getGameIdForPlayerId(infectorPlayerId || infecteePlayerId);
-    let infecteePlayer = this.findPlayerByIdOrLifeCode_(gameId, infecteePlayerId, infecteeLifeCode);
+    let victimPlayer = this.findPlayerByIdOrLifeCode_(gameId, victimPlayerId, victimLifeCode);
     let infectorPlayerPath = this.reader.getPlayerPath(gameId, infectorPlayerId);
     this.writer.set(
         this.reader.getPlayerPath(gameId, infectorPlayerId).concat(["points"]),
         this.reader.get(infectorPlayerPath.concat(["points"])) + 2);
-    let infecteePlayerPath = this.reader.getPlayerPath(gameId, infecteePlayer.id);
+    let victimPlayerPath = this.reader.getPlayerPath(gameId, victimPlayer.id);
     this.writer.insert(
-        infecteePlayerPath.concat(["infections"]),
+        victimPlayerPath.concat(["infections"]),
         null,
         new Model.Infection(this.idGenerator.newInfectionId(), {
           infectorId: infectorPlayerId,
           time: this.getTime_(),
         }));
-    infecteePlayer = this.reader.get(infecteePlayerPath);
-    if (infecteePlayer.infections.length >= infecteePlayer.lives.length) {
-      this.setPlayerZombie(infecteePlayer.id);
+    victimPlayer = this.reader.get(victimPlayerPath);
+    if (victimPlayer.infections.length >= victimPlayer.lives.length) {
+      this.setPlayerZombie(victimPlayer.id);
     }
-    return infecteePlayer.id;
+    return victimPlayer.id;
   }
-  addLife(args, codeHint) {
-    let {lifeId, playerId} = args;
-    let code = codeHint || "codefor-" + lifeId;
+  addLife(args) {
+    let {lifeId, playerId, lifeCode} = args;
+    let code = lifeCode || "codefor-" + lifeId;
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
     this.writer.insert(

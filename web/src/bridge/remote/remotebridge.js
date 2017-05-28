@@ -26,7 +26,6 @@ class RemoteBridge {
             .then((result) => {
               if (result.user) {
                 this.userId = "user-" + result.user.uid;
-                // this.register({userId: this.userId, name: 'unused'}).then(() => {
                   this.firebaseListener.listenToUser(this.userId)
                       .then((exists) => {
                         if (exists) {
@@ -67,7 +66,7 @@ class RemoteBridge {
                   if (exists) {
                     resolve(this.userId);
                   } else {
-                    this.register({userId: this.userId, name: 'unused'}).then(() => {
+                    this.register({userId: this.userId}).then(() => {
                       this.firebaseListener.listenToUser(this.userId);
                       resolve(this.userId);
                     });
@@ -111,22 +110,13 @@ class RemoteBridge {
     let {userId} = args;
     return this.requester.sendPostRequest('register', {}, {
       userId: userId,
-      name: 'unused',
+      requestingUserId: null, // Overrides what the requester wants to do
     }).then(() => {
       return userId;
     });
   }
 
-  createPlayer(args) {
-    let newArgs = Utils.copyOf(args);
-    delete newArgs.volunteer;
-    for (let key in args.volunteer) {
-      newArgs['help' + key.slice(0, 1).toUpperCase() + key.slice(1)] = args.volunteer[key];
-    }
-    delete newArgs.notificationSettings;
-    for (let key in args.notificationSettings) {
-      newArgs['notify' + key.slice(0, 1).toUpperCase() + key.slice(1)] = args.notificationSettings[key];
-    }
-    return this.requester.sendPostRequest('createPlayer', {}, newArgs);
+  setPlayerId(playerId) {
+    this.requester.setRequestingPlayerId(playerId);
   }
 }

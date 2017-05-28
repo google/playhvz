@@ -69,7 +69,7 @@ methods = {
   'register': api_calls.Register,
   'createGame': api_calls.AddGame,
   'updateGame': api_calls.UpdateGame,
-  'addGameAdmin': api_calls.AddGameAdmin,
+  'addAdmin': api_calls.AddGameAdmin,
   'createGroup': api_calls.AddGroup,
   'updateGroup': api_calls.UpdateGroup,
   'addPlayerToGroup': api_calls.AddPlayerToGroup,
@@ -96,6 +96,9 @@ methods = {
   'addLife': api_calls.AddLife,
   'infect': api_calls.Infect,
   'setAllegiance': api_calls.SetAllegiance,
+  'joinResistance': api_calls.JoinResistance,
+  'joinHorde': api_calls.JoinHorde,
+  'setAdminContact': api_calls.SetAdminContact,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
 }

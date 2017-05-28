@@ -24,6 +24,10 @@ class Bridge {
     }
   }
 
+  setPlayerId(playerId) {
+    return this.inner.setPlayerId(playerId);
+  }
+
   attemptAutoSignIn() {
     return this.inner.attemptAutoSignIn();
   }
@@ -139,7 +143,7 @@ class FakeIdGenerator extends IdGenerator {
   // Users
   serverMethods.set('signIn', {});
   serverMethods.set('register', {
-    required: {userId: '!UserId', name: 'String'}
+    required: {userId: '!UserId'}
   });
 
   // Guns
@@ -192,7 +196,8 @@ class FakeIdGenerator extends IdGenerator {
       photographer: 'Boolean',
       chronicler: 'Boolean',
       server: 'Boolean',
-      mobile: 'Boolean',
+      android: 'Boolean',
+      ios: 'Boolean',
       client: 'Boolean',
     },
     notificationSettings: {
@@ -303,15 +308,16 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('createChatRoom', {
     required:
         Utils.merge(
-            {chatRoomId: '!ChatRoomId', groupId: 'GroupId'},
+            {chatRoomId: '!ChatRoomId', groupId: 'GroupId', gameId: 'GameId'},
             CHAT_ROOM_PROPERTIES)
   });
   serverMethods.set('updateChatRoom', {
-    required: {chatRoomId: 'ChatRoomId'},
+    required: {chatRoomId: 'ChatRoomId', gameId: 'GameId'},
     optional: CHAT_ROOM_PROPERTIES,
   });
   serverMethods.set('setLastSeenChatTime', {
     required: {
+      gameId: 'GameId',
       chatRoomId: 'ChatRoomId',
       playerId: 'PlayerId',
       timestamp: 'TimestampMs',
@@ -367,10 +373,17 @@ class FakeIdGenerator extends IdGenerator {
   });
 
   serverMethods.set('joinHorde', {required: {playerId: 'PlayerId'}});
-  serverMethods.set('joinResistance', {required: {playerId: 'PlayerId'}});
+  serverMethods.set('joinResistance', {
+    required: {
+      playerId: 'PlayerId',
+      lifeCode: '?String',
+      lifeId: '?!LifeId',
+    }
+  });
 
   serverMethods.set('sendChatMessage', {
     required: {
+      gameId: 'GameId',
       messageId: '!MessageId',
       chatRoomId: 'ChatRoomId',
       playerId: 'PlayerId',
@@ -412,10 +425,11 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('infect', {
     required: {
+      gameId: 'GameId',
       infectionId: '!InfectionId',
-      playerId: '?PlayerId',
-      infecteeLifeCode: '?String',
-      infecteePlayerId: '?PlayerId',
+      infectorPlayerId: '?PlayerId',
+      victimLifeCode: '?String',
+      victimPlayerId: '?PlayerId',
     },
   });
 

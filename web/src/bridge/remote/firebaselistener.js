@@ -2,17 +2,17 @@
 
 window.FirebaseListener = (function() {
 
-const GUN_PROPERTIES = ["gameId", "playerId"];
+const GUN_PROPERTIES = ["gameId", "playerId", "label"];
 const GUN_COLLECTIONS = [];
-const USER_PROPERTIES = [];
+const USER_PROPERTIES = ["a"];
 const USER_COLLECTIONS = ["players"];
 const PRIVATE_PLAYER_PROPERTIES = ["gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantsToBeSecretZombie", "gotEquipment", "notes"];
 const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
-const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "mobile", "server", "client"];
+const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
 const PRIVATE_PLAYER_COLLECTIONS = ["lives", "chatRooms", "missions"];
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
-const GAME_PROPERTIES = ["active", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "contactAdminPlayerId"];
+const GAME_PROPERTIES = ["active", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
 const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
 const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
 const QUIZ_QUESTION_COLLECTIONS = ["answers"];
@@ -42,8 +42,10 @@ const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "name", "
 const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRooms", "groupMemberships"];
 const CLAIM_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
 const CLAIM_COLLECTIONS = [];
-const LIFE_PROPERTIES = ["time", "code"];
-const LIFE_COLLECTIONS = [];
+const PUBLIC_LIFE_PROPERTIES = ["time"];
+const PUBLIC_LIFE_COLLECTIONS = [];
+const PRIVATE_LIFE_PROPERTIES = ["code"];
+const PRIVATE_LIFE_COLLECTIONS = [];
 const INFECTION_PROPERTIES = ["time", "infectorId"];
 const INFECTION_COLLECTIONS = [];
 const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "notificationCategoryId", "seenTime", "sound", "vibrate", "app", "email", "destination"];
@@ -391,6 +393,14 @@ class FirebaseListener {
         this.listenToPlayerChatRoomMembership_(gameId, playerId, chatRoomId);
         this.listenToChatRoom_(gameId, chatRoomId);
       });
+      this.firebaseRoot.child(`playersPrivate/${playerId}/chatRooms`)
+          .on("child_removed", (snap) => {
+        let chatRoomId = snap.getKey();
+        let path = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
+        let index = path[path.length - 1];
+        path = path.slice(0, path.length - 1);
+        this.writer.remove(path, index, chatRoomId);
+      });
       this.firebaseRoot.child(`playersPrivate/${playerId}/missions`)
           .on("child_added", (snap) => {
         let missionId = snap.getKey();
@@ -418,22 +428,48 @@ class FirebaseListener {
   }
 
   listenToLifePublic_(gameId, playerId, lifeId) {
-    this.listenOnce_("games/${gameId}/playersPublic/${playerId}/lives/" + lifeId).then((snap) => {
+    this.listenOnce_(`/playersPublic/${playerId}/lives/${lifeId}`).then((snap) => {
       this.loadLife_(gameId, playerId, lifeId, snap.val());
     });
   }
 
   listenToLifePrivate_(gameId, playerId, lifeId) {
     Promise.all([
-        this.listenOnce_("/playersPublic/${playerId}/lives/" + lifeId),
-        this.listenOnce_("playersPrivate/${playerId}/lives/" + lifeId)])
+        this.listenOnce_(`/playersPublic/${playerId}/lives/${lifeId}`),
+        this.listenOnce_(`/playersPrivate/${playerId}/lives/${lifeId}`)])
         .then(([publicSnap, privateSnap]) => {
       let properties = Utils.merge(publicSnap.val(), privateSnap.val());
       this.loadLife_(gameId, playerId, lifeId, properties);
       this.listenForPropertyChanges_(
-          gamePlayerSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS.concat(["canInfect"]),
+          publicSnap.ref, PUBLIC_LIFE_PROPERTIES, PUBLIC_LIFE_COLLECTIONS,
           (property, value) => {
             this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
+          });
+      this.listenForPropertyChanges_(
+          privateSnap.ref, PRIVATE_LIFE_PROPERTIES, PRIVATE_LIFE_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
+          });
+    });
+  }
+
+  loadLife_(gameId, playerId, lifeId, properties) {
+    this.writer.insert(
+        this.reader.getLifePath(gameId, playerId, null),
+        null,
+        properties);
+  }
+
+  listenToInfection_(gameId, playerId, infectionId) {
+    var ref = this.firebaseRoot.child(`playersPublic/${playerId}/infections`);
+    ref.on("child_added", (snap) => {
+      let infectionId = snap.getKey();
+      let obj = new Model.Infection(infectionId, snap.val());
+      this.writer.insert(this.reader.getInfectionPath(gameId, playerId, null), null, obj);
+      this.listenForPropertyChanges_(
+          snap.ref, INFECTION_PROPERTIES, INFECTION_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getInfectionPath(gameId, playerId, infectionId).concat([property]), value);
           });
     });
   }
@@ -466,21 +502,20 @@ class FirebaseListener {
   }
 
   loadPlayer_(gameId, playerId, properties) {
-    if (typeof properties.notificationSettings != "object") {
-      console.warn("Temporary workaround while server doesnt have notificationSettings!");
+    if ('notificationSettings' in properties)
+      assert(typeof properties.notificationSettings == "object");
+    else
       properties.notificationSettings = {};
-    }
-    if (typeof properties.volunteer != "object") {
-      console.warn("Temporary workaround while server doesnt have volunteer!");
+
+    if ('volunteer' in properties)
+      assert(typeof properties.volunteer == "object");
+    else
       properties.volunteer = {};
-    }
+
+    if ('canInfect' in properties)
+      assert(typeof properties.canInfect == "boolean")
+
     let player = new Model.Player(playerId, properties);
-    if (typeof properties.canInfect == "string") {
-      console.warn("Temporary workaround for server having canInfect as string");
-      properties.canInfect = (properties.canInfect == "yes");
-    } else {
-      console.warn("Server has canInfect properly, remove this chunk of code");
-    }
     this.writer.insert(this.reader.getPlayerPath(gameId, null), null, player);
   }
 
@@ -752,20 +787,6 @@ class FirebaseListener {
   //   //         this.writer.set(this.reader.getLifePath(gameId, playerId, lifeId).concat([property]), value);
   //   //       });
   //   // });
-  // }
-
-  // listenToInfections_(gameId, playerId) {
-  //   var ref = this.firebaseRoot.child(`games/${gameId}/players/${playerId}/infections`);
-  //   ref.on("child_added", (snap) => {
-  //     let infectionId = snap.getKey();
-  //     let obj = new Model.Infection(infectionId, snap.val());
-  //     this.writer.insert(this.reader.getInfectionPath(gameId, playerId, null), null, obj);
-  //     this.listenForPropertyChanges_(
-  //         snap.ref, INFECTION_PROPERTIES, INFECTION_COLLECTIONS,
-  //         (property, value) => {
-  //           this.writer.set(this.reader.getInfectionPath(gameId, playerId, infectionId).concat([property]), value);
-  //         });
-  //   });
   // }
 
   // listenToNotifications_(playerId, gameId) {

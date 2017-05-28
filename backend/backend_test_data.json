@@ -2,11 +2,9 @@
   "chatRooms": {
     "chatRoom-%(ident)s-1" : {
       "groupId" : "group-%(ident)s-1",
+      "gameId": "game-%(ident)s-1",
       "name" : "test Chat Room",
       "withAdmins" : false,
-      "acks": {
-        "player-%(ident)s-1": 0
-      },
       "messages": {
       	"message-%(ident)s-1": {
       	  "message": "test Message",
@@ -21,7 +19,7 @@
       "active": true,
       "adminUsers": {
         "user-%(ident)s-1": true,
-        "user-%(ident)s-2": true
+        "user-%(ident)s-3": true
       },
       "groups": {
         "group-%(ident)s-1": true,
@@ -79,23 +77,24 @@
   "guns": {
     "gun-%(ident)s-1": {
       "playerId": "player-%(ident)s-1",
-      "a": true
+      "label": "1404"
     }
   },
   "missions": {
     "mission-%(ident)s-1": {
-      "begin": 1,
+      "gameId": "game-%(ident)s-1",
+      "beginTime": 1500000000000,
       "detailsHtml": "test Details",
-      "end": 0,
+      "endTime": 1600000000000,
       "name": "test Mission",
       "groupId": "group-%(ident)s-1"
     }
   },
   "playersPublic": {
     "player-%(ident)s-1": {
-      "active": true,
-      "number": 100,
-      "allegiance": "horde",
+      "active": false,
+      "number": 101,
+      "allegiance": "none",
       "claims": {
         "reward-%(ident)s-1": {
           "rewardCategoryId": "rewardCategory-%(ident)s-1",
@@ -108,25 +107,28 @@
       "userId": "user-%(ident)s-1"
     },
     "player-%(ident)s-2": {
-      "active": true,
-      "number": 100,
-      "allegiance": "horde",
+      "active": false,
+      "number": 102,
+      "allegiance": "none",
       "name": "test Bobby",
       "points": 0,
       "profileImageUrl": "http://jpg",
-      "userId": "user-%(ident)s-1"
+      "userId": "user-%(ident)s-2"
     },
     "player-%(ident)s-3": {
-      "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
-      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-1"
+      "allegiance": "none",
+      "active": false, "number": 103, "name": "test Bobby",
+      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
     },
     "player-%(ident)s-4": {
-      "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
-      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-1"
+      "allegiance": "none",
+      "active": false, "number": 104, "name": "test Bobby",
+      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-4"
     },
     "player-%(ident)s-5": {
-      "active": true, "number": 100, "allegiance": "horde", "name": "test Bobby",
-      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-1"
+      "allegiance": "none",
+      "active": false, "number": 105, "name": "test Bobby",
+      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-5"
     }
   },
   "playersPrivate": {
@@ -135,26 +137,28 @@
         "sound": true,
         "vibrate": true
       },
-      "canInfect": true,
+      "canInfect": false,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
-      "startAsZombie": true,
+      "startAsZombie": "maybe",
+      "notes": "",
       "userId": "user-%(ident)s-1",
       "gotEquipment": true,
-      "wantsToBeSecretZombie": true,
+      "wantsToBeSecretZombie": "yes",
       "volunteer": {
-        "advertising": false,
-        "logistics": false,
-        "communications": false,
-        "moderator": false,
-        "cleric": false,
-        "sorcerer": false,
         "admin": false,
-        "photographer": false,
+        "advertising": false,
+        "android": false,
         "chronicler": false,
-        "server": true,
+        "cleric": false,
         "client": false,
-        "mobile": false
+        "communications": false,
+        "ios": false,
+        "logistics": false,
+        "moderator": false,
+        "photographer": false,
+        "server": true,
+        "sorcerer": false
       }
     },
     "player-%(ident)s-2": {
@@ -162,13 +166,14 @@
         "sound": true,
         "vibrate": true
       },
-      "canInfect": true,
+      "canInfect": false,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
-      "startAsZombie": true,
-      "userId": "user-%(ident)s-1",
+      "startAsZombie": "maybe",
+      "userId": "user-%(ident)s-2",
       "gotEquipment": true,
-      "wantsToBeSecretZombie": true,
+      "notes": "",
+      "wantsToBeSecretZombie": "yes",
       "missions": {"mission-%(ident)s-1": true},
       "chatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
@@ -183,70 +188,98 @@
         "chronicler": false,
         "server": false,
         "client": false,
-        "mobile": false
+        "android": false,
+        "ios": false
       }
     },
     "player-%(ident)s-3": {
       "notificationSettings": { "sound": true, "vibrate": true },
-      "canInfect": true,
+      "canInfect": false,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
-      "startAsZombie": true,
-      "userId": "user-%(ident)s-1",
+      "startAsZombie": "maybe",
+      "notes": "",
+      "userId": "user-%(ident)s-3",
       "gotEquipment": true,
-      "wantsToBeSecretZombie": true,
+      "wantsToBeSecretZombie": "yes",
       "volunteer": {
         "advertising": false, "logistics": false, "communications": false, "moderator": false,
         "cleric": false, "sorcerer": false, "admin": false, "photographer": false,
-        "chronicler": false, "server": false, "client": false, "mobile": false
+        "chronicler": false, "server": false, "client": false,
+        "android": false,
+        "ios": false
       }
     },
     "player-%(ident)s-4": {
       "notificationSettings": { "sound": true, "vibrate": true },
-      "canInfect": true,
+      "canInfect": false,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
-      "startAsZombie": true,
-      "userId": "user-%(ident)s-1",
+      "startAsZombie": "maybe",
+      "notes": "",
+      "userId": "user-%(ident)s-4",
       "gotEquipment": true,
-      "wantsToBeSecretZombie": true,
+      "wantsToBeSecretZombie": "yes",
       "volunteer": {
         "advertising": false, "logistics": false, "communications": false, "moderator": false,
         "cleric": false, "sorcerer": false, "admin": false, "photographer": false,
-        "chronicler": false, "server": false, "client": false, "mobile": false
+        "chronicler": false, "server": false, "client": false,
+        "android": false,
+        "ios": false
       }
     },
     "player-%(ident)s-5": {
       "notificationSettings": { "sound": true, "vibrate": true },
-      "canInfect": true,
+      "canInfect": false,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
-      "startAsZombie": true,
-      "userId": "user-%(ident)s-1",
+      "notes": "",
+      "startAsZombie": "maybe",
+      "userId": "user-%(ident)s-5",
       "gotEquipment": true,
-      "wantsToBeSecretZombie": true,
+      "wantsToBeSecretZombie": "yes",
       "missions": {"mission-%(ident)s-1": true},
       "chatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
         "advertising": false, "logistics": false, "communications": false, "moderator": false,
         "cleric": false, "sorcerer": false, "admin": false, "photographer": false,
-        "chronicler": false, "server": false, "client": false, "mobile": false
+        "chronicler": false, "server": false, "client": false,
+        "android": false,
+        "ios": false
       }
     }
   },
   "users": {
     "user-%(ident)s-1": {
-      "name": "Angel",
+      "a": true,
       "players": {
-        "player-%(ident)s-1": { "gameId": "game-%(ident)s-1" },
-        "player-%(ident)s-2": { "gameId": "game-%(ident)s-1" },
-        "player-%(ident)s-3": { "gameId": "game-%(ident)s-1" },
-        "player-%(ident)s-4": { "gameId": "game-%(ident)s-1" },
-        "player-%(ident)s-5": { "gameId": "game-%(ident)s-1" }
+        "player-%(ident)s-1": { "gameId": "game-%(ident)s-1" }
       }
     },
-    "user-%(ident)s-2": { "name": "Bob" },
-    "user-%(ident)s-3": { "name": "Charles" }
+    "user-%(ident)s-2": {
+      "a": true,
+      "players": {
+        "player-%(ident)s-2": { "gameId": "game-%(ident)s-1" }
+      }
+    },
+    "user-%(ident)s-3": {
+      "a": true,
+      "players": {
+        "player-%(ident)s-3": { "gameId": "game-%(ident)s-1" }
+      }
+    },
+    "user-%(ident)s-4": {
+      "a": true,
+      "players": {
+        "player-%(ident)s-4": { "gameId": "game-%(ident)s-1" }
+      }
+    },
+    "user-%(ident)s-5": {
+      "a": true,
+      "players": {
+        "player-%(ident)s-5": { "gameId": "game-%(ident)s-1" }
+      }
+    }
   },
   "rewardCategories": {
     "rewardCategory-%(ident)s-1": {

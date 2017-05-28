@@ -35,14 +35,15 @@
         infect_: function() {
           this.requesting = true;
           this.bridge.infect({
+            gameId: this.game.id,
             infectionId: this.bridge.newInfectionId(),
-            playerId: this.playerId,
-            infecteeLifeCode: this.lifeCode,
-            infecteePlayerId: null,
+            infectorPlayerId: this.playerId,
+            victimLifeCode: this.lifeCode,
+            victimPlayerId: null,
           })
               .then(
-                  (infecteePlayerId) => {
-                    this.infectedPlayer = this.game.playersById[infecteePlayerId];
+                  (victimPlayerId) => {
+                    this.infectedPlayer = this.game.playersById[victimPlayerId];
                     this.requesting = false;
                   },
                   (error) => {

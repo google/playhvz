@@ -60,52 +60,47 @@
                 active: true,
                 rulesHtml: '',
                 name: properties.name,
-              }).then((response) => {
-                return this.bridge.createGroup({
-                  groupId: resistanceGroupId,
-                  gameId: gameId,
-                  name: "Resistance",
-                  ownerPlayerId: null,
-                  allegianceFilter: 'resistance',
-                  autoAdd: true,
-                  autoRemove: true,
-                  membersCanAdd: false,
-                  membersCanRemove: false,
-                });
-              }).then((response) => {
-                return this.bridge.createChatRoom({
-                  chatRoomId: resistanceChatRoomId,
-                  groupId: resistanceGroupId,
-                  name: "Resistance Comms Hub",
-                  withAdmins: false
-                });
-              }).then((response) => {
-                return this.bridge.createGroup({
-                  groupId: hordeGroupId,
-                  gameId: gameId,
-                  name: "Horde",
-                  ownerPlayerId: null,
-                  allegianceFilter: 'horde',
-                  autoAdd: true,
-                  membersCanAdd: true,
-                  autoRemove: true,
-                  membersCanAdd: false,
-                  membersCanRemove: false,
-                });
-              }).then((response) => {
-                return this.bridge.createChatRoom({
-                  chatRoomId: hordeChatRoomId,
-                  groupId: hordeGroupId,
-                  name: "Horde ZedLink",
-                  withAdmins: false,
-                });
-              }).then((response) => {
-                this.fire('ghvz-select-game', {
-                  gameId: gameId,
-                });
-                this.fire('ghvz-open-page', {
-                  page: 'adminMain',
-                });
+              });
+              this.bridge.createGroup({
+                groupId: resistanceGroupId,
+                gameId: gameId,
+                name: "Resistance",
+                ownerPlayerId: null,
+                allegianceFilter: 'resistance',
+                autoAdd: true,
+                autoRemove: true,
+                membersCanAdd: false,
+                membersCanRemove: false,
+              });
+              this.bridge.createChatRoom({
+                chatRoomId: resistanceChatRoomId,
+                groupId: resistanceGroupId,
+                name: "Resistance Comms Hub",
+                withAdmins: false
+              });
+              this.bridge.createGroup({
+                groupId: hordeGroupId,
+                gameId: gameId,
+                name: "Horde",
+                ownerPlayerId: null,
+                allegianceFilter: 'horde',
+                autoAdd: true,
+                membersCanAdd: true,
+                autoRemove: true,
+                membersCanAdd: false,
+                membersCanRemove: false,
+              });
+              this.bridge.createChatRoom({
+                chatRoomId: hordeChatRoomId,
+                groupId: hordeGroupId,
+                name: "Horde ZedLink",
+                withAdmins: false,
+              });
+              this.fire('ghvz-select-game', {
+                gameId: gameId,
+              });
+              this.fire('ghvz-open-page', {
+                page: 'adminMain',
               });
             });
       },

@@ -84,7 +84,7 @@
           }
 
           let groupId = this.bridge.newGroupId();
-            var chatRoomId = this.bridge.newChatRoomId();
+          var chatRoomId = this.bridge.newChatRoomId();
           this.bridge.createGroup({
             name: "Group for " + player.id + "'s chat room",
             groupId: groupId,
@@ -95,19 +95,12 @@
             autoRemove: autoRemove,
             membersCanAdd: membersCanAdd,
             membersCanRemove: membersCanRemove,
-          }).then(() => {
-            return this.bridge.createChatRoom({
-              chatRoomId: chatRoomId,
-              groupId: groupId,
-              name: name,
-              withAdmins: false,
-            });
-          // }).then(() => {
-          //   return this.bridge.addPlayerToGroup({
-          //     groupId: groupId,
-          //     playerId: this.player.id,
-          //     otherPlayerId: this.player.id
-          //   });
+          });
+          this.bridge.createChatRoom({
+            chatRoomId: chatRoomId,
+            groupId: groupId,
+            name: name,
+            withAdmins: false,
           }).then(() => {
             this.fire('ghvz-open-page', {
               page: this.computeChatPage_(chatRoomId),

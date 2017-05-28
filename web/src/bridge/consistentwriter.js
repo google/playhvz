@@ -110,6 +110,22 @@ class ConsistentWriter {
     this.destination.openGate();
   }
 
+  removeDefinitions(path, value) {
+    findDefinitions(path, value, (wholePath, value) => {
+      let id = wholePath.slice(-1)[0];
+      if (this.definedById[id] === undefined) {
+        // do nothing
+      } else if (this.definedById[id] === true) {
+        delete this.definedById[id];
+      } else if (this.definedById[id] === false) {
+        delete this.definedById[id];
+      } else {
+        assert(false);
+      }
+
+    });
+  }
+
   noteReferencesAndDefinitions(path, value) {
     findDefinitions(path, value, (wholePath, value) => {
       let id = wholePath.slice(-1)[0];
@@ -168,7 +184,7 @@ class ConsistentWriter {
           this.noteReferencesAndDefinitions(path.concat([index]), value);
           break;
         case 'remove':
-          assert(false);
+          this.removeDefinitions(path.concat([index]));
           break;
       }
     }

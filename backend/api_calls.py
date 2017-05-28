@@ -28,13 +28,15 @@ def Register(request, firebase):
   Firebase entries:
     /users/%(userId)
   """
-  valid_args = ['!userId']
-  required_args = list(valid_args)
-  required_args.extend(['name'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'userId': 'String'
+  })
 
-  data = {'name': request['name']}
-  return firebase.put('/users', request['userId'], data)
+  user_id = request['userId']
+
+  if firebase.get('/users', user_id) is None:
+    data = {'a': True}
+    return firebase.put('/users', request['userId'], data)
 
 
 def AddGame(request, firebase):
@@ -54,20 +56,44 @@ def AddGame(request, firebase):
     /games/%(gameId)
   """
   results = []
-  valid_args = ['!gameId', 'adminUserId']
-  required_args = list(valid_args)
-  required_args.extend(['name', 'rulesHtml', 'stunTimer'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': '!GameId',
+    'adminUserId': 'UserId',
+    'name': 'String',
+    'rulesHtml': 'String',
+    'stunTimer': 'Number',
+    'active': 'Boolean',
+  })
 
   put_data = {
     'name': request['name'],
     'rulesHtml': request['rulesHtml'],
     'stunTimer': request['stunTimer'],
-    'active': True,
+    'active': request['active'],
   }
   results.append(firebase.put('/games', request['gameId'], put_data))
   results.append(firebase.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True))
   return results
+
+
+def SetAdminContact(request, firebase):
+  """Update a game entry.
+
+  Validation:
+
+  Args:
+    gameId:
+    playerId:
+
+  Firebase entries:
+    /games/%(gameId)/a
+  """
+  valid_args = ['gameId', 'playerId']
+  required_args = list(valid_args)
+  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+
+  put_data = {'adminContactPlayerId': request['playerId']}
+  return firebase.patch('/games/%s' % request['gameId'], put_data)
 
 
 def UpdateGame(request, firebase):
@@ -86,7 +112,13 @@ def UpdateGame(request, firebase):
   """
   valid_args = ['gameId']
   required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'name': '|String',
+    'rulesHtml': '|String',
+    'stunTimer': '|Number',
+    'active': '|Boolean'
+  })
 
   put_data = {}
   for property in ['name', 'rulesHtml', 'stunTimer']:
@@ -109,9 +141,10 @@ def AddGameAdmin(request, firebase):
     /games/%(gameId)/adminUsers
   """
 
-  valid_args = ['gameId', 'userId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'userId': 'UserId'
+  })
 
   game = request['gameId']
   user = request['userId']
@@ -143,23 +176,37 @@ def AddGroup(request, firebase):
     /groups/%(groupId)/players/%(playerId)
     /games/%(gameId)/groups/%(groupId)
   """
-  results = []
-  valid_args = ['!groupId', 'gameId', 'ownerPlayerId', 'allegianceFilter']
-  required_args = ['name', 'groupId', 'gameId', 'allegianceFilter']
-  required_args.extend(['autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'groupId': '!GroupId',
+    'gameId': 'GameId',
+    'ownerPlayerId': '?PlayerId',
+    'allegianceFilter': 'String',
+    'name': 'String',
+    'autoRemove': 'Boolean',
+    'autoAdd': 'Boolean',
+    'membersCanAdd': 'Boolean',
+    'membersCanRemove': 'Boolean'
+  })
 
-  put_args = set(required_args + ['ownerPlayerId']) - set(['groupId'])
-  group_data = {k: request[k] for k in put_args if k in request}
+  group_id = request['groupId']
+  owner_player_id = request['ownerPlayerId']
 
-  results.append(firebase.put('/groups', request['groupId'], group_data))
-  results.append(firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], True))
-  if 'ownerPlayerId' in request:
-    results.append(firebase.put('/groups/%s/players' % request['groupId'], request['ownerPlayerId'], True))
+  group = {
+    'ownerPlayerId': owner_player_id,
+    'gameId': request['gameId'],
+    'allegianceFilter': request['allegianceFilter'],
+    'name': request['name'],
+    'autoRemove': request['autoRemove'],
+    'autoAdd': request['autoAdd'],
+    'membersCanAdd': request['membersCanAdd'],
+    'membersCanRemove': request['membersCanRemove'],
+  }
 
+  firebase.put('/groups', group_id, group)
+  firebase.put('/games/%s/groups/' % request['gameId'], request['groupId'], True)
+  if request['ownerPlayerId'] is not None:
+    AddPlayerToGroupInner(firebase, group_id, owner_player_id)
   # TODO We may need to populate a group automatically on creation.
-
-  return results
 
 
 def UpdateGroup(request, firebase):
@@ -179,9 +226,16 @@ def UpdateGroup(request, firebase):
   Firebase entries:
     /groups/%(groupId)
   """
-  valid_args = ['groupId', 'ownerPlayerId']
-  required_args = list(['groupId'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'groupId': 'GroupId',
+    'ownerPlayerId': '|PlayerId',
+    'name': '|String',
+    'autoAdd': '|Boolean',
+    'autoRemove': '|Boolean',
+    'membersCanAdd': '|Boolean',
+    'membersCanRemove': '|Boolean'
+  })
 
   put_data = {}
   for property in ['name', 'autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove', 'ownerPlayerId']:
@@ -198,203 +252,194 @@ def AddPlayer(request, firebase):
   and /playersPrivate/%(playerId) for public and private info about players.
   The latter can be used to map a playerId to a gameId.
 
-  Validation:
-  Args:
-    gameId: ID of the game this player is for.
-    userId: ID of this user.
-    playerId: ID to use.
-    name: Player's name.
-    needGun: Needs a gun for the game.
-    profileImageUrl: URL of an image to use for the profile.
-    gotEquipment: Is borrowing GHvZ equipment.
-    startAsZombie:
-    beSecretZombie:
-    notifySound:
-    notifyVibrate:
-    helpAdvertising:
-    helpLogistics:
-    helpCommunications
-    helpModerator
-    helpCleric
-    helpSorcerer
-    helpAdmin
-    helpPhotographer
-    helpChronicler
-    helpServer
-    helpClient
-    helpMobile
-
   Firebase entries:
     /games/%(gameId)/players
     /playersPublic/%(playerId)
     /playersPrivate/%(playerId)
     /users/%(userId)/players/%(playerId)
   """
-  valid_args = ['gameId', 'userId', '!playerId']
-  required_args = list(valid_args)
-  required_args.extend(['name', 'needGun', 'profileImageUrl'])
-  required_args.extend(['startAsZombie', 'beSecretZombie'])
-  required_args.extend(['notifySound', 'notifyVibrate'])
-  required_args.extend(['gotEquipment'])
-  required_args.extend(list(constants.PLAYER_VOLUNTEER_ARGS))
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'userId': 'UserId',
+    'playerId': '!PlayerId',
+    'active': 'Boolean',
+    'name': 'String',
+    'needGun': 'Boolean',
+    'canInfect': 'Boolean',
+    'profileImageUrl': '?String',
+    'gotEquipment': 'Boolean',
+    'notes': 'String',
+    'startAsZombie': 'String',
+    'beSecretZombie': 'String',
+    'notificationSettings': {
+      'sound': 'Boolean',
+      'vibrate': 'Boolean',
+    },
+    'volunteer': {
+      'advertising': 'Boolean',
+      'logistics': 'Boolean',
+      'communications': 'Boolean',
+      'moderator': 'Boolean',
+      'cleric': 'Boolean',
+      'sorcerer': 'Boolean',
+      'admin': 'Boolean',
+      'photographer': 'Boolean',
+      'chronicler': 'Boolean',
+      'server': 'Boolean',
+      'client': 'Boolean',
+      'android': 'Boolean',
+      'ios': 'Boolean'
+    }
+  })
 
   results = []
 
-  game = request['gameId']
-  player = request['playerId']
-  user = request['userId']
+  game_id = request['gameId']
+  player_id = request['playerId']
+  user_id = request['userId']
 
-  player_info = {'gameId': game}
-  results.append(firebase.put('/users/%s/players' % user, player, player_info))
+  number = helpers.GetNextPlayerNumber(firebase, game_id)
 
-  player_info = {
-    'gameId': game,
-    'userId': user,
-    'canInfect': (request['startAsZombie'] or request['beSecretZombie']),
+  user_player = {'gameId': game_id}
+  results.append(firebase.put('/users/%s/players' % user_id, player_id, user_player))
+
+  private_player = {
+    'gameId': game_id,
+    'userId': user_id,
+    'canInfect': request['canInfect'],
+    'notes': request['notes'],
     'needGun' : request['needGun'],
     'gotEquipment' : request['gotEquipment'],
     'startAsZombie' : request['startAsZombie'],
     'wantsToBeSecretZombie': request['beSecretZombie'],
+    'notificationSettings': request['notificationSettings'],
+    'volunteer': request['volunteer'],
   }
-  results.append(firebase.put('/playersPrivate', player, player_info))
+  results.append(firebase.put('/playersPrivate', player_id, private_player))
 
-  settings = {
-    'sound': request['notifySound'],
-    'vibrate': request['notifyVibrate'],
-  }
-  results.append(firebase.put('/playersPrivate/%s' % player, 'notificationSettings', settings))
-
-  volunteer = {v[4].lower() + v[5:]: request[v] for v in constants.PLAYER_VOLUNTEER_ARGS}
-  results.append(firebase.put('/playersPrivate/%s' % player, 'volunteer', volunteer))
-
-  if request['startAsZombie']:
-    allegiance = 'horde'
-  else:
-    allegiance = 'resistance'
-
-  game_info = {
-    'number': random.randint(0, 99) + 100 * len(firebase.get('/playersPrivate', None, {'shallow': True})),
-    'userId' : user,
+  public_player = {
+    'number': number,
+    'userId' : user_id,
     'name': request['name'],
     'profileImageUrl' : request['profileImageUrl'],
-    'active': True,
+    'active': request['active'],
     'points': 0,
-    'allegiance': allegiance,
+    'allegiance': constants.NO_ALLEGIANCE,
   }
-  results.append(firebase.put('/playersPublic', player, game_info))
+  results.append(firebase.put('/playersPublic', player_id, public_player))
 
-  results.append(firebase.put('/games/%s/players' % game, player, True))
+  results.append(firebase.put('/games/%s/players' % game_id, player_id, True))
 
-  AutoUpdatePlayerGroups(firebase, player, new_player=True)
+  AutoUpdatePlayerGroups(firebase, player_id, new_player=True)
 
   return results
 
 
 def UpdatePlayer(request, firebase):
   """Update player properties.
-
-  Validation:
-  Args:
-    playerId:
-    name (optional):
-    needGun (optional):
-    profileImageUrl (optional):
-    startAsZombie (optional):
-    notifySound:
-    notifyVibrate:
-    helpAdvertising:
-    helpLogistics:
-    helpCommunications
-    helpModerator
-    helpCleric
-    helpSorcerer
-    helpAdmin
-    helpPhotographer
-    helpChronicler
-    helpServer
-    helpClient
-    helpMobile
-
   Firebase entries:
     /playersPrivate/%(playerId)
     /playersPublic/%(playerId)
   """
-  results = []
-  valid_args = ['playerId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
 
-  player = request['playerId']
-  game = helpers.PlayerToGame(firebase, player)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'playerId': 'PlayerId',
+    'active': '|Boolean',
+    'name': '|String',
+    'needGun': '|Boolean',
+    'profileImageUrl': '|?String',
+    'gotEquipment': '|Boolean',
+    'notes': '|String',
+    'startAsZombie': '|String',
+    'beSecretZombie': '|String',
+    'notificationSettings': {
+      'sound': '|Boolean',
+      'vibrate': '|Boolean',
+    },
+   'volunteer': {
+      'advertising': '|Boolean',
+      'logistics': '|Boolean',
+      'communications': '|Boolean',
+      'moderator': '|Boolean',
+      'cleric': '|Boolean',
+      'sorcerer': '|Boolean',
+      'admin': '|Boolean',
+      'photographer': '|Boolean',
+      'chronicler': '|Boolean',
+      'server': '|Boolean',
+      'client': '|Boolean',
+      'android': '|Boolean',
+      'ios': '|Boolean'
+    }
+  })
 
-  player_info = {}
-  for property in ['startAsZombie', 'needGun', 'wantsToBeSecretZombie']:
+  player_id = request['playerId']
+
+  public_update = {}
+  for property in ['active', 'name', 'profileImageUrl']:
     if property in request:
-      player_info[property] = request[property]
+      public_update[property] = request[property]
 
-  settings = {}
-  for property in ['notifySound', 'notifyVibrate']:
+  volunteer_update = {}
+  if 'volunteer' in request:
+    for property in constants.PLAYER_VOLUNTEER_ARGS:
+      if property in request['volunteer']:
+        volunteer_update[property] = request['volunteer'][property]
+
+  notification_settings_update = {}
+  if 'notificationSettings' in request:
+    for property in ['vibrate', 'sound']:
+      if property in request['notificationSettings']:
+        notification_settings_update[property] = request['notificationSettings'][property]
+
+  private_update = {}
+  for property in ['needGun', 'gotEquipment', 'notes', 'startAsZombie', 'beSecretZombie']:
     if property in request:
-      settings[property] = request[property]
+      private_update[property] = request[property]
 
-  volunteer = {}
-  for property in constants.PLAYER_VOLUNTEER_ARGS:
-    if property in request:
-      volunteer[property[4].lower() + property[5:]] = request[property]
+  print "patching public:"
+  print public_update
+  print "patching private:"
+  print private_update
 
-  game_info = {}
-  for property in ['name', 'profileImageUrl']:
-    if property in request:
-      game_info[property] = request[property]
-
-  if player_info:
-    results.append(firebase.patch('/playersPrivate/%s' % player, player_info))
-  if settings:
-    results.append(firebase.patch('/playersPrivate/%s/notificationSettings' % player, settings))
-  if volunteer:
-    results.append(firebase.patch('/playersPrivate/%s/volunteer' % player, volunteer))
-  if game_info:
-    results.append(firebase.patch('/playersPublic/%s' % player, game_info))
-
-  return results
+  firebase.patch('/playersPrivate/%s' % player_id, private_update)
+  firebase.patch('/playersPrivate/%s/volunteer' % player_id, volunteer_update)
+  firebase.patch('/playersPrivate/%s/notificationSettings' % player_id, notification_settings_update)
+  firebase.patch('/playersPublic/%s' % player_id, public_update)
 
 
 def AddGun(request, firebase):
   """Add a new gun to the DB.
 
-  Validation:
-  Args:
-    gunId: The ID of the gun.
-
   Firebase entries:
     /guns/%(gunId)/
   """
-  valid_args = ['!gunId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gunId': '!GunId',
+    'label': 'String'
+  })
 
-  return firebase.put('/guns', request['gunId'], {'playerId': '', 'a': True})
+  return firebase.put('/guns', request['gunId'], {'playerId': '', 'label': request['label']})
 
 
 def AssignGun(request, firebase):
   """Assign a gun to a given player.
 
-  Validation:
-    Gun must exist.
-    User must exist.
-
-  Args:
-    playerId:
-    gunId:
-
   Firebase entries:
     /guns/%(gunId)
   """
-  valid_args = ['playerId', 'gunId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
-  return firebase.put('/guns/%s' % request['gunId'], 'playerId', request['playerId'])
+  helpers.ValidateInputs(request, firebase, {
+    'gunId': 'GunId',
+    'playerId': '|?PlayerId',
+  })
+
+  update = {}
+  if 'playerId' in request:
+    update['playerId'] = request['playerId'] or ''
+
+  print 'gun id is' + request['gunId']
+  return firebase.patch('/guns/%s' % request['gunId'], update)
 
 
 def AddMission(request, firebase):
@@ -413,48 +458,45 @@ def AddMission(request, firebase):
   Firebase entries:
     /missions/%(missionId)
   """
-  valid_args = ['!missionId', 'groupId']
-  required_args = list(valid_args)
-  required_args.extend(['name', 'begin', 'end', 'detailsHtml'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'missionId': '!MissionId',
+    'groupId': 'GroupId',
+    'name': 'String',
+    'beginTime': 'Timestamp',
+    'endTime': 'Timestamp',
+    'detailsHtml': 'String'
+  })
 
-  mission_data = {k: request[k] for k in required_args if k[0] != '!'}
+  mission_data = {k: request[k] for k in ['name', 'beginTime', 'endTime', 'detailsHtml', 'groupId', 'gameId']}
 
-  game = helpers.GroupToGame(firebase, request['groupId'])
-
-  results = []
-  results.append(firebase.put('/missions', request['missionId'], mission_data))
-  results.append(firebase.put('/games/%s/missions' % game, request['missionId'], True))
-  return results
+  firebase.put('/missions', request['missionId'], mission_data)
+  firebase.put('/games/%s/missions' % request['gameId'], request['missionId'], True)
 
 
 def UpdateMission(request, firebase):
   """Update details of a mission.
 
-  Validation:
-  Args:
-    missionId
-    name (optional):
-    groupId:
-    begin (optional):
-    end (optional):
-    detailsHtml (optional):
-
   Firebase entries:
     /missions/%(missionId)
   """
-  valid_args = ['missionId', 'groupId']
-  required_args = list(['missionId'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'missionId': 'MissionId',
+    'name': '|String',
+    'beginTime': '|Timestamp',
+    'endTime': '|Timestamp',
+    'detailsHtml': '|String'
+  })
 
-  mission = request['missionId']
+  mission_id = request['missionId']
 
   put_data = {}
-  for property in ['name', 'begin', 'end', 'detailsHtml', 'groupId']:
+  for property in ['name', 'begin', 'end', 'detailsHtml']:
     if property in request:
       put_data[property] = request[property]
 
-  return firebase.patch('/missions/%s' % mission, put_data)
+  return firebase.patch('/missions/%s' % mission_id, put_data)
 
 
 def AddChatRoom(request, firebase):
@@ -471,19 +513,21 @@ def AddChatRoom(request, firebase):
     /chatRooms/%(chatRoomId)
     /games/%(gameId)/chatRooms
   """
-  valid_args = ['!chatRoomId', 'groupId']
-  required_args = list(valid_args)
-  required_args.extend(['name', 'withAdmins'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'chatRoomId': '!ChatRoomId',
+    'groupId': 'GroupId',
+    'withAdmins': 'Boolean',
+    'name': 'String'
+  })
 
-  chat = request['chatRoomId']
-  game = helpers.GroupToGame(firebase, request['groupId'])
+  chat_room_id = request['chatRoomId']
+  game_id = request['gameId']
 
-  put_data = {k: request[k] for k in ('groupId', 'name', 'withAdmins')}
-  results = []
-  results.append(firebase.put('/chatRooms', chat, put_data))
-  results.append(firebase.put('/games/%s/chatRooms' % game, chat, True))
-  return results
+  chat_room = {k: request[k] for k in ('groupId', 'name', 'withAdmins', 'gameId')}
+  
+  firebase.put('/chatRooms', chat_room_id, chat_room)
+  firebase.put('/games/%s/chatRooms' % game_id, chat_room_id, True)
 
 
 def UpdateChatRoom(request, firebase):
@@ -498,10 +542,11 @@ def UpdateChatRoom(request, firebase):
   Firebase entries:
     /chatRooms/%(chatRoomId)
   """
-  valid_args = ['chatRoomId']
-  required_args = list(valid_args)
-  required_args.extend(['name'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'chatRoomId': 'ChatRoomId',
+    'name': '|String',
+  })
 
   put_data = {'name': request['name']}
   return firebase.patch('/chatRooms/%s' % request['chatRoomId'], put_data)
@@ -516,17 +561,19 @@ def SendChatMessage(request, firebase):
 
   Args:
     chatRoomId: Chat room to send the message to.
-    playerId: Player sending the message.
     messageId: Unique ID to use for the message.
     message: The message to send.
 
   Firebase entries:
     /chatRooms/%(chatRoomId)/messages
   """
-  valid_args = ['chatRoomId', 'playerId']
-  required_args = list(valid_args)
-  required_args.extend(['messageId', 'message'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'chatRoomId': 'ChatRoomId',
+    'messageId': '!MessageId',
+    'message': 'String',
+    'playerId': 'PlayerId'
+  })
 
   chat = request['chatRoomId']
   messageId = request['messageId']
@@ -601,45 +648,84 @@ def AddPlayerToGroup(request, firebase):
     /playersPrivate/%(playerId)/chatRooms/
     /playersPrivate/%(playerId)/missions/
   """
-  valid_args = ['groupId', 'playerId', 'otherPlayerId']
-  required_args = ['groupId', 'otherPlayerId']
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
-
-  if 'playerId' not in request:
-    raise InvalidInputError('playerId is required unless you are an admin (not supported yet).')
-  elif not helpers.EntityExists(firebase, 'playerId', request['playerId']):
-    raise InvalidInputError('PlayerID %s does not exist.' % request['playerId'])
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'groupId': 'GroupId',
+    'playerToAddId': 'PlayerId',
+  })
 
   results = []
 
-  group = request['groupId']
-  player = request['playerId']
-  otherPlayer = request['otherPlayerId']
-  game = helpers.PlayerToGame(firebase, player)
+  game_id = request['gameId']
+  requesting_user_id = request['requestingUserId']
+  group_id = request['groupId']
+  requesting_player_id = request['requestingPlayerId']
+  player_to_add_id = request['playerToAddId']
 
-  if game != helpers.PlayerToGame(firebase, otherPlayer):
+  if helpers.IsAdmin(firebase, game_id, requesting_user_id):
+    pass
+  elif requesting_player_id is not None:
+    pass
+  else:
+    raise InvalidInputError('Only a player or an admin can call this method!')
+
+  if game_id != helpers.PlayerToGame(firebase, player_to_add_id):
     raise InvalidInputError('Other player is not in the same game as you.')
-  if game != helpers.GroupToGame(firebase, group):
+  if game_id != helpers.GroupToGame(firebase, group_id):
     raise InvalidInputError('That group is not part of your active game.')
 
-  # Validate otherPlayer is not in the group
-  if firebase.get('/groups/%s/players' % group, otherPlayer):
+  # Validate player_to_add_id is not in the group
+  if firebase.get('/groups/%s/players' % group_id, player_to_add_id):
     raise InvalidInputError('Other player is already in the chat.')
 
   # Player must be the owner or (be in the group and group allows adding).
-  if player == firebase.get('/groups/%s' % group, 'ownerPlayerId'):
+  print "user id is " + requesting_user_id
+  print "Is admin: " + str(helpers.IsAdmin(firebase, game_id, requesting_user_id))
+  print "requesting player id %s and owner is %s" % (requesting_player_id, firebase.get('/groups/%s' % group_id, 'ownerPlayerId'))
+  if helpers.IsAdmin(firebase, game_id, requesting_user_id):
+    pass
+  elif requesting_player_id == firebase.get('/groups/%s' % group_id, 'ownerPlayerId'):
     pass
   else:
-    # Validate player is in the chat room.
-    if not firebase.get('/groups/%s/players' % group, player):
+    print "member? %d" % (not not firebase.get('/groups/%s/players' % group_id, player_to_add_id))
+    print "memberscanadd? %d" % (not not firebase.get('/groups/%s' % group_id, 'membersCanAdd'))
+    # Validate player_to_add_id is in the chat room.
+    if not firebase.get('/groups/%s/players' % group_id, requesting_player_id):
       raise InvalidInputError('You are not a member of that group nor an owner.')
     # Validate players are allowed to add other players.
-    if not firebase.get('/groups/%s' % group, 'membersCanAdd'):
+    if not firebase.get('/groups/%s' % group_id, 'membersCanAdd'):
       raise InvalidInputError('Players are not allowed to add to this group.')
+  print "success, adding"
+  AddPlayerToGroupInner(firebase, group_id, player_to_add_id)
 
-  results.append(firebase.put('/groups/%s/players' % group, otherPlayer, True))
-  results.append(AddPlayerGroupMappings(firebase, group, otherPlayer))
-  return results
+
+def AddPlayerToGroupInner(firebase, group_id, player_to_add_id):
+  """Add player to a group and mappings for chat rooms, missions, etc.
+
+  When a player is added to a group, find chats and missions associated with
+  that group and add those chats and missions to the list of chats and missions
+  the player is in.
+
+  Args:
+    firebase:
+    group_id: Group ID the player was added to.
+    player_to_add_id: The player ID in question.
+
+  Firebase entries:
+    /groups/%(groupId)/players/
+    /playersPrivate/%(playerId)/chatRooms/
+    /playersPrivate/%(playerId)/missions/
+  """
+
+  firebase.put('/groups/%s/players' % group_id, player_to_add_id, True)
+
+  chats = helpers.GroupToChats(firebase, group_id)
+  for chat in chats:
+    firebase.put('/playersPrivate/%s/chatRooms' % player_to_add_id, chat, True)
+
+  missions = helpers.GroupToMissions(firebase, group_id)
+  for mission in missions:
+    firebase.put('/playersPrivate/%s/missions' % player_to_add_id, mission, True)
 
 
 def RemovePlayerFromGroup(request, firebase):
@@ -664,78 +750,52 @@ def RemovePlayerFromGroup(request, firebase):
     /playersPrivate/%(playerId)/chatRooms/
     /playersPrivate/%(playerId)/missions/
   """
-  valid_args = ['groupId', 'playerId', 'otherPlayerId']
-  required_args = ['groupId', 'otherPlayerId']
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'groupId': 'GroupId',
+    'gameId': 'GameId',
+    'playerToRemoveId': 'PlayerId'
+  })
 
-  if 'playerId' not in request:
-    raise InvalidInputError('playerId is required unless you are an admin (not supported yet).')
-  elif not helpers.EntityExists(firebase, 'playerId', request['playerId']):
-    raise InvalidInputError('PlayerID %s does not exist.' % request['playerId'])
+  requesting_player_id = request['requestingPlayerId']
+  requesting_user_id = request['requestingUserId']
+  group_id = request['groupId']
+  player_to_remove_id = request['playerToRemoveId']
+  game_id = request['gameId']
 
-  results = []
+  if helpers.IsAdmin(firebase, game_id, requesting_user_id):
+    pass
+  elif requesting_player_id is not None:
+    pass
+  else:
+    raise InvalidInputError('Only a player or an admin can call this method!')
 
-  group = request['groupId']
-  player = request['playerId']
-  otherPlayer = request['otherPlayerId']
-  game = helpers.PlayerToGame(firebase, player)
-
-  if game != helpers.PlayerToGame(firebase, otherPlayer):
+  if game_id != helpers.PlayerToGame(firebase, player_to_remove_id):
     raise InvalidInputError('Other player is not in the same game as you.')
-  if game != helpers.GroupToGame(firebase, group):
+  if game_id != helpers.GroupToGame(firebase, group_id):
     raise InvalidInputError('That group is not part of your active game.')
 
   # Validate otherPlayer is in the group
-  if not firebase.get('/groups/%s/players' % group, otherPlayer):
+  if not firebase.get('/groups/%s/players' % group_id, player_to_remove_id):
     raise InvalidInputError('Other player is not in the chat.')
 
-  # Player must be the owner or (be in the group and group allows adding).
-  if player == firebase.get('/groups/%s' % group, 'ownerPlayerId'):
+  # Player must be admin or the owner or (be in the group and group allows adding).
+  if helpers.IsAdmin(firebase, game_id, requesting_user_id):
+    pass
+  elif requesting_player_id == firebase.get('/groups/%s' % group_id, 'ownerPlayerId'):
     pass
   else:
     # Validate player is in the chat room.
-    if not firebase.get('/groups/%s/players' % group, player):
+    if not firebase.get('/groups/%s/players' % group_id, requesting_player_id):
       raise InvalidInputError('You are not a member of that group nor an owner.')
     # Validate players are allowed to remove other players.
-    if not firebase.get('/groups/%s' % group, 'membersCanRemove'):
+    if not firebase.get('/groups/%s' % group_id, 'membersCanRemove'):
       raise InvalidInputError('Players are not allowed to remove from this group.')
 
-  results.append(firebase.delete('/groups/%s/players' % group, otherPlayer))
-  results.append(RemovePlayerGroupMappings(firebase, group, otherPlayer))
-  return results
+  RemovePlayerFromGroupInner(firebase, group_id, player_to_remove_id)
 
 
-def AddPlayerGroupMappings(firebase, group, player):
-  """Add mappings when a player is added to a group.
-
-  When a player is added to a group, find chats and missions associated with
-  that group and add those chats and missions to the list of chats and missions
-  the player is in.
-
-  Args:
-    firebase:
-    group: Group ID the player was added to.
-    player: The player ID in question.
-
-  Firebase entries:
-    /playersPrivate/%(playerId)/chatRooms/
-    /playersPrivate/%(playerId)/missions/
-  """
-  chats = helpers.GroupToChats(firebase, group)
-  for chat in chats:
-    firebase.put('/playersPrivate/%s/chatRooms' % player, chat, True)
-
-  missions = helpers.GroupToMissions(firebase, group)
-  for mission in missions:
-    firebase.put('/playersPrivate/%s/missions' % player, mission, True)
-
-  return [
-      'Added player %s to %d chats: %r' % (player, len(chats), chats),
-      'Added player %s to %d missions: %r' % (player, len(missions), missions)]
-
-
-def RemovePlayerGroupMappings(firebase, group, player):
-  """Remive mappings when a player is removed from a group.
+def RemovePlayerFromGroupInner(firebase, group_id, player_id):
+  """Remove player from a group and the chat room, mission, etc mappings.
 
   When a player is removed from a group, find chats and missions associated with
   that group and remove those chats and missions from the list of chats and missions
@@ -750,17 +810,16 @@ def RemovePlayerGroupMappings(firebase, group, player):
     /playersPrivate/%(playerId)/chatRooms/
     /playersPrivate/%(playerId)/missions/
   """
-  chats = helpers.GroupToChats(firebase, group)
+
+  firebase.delete('/groups/%s/players' % group_id, player_id)
+
+  chats = helpers.GroupToChats(firebase, group_id)
   for chat in chats:
-    firebase.delete('/playersPrivate/%s/chatRooms' % player, chat)
+    firebase.delete('/playersPrivate/%s/chatRooms' % player_id, chat)
 
-  missions = helpers.GroupToMissions(firebase, group)
+  missions = helpers.GroupToMissions(firebase, group_id)
   for mission in missions:
-    firebase.delete('/playersPrivate/%s/missions' % player, mission)
-
-  return [
-      'Removed player %s from %d chats.' % (player, len(chats)),
-      'Removed player %s from %d missions.' % (player, len(missions))]
+    firebase.delete('/playersPrivate/%s/missions' % player_id, mission)
 
 
 def AutoUpdatePlayerGroups(firebase, player_id, new_player=False):
@@ -786,15 +845,12 @@ def AutoUpdatePlayerGroups(firebase, player_id, new_player=False):
   for group_id in groups:
     group = firebase.get('/groups', group_id)
     if group['autoAdd'] and group['allegianceFilter'] == allegiance:
-      firebase.put('/groups/%s/players' % group_id, player_id, True)
-      AddPlayerGroupMappings(firebase, group_id, player_id)
+      AddPlayerToGroupInner(firebase, group_id, player_id)
     elif (not new_player and group['autoRemove'] and
           group['allegianceFilter'] != allegiance):
-      firebase.delete('/groups/%s/players' % group_id, player_id)
-      RemovePlayerGroupMappings(firebase, group_id, player_id)
+      RemovePlayerFromGroupInner(firebase, group_id, player_id)
     elif new_player and group['autoAdd'] and group['allegianceFilter'] == 'none':
-      firebase.put('/groups/%s/players' % group_id, player_id, True)
-      AddPlayerGroupMappings(firebase, group_id, player_id)
+      AddPlayerToGroupInner(firebase, group_id, player_id)
 
 
 # TODO Decide how to mark a life code as used up.
@@ -805,7 +861,7 @@ def Infect(request, firebase):
 
   Args:
     playerId: The person doing the infecting.
-    lifeCodeId: The life code being taken/infected, makes to the victom.
+    lifeCode: The life code being taken/infected, makes to the victom.
 
 
   Validation:
@@ -815,29 +871,34 @@ def Infect(request, firebase):
     /games/%(gameId)/players/%(playerId)
     /groups/%(groupId) indirectly
   """
-  valid_args = ['playerId', 'lifeCodeId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'infectionId': '!InfectionId',
+    'gameId': 'GameId',
+    'infectorPlayerId': 'PlayerId',
+    'victimLifeCode': '?String',
+    'victimPlayerId': '?PlayerId',
+  })
 
-  player_id = request['playerId']
-  life_code_id = request['lifeCodeId']
-  victim_id = helpers.LifeCodeToPlayer(firebase, request['lifeCodeId'])
-  game_id = helpers.PlayerToGame(firebase, player_id)
+  game_id = request['gameId']
+  player_id = request['infectorPlayerId']
+  infection_id = request['infectionId']
+  victim_life_code = request['victimLifeCode']
+  victim_id = helpers.LifeCodeToPlayerId(firebase, game_id, victim_life_code)
 
   player = {
     'allegiance': firebase.get('/playersPublic/%s' % player_id, 'allegiance'),
-    'can_infect': firebase.get('/playersPrivate/%s' % player_id, 'canInfect')
+    'canInfect': firebase.get('/playersPrivate/%s' % player_id, 'canInfect')
   }
   victim = {
     'allegiance': firebase.get('/playersPublic/%s' % victim_id, 'allegiance'),
-    'can_infect': firebase.get('/playersPrivate/%s' % victim_id, 'canInfect')
+    'canInfect': firebase.get('/playersPrivate/%s' % victim_id, 'canInfect')
   }
 
   # Both players must be in the same game.
   if helpers.PlayerToGame(firebase, victim_id) != game_id:
     raise InvalidInputError('Those players are not part of the same game!')
   # The infector must be able to infect or be doing a self-infect
-  if player_id != victim_id and not player['can_infect']:
+  if player_id != victim_id and not player['canInfect']:
     raise InvalidInputError('You cannot infect another player at the present time.')
   # The victim must be human to be infected
   if victim['allegiance'] != constants.HUMAN:
@@ -851,10 +912,9 @@ def Infect(request, firebase):
     infect_path = '/playersPublic/%s/infections' % victim_id
     infect_data = {
       'infectorId': player_id,
-      'lifeCodeId': life_code_id,
       'time': int(time.time()),
     }
-    results.append(firebase.put(infect_path, request['lifeCodeId'], infect_data))
+    results.append(firebase.put(infect_path, infection_id, infect_data))
 
   # If secret zombie, set the victim to secret zombie and the infector to zombie
   # Else set the victom to zombie
@@ -895,6 +955,38 @@ def SetAllegiance(request, firebase):
   if request['allegiance'] == constants.ZOMBIE and not request['canInfect']:
     raise InvalidInputError('Zombies can always infect.')
   return SetPlayerAllegiance(firebase, request['playerId'], request['allegiance'], request['canInfect'])
+
+
+def JoinResistance(request, firebase):
+  helpers.ValidateInputs(request, firebase, {
+    'playerId': 'PlayerId',
+    'lifeCode': '?String',
+    'lifeId': '?!LifeId',
+  })
+
+  player_id = request['playerId']
+  life_code = request['lifeCode']
+
+  player = firebase.get('/playersPublic', player_id)
+  if player['allegiance'] != 'none':
+    raise InvalidInputError('Already have an allegiance!')
+
+  AddLife(request, firebase)
+
+  return SetPlayerAllegiance(firebase, player_id, constants.HUMAN, False)
+
+
+def JoinHorde(request, firebase):
+  helpers.ValidateInputs(request, firebase, {
+    'playerId': 'PlayerId',
+  })
+
+  player_id = request['playerId']
+
+  player = firebase.get('/playersPublic', player_id)
+  if player['allegiance'] != 'none':
+    raise InvalidInputError('Already have an allegiance!')
+  return SetPlayerAllegiance(firebase, player_id, constants.ZOMBIE, True)
 
 
 def SetPlayerAllegiance(firebase, player_id, allegiance, can_infect):
@@ -941,11 +1033,14 @@ def AddRewardCategory(request, firebase):
   Firebase entries:
     /rewardCategories/%(rewardCategoryId)
   """
-  results = []
-  valid_args = ['!rewardCategoryId', 'gameId']
-  required_args = list(valid_args)
-  required_args.extend(['name', 'shortName', 'points', 'limitPerPlayer'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'rewardCategoryId': '!RewardCategoryId',
+    'gameId': 'GameId',
+    'name': 'String',
+    'shortName': 'String',
+    'points': 'Number',
+    'limitPerPlayer': 'Number'
+  })
 
   game = request['gameId']
   reward_category_id = request['rewardCategoryId']
@@ -959,29 +1054,24 @@ def AddRewardCategory(request, firebase):
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
-  results.append(firebase.put('/rewardCategories', reward_category_id, reward_category_data))
-  results.append(firebase.put('/games/%s/rewardCategories' % game, reward_category_id, True))
-  return results
+  firebase.put('/rewardCategories', reward_category_id, reward_category_data)
+  firebase.put('/games/%s/rewardCategories' % game, reward_category_id, True)
 
 
 def UpdateRewardCategory(request, firebase):
   """Update an existing reward group.
 
-  Validation:
-    rewardCategoryId exists.
-
-  Args:
-    rewardCategoryId:
-    name: Name of the reward
-    limitPerPlayer: (int) how many a player can claim
-    points: (int) points the reward is worth
-
   Firebase entries:
     /rewardCategories/%(rewardCategoryId)
   """
-  valid_args = ['rewardCategoryId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'rewardCategoryId': 'RewardCategoryId',
+    'gameId': 'GameId',
+    'name': '|String',
+    'shortName': '|String',
+    'points': '|Number',
+    'limitPerPlayer': '|Number'
+  })
 
   reward_category_id = request['rewardCategoryId']
 
@@ -1010,15 +1100,17 @@ def AddReward(request, firebase):
     /rewards/%(rewardId)
     /rewardCategories/%(rcID)/rewards/%(rewardId)
   """
-  valid_args = ['gameId', '!rewardId', 'rewardCategoryId']
-  required_args = list(valid_args)
-  required_args.extend(['code'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'rewardId': '!RewardId',
+    'rewardCategoryId': 'RewardCategoryId',
+    'code': '?String'
+  })
 
   game_id = request['gameId']
   reward_id = request['rewardId']
   reward_category_id = request['rewardCategoryId']
-  reward_code = request['code']
+  reward_code = request['code'] or '%s-%s' % (reward_category.shortName, RandomWords(3))
 
   if helpers.RewardCodeToRewardId(firebase, game_id, reward_code, False) is not None:
     raise InvalidInputError('Reward with that code already exists!')
@@ -1040,22 +1132,16 @@ def AddReward(request, firebase):
 def AddRewards(request, firebase):
   """Add a set of rewards.
 
-  Validation:
-
-  Args:
-    rewardCategoryId:
-    count: How many rewards to generate.
-
   Firebase entries:
     /rewards/%(rewardId)
     /rewardCategories/%(rcID)/rewards/%(rewardId)
   """
-  results = []
 
-  valid_args = ['rewardCategoryId']
-  required_args = list(valid_args)
-  required_args.extend(['count'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'gameId': 'GameId',
+    'rewardCategoryId': 'RewardCategoryId',
+    'count': 'Number'
+  })
 
   reward_category_id = request['rewardCategoryId']
 
@@ -1068,9 +1154,7 @@ def AddRewards(request, firebase):
       'code': '%s-%s' % (reward_category.shortName, RandomWords(3)),
       'playerId': None
     }
-    results.append(AddRewardToDb(firebase, reward_category_id, reward_id, reward))
-
-  return results
+    AddRewardToDb(firebase, reward_category_id, reward_id, reward)
 
 
 def AddRewardToDb(firebase, reward_category_id, reward_id, reward):
@@ -1082,7 +1166,6 @@ def AddRewardToDb(firebase, reward_category_id, reward_id, reward):
   """
   firebase.put('/rewards', reward_id, reward)
   firebase.put('/rewardCategories/%s/rewards' % reward_category_id, reward_id, True)
-  return 'Added reward %s (category %s)' % (reward_id, reward_category_id)
 
 
 def ClaimReward(request, firebase):
@@ -1103,12 +1186,11 @@ def ClaimReward(request, firebase):
     /playersPublic/%(playerId)/points
     /rewards/%(rewardId)/playerId
   """
-  valid_args = ['playerId', 'gameId']
-  required_args = list(valid_args)
-  required_args.extend(['rewardCode'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
-
-  results = []
+  helpers.ValidateInputs(request, firebase, {
+    'playerId': 'PlayerId',
+    'gameId': 'GameId',
+    'rewardCode': 'String'
+  })
 
   player = request['playerId']
   game_id = request['gameId']
@@ -1141,19 +1223,16 @@ def ClaimReward(request, firebase):
       if len(claims) >= limit:
         raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % limit)
 
-  results.append(firebase.patch(reward_path, {'playerId': player}))
+  firebase.patch(reward_path, {'playerId': player})
 
   reward_points = int(reward_category['points'])
   rewards_claimed = int(reward_category['claimed'])
 
-  results.append(helpers.AddPoints(firebase, player, reward_points))
-  results.append('Claim count %d => %d' % (rewards_claimed, rewards_claimed + 1))
-  results.append(firebase.patch(reward_category_path, {'claimed': rewards_claimed + 1}))
-  results.append(firebase.patch(reward_path, {'playerId': player}))
+  helpers.AddPoints(firebase, player, reward_points)
+  firebase.patch(reward_category_path, {'claimed': rewards_claimed + 1})
+  firebase.patch(reward_path, {'playerId': player})
   claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time())}
-  results.append(firebase.put('%s/claims' % player_path, reward_id, claim_data))
-
-  return results
+  firebase.put('%s/claims' % player_path, reward_id, claim_data)
 
 
 
@@ -1306,10 +1385,10 @@ def RegisterUserDevice(request, firebase):
   Firebase entries:
     /users/%(userId)/deviceToken
   """
-  valid_args = ['userId']
-  required_args = list(valid_args)
-  required_args.extend(['deviceToken'])
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'userId': 'UserId',
+    'deviceToken': 'String',
+  })
   put_data = {'deviceToken': request['deviceToken']}
   return firebase.patch('/users/%s', put_data)
 
@@ -1326,18 +1405,29 @@ def AddLife(request, firebase):
     /playersPublic/%(playerId)/lives
     /lives/%(lifeCode)
   """
-  valid_args = ['playerId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, firebase, required_args, valid_args)
+  helpers.ValidateInputs(request, firebase, {
+    'playerId': 'PlayerId',
+    'lifeCode': '?String',
+    'lifeId': '?!LifeId'
+  })
 
   player_id = request['playerId']
   game_id = helpers.PlayerToGame(firebase, player_id)
-  life_code_id = 'lifeCode-%s' % RandomWords(3)
+  life_id = request['lifeId'] or 'life-%s' % random.randint(0, 2**52)
+  life_code = request['lifeCode'] or RandomWords(3)
+
+  public_life = {
+    'time': int(time.time()),
+  }
+
+  private_life = {
+    'code': life_code,
+  }
 
   results = [
-    'Life code: %s' % life_code_id,
-    firebase.put('/playersPublic/%s/lives' % player_id, life_code_id, True),
-    firebase.put('/lives', life_code_id, player_id)
+    'Life code: %s' % life_code,
+    firebase.put('/playersPublic/%s/lives' % player_id, life_code, public_life),
+    firebase.put('/playersPrivate/%s/lives' % player_id, life_code, private_life)
   ]
   return results
 

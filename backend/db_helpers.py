@@ -2,106 +2,116 @@
 
 import constants
 
-# ID entity types
-ENTITY_TYPES = (
-    'chatRoomId', 'gameId', 'groupId', 'gunId', 'messageId',
-    'missionId', 'playerId', 'rewardCategoryId', 'rewardId', 'userId',
-    'notificationId', 'lifeCodeId')
-
-# Map all expected args to an entity type
-KEY_TO_ENTITY = {a: a for a in ENTITY_TYPES}
-KEY_TO_ENTITY.update({
-  'adminUserId': 'userId', 'otherPlayerId': 'playerId',
-  'ownerPlayerId': 'playerId'
-})
-
-
-# Mapping from a key name to where in Firebase it can be found
-# along with a specific value that can be used to validate existance.
-ENTITY_PATH = {
-  'gameId': ['/games/%s', 'name'],
-  'userId': ['/users/%s', 'name'],
-  'groupId': ['/groups/%s', 'gameId'],
-  'playerId': ['/playersPrivate/%s', 'userId'],
-  'gunId': ['/guns/%s', 'a'],
-  'missionId': ['/missions/%s', 'name'],
-  'chatRoomId': ['/chatRooms/%s', 'name'],
-  'rewardCategoryId': ['/rewardCategories/%s', 'name'],
-  'rewardId': ['/rewards/%s', 'code'],
-  'notificationId': ['/notifications/%s', None],
-  'lifeCodeId': ['/lives/%s', None],
-}
-
-
 class InvalidInputError(Exception):
   """Error used when the inputs fail to pass validation."""
   pass
 
-
-def EntityExists(firebase, key, value):
-  path, item = ENTITY_PATH[KEY_TO_ENTITY[key]]
-  return (firebase.get(path % value, item) is not None)
+class ServerError(Exception):
+  pass
 
 
-def ValidateInputs(request, firebase, required, valid):
+def ExpectExistence(firebase, path, id, test_property, should_exist):
+  exists = firebase.get(path, test_property) is not None
+  print 'Couldnt find at path %s test prop %s' % (path, test_property)
+  if exists and not should_exist:
+    raise InvalidInputError('ID "%s" should not have existed!' % id)
+  if not exists and should_exist:
+    raise InvalidInputError('ID "%s" should have existed!' % id)
+
+
+def ValidateInputs(request, firebase, params):
   """Validate args.
 
-  Keys in valid starting with a '!' are testing to ensure they do *not* exist.
-  Any request item ending with Id eg 'fooId' must have a value starting 'foo-'
+  params is a map of parameter name to an "expectation".
+  Examples:
+    addGun might have { 'gunId': '!GunId', 'label': 'String' }
+    updateGun might have { 'gunId': 'GunId' 'playerId': '|?PlayerId' }
 
-  Args:
-    required: These args must be present in the request.
-    valid: These args must already exist in the DB.
+  Expectations ending with 'Id' mean this ID should exist.
+  Expectations starting with a '!' mean this ID shouldn't exist.
+  Expectations starting with a '?' are nullable.
+  Expectations starting with a '|' don't need to be present (useful for update calls).
 
   Raises: InvalidInputError if validation does not pass.
   """
+
   if request is None:
     request = {}
 
-  r_keys = set()
-  for key in required:
-    if key[0] == '!':
-      key = key[1:]
-    r_keys.add(key)
-  supplied = set(request.keys())
+  params['requestingUserToken'] = 'String'
+  params['requestingUserId'] = '?UserId'
+  params['requestingPlayerId'] = '?PlayerId'
 
-  if r_keys - supplied:
-    raise InvalidInputError('Missing required input.\n Missing: %s.\n Required: %s' % (
-        ', '.join(r_keys - supplied), ', '.join(required)))
+  ValidateInputsInner(request, firebase, params)
 
-  # Any keys fooId must start "foo-XXX"
+def ValidateInputsInner(request, firebase, params):
   for key in request:
-    if key.endswith('Id'):
-      if key in KEY_TO_ENTITY:
-        entity = KEY_TO_ENTITY[key]
-        if not request[key].startswith('%s-' % entity[:-2]):
-          raise InvalidInputError('Id %s="%s" must start with "%s-".' % (
-              key, request[key], entity[:-2]))
-      else:
-        raise InvalidInputError('Key %s looks like an undefined entity.' % key)
+    if key not in params:
+      raise InvalidInputError('Unrecognized argument: "%s"' % key)
 
-
-  for key in valid:
-    negate = False
-    if key[0] == '!':
-      negate = True
-      key = key[1:]
-    if key not in request:
+  for key, expectation in params.iteritems():
+    if isinstance(expectation, dict):
+      if key not in request:
+        request[key] = {}
+      if not isinstance(request[key], dict):
+        raise InvalidInputError('Expected map for argument "%s"' % key)
+      ValidateInputsInner(request[key], firebase, params[key])
       continue
+
+    if key not in request:
+      if expectation[0] == '|':
+        continue
+      else:
+        raise InvalidInputError('Missing argument: "%s"' % key)
+    if expectation[0] == '|':
+      expectation = expectation[1:]
+
     data = request[key]
 
-    if key in KEY_TO_ENTITY and KEY_TO_ENTITY[key] in ENTITY_PATH:
-      exists = EntityExists(firebase, key, data)
-      if negate and exists:
-        raise InvalidInputError('%s %s must not exist but was found.' % (key, data))
-      elif not negate and not exists:
-        raise InvalidInputError('%s %s is not valid.' % (key, data))
-    elif key in ('allegiance', 'allegianceFilter'):
-      if data not in constants.ALLEGIANCES:
-        raise InvalidInputError('Allegiance %s is not valid.' % data)
-    else:
-      raise InvalidInputError('Unhandled arg validation: "%s"' % key)
+    if expectation[0] == '?':
+      expectation = expectation[1:]
+      if data is None:
+        continue
 
+    if expectation == "Number":
+      if str(int(data)) != str(data):
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a number!' % (key, data))
+    elif expectation == "Timestamp":
+      if str(int(data)) != str(data) or data < 1420000000000 or data > 2210000000000:
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a timestamp in milliseconds!' % (key, data))
+    elif expectation == "String":
+      if not isinstance(data, basestring):
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a string!' % (key, data))
+    elif expectation == "Boolean":
+      if str(not not data) != str(data):
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a boolean!' % (key, data))
+    else:
+      should_exist = True
+      if expectation[0] == '!':
+        should_exist = False
+        expectation = expectation[1:]
+
+      if expectation == "GameId":
+        ExpectExistence(firebase, '/games/%s' % data, data, 'name', should_exist)
+      if expectation == "UserId":
+        ExpectExistence(firebase, '/users/%s' % data, data, 'a', should_exist)
+      if expectation == "GroupId":
+        ExpectExistence(firebase, '/groups/%s' % data, data, 'gameId', should_exist)
+      if expectation == "PlayerId":
+        ExpectExistence(firebase, '/playersPrivate/%s' % data, data, 'gameId', should_exist)
+      if expectation == "GunId":
+        ExpectExistence(firebase, '/guns/%s' % data, data, 'label', should_exist)
+      if expectation == "MissionId":
+        ExpectExistence(firebase, '/missions/%s' % data, data, 'gameId', should_exist)
+      if expectation == "ChatRoomId":
+        ExpectExistence(firebase, '/chatRooms/%s' % data, data, 'gameId', should_exist)
+      if expectation == "RewardCategoryId":
+        ExpectExistence(firebase, '/rewardCategories/%s' % data, data, 'gameId', should_exist)
+      if expectation == "RewardId":
+        pass
+      if expectation == "NotificationCategoryId":
+        ExpectExistence(firebase, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
+      
 
 def GroupToGame(firebase, group):
   """Map a group to a game."""
@@ -139,6 +149,34 @@ def RewardCodeToRewardId(firebase, game_id, reward_code, expect=True):
     raise InvalidInputError('No reward for code %s' % reward_code)
   return None
 
+def GetNextPlayerNumber(firebase, game_id):
+  players = firebase.get(
+      '/',
+      'playersPrivate',
+      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+  return 101 + len(players)
+
+def LifeCodeToPlayerId(firebase, game_id, life_code, expect=True):
+  player_short_name = life_code.split('-')[0]
+  players = firebase.get(
+      '/',
+      'playersPrivate',
+      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+  if players is not None:
+    for player_id, player in players.iteritems():
+      if 'lives' in player:
+        for life_id, life in player['lives'].iteritems():
+          if life['code'] == life_code:
+            return player_id
+  if expect:
+    raise InvalidInputError('No player for life code %s' % life_code)
+  return None
+
+
+def IsAdmin(firebase, game_id, user_id):
+  if user_id is None:
+    return False
+  return firebase.get('/games/%s/adminUsers' % game_id, user_id) is not None
 
 def GroupToEntity(firebase, group, entity):
   rooms = firebase.get(
@@ -177,11 +215,6 @@ def ChatToGame(firebase, chat):
   if group is None:
     return None
   return GroupToGame(group)
-
-
-def LifeCodeToPlayer(firebase, life_code):
-  """Map a life code to a player."""
-  return firebase.get('/lives', life_code)
 
 
 def AddPoints(firebase, player_id, points):

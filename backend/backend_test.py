@@ -11,27 +11,34 @@ import constants
 import secrets
 
 
-class EndToEndTest(unittest.TestCase):
+class Requester:
+  def __init__(self):
+    self.requestingUserToken = 'meh'
+    self.requestingUserId = None
+    self.requestingPlayerId = None
 
-  host = constants.TEST_ENDPOINT
+  def SetRequestingUserId(self, user_id):
+    self.requestingUserId = user_id
+
+  def SetRequestingPlayerId(self, player_id):
+    self.requestingPlayerId = player_id
 
   def Post(self, method, data):
-    return requests.post('%s/api/%s' % (self.host, method), json=data)
+    data['requestingUserToken'] = self.requestingUserToken
+    data['requestingUserId'] = self.requestingUserId
+    data['requestingPlayerId'] = self.requestingPlayerId
+    return requests.post('%s/api/%s' % (constants.TEST_ENDPOINT, method), json=data)
 
-  def GetFirebase(self):
-    auth = firebase.FirebaseAuthentication(
-        secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
-    db = firebase.FirebaseApplication(
-        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
-    return db
 
+
+class EndToEndTest(unittest.TestCase):
   def AssertOk(self, method, data):
-    r = self.Post(method, data)
+    r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertTrue(r.ok, msg='Expected to POST 200 [ %s ] but got %d:\n%s\nfor: %s' % (method, r.status_code, r.text, data))
   
   def AssertFails(self, method, data):
-    r = self.Post(method, data)
+    r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertEqual(500, r.status_code,
         msg='Expected 500 but got %d for %s\n%r' % (r.status_code, method, data))
@@ -63,7 +70,7 @@ class EndToEndTest(unittest.TestCase):
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL})
+    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL})
     expected = json.loads(expected_raw)
     actual = r.json()
     self.CleanTestData(actual)
@@ -71,35 +78,37 @@ class EndToEndTest(unittest.TestCase):
 
   def CleanTestData(self, data):
     for k, v in data.iteritems():
-      if k == 'number':
-        data[k] = 100
-      elif k == 'time':
+      if k == 'time':
         data[k] = 0
-      elif k == 'acks':
-        for playerId in v:
-          v[playerId] = 0
       elif type(v) == dict:
         self.CleanTestData(v)
 
   def setUp(self):
-    self.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
+    self.requester = Requester()
+    self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
   
   def tearDown(self):
     pass
-    # self.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
+    # self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
 
   def testEndToEnd(self):
     self.identifier = 'test-%d' % random.randint(0, 2**52)
 
     # Register users.
-    create = {'userId': self.Id('userId'), 'name': 'Angel'}
+    create = {'userId': self.Id('userId')}
     self.AssertOk('register', create)
-    self.AssertFails('register', create)
+    self.AssertOk('register', create) # repeating it is fine
 
-    create = {'userId': self.Id('userId', 2), 'name': 'Bob'}
-    self.Post('register', create)
-    create = {'userId': self.Id('userId', 3), 'name': 'Charles'}
-    self.Post('register', create)
+    self.requester.SetRequestingUserId(self.Id('userId'))
+
+    create = {'userId': self.Id('userId', 2)}
+    self.requester.Post('register', create)
+    create = {'userId': self.Id('userId', 3)}
+    self.requester.Post('register', create)
+    create = {'userId': self.Id('userId', 4)}
+    self.requester.Post('register', create)
+    create = {'userId': self.Id('userId', 5)}
+    self.requester.Post('register', create)
 
     # Create the game.
     create = {
@@ -107,22 +116,23 @@ class EndToEndTest(unittest.TestCase):
       'adminUserId': self.Id('userId'),
       'name': 'test Game',
       'rulesHtml': 'test rules',
-      'shortName': 'tgame',
       'stunTimer': 10,
+      'active': True
     }
     update = {
       'gameId': self.Id('gameId'),
       'rulesHtml': 'test rule',
       'stunTimer': 5,
+      'active': False
     }
     self.AssertCreateUpdateSequence('createGame', create, 'updateGame', update)
 
     create = {
       'gameId': self.Id('gameId'),
-      'userId': self.Id('userId', 2),
+      'userId': self.Id('userId', 3),
     }
-    self.AssertOk('addGameAdmin', create)
-    self.AssertFails('addGameAdmin', create)
+    self.AssertOk('addAdmin', create)
+    self.AssertFails('addAdmin', create)
 
     # Invalid ID
     create['gameId'] = 'foo'
@@ -136,22 +146,33 @@ class EndToEndTest(unittest.TestCase):
       'name': 'test Bobby',
       'needGun': True,
       'profileImageUrl': 'http://jpg',
-      'startAsZombie': True,
+      'startAsZombie': "maybe",
       'gotEquipment': True,
-      'beSecretZombie': True,
-      'notifySound': True,
-      'notifyVibrate': True,
+      'beSecretZombie': "yes",
+      'notes': "",
+      'canInfect': False,
+      'active': False,
+      'notificationSettings': {
+        'sound': True,
+        'vibrate': True
+      },
+      'volunteer': {v: False for v in constants.PLAYER_VOLUNTEER_ARGS}
     }
-    create_player.update({v: False for v in constants.PLAYER_VOLUNTEER_ARGS})
     update = {
+      'gameId': self.Id('gameId'),
       'playerId': self.Id('playerId'),
       'name': 'test Charles',
-      'helpServer': True,
+      'volunteer': {
+        'server': True
+      }
     }
     self.AssertCreateUpdateSequence('createPlayer', create_player, 'updatePlayer', update)
+    self.requester.SetRequestingPlayerId(self.Id('playerId'))
     create_player['playerId'] = self.Id('playerId', 2)
+    create_player['userId'] = self.Id('userId', 2)
     self.AssertOk('createPlayer', create_player)
     create_player['playerId'] = self.Id('playerId', 3)
+    create_player['userId'] = self.Id('userId', 3)
     self.AssertOk('createPlayer', create_player)
 
     # Create groups
@@ -167,69 +188,79 @@ class EndToEndTest(unittest.TestCase):
       'ownerPlayerId': self.Id('playerId'),
     }
     update = {
+      'gameId': self.Id('gameId'),
       'groupId': self.Id('groupId'),
       'autoAdd': True,
     }
     self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
     create.update({
+      'gameId': self.Id('gameId'),
       'groupId': self.Id('groupId', 2),
       'name': 'group Bar',
       'membersCanAdd': True,
       'membersCanRemove': True,
     })
-    self.Post('createGroup', create)
+    self.requester.Post('createGroup', create)
 
     create_player['playerId'] = self.Id('playerId', 4)
+    create_player['userId'] = self.Id('userId', 4)
     self.AssertOk('createPlayer', create_player)
 
     # Create chat rooms
     create = {
+      'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
       'groupId': self.Id('groupId'),
       'name': 'test Chat',
       'withAdmins': False
     }
     update = {
+      'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
       'name': 'test Chat Room'
     }
     self.AssertCreateUpdateSequence('createChatRoom', create, 'updateChatRoom', update)
 
     create = {
+      'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
       'playerId': self.Id('playerId'),
       'messageId': self.Id('messageId'),
       'message': 'test Message',
     }
-    update = {
-      'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('playerId'),
-      'messageId': self.Id('messageId'),
-    }
-    self.AssertCreateUpdateSequence('sendChatMessage', create, 'ackChatMessage', update)
+    # update = {
+    #   'gameId': self.Id('gameId'),
+    #   'chatRoomId': self.Id('chatRoomId'),
+    #   'playerId': self.Id('playerId'),
+    #   'messageId': self.Id('messageId'),
+    # }
+    self.AssertOk('sendChatMessage', create)
 
     # Create missions
     create = {
+      'gameId': self.Id('gameId'),
       'missionId': self.Id('missionId'),
       'groupId': self.Id('groupId'),
       'name': 'test Mission',
-      'begin': 1,
-      'end': 2,
+      'beginTime': 1500000000000,
+      'endTime': 1600000000000,
       'detailsHtml': 'test Details',
     }
     update = {
+      'gameId': self.Id('gameId'),
       'missionId': self.Id('missionId'),
-      'end': 0,
+      'endTime': 1700000000000,
     }
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
 
     create_player['playerId'] = self.Id('playerId', 5)
+    create_player['userId'] = self.Id('userId', 5)
     self.AssertOk('createPlayer', create_player)
 
     # Add players to groups.
     update = {
-      'playerId': self.Id('playerId'),
-      'otherPlayerId': self.Id('playerId', 2),
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId', 2),
       'groupId': self.Id('groupId')
     }
     # Owner adds player-2 to both groups
@@ -237,21 +268,37 @@ class EndToEndTest(unittest.TestCase):
     self.AssertFails('addPlayerToGroup', update)
     update['groupId'] = self.Id('groupId', 2)
     self.AssertOk('addPlayerToGroup', update)
-    # Player-2 can add player-3 to one group but not other -- membersCanAdd
+
+    self.requester.SetRequestingUserId(self.Id('userId', 2))
+    self.requester.SetRequestingPlayerId(self.Id('playerId', 2))
+
+    # Player-2 cant add player-3 to group 1, because membersCanAdd is false
     update = {
-      'playerId': self.Id('playerId', 2),
-      'otherPlayerId': self.Id('playerId', 3),
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId', 3),
       'groupId': self.Id('groupId')
     }
     self.AssertFails('addPlayerToGroup', update)
-    update['groupId'] = self.Id('groupId', 2)
+
+    # Player-2 CAN add player-3 to group 2, because membersCanAdd is true
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId', 3),
+      'groupId': self.Id('groupId', 2)
+    }
     self.AssertOk('addPlayerToGroup', update)
     self.AssertFails('addPlayerToGroup', update)
+
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToRemoveId': self.Id('playerId', 3),
+      'groupId': self.Id('groupId', 2)
+    }
     self.AssertOk('removePlayerFromGroup', update)
     self.AssertFails('removePlayerFromGroup', update)
 
     # Create and assign guns
-    create = {'gunId': self.Id('gunId')}
+    create = {'gunId': self.Id('gunId'), 'label': "1404"}
     update = {'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
 
@@ -292,5 +339,14 @@ class EndToEndTest(unittest.TestCase):
 if __name__ == '__main__':
   unittest.main()
 
+
+
+
+  # def GetFirebase(self):
+  #   auth = firebase.FirebaseAuthentication(
+  #       secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
+  #   db = firebase.FirebaseApplication(
+  #       'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+  #   return db
 
 # vim:ts=2:sw=2:expandtab

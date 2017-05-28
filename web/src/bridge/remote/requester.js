@@ -12,11 +12,11 @@ class NormalRequester {
   constructor(serverUrl) {
     assert(serverUrl);
     this.serverUrl = serverUrl;
-    this.headers = {};
     this.openRequestPromise = Promise.resolve(null);
+    this.playerId = null;
   }
-  setHeaders(headers) {
-    this.headers = headers;
+  setRequestingPlayerId(playerId) {
+    this.playerId = playerId;
   }
   // Take this method out when the server single-threads itself
   sendRequest_(verb, path, urlParams, body) {
@@ -39,11 +39,11 @@ class NormalRequester {
     let auth = firebase.auth();
     let currentUser = auth.currentUser;
     currentUser.getToken(false).then((userToken) => {
-      for (var key in body) {
-        if (body[key] == null) {
-          delete body[key];
-        }
-      }
+      body.requestingUserToken = userToken;
+      if (!('requestingUserId' in body))
+        body.requestingUserId = 'user-' + currentUser.uid;
+      if (!('requestingPlayerId' in body))
+        body.requestingPlayerId = this.playerId;
 
       var request = new XMLHttpRequest();
       request.onreadystatechange = function() {
@@ -66,14 +66,6 @@ class NormalRequester {
       }
       let url = this.serverUrl + 'api/' + path + (urlParamsStr && "?" + urlParamsStr);
       request.open(verb, url, true);
-
-      let headers = Utils.copyOf(this.headers);
-      // headers.userToken = userToken;
-      // headers['Content-Type'] = 'text/plain';
-      // for (var key in headers) {
-      //   request.setRequestHeader(key, headers[key]);
-      // }
-      body.userToken = userToken;
 
       if (body) {
         request.send(JSON.stringify(body));

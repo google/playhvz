@@ -37,6 +37,7 @@
         playerId: {
           type: String,
           value: null,
+          observer: 'onPlayerIdChanged_',
         },
 
         listeningToGamePublic: {
@@ -85,7 +86,6 @@
       observers: [
         'onUserIdChanged_(bridge, database, userId, database.users.length)',
         'autoNavigate_(bridge, database, game.admins.length)',
-        // 'onPlayerIdChanged_(playerId, game.playersById)'
         'autoNavigate_(bridge, database, database.games.splices)',
         'autoNavigate_(bridge, database, database.users.splices)',
         'autoNavigate_(bridge, database, game.players.length)',
@@ -139,11 +139,11 @@
         });
       },
 
-      // Because of a polymer array-selector bug, we can't do this =(
-      // onPlayerIdChanged_() {
-      //   this.$.playerSelector.select(
-      //       this.game.players.find(player => player.id == this.playerId));
-      // },
+      onPlayerIdChanged_(newPlayerId, oldPlayerId) {
+        if (newPlayerId && !oldPlayerId) {
+          this.bridge.setPlayerId(newPlayerId);
+        }
+      },
 
       attached() {
         // userId might have been given to us, such as when we're doing fake

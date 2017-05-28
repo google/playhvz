@@ -90,6 +90,7 @@
             return;
           }
           this.bridge.sendChatMessage({
+            gameId: this.game.id,
             messageId: this.bridge.newMessageId(), 
             chatRoomId: this.chatRoom.id, 
             playerId: this.currentPlayer.id, 

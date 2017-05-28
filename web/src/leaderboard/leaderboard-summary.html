@@ -19,13 +19,13 @@
         },
         computedPlayerList: {
           type: Array,
-          computed: 'computePlayerList_(players, numToShow)'
+          computed: 'computePlayerList_(players.length, numToShow)'
         }
       },
-      computePlayerList_(players, numToShow) {
+      computePlayerList_() {
         // commented out because it changes the model
-        return players//.sort((p1, p2) => p2.points - p1.points)
-          .slice(0, numToShow || players.length);
+        return this.players//.sort((p1, p2) => p2.points - p1.points)
+          .slice(0, this.numToShow || players.length);
       },
       makeTableBlueprint_: function() {
         return {
