@@ -4,7 +4,7 @@ window.Model = (function() {
 
 var Model = {};
 
-const GUN_PROPERTIES = ["gameId", "playerId"];
+const GUN_PROPERTIES = ["gameId", "playerId", "label"];
 const GUN_COLLECTIONS = [];
 Model.Gun = function(id, args) {
   this.id = id;
@@ -29,7 +29,7 @@ Model.UserPlayer = function(id, args) {
 }
 
 const GAME_PROPERTIES = ["active", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
-const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups", "maps"];
+const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups", "maps"];
 Model.Game = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, GAME_PROPERTIES);
@@ -140,7 +140,7 @@ Model.Request = function(id, args) {
   Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "begin", "end", "detailsHtml", "groupId"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId"];
 const MISSION_COLLECTIONS = [];
 Model.Mission = function(id, args) {
   this.id = id;
@@ -210,7 +210,7 @@ Model.Notification = function(id, args) {
   Utils.addEmptyLists(this, NOTIFICATION_COLLECTIONS);
 }
 
-const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "seed", "claimed", "gameId", "limitPerPlayer"];
+const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer"];
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 Model.RewardCategory = function(id, args) {
   this.id = id;

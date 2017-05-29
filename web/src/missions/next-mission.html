@@ -11,32 +11,27 @@
         properties: {
           bridge: Object,
 
-          gameId: String,
+          game: Object,
+          player: Object,
 
-          playerId: String,
-
-          missions: Array,
-
-          nextMission: Object,
+          nextMissionId: Object,
         },
 
         observers: [
-          "ready_(missions)",
+          "updateNextMissionId_(game.missions.length)",
         ],
 
-        ready_: function(missions) {
-          let nextMission;
-          for (const mission of missions) {
-            if (new Date().getTime() < mission.end) {
-              nextMission = mission;
-              break;
+        updateNextMissionId_: function() {
+          let nextMission = null;
+          // Of all the missions that end in the future, get the one that ends the soonest.
+          for (const mission of this.game.missions) {
+            if (new Date().getTime() < mission.endTime) {
+              if (!nextMission || mission.endTime < nextMission.endTime) {
+                nextMission = mission;
+              }
             }
           }
-          if (nextMission) {
-            this.nextMission = nextMission;
-          } else {
-            this.nextMission = null;
-          }
+          this.nextMissionId = nextMission && nextMission.id;
         },
       });
     });
@@ -50,15 +45,14 @@
         margin: 16px;
       }
     </style>
-    <template is="dom-if" if="[[nextMission]]">
+    <template is="dom-if" if="[[nextMissionId]]">
       <ghvz-mission
           bridge="[[bridge]]"
-          game-id="[[gameId]]"
-          player-id="[[playerId]]"
-          mission="[[nextMission]]">
+          game="[[game]]"
+          mission-id="[[nextMissionId]]">
       </ghvz-mission>
     </template>
-    <div id="comingSoon" hidden$="[[nextMission]]">
+    <div id="comingSoon" hidden$="[[nextMissionId]]">
       The next mission's details will be posted here.
     </div>
   </template>

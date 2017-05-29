@@ -11,49 +11,11 @@
         properties: {
           bridge: Object,
 
-          guns: Array,
-
-          gunsById: Object,
-
-          players: Array,
-
-          playersById: Object,
-
           editingGunIdOrNull: {
             type: Object,
             value: null,
           },
         },
-
-        // observers: [
-        //   'waitForConsistency_(guns.splices, players.splices)',
-        // ],
-        // created: function() {
-        //   this.waitingForConsistency = false;
-        // },
-        // waitForConsistency_() {
-        //   if (this.waitingForConsistency) {
-        //     return;
-        //   } else {
-        //     this.waitingForConsistencyCheck = true;
-        //     this.$.table.globalFilter = this.consistentGun_.bind(this);
-        //     setTimeout(this.checkConsistency_.bind(this), 100);
-        //   }
-        // },
-        // checkConsistency_() {
-        //   let consistent = true;
-        //   for (let gun of this.guns) {
-        //     if (gun.playerId && !(this.playersById && this.playersById[gun.playerId])) {
-        //       consistent = false;
-        //       break;
-        //     }
-        //   }
-        //   if (!consistent) {
-        //     this.waitForConsistency_();
-        //   } else {
-        //     this.$.table.globalFilter = null;
-        //   }
-        // },
 
         attached: function() {
           this.fire('ghvz-add-toolbar-button', { button: this.$.add });
@@ -61,7 +23,7 @@
 
         consistentGun_: function(gun) {
           return gun.playerId == null ||
-              this.playersById && this.playersById[gun.playerId];
+              this.game.playersById && this.game.playersById[gun.playerId];
         },
 
         makeTableBlueprint_: function() {
@@ -69,8 +31,8 @@
             itemsRepeater: this.$.repeater,
             columns: [
               {
-                property: "number",
-                name: "Number",
+                property: "label",
+                name: "Label",
                 filterable: true,
                 sortable: true,
               },
@@ -78,7 +40,7 @@
                 name: "Player",
                 filterable: true,
                 sortable: true,
-                getModel: (gun) => gun.playerId && this.playersById[gun.playerId].name,
+                getModel: (gun) => gun.playerId && this.game.playersById[gun.playerId].name,
               },
             ],
             actions: [
@@ -94,9 +56,9 @@
           return {
             fields: [
               {
-                property: "gunId",
-                label: "ID",
-                description: "ID on the gun, example 1404.",
+                property: "label",
+                label: "Label",
+                description: "Label on the gun, example 1404.",
               },
             ],
           };
@@ -105,11 +67,12 @@
         addGun_: function() {
           this.$.gunForm.openForAdding()
               .then((properties) => {
-                let gunId = properties.gunId;
-                if (!gunId.startsWith('gun-'))
-                  gunId = 'gun-' + gunId;
+                assert(properties.label);
+                let gunId = this.bridge.newGunId();
                 this.bridge.addGun({
+                  gameId: this.game.id,
                   gunId: gunId,
+                  label: properties.label,
                 });
               });
         },
@@ -117,17 +80,21 @@
         editGun_: function(gun) {
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
-                this.bridge.updateGun(Utils.merge({gunId: gun.id}, properties));
+                this.bridge.updateGun({
+                  gunId: gun.id,
+                  label: properties.label,
+                });
               });
         },
 
         computePlayerName_: function(playerIdOrNull) {
-          return playerIdOrNull && this.playersById[playerIdOrNull] && this.playersById[playerIdOrNull].name || '(none)';
+          return playerIdOrNull && this.game.playersById[playerIdOrNull].name || "(none)";
         },
 
         onSetGunPlayer_: function(e) {
           let playerOrNull = e.detail.playerOrNull;
           this.bridge.assignGun({
+            gameId: this.game.id,
             gunId: this.editingGunIdOrNull,
             playerId: playerOrNull && playerOrNull.id || null,
           });
@@ -139,7 +106,7 @@
           this.editingGunIdOrNull = gunId;
           this.$.travelingPlayerField.playerInputValue = '';
           this.$.travelingPlayerField.matchingPlayerOrNull = null;
-          this.$.travelingPlayerField.playerIdOrNull = this.gunsById[gunId].playerId;
+          this.$.travelingPlayerField.playerIdOrNull = this.game.gunsById[gunId].playerId;
           let cell = e.target.closest('.cell');
           cell.insertBefore(this.$.travelingPlayerField, cell.childNodes[0]);
         },
@@ -180,8 +147,8 @@
 
     <ghvz-player-field 
         id="travelingPlayerField"
-        players="[[players]]"
-        players-by-id="[[playersById]]"
+        players="[[game.players]]"
+        players-by-id="[[game.playersById]]"
         on-set-player="onSetGunPlayer_"
         label="Player">
     </ghvz-player-field>
@@ -189,11 +156,11 @@
     <ghvz-table
         id="table"
         blueprint="[[makeTableBlueprint_()]]"
-        items="[[guns]]">
-      <template is="dom-repeat" id="repeater" items="[[guns]]" as="gun" initial-count="1" target-framerate="5">
+        items="[[game.guns]]">
+      <template is="dom-repeat" id="repeater" items="[[game.guns]]" as="gun" initial-count="1" target-framerate="5">
         <div class="row">
           <ghvz-table-control-cell item="[[gun]]"></ghvz-table-control-cell>
-          <div class="cell">[[gun.id]]</div>
+          <div class="cell">[[gun.label]]</div>
           <div class="cell">
             <div class="player-label">
               <div class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>

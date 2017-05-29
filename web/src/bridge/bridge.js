@@ -149,11 +149,21 @@ class FakeIdGenerator extends IdGenerator {
   // Guns
   serverMethods.set('addGun', {
     required: {
+      gameId: 'GameId',
       gunId: '!GunId',
+      label: 'String',
+    }
+  });
+  serverMethods.set('editGun', {
+    required: {
+      gameId: 'GameId',
+      gunId: '!GunId',
+      label: '|String',
     }
   });
   serverMethods.set('assignGun', {
     required: {
+      gameId: 'GameId',
       gunId: 'GunId',
       playerId: '?PlayerId',
     },
@@ -225,8 +235,8 @@ class FakeIdGenerator extends IdGenerator {
 
   // Missions
   const MISSION_PROPERTIES = {
-    begin: 'TimestampMs',
-    end: 'TimestampMs',
+    beginTime: 'TimestampMs',
+    endTime: 'TimestampMs',
     name: 'String',
     detailsHtml: 'String',
     groupId: 'GroupId',
@@ -240,6 +250,12 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('updateMission', {
     required: {missionId: 'MissionId'},
     optional: MISSION_PROPERTIES
+  });
+  serverMethods.set('deleteMission', {
+    required: {
+      gameId: 'GameId',
+      missionId: 'MissionId',
+    },
   });
 
   serverMethods.set('selfInfect', {required: {playerId: 'PlayerId'}});
@@ -265,7 +281,7 @@ class FakeIdGenerator extends IdGenerator {
   const REWARD_CATEGORY_PROPERTIES = {
     name: 'String',
     points: 'Number',
-    seed: 'String',
+    shortName: 'String',
     limitPerPlayer: 'Number',
   };
   serverMethods.set('addRewardCategory', {
@@ -290,7 +306,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addRewards', {
     required: {
-      // gameId: 'GameId',
+      gameId: 'GameId',
       rewardCategoryId: 'RewardCategoryId',
       count: 'Number',
     },

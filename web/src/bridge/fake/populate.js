@@ -153,6 +153,27 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
     started: true,
   });
 
+  let everyoneGroupId = server.idGenerator.newGroupId('everyone');
+  let everyoneChatRoomId = server.idGenerator.newChatRoomId('everyone');
+  server.createGroup({
+    gameId: gameId,
+    groupId: everyoneGroupId,
+    name: "Everyone",
+    ownerPlayerId: null,
+    allegianceFilter: 'none',
+    autoAdd: true,
+    autoRemove: false,
+    membersCanAdd: false,
+    membersCanRemove: false,
+  });
+  server.createChatRoom({
+    gameId: gameId,
+    chatRoomId: everyoneChatRoomId,
+    groupId: everyoneGroupId,
+    name: "Global Chat",
+    withAdmins: false
+  });
+
   var resistanceGroupId = server.idGenerator.newGroupId('resistance');
   server.createGroup({groupId: resistanceGroupId, name: "Resistance", gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
   var resistanceChatRoomId = server.idGenerator.newChatRoomId();
@@ -273,9 +294,9 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.addMission({
     missionId: firstMissionId,
     gameId: gameId,
-    begin: new Date().getTime() - 10 * 1000,
-    end: new Date().getTime() + 60 * 60 * 1000,
-    name: "first mission!",
+    beginTime: new Date().getTime() - 10 * 1000,
+    endTime: new Date().getTime() + 60 * 60 * 1000,
+    name: "first human mission!",
     detailsHtml: HUMAN_MISSION_HTML,
     groupId: resistanceGroupId
   });
@@ -283,15 +304,22 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.addMission({
     missionId: secondMissionId,
     gameId: gameId,
-    begin: new Date().getTime() - 10 * 1000,
-    end: new Date().getTime() + 60 * 60 * 1000,
-    name: "second mission!",
+    beginTime: new Date().getTime() - 10 * 1000,
+    endTime: new Date().getTime() + 60 * 60 * 1000,
+    name: "first zed mission!",
     detailsHtml: ZOMBIE_MISSION_HTML,
     groupId: hordeGroupId
   });
 
   var rewardCategoryId = server.idGenerator.newRewardCategoryId();
-  server.addRewardCategory({rewardCategoryId: rewardCategoryId, gameId: gameId, name: "signed up!", points: 2, seed: "derp", limitPerPlayer: 1});
+  server.addRewardCategory({
+    rewardCategoryId: rewardCategoryId,
+    gameId: gameId,
+    name: "signed up!",
+    points: 2,
+    shortName: "signed",
+    limitPerPlayer: 1
+  });
   server.addReward({
     gameId: gameId,
     rewardId: server.idGenerator.newRewardId(),
@@ -306,7 +334,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
     rewardCode: "flarklebark",
   });
   for (let i = 0; i < 80; i++) {
-    server.addGun({gunId: "gun-" + 1404 + i});
+    server.addGun({gameId: gameId, gunId: server.idGenerator.newGunId(), label: "" + (1404 + i)});
   }
   // let mission1AlertNotificationCategoryId = server.idGenerator.newNotificationCategoryId();
   // server.addNotificationCategory({notificationCategoryId: mission1AlertNotificationCategoryId, gameId: gameId, name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});

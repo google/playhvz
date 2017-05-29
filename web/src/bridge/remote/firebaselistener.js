@@ -13,7 +13,7 @@ const PRIVATE_PLAYER_COLLECTIONS = ["lives", "chatRooms", "missions"];
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
 const GAME_PROPERTIES = ["active", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
-const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
+const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
 const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
 const QUIZ_QUESTION_COLLECTIONS = ["answers"];
 const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order"];
@@ -32,7 +32,7 @@ const PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
 const PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
 const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
 const MESSAGE_COLLECTIONS = [];
-const MISSION_PROPERTIES = ["gameId", "name", "begin", "end", "detailsHtml", "groupId"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId"];
 const MISSION_COLLECTIONS = [];
 const ADMIN_PROPERTIES = ["userId"];
 const ADMIN_COLLECTIONS = [];
@@ -50,9 +50,9 @@ const INFECTION_PROPERTIES = ["time", "infectorId"];
 const INFECTION_COLLECTIONS = [];
 const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "notificationCategoryId", "seenTime", "sound", "vibrate", "app", "email", "destination"];
 const NOTIFICATION_COLLECTIONS = [];
-const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "seed", "claimed", "gameId", "limitPerPlayer"];
+const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "shortName", "claimed", "gameId", "limitPerPlayer"];
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
-const REWARD_PROPERTIES = ["playerId", "code"];
+const REWARD_PROPERTIES = ["gameId", "rewardCategoryId", "playerId", "code"];
 const REWARD_COLLECTIONS = [];
 
 // This class's job is to listen to firebase, and send batches of updates
@@ -135,8 +135,7 @@ class FirebaseListener {
   }
   listenToDatabase(destination) {
     this.destination.addDestination(destination);
-    // Set up the initial structure. Gotta have a games, users, and guns array.
-    this.writer.set(this.reader.getGunPath(null), []);
+    // Set up the initial structure. Gotta have a games, users array.
     this.writer.set(this.reader.getGamePath(null), []);
     this.writer.set(this.reader.getUserPath(null), []);
     assert(this.reader.source.source.games);
@@ -154,7 +153,7 @@ class FirebaseListener {
     });
     collectionRef.on("child_changed", (change) => {
       if (properties.includes(change.getKey())) {
-        setCallback(change.getKey(), change.val());
+          setCallback(change.getKey(), change.val());
       } else {
         assert(
             ignored.includes(change.getKey()),
@@ -163,7 +162,7 @@ class FirebaseListener {
     });
     collectionRef.on("child_removed", (change) => {
       if (properties.includes(change.getKey())) {
-        setCallback(change.getKey(), null);
+        // Do nothing, this means the containing thing is about to disappear too, hopefully
       } else {
         assert(
             ignored.includes(change.getKey()),
@@ -225,8 +224,6 @@ class FirebaseListener {
               });
           this.firebaseRoot.child(`users/${userId}/players`)
               .on("child_added", (snap) => this.listenToUserPlayer_(userId, snap.getKey()));
-          this.firebaseRoot.child(`guns`)
-              .on("child_added", (snap) => this.listenToGun_(snap.getKey()));
           this.firebaseRoot.child(`games`)
               .on("child_added", (snap) => this.listenToGameShallow_(snap.getKey()));
           return userId;
@@ -254,15 +251,15 @@ class FirebaseListener {
           });
     });
   }
-  listenToGun_(gunId) {
+  listenToGun_(gameId, gunId) {
     this.listenOnce_(`guns/${gunId}`).then((snap) => {
       let gunId = snap.getKey();
       let obj = new Model.Gun(gunId, snap.val());
-      this.writer.insert(this.reader.getGunPath(null), null, obj);
+      this.writer.insert(this.reader.getGunPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS.concat(["a"]),
           (property, value) => {
-            this.writer.set(this.reader.getGunPath(gunId).concat([property]), value);
+            this.writer.set(this.reader.getGunPath(gameId, gunId).concat([property]), value);
           });
     });
   }
@@ -297,6 +294,8 @@ class FirebaseListener {
 
   listenToGamePublic_(gameId) {
     this.writer.set(this.reader.getGamePath(gameId).concat(["loaded"]), true);
+    this.firebaseRoot.child(`games/${gameId}/guns`)
+        .on("child_added", (snap) => this.listenToGun_(gameId, snap.getKey()));
     this.firebaseRoot.child(`games/${gameId}/quizQuestions`)
         .on("child_added", (snap) => this.listenToQuizQuestion_(gameId, snap.getKey()));
   }
@@ -305,6 +304,14 @@ class FirebaseListener {
     this.listenToGamePublic_(gameId);
     this.firebaseRoot.child(`games/${gameId}/missions`)
         .on("child_added", (snap) => this.listenToMission_(gameId, snap.getKey()));
+    this.firebaseRoot.child(`games/${gameId}/missions`)
+        .on("child_removed", (snap) => {
+          let missionId = snap.getKey();
+          let path = this.reader.getMissionPath(gameId, missionId);
+          let index = path[path.length - 1];
+          path = path.slice(0, path.length - 1);
+          this.writer.remove(path, index, missionId);
+        });
     this.firebaseRoot.child(`games/${gameId}/players`)
         .on("child_added", (snap) => this.listenToPlayerPrivate_(gameId, snap.getKey()));
     this.firebaseRoot.child(`games/${gameId}/groups`)
@@ -638,8 +645,9 @@ class FirebaseListener {
   }
 
   listenToReward_(gameId, rewardCategoryId, rewardId) {
-    this.listenOnce_(`/rewardCategories/${rewardCategoryId}/rewards/${rewardId}`).then((snap) => {
+    this.listenOnce_(`/rewards/${rewardId}`).then((snap) => {
       let obj = new Model.Reward(rewardId, snap.val());
+      console.log(snap.val(), obj);
       this.writer.insert(this.reader.getRewardPath(gameId, rewardCategoryId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,

@@ -1,119 +1,128 @@
 <dom-module id="ghvz-claim-reward">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-claim-reward',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-claim-reward',
 
-        properties: {
-          bridge: Object,
-          playerId: String,
-          gameId: String,
-          rewardCode: String,
-          requesting: {
-            type: Boolean,
-            value: false,
-          },
-          claimedRewardCategory: {
-            type: Object,
-            value: null,
-          },
+      properties: {
+        bridge: Object,
+        player: Object,
+        game: Object,
+        rewardCode: String,
+        requesting: {
+          type: Boolean,
+          value: false,
         },
+        claimedRewardCategoryId: {
+          type: String,
+        },
+        claimedRewardCategory: {
+          type: Object,
+          value: null,
+        },
+      },
 
-        computeButtonEnabled_: function(rewardCode, requesting) {
-          return !!rewardCode && !requesting;
-        },
+      computeButtonEnabled_: function(rewardCode, requesting) {
+        return !!rewardCode && !requesting;
+      },
 
-        reset_: function() {
-          this.rewardCode = "";
-          this.requesting = false;
-          this.claimedRewardCategory = null;
-        },
+      reset_: function() {
+        this.rewardCode = "";
+        this.requesting = false;
+        this.claimedRewardCategory = null;
+      },
 
-        claim_: function() {
-          this.requesting = true;
-          this.bridge.claimReward({
-              gameId: this.gameId,
-              playerId: this.playerId,
-              code: this.rewardCode,
-          }).then(
-              (rewardCategory) => {
-                this.claimedRewardCategory = rewardCategory;
-                this.requesting = false;
-              },
-              (error) => {
-                alert('Error claiming reward: '+ error);
-                this.reset_();
-              });
-        },
-      });
+      claim_: function() {
+        this.requesting = true;
+        this.bridge.claimReward({
+          gameId: this.game.id,
+          playerId: this.player.id,
+          rewardCode: this.rewardCode,
+        }).then(
+            (rewardCategoryId) => {
+              this.claimedRewardCategoryId = rewardCategoryId;
+              this.requesting = false;
+            },
+            (error) => {
+              alert('Error claiming reward: '+ error);
+              this.reset_();
+            });
+      },
     });
-  </script>
+  });
+</script>
 
-  <template>
-    <style include="iron-flex iron-flex-alignment">
-      :host {
-        display: block;
-      }
-      paper-input {
-        padding: 0 16px 16px 16px;
-      }
-      paper-button {
-        background-color: #03A9F4;
-        color: white;
-        font-weight: bold;
-        display: block;
-        text-align: center;
-        margin: 0;
-      }
-      #claiming,
-      #claimed {
-        display: flex;
-      }
-      #claiming paper-input,
-      #claimedMessage {
-        flex: 1;
-      }
-      #claimedMessage {
-        margin: 16px;
-      }
-      #claimContainer,
-      #doneContainer {
-        flex: 0;
-        display: flex;
-        align-items: center;
-        margin: 8px 16px 8px 0;
-      }
-    </style>
-    <div id="claiming" hidden$="[[claimedRewardCategory]]">
-      <paper-input
-          label="Reward code"
-          value="{{rewardCode}}">
-      </paper-input>
-      <div id="claimContainer">
-        <paper-button
-            id="claim"
-            raised
-            disabled="[[!computeButtonEnabled_(rewardCode, requesting)]]"
-            on-tap="claim_">
-          Claim!
-        </paper-button>
-      </div>
+<style include="iron-flex iron-flex-alignment">
+  :host {
+    display: block;
+  }
+  paper-input {
+    padding: 0 16px 16px 16px;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    margin: 0;
+  }
+  #claiming,
+  #claimed {
+    display: flex;
+  }
+  #claiming paper-input,
+  #claimedMessage {
+    flex: 1;
+  }
+  #claimedMessage {
+    margin: 16px;
+  }
+  #claimContainer,
+  #doneContainer {
+    flex: 0;
+    display: flex;
+    align-items: center;
+    margin: 8px 16px 8px 0;
+  }
+</style>
+<template>
+  <ghvz-reward-category-selector
+      game="[[game]]"
+      reward-category-id="[[claimedRewardCategoryId]]"
+      reward-category="{{claimedRewardCategory}}">
+  </ghvz-reward-category-selector>
+
+  <div id="claiming" hidden$="[[claimedRewardCategory]]">
+    <paper-input
+        label="Reward code"
+        value="{{rewardCode}}">
+    </paper-input>
+    <div id="claimContainer">
+      <paper-button
+          id="claim"
+          raised
+          disabled="[[!computeButtonEnabled_(rewardCode, requesting)]]"
+          on-tap="claim_">
+        Claim!
+      </paper-button>
     </div>
-    <div id="claimed" hidden$="[[!claimedRewardCategory]]">
-      <div id="claimedMessage">
-        Congratulations, you've claimed the reward <b>[[claimedRewardCategory.name]]</b>!
-      </div>
-      <div id="doneContainer">
-        <paper-button
-            id="done"
-            raised
-            on-tap="reset_">
-          Done
-        </paper-button>
-      </div>
+  </div>
+  <div id="claimed" hidden$="[[!claimedRewardCategory]]">
+    <div id="claimedMessage">
+      Congratulations, you've claimed the reward <b>[[claimedRewardCategory.name]]</b>!
     </div>
-  </template>
+    <div id="doneContainer">
+      <paper-button
+          id="done"
+          raised
+          on-tap="reset_">
+        Done
+      </paper-button>
+    </div>
+  </div>
+</template>
 </dom-module>

@@ -1,40 +1,46 @@
 
 <dom-module id="ghvz-mission">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-mission',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-mission',
 
-        properties: {
-          bridge: Object,
+      properties: {
+        bridge: Object,
 
-          gameId: String,
+        game: Object,
 
-          playerId: String,
+        missionId: String,
 
-          mission: String,
+        mission: Object,
+      },
 
-          response: Object,
-        },
+      observers: [
+        'onMissionIdChanged_(game, missionId)',
+        'onMissionHtmlChanged(mission.detailsHtml)',
+      ],
 
-        observers: ['onMissionHtmlChanged(mission.detailsHtml)'],
+      onMissionIdChanged_() {
+        this.$.selector.select(this.game.missionsById[this.missionId]);
+      },
 
-        onMissionHtmlChanged(detailsHtml) {
-          this.$.mission.innerHTML = detailsHtml;
-        }
-      });
-    });
-  </script>
-  <template>
-    <style>
-      :host {
-        display: block;
-        margin: 16px;
+      onMissionHtmlChanged(detailsHtml) {
+        this.$.mission.innerHTML = detailsHtml;
       }
-    </style>
-    <div id="mission"></div>
-  </template>
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    margin: 16px;
+  }
+</style>
+<template>
+  <array-selector id="selector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
+  <div id="mission"></div>
+</template>
 </dom-module>

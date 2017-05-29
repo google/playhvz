@@ -30,6 +30,8 @@ try:
 
   driver.FindElement([[By.TAG_NAME, 'ghvz-rules']])
 
+  driver.FindElement([[By.NAME, 'ChatRoom: Global Chat']])
+  
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
   driver.ExpectContains(
@@ -38,7 +40,7 @@ try:
 
   driver.ExpectContains(
       [[By.NAME, 'Leaderboard Allegiance Cell Reggie the Ravager']],
-      'none')
+      'undeclared')
 
   driver.ExpectContains(
       [[By.NAME, 'Leaderboard Points Cell Reggie the Ravager']],

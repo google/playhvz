@@ -39,8 +39,8 @@
                 name: "Points",
               },
               {
-                property: "seed",
-                name: "Seed",
+                property: "shortName",
+                name: "Short Name",
               },
               {
                 property: "claimed",
@@ -75,8 +75,8 @@
                 width: "half",
               },
               {
-                property: "seed",
-                label: "Seed",
+                property: "shortName",
+                label: "Short Name",
                 width: "half",
                 description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
               },
@@ -146,7 +146,7 @@
 
         addRewards_() {
           this.bridge.addRewards({
-            // gameId: this.gameId,
+            gameId: this.gameId,
             rewardCategoryId: this.currentRewardCategory.id,
             count: +this.numNewRewards,
           });
@@ -239,7 +239,7 @@
           <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
           <div class="cell">[[category.name]]</div>
           <div class="cell">[[category.points]]</div>
-          <div class="cell">[[category.seed]]</div>
+          <div class="cell">[[category.shortName]]</div>
           <div class="cell">[[computeNumClaimed_(category)]] / [[category.rewards.length]]</div>
         </div>
       </template>

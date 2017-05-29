@@ -19,13 +19,6 @@ class PathFindingReader {
     }
     return path;
   }
-  getGunPath(gunId) {
-    assert(typeof gunId == 'string' || gunId == null);
-    let path = ["guns"];
-    if (gunId)
-      path = path.concat([Utils.findIndexById(this.get(path), gunId)]);
-    return path;
-  }
   getUserPath(userId) {
     assert(typeof userId == 'string' || userId == null);
     let path = ["users"];
@@ -39,6 +32,14 @@ class PathFindingReader {
     let path = this.getUserPath(userId).concat(["players"]);
     if (userPlayerId)
       path = path.concat([Utils.findIndexById(this.get(path), userPlayerId)]);
+    return path;
+  }
+  getGunPath(gameId, gunId) {
+    assert(gameId);
+    assert(typeof gunId == 'string' || gunId == null);
+    let path = this.getGamePath(gameId).concat(["guns"]);
+    if (gunId)
+      path = path.concat([Utils.findIndexById(this.get(path), gunId)]);
     return path;
   }
   getQuizQuestionPath(gameId, quizQuestionId) {

@@ -117,7 +117,8 @@ class EndToEndTest(unittest.TestCase):
       'name': 'test Game',
       'rulesHtml': 'test rules',
       'stunTimer': 10,
-      'active': True
+      'active': True,
+      'started': False,
     }
     update = {
       'gameId': self.Id('gameId'),
@@ -297,8 +298,8 @@ class EndToEndTest(unittest.TestCase):
     self.AssertFails('removePlayerFromGroup', update)
 
     # Create and assign guns
-    create = {'gunId': self.Id('gunId'), 'label': "1404"}
-    update = {'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
+    create = {'gameId': self.Id('gameId'), 'gunId': self.Id('gunId'), 'label': "1404"}
+    update = {'gameId': self.Id('gameId'), 'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
 
     create = {

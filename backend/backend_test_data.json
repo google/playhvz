@@ -25,6 +25,9 @@
         "group-%(ident)s-1": true,
         "group-%(ident)s-2": true
       },
+      "guns": {
+        "gun-%(ident)s-1": true
+      },
       "chatRooms": {"chatRoom-%(ident)s-1": true},
       "missions": {"mission-%(ident)s-1": true},
       "rewardCategories": {
@@ -39,7 +42,8 @@
         "player-%(ident)s-5": true
       },
       "rulesHtml": "test rule",
-      "stunTimer": 5
+      "stunTimer": 5,
+      "started": false
     }
   },
   "groups": {
@@ -76,6 +80,7 @@
   },
   "guns": {
     "gun-%(ident)s-1": {
+      "gameId": "game-%(ident)s-1",
       "playerId": "player-%(ident)s-1",
       "label": "1404"
     }
@@ -94,7 +99,7 @@
     "player-%(ident)s-1": {
       "active": false,
       "number": 101,
-      "allegiance": "none",
+      "allegiance": "undeclared",
       "claims": {
         "reward-%(ident)s-1": {
           "rewardCategoryId": "rewardCategory-%(ident)s-1",
@@ -109,24 +114,24 @@
     "player-%(ident)s-2": {
       "active": false,
       "number": 102,
-      "allegiance": "none",
+      "allegiance": "undeclared",
       "name": "test Bobby",
       "points": 0,
       "profileImageUrl": "http://jpg",
       "userId": "user-%(ident)s-2"
     },
     "player-%(ident)s-3": {
-      "allegiance": "none",
+      "allegiance": "undeclared",
       "active": false, "number": 103, "name": "test Bobby",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
     },
     "player-%(ident)s-4": {
-      "allegiance": "none",
+      "allegiance": "undeclared",
       "active": false, "number": 104, "name": "test Bobby",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-4"
     },
     "player-%(ident)s-5": {
-      "allegiance": "none",
+      "allegiance": "undeclared",
       "active": false, "number": 105, "name": "test Bobby",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-5"
     }

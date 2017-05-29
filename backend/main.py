@@ -79,6 +79,7 @@ methods = {
   'assignGun': api_calls.AssignGun,
   'updatePlayer': api_calls.UpdatePlayer,
   'addMission': api_calls.AddMission,
+  'deleteMission': api_calls.DeleteMission,
   'updateMission': api_calls.UpdateMission,
   'createChatRoom': api_calls.AddChatRoom,
   'updateChatRoom': api_calls.UpdateChatRoom,

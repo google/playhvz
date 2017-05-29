@@ -17,7 +17,6 @@ class FakeServer {
 
     this.timeOffset = 0;
 
-    this.writer.set(this.reader.getGunPath(null), []);
     this.writer.set(this.reader.getGamePath(null), []);
     this.writer.set(this.reader.getUserPath(null), []);
 
@@ -81,7 +80,7 @@ class FakeServer {
         this.reader.getPlayerPath(gameId, null),
         null,
         new Model.Player(playerId, Utils.merge(args, {
-            allegiance: 'none',
+            allegiance: 'undeclared',
             userId: userId,
             canInfect: false,
             points: 0,
@@ -94,6 +93,7 @@ class FakeServer {
             gameId: gameId,
             playerId: playerId
         }));
+    this.updateMembershipsOnAllegianceChange(playerId);
   }
   createGroup(args) {
     let {gameId, groupId} = args;
@@ -161,7 +161,7 @@ class FakeServer {
     if (existingMembership)
       return;
 
-    if (group.allegianceFilter && group.allegianceFilter != player.allegiance)
+    if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance)
       throw 'Player does not satisfy this group\'s allegiance filter!';
 
     this.writer.insert(
@@ -305,6 +305,14 @@ class FakeServer {
       this.writer.set(missionPath.concat([argName]), args[argName]);
     }
   }
+  deleteMission(args) {
+    let {gameId, missionId} = args;
+    let missionPath = this.reader.getMissionPath(gameId, missionId);
+    this.writer.remove(
+        missionPath.slice(0, missionPath.length - 1),
+        missionPath.slice(-1)[0], // index
+        missionId);
+  }
   addRewardCategory(args) {
     let {rewardCategoryId, gameId} = args;
     this.writer.insert(
@@ -375,14 +383,31 @@ class FakeServer {
     }
   }
   addGun(args) {
-    let properties = Utils.copyOf(args);
-    properties.id = args.gunId;
-    delete properties.gunId;
-    properties.playerId = null;
+    let {gunId, gameId, label} = args;
+    let properties = {
+      id: gunId,
+      label: label,
+      playerId: null,
+    };
     this.writer.insert(
-        this.reader.getGunPath(null),
+        this.reader.getGunPath(gameId, null),
         null,
         properties);
+  }
+  editGun(args) {
+    let {gameId, gunId} = args;
+    delete args.gameId;
+    delete args.gunId;
+    for (let argName in args) {
+      this.writer.set(
+          this.reader.getGunPath(gameId, gunId).concat([argName]),
+          args[argName]);
+    }
+  }
+  assignGun(args) {
+    let {gameId, gunId, playerId} = args;
+    let gunPath = this.reader.getGunPath(gameId, gunId);
+    this.writer.set(gunPath.concat(["playerId"]), playerId);
   }
   claimReward({gameId, playerId, rewardCode}) {
     assert(typeof rewardCode == 'string');
@@ -415,11 +440,6 @@ class FakeServer {
     }
     assert(false);
   }
-  assignGun(args) {
-    let {gunId, playerId} = args;
-    let gunPath = this.reader.getGunPath(gunId);
-    this.writer.set(gunPath.concat(["playerId"]), playerId);
-  }
   selfInfect(args) {
     let {playerId} = args;
     this.setPlayerZombie(playerId);
@@ -429,7 +449,7 @@ class FakeServer {
 
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let player = this.reader.get(this.reader.getPlayerPath(gameId, playerId));
-    assert(player.allegiance == 'none');
+    assert(player.allegiance == 'undeclared');
 
     this.addLife({
       lifeId: this.idGenerator.newLifeId(),
@@ -442,30 +462,31 @@ class FakeServer {
     let {playerId} = args;
     this.setPlayerZombie(playerId);
   }
-  autoRemovePlayerFromGroups_(playerId) {
-    let gameId = this.reader.getGameIdForPlayerId(playerId);
-    let game = this.database.gamesById[gameId];
-    let player = game.playersById[playerId];
-    for (let group of this.database.gamesById[gameId].groups) {
-      if (group.autoRemove) {
-        if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
-          this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
-        }
-      }
-    }
-  }
-  autoAddPlayerToGroups_(playerId) {
-    let gameId = this.reader.getGameIdForPlayerId(playerId);
-    let game = this.database.gamesById[gameId];
-    let player = game.playersById[playerId];
-    for (let group of this.database.gamesById[gameId].groups) {
-      if (group.autoAdd) {
-        if (!group.allegianceFilter || group.allegianceFilter == player.allegiance) {
-          this.addPlayerToGroup({groupId: group.id, otherPlayerId: playerId});
-        }
-      }
-    }
-  }
+  // autoRemovePlayerFromGroups_(playerId) {
+  //   let gameId = this.reader.getGameIdForPlayerId(playerId);
+  //   let game = this.database.gamesById[gameId];
+  //   let player = game.playersById[playerId];
+  //   for (let group of this.database.gamesById[gameId].groups) {
+  //     if (group.autoRemove) {
+  //       if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
+  //         this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
+  //       }
+  //     }
+  //   }
+  // }
+  // autoAddPlayerToGroups_(playerId) {
+  //   let gameId = this.reader.getGameIdForPlayerId(playerId);
+  //   let game = this.database.gamesById[gameId];
+  //   let player = game.playersById[playerId];
+  //   for (let group of this.database.gamesById[gameId].groups) {
+  //     if (group.autoAdd) {
+  //       console.log('considering', group.name, group.autoAdd, group.allegianceFilter, player.name, player.allegianceFilter);
+  //       if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
+  //         this.addPlayerToGroup({groupId: group.id, otherPlayerId: playerId});
+  //       }
+  //     }
+  //   }
+  // }
   updateMembershipsOnAllegianceChange(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let game = this.database.gamesById[gameId];
@@ -473,7 +494,7 @@ class FakeServer {
 
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoRemove) {
-        if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
+        if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
           if (group.memberships.find(m => m.playerId == playerId)) {
             this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
           }
@@ -482,8 +503,12 @@ class FakeServer {
     }
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoAdd) {
-        if (!group.allegianceFilter || group.allegianceFilter == player.allegiance) {
+        console.log('considering', group.name, group.autoAdd, group.allegianceFilter, player.name, player.allegiance);
+        if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
+          console.log('adding');
           this.addPlayerToGroup({gameId: gameId, groupId: group.id, otherPlayerId: playerId});
+        } else {
+          console.log('not adding');
         }
       }
     }

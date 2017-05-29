@@ -50,10 +50,12 @@
                 gameId = 'game-' + properties.id;
               let trimmedGameId = gameId.slice('game-'.length);
               
+              let everyoneGroupId = this.bridge.newGroupId('everyone');
+              let everyoneChatRoomId = this.bridge.newChatRoomId('everyone');
               var resistanceGroupId = this.bridge.newGroupId('resistance');
-              var resistanceChatRoomId = this.bridge.newChatRoomId();
+              var resistanceChatRoomId = this.bridge.newChatRoomId('resistance');
               var hordeGroupId = this.bridge.newGroupId('horde');
-              var hordeChatRoomId = this.bridge.newChatRoomId();
+              var hordeChatRoomId = this.bridge.newChatRoomId('horde');
 
               this.bridge.createGame({
                 gameId: gameId,
@@ -63,6 +65,24 @@
                 rulesHtml: '',
                 name: properties.name,
                 started: false,
+              });
+              this.bridge.createGroup({
+                gameId: gameId,
+                groupId: everyoneGroupId,
+                name: "Everyone",
+                ownerPlayerId: null,
+                allegianceFilter: 'none',
+                autoAdd: true,
+                autoRemove: false,
+                membersCanAdd: false,
+                membersCanRemove: false,
+              });
+              this.bridge.createChatRoom({
+                gameId: gameId,
+                chatRoomId: everyoneChatRoomId,
+                groupId: everyoneGroupId,
+                name: "Global Chat",
+                withAdmins: false
               });
               this.bridge.createGroup({
                 gameId: gameId,
@@ -100,9 +120,6 @@
                 groupId: hordeGroupId,
                 name: "Horde ZedLink",
                 withAdmins: false,
-              });
-              this.fire('ghvz-select-game', {
-                gameId: gameId,
               });
               this.fire('ghvz-set-path', {
                 inGame: false,

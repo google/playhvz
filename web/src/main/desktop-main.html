@@ -52,7 +52,7 @@
         },
 
         computeCanDeclare_(allegiance) {
-          return allegiance == 'none';
+          return allegiance == 'undeclared';
         },
 
         computeIsDeclared_(allegiance) {
@@ -152,9 +152,8 @@
             <div class="header">Next Mission</div>
             <ghvz-next-mission
                 bridge="[[bridge]]"
-                missions="[[game.missions]]"
                 game="[[game]]"
-                player-d="[[player.id]]">
+                player="[[player]]">
             </ghvz-next-mission>
           </ghvz-card>
         </template>

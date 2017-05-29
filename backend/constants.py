@@ -1,7 +1,7 @@
 HUMAN = 'resistance'
 ZOMBIE = 'horde'
-NO_ALLEGIANCE = 'none'
-ALLEGIANCES = (HUMAN, ZOMBIE, NO_ALLEGIANCE)
+UNDECLARED = 'undeclared'
+ALLEGIANCES = (HUMAN, ZOMBIE, UNDECLARED)
 TEST_ENDPOINT = 'http://localhost:8080'
 PLAYER_VOLUNTEER_ARGS = (
     'advertising', 'logistics', 'communications', 'moderator',
