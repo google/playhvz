@@ -106,6 +106,10 @@
             .forEach(element => element.opened = false);
         this.suppliedOrderedAnswerIds = [];
       },
+
+      computeAnswerIndex_(answer) {
+        return this.question.answers.indexOf(answer);
+      },
     });
   });
 </script>
@@ -141,6 +145,10 @@
     background-color: #03A9F4;
     color: white;
   }
+  .button-container {
+    position: relative;
+    z-index: 1;
+  }
   #text {
     margin-bottom: 16px;
     font-weight: bold;
@@ -154,6 +162,11 @@
   }
   .button-container {
     float: right;
+  }
+  * {
+    /* This works around a mysterious polymer bug which causes buttons to disappear */
+    /* ...and also a weird bug that makes elements float over to the left of where they should be... */
+    transform: translate3d(0px, 0px, 0px);
   }
 </style>
 <template>
@@ -175,7 +188,12 @@
         <iron-collapse class="answer" opened data-answer-id$="[[answer.id]]">
           <paper-material>
             <div class="button-container">
-              <paper-button raised on-tap="onAnswerTapped_">Choose</paper-button>
+              <paper-button
+                  name$="answer[[computeAnswerIndex_(answer)]]"
+                  raised
+                  on-tap="onAnswerTapped_">
+                Choose
+              </paper-button>
             </div>
             <div class="text">
               [[answer.text]]
@@ -195,8 +213,8 @@
     </div>
   </div>
   <div>
-    <paper-button on-tap="reset_">Reset</paper-button>
-    <paper-button on-tap="confirm_" disabled="[[!isCorrect]]">Next</paper-button>
+    <paper-button name="reset" on-tap="reset_">Reset</paper-button>
+    <paper-button name="confirm" on-tap="confirm_" disabled="[[!isCorrect]]">Next</paper-button>
   </div>
   <div id="rulesHeader">
     To help you out, here are the rules:

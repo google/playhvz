@@ -48,6 +48,8 @@
               let gameId = properties.id;
               if (!gameId.startsWith('game-'))
                 gameId = 'game-' + properties.id;
+              let trimmedGameId = gameId.slice('game-'.length);
+              
               var resistanceGroupId = this.bridge.newGroupId('resistance');
               var resistanceChatRoomId = this.bridge.newChatRoomId();
               var hordeGroupId = this.bridge.newGroupId('horde');
@@ -101,8 +103,9 @@
               this.fire('ghvz-select-game', {
                 gameId: gameId,
               });
-              this.fire('ghvz-open-page', {
-                page: 'adminMain',
+              this.fire('ghvz-set-path', {
+                inGame: false,
+                path: ['game', trimmedGameId, 'adminMain'],
               });
             });
       },

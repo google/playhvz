@@ -33,12 +33,30 @@
         'ghvz-push-url': 'pushUrl_',
       },
 
-      replaceUrl_(e) {
-        window.history.replaceState({}, "", e.detail.url);
+      pushUrl_(e) {
+        this.setUrl_(false);
       },
 
-      pushUrl_(e) {
-        window.history.pushState({}, "", e.detail.url);
+      replaceUrl_(e) {
+        this.setUrl_(true);
+      },
+
+      setUrl_(replace) {
+        let queryParams = Utils.getUrlQueryParameters();
+
+        // Assemble new URL
+        let newUrl = '/' + this.$.app.path.join('/');
+        let queryString = '';
+        for (let key in queryParams) {
+          queryString += (queryString ? '&' : '?');
+          queryString += key + '=' + queryParams[key];
+        }
+        newUrl += queryString;
+
+        if (replace)
+          window.history.pushState({}, "", newUrl);
+        else
+          window.history.replaceState({}, "", newUrl);
       },
 
       attached() {
@@ -114,6 +132,8 @@
         }
         return [null, null, null];
       },
+
+      makeArray_() { return []; },
     });
   });
 </script>
@@ -126,9 +146,11 @@
 </style>
 <template>
   <ghvz-app
+      id="app"
       bridge="[[bridge]]"
       database="[[database]]"
       url="[[url]]"
+      path="[[makeArray_()]]"
       user-id="[[userId]]">
   </ghvz-app>
 </template>

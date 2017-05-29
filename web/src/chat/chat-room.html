@@ -135,7 +135,10 @@
           return;  // should we enable this?
           var playerId = e.model.item.playerId;
           if (playerId) {
-            this.fire('ghvz-open-page', {page: 'profile/' + playerId});
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['profile', playerId],
+            });
           }
         },
 

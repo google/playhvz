@@ -3,7 +3,7 @@ from driver import RetryingDriver
 from selenium.webdriver.common.by import By
 
 try:
-  driver = RetryingDriver("http://localhost:5000/createGame?user=minny&populate=none")
+  driver = RetryingDriver(user="minny", page="createGame", populate=False)
 
   # ID
   # XPATH

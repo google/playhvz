@@ -32,7 +32,52 @@
         },
       },
 
+      listeners: {
+        'ghvz-replace-url': 'replaceUrl_',
+        'ghvz-push-url': 'pushUrl_',
+      },
+
+      pushUrl_(e) {
+        this.setUrl_(false);
+      },
+
+      replaceUrl_(e) {
+        this.setUrl_(true);
+      },
+
+      setUrl_(replace) {
+        let currentPage = this.appsByUserId[this.focusedUserId];
+
+        let queryParams = Utils.getUrlQueryParameters();
+        // Update user in url to be correct
+        let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == this.focusedUserId);
+        queryParams.user = this.userOptions[focusedOptionIndex].name;
+
+        // Assemble new URL
+        let newUrl = '/' + currentPage.path.join('/');
+        let queryString = '';
+        for (let key in queryParams) {
+          queryString += (queryString ? '&' : '?');
+          queryString += key + '=' + queryParams[key];
+        }
+        newUrl += queryString;
+
+        if (replace)
+          window.history.pushState({}, "", newUrl);
+        else
+          window.history.replaceState({}, "", newUrl);
+      },
+
+      getQueryString_() {
+        let queryStringMatch = /\?(.*)/.exec(window.location.href);
+        if (queryStringMatch)
+          return queryStringMatch[1];
+        return null;
+      },
+
       attached() {
+        window.onpopstate = this.handlePopState_.bind(this);
+
         let idGenerator = new FakeIdGenerator();
 
         this.userOptions = [
@@ -59,28 +104,36 @@
           populateGame(this.bridge, FAKE_USER_IDS, populate == 'heavy');
         }
 
-        let userName = Utils.getParameterByName('user', 'zella');
-        let userOption = this.userOptions.find((option) => option.name == userName);
-        if (userOption)
-          this.loadUser_(userOption.userId);
+        this.navigateFromUrl_();
       },
 
-      // This will only read the url once.
-      // After that, will just load the main page.
-      getUrl_() {
-        if (this.alreadyReadUrl) {
-          return '';
-        } else {
-          this.alreadyReadUrl = true;
-          return window.location.pathname;
+      handlePopState_(e) {
+        this.navigateFromUrl_();
+      },
+
+      navigateFromUrl_() {
+        let userName = Utils.getParameterByName('user', 'zella');
+        let userOption = this.userOptions.find((option) => option.name == userName);
+        if (userOption) {
+          let pathString = window.location.pathname;
+          // Strip any slash at beginning or end
+          pathString = pathString.startsWith('/') ? pathString.slice(1) : pathString;
+          pathString = pathString.endsWith('/') ? pathString.slice(0, pathString.length - 1) : pathString;
+          let path = pathString ? pathString.split('/') : [];
+          this.loadUser_(userOption.userId, path);
         }
       },
 
-      loadUser_(userId) {
+      loadUserTapped_(e) {
+        this.loadUser_(e.model.option.userId, []);
+      },
+
+      loadUser_(userId, path) {
         let optionIndex = this.userOptions.findIndex((option) => option.userId == userId);
         let option = this.userOptions[optionIndex];
 
         if (option.focused) {
+          this.appsByUserId[this.focusedUserId].setPath_(path);
           return;
         }
 
@@ -92,7 +145,7 @@
         if (!option.loaded) {
           let app = document.createElement('ghvz-app');
           app.bridge = this.bridge;
-          app.url = this.getUrl_();
+          app.path = path;
           app.userId = userId;
           app.id = option.name + "App";
           this.appsByUserId[userId] = app;
@@ -100,13 +153,14 @@
         }
         this.appsByUserId[userId].style.display = 'block';
 
+        if (option.loaded) {        
+          this.appsByUserId[this.focusedUserId].setPath_(path);
+        }
         this.set('userOptions.' + optionIndex + '.loaded', true);
         this.set('userOptions.' + optionIndex + '.focused', true);
         this.focusedUserId = userId;
-      },
 
-      loadUserTapped_(e) {
-        this.loadUser_(e.model.option.userId);
+        this.setUrl_(false);
       },
 
       unloadUserTapped_(e) {

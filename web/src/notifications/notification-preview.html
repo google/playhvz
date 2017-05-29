@@ -80,8 +80,9 @@
 
         handleTap_(e) {
           if (this.destination) {
-            this.fire('ghvz-open-page', {
-              page: this.destination,
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: this.destination.split('/'),
             });
           }
         },

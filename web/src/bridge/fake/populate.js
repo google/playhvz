@@ -356,21 +356,6 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
     type: 'order',
   });
   server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
-    text: "Count to 15, then take off your armband,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
-    text: "Raise your nerf gun in the air so you're visible,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
-    text: "Start walking across the street, looking both ways for cars,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
     text: "Get within 15 feet of a crosswalk button (now you're out of play),",
     order: 0,
     isCorrect: true,
@@ -386,11 +371,6 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
     isCorrect: true,
   });
   server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
-    text: "Once you're across, count \"3 resistance, 2 resistance, 1 resistance!\" and go,",
-    order: 0,
-    isCorrect: false,
-  });
-  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
     text: "Wait until there are no more players in the crosswalk,",
     order: 3,
     isCorrect: true,
@@ -404,6 +384,26 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
     text: "When the humans go, have a zombie count \"3 zombie horde, 2 zombie horde, 1 zombie horde, go!\" and the zombies are in play,",
     order: 5,
     isCorrect: true,
+  });
+  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+    text: "Once you're across, count \"3 resistance, 2 resistance, 1 resistance!\" and go,",
+    order: 0,
+    isCorrect: false,
+  });
+  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+    text: "Count to 15, then take off your armband,",
+    order: 0,
+    isCorrect: false,
+  });
+  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+    text: "Raise your nerf gun in the air so you're visible,",
+    order: 0,
+    isCorrect: false,
+  });
+  server.addQuizAnswer({quizAnswerId: server.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+    text: "Start walking across the street, looking both ways for cars,",
+    order: 0,
+    isCorrect: false,
   });
 }
 

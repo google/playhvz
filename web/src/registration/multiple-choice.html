@@ -26,6 +26,11 @@
   .answer {
     padding: 16px;
   }
+  * {
+    /* This works around a mysterious polymer bug which causes buttons to disappear */
+    /* ...and also a weird bug that makes elements float over to the left of where they should be... */
+    transform: translate3d(0px, 0px, 0px);
+  }
 </style>
 <template>
   <div>

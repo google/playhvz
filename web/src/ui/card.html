@@ -39,14 +39,16 @@
         },
 
         openFullscreen_() {
-          this.fire('ghvz-open-page', {
-            page: this.fullscreenPage,
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: this.fullscreenPage.split('/'),
           });
         },
 
         back_() {
-          this.fire('ghvz-open-page', {
-            page: 'main',
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['main'],
           });
         },
 

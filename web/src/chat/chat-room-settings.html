@@ -102,8 +102,9 @@
             name: name,
             withAdmins: false,
           }).then(() => {
-            this.fire('ghvz-open-page', {
-              page: this.computeChatPage_(chatRoomId),
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', chatRoomId],
             });
           });
         },

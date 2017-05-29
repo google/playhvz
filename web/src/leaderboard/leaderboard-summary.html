@@ -25,7 +25,7 @@
       computePlayerList_() {
         // commented out because it changes the model
         return this.players//.sort((p1, p2) => p2.points - p1.points)
-          .slice(0, this.numToShow || players.length);
+          .slice(0, this.numToShow || this.players.length);
       },
       makeTableBlueprint_: function() {
         return {
@@ -77,9 +77,21 @@
     <template is="dom-repeat" id="repeater" items="[[computedPlayerList]]" as="player" initial-count="1" target-framerate="5">
       <div class="row">
         <ghvz-table-control-cell item="[[player]]"></ghvz-table-control-cell>
-        <div class="cell">[[player.name]]</div>
-        <div class="cell">[[player.allegiance]]</div>
-        <div class="cell">[[player.points]]</div>
+        <div
+            name$="Leaderboard Name Cell [[player.name]]"
+            class="cell">
+          [[player.name]]
+        </div>
+        <div
+            name$="Leaderboard Allegiance Cell [[player.name]]"
+            class="cell">
+          [[player.allegiance]]
+        </div>
+        <div
+            name$="Leaderboard Points Cell [[player.name]]"
+            class="cell">
+          [[player.points]]
+        </div>
       </div>
     </template>
   </ghvz-table>

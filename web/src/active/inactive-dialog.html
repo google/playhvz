@@ -50,8 +50,9 @@
         if (dialog) {
           dialog.close();
         }
-        this.fire('ghvz-open-page', {
-          page: 'faq',
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: ['faq'],
         });
       }
     });

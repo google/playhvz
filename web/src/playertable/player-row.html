@@ -35,8 +35,9 @@
               !e.detail.sourceEvent.altKey) {
             e.stopPropagation();
             e.preventDefault();
-            this.fire('ghvz-open-page', {
-              page: 'profile/' + this.player.id,
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['profile', this.player.id],
             });
           }
         },

@@ -44,7 +44,10 @@
               this.leaveChat_();
               break;
             case 'profile':
-              this.fire('ghvz-open-page', {page: 'profile/' + playerId});
+              this.fire('ghvz-set-path', {
+                inGame: true,
+                path: ['profile', playerId],
+              });
               break;
             case 'ping':
               console.log(action);

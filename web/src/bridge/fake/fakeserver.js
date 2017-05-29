@@ -525,13 +525,12 @@ class FakeServer {
     }
   }
   infect(args) {
-    let {infectionId, playerId, victimLifeCode, victimPlayerId, gameId} = args;
-    let infectorPlayerId = playerId;
+    let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId, gameId} = args;
     let victimPlayer = this.findPlayerByIdOrLifeCode_(gameId, victimPlayerId, victimLifeCode);
     let infectorPlayerPath = this.reader.getPlayerPath(gameId, infectorPlayerId);
     this.writer.set(
         this.reader.getPlayerPath(gameId, infectorPlayerId).concat(["points"]),
-        this.reader.get(infectorPlayerPath.concat(["points"])) + 2);
+        this.reader.get(infectorPlayerPath.concat(["points"])) + 100);
     let victimPlayerPath = this.reader.getPlayerPath(gameId, victimPlayer.id);
     this.writer.insert(
         victimPlayerPath.concat(["infections"]),

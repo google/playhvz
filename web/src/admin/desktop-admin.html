@@ -13,40 +13,6 @@
           database: Object,
           user: String,
           game: String,
-          player: Object,
-
-          isPlayer: {
-            type: Boolean,
-            computed: 'computeIsPlayer_(player)',
-          },
-
-          canJoinGame: {
-            type: Boolean,
-            computed: 'computeCanJoinGame_(game, player)',
-          },
-
-          canSelfInfect: {
-            type: Boolean,
-            computed: 'computeCanSelfInfect_(player.allegiance)',
-          },
-        },
-
-        computeCanSelfInfect_: function(allegiance) {
-          return allegiance == 'resistance';
-        },
-
-        computeCanJoinGame_(game, player) {
-          return game && !player;
-        },
-
-        computeIsPlayer_(player) {
-          return !!player;
-        },
-
-        joinGame_() {
-          this.fire('ghvz-open-page', {
-            page: 'joinGame',
-          });
         },
       });
     });
@@ -55,28 +21,6 @@
     :host {
       display: block;
       position: relative;
-    }
-    .content {
-      margin: 16px;
-    }
-    #viewControls paper-checkbox {
-      margin-left: 16px;
-    }
-    #topControls {
-      display: flex;
-      justify-content: space-between;
-      padding: 0 16px;
-      align-items: center;
-    }
-    #info {
-      display: flex;
-      justify-content: flex-end;
-      padding: 0 16px;
-      align-items: center;
-    }
-    .info {
-      margin-left: 32px;
-      text-align: center;
     }
     paper-button {
       background-color: #03A9F4;
@@ -125,16 +69,6 @@
             players-by-id="[[game.playersById]]">
         </ghv-player-table>
       </ghvz-card>
-
-      <!-- <ghvz-card spaced admin left>
-        <div class="header">Dev Tools</div>
-        <ghvz-dev-tools
-            class="content"
-            bridge="[[bridge]]"
-            game="[[game]]"
-            user="[[user]]">
-        </ghvz-dev-tools>
-      </ghvz-card> -->
 
       <ghvz-card spaced scrolling admin right>
         <div class="header">Guns</div>

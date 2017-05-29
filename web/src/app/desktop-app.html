@@ -15,25 +15,21 @@
           user: Object,
           game: Object,
           player: Object,
-          page: String,
+          path: Array,
 
           isMobile: {
             type: Boolean,
             value: false,
           },
 
-          showMainPage: {
+          showMainPage_: {
             type: Boolean,
-            value: false,
+            computed: 'computeShowMainPage_(path)',
           },
         },
 
-        observers: [
-          'onPageChanged_(page)',
-        ],
-
-        onPageChanged_: function() {
-          this.showMainPage_ = this.page.startsWith('main');
+        computeShowMainPage_(path) {
+          return path[2] == 'main';
         },
       });
     });
@@ -82,7 +78,7 @@
           game="[[game]]"
           player="[[player]]"
           player-id="[[playerId]]"
-          page="[[page]]">
+          path="[[path]]">
       </ghvz-display-page>
     </template>
   </template>

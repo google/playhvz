@@ -3,6 +3,7 @@ import time
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.webdriver.common.by import By
@@ -26,7 +27,7 @@ def Retry(callback, wait_long = False):
   for i in range(0, len(sleep_durations) + 1):
     try:
       return callback()
-    except (NoSuchElementException, AssertionError) as e:
+    except (NoSuchElementException, AssertionError, WebDriverException) as e:
       if i == len(sleep_durations):
         raise e
       else:
@@ -34,10 +35,12 @@ def Retry(callback, wait_long = False):
 
 
 class RetryingDriver:
-  def __init__(self, user = "zella", page = ""):
+  def __init__(self, user = "zella", page = "", populate = True):
     self.driver = webdriver.Chrome()
     self.user = user
     url = "http://localhost:5000/%s?user=%s" % (page, user)
+    if not populate:
+      url = url + '&populate=none'
     self.driver.get(url)
 
     self.FindElementInner([[By.ID, 'root']], wait_long=True)

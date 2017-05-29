@@ -9,6 +9,12 @@ try:
 
   driver.SwitchUser("drake")
 
+  driver.Click([[By.NAME, 'drawerProfile']])
+
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
+
+  driver.Click([[By.NAME, 'drawerDashboard']])
+
   driver.SendKeys(
       [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
       'grobble forgbobbly')
@@ -19,11 +25,18 @@ try:
       [[By.ID, 'victimName']],
       'Jack Slayer the Bean Slasher')
 
+  driver.Click([[By.NAME, 'drawerProfile']])
+
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
+
   driver.SwitchUser("jack")
 
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
   driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
+  
+  driver.Click([[By.NAME, 'drawerProfile']])
+
 
 finally:
   # driver.Quit()

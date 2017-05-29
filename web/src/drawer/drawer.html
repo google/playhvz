@@ -53,9 +53,11 @@
       captureTap_(e) {
         if (e.target.classList.contains('drawer-item')) {
           let page = e.target.dataset.page;
+          assert(page);
           this.fire('ghvz-close-drawer');
-          this.fire('ghvz-open-page', {
-            page: page,
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: [page],
           });
           e.preventDefault();
           e.stopPropagation();
@@ -195,12 +197,12 @@
 
     <template is="dom-if" if="[[isPlayer]]">
       <div id="playerPages" class="drawer-section">
-        <a href="javascript:void(0)" data-page="main" class="drawer-item">
+        <a href="javascript:void(0)" data-page="main" class="drawer-item" name="drawerDashboard">
           <iron-icon icon="icons:dashboard"></iron-icon>
           Dashboard
         </a>
 
-        <a href="javascript:void(0)" data-page="profile" class="drawer-item">
+        <a href="javascript:void(0)" data-page="profile" class="drawer-item" name="drawerProfile">
           <iron-icon icon="icons:account-box"></iron-icon>
           My Profile
         </a>
@@ -216,7 +218,7 @@
           <iron-icon icon="icons:group-work"></iron-icon>
           Missions
         </a>
-        <a href="javascript:void(0)" data-page="leaderboard" class="drawer-item">
+        <a href="javascript:void(0)" data-page="leaderboard" class="drawer-item" name="drawerLeaderboard">
           <iron-icon icon="social:group"></iron-icon>
           Leaderboard
         </a>

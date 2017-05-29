@@ -54,8 +54,9 @@
         },
 
         joinGame_() {
-          this.fire('ghvz-open-page', {
-            page: 'joinGame',
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['joinGame'],
           });
         },
       });
@@ -99,7 +100,7 @@
       <template is="dom-if" if="[[canJoinGame]]">
         <ghvz-card spaced full padded>
           <div class="header">Join Game</div>
-          <paper-button raised on-tap="joinGame_">Join Game!</paper-button>
+          <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
         </ghvz-card>
       </template>
 

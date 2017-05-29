@@ -79,9 +79,9 @@
             if (this.game.chatRooms.length > 0) {
               this.async(() => {
                 chatRoomId = this.game.chatRooms[0].id;
-                var page = "chat/" + chatRoomId;
-                this.fire('ghvz-open-page', {
-                  page: page,
+                this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['chat', chatRoomId],
                 });
               });
             }

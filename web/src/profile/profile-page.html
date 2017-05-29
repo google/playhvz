@@ -16,15 +16,15 @@
         game: String,
         playerId: String,
         player: Object,
-        page: String,
+        path: Array,
         lifeCode: {
           type: String,
           computed: 'computeLifeCode_(player.allegiance, player.lives.length)',
         }
       },
 
-       observers: [
-        'onPageChanged_(page, game)',
+      observers: [
+        'onPathChanged_(path, game)',
         'onPlayerChanged_(player)',
         'onPlayerIdChanged_(playerId, game.playersById)',
       ],
@@ -49,15 +49,20 @@
         this.$.playerSelector.select(this.game.playersById[this.playerId]);
       },
 
-      onPageChanged_() {
-        if (!this.page.startsWith('profile')) {
-          return;
-        }
-        this.playerId = this.page.includes('/') ? this.page.split('/')[1] : "";
-        if (!this.playerId) {
-          this.playerId = this.currentPlayerId;
-          var page = "profile/" + this.playerId;
-          this.fire('ghvz-open-page', {page: page});
+      onPathChanged_() {
+        if (this.path[this.path.length - 1] == 'profile') {
+          // Async because sometimes we're already reacting to a ghvz-set-path when we get here
+          this.async(() => {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              replace: true,
+              path: ['profile', this.currentPlayerId],
+            });
+          });
+        } else if (this.path[this.path.length - 2] == 'profile') {
+          this.playerId = this.path[this.path.length - 1];
+        } else {
+          // do nothing
         }
       },
 
@@ -171,7 +176,7 @@
     <div class$="[[getAliveStatusClass_(player.allegiance)]]">
       <div class="display-avatar">
         <ghvz-player-avatar 
-            large  
+            large
             game="[[game]]" 
             player-id="[[player.id]]">  
           </ghvz-player-avatar>
@@ -187,7 +192,8 @@
           </span>
         </div>
         <div class="sub-item">
-        Points: [[player.points]]
+          Points:
+          <span name="profilePoints">[[player.points]]</span>
         </div>
         <template is="dom-if" if="[[lifeCode]]">
           <div class="sub-item">

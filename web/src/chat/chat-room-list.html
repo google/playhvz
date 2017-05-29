@@ -37,10 +37,11 @@
         },
 
         captureTap_(e) {
-          let page = e.target.dataset.page;
-            if (page) {
-            this.fire('ghvz-open-page', {
-              page: page,
+          let chatRoomId = e.target.dataset.chatRoomId;
+          if (page) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', chatRoomId],
             });
           } else {
             let action = e.target.dataset.action;
@@ -163,7 +164,7 @@
             with-icon
             game="[[game]]"
             chat-room-id="[[membership.chatRoomId]]"
-            data-page$="[[computeChatPage_(membership.chatRoomId)]]">
+            data-chat-room-id$="[[membership.chatRoomId]]">
         </ghvz-chat-room-name-label>
       </template>
     </div>
