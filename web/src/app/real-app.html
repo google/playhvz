@@ -69,7 +69,15 @@
       },
 
       handlePopState_(e) {
-        this.$.app.handlePopState(e);
+        this.$.app.path = this.makePathFromUrl_();
+      },
+
+      makePathFromUrl_() {
+        let pathString = window.location.pathname;
+        // Strip any slash at beginning or end
+        pathString = pathString.startsWith('/') ? pathString.slice(1) : pathString;
+        pathString = pathString.endsWith('/') ? pathString.slice(0, pathString.length - 1) : pathString;
+        return pathString ? pathString.split('/') : [];
       },
 
       computeBridge_(env) {
@@ -113,27 +121,6 @@
             new IdGenerator(),
             new RemoteBridge(serverUrl, config));
       },
-
-      extractUrl_() {
-        let initialUrl = window.location.pathname;
-        let nonGamePageMatch = /^\/(\w+)$/.exec(initialUrl);
-        if (nonGamePageMatch) {
-          let page = nonGamePageMatch[1];
-          return [null, page];
-        }
-        let gamePageMatch = /^\/(game-[\w-]+)(?:\/([\w/-]+))?/.exec(initialUrl);
-        if (gamePageMatch) {
-          let gameNumber = gamePageMatch[1];
-          if (!gamePageMatch[2]) {
-            return [gameNumber, null, null];
-          }
-          let page = gamePageMatch[2];
-          return [gameNumber, page];
-        }
-        return [null, null, null];
-      },
-
-      makeArray_() { return []; },
     });
   });
 </script>
@@ -150,7 +137,7 @@
       bridge="[[bridge]]"
       database="[[database]]"
       url="[[url]]"
-      path="[[makeArray_()]]"
+      path="[[makePathFromUrl_()]]"
       user-id="[[userId]]">
   </ghvz-app>
 </template>

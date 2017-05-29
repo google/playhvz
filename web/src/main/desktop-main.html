@@ -30,6 +30,11 @@
             computed: 'computeIsDeclared_(player.allegiance)',
           },
 
+          canDeclare: {
+            type: Boolean,
+            computed: 'computeCanDeclare_(player.allegiance)',
+          },
+
           canJoinGame: {
             type: Boolean,
             computed: 'computeCanJoinGame_(game, player)',
@@ -44,6 +49,10 @@
         computeIsAdmin_: function(user, game) {
           let admin = game.admins.find((admin) => admin.userId == user.id);
           return !!admin;
+        },
+
+        computeCanDeclare_(allegiance) {
+          return allegiance == 'none';
         },
 
         computeIsDeclared_(allegiance) {
@@ -113,7 +122,7 @@
         </ghvz-card>
       </template>
 
-      <template is="dom-if" if="[[!isDeclared]]">
+      <template is="dom-if" if="[[canDeclare]]">
         <ghvz-card spaced left padded>
           <div class="header">Declare Allegiance!</div>
           <ghvz-declare-dashlet></ghvz-declare-dashlet>
