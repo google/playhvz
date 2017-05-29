@@ -1,0 +1,296 @@
+<dom-module id="ghvz-declare-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-declare-page',
+
+      properties: {
+        bridge: Object,
+        game: Object,
+        userId: String,
+        playerId: String,
+
+        pageNumber: {
+          type: Number,
+          value: 0,
+        },
+
+        progressPercent: {
+          type: Number,
+          computed: 'computeProgressPercent_(pageNumber)',
+        },
+
+        declaringAllegiance: String,
+        wantToBeSecretZombie: Boolean,
+      },
+
+      computeProgressPercent_(pageNumber) {
+        let total = Array.from(this.querySelectorAll('neon-animatable')).length;
+        return pageNumber * 100 / total;
+      },
+
+      done_() {
+        // As the new player comes down from firebase,
+        // <ghvz-app> will detect it and auto-choose it.
+        this.bridge.updatePlayer({
+          gameId: this.game.id,
+          playerId: this.player.id,
+          wantToBeSecretZombie: this.wantToBeSecretZombie,
+        });
+
+        if (this.declaringAllegiance == 'resistance') {
+          this.bridge.joinResistance({
+            gameId: this.game.id,
+            playerId: this.player.id,
+            lifeId: null,
+            lifeCode: null,
+          });
+        } else if (this.declaringAllegiance == 'horde') {
+          this.bridge.joinHorde({
+            gameId: this.game.id,
+            playerId: this.player.id,
+          });
+        } else {
+          throwError();
+        }
+
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: ['main'],
+        });
+      },
+
+      isMultipleChoice(type) {
+        return type == 'multipleChoice';
+      },
+
+      isOrderQuestion(type) {
+        return type == 'order';
+      },
+
+      handleStartingZombiePageDone_(e) {
+        this.declaringAllegiance = e.detail.value;
+        this.pageNumber++;
+      },
+
+      handleSecretZombiePageDone_(e) {
+        this.wantToBeSecretZombie = e.detail.value;
+        this.pageNumber++;
+      },
+
+      nextPage_(e) {
+        this.pageNumber++;
+      },
+
+      makeStartingZombieOptions() {
+        return [
+          {value: 'resistance', buttonLabel: "Resistance!", text: "Join the resistance, vive la humanoids!"},
+          {value: 'horde', buttonLabel: "Horde!", text: "Graahhh braiiinnnnsss! Glory to the horde!"},
+        ];
+      },
+
+      makeSecretZombieOptions() {
+        return [
+          {value: true, buttonLabel: "Possess me!", text: "I want to lurk in the depths! I want to strike from the shadows!"},
+          // {value: "interested", buttonLabel: "What?", text: "I'm interested, tell me more, this idea intrigues me..."},
+          {value: false, buttonLabel: "No!", text: "Nope, make me a regular player!"},
+        ];
+      },
+
+      computeQuestionNumber_(question) {
+        return this.game.quizQuestions.indexOf(question);
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  neon-animated-pages {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  neon-animatable {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow-y: auto;
+  }
+  .page {
+    box-sizing: border-box;
+    padding: 16px;
+  }
+  p {
+    margin: 16px 0;
+  }
+  .intro {
+    margin-bottom: 16px;
+  }
+  .maintext {
+    margin-bottom: 16px;
+    font-weight: bold;
+  }
+  .subtext {
+    margin-bottom: 16px;
+    color: grey;
+  }
+  .section {
+    margin: 32px 0;
+  }
+  .section:first-child {
+    margin-top: 0;
+  }
+  p:first-child {
+    margin-top: 0;
+  }
+  .radio-style {
+    display: block;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  paper-input {
+    margin-top: -20px;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+  }
+  paper-progress {
+    width: auto;
+  }
+  p {
+    margin-bottom: 0;
+  }
+  ul {
+    margin: 0;
+  }
+</style>
+<template>
+  <paper-progress value="[[progressPercent]]"></paper-progress>
+  <neon-animated-pages id="pages" class="flex" selected="[[pageNumber]]" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
+
+    <neon-animatable>
+      <ghvz-interview-option-page
+          name="joinGameStartingZombiePage"
+          options="[[makeStartingZombieOptions()]]"
+          on-ghvz-interview-page-done="handleStartingZombiePageDone_">
+        <div class="maintext">Which path will you follow?</div>
+        <p>
+          Every player will have been on both sides by the end of the game, but you will now choose the path you take to get there.
+        </p>
+        <p>
+          <b>Join the Resistance!</b>
+          <div>Get in on the ground floor, and organize with your teammates to resist the zombie horde.</div>
+          <ul>
+            <li>Feel the power of having an entire human army at your back!</li>
+            <li>Feel the camaraderie and the shared terror of resisting the horde with nothing but your meager training!</li>
+          </ul>
+        </p>
+        <p>
+          <b>Join the Horde!</b>
+          <div>Be an instrument of destruction, and bring humanity to its knees!</div>
+          <ul>
+            <li>Each starting zombie gets their choice of powerup: either a "tentacle" to extend your reach by five feet, or a shield to block darts!</li>
+            <li>Each starting zombie will be turned back into a human after the first or second day, to give them a chance to feel the fear.</li>
+            <li>Starting as a zombie in the beginning means being outnumbered in the beginning, and then once you turn human, being outnumbered then again. The best way to play!</li>
+          </ul>
+        </p>
+      </ghvz-interview-option-page>
+    </neon-animatable>
+
+    <neon-animatable>
+      <ghvz-interview-option-page
+          name="joinGameSecretZombiePage"
+          options="[[makeSecretZombieOptions()]]"
+          on-ghvz-interview-page-done="handleSecretZombiePageDone_">
+        <div class="maintext">Lurk in the depths, and strike from the shadows!</div>
+        <p>
+          A <b>Possessed Human</b> is human in every way, except they secretly aid the horde, and can infect any human just by touching them.
+        </p>
+        <p>
+          The Possessed Human is a powerful asset, both for leaking intel to the horde, and for assassinating high-value Resistance members.
+        </p>
+        <p>
+          A Possessed Human will turn into a regular zombie when he or she strikes, thus making the victim the new Possessed Human. The possession travels through the Resistance, from one person to the next, leaving a trail of zombies in its wake.
+        </p>
+        <p>
+          Are you interested in being the Possessed Human?
+        </p>
+        <p>
+          Note: this change won't happen immediately; the admins will reach out to you if they decide to make you a Possessed Human.
+        </p>
+      </ghvz-interview-option-page>
+    </neon-animatable>
+
+    <neon-animatable>
+      <div class="page">
+        <p>
+          Almost there!
+        </p>
+        <p>
+          Before you're in the game, we're going to help you understand the rules.
+        </p>
+        <p>
+          Once you hit next, we'll show you the rules, and have you answer a few questions. It's not long, and should only take 4-5 minutes.
+        </p>
+        <p>
+          This is not a quiz; you're not scored, and we give you the answers right there. This is just to help everyone get on the same page with the rules.
+        </p>
+        <p>
+          So, hit next, and off we go!
+        </p>
+        <div class="section">
+          <paper-button name="offWeGo" raised on-click="nextPage_">
+            Next
+          </paper-button>
+        </div>
+      </div>
+    </neon-animatable>
+
+    <template is="dom-repeat" items="[[game.quizQuestions]]" as="question">
+      <neon-animatable>
+        <template is="dom-if" if="[[isMultipleChoice(question.type)]]">
+          <ghvz-multiple-choice
+              name$="interviewQuestion[[computeQuestionNumber_(question)]]Page"
+              game="[[game]]"
+              question="[[question]]"
+              on-ghvz-quiz-done="nextPage_">
+          </ghvz-multiple-choice>
+        </template>
+        <template is="dom-if" if="[[isOrderQuestion(question.type)]]">
+          <ghvz-order-question
+              name$="interviewQuestion[[computeQuestionNumber_(question)]]Page"
+              game="[[game]]"
+              question="[[question]]"
+              on-ghvz-quiz-done="nextPage_">
+          </ghvz-order-question>
+        </template>
+      </neon-animatable>
+    </template>
+
+    <neon-animatable>
+      <div class="page">
+        <div class="section">
+          WELCOME TO THE FRAY
+        </div>
+        <div class="section">
+          GET READY TO GET REKT
+        </div>
+        <div class="section">
+          <paper-button name="submitJoinGame" raised on-click="done_">
+            Submit
+          </paper-button>
+        </div>
+      </div>
+    </neon-animatable>
+  </neon-animated-pages>
+</template>
+</dom-module>

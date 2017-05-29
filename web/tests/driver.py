@@ -69,13 +69,34 @@ class RetryingDriver:
   def SendKeys(self, path, keys):
     return Retry(lambda: self.FindElement(path).send_keys(keys))
 
-  def ExpectContainsInner(self, path, needle):
-    element = self.FindElement(path)
-    if needle not in element.text:
-      raise AssertionError('Element doesnt contain text: %s' % needle)
 
   def ExpectContains(self, path, needle):
+
     return Retry(lambda: self.ExpectContainsInner(path, needle))
+
+  def ExpectContainsInner(self, path, needle):
+    element = self.FindElementInner(path)
+    # because it takes some time for the element's text to come back
+    Retry(lambda: self.ExpectContainsInnerInner(element, needle))
+
+  def ExpectContainsInnerInner(self, element, needle):
+    # There's four ways to get the contents of an element:
+    print 'el text is "%s" "%s" "%s" "%s"' % (
+        element.text.strip(),
+        element.get_attribute('textContent').strip(),
+        element.get_attribute('innerText').strip(),
+        element.get_attribute('innerHTML').strip())
+    # Sometimes some of them work and others don't.
+    # TODO: Figure out why elemene.text doesn't work sometimes when others do
+    text = (
+        element.text.strip() or
+        element.get_attribute('textContent').strip() or
+        element.get_attribute('innerText').strip())
+    print 'Checking if "%s" is in "%s"' % (needle, text)
+    # Leaving innerHTML out because it seems like it can have a lot of false
+    # positives, because who knows whats in the html...
+    if needle not in text:
+      raise AssertionError('Element doesnt contain text: %s' % needle)
 
   def Quit(self):
     self.driver.quit()

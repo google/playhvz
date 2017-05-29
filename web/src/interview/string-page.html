@@ -1,11 +1,11 @@
-<dom-module id="ghvz-join-game-string-page">
+<dom-module id="ghvz-interview-string-page">
   <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
       Polymer({
-        is: 'ghvz-join-game-string-page',
+        is: 'ghvz-interview-string-page',
 
         properties: {
           placeholder: String,
@@ -16,7 +16,7 @@
         },
 
         onSubmit_(event) {
-          this.fire('ghvz-join-game-page-done', {
+          this.fire('ghvz-interview-page-done', {
             value: event.detail.value
           });
         },

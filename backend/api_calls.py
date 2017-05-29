@@ -269,8 +269,7 @@ def AddPlayer(request, firebase):
     'profileImageUrl': '?String',
     'gotEquipment': 'Boolean',
     'notes': 'String',
-    'startAsZombie': 'String',
-    'beSecretZombie': 'String',
+    'wantToBeSecretZombie': 'Boolean',
     'notificationSettings': {
       'sound': 'Boolean',
       'vibrate': 'Boolean',
@@ -310,8 +309,7 @@ def AddPlayer(request, firebase):
     'notes': request['notes'],
     'needGun' : request['needGun'],
     'gotEquipment' : request['gotEquipment'],
-    'startAsZombie' : request['startAsZombie'],
-    'wantsToBeSecretZombie': request['beSecretZombie'],
+    'wantToBeSecretZombie': request['wantToBeSecretZombie'],
     'notificationSettings': request['notificationSettings'],
     'volunteer': request['volunteer'],
   }
@@ -351,8 +349,7 @@ def UpdatePlayer(request, firebase):
     'profileImageUrl': '|?String',
     'gotEquipment': '|Boolean',
     'notes': '|String',
-    'startAsZombie': '|String',
-    'beSecretZombie': '|String',
+    'wantToBeSecretZombie': '|Boolean',
     'notificationSettings': {
       'sound': '|Boolean',
       'vibrate': '|Boolean',
@@ -394,7 +391,7 @@ def UpdatePlayer(request, firebase):
         notification_settings_update[property] = request['notificationSettings'][property]
 
   private_update = {}
-  for property in ['needGun', 'gotEquipment', 'notes', 'startAsZombie', 'beSecretZombie']:
+  for property in ['needGun', 'gotEquipment', 'notes', 'wantToBeSecretZombie']:
     if property in request:
       private_update[property] = request[property]
 

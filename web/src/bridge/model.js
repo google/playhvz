@@ -28,7 +28,7 @@ Model.UserPlayer = function(id, args) {
   Utils.addEmptyLists(this, USER_PLAYER_COLLECTIONS);
 }
 
-const GAME_PROPERTIES = ["active", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
+const GAME_PROPERTIES = ["active", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
 const GAME_COLLECTIONS = ["missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups", "maps"];
 Model.Game = function(id, args) {
   this.id = id;
@@ -164,7 +164,7 @@ Model.NotificationCategory = function(id, args) {
   Utils.addEmptyLists(this, NOTIFICATION_CATEGORY_COLLECTIONS);
 }
 
-const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantsToBeSecretZombie", "gotEquipment", "notes"];
+const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
 const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships"];
 const PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
 const PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];

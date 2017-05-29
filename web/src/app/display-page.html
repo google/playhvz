@@ -37,6 +37,7 @@
               'notifications': 'notifications',
               'profile': 'profile',
               'rewards': 'rewards',
+              'declare': 'declare',
               'rules': 'rules',
               'stats': 'stats',
               'missions': 'missions',
@@ -140,6 +141,19 @@
             is-mobile="[[isMobile]]"
             is-admin="[[isAdmin]]">
         </ghvz-chat-page>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.declare, mostRecentPage)]]">
+      <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Declare Allegiance</div>
+        <ghvz-declare-page
+              class="content"
+              bridge="[[bridge]]"
+              game="[[game]]"
+              player="[[player]]"
+              user-id="[[user.id]]">
+        </ghvz-declare-page>
       </ghvz-card>
     </template>
 

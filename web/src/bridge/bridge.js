@@ -165,6 +165,7 @@ class FakeIdGenerator extends IdGenerator {
     rulesHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
+    started: 'Boolean',
   };
   serverMethods.set('createGame', {
     required: Utils.merge({gameId: '!GameId', adminUserId: 'UserId'}, GAME_PROPERTIES),
@@ -183,8 +184,7 @@ class FakeIdGenerator extends IdGenerator {
     needGun: 'Boolean',
     canInfect: 'Boolean',
     profileImageUrl: 'String',
-    startAsZombie: 'String',
-    beSecretZombie: 'String',
+    wantToBeSecretZombie: 'Boolean',
     volunteer: {
       advertising: 'Boolean',
       logistics: 'Boolean',
@@ -215,7 +215,10 @@ class FakeIdGenerator extends IdGenerator {
               PLAYER_PROPERTIES)
   });
   serverMethods.set('updatePlayer', {
-    required: {playerId: 'PlayerId'},
+    required: {
+      gameId: 'GameId',
+      playerId: 'PlayerId'
+    },
     optional: PLAYER_PROPERTIES
   });
 
@@ -373,9 +376,15 @@ class FakeIdGenerator extends IdGenerator {
     required: {gameId: 'GameId', userId: 'UserId'}
   });
 
-  serverMethods.set('joinHorde', {required: {playerId: 'PlayerId'}});
+  serverMethods.set('joinHorde', {
+    required: {
+      gameId: 'GameId',
+      playerId: 'PlayerId'
+    }
+  });
   serverMethods.set('joinResistance', {
     required: {
+      gameId: 'GameId',
       playerId: 'PlayerId',
       lifeCode: '?String',
       lifeId: '?!LifeId',

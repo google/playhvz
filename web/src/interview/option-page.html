@@ -1,11 +1,11 @@
-<dom-module id="ghvz-join-game-multi-choice-page">
+<dom-module id="ghvz-interview-option-page">
 <script>
   // Not sure why this HTMLImports.whenReady is really needed.
   // Something about polymer initialization order.
   // I think we're not supposed to need this.
   HTMLImports.whenReady(() => {
     Polymer({
-      is: 'ghvz-join-game-multi-choice-page',
+      is: 'ghvz-interview-option-page',
 
       properties: {
         options: Array,
@@ -14,28 +14,11 @@
       choose_(e) {
         let index = e.target.dataset.optionIndex;
         let value = this.options[index].value;
-        this.fire('ghvz-join-game-page-done', {
+        this.fire('ghvz-interview-page-done', {
           value: value,
         });
       },
 
-      computeOptionIndex_(option) {
-        return this.options.indexOf(option);
-      },
-
-      submit_() {
-        let result = {};
-        let checkboxes = Array.from(this.querySelectorAll('paper-checkbox'));
-        for (let i = 0; i < this.options.length; i++) {
-          let option = this.options[i];
-          let checkbox = checkboxes[i];
-          result[option.value] = checkbox.checked;
-        }
-        this.fire('ghvz-join-game-page-done', {
-          values: result,
-        });
-      },
-      
       computeOptionIndex_(option) {
         return this.options.indexOf(option);
       },
@@ -58,7 +41,7 @@
   }
   .option {
     display: flex;
-    margin: 16px 0;
+    margin: 8px 0;
   }
   .button-container {
     flex-shrink: 0;
@@ -69,19 +52,11 @@
     display: flex;
     padding-left: 8px;
   }
-  .subtitle {
-    display: block;
-    font-size: 13px;
-    margin-top: 2px;
-  }
   paper-button {
     background-color: #03A9F4;
     color: white;
     margin: 0;
-  }
-  * {
     /* This works around a mysterious polymer bug which causes buttons to disappear */
-    /* ...and also a weird bug that makes elements float over to the left of where they should be... */
     transform: translate3d(0px, 0px, 0px);
   }
 </style>
@@ -92,17 +67,20 @@
   <div id="options">
     <template is="dom-repeat" items="[[options]]" as="option">
       <div class="option">
-        <paper-checkbox name$="option[[computeOptionIndex_(option)]]">
-          [[option.text]]
-          <span class="subtitle" hidden$="[[!option.subText]]">
-            [[option.subText]]
-          </span>
-        </paper-checkbox>
+        <div class="button-container">
+          <paper-button
+              raised
+              data-option-index$="[[computeOptionIndex_(option)]]"
+              name$="option[[computeOptionIndex_(option)]]"
+              on-tap="choose_">
+            [[option.buttonLabel]]
+          </paper-button>
+        </div>
+        <div class="text">
+          <div>[[option.text]]</div>
+        </div>
       </div>
     </template>
-  </div>
-  <div class="buttons">
-    <paper-button raised on-click="submit_">Next</paper-button>
   </div>
 </template>
 </dom-module>

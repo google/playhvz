@@ -44,6 +44,7 @@
                   active: true,
                   canInfect: false,
                   profileImageUrl: "",
+                  wantToBeSecretZombie: false,
                   gotEquipment: false,
                   notes: '',
                   notificationSettings: {
@@ -73,16 +74,6 @@
 
       handleGunPageDone_(e) {
         this.newPlayerArgs.needGun = e.detail.value;
-        this.pageNumber++;
-      },
-
-      handleStartingZombiePageDone_(e) {
-        this.newPlayerArgs.startAsZombie = e.detail.value;
-        this.pageNumber++;
-      },
-
-      handleSecretZombiePageDone_(e) {
-        this.newPlayerArgs.beSecretZombie = e.detail.value;
         this.pageNumber++;
       },
 
@@ -122,22 +113,6 @@
         return [
           {value: true, buttonLabel: "Yes!", text: "I can bring/buy/steal/3D print my own nerf gun!"},
           {value: false, buttonLabel: "No...", text: "I need a nerf gun and can't get one before the game, save one for me please!"},
-        ];
-      },
-
-      makeStartingZombieOptions() {
-        return [
-          {value: "yes", buttonLabel: "Yes!", text: "Graahhh braiiinnnnsss! Glory to the horde!"},
-          {value: "maybe", buttonLabel: "If needed!", text: "If there aren't enough in the first mission, then I'm willing to help and jump in as a starting zombie."},
-          {value: "no", buttonLabel: "No!", text: "Nope, viva la Humanoids"},
-        ];
-      },
-
-      makeSecretZombieOptions() {
-        return [
-          {value: "yes", buttonLabel: "Yes!", text: "I want to secretly turn the humans around me!"},
-          {value: "interested", buttonLabel: "What?", text: "I'm interested, tell me more, this idea intrigues me..."},
-          {value: "no", buttonLabel: "No!", text: "Nope, make me a regular player!"},
         ];
       },
 
@@ -238,108 +213,45 @@
   <paper-progress value="[[progressPercent]]"></paper-progress>
   <neon-animated-pages id="pages" class="flex" selected="[[pageNumber]]" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
     <neon-animatable>
-      <ghvz-join-game-string-page
+      <ghvz-interview-string-page
           name="joinGameNamePage"
           placeholder="who be u?"
-          on-ghvz-join-game-page-done="handleNamePageDone_">
+          on-ghvz-interview-page-done="handleNamePageDone_">
         <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
         <div class="maintext">What user name would you like?</div>
         <div class="subtext">To strike terror in the hearts of your victims. e.g. John Smith, The Destroyer, King Spigglewigget the Flamscrankle. People will see this on the leaderboard, and in the chat rooms.</div>
-      </ghvz-join-game-string-page>
+      </ghvz-interview-string-page>
     </neon-animatable>
 
     <neon-animatable>
-      <ghvz-join-game-option-page
+      <ghvz-interview-option-page
           name="joinGameBlasterPage"
           options="[[makeNerfGunOptions()]]"
-          on-ghvz-join-game-page-done="handleGunPageDone_">
+          on-ghvz-interview-page-done="handleGunPageDone_">
         <div class="maintext">Can you get your own Nerf gun before the game? (If not, we can get you one!)</div>
         <div class="subtext">We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href='https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050'>Disruptor</a> tried-and-true and only $12, most players will have them.</div>
-      </ghvz-join-game-option-page>
+      </ghvz-interview-option-page>
     </neon-animatable>
 
     <neon-animatable>
-      <ghvz-join-game-option-page
-          name="joinGameStartingZombiePage"
-          options="[[makeStartingZombieOptions()]]"
-          on-ghvz-join-game-page-done="handleStartingZombiePageDone_">
-        <div class="maintext">Want to be a starting zombie?</div>
-        <div class="subtext">Start the game as a zombie! The starting zombies may get pool noodles to extend their reach, and shields to block darts. Starting zombies have the option to revive later on in the game. So, fight the resistance while you're outnumbered, and then resist the horde while you're outnumbered, the best way to play!</div>
-      </ghvz-join-game-option-page>
-    </neon-animatable>
-
-    <neon-animatable>
-      <ghvz-join-game-option-page
-          name="joinGameSecretZombiePage"
-          options="[[makeSecretZombieOptions()]]"
-          on-ghvz-join-game-page-done="handleSecretZombiePageDone_">
-        <div class="maintext">Willing to be a secret zombie?</div>
-        <div class="subtext">The secret zombie is a powerful leader of the horde, hidden among the humans. Depending on play style, the secret zombie can either stealthily infect humans, or just spy on them to relay intel to the rest of the horde. See the rules for details!</div>
-      </ghvz-join-game-option-page>
-    </neon-animatable>
-
-    <neon-animatable>
-      <ghvz-join-game-option-page
+      <ghvz-interview-option-page
           name="joinGameBeVolunteerPage"
           options="[[makeBeAVolunteerOptions()]]"
-          on-ghvz-join-game-page-done="handleVolunteerPageDone_">
+          on-ghvz-interview-page-done="handleVolunteerPageDone_">
         <div class="maintext">Interested in helping out?</div>
         <div class="subtext">Help create the best HvZ game in the world! This isn't a commitment, and you'll still be able to play as a regular player!</div>
-      </ghvz-join-game-option-page>
+      </ghvz-interview-option-page>
     </neon-animatable>
 
     <neon-animatable>
-      <ghvz-join-game-multi-choice-page
+      <ghvz-interview-multi-choice-page
           name="joinGameVolunteerPositionsPage"
           options="[[makeVolunteerPositionsOptions()]]"
-          on-ghvz-join-game-page-done="handleVolunteerPositionsPageDone_">
+          on-ghvz-interview-page-done="handleVolunteerPositionsPageDone_">
         <div class="maintext">Which positions might you be interested in?</div>
         <div class="subtext">With many of these options you'll still be able to be part of the game! Checking off any of these boxes doesn't mean a commitment. We'll message you with more details of what this entails!</div>
-      </ghvz-join-game-multi-choice-page>
+      </ghvz-interview-multi-choice-page>
     </neon-animatable>
-
-    <neon-animatable>
-      <div class="page">
-        <p>
-          Now things get interesting!
-        </p>
-        <p>
-          Before you're in the game, we're going to help you understand the rules. Once you hit next, we'll show you the rules, and have you answer some questions.
-        </p>
-        <p>
-          This is not a quiz, you're not scored, and we give you the answers right there. This is just to help everyone get on the same page with the rules.
-        </p>
-        <p>
-          So, hit next, and off we go!
-        </p>
-        <div class="section">
-          <paper-button name="offWeGo" raised on-click="nextPage_">
-            Next
-          </paper-button>
-        </div>
-      </div>
-    </neon-animatable>
-
-    <template is="dom-repeat" items="[[game.quizQuestions]]" as="question">
-      <neon-animatable>
-        <template is="dom-if" if="[[isMultipleChoice(question.type)]]">
-          <ghvz-multiple-choice
-              name$="joinGameQuestion[[computeQuestionNumber_(question)]]Page"
-              game="[[game]]"
-              question="[[question]]"
-              on-ghvz-quiz-done="nextPage_">
-          </ghvz-multiple-choice>
-        </template>
-        <template is="dom-if" if="[[isOrderQuestion(question.type)]]">
-          <ghvz-order-question
-              name$="joinGameQuestion[[computeQuestionNumber_(question)]]Page"
-              game="[[game]]"
-              question="[[question]]"
-              on-ghvz-quiz-done="nextPage_">
-          </ghvz-order-question>
-        </template>
-      </neon-animatable>
-    </template>
 
     <neon-animatable>
       <div class="page">

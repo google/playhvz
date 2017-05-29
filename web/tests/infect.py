@@ -22,7 +22,7 @@ try:
   driver.Click([[By.ID, 'infect']])
 
   driver.ExpectContains(
-      [[By.ID, 'victimName']],
+      [[By.NAME, 'victimName']],
       'Jack Slayer the Bean Slasher')
 
   driver.Click([[By.NAME, 'drawerProfile']])
