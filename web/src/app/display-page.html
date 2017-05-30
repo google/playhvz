@@ -54,12 +54,8 @@
         },
 
         onPathChanged_(newPath, oldPath) {
-          if (newPath && newPath[0] == 'createGame') {
-            this.mostRecentPage = 'createGame';
-          } else if (newPath && newPath[0] == 'devTools') {
-            this.mostRecentPage = 'devTools';
-          } else if (newPath && newPath[2] != 'main') {
-            this.mostRecentPage = newPath[2];
+          if (newPath && newPath[0] != 'main') {
+            this.mostRecentPage = newPath[0];
           }
         },
 

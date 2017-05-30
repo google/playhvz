@@ -38,7 +38,7 @@
 
         captureTap_(e) {
           let chatRoomId = e.target.dataset.chatRoomId;
-          if (page) {
+          if (chatRoomId) {
             this.fire('ghvz-set-path', {
               inGame: true,
               path: ['chat', chatRoomId],
@@ -55,15 +55,11 @@
           e.stopPropagation();
         },
 
-        computeChatPage_: function(chatRoomId) {
-          return "chat/" + chatRoomId;
-        },
-
-        createAdminChat_(bridge, game, player) {
+        createAdminChat_() {
           let name =  this.player.name + " & HvZ CDC";
           let groupId = this.bridge.newGroupId('withadmins');
           this.bridge.createGroup({
-            name: "Group for " + player.id + "'s chat room",
+            name: name,
             groupId: groupId,
             gameId: this.game.id,
             allegianceFilter: 'none',
@@ -75,7 +71,7 @@
           });
           let chatRoomId = this.bridge.newChatRoomId('withadmins');
           this.bridge.createChatRoom({
-            gameId: gameId,
+            gameId: this.game.id,
             chatRoomId: chatRoomId,
             groupId: groupId,
             name: name,
@@ -90,6 +86,10 @@
             groupId: groupId,
             otherPlayerId: this.game.adminContactPlayerId,
             playerId: this.player.id,
+          });
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['chat', chatRoomId],
           });
         },
       });

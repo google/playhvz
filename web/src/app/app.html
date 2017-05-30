@@ -44,7 +44,13 @@
         player: Object,
 
         path: {
-          type: String,
+          type: Array,
+        },
+
+        // Path, without the game/2017m in front
+        innerPath: {
+          type: Array,
+          computed: 'computeInnerPath_(path)',
         },
 
         isDesktop: {
@@ -112,6 +118,16 @@
       //     }
       //   }
       // },
+
+      computeInnerPath_(path) {
+        if (path.length >= 2 && path[0] == 'game') {
+          return path.slice(2);
+        } else if (path.length == 1 && path[0] == 'game') {
+          return [];
+        } else {
+          return path.slice();
+        }
+      },
 
       selectUser_(userId) {
         this.showLoadingSpinner = false;
@@ -408,7 +424,7 @@
               game="[[game]]"
               player="[[player]]"
               player-id="[[playerId]]"
-              path="[[path]]">
+              path="[[innerPath]]">
           </ghvz-desktop-app>
         </template>
         <template is="dom-if" if="[[!isDesktop]]">
@@ -419,7 +435,7 @@
               user="[[user]]"
               game="[[game]]"
               player="[[player]]"
-              path="[[path]]">
+              path="[[innerPath]]">
           </ghvz-mobile-app>
         </template>
       </div>

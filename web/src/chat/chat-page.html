@@ -13,7 +13,7 @@
           user: String,
           game: String,
           player: Object,
-          page: String,
+          path: String,
           isAdmin: Boolean,
           isMobile: {
             type: Boolean,
@@ -27,40 +27,40 @@
 
           showChatRoom: {
             type: Boolean,
-            computed: 'computeShowChatRoom_(isMobile, page)',
+            computed: 'computeShowChatRoom_(isMobile, path)',
           },
 
           showChatRoomList: {
             type: Boolean,
-            computed: 'computeShowChatRoomList_(isMobile, page)',
+            computed: 'computeShowChatRoomList_(isMobile, path)',
           },
         },
 
         observers: [
-          'onPageChanged_(page, game.chatRooms.*)',
+          'onPathChanged_(path, game.chatRooms.*)',
         ],
 
-        computeShowChatRoomList_(isMobile, page) {
+        computeShowChatRoomList_(isMobile, path) {
           if (isMobile) {
-            return !this.computeShowChatRoom_(isMobile, page);
+            return !this.computeShowChatRoom_(isMobile, path);
           } else {
             return true;
           }
         },
 
-        computeShowChatRoom_(isMobile, page) {
+        computeShowChatRoom_(isMobile, path) {
           if (isMobile) {
-            return page.includes('/') && page.split('/')[1];
+            return path.includes('/') && path.split('/')[1];
           } else {
             return true;
           }
         },
 
-        onPageChanged_() {
-          if (!this.page.startsWith('chat')) {
+        onPathChanged_() {
+          if (this.path[0] != 'chat') {
             return;
           }
-          var chatRoomId = this.page.includes('/') ? this.page.split('/')[1] : "";
+          var chatRoomId = this.path[1];
           if (chatRoomId) {
             this.$.chatRoomSelector.select(
                 this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
@@ -82,6 +82,7 @@
                 this.fire('ghvz-set-path', {
                   inGame: true,
                   path: ['chat', chatRoomId],
+                  replace: true,
                 });
               });
             }
