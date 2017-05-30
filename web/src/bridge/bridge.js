@@ -435,7 +435,7 @@ class FakeIdGenerator extends IdGenerator {
     },
   });
 
-  serverMethods.set('respondToRequest', {
+  serverMethods.set('addResponse', {
     required: {
       requestId: 'RequestId',
       text: '?String',

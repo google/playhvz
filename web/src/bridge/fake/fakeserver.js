@@ -274,8 +274,8 @@ class FakeServer {
         }));
   }
 
-  respondToRequest(args) {
-    let {requestId, text} = args;
+  addResponse(args) {
+    let {requestId, responseId, text} = args;
     let requestCategoryId = this.reader.getRequestCategoryIdForRequestId(requestId);
     let chatRoomId = this.reader.getChatRoomIdForMessageId(requestId);
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
@@ -288,8 +288,10 @@ class FakeServer {
       assert(typeof text == 'string' && text);
     else
       throwError('Bad request type');
-    this.writer.set(requestPath.concat(["time"]), this.getTime_());
-    this.writer.set(requestPath.concat(["text"]), text);
+    this.writer.set(requestPath.concat(["response"]), {
+      time: this.getTime_(),
+      text: text
+    });
   }
 
   addMission(args) {
@@ -503,12 +505,8 @@ class FakeServer {
     }
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoAdd) {
-        console.log('considering', group.name, group.autoAdd, group.allegianceFilter, player.name, player.allegiance);
         if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
-          console.log('adding');
           this.addPlayerToGroup({gameId: gameId, groupId: group.id, otherPlayerId: playerId});
-        } else {
-          console.log('not adding');
         }
       }
     }

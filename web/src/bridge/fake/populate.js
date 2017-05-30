@@ -176,7 +176,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
 
   var resistanceGroupId = server.idGenerator.newGroupId('resistance');
   server.createGroup({groupId: resistanceGroupId, name: "Resistance", gameId: gameId, ownerPlayerId: null, allegianceFilter: 'resistance', autoAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
-  var resistanceChatRoomId = server.idGenerator.newChatRoomId();
+  var resistanceChatRoomId = server.idGenerator.newChatRoomId('resistance');
   server.createChatRoom({gameId: gameId, chatRoomId: resistanceChatRoomId, groupId: resistanceGroupId, name: "Resistance Comms Hub", withAdmins: false});
 
   server.addAdmin({gameId: gameId, userId: minnyUserId});
@@ -197,7 +197,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
 
   var hordeGroupId = server.idGenerator.newGroupId('horde');
   server.createGroup({groupId: hordeGroupId, name: "Horde", gameId: gameId, ownerPlayerId: null, allegianceFilter: 'horde', autoAdd: true, membersCanAdd: true, autoRemove: true, membersCanAdd: false, membersCanRemove: false});
-  var zedChatRoomId = server.idGenerator.newChatRoomId();
+  var zedChatRoomId = server.idGenerator.newChatRoomId('horde');
   server.createChatRoom({gameId: gameId, chatRoomId: zedChatRoomId, groupId: hordeGroupId, name: "Horde ZedLink", withAdmins: false});
 
   var moldaviPlayerId = server.idGenerator.newPlayerId();
@@ -348,7 +348,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.addRequestCategory({requestCategoryId: requestCategoryId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, text: 'yee?', type: 'ack'});
   server.addRequest({requestId: requestId, requestCategoryId: requestCategoryId, playerId: jackPlayerId});
   server.addRequest({requestId: server.idGenerator.newRequestId(), requestCategoryId: requestCategoryId, playerId: zellaPlayerId});
-  server.respondToRequest({requestId: requestId, text: null});
+  server.addResponse({requestId: requestId, text: null});
   
   populateQuiz(server, gameId);
 }
