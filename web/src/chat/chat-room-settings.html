@@ -95,12 +95,21 @@
             autoRemove: autoRemove,
             membersCanAdd: membersCanAdd,
             membersCanRemove: membersCanRemove,
-          });
-          this.bridge.createChatRoom({
-            chatRoomId: chatRoomId,
-            groupId: groupId,
-            name: name,
-            withAdmins: false,
+          }).then(() => {
+            return this.bridge.createChatRoom({
+              gameId: this.gameId,
+              chatRoomId: chatRoomId,
+              groupId: groupId,
+              name: name,
+              withAdmins: false,
+            });
+          }).then(() => {
+            return this.bridge.addPlayerToGroup({
+              gameId: this.gameId,
+              groupId: groupId,
+              otherPlayerId: this.player.id,
+              playerId: this.player.id,
+            });
           }).then(() => {
             this.fire('ghvz-set-path', {
               inGame: true,

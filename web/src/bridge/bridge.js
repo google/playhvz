@@ -350,11 +350,14 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('createMap', {
     required:
         Utils.merge(
-            {mapId: '!MapId', groupId: 'GroupId'},
+            {gameId: 'GameId', mapId: '!MapId', groupId: 'GroupId'},
             MAP_PROPERTIES)
   });
   serverMethods.set('updateMap', {
-    required: {mapId: 'MapId'},
+    required: {
+      gameId: 'GameId',
+      mapId: 'MapId'
+    },
     optional: MAP_PROPERTIES,
   });
 
@@ -374,6 +377,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addPlayerToGroup', {
     required: {
+      gameId: 'GameId',
       groupId: 'GroupId',
       otherPlayerId: 'PlayerId',
       playerId: '?PlayerId',
