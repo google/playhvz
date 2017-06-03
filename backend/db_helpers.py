@@ -10,8 +10,8 @@ class ServerError(Exception):
   pass
 
 
-def ExpectExistence(firebase, path, id, test_property, should_exist):
-  exists = firebase.get(path, test_property) is not None
+def ExpectExistence(game_state, path, id, test_property, should_exist):
+  exists = game_state.get(path, test_property) is not None
   print 'Couldnt find at path %s test prop %s' % (path, test_property)
   if exists and not should_exist:
     raise InvalidInputError('ID "%s" should not have existed!' % id)
@@ -19,7 +19,7 @@ def ExpectExistence(firebase, path, id, test_property, should_exist):
     raise InvalidInputError('ID "%s" should have existed!' % id)
 
 
-def ValidateInputs(request, firebase, params):
+def ValidateInputs(request, game_state, params):
   """Validate args.
 
   params is a map of parameter name to an "expectation".
@@ -42,9 +42,9 @@ def ValidateInputs(request, firebase, params):
   params['requestingUserId'] = '?UserId'
   params['requestingPlayerId'] = '?PlayerId'
 
-  ValidateInputsInner(request, firebase, params)
+  ValidateInputsInner(request, game_state, params)
 
-def ValidateInputsInner(request, firebase, params):
+def ValidateInputsInner(request, game_state, params):
   for key in request:
     if key not in params:
       raise InvalidInputError('Unrecognized argument: "%s"' % key)
@@ -55,7 +55,7 @@ def ValidateInputsInner(request, firebase, params):
         request[key] = {}
       if not isinstance(request[key], dict):
         raise InvalidInputError('Expected map for argument "%s"' % key)
-      ValidateInputsInner(request[key], firebase, params[key])
+      ValidateInputsInner(request[key], game_state, params[key])
       continue
 
     if key not in request:
@@ -92,35 +92,35 @@ def ValidateInputsInner(request, firebase, params):
         expectation = expectation[1:]
 
       if expectation == "GameId":
-        ExpectExistence(firebase, '/games/%s' % data, data, 'name', should_exist)
+        ExpectExistence(game_state, '/games/%s' % data, data, 'name', should_exist)
       if expectation == "UserId":
-        ExpectExistence(firebase, '/users/%s' % data, data, 'a', should_exist)
+        ExpectExistence(game_state, '/users/%s' % data, data, 'a', should_exist)
       if expectation == "GroupId":
-        ExpectExistence(firebase, '/groups/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/groups/%s' % data, data, 'gameId', should_exist)
       if expectation == "PlayerId":
-        ExpectExistence(firebase, '/playersPrivate/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/playersPrivate/%s' % data, data, 'gameId', should_exist)
       if expectation == "GunId":
-        ExpectExistence(firebase, '/guns/%s' % data, data, 'label', should_exist)
+        ExpectExistence(game_state, '/guns/%s' % data, data, 'label', should_exist)
       if expectation == "MissionId":
-        ExpectExistence(firebase, '/missions/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/missions/%s' % data, data, 'gameId', should_exist)
       if expectation == "ChatRoomId":
-        ExpectExistence(firebase, '/chatRooms/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/chatRooms/%s' % data, data, 'gameId', should_exist)
       if expectation == "RewardCategoryId":
-        ExpectExistence(firebase, '/rewardCategories/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/rewardCategories/%s' % data, data, 'gameId', should_exist)
       if expectation == "RewardId":
         pass
       if expectation == "NotificationCategoryId":
-        ExpectExistence(firebase, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
-      
+        ExpectExistence(game_state, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
 
-def GroupToGame(firebase, group):
+
+def GroupToGame(game_state, group):
   """Map a group to a game."""
-  return firebase.get('/groups/%s' % group, 'gameId')
+  return game_state.get('/groups/%s' % group, 'gameId')
 
 
-def RewardCodeToRewardCategoryId(firebase, game_id, reward_code, expect=True):
+def RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect=True):
   reward_category_short_name = reward_code.split('-')[0]
-  reward_categories = firebase.get(
+  reward_categories = game_state.get(
       '/',
       'rewardCategories',
       {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
@@ -133,11 +133,11 @@ def RewardCodeToRewardCategoryId(firebase, game_id, reward_code, expect=True):
   return None
 
 
-def RewardCodeToRewardId(firebase, game_id, reward_code, expect=True):
-  reward_category_id = RewardCodeToRewardCategoryId(firebase, game_id, reward_code, expect)
+def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
+  reward_category_id = RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect)
   if reward_category_id is None:
     return None
-  rewards = firebase.get(
+  rewards = game_state.get(
       '/',
       'rewards',
       {'orderBy': '"rewardCategoryId"', 'equalTo': '"%s"' % reward_category_id})
@@ -149,16 +149,16 @@ def RewardCodeToRewardId(firebase, game_id, reward_code, expect=True):
     raise InvalidInputError('No reward for code %s' % reward_code)
   return None
 
-def GetNextPlayerNumber(firebase, game_id):
-  players = firebase.get(
+def GetNextPlayerNumber(game_state, game_id):
+  players = game_state.get(
       '/',
       'playersPrivate',
       {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
   return 101 + len(players)
 
-def LifeCodeToPlayerId(firebase, game_id, life_code, expect=True):
+def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   player_short_name = life_code.split('-')[0]
-  players = firebase.get(
+  players = game_state.get(
       '/',
       'playersPrivate',
       {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
@@ -173,56 +173,56 @@ def LifeCodeToPlayerId(firebase, game_id, life_code, expect=True):
   return None
 
 
-def IsAdmin(firebase, game_id, user_id):
+def IsAdmin(game_state, game_id, user_id):
   if user_id is None:
     return False
-  return firebase.get('/games/%s/adminUsers' % game_id, user_id) is not None
+  return game_state.get('/games/%s/adminUsers' % game_id, user_id) is not None
 
-def GroupToEntity(firebase, group, entity):
-  rooms = firebase.get(
+def GroupToEntity(game_state, group, entity):
+  rooms = game_state.get(
       '/', entity, {'orderBy': '"groupId"', 'equalTo': '"%s"' % group})
   if rooms:
     return rooms.keys()
   return []
 
 
-def GroupToMissions(firebase, group):
-  return GroupToEntity(firebase, group, 'missions')
+def GroupToMissions(game_state, group):
+  return GroupToEntity(game_state, group, 'missions')
 
 
-def GroupToChats(firebase, group):
-  return GroupToEntity(firebase, group, 'chatRooms')
+def GroupToChats(game_state, group):
+  return GroupToEntity(game_state, group, 'chatRooms')
 
 
-def PlayerToGame(firebase, player):
+def PlayerToGame(game_state, player):
   """Map a player to a game."""
-  return firebase.get('/playersPrivate/%s' % player, 'gameId')
+  return game_state.get('/playersPrivate/%s' % player, 'gameId')
 
 
-def PlayerAllegiance(firebase, player):
+def PlayerAllegiance(game_state, player):
   """Map a player to an allegiance."""
-  return firebase.get('playersPublic/%s' % player, 'allegiance')
+  return game_state.get('playersPublic/%s' % player, 'allegiance')
 
 
-def ChatToGroup(firebase, chat):
+def ChatToGroup(game_state, chat):
   """Map a chat to a group."""
-  return firebase.get('/chatRooms/%s' % chat, 'groupId')
+  return game_state.get('/chatRooms/%s' % chat, 'groupId')
 
 
-def ChatToGame(firebase, chat):
+def ChatToGame(game_state, chat):
   """Map a chat to a group."""
-  group = ChatToGroup(firebase, chat)
+  group = ChatToGroup(game_state, chat)
   if group is None:
     return None
   return GroupToGame(group)
 
 
-def AddPoints(firebase, player_id, points):
+def AddPoints(game_state, player_id, points):
   """Add points to a player."""
   player_path = '/playersPublic/%s' % player_id
-  current_points = int(firebase.get(player_path, 'points'))
+  current_points = int(game_state.get(player_path, 'points'))
   new_points = current_points + points
-  firebase.put(player_path, 'points', new_points)
+  game_state.put(player_path, 'points', new_points)
   return 'Player points = %d + %d => %d' % (current_points, points, new_points)
 
 
