@@ -80,6 +80,7 @@ try:
   
   # driver.Click([[By.NAME, 'drawerProfile']])
 
+  driver.Quit()
 
 finally:
   # driver.Quit()

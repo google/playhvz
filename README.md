@@ -112,6 +112,8 @@ Add this to your ~/.bashrc: `export PATH=$PATH:[ghvz folder path here]/web/tests
 
 ### Running
 
+First, start up your local server; the webdrivers assume something is running at localhost:5000
+
 To run the webdrivers:
 
 `cd web/tests`

@@ -290,6 +290,8 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
     populatePlayersLight(server, gameId);
   }
 
+  let firstMissionRsvpersGroupId = server.idGenerator.newMissionId();
+
   var firstMissionId = server.idGenerator.newMissionId();
   server.addMission({
     missionId: firstMissionId,
