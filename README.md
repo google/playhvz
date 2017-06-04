@@ -15,11 +15,29 @@ To startup the server, run:
 
 `npm start`
 
+Go to localhost:5000
+
+This will run against the in-memory fake JS server.
+
 ### Installing a Polymer component
 
 Run:
 
 `bower install paper-button` under web directory
+
+#### Running against the prod server
+
+Go to localhost:5000/?env=prod
+
+#### Running against a local server
+
+Go to localhost:5000/?env=localprod
+
+#### Running against the in-memory fake JS server:
+
+Go to localhost:5000
+
+(yes, the default is the in-memory fake JS server)
 
 
 ## Backend
