@@ -25,11 +25,11 @@ Run:
 
 `bower install paper-button` under web directory
 
-#### Running against the prod server
+#### Running against the prod server and prod firebase
 
 Go to localhost:5000/?env=prod
 
-#### Running against a local server
+#### Running against a local server and prod firebase
 
 Go to localhost:5000/?env=localprod
 
