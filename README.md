@@ -94,6 +94,8 @@ when it asks about single page app, say no
 
 Add this to your ~/.bash_profile: `export PATH=$PATH:[ghvz folder path here]/web/tests/macdrivers` for example: `export PATH=$PATH:/Users/verdagon/Desktop/ghvz/web/tests/macdrivers`
 
+`source ~/.bash_profile`
+
 `cd web/tests`
 
 `pip install selenium`
