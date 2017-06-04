@@ -58,3 +58,35 @@ for public directory, put client/
 
 when it asks about single page app, say no
 
+
+## Webdriver Tests
+
+### Setup (Mac)
+
+Add this to your ~/.bash_profile:
+
+export PATH=$PATH:[ghvz folder path here]/web/tests/macdrivers
+
+For example:
+
+export PATH=$PATH:/Users/verdagon/Desktop/ghvz/web/tests/macdrivers
+
+### Setup (Linux)
+
+(this doesnt work yet because nobody's checked in linuxdrivers, talk to chewys or verdagon if you want to run on linux)
+
+Add this to your ~/.bashrc:
+
+export PATH=$PATH:[ghvz folder path here]/web/tests/linuxdrivers
+
+For example:
+
+export PATH=$PATH:/Users/verdagon/Desktop/ghvz/web/tests/linuxdrivers
+
+### Running
+
+To run the webdrivers:
+
+cd web/src/tests
+
+./run.sh
