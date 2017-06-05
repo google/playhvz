@@ -256,8 +256,8 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.createGroup({groupId: zedSecondChatRoomGroupId, name: "Group for " + zedSecondChatRoomId, gameId: gameId, ownerPlayerId: zekePlayerId, allegianceFilter: 'horde', autoAdd: true, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   server.createChatRoom({gameId: gameId, chatRoomId: zedSecondChatRoomId, groupId: zedSecondChatRoomGroupId, name: "Zeds Internal Secret Police", withAdmins: false});
 
-  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: zekePlayerId});
-  server.addPlayerToGroup({groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: drakePlayerId});
+  server.addPlayerToGroup({gameId: gameId, groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: zekePlayerId});
+  server.addPlayerToGroup({gameId: gameId, groupId: zedSecondChatRoomGroupId, playerId: null, otherPlayerId: drakePlayerId});
   server.sendChatMessage({gameId: gameId, messageId: server.idGenerator.newMessageId(), chatRoomId: zedSecondChatRoomId, playerId: drakePlayerId, message: 'lololol we be zed police'});
   server.sendChatMessage({gameId: gameId, messageId: server.idGenerator.newMessageId(), chatRoomId: zedSecondChatRoomId, playerId: zekePlayerId, message: 'lololol oink oink'});
 
@@ -266,7 +266,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.createGroup({groupId: resistanceSecondChatRoomGroupId, name: "Group for " + resistanceSecondChatRoomId, gameId: gameId, ownerPlayerId: zellaPlayerId, allegianceFilter: 'resistance', autoAdd: false, autoRemove: true, membersCanAdd: true, membersCanRemove: true});
   server.createChatRoom({gameId: gameId, chatRoomId: resistanceSecondChatRoomId, groupId: resistanceSecondChatRoomGroupId, name: "My Chat Room!", withAdmins: false});
 
-  server.addPlayerToGroup({groupId: resistanceSecondChatRoomGroupId, playerId: null, otherPlayerId: zellaPlayerId});
+  server.addPlayerToGroup({gameId: gameId, groupId: resistanceSecondChatRoomGroupId, playerId: null, otherPlayerId: zellaPlayerId});
   server.sendChatMessage({gameId: gameId, messageId: server.idGenerator.newMessageId(), chatRoomId: resistanceSecondChatRoomId, playerId: zellaPlayerId, message: 'lololol i have a chat room!'});
 
   server.updatePlayer({gameId: gameId, playerId: zellaPlayerId, profileImageUrl: 'https://lh3.googleusercontent.com/GoKTAX0zAEt6PlzUkTn7tMeK-q1hwKDpzWsMJHBntuyR7ZKVtFXjRkbFOEMqrqxPWJ-7dbCXD7NbVgHd7VmkYD8bDzsjd23XYk0KyALC3BElIk65vKajjjRD_X2_VkLPOVejrZLpPpa2ebQVUHJF5UXVlkst0m6RRqs2SumRzC7EMmEeq9x_TurwKUJmj7PhNBPCeoDEh51jAIc-ZqvRfDegLgq-HtoyJAo91lbD6jqA2-TFufJfiPd4nOWnKhZkQmarxA8LQT0kOu7r3M5F-GH3pCbQqpH1zraha8CqvKxMGLW1i4CbDs1beXatKTdjYhb1D_MVnJ6h7O4WX3GULwNTRSIFVOrogNWm4jWLMKfKt3NfXYUsCOMhlpAI3Q8o1Qgbotfud4_HcRvvs6C6i17X-oQm8282rFu6aQiLXOv55FfiMnjnkbTokOA1OGDQrkBPbSVumz9ZE3Hr-J7w_G8itxqThsSzwtK6p5YR_9lnepWe0HRNKfUZ2x-a2ndT9m6aRXC_ymWHQGfdGPvTfHOPxUpY8mtX2vknmj_dn4dIuir1PpcN0DJVVuyuww3sOn-1YRFh80gBFvwFuMnKwz8GY8IX5gZmbrrBsy_FmwFDIvBcwNjZKd9fH2gkK5rk1AlWv12LsPBsrRIEaLvcSq7Iim9XSsiivzcNrLFG=w294-h488-no'});
@@ -276,7 +276,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   server.updatePlayer({gameId: gameId, playerId: jackPlayerId, profileImageUrl: 'https://sdl-stickershop.line.naver.jp/products/0/0/1/1009925/android/main.png'});
 
   var resistanceMapId = server.idGenerator.newMapId();
-  server.createMap({mapId: resistanceMapId, groupId: resistanceGroupId, name: "Resistance Players"});
+  server.createMap({gameId: gameId, mapId: resistanceMapId, groupId: resistanceGroupId, name: "Resistance Players"});
   server.addPoint({pointId: server.idGenerator.newPointId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
   server.addPoint({pointId: server.idGenerator.newPointId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
   server.addPoint({pointId: server.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
@@ -289,6 +289,8 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
   } else {
     populatePlayersLight(server, gameId);
   }
+
+  let firstMissionRsvpersGroupId = server.idGenerator.newMissionId();
 
   var firstMissionId = server.idGenerator.newMissionId();
   server.addMission({
