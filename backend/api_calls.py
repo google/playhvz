@@ -55,7 +55,6 @@ def AddGame(request, game_state):
   Firebase entries:
     /games/%(gameId)
   """
-  results = []
   helpers.ValidateInputs(request, game_state, {
     'gameId': '!GameId',
     'adminUserId': 'UserId',
@@ -73,9 +72,11 @@ def AddGame(request, game_state):
     'active': request['active'],
     'started': request['started'],
   }
-  results.append(game_state.put('/games', request['gameId'], put_data))
-  results.append(game_state.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True))
-  return results
+  transaction = game_state.transaction()
+  transaction.put('/games', request['gameId'], put_data)
+  transaction.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True)
+  transaction.commit()
+  return []
 
 
 def SetAdminContact(request, game_state):
@@ -1074,8 +1075,10 @@ def AddRewardCategory(request, game_state):
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
-  game_state.put('/rewardCategories', reward_category_id, reward_category_data)
-  game_state.put('/games/%s/rewardCategories' % game, reward_category_id, True)
+  transaction = game_state.transaction()
+  transaction.put('/rewardCategories', reward_category_id, reward_category_data)
+  transaction.put('/games/%s/rewardCategories' % game, reward_category_id, True)
+  transaction.commit()
 
 
 def UpdateRewardCategory(request, game_state):
