@@ -74,8 +74,10 @@
                 allegianceFilter: 'none',
                 autoAdd: true,
                 autoRemove: false,
-                membersCanAdd: false,
-                membersCanRemove: false,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
               });
               this.bridge.createChatRoom({
                 gameId: gameId,
@@ -92,8 +94,10 @@
                 allegianceFilter: 'resistance',
                 autoAdd: true,
                 autoRemove: true,
-                membersCanAdd: false,
-                membersCanRemove: false,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
               });
               this.bridge.createChatRoom({
                 gameId: gameId,
@@ -109,10 +113,12 @@
                 ownerPlayerId: null,
                 allegianceFilter: 'horde',
                 autoAdd: true,
-                membersCanAdd: true,
+                canAddOthers: true,
                 autoRemove: true,
-                membersCanAdd: false,
-                membersCanRemove: false,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
               });
               this.bridge.createChatRoom({
                 gameId: gameId,

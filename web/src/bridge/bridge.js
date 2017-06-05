@@ -239,12 +239,16 @@ class FakeIdGenerator extends IdGenerator {
     endTime: 'TimestampMs',
     name: 'String',
     detailsHtml: 'String',
-    groupId: 'GroupId',
   };
   serverMethods.set('addMission', {
     required:
         Utils.merge(
-            {missionId: '!MissionId', groupId: 'GroupId', gameId: 'GameId'},
+            {
+              missionId: '!MissionId',
+              groupId: 'GroupId',
+              rsvpersGroupId: 'GroupId',
+              gameId: 'GameId'
+            },
             MISSION_PROPERTIES)
   });
   serverMethods.set('updateMission', {
@@ -266,8 +270,10 @@ class FakeIdGenerator extends IdGenerator {
     ownerPlayerId: '?PlayerId',
     autoAdd: 'Boolean',
     autoRemove: 'Boolean',
-    membersCanAdd: 'Boolean',
-    membersCanRemove: 'Boolean',
+    canAddOthers: 'Boolean',
+    canRemoveOthers: 'Boolean',
+    canAddSelf: 'Boolean',
+    canRemoveSelf: 'Boolean',
   };
   serverMethods.set('createGroup', {
     required:
@@ -379,16 +385,15 @@ class FakeIdGenerator extends IdGenerator {
     required: {
       gameId: 'GameId',
       groupId: 'GroupId',
-      otherPlayerId: 'PlayerId',
-      playerId: '?PlayerId',
+      playerToAddId: 'PlayerId',
     },
   });
 
   serverMethods.set('removePlayerFromGroup', {
     required: {
+      gameId: 'GameId',
       groupId: 'GroupId',
-      otherPlayerId: 'PlayerId',
-      playerId: '?PlayerId',
+      playerToRemoveId: 'PlayerId',
     },
   });
 

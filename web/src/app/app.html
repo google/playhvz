@@ -400,7 +400,11 @@
   </ghvz-unseen-notifications>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
-    <paper-button on-tap="signIn_">Sign In With Google</paper-button>
+    <paper-button
+        name="signIn"
+        on-tap="signIn_">
+      Sign In With Google
+    </paper-button>
   </template>
   <template is="dom-if" if="[[user]]">
     <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isDesktop)]]">

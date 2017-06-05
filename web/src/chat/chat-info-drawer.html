@@ -39,12 +39,12 @@
 
           canAdd: {
             type: Boolean,
-            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.membersCanAdd)',
+            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.canAddOthers)',
           },
 
           canRemove: {
             type: Boolean,
-            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.membersCanRemove)',
+            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveOthers)',
           },
 
           showActionsSection: {
@@ -64,12 +64,12 @@
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
 
-        computeCanAdd_(isAdmin, playerId, ownerPlayerId, membersCanAdd) {
-          return isAdmin || playerId == ownerPlayerId || membersCanAdd;
+        computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers) {
+          return isAdmin || playerId == ownerPlayerId || canAddOthers;
         },
 
-        computeCanRemove_(isAdmin, playerId, ownerPlayerId, membersCanRemove) {
-          return isAdmin || playerId == ownerPlayerId || membersCanRemove;
+        computeCanRemove_(isAdmin, playerId, ownerPlayerId, canRemoveOthers) {
+          return isAdmin || playerId == ownerPlayerId || canRemoveOthers;
         },
 
         computeShowActionsSection_(canAdd, canRemove) {

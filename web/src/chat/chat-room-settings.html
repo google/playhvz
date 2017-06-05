@@ -73,14 +73,14 @@
             autoAdd = this.$$("#autoAdd").checked;
           }
 
-          let membersCanAdd = true;
+          let canAddOthers = true;
           if (this.isAdmin) {
-            membersCanAdd = this.$$("#membersCanAdd").checked;
+            canAddOthers = this.$$("#canAddOthers").checked;
           }
 
-          let membersCanRemove = true;
+          let canRemoveOthers = true;
           if (this.isAdmin) {
-            membersCanRemove = this.$$("#membersCanRemove").checked;
+            canRemoveOthers = this.$$("#canRemoveOthers").checked;
           }
 
           let groupId = this.bridge.newGroupId();
@@ -93,8 +93,8 @@
             allegianceFilter: allegianceFilter,
             autoAdd: autoAdd,
             autoRemove: autoRemove,
-            membersCanAdd: membersCanAdd,
-            membersCanRemove: membersCanRemove,
+            canAddOthers: canAddOthers,
+            canRemoveOthers: canRemoveOthers,
           }).then(() => {
             return this.bridge.createChatRoom({
               gameId: this.gameId,
@@ -107,7 +107,7 @@
             return this.bridge.addPlayerToGroup({
               gameId: this.gameId,
               groupId: groupId,
-              otherPlayerId: this.player.id,
+              playerToAddId: this.player.id,
               playerId: this.player.id,
             });
           }).then(() => {
@@ -190,14 +190,14 @@
           </paper-dropdown-menu>
           Have the server prune players from chat if they are no longer the specified alliegance
         </template>
-        <paper-checkbox id="membersCanAdd" checked class="option">
+        <paper-checkbox id="canAddOthers" checked class="option">
           Allow members adding other players
           <div class="subtext">
             If unchecked, only you control who can be in this chat
           </div>
         </paper-checkbox>
         <template is="dom-if" if="[[isAdmin]]">
-          <paper-checkbox id="membersCanRemove" checked class="option">
+          <paper-checkbox id="canRemoveOthers" checked class="option">
             Enable members' leaving/kicking
             <div class="subtext">
               Use with care! If unchecked, players can't leave this chat unless you kick them out

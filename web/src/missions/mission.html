@@ -13,6 +13,8 @@
 
         game: Object,
 
+        player: Object,
+
         missionId: String,
 
         mission: Object,
@@ -42,5 +44,10 @@
 <template>
   <array-selector id="selector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
   <div id="mission"></div>
+  <ghvz-rsvp
+      bridge="[[bridge]]"
+      game="[[game]]"
+      player="[[player]]"
+  mission-id="[[missionId]]"></ghvz-rsvp>
 </template>
 </dom-module>
