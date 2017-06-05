@@ -147,6 +147,13 @@
           <ghvz-rules game="[[game]]"></ghvz-rules>
         </ghvz-card>
 
+        <ghvz-card spaced left>
+            <div class="header">Game Summary</div>
+            <ghvz-game-summary
+                game="[[game]]">
+            </ghvz-game-summary>
+        </ghvz-card>
+
         <template is="dom-if" if="[[isDeclared]]">
           <ghvz-card spaced left>
             <div class="header">Next Mission</div>
