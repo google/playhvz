@@ -1,6 +1,7 @@
 """In memory model datastore"""
 
 import db_helpers as helpers
+import json
 
 def follow_path(obj, path, create_missing=False):
   """Given a dict and a '/' separated path, follow that path and return the
@@ -25,12 +26,31 @@ def follow_path(obj, path, create_missing=False):
   path_parts = path.split('/')[1:]
   for path_part in path_parts:
     if not path_part in obj:
-      if create_missing:
+      if create_missing and isinstance(obj, dict):
         obj[path_part] = {}
       else:
         return None
     obj = obj[path_part]
   return obj
+
+def crawl_paths(obj):
+  """Given a tree of strings, return the paths to every leaf.
+  Doesn't include the actual leaf value.
+
+  Example:
+    crawl_paths({'a': {'b': 'foo', 'c': {'d' : 'foo'}}, 'e': 'bar'})
+    => ['a/b', 'a/c/d', 'e']
+  """
+  all_paths = []
+  if isinstance(obj, basestring):
+    return all_paths
+  for key, value in obj.iteritems():
+    sub_paths = crawl_paths(value)
+    for sub_path in sub_paths:
+      all_paths.append(key + '/' + sub_path)
+    if len(sub_paths) is 0:
+      all_paths.append(key)
+  return all_paths
 
 def join_paths(path, suffix):
   """Joins a path and a suffix into a single path.
@@ -147,11 +167,63 @@ class Transaction:
   """A transaction is an atomic list of mutations that can be applied to the
   model. The mutation set is applied to the remote model only when the
   transaction is committed. All mutations are applied immediately to the
-  local model."""
+  local model.
+
+  Mutations in a transaction is stored in two parallel trees:
+    - a data tree that keeps the data to mutate
+    - a path tree that keeps track of which paths are updated
+
+  The path tree is crawled to create a list of absolute paths that must be
+  modified in a single patch. This list of paths is guaranteed to not have a
+  path that is a parent of another path in the list.
+
+  This is needed because patching paths where one is a parent of another can
+  yield an inconsistent state and firebase doesn't support deep patches.
+
+  Example:
+    put('a', 'b', {'c': {'d': foo'})
+    mutation_data == {
+      'a': {
+        'b': {
+          'c': {
+            'd': 'foo'
+          }
+        }
+      }
+    }
+    mutation_paths == {
+      'a': {
+        'b': 'put'
+      }
+    }
+
+    put('a/b', 'e', 'bar')
+    mutation_data == {
+      'a': {
+        'b': {
+          'c': {
+            'd': 'foo'
+          }
+          'e': 'bar'
+        }
+      }
+    }
+    mutation_paths == {
+      'a': {
+        'b': 'put'
+      }
+    }
+
+    Generated batch mutation:
+    {
+      '/a/b': { 'c': { 'd': 'foo' }, 'e': 'bar' }
+    }
+  """
   def __init__(self, firebase, instance):
     self.instance = instance
     self.firebase = firebase
-    self.batch_mutation = {}
+    self.mutation_data = {}
+    self.mutation_paths = {}
     self.committed = False
 
   def delete(self, path, id):
@@ -169,10 +241,15 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
-    self.batch_mutation[join_paths(path, id)] = None
-    obj = follow_path(self.instance, path)
-    if obj is not None and id in obj:
-      del obj[id]
+    mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
+    if mutation_data_obj is not None and id in mutation_data_obj:
+      del mutation_data_obj[id]
+    mutation_paths_obj = follow_path(self.mutation_paths, path, create_missing=True)
+    if mutation_paths_obj is not None:
+      mutation_paths_obj[id] = 'delete'
+    local_data_obj = follow_path(self.instance, path)
+    if local_data_obj is not None and id in local_data_obj:
+      del local_data_obj[id]
 
   def put(self, path, id, data):
     """Put a value at a given path and id. If the path/id combo doesn't
@@ -190,9 +267,15 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
-    self.batch_mutation[join_paths(path, id)] = data
-    obj = follow_path(self.instance, path, create_missing=True)
-    obj[id] = data
+    mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
+    if mutation_data_obj is not None:
+      mutation_data_obj[id] = data
+    mutation_paths_obj = follow_path(self.mutation_paths, path, create_missing=True)
+    if mutation_paths_obj is not None:
+      mutation_paths_obj[id] = 'put'
+    local_data_obj = follow_path(self.instance, path, create_missing=True)
+    if local_data_obj is not None:
+      local_data_obj[id] = data
 
   def patch(self, path, data):
     """Patches a list of changes at a path. If the path/id combo doesn't
@@ -211,19 +294,31 @@ class Transaction:
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
     for key, value in data.iteritems():
-      self.batch_mutation[join_paths(path, key)] = value
-      obj = follow_path(self.instance, join_paths(path, drop_last(key)), create_missing=True)
-      obj[last(key)] = value
+      mutation_data_obj = follow_path(self.mutation_data, join_paths(path, drop_last(key)), create_missing=True)
+      if mutation_data_obj is not None:
+        mutation_data_obj[last(key)] = value
+      mutation_paths_obj = follow_path(self.mutation_paths, join_paths(path, drop_last(key)), create_missing=True)
+      if mutation_paths_obj is not None:
+        mutation_paths_obj[last(key)] = 'patch'
+      local_data_obj = follow_path(self.instance, join_paths(path, drop_last(key)), create_missing=True)
+      if local_data_obj is not None:
+        local_data_obj[last(key)] = value
 
   def commit(self):
     """Applies all mutations in the transaction to the remote model.
     Must be called for every transaction opened. Deleting a transaction without
     calling commit will throw an error.
 
-    TODO(yuhao93): Currently, transactions that have mutations which touch
-    upon the same path may result in incorrect states. Fix that.
+    We will crawl the path tree to find all the paths to include in the
+    mutation. We then get the data in the data tree for each path.
     """
-    self.firebase.patch('/', self.batch_mutation)
+    batch_mutation = {}
+    all_paths = crawl_paths(self.mutation_paths)
+    for path in all_paths:
+      leading_slash_path = '/' + path
+      value = follow_path(self.mutation_data, leading_slash_path)
+      batch_mutation[leading_slash_path] = value
+    self.firebase.patch('/', batch_mutation)
     self.committed = True
 
   def __del__(self):
