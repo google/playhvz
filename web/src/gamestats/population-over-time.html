@@ -26,7 +26,7 @@
 
 	  prepareData() {
         var logger = function(someString) {
-          //console.log(someString);
+         //console.log(someString);
         };
 
         // Step 1: Get all the important bits:
@@ -208,7 +208,7 @@
           var counter = 0;
 
           while ((humanIndex < lives.length ||
-        	  zombieIndex < infections.length) && counter < 100) {
+        	  zombieIndex < infections.length) && counter < 20000 /* just in case */) {
         	counter++;
         	var range = {};
         	if (startsAsHuman) {
@@ -234,8 +234,8 @@
         	  typesForEachBin.turnBinRangeToZombies(range);
 
         	} else { // !startsAsHuman
-        	   //throw new Error("No test data?");
-        	   zombieIndex++ // First index was zombie
+        	   console("No test data?");
+        	   zombieIndex++;
 
         	  if (humanIndex < lives.length) {
         logger("HUMAN/!!!: ",

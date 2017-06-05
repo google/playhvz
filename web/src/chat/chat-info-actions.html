@@ -69,6 +69,7 @@
           var newPlayer = this.matchingPlayerOrNull;
           this.$.lookup.value = "";
           this.bridge.addPlayerToGroup({
+            gameId: this.game.id,
             groupId: this.chatRoom.groupId,
             playerId: this.playerId,
             otherPlayerId: newPlayer.id
@@ -81,6 +82,7 @@
 
         onConfirmLeave_: function(e) {
           this.bridge.removePlayerFromGroup({
+            gameId: this.game.id,
             groupId: this.chatRoom.groupId,
             playerId: this.playerId,
             otherPlayerId: this.playerId,
@@ -99,6 +101,7 @@
 
         onConfirmKick_: function(e) {
           this.bridge.removePlayerFromGroup({
+            gameId: this.game.id,
             groupId: this.chatRoom.groupId,
             playerId: this.playerId,
             otherPlayerId: this.kickPlayer.id,
