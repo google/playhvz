@@ -124,7 +124,7 @@ Model.Message = function(id, args) {
   Utils.addEmptyLists(this, MESSAGE_COLLECTIONS);
 }
 
-const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type"];
+const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
 const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
 Model.RequestCategory = function(id, args) {
   this.id = id;

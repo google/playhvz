@@ -260,6 +260,15 @@ class FakeServer {
         })));
   }
 
+  updateRequestCategory(args) {
+    let {gameId, requestCategoryId} = args;
+    let chatRoomId = this.reader.getChatRoomIdForRequestCategoryId(requestCategoryId);
+    let requestCategoryPath = this.reader.getRequestCategoryPath(gameId, chatRoomId, requestCategoryId);
+    for (let argName in args) {
+      this.writer.set(requestCategoryPath.concat([argName]), args[argName]);
+    }
+  }
+  
   addRequest(args) {
     let {requestId, requestCategoryId, playerId} = args;
     let chatRoomId = this.reader.getChatRoomIdForRequestCategoryId(requestCategoryId);

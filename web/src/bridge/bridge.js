@@ -429,6 +429,18 @@ class FakeIdGenerator extends IdGenerator {
       playerId: 'PlayerId',
       text: 'String',
       type: 'String',
+      dismissed: 'Boolean',
+    },
+  });
+
+  serverMethods.set('updateRequestCategory', {
+    required: {
+      gameId: 'GameId',
+      requestCategoryId: 'RequestCategoryId',
+    },
+    optional: {
+      text: 'String',
+      dismissed: 'Boolean',
     },
   });
 

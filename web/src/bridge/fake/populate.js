@@ -347,10 +347,66 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
 
   let requestCategoryId = server.idGenerator.newRequestCategoryId();
   let requestId = server.idGenerator.newRequestId();
-  server.addRequestCategory({gameId: gameId, requestCategoryId: requestCategoryId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, text: 'yee?', type: 'ack'});
-  server.addRequest({gameId: gameId, requestId: requestId, requestCategoryId: requestCategoryId, playerId: jackPlayerId});
-  server.addRequest({gameId: gameId, requestId: server.idGenerator.newRequestId(), requestCategoryId: requestCategoryId, playerId: zellaPlayerId});
-  server.addResponse({gameId: gameId, requestId: requestId, text: null});
+  server.addRequestCategory({
+    gameId: gameId,
+    requestCategoryId: requestCategoryId,
+    chatRoomId: resistanceChatRoomId,
+    playerId: moldaviPlayerId,
+    text: 'yee?',
+    type: 'ack',
+    dismissed: false
+  });
+  server.addRequest({
+    gameId: gameId,
+    requestId: requestId,
+    requestCategoryId: requestCategoryId,
+    playerId: jackPlayerId
+  });
+  server.addRequest({
+    gameId: gameId,
+    requestId: server.idGenerator.newRequestId(),
+    requestCategoryId: requestCategoryId,
+    playerId: zellaPlayerId
+  });
+  server.addResponse({
+    gameId: gameId,
+    requestId: requestId,
+    text: null
+  });
+  server.updateRequestCategory({
+    gameId: gameId,
+    requestCategoryId: requestCategoryId,
+    dismissed: true,
+  });
+
+  let secondRequestCategoryId = server.idGenerator.newRequestCategoryId();
+  let secondRequestId = server.idGenerator.newRequestId();
+  server.addRequestCategory({
+    gameId: gameId,
+    requestCategoryId: secondRequestCategoryId,
+    chatRoomId: resistanceChatRoomId,
+    playerId: moldaviPlayerId,
+    text: 'yee?',
+    type: 'ack',
+    dismissed: false
+  });
+  server.addRequest({
+    gameId: gameId,
+    requestId: secondRequestId,
+    requestCategoryId: secondRequestCategoryId,
+    playerId: jackPlayerId
+  });
+  server.addRequest({
+    gameId: gameId,
+    requestId: server.idGenerator.newRequestId(),
+    requestCategoryId: secondRequestCategoryId,
+    playerId: zellaPlayerId
+  });
+  server.addResponse({
+    gameId: gameId,
+    requestId: secondRequestId,
+    text: null
+  });
   
   populateQuiz(server, gameId);
 }
