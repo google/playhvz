@@ -145,7 +145,16 @@ def RouteRequest(method):
     raise AppError('Invalid method %s' % method)
   f = methods[method]
 
+  exception = None
   game_state.maybe_load(GetFirebase())
-  return jsonify(f(json.loads(request.data), game_state))
+  game_state.start_transaction()
+  try:
+    result = jsonify(f(json.loads(request.data), game_state))
+  except Exception as e:
+    exception = e
+  game_state.commit_transaction()
+  if exception:
+    raise exception
+  return result
 
 # vim:ts=2:sw=2:expandtab

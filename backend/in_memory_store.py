@@ -111,6 +111,7 @@ class InMemoryStore:
   def __init__(self):
     self.instance = None
     self.firebase = None
+    self.transaction = None
 
   def maybe_load(self, firebase):
     """Load the firebase model from the remote source if a local copy
@@ -142,26 +143,25 @@ class InMemoryStore:
     return obj.get(last(full_path))
 
   def delete(self, path, id):
-    """Convenience wrapper for a transaction consisting of only a deletion"""
-    transaction = self.transaction()
-    transaction.delete(path, id)
-    transaction.commit()
+    """add a deletion into the transaction"""
+    self.transaction.delete(path, id)
 
   def put(self, path, id, data):
-    """Convenience wrapper for a transaction consisting of only a put"""
-    transaction = self.transaction()
-    transaction.put(path, id, data)
-    transaction.commit()
+    """add a put into the transaction"""
+    self.transaction.put(path, id, data)
 
   def patch(self, path, data):
-    """Convenience wrapper for a transaction consisting of only a patch"""
-    transaction = self.transaction()
-    transaction.patch(path, data)
-    transaction.commit()
+    """Add a patch into the transaction"""
+    self.transaction.patch(path, data)
 
-  def transaction(self):
+  def start_transaction(self):
     """Open a transaction for this model."""
-    return Transaction(self.firebase, self.instance)
+    self.transaction = Transaction(self.firebase, self.instance)
+
+  def commit_transaction(self):
+    """"""
+    self.transaction.commit()
+    self.transaction = None
 
 class Transaction:
   """A transaction is an atomic list of mutations that can be applied to the
@@ -224,6 +224,7 @@ class Transaction:
     self.firebase = firebase
     self.mutation_data = {}
     self.mutation_paths = {}
+    self.has_mutation = False
     self.committed = False
 
   def delete(self, path, id):
@@ -241,6 +242,7 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
+    self.has_mutation = True
     mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
     if mutation_data_obj is not None and id in mutation_data_obj:
       del mutation_data_obj[id]
@@ -267,6 +269,7 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
+    self.has_mutation = True
     mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
     if mutation_data_obj is not None:
       mutation_data_obj[id] = data
@@ -293,6 +296,7 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
+    self.has_mutation = True
     for key, value in data.iteritems():
       mutation_data_obj = follow_path(self.mutation_data, join_paths(path, drop_last(key)), create_missing=True)
       if mutation_data_obj is not None:
@@ -312,6 +316,9 @@ class Transaction:
     We will crawl the path tree to find all the paths to include in the
     mutation. We then get the data in the data tree for each path.
     """
+    if not self.has_mutation:
+      self.committed = True
+      return
     batch_mutation = {}
     all_paths = crawl_paths(self.mutation_paths)
     for path in all_paths:

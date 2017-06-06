@@ -36,9 +36,7 @@ def Register(request, game_state):
 
   if game_state.get('/users', user_id) is None:
     data = {'a': True}
-    transaction = game_state.transaction()
-    transaction.put('/users', request['userId'], data)
-    transaction.commit()
+    game_state.put('/users', request['userId'], data)
 
 
 def AddGame(request, game_state):
@@ -74,11 +72,8 @@ def AddGame(request, game_state):
     'active': request['active'],
     'started': request['started'],
   }
-  transaction = game_state.transaction()
-  transaction.put('/games', request['gameId'], put_data)
-  transaction.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True)
-  transaction.commit()
-  return []
+  game_state.put('/games', request['gameId'], put_data)
+  game_state.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True)
 
 
 def SetAdminContact(request, game_state):
@@ -98,9 +93,7 @@ def SetAdminContact(request, game_state):
   helpers.ValidateInputs(request, game_state, required_args, valid_args)
 
   put_data = {'adminContactPlayerId': request['playerId']}
-  transaction = game_state.transaction()
-  transaction.patch('/games/%s' % request['gameId'], put_data)
-  transaction.commit()
+  game_state.patch('/games/%s' % request['gameId'], put_data)
 
 
 def UpdateGame(request, game_state):
@@ -132,9 +125,7 @@ def UpdateGame(request, game_state):
     if property in request:
       put_data[property] = request[property]
 
-  transaction = game_state.transaction()
-  transaction.patch('/games/%s' % request['gameId'], put_data)
-  transaction.commit()
+  game_state.patch('/games/%s' % request['gameId'], put_data)
 
 
 def AddGameAdmin(request, game_state):
@@ -161,9 +152,7 @@ def AddGameAdmin(request, game_state):
   if game_state.get('/games/%s/adminUsers' % game, user):
     raise InvalidInputError('User %s is already an admin.' % user)
 
-  transaction = game_state.transaction()
-  transaction.put('/games/%s/adminUsers/' % game, user, True)
-  transaction.commit()
+  game_state.put('/games/%s/adminUsers/' % game, user, True)
 
 
 def AddGroup(request, game_state):
@@ -212,12 +201,10 @@ def AddGroup(request, game_state):
     'membersCanAdd': request['membersCanAdd'],
     'membersCanRemove': request['membersCanRemove'],
   }
-  transaction = game_state.transaction()
-  transaction.put('/groups', group_id, group)
-  transaction.put('/games/%s/groups/' % request['gameId'], request['groupId'], True)
+  game_state.put('/groups', group_id, group)
+  game_state.put('/games/%s/groups/' % request['gameId'], request['groupId'], True)
   if request['ownerPlayerId'] is not None:
-    AddPlayerToGroupInner(game_state, transaction, group_id, owner_player_id)
-  transaction.commit()
+    AddPlayerToGroupInner(game_state, group_id, owner_player_id)
 
 
 def UpdateGroup(request, game_state):
@@ -252,9 +239,7 @@ def UpdateGroup(request, game_state):
   for property in ['name', 'autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove', 'ownerPlayerId']:
     if property in request:
       put_data[property] = request[property]
-  transaction = game_state.transaction()
-  transaction.patch('/groups/%s' % request['groupId'], put_data)
-  transaction.commit()
+  game_state.patch('/groups/%s' % request['groupId'], put_data)
 
 
 def AddPlayer(request, game_state):
@@ -310,8 +295,7 @@ def AddPlayer(request, game_state):
   number = helpers.GetNextPlayerNumber(game_state, game_id)
 
   user_player = {'gameId': game_id}
-  transaction = game_state.transaction()
-  transaction.put('/users/%s/players' % user_id, player_id, user_player)
+  game_state.put('/users/%s/players' % user_id, player_id, user_player)
 
   private_player = {
     'gameId': game_id,
@@ -324,7 +308,7 @@ def AddPlayer(request, game_state):
     'notificationSettings': request['notificationSettings'],
     'volunteer': request['volunteer'],
   }
-  transaction.put('/playersPrivate', player_id, private_player)
+  game_state.put('/playersPrivate', player_id, private_player)
 
   public_player = {
     'number': number,
@@ -335,12 +319,11 @@ def AddPlayer(request, game_state):
     'points': 0,
     'allegiance': constants.UNDECLARED,
   }
-  transaction.put('/playersPublic', player_id, public_player)
+  game_state.put('/playersPublic', player_id, public_player)
 
-  transaction.put('/games/%s/players' % game_id, player_id, True)
+  game_state.put('/games/%s/players' % game_id, player_id, True)
 
-  AutoUpdatePlayerGroups(game_state, transaction, player_id, new_player=True)
-  transaction.commit()
+  AutoUpdatePlayerGroups(game_state, player_id, new_player=True)
 
 
 def UpdatePlayer(request, game_state):
@@ -410,12 +393,10 @@ def UpdatePlayer(request, game_state):
   print "patching private:"
   print private_update
 
-  transaction = game_state.transaction()
-  transaction.patch('/playersPrivate/%s' % player_id, private_update)
-  transaction.patch('/playersPrivate/%s/volunteer' % player_id, volunteer_update)
-  transaction.patch('/playersPrivate/%s/notificationSettings' % player_id, notification_settings_update)
-  transaction.patch('/playersPublic/%s' % player_id, public_update)
-  transaction.commit()
+  game_state.patch('/playersPrivate/%s' % player_id, private_update)
+  game_state.patch('/playersPrivate/%s/volunteer' % player_id, volunteer_update)
+  game_state.patch('/playersPrivate/%s/notificationSettings' % player_id, notification_settings_update)
+  game_state.patch('/playersPublic/%s' % player_id, public_update)
 
 
 def AddGun(request, game_state):
@@ -433,14 +414,12 @@ def AddGun(request, game_state):
   game_id = request['gameId']
   gun_id = request['gunId']
 
-  transaction = game_state.transaction()
-  transaction.put('/guns', gun_id, {
+  game_state.put('/guns', gun_id, {
     'gameId': request['gameId'],
     'playerId': '',
     'label': request['label']
   })
-  transaction.put('/games/%s/guns' % game_id, gun_id, True)
-  transaction.commit()
+  game_state.put('/games/%s/guns' % game_id, gun_id, True)
 
 
 def AssignGun(request, game_state):
@@ -461,9 +440,7 @@ def AssignGun(request, game_state):
   if 'label' in request:
     update['label'] = request['label']
 
-  transaction = game_state.transaction()
-  transaction.patch('/guns/%s' % request['gunId'], update)
-  transaction.commit()
+  game_state.patch('/guns/%s' % request['gunId'], update)
 
 
 def AddMission(request, game_state):
@@ -485,10 +462,8 @@ def AddMission(request, game_state):
 
   mission_data = {k: request[k] for k in ['name', 'beginTime', 'endTime', 'detailsHtml', 'groupId', 'gameId']}
 
-  transaction = game_state.transaction()
-  transaction.put('/missions', request['missionId'], mission_data)
-  transaction.put('/games/%s/missions' % request['gameId'], request['missionId'], True)
-  transaction.commit()
+  game_state.put('/missions', request['missionId'], mission_data)
+  game_state.put('/games/%s/missions' % request['gameId'], request['missionId'], True)
 
 
 def DeleteMission(request, game_state):
@@ -497,10 +472,8 @@ def DeleteMission(request, game_state):
     'missionId': 'MissionId'
   })
 
-  transaction = game_state.transaction()
-  transaction.delete('/missions', request['missionId'])
-  transaction.delete('/games/%s/missions' % request['gameId'], request['missionId'])
-  transaction.commit()
+  game_state.delete('/missions', request['missionId'])
+  game_state.delete('/games/%s/missions' % request['gameId'], request['missionId'])
 
 
 def UpdateMission(request, game_state):
@@ -525,9 +498,7 @@ def UpdateMission(request, game_state):
     if property in request:
       put_data[property] = request[property]
 
-  transaction = game_state.transaction()
-  transaction.patch('/missions/%s' % mission_id, put_data)
-  transaction.commit()
+  game_state.patch('/missions/%s' % mission_id, put_data)
 
 
 def AddChatRoom(request, game_state):
@@ -557,10 +528,8 @@ def AddChatRoom(request, game_state):
 
   chat_room = {k: request[k] for k in ('groupId', 'name', 'withAdmins', 'gameId')}
 
-  transaction = game_state.transaction()
-  transaction.put('/chatRooms', chat_room_id, chat_room)
-  transaction.put('/games/%s/chatRooms' % game_id, chat_room_id, True)
-  transaction.commit()
+  game_state.put('/chatRooms', chat_room_id, chat_room)
+  game_state.put('/games/%s/chatRooms' % game_id, chat_room_id, True)
 
 
 def UpdateChatRoom(request, game_state):
@@ -582,9 +551,7 @@ def UpdateChatRoom(request, game_state):
   })
 
   put_data = {'name': request['name']}
-  transaction = game_state.transaction()
-  transaction.patch('/chatRooms/%s' % request['chatRoomId'], put_data)
-  transaction.commit()
+  game_state.patch('/chatRooms/%s' % request['chatRoomId'], put_data)
 
 
 def SendChatMessage(request, game_state):
@@ -625,9 +592,7 @@ def SendChatMessage(request, game_state):
     'message': request['message'],
     'time': int(time.time())
   }
-  transaction = game_state.transaction()
-  transaction.put('/chatRooms/%s/messages' % chat, messageId, put_data)
-  transaction.commit()
+  game_state.put('/chatRooms/%s/messages' % chat, messageId, put_data)
 
 
 def AckChatMessage(request, game_state):
@@ -660,9 +625,7 @@ def AckChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group, playerId):
     raise InvalidInputError('You are not a member of that chat room.')
 
-  transaction = game_state.transaction()
-  transaction.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
-  transaction.commit()
+  game_state.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
 
 
 def AddPlayerToGroup(request, game_state):
@@ -733,12 +696,10 @@ def AddPlayerToGroup(request, game_state):
     if not game_state.get('/groups/%s' % group_id, 'membersCanAdd'):
       raise InvalidInputError('Players are not allowed to add to this group.')
   print "success, adding"
-  transaction = game_state.transaction()
-  AddPlayerToGroupInner(game_state, transaction, group_id, player_to_add_id)
-  transaction.commit()
+  AddPlayerToGroupInner(game_state, group_id, player_to_add_id)
 
 
-def AddPlayerToGroupInner(game_state, transaction, group_id, player_to_add_id):
+def AddPlayerToGroupInner(game_state, group_id, player_to_add_id):
   """Add player to a group and mappings for chat rooms, missions, etc.
 
   When a player is added to a group, find chats and missions associated with
@@ -757,18 +718,18 @@ def AddPlayerToGroupInner(game_state, transaction, group_id, player_to_add_id):
   """
 
   print 'flamingo 1'
-  transaction.put('/groups/%s/players' % group_id, player_to_add_id, True)
+  game_state.put('/groups/%s/players' % group_id, player_to_add_id, True)
 
   print 'flamingo 2'
   chats = helpers.GroupToChats(game_state, group_id)
   for chat in chats:
     print 'flamingo 3'
-    transaction.put('/playersPrivate/%s/chatRooms' % player_to_add_id, chat, True)
+    game_state.put('/playersPrivate/%s/chatRooms' % player_to_add_id, chat, True)
 
   missions = helpers.GroupToMissions(game_state, group_id)
   for mission in missions:
     print 'flamingo 4'
-    transaction.put('/playersPrivate/%s/missions' % player_to_add_id, mission, True)
+    game_state.put('/playersPrivate/%s/missions' % player_to_add_id, mission, True)
 
   print 'flamingo 5'
 
@@ -835,12 +796,10 @@ def RemovePlayerFromGroup(request, game_state):
     if not game_state.get('/groups/%s' % group_id, 'membersCanRemove'):
       raise InvalidInputError('Players are not allowed to remove from this group.')
 
-  transaction = game_state.transaction()
-  RemovePlayerFromGroupInner(game_state, transaction, group_id, player_to_remove_id)
-  transaction.commit()
+  RemovePlayerFromGroupInner(game_state, group_id, player_to_remove_id)
 
 
-def RemovePlayerFromGroupInner(game_state, transaction, group_id, player_id):
+def RemovePlayerFromGroupInner(game_state, group_id, player_id):
   """Remove player from a group and the chat room, mission, etc mappings.
 
   When a player is removed from a group, find chats and missions associated with
@@ -857,18 +816,18 @@ def RemovePlayerFromGroupInner(game_state, transaction, group_id, player_id):
     /playersPrivate/%(playerId)/missions/
   """
 
-  transaction.delete('/groups/%s/players' % group_id, player_id)
+  game_state.delete('/groups/%s/players' % group_id, player_id)
 
   chats = helpers.GroupToChats(game_state, group_id)
   for chat in chats:
-    transaction.delete('/playersPrivate/%s/chatRooms' % player_id, chat)
+    game_state.delete('/playersPrivate/%s/chatRooms' % player_id, chat)
 
   missions = helpers.GroupToMissions(game_state, group_id)
   for mission in missions:
-    transaction.delete('/playersPrivate/%s/missions' % player_id, mission)
+    game_state.delete('/playersPrivate/%s/missions' % player_id, mission)
 
 
-def AutoUpdatePlayerGroups(game_state, transaction, player_id, new_player=False):
+def AutoUpdatePlayerGroups(game_state, player_id, new_player=False):
   """Auto add/remove a player from groups.
 
   When a player changes allegiances, automatically add/remove them
@@ -894,14 +853,14 @@ def AutoUpdatePlayerGroups(game_state, transaction, player_id, new_player=False)
     group = game_state.get('/groups', group_id)
     if group['autoAdd'] and group['allegianceFilter'] == allegiance:
       print 'lizard 3'
-      AddPlayerToGroupInner(game_state, transaction, group_id, player_id)
+      AddPlayerToGroupInner(game_state, group_id, player_id)
     elif (not new_player and group['autoRemove'] and
           group['allegianceFilter'] != allegiance):
       print 'lizard 4'
-      RemovePlayerFromGroupInner(game_state, transaction, group_id, player_id)
+      RemovePlayerFromGroupInner(game_state, group_id, player_id)
     elif new_player and group['autoAdd'] and group['allegianceFilter'] == 'none':
       print 'lizard 5'
-      AddPlayerToGroupInner(game_state, transaction, group_id, player_id)
+      AddPlayerToGroupInner(game_state, group_id, player_id)
 
 
 # TODO Decide how to mark a life code as used up.
@@ -955,28 +914,25 @@ def Infect(request, game_state):
   if victim['allegiance'] != constants.HUMAN:
     raise InvalidInputError('Your victim is not human and cannot be infected.')
 
-  transaction = game_state.transaction()
   # Add points and an infection entry for a successful infection
   if player_id != victim_id:
-    helpers.AddPoints(game_state, transaction, player_id, constants.POINTS_INFECT)
+    helpers.AddPoints(game_state, player_id, constants.POINTS_INFECT)
     infect_path = '/playersPublic/%s/infections' % victim_id
     infect_data = {
       'infectorId': player_id,
       'time': int(time.time()),
     }
-    transaction.put(infect_path, infection_id, infect_data)
+    game_state.put(infect_path, infection_id, infect_data)
 
   # If secret zombie, set the victim to secret zombie and the infector to zombie
   # Else set the victom to zombie
   if player_id != victim_id and player['allegiance'] == constants.HUMAN:
     logging.warn('Secret infection')
-    SetPlayerAllegiance(game_state, transaction, victim_id, allegiance=constants.HUMAN, can_infect=True)
-    SetPlayerAllegiance(game_state, transaction, player_id, allegiance=constants.ZOMBIE, can_infect=True)
+    SetPlayerAllegiance(game_state, victim_id, allegiance=constants.HUMAN, can_infect=True)
+    SetPlayerAllegiance(game_state, player_id, allegiance=constants.ZOMBIE, can_infect=True)
   else:
     logging.warn('Normal infection')
-    SetPlayerAllegiance(game_state, transaction, victim_id, allegiance=constants.ZOMBIE, can_infect=True)
-
-  transaction.commit()
+    SetPlayerAllegiance(game_state, victim_id, allegiance=constants.ZOMBIE, can_infect=True)
 
 
 def SetAllegiance(request, game_state):
@@ -1004,9 +960,7 @@ def SetAllegiance(request, game_state):
 
   if request['allegiance'] == constants.ZOMBIE and not request['canInfect']:
     raise InvalidInputError('Zombies can always infect.')
-  transaction = game_state.transaction()
-  SetPlayerAllegiance(game_state, transaction, request['playerId'], request['allegiance'], request['canInfect'])
-  transaction.commit()
+  SetPlayerAllegiance(game_state, request['playerId'], request['allegiance'], request['canInfect'])
 
 
 def JoinResistance(request, game_state):
@@ -1024,11 +978,9 @@ def JoinResistance(request, game_state):
   if player['allegiance'] != 'undeclared':
     raise InvalidInputError('Already have an allegiance!')
 
-  transaction = game_state.transaction()
-  AddLife(request, game_state, transaction)
+  AddLife(request, game_state)
 
-  SetPlayerAllegiance(game_state, transaction, player_id, constants.HUMAN, False)
-  transaction.commit()
+  SetPlayerAllegiance(game_state, player_id, constants.HUMAN, False)
 
 
 def JoinHorde(request, game_state):
@@ -1041,12 +993,10 @@ def JoinHorde(request, game_state):
   player = game_state.get('/playersPublic', player_id)
   if player['allegiance'] != 'undeclared':
     raise InvalidInputError('Already have an allegiance!')
-  transaction = game_state.transaction()
-  SetPlayerAllegiance(game_state, transaction, player_id, constants.ZOMBIE, True)
-  transaction.commit()
+  SetPlayerAllegiance(game_state, player_id, constants.ZOMBIE, True)
 
 
-def SetPlayerAllegiance(game_state, transaction, player_id, allegiance, can_infect):
+def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
   """Helper to set the allegiance of a player.
 
   Args:
@@ -1063,10 +1013,9 @@ def SetPlayerAllegiance(game_state, transaction, player_id, allegiance, can_infe
     /groups/%(groupId) indirectly
   """
   game_id = helpers.PlayerToGame(game_state, player_id)
-  transaction.put('/playersPublic/%s' % player_id, 'allegiance', allegiance)
-  transaction.put('/playersPrivate/%s' % player_id, 'canInfect', can_infect)
-  AutoUpdatePlayerGroups(game_state, transaction, player_id, new_player=False)
-  transaction.commit()
+  game_state.put('/playersPublic/%s' % player_id, 'allegiance', allegiance)
+  game_state.put('/playersPrivate/%s' % player_id, 'canInfect', can_infect)
+  AutoUpdatePlayerGroups(game_state, player_id, new_player=False)
 
 
 def AddRewardCategory(request, game_state):
@@ -1109,10 +1058,8 @@ def AddRewardCategory(request, game_state):
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
-  transaction = game_state.transaction()
-  transaction.put('/rewardCategories', reward_category_id, reward_category_data)
-  transaction.put('/games/%s/rewardCategories' % game, reward_category_id, True)
-  transaction.commit()
+  game_state.put('/rewardCategories', reward_category_id, reward_category_data)
+  game_state.put('/games/%s/rewardCategories' % game, reward_category_id, True)
 
 
 def UpdateRewardCategory(request, game_state):
@@ -1137,9 +1084,7 @@ def UpdateRewardCategory(request, game_state):
     if k in request:
       reward_category_data[k] = request[k]
 
-  transaction = game_state.transaction()
-  transaction.patch('/rewardCategories/%s' % reward_category_id, reward_category_data)
-  transaction.commit()
+  game_state.patch('/rewardCategories/%s' % reward_category_id, reward_category_data)
 
 
 def AddReward(request, game_state):
@@ -1184,9 +1129,7 @@ def AddReward(request, game_state):
     'code': reward_code,
     'playerId': None,
   }
-  transaction = game_state.transaction()
-  AddRewardToDb(game_state, transaction, reward_category_id, reward_id, reward_data)
-  transaction.commit()
+  AddRewardToDb(game_state, reward_category_id, reward_id, reward_data)
 
 
 def AddRewards(request, game_state):
@@ -1207,7 +1150,6 @@ def AddRewards(request, game_state):
 
   reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
 
-  transaction = game_state.transaction()
   for i in range(request['count']):
     reward_id = 'reward-%s' % random.randint(0, 2**52)
     reward_data = {
@@ -1216,19 +1158,18 @@ def AddRewards(request, game_state):
       'code': '%s-%s' % (reward_category['shortName'], RandomWords(3)),
       'playerId': None
     }
-    AddRewardToDb(game_state, transaction, reward_category_id, reward_id, reward_data)
-  transaction.commit()
+    AddRewardToDb(game_state, reward_category_id, reward_id, reward_data)
 
 
-def AddRewardToDb(game_state, transaction, reward_category_id, reward_id, reward):
+def AddRewardToDb(game_state, reward_category_id, reward_id, reward):
   """Put a new reward into the DB.
 
   Firebase entries:
     /rewards/%(rewardId)
     /rewardCategories/%(rcID)/rewards/%(rewardId)
   """
-  transaction.put('/rewards', reward_id, reward)
-  transaction.put('/rewardCategories/%s/rewards' % reward_category_id, reward_id, True)
+  game_state.put('/rewards', reward_id, reward)
+  game_state.put('/rewardCategories/%s/rewards' % reward_category_id, reward_id, True)
 
 
 def ClaimReward(request, game_state):
@@ -1286,18 +1227,16 @@ def ClaimReward(request, game_state):
       if len(claims) >= limit:
         raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % limit)
 
-  transaction = game_state.transaction()
-  transaction.patch(reward_path, {'playerId': player})
+  game_state.patch(reward_path, {'playerId': player})
 
   reward_points = int(reward_category['points'])
   rewards_claimed = int(reward_category['claimed'])
 
-  helpers.AddPoints(game_state, transaction, player, reward_points)
-  transaction.patch(reward_category_path, {'claimed': rewards_claimed + 1})
-  transaction.patch(reward_path, {'playerId': player})
+  helpers.AddPoints(game_state, player, reward_points)
+  game_state.patch(reward_category_path, {'claimed': rewards_claimed + 1})
+  game_state.patch(reward_path, {'playerId': player})
   claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time())}
-  transaction.put('%s/claims' % player_path, reward_id, claim_data)
-  transaction.commit()
+  game_state.put('%s/claims' % player_path, reward_id, claim_data)
 
   return reward_category_id
 
@@ -1362,10 +1301,8 @@ def SendNotification(request, game_state):
     if property in request:
       put_data[property] = request[property]
 
-  transaction = game_state.transaction()
-  transaction = game_state.put('/notifications',
+  game_state.put('/notifications',
                       request['notificationId'], put_data)
-  transaction.commit()
 
 
 def UpdateNotification(request, game_state):
@@ -1413,9 +1350,7 @@ def UpdateNotification(request, game_state):
     if property in request:
       put_data[property] = request[property]
 
-  transaction = game_state.transaction()
-  transaction.patch('/notifications/%s' % request['notificationId'], put_data)
-  transaction.commit()
+  game_state.patch('/notifications/%s' % request['notificationId'], put_data)
 
 
 def MarkNotificationSeen(request, game_state):
@@ -1438,10 +1373,8 @@ def MarkNotificationSeen(request, game_state):
   put_data = {
     'time': int(time.time())
   }
-  transaction = game_state.transaction()
-  transaction.patch('/player/%s/notifications/%s' % (
+  game_state.patch('/player/%s/notifications/%s' % (
       request['playerId'], request['notificationId']), put_data)
-  transaction.commit()
 
 
 def RegisterUserDevice(request, game_state):
@@ -1462,12 +1395,10 @@ def RegisterUserDevice(request, game_state):
     'deviceToken': 'String',
   })
   put_data = {'deviceToken': request['deviceToken']}
-  transaction = game_state.transaction()
-  transaction.patch('/users/%s', put_data)
-  transaction.commit()
+  game_state.patch('/users/%s', put_data)
 
 
-def AddLife(request, game_state, transaction=None):
+def AddLife(request, game_state=None):
   """Add a new player life.
 
   Validation:
@@ -1499,27 +1430,19 @@ def AddLife(request, game_state, transaction=None):
     'code': life_code,
   }
 
-  larger_transaction = True
-  if not transaction:
-    transaction = game_state.transaction()
-    larger_transaction = False
-  transaction.put('/playersPublic/%s/lives' % player_id, life_code, public_life),
-  transaction.put('/playersPrivate/%s/lives' % player_id, life_code, private_life)
-  if not larger_transaction:
-    transaction.commit()
+  game_state.put('/playersPublic/%s/lives' % player_id, life_code, public_life),
+  game_state.put('/playersPrivate/%s/lives' % player_id, life_code, private_life)
 
 
 def DeleteTestData(request, game_state):
   if request['id'] != secrets.FIREBASE_EMAIL:
     return
-  transaction = game_state.transaction()
   for entry in ROOT_ENTRIES:
     data = game_state.get('/', entry)
     if data:
       test_keys = [r for r in data if 'test-' in r]
       for k in test_keys:
-        transaction.delete('/%s' % entry, k)
-  transaction.commit()
+        game_state.delete('/%s' % entry, k)
 
 
 def DumpTestData(request, game_state):
