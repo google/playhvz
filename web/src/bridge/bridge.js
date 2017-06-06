@@ -195,6 +195,7 @@ class FakeIdGenerator extends IdGenerator {
     canInfect: 'Boolean',
     profileImageUrl: 'String',
     wantToBeSecretZombie: 'Boolean',
+    beInPhotos: 'Boolean',
     volunteer: {
       advertising: 'Boolean',
       logistics: 'Boolean',
