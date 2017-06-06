@@ -9,6 +9,7 @@ import google.auth.transport.requests
 import google.oauth2.id_token
 import requests_toolbelt.adapters.appengine
 import json
+import threading
 
 import api_calls
 import constants
@@ -23,7 +24,7 @@ HTTP_REQUEST = google.auth.transport.requests.Request()
 app = Flask(__name__)
 flask_cors.CORS(app)
 game_state = store.InMemoryStore()
-
+api_mutex = threading.Lock()
 
 def GetFirebase():
   """Get a Firebase connection, cached in the application context."""
@@ -147,12 +148,14 @@ def RouteRequest(method):
 
   exception = None
   game_state.maybe_load(GetFirebase())
+  api_mutex.acquire()
   game_state.start_transaction()
   try:
     result = jsonify(f(json.loads(request.data), game_state))
   except Exception as e:
     exception = e
   game_state.commit_transaction()
+  api_mutex.release()
   if exception:
     raise exception
   return result
