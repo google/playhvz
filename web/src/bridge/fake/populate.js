@@ -347,10 +347,10 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
 
   let requestCategoryId = server.idGenerator.newRequestCategoryId();
   let requestId = server.idGenerator.newRequestId();
-  server.addRequestCategory({requestCategoryId: requestCategoryId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, text: 'yee?', type: 'ack'});
-  server.addRequest({requestId: requestId, requestCategoryId: requestCategoryId, playerId: jackPlayerId});
-  server.addRequest({requestId: server.idGenerator.newRequestId(), requestCategoryId: requestCategoryId, playerId: zellaPlayerId});
-  server.addResponse({requestId: requestId, text: null});
+  server.addRequestCategory({gameId: gameId, requestCategoryId: requestCategoryId, chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, text: 'yee?', type: 'ack'});
+  server.addRequest({gameId: gameId, requestId: requestId, requestCategoryId: requestCategoryId, playerId: jackPlayerId});
+  server.addRequest({gameId: gameId, requestId: server.idGenerator.newRequestId(), requestCategoryId: requestCategoryId, playerId: zellaPlayerId});
+  server.addResponse({gameId: gameId, requestId: requestId, text: null});
   
   populateQuiz(server, gameId);
 }
