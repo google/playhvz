@@ -151,13 +151,13 @@ class FakeServer {
   }
 
   addPlayerToGroup(args) {
-    let {groupId, otherPlayerId} = args;
+    let {groupId, playerToAddId} = args;
     let gameId = this.reader.getGameIdForGroupId(groupId);
     let game = this.database.gamesById[gameId];
-    let player = game.playersById[otherPlayerId];
+    let player = game.playersById[playerToAddId];
     let group = game.groupsById[groupId];
 
-    let existingMembership = group.membershipsByPlayerId[otherPlayerId];
+    let existingMembership = group.membershipsByPlayerId[playerToAddId];
     if (existingMembership)
       return;
 
@@ -167,22 +167,22 @@ class FakeServer {
     this.writer.insert(
         this.reader.getMembershipPath(gameId, groupId, null),
         null,
-        new Model.GroupMembership(otherPlayerId, {playerId: otherPlayerId}));
+        new Model.GroupMembership(playerToAddId, {playerId: playerToAddId}));
     this.writer.insert(
-        this.reader.getPlayerGroupMembershipPath(gameId, otherPlayerId, null),
+        this.reader.getPlayerGroupMembershipPath(gameId, playerToAddId, null),
         null,
         new Model.PlayerGroupMembership(groupId, {groupId: groupId}));
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.groupId == groupId) {
-        this.addPlayerToChatRoom_(gameId, groupId, chatRoom.id, otherPlayerId);
+        this.addPlayerToChatRoom_(gameId, groupId, chatRoom.id, playerToAddId);
       }
     }
   }
 
   removePlayerFromGroup(args) {
-    let {groupId, otherPlayerId} = args;
-    let playerId = otherPlayerId;
+    let {groupId, playerToAddId} = args;
+    let playerId = playerToAddId;
     let gameId = this.reader.getGameIdForGroupId(groupId);
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];
@@ -480,7 +480,7 @@ class FakeServer {
   //   for (let group of this.database.gamesById[gameId].groups) {
   //     if (group.autoRemove) {
   //       if (group.allegianceFilter && group.allegianceFilter != player.allegiance) {
-  //         this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
+  //         this.removePlayerFromGroup({groupId: group.id, playerToAddId: playerId});
   //       }
   //     }
   //   }
@@ -493,7 +493,7 @@ class FakeServer {
   //     if (group.autoAdd) {
   //       console.log('considering', group.name, group.autoAdd, group.allegianceFilter, player.name, player.allegianceFilter);
   //       if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
-  //         this.addPlayerToGroup({groupId: group.id, otherPlayerId: playerId});
+  //         this.addPlayerToGroup({groupId: group.id, playerToAddId: playerId});
   //       }
   //     }
   //   }
@@ -507,7 +507,7 @@ class FakeServer {
       if (group.autoRemove) {
         if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
           if (group.memberships.find(m => m.playerId == playerId)) {
-            this.removePlayerFromGroup({groupId: group.id, otherPlayerId: playerId});
+            this.removePlayerFromGroup({groupId: group.id, playerToAddId: playerId});
           }
         }
       }
@@ -515,7 +515,7 @@ class FakeServer {
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoAdd) {
         if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
-          this.addPlayerToGroup({gameId: gameId, groupId: group.id, otherPlayerId: playerId});
+          this.addPlayerToGroup({gameId: gameId, groupId: group.id, playerToAddId: playerId});
         }
       }
     }

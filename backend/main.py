@@ -98,7 +98,6 @@ methods = {
   'markNotificationSeen': api_calls.MarkNotificationSeen,
   'addLife': api_calls.AddLife,
   'infect': api_calls.Infect,
-  'setAllegiance': api_calls.SetAllegiance,
   'joinResistance': api_calls.JoinResistance,
   'joinHorde': api_calls.JoinHorde,
   'setAdminContact': api_calls.SetAdminContact,
