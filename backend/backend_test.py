@@ -36,7 +36,7 @@ class EndToEndTest(unittest.TestCase):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertTrue(r.ok, msg='Expected to POST 200 [ %s ] but got %d:\n%s\nfor: %s' % (method, r.status_code, r.text, data))
-  
+
   def AssertFails(self, method, data):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
@@ -65,12 +65,12 @@ class EndToEndTest(unittest.TestCase):
     ident = '%s-%s-%d' % (key, self.identifier, num)
     return ident
 
-  def AssertDataMatches(self):
+  def AssertDataMatches(self, use_local):
     # Compare a dump of the DB to the JSON string below.
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL})
+    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL, 'use_local': use_local})
     expected = json.loads(expected_raw)
     actual = r.json()
     self.CleanTestData(actual)
@@ -86,7 +86,7 @@ class EndToEndTest(unittest.TestCase):
   def setUp(self):
     self.requester = Requester()
     self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
-  
+
   def tearDown(self):
     pass
     # self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
@@ -326,14 +326,15 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertOk('addReward', create)
     self.AssertFails('addReward', create)
-    
+
     claim = {
       'gameId': self.Id('gameId'),
       'playerId': self.Id('playerId'),
       'rewardCode': 'testrew-purple-striker-balloon',
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
-    self.AssertDataMatches()
+    self.AssertDataMatches(True)
+    self.AssertDataMatches(False)
 
 
 if __name__ == '__main__':

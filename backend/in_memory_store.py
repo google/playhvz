@@ -59,15 +59,18 @@ def join_paths(path, suffix):
   Examples:
     join_paths('abc/def/', '/hij') => 'abc/def/hij'
     join_paths('a', 'b/c/d') => 'a/b/c/d'
-    join_paths('abc/def', None) => 'abc/def/'
+    join_paths('abc/def', None) => 'abc/def'
   """
   if not path.endswith('/'):
     path = path + '/'
-  if suffix.startswith('/'):
-    suffix = suffix[1:]
   if suffix is None:
     suffix = ''
-  return '%s%s' % (path, suffix)
+  if suffix.startswith('/'):
+    suffix = suffix[1:]
+  full_path = '%s%s' % (path, suffix)
+  if full_path[-1] == '/':
+    full_path = full_path[:-1]
+  return full_path
 
 def drop_last(path):
   """Returns a path with the last "part" dropped.
@@ -118,28 +121,25 @@ class InMemoryStore:
       self.instance = firebase.get('/', None)
       self.firebase = firebase
 
-  def get(self, path, id, params=None, local_instance=False):
+  def get(self, path, id, local_instance=True):
     """Get data from the model. Getting data from the local instance and the
     remove instance is the same with some exceptions:
     - Remote fetches don't have mutations from an unclosed transaction,
       local fetches do.
-    - params don't do anything in the local instance
 
     Arguments:
       path: The path to get
       id: The id of the value to get at the path
-      params: Filtering and sorting params
       local_instance: If true, gets the data from the local copy,
           if false, gets the data from the remote copy.
-
-    TODO(yuhao93): Make params work locally
     """
     if not local_instance:
-      return self.firebase.get(path, id, params)
-    obj = follow_path(self.instance, path)
+      return self.firebase.get(path, id)
+    full_path = join_paths(path, id)
+    obj = follow_path(self.instance, drop_last(full_path))
     if obj is None:
       return None
-    return obj.get(id)
+    return obj.get(last(full_path))
 
   def delete(self, path, id):
     """Convenience wrapper for a transaction consisting of only a deletion"""

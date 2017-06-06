@@ -1463,7 +1463,7 @@ def DeleteTestData(request, game_state):
     return
 
   for entry in ROOT_ENTRIES:
-    data = game_state.get('/', entry, {'shallow': True})
+    data = game_state.get('/', entry)
     if data:
       test_keys = [r for r in data if 'test-' in r]
       for k in test_keys:
@@ -1473,11 +1473,11 @@ def DeleteTestData(request, game_state):
 def DumpTestData(request, game_state):
   if request['id'] != secrets.FIREBASE_EMAIL:
     return
-
+  use_local = request['use_local']
   res = {}
   for entry in ROOT_ENTRIES:
     res[entry] = {}
-    data = game_state.get('/', entry, params=None, local_instance=True)
+    data = game_state.get('/', entry, local_instance=use_local)
     if data:
       res[entry] = {r: data[r] for r in data if 'test-' in r}
   return res
