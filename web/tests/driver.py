@@ -102,11 +102,11 @@ class ProdDriver:
       self.SendKeys([[By.NAME, 'populateGameId']], self.game_id)
       self.Click([[By.NAME, 'populate']])
       self.ExpectContains([[By.NAME, 'populateResult']], 'Success!')
-    self.SwitchUser(user)
+    self.SwitchUser(user, page)
 
   def SwitchUser(self, user, page):
     if user not in self.drivers_by_user:
-      self.MakeDriver(user, 'game/' + self.game_id.slice(len('game-')) + '/' + page)
+      self.MakeDriver(user, 'game/' + self.game_id[len('game-'):] + '/' + page)
     else:
       self.current_user = user
 
@@ -144,7 +144,7 @@ class ProdDriver:
     self.drivers_by_user[self.current_user].SendKeys(path, keys)
 
   def Quit(self):
-    for user, driver in enumerate(self.drivers_by_user):
+    for driver in self.drivers_by_user.values():
       driver.Quit()
 
 class FakeDriver:
