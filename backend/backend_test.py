@@ -185,6 +185,8 @@ class EndToEndTest(unittest.TestCase):
       'autoRemove': False,
       'canAddOthers': False,
       'canRemoveOthers': False,
+      'canAddSelf': False,
+      'canRemoveSelf': False,
       'ownerPlayerId': self.Id('playerId'),
     }
     update = {
@@ -199,6 +201,8 @@ class EndToEndTest(unittest.TestCase):
       'name': 'group Bar',
       'canAddOthers': True,
       'canRemoveOthers': True,
+      'canAddSelf': True,
+      'canRemoveSelf': True,
     })
     self.requester.Post('createGroup', create)
 

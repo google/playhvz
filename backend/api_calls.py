@@ -187,7 +187,9 @@ def AddGroup(request, game_state):
     'autoRemove': 'Boolean',
     'autoAdd': 'Boolean',
     'canAddOthers': 'Boolean',
-    'canRemoveOthers': 'Boolean'
+    'canRemoveOthers': 'Boolean',
+    'canAddSelf': 'Boolean',
+    'canRemoveSelf': 'Boolean'
   })
 
   group_id = request['groupId']
@@ -202,6 +204,8 @@ def AddGroup(request, game_state):
     'autoAdd': request['autoAdd'],
     'canAddOthers': request['canAddOthers'],
     'canRemoveOthers': request['canRemoveOthers'],
+    'canAddSelf': request['canAddSelf'],
+    'canRemoveSelf': request['canRemoveSelf'],
   }
 
   game_state.put('/groups', group_id, group)
@@ -236,11 +240,13 @@ def UpdateGroup(request, game_state):
     'autoAdd': '|Boolean',
     'autoRemove': '|Boolean',
     'canAddOthers': '|Boolean',
-    'canRemoveOthers': '|Boolean'
+    'canRemoveOthers': '|Boolean',
+    'canAddSelf': '|Boolean',
+    'canRemoveSelf': '|Boolean'
   })
 
   put_data = {}
-  for property in ['name', 'autoAdd', 'autoRemove', 'canAddOthers', 'canRemoveOthers', 'ownerPlayerId']:
+  for property in ['name', 'autoAdd', 'autoRemove', 'canAddOthers', 'canRemoveOthers', 'canAddSelf', 'canRemoveSelf', 'ownerPlayerId']:
     if property in request:
       put_data[property] = request[property]
 
