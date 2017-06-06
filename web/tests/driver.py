@@ -112,7 +112,7 @@ class ProdDriver:
 
   def MakeDriver(self, user, page):
     selenium_driver = webdriver.Chrome()
-    url = "http://localhost:5000/%s?user=%s&env=%s" % (page, user, self.env)
+    url = "http://localhost:5000/%s?user=%s&env=%s&signInMethod=email&email=%s&password=%s" % (page, user, self.env, 'hvz' + user + '@gmail.com', self.password)
     selenium_driver.get(url)
 
     simple_driver = SimpleDriver(selenium_driver)
@@ -124,10 +124,6 @@ class ProdDriver:
     self.FindElement([[By.ID, 'root']], wait_long=True)
 
     self.Click([[By.NAME, 'signIn']])
-    self.SendKeys([[By.NAME, 'identifier']], 'hvz' + user + '@gmail.com')
-    self.Click([[By.ID, 'identifierNext']])
-    self.SendKeys([[By.NAME, 'password']], self.password)
-    self.Click([[By.ID, 'passwordNext']])
 
     self.FindElement([[By.ID, 'root']], wait_long=True)
 

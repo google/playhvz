@@ -1,6 +1,7 @@
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig) {
+  constructor(serverUrl, firebaseConfig, signInMethod) {
+    this.signInMethod = signInMethod;
 
     firebase.initializeApp(firebaseConfig);
     this.firebaseListener =
@@ -17,46 +18,8 @@ class RemoteBridge {
         };
       }
     }
-  }
 
-  signIn({}) {
-    if (this.userId == null) {
-      return new Promise((resolve, reject) => {
-        firebase.auth().getRedirectResult()
-            .then((result) => {
-              if (result.user) {
-                this.userId = "user-" + result.user.uid;
-                  this.firebaseListener.listenToUser(this.userId)
-                      .then((exists) => {
-                        if (exists) {
-                          resolve(this.userId);
-                        } else {
-                          this.register({userId: this.userId})
-                              .then(() => {
-                                this.firebaseListener.listenToUser(this.userId);
-                              })
-                              .catch((error) => {
-                                reject(error);
-                              });
-                        }
-                      });
-                // });
-              } else {
-                // This sometimes happens when we redirect away. Let it go.
-              }
-            })
-            .catch((error) => {
-              reject(error.message);
-            });
-        firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-      });
-    } else {
-      throwError("Impossible");
-    }
-  }
-
-  attemptAutoSignIn() {
-    return new Promise((resolve, reject) => {
+    this.signedInPromise = new Promise((resolve, reject) => {
       firebase.auth().onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
           if (this.userId == null) {
@@ -78,10 +41,38 @@ class RemoteBridge {
             assert("user-" + firebaseUser.uid == this.userId);
           }
         } else {
-          reject();
+          // reject();
         }
       });
     });
+  }
+
+  signIn({}) {
+    if (this.userId == null) {
+      return new Promise((resolve, reject) => {
+        let signInMethod = Utils.getParameterByName('signInMethod', 'google');
+        assert(signInMethod == 'google' || signInMethod == 'email', 'signInMethod must be "google" or "email"!');
+        if (signInMethod == 'email') {
+          let email = Utils.getParameterByName('email', null);
+          let password = Utils.getParameterByName('password', null);
+          if (!email || !password) {
+            alert('Email and password must be set');
+            return;
+          }
+
+          firebase.auth().signInWithEmailAndPassword(email, password);
+        } else {
+          firebase.auth().getRedirectResult();
+          firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+        }
+      });
+    } else {
+      throwError("Impossible");
+    }
+  }
+
+  getSignedInPromise() {
+    return this.signedInPromise;
   }
 
   signOut() {

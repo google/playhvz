@@ -28,17 +28,6 @@ class Bridge {
     return this.inner.setPlayerId(playerId);
   }
 
-  attemptAutoSignIn() {
-    return this.inner.attemptAutoSignIn();
-  }
-
-  listenToGameAsAdmin(...args) {
-    return this.inner.listenToGameAsAdmin(...args);
-  }
-  listenToGameAsNonAdmin(...args) {
-    return this.inner.listenToGameAsNonAdmin(...args);
-  }
-
   check_(typeName, value) {
     if (typeName.startsWith("?")) {
       if (value === null)
@@ -564,7 +553,9 @@ class FakeIdGenerator extends IdGenerator {
 
   let bridgeMethods = new Map(serverMethods);
 
-  bridgeMethods.set('attemptAutoSignIn', {});
+  bridgeMethods.set('signIn', {});
+  bridgeMethods.set('signOut', {});
+  bridgeMethods.set('getSignedInPromise', {});
   bridgeMethods.set('listenToDatabase', {});
   bridgeMethods.set('listenToGameAsAdmin', {});
   bridgeMethods.set('listenToGameAsNonAdmin', {});

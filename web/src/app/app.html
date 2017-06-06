@@ -102,6 +102,7 @@
 
       listeners: {
         'ghvz-set-path': 'handleSetPath_',
+        'ghvz-sign-out': 'signOut_',
       //   'ghvz-open-drawer': 'openDrawer_',
       //   'ghvz-close-drawer': 'closeDrawer_',
       //   'ghvz-select-game': 'handleSelectGame_',
@@ -149,18 +150,18 @@
               });
         }
 
-        this.bridge.attemptAutoSignIn({userId: this.userId})
+        this.bridge.getSignedInPromise({})
             .then((userId) => {
               this.userId = userId;
-              // this.onUserIdChanged_();
-            })
-            .catch((e) => {
-              // this.onUserIdChanged_();
             });
       },
 
       hideSignInButton_() {
         this.showSignInButton = false;
+      },
+
+      signOut_() {
+        this.bridge.signOut();
       },
 
       navigateEmptyPathToGamesPath_() {
