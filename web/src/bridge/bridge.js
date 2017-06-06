@@ -98,6 +98,8 @@ class IdGenerator {
   verifyPlayerId(id) { return this.verify('player', id); }
   newPointId(note) { return this.generateId('point', note); }
   verifyPointId(id) { return this.verify('point', id); }
+  newProfileImageId(note) { return this.generateId('profileImage', note); }
+  verifyProfileImageId(id) { return this.verify('profileImage', id); }
   newQuizAnswerId(note) { return this.generateId('quizAnswer', note); }
   verifyQuizAnswerId(id) { return this.verify('quizAnswer', id); }
   newQuizQuestionId(note) { return this.generateId('quizQuestion', note); }
@@ -186,6 +188,14 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('setAdminContact', {
     required: {gameId: 'GameId', playerId: 'PlayerId'},
+  });
+  serverMethods.set('addDefaultProfileImage', {
+    required: {
+      gameId: 'GameId',
+      profileImageId: 'ProfileImageId',
+      allegianceFilter: 'String',
+      profileImageUrl: 'String', 
+    }
   });
 
   // Players

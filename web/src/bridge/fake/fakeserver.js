@@ -73,6 +73,15 @@ class FakeServer {
         null,
         new Model.Admin(userId, {userId: userId}));
   }
+  addDefaultProfileImage(args) {
+    debugger;
+    let {gameId, profileImageId} = args;
+    this.writer.insert(
+        this.reader.getGamePath(gameId, null),
+        null,
+        new Model.DefaultProfileImage(profileImageId, args)
+    );
+  }
   createPlayer(args) {
     let {gameId, playerId, userId} = args;
     let game = this.database.gamesById[gameId];
