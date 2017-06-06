@@ -220,12 +220,12 @@ def ChatToGame(game_state, chat):
   return GroupToGame(group)
 
 
-def AddPoints(game_state, player_id, points):
+def AddPoints(game_state, transaction, player_id, points):
   """Add points to a player."""
   player_path = '/playersPublic/%s' % player_id
   current_points = int(game_state.get(player_path, 'points'))
   new_points = current_points + points
-  game_state.put(player_path, 'points', new_points)
+  transaction.put(player_path, 'points', new_points)
   return 'Player points = %d + %d => %d' % (current_points, points, new_points)
 
 
