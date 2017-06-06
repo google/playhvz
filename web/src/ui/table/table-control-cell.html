@@ -1,0 +1,100 @@
+
+<dom-module id="ghvz-table-control-cell">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-table-control-cell',
+
+        properties: {
+          item: Object,
+          rewardCategoriesById: Object,
+          selected: {
+            type: Boolean,
+          },
+          table: Object,
+        },
+
+        observers: ['updateSelected_(table, item)'],
+
+        attached: function() {
+          this.table = this.closest('ghvz-table');
+          assert(this.table);
+        },
+
+        updateSelected_: function() {
+          if (this.item) {
+            // Table can be null before the row is attached
+            if (table) {
+              this.selected = this.table.isItemSelected(this.item);
+            }
+          }
+        },
+
+        onPlaceholderMenuHover_: function(e) {
+          // This condition so we don't get the event from the menu itself once
+          // it's summoned.
+          if (e.target == this.$.menu) {
+            this.fire('ghvz-table-summon-menu', {
+              container: this.$.menu,
+            });
+          }
+        },
+
+        onPlaceholderCheckboxHover_: function(e) {
+          // This condition so we don't get the event from the menu itself once
+          // it's summoned.
+          if (e.target == this.$.checkbox) {
+            this.fire('ghvz-table-summon-checkbox', {
+              cell: this,
+              container: this.$.checkbox,
+            });
+          }
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: table-cell;
+      white-space: nowrap;
+      padding-left: 12px;
+    }
+    #checkbox {
+      width: 18px;
+      height: 18px;
+      background-image: url(/unchecked.jpg);
+      display: inline-flex;
+      vertical-align: middle;
+      background-size: 18px 18px;
+    }
+    #checkbox[selected] {
+      background-image: url(/checked.jpg);
+    }
+    #menu {
+      vertical-align: middle;
+      display: inline-flex;
+      width: 24px;
+      height: 24px;
+      background-position: center center;
+      background-size: 20px 20px;
+      background-image: url(/menu.jpg);
+      background-repeat: no-repeat;
+    }
+  </style>
+  <template>
+    <div
+        hidden$="[[!table.selectable]]"
+        id="checkbox"
+        selected$="[[selected]]"
+        on-mouseover="onPlaceholderCheckboxHover_">
+     </div>
+    <div
+        hidden$="[[!table.actions.length]]"
+        id="menu"
+        on-mouseover="onPlaceholderMenuHover_">
+    </div>
+  </template>
+</dom-module>

@@ -1,0 +1,216 @@
+
+<dom-module id="ghvz-desktop-main-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-desktop-main-page',
+
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: String,
+          game: String,
+          player: Object,
+
+          isAdmin: {
+            type: Boolean,
+            computed: 'computeIsAdmin_(user, game, game.admins.length)',
+          },
+
+          isPlayer: {
+            type: Boolean,
+            computed: 'computeIsPlayer_(player)',
+          },
+
+          isDeclared: {
+            type: Boolean,
+            computed: 'computeIsDeclared_(player.allegiance)',
+          },
+
+          canDeclare: {
+            type: Boolean,
+            computed: 'computeCanDeclare_(player.allegiance)',
+          },
+
+          canJoinGame: {
+            type: Boolean,
+            computed: 'computeCanJoinGame_(game, player)',
+          },
+
+          canSelfInfect: {
+            type: Boolean,
+            computed: 'computeCanSelfInfect_(player.allegiance)',
+          },
+        },
+
+        computeIsAdmin_: function(user, game) {
+          let admin = game.admins.find((admin) => admin.userId == user.id);
+          return !!admin;
+        },
+
+        computeCanDeclare_(allegiance) {
+          return allegiance == 'undeclared';
+        },
+
+        computeIsDeclared_(allegiance) {
+          return allegiance == 'resistance' || allegiance == 'horde';
+        },
+
+        computeCanSelfInfect_: function(allegiance) {
+          return allegiance == 'resistance';
+        },
+
+        computeCanJoinGame_(game, player) {
+          return game && !player;
+        },
+
+        computeIsPlayer_(player) {
+          return !!player;
+        },
+
+        joinGame_() {
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['joinGame'],
+          });
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+      position: relative;
+    }
+    .content {
+      margin: 16px;
+    }
+    #viewControls paper-checkbox {
+      margin-left: 16px;
+    }
+    #topControls {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+      align-items: center;
+    }
+    #info {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 16px;
+      align-items: center;
+    }
+    .info {
+      margin-left: 32px;
+      text-align: center;
+    }
+    paper-button {
+      background-color: #03A9F4;
+      color: white;
+    }
+  </style>
+  <template>
+    <ghvz-dashboard>
+
+      <template is="dom-if" if="[[canJoinGame]]">
+        <ghvz-card spaced full padded>
+          <div class="header">Join Game!</div>
+          <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
+        </ghvz-card>
+      </template>
+
+      <template is="dom-if" if="[[canDeclare]]">
+        <ghvz-card spaced left padded>
+          <div class="header">Declare Allegiance!</div>
+          <ghvz-declare-dashlet></ghvz-declare-dashlet>
+        </ghvz-card>
+      </template>
+
+      <template is="dom-if" if="[[isPlayer]]">
+
+        <template is="dom-if" if="[[player.canInfect]]">
+          <ghvz-card spaced left>
+            <div class="header">Infect</div>
+            <ghvz-infect
+                bridge="[[bridge]]"
+                game="[[game]]"
+                player-id="[[player.id]]">
+            </ghvz-infect>
+          </ghvz-card>
+        </template>
+
+        <ghvz-card spaced right padded>
+          <div class="header">Rules</div>
+          <ghvz-rules game="[[game]]"></ghvz-rules>
+        </ghvz-card>
+
+        <ghvz-card spaced left>
+            <div class="header">Game Summary</div>
+            <ghvz-game-summary
+                game="[[game]]">
+            </ghvz-game-summary>
+        </ghvz-card>
+
+        <template is="dom-if" if="[[isDeclared]]">
+          <ghvz-card spaced left>
+            <div class="header">Next Mission</div>
+            <ghvz-next-mission
+                bridge="[[bridge]]"
+                game="[[game]]"
+                player="[[player]]">
+            </ghvz-next-mission>
+          </ghvz-card>
+        </template>
+
+        <template is="dom-if" if="[[game.started]]">
+          <ghvz-card spaced scrolling right>
+            <div class="header">Leaderboard</div>
+            <ghvz-leaderboard-summary
+                players="[[game.players]]"
+                num-to-show="3">
+            </ghvz-leaderboard-summary>
+          </ghvz-card>
+        </template>
+
+        <template is="dom-if" if="[[isDeclared]]">
+          <ghvz-card spaced right fullscreen-page="stats">
+            <div class="header">Game Stats</div>
+            <ghvz-game-stat-summary game="[[game]]">
+            </ghvz-game-stat-summary>
+          </ghvz-card>
+        </template>
+
+        <template is="dom-if" if="[[isDeclared]]">
+          <ghvz-card spaced left>
+            <div class="header">Rewards</div>
+            <ghvz-claim-reward
+                bridge="[[bridge]]"
+                game="[[game]]"
+                player="[[player]]">
+            </ghvz-claim-reward>
+          </ghvz-card>
+        </template>
+
+        <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
+          <ghvz-card spaced left>
+            <div class="header">
+              <ghvz-chat-room-name-label game="[[game]]" chat-room-id="[[membership.chatRoomId]]"></ghvz-chat-room-name-label>
+            </div>
+            <ghvz-chat-room
+                small
+                bridge="[[bridge]]"
+                game="[[game]]"
+                is-admin="[[isAdmin]]"
+                current-player="[[player]]"
+                chat-room-id="[[membership.chatRoomId]]">
+            </ghvz-chat-room>
+          </ghvz-card>
+        </template>
+      </template>
+
+    </ghvz-dashboard>
+  </template>
+</dom-module>

@@ -1,0 +1,74 @@
+<dom-module id="ghvz-player-lookup">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-player-lookup',
+
+        properties: {
+          players: Array,
+          playersById: Object,
+          label: {
+            type: String,
+            value: null,
+          },
+          value: {
+            type: String,
+            notify: true,
+          },
+          matchingPlayerOrNull: {
+            type: Object,
+            notify: true,
+          },
+          lookupDelegate: {
+            type: Object,
+            value: function() {
+              return {
+                getItemText: ((player) => player.number + ": " + player.name),
+                startsWith: ((player, value) => this.playerStartsWith_(player, value)),
+                matches: ((player, value) => this.playerMatches_(player, value)),
+              };
+            },
+          },
+        },
+
+        playerStartsWith_: function(player, value) {
+          const simplifiedValue = value.toLowerCase().replace(/ /g, "");
+          const numberStr = "" + player.number;
+          const simplifiedName = player.name.toLowerCase().replace(/ /g, "");
+          return simplifiedName.startsWith(simplifiedValue) || numberStr.startsWith(simplifiedValue);
+        },
+
+        playerMatches_: function(player, value) {
+          const simplifiedValue = value.toLowerCase().replace(/ /g, "");
+          const numberStr = "" + player.number;
+          const simplifiedName = player.name.toLowerCase().replace(/ /g, "");
+          return simplifiedName == simplifiedValue || numberStr == simplifiedValue;
+        },
+      });
+    });
+  </script>
+
+  <template class="layout vertical" style="height:300px">
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+      #matchingPlayer {
+        font-size: 90%:
+        font-weight: bold;
+        color: green;
+      }
+    </style>
+    <ghvz-lookup
+        delegate="[[lookupDelegate]]"
+        label="[[label]]"
+        items="[[players]]"
+        value="{{value}}"
+        matching-item-or-null="{{matchingPlayerOrNull}}">
+      <content/>
+    </ghvz-lookup>
+  </template>
+</dom-module>

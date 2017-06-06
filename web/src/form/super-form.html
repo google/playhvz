@@ -1,0 +1,280 @@
+
+<dom-module id="ghvz-super-form">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-super-form',
+
+        properties: {
+          blueprint: {
+            type: Object,
+          },
+
+          game: Object,
+
+          typeName: {
+            type: String,
+            value: "",
+          },
+
+          editing: {
+            type: String,
+            value: null,
+          },
+
+          fields: {
+            type: Object,
+            value: [],
+          },
+
+          doneEnabled: {
+            type: Boolean,
+            value: true,
+          },
+        },
+
+        observers: [
+          'updateDoneEnabled_(fields.*)',
+        ],
+
+        attached: function() {
+          this.resolveDonePromise = null;
+
+          let fields = [];
+          for (let field of this.blueprint.fields) {
+            fields.push({
+              index: fields.length,
+              property: field.property,
+              type: field.type || "string",
+              label: field.label || "",
+              required: field.required == null ? true : field.required,
+              width: field.width || null,
+              description: field.description || "",
+              options: field.options,
+              value: "",
+            });
+          }
+          this.fields = fields;
+        },
+
+        getFieldIndexByProperty(property) {
+          for (let i = 0; i < this.fields.length; i++) {
+            if (this.fields[i].property == property) {
+              return i;
+            }
+          }
+          return null;
+        },
+
+        populate_(values) {
+          for (let field of this.fields) {
+            if (field.property in values) {
+              console.log('Setting', 'fields.' + field.index + '.value', values[field.property]);
+              this.set('fields.' + field.index + '.value', null);
+              this.set('fields.' + field.index + '.value', values[field.property]);
+              if (field.type == 'enum') {
+                // Doesnt work yet, see
+                // https://github.com/PolymerElements/paper-dropdown-menu/issues/114
+                let optionIndex = this.getOptionIndex_(field, values[field.property]);
+                this.$$("#" + this.getFieldId_(field)).selected = 1;
+                this.$$("#" + this.getFieldId_(field)).selected = 0;
+                this.$$("#" + this.getFieldId_(field)).selected = optionIndex;
+              }
+            } else {
+              let newValue;
+              if (field.type == 'boolean') {
+                newValue = false;
+              } else if (field.type == 'number') {
+                newValue = 0;
+              } else if (field.type == 'enum') {
+                newValue = field.options[0].value;
+              } else if (field.type == 'timestamp') {
+                newValue = new Date().getTime();
+              } else {
+                newValue = "";
+              }
+              this.set('fields.' + field.index + '.value', newValue);
+            }
+          }
+        },
+
+        assembleValues_() {
+          let values = {};
+          for (let field of this.fields) {
+            let value = field.value;
+            switch (field.type) {
+              case 'number': value = +value; break;
+              case 'boolean': value = !!value; break;
+            }
+            values[field.property] = value;
+          }
+          return values;
+        },
+
+        openForAdding: function(opt_initialValues) {
+          this.editing = false;
+          this.$.form.open();
+          this.async(() => {
+            this.populate_(opt_initialValues || {});
+          });
+          return new Promise((resolve, reject) => {
+            this.resolveDonePromise = resolve;
+          });
+        },
+
+        openForEditing: function(values) {
+          this.editing = true;
+          this.$.form.open();
+          this.async(() => {
+            this.populate_(values);
+          });
+          return new Promise((resolve, reject) => {
+            this.resolveDonePromise = resolve;
+          });
+        },
+
+        computeTitle_(editing, typeName) {
+          return (editing ? "Edit " : "New ") + typeName;
+        },
+
+        done_: function() {
+          this.resolveDonePromise(this.assembleValues_());
+        },
+
+        updateDoneEnabled_() {
+          for (let field of this.fields) {
+            if (field.required) {
+              if ((field.type == 'text' || field.type == 'string') && field.value == "") {
+                this.doneEnabled = false;
+                return;
+              }
+              if (field.value == null) {
+                this.doneEnabled = false;
+                return;
+              }
+            }
+          }
+          this.doneEnabled = true;
+        },
+
+        useTimestampPicker_: function(field) {
+          return field.type == 'timestamp';
+        },
+
+        usePaperDropdown_: function(field) {
+          return field.type == 'enum';
+        },
+
+        usePaperTextarea_: function(field) {
+          return field.type == 'text';
+        },
+
+        usePaperCheckbox_: function(field) {
+          return field.type == 'boolean';
+        },
+
+        usePaperInput_: function(field) {
+          return !field.type || field.type == 'string' || field.type == 'number';
+        },
+
+        useGroupField_: function(field) {
+          return field.type == 'group';
+        },
+
+        getOptionIndex_(field, value) {
+          return field.options.findIndex((option) => option.value == value);
+        },
+
+        onOptionChosen_(e) {
+          let field = e.model.field;
+          let fieldIndex = this.fields.indexOf(field);
+          let optionIndex = e.target.selected;
+          let option = field.options[optionIndex];
+          let optionValue = option.value;
+          this.set('fields.' + fieldIndex + '.value', optionValue);
+        },
+
+        getFieldId_(field) {
+          return "field-" + field.property;
+        },
+
+        onInputFocused_(e) {
+          e.target.$.input.select();
+        },
+      });
+    });
+  </script>
+  <style>
+    ghvz-form-section {
+      margin: 8px;
+    }
+  </style>
+  <template>
+    <ghvz-form
+        id="form"
+        title="[[computeTitle_(editing, typeName)]]"
+        close-label="Cancel"
+        done-label="Done"
+        done-enabled="[[doneEnabled]]"
+        on-ghvz-form-done="done_">
+      <template is="dom-repeat" items="{{fields}}" as="field">
+        <ghvz-form-section
+            section-width$="[[field.width]]"
+            description="[[field.description]]">
+          <template is="dom-if" if="[[usePaperDropdown_(field)]]">
+            <paper-dropdown-menu
+                label="Allegiance Filter">
+              <paper-listbox
+                  id$="[[getFieldId_(field)]]" 
+                  selected="[[getOptionIndex_(field, field.value)]]"
+                  on-iron-select="onOptionChosen_"
+                  class="dropdown-content">
+                <template is="dom-repeat" items="[[field.options]]" as="option">
+                  <paper-item>[[option.name]]</paper-item>
+                </template>
+              </paper-listbox>
+            </paper-dropdown-menu>
+          </template>
+          <template is="dom-if" if="[[useTimestampPicker_(field)]]">
+            <ghvz-timestamp-picker timestamp="{{field.value}}">
+            </ghvz-timestamp-picker>
+          </template>
+          <template is="dom-if" if="[[usePaperTextarea_(field)]]">
+            <paper-textarea
+                id$="[[field.property]]Input"
+                no-label-float
+                label="[[field.label]]"
+                value="{{field.value}}">
+            </paper-textarea>
+          </template>
+          <template is="dom-if" if="[[useGroupField_(field)]]">
+            <ghvz-group-field game="[[game]]" value="{{field.value}}">
+            </ghvz-group-field>
+            <div>
+              (Start typing 'group' if nothing shows up)
+            </div>
+          </template>
+          <template is="dom-if" if="[[usePaperCheckbox_(field)]]">
+            <paper-checkbox checked="{{field.value}}">
+              [[field.label]]
+            </paper-checkbox>
+          </template>
+          <template is="dom-if" if="[[usePaperInput_(field)]]">
+            <paper-input
+                id$="[[field.property]]Input"
+                type="[[field.type]]"
+                no-label-float
+                label="[[field.label]]"
+                value="{{field.value}}"
+                on-focus="onInputFocused_">
+            </paper-input>
+          </template>
+        </ghvz-form-section>
+      </template>
+      <content></content>
+    </ghvz-form>
+  </template>
+</dom-module>

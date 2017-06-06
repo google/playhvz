@@ -1,0 +1,99 @@
+
+<dom-module id="ghvz-leaderboard-summary">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+     Polymer({
+      is: 'ghvz-leaderboard-summary',
+
+      properties: {
+        players: {
+          type: Array,
+          value: function() { return []; },
+        },
+        numToShow: {
+          type: Number,
+          value: 0,
+        },
+        computedPlayerList: {
+          type: Array,
+          computed: 'computePlayerList_(players.length, numToShow)'
+        }
+      },
+      computePlayerList_() {
+        // commented out because it changes the model
+        return this.players//.sort((p1, p2) => p2.points - p1.points)
+          .slice(0, this.numToShow || this.players.length);
+      },
+      makeTableBlueprint_: function() {
+        return {
+          itemsRepeater: this.$.repeater,
+          columns: [
+            {
+              property: "name",
+              name: "Name",
+            },
+            {
+              property: "allegiance",
+              name: "Allegiance",
+              // filtering: true,
+              // filterable: true,
+              // filterText: "resistance",
+            },
+            {
+              property: "points",
+              name: "Points",
+              sorting: true,
+              ascending: false,
+            },
+          ],
+          actions: [
+            {
+              action: "view",
+              name: "View",
+            },
+          ]
+        };
+      },
+    });
+  });
+</script>
+<style>
+  .row {
+    display: table-row;
+  }
+  .cell {
+    display: table-cell;
+    padding: 4px 12px;
+  }
+</style>
+<template>
+  <ghvz-table
+      id="leaderboardTable"
+      blueprint="[[makeTableBlueprint_()]]"
+      items="[[computedPlayerList]]">
+    <template is="dom-repeat" id="repeater" items="[[computedPlayerList]]" as="player" initial-count="1" target-framerate="5">
+      <div class="row">
+        <ghvz-table-control-cell item="[[player]]"></ghvz-table-control-cell>
+        <div
+            name$="Leaderboard Name Cell [[player.name]]"
+            class="cell">
+          [[player.name]]
+        </div>
+        <div
+            name$="Leaderboard Allegiance Cell [[player.name]]"
+            class="cell">
+          [[player.allegiance]]
+        </div>
+        <div
+            name$="Leaderboard Points Cell [[player.name]]"
+            class="cell">
+          [[player.points]]
+        </div>
+      </div>
+    </template>
+  </ghvz-table>
+</template>
+</dom-module>

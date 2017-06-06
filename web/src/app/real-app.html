@@ -1,0 +1,144 @@
+<dom-module id="ghvz-real-app">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-real-app',
+
+      properties: {
+        env: String,
+
+        bridge: {
+          type: Object,
+          computed: 'computeBridge_(env)',
+        },
+
+        url: String,
+
+        database: {
+          type: Object,
+          value: () => ({}),
+        },
+
+        userId: {
+          type: String,
+          value: null,
+        },
+      },
+
+      listeners: {
+        'ghvz-replace-url': 'replaceUrl_',
+        'ghvz-push-url': 'pushUrl_',
+      },
+
+      pushUrl_(e) {
+        this.setUrl_(false);
+      },
+
+      replaceUrl_(e) {
+        this.setUrl_(true);
+      },
+
+      setUrl_(replace) {
+        let queryParams = Utils.getUrlQueryParameters();
+
+        // Assemble new URL
+        let newUrl = '/' + this.$.app.path.join('/');
+        let queryString = '';
+        for (let key in queryParams) {
+          queryString += (queryString ? '&' : '?');
+          queryString += key + '=' + queryParams[key];
+        }
+        newUrl += queryString;
+
+        if (replace)
+          window.history.pushState({}, "", newUrl);
+        else
+          window.history.replaceState({}, "", newUrl);
+      },
+
+      attached() {
+        // this.bridge.attemptAutoSignIn()
+        //     .then((userId) => this.userId = userId)
+        //     .catch((e) => {
+        //       this.userId = null
+        //     });
+        window.onpopstate = this.handlePopState_.bind(this);
+      },
+
+      handlePopState_(e) {
+        this.$.app.path = this.makePathFromUrl_();
+      },
+
+      makePathFromUrl_() {
+        let pathString = window.location.pathname;
+        // Strip any slash at beginning or end
+        pathString = pathString.startsWith('/') ? pathString.slice(1) : pathString;
+        pathString = pathString.endsWith('/') ? pathString.slice(0, pathString.length - 1) : pathString;
+        return pathString ? pathString.split('/') : [];
+      },
+
+      computeBridge_(env) {
+        assert(env);
+        let config;
+        let serverUrl;
+        if (env == 'prod') {
+          serverUrl = "https://humansvszombies-24348.appspot.com/";
+          config = {
+            apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+            authDomain: "trogdors-29fa4.firebaseapp.com",
+            databaseURL: "https://trogdors-29fa4.firebaseio.com",
+            projectId: "trogdors-29fa4",
+            storageBucket: "trogdors-29fa4.appspot.com",
+            messagingSenderId: "625580091272"
+          };
+        } else if (env == 'localprod') {
+          serverUrl = "http://127.0.0.1:8080/"; // we dont have a dev frontend
+          config = {
+            apiKey: "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+            authDomain: "trogdors-29fa4.firebaseapp.com",
+            databaseURL: "https://trogdors-29fa4.firebaseio.com",
+            projectId: "trogdors-29fa4",
+            storageBucket: "trogdors-29fa4.appspot.com",
+            messagingSenderId: "625580091272"
+          };
+        } else if (env == 'dev') {
+          serverUrl = "trololol"; // we dont have a dev frontend
+          config = {
+            apiKey: "AIzaSyCH6Z73pymnu8lzn8b5-O8yuf2FrOt8GOs",
+            authDomain: "zeds-dbe0f.firebaseapp.com",
+            databaseURL: "https://zeds-dbe0f.firebaseio.com",
+            storageBucket: "zeds-dbe0f.appspot.com",
+            messagingSenderId: "721599614458",
+          };
+        } else {
+          throwError("Bad env:", env);
+        }
+
+        return new Bridge(
+            new IdGenerator(),
+            new RemoteBridge(serverUrl, config));
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+<template>
+  <ghvz-app
+      id="app"
+      bridge="[[bridge]]"
+      database="[[database]]"
+      url="[[url]]"
+      path="[[makePathFromUrl_()]]"
+      user-id="[[userId]]">
+  </ghvz-app>
+</template>
+</dom-module>

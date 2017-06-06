@@ -1,0 +1,156 @@
+<dom-module id="ghvz-create-game">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-create-game',
+
+      properties: {
+        bridge: Object,
+        userId: String,
+        game: {
+          type: Object,
+          value: null,
+        }
+      },
+
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+            {
+              property: "id",
+              label: "Id",
+              description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
+              width: "third",
+            },
+            {
+              property: "name",
+              label: "Name",
+              width: "third",
+              description: "Full name for the game.",
+            },
+            {
+              property: "stunTimer",
+              label: "Stun timer (in seconds)",
+              description: "Stun timer, in seconds.",
+              type: 'number',
+              width: "third",
+            },
+          ],
+        };
+      },
+
+      addGame_: function() {
+        this.$.gameForm.openForAdding({})
+            .then((properties) => {
+              let gameId = properties.id;
+              if (!gameId.startsWith('game-'))
+                gameId = 'game-' + properties.id;
+              let trimmedGameId = gameId.slice('game-'.length);
+              
+              let everyoneGroupId = this.bridge.newGroupId('everyone');
+              let everyoneChatRoomId = this.bridge.newChatRoomId('everyone');
+              var resistanceGroupId = this.bridge.newGroupId('resistance');
+              var resistanceChatRoomId = this.bridge.newChatRoomId('resistance');
+              var hordeGroupId = this.bridge.newGroupId('horde');
+              var hordeChatRoomId = this.bridge.newChatRoomId('horde');
+
+              this.bridge.createGame({
+                gameId: gameId,
+                stunTimer: +properties.stunTimer,
+                adminUserId: this.userId,
+                active: true,
+                rulesHtml: '',
+                name: properties.name,
+                started: false,
+              });
+              this.bridge.createGroup({
+                gameId: gameId,
+                groupId: everyoneGroupId,
+                name: "Everyone",
+                ownerPlayerId: null,
+                allegianceFilter: 'none',
+                autoAdd: true,
+                autoRemove: false,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
+              });
+              this.bridge.createChatRoom({
+                gameId: gameId,
+                chatRoomId: everyoneChatRoomId,
+                groupId: everyoneGroupId,
+                name: "Global Chat",
+                withAdmins: false
+              });
+              this.bridge.createGroup({
+                gameId: gameId,
+                groupId: resistanceGroupId,
+                name: "Resistance",
+                ownerPlayerId: null,
+                allegianceFilter: 'resistance',
+                autoAdd: true,
+                autoRemove: true,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
+              });
+              this.bridge.createChatRoom({
+                gameId: gameId,
+                chatRoomId: resistanceChatRoomId,
+                groupId: resistanceGroupId,
+                name: "Resistance Comms Hub",
+                withAdmins: false
+              });
+              this.bridge.createGroup({
+                groupId: hordeGroupId,
+                gameId: gameId,
+                name: "Horde",
+                ownerPlayerId: null,
+                allegianceFilter: 'horde',
+                autoAdd: true,
+                canAddOthers: true,
+                autoRemove: true,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
+              });
+              this.bridge.createChatRoom({
+                gameId: gameId,
+                chatRoomId: hordeChatRoomId,
+                groupId: hordeGroupId,
+                name: "Horde ZedLink",
+                withAdmins: false,
+              });
+              this.fire('ghvz-set-path', {
+                inGame: false,
+                path: ['game', trimmedGameId, 'adminMain'],
+              });
+            });
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: flex;
+  }
+  paper-button {
+    background-color: #9C27B0;
+    color: white;
+  }
+</style>
+<template>
+  <paper-button id="createGame" raised on-tap="addGame_">Create Game</paper-button>
+  <ghvz-super-form
+      id="gameForm"
+      type-name="Game"
+      blueprint="[[makeFormBlueprint_()]]">
+  </ghvz-super-form>
+</template>
+</dom-module>

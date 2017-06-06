@@ -1,0 +1,287 @@
+
+<dom-module id="ghvz-rewards">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-rewards',
+
+        properties: {
+          bridge: Object,
+
+          gameId: String,
+
+          rewardCategories: Array,
+          rewardCategoriesById: Object,
+          playersById: Object,
+
+          currentRewardCategory: {
+            type: Object,
+          },
+        },
+
+        attached: function() {
+          this.fire('ghvz-add-toolbar-button', { button: this.$.add });
+        },
+
+        makeCategoriesTableBlueprint_: function() {
+          return {
+            itemsRepeater: this.$.categoriesRepeater,
+            columns: [
+              {
+                property: "name",
+                name: "Name",
+              },
+              {
+                property: "points",
+                name: "Points",
+              },
+              {
+                property: "shortName",
+                name: "Short Name",
+              },
+              {
+                property: "claimed",
+                name: "Claimed",
+                getModel: (category) => this.computeNumClaimed_(category),
+              },
+            ],
+            actions: [
+              {
+                name: "Show Rewards",
+                handler: (category) => this.$.selector.select(category),
+              },
+              {
+                name: "Export Rewards",
+                handler: (category) => this.showRewardsDialog_(category),
+              },
+              {
+                name: "Edit",
+                handler: this.startEditingCategory_.bind(this),
+              },
+            ],
+          };
+        },
+
+        makeCategoryFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "name",
+                label: "Name",
+                description: "Title of the category. Users will see this next to the icon in their profile and when they hover over the icon.",
+                width: "half",
+              },
+              {
+                property: "shortName",
+                label: "Short Name",
+                width: "half",
+                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
+              },
+              {
+                property: "points",
+                type: "number",
+                label: "Points",
+                width: "half",
+                description: "Num points gained by claiming one of this category's rewards. 0 is a valid value (for example for vaccines).",
+              },
+              {
+                property: "limitPerPlayer",
+                type: "number",
+                label: "Limit per player",
+                width: "half",
+                description: "Maximum number of rewards of this category a player can claim.",
+              },
+            ],
+          };
+        },
+
+        startAddingCategory_: function() {
+          this.$.categoryForm.openForAdding()
+              .then((properties) => {
+                this.bridge.addRewardCategory(Utils.merge(properties, {
+                    rewardCategoryId: this.bridge.newRewardCategoryId(),
+                    gameId: this.gameId
+                }));
+              });
+        },
+
+        startEditingCategory_: function(category) {
+          this.$.categoryForm.openForEditing(category)
+              .then((newProperties) => {
+                this.bridge.updateRewardCategory(Utils.merge(newProperties, {
+                    rewardCategoryId: category.id,
+                }));
+              });
+        },
+
+        makeRewardsTableBlueprint_: function() {
+          return {
+            itemsRepeater: this.$.rewardsRepeater,
+            columns: [
+              {
+                property: "code",
+                name: "Code",
+                sortable: true,
+                filterable: true,
+              },
+              {
+                property: "claimer",
+                name: "Claimer",
+                sortable: true,
+                filterable: true,
+                getModel: (reward) => this.computePlayerName_(reward),
+              },
+            ],
+            actions: [
+              {
+                action: "delete",
+                name: "Delete"
+              },
+            ]
+          };
+        },
+
+        addRewards_() {
+          this.bridge.addRewards({
+            gameId: this.gameId,
+            rewardCategoryId: this.currentRewardCategory.id,
+            count: +this.numNewRewards,
+          });
+          this.numNewRewards = "";
+        },
+
+        computePlayerName_(reward) {
+          if (reward.playerId == null) {
+            return "(unclaimed)";
+          } else {
+            var player = this.playersById[reward.playerId];
+            return player ? player.name : "(unknown!)";
+          }
+        },
+
+        computeNumClaimed_(category) {
+          return category.rewards.filter((reward) => reward.playerId != null).length;
+        },
+
+        showRewardsDialog_(category) {
+          let codes = [];
+          for (let reward of category.rewards)
+            codes.push(reward.code);
+          let codesHTML = codes.reduce((a, b) => (a + "\n" + b), "");
+          this.$.codesDialogContents.value = codesHTML;
+          this.$.codesDialog.open();
+        }
+      });
+    });
+  </script>
+  <style>
+    paper-input {
+      --paper-input-container: {
+        padding: 0;
+      }
+    }
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      padding: 4px 12px;
+    }
+    #rewards {
+      margin-top: 16px;
+    }
+    #rewardCodeInput {
+      flex: 1;
+      margin: 0 8px;
+    }
+    #addReward {
+      margin: 8px;
+      white-space: nowrap;
+    }
+    #newReward {
+      display: flex;
+    }
+    #addRewardContainer {
+      display: flex;
+      align-items: flex-end;
+    }
+    #codesDialogContents {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  </style>
+  <template>
+    <array-selector
+        id="selector"
+        items="[[rewardCategories]]"
+        selected="{{currentRewardCategory}}">
+    </array-selector>
+
+    <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
+    </paper-icon-button>
+
+    <paper-dialog modal id="codesDialog">
+      <paper-textarea id="codesDialogContents"></paper-textarea>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Done</paper-button>
+      </div>
+    </paper-dialog>
+
+    <ghvz-table
+        id="categoriesTable"
+        blueprint="[[makeCategoriesTableBlueprint_()]]"
+        items="[[rewardCategories]]">
+      <template is="dom-repeat" id="categoriesRepeater" items="[[rewardCategories]]" as="category" initial-count="1" target-framerate="5">
+        <div class="row">
+          <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
+          <div class="cell">[[category.name]]</div>
+          <div class="cell">[[category.points]]</div>
+          <div class="cell">[[category.shortName]]</div>
+          <div class="cell">[[computeNumClaimed_(category)]] / [[category.rewards.length]]</div>
+        </div>
+      </template>
+    </ghvz-table>
+
+    <ghvz-super-form
+        id="categoryForm"
+        type-name="Reward Category"
+        blueprint="[[makeCategoryFormBlueprint_()]]">
+    </ghvz-super-form>
+
+    <div id="rewards" hidden="[[!currentRewardCategory]]">
+      <div id="newReward">
+        <paper-input
+            id="rewardCodeInput"
+            label="Num rewards to generate"
+            value="{{numNewRewards}}">
+        </paper-input>
+        <div id="addRewardContainer">
+          <paper-button
+              id="addReward"
+              raised
+              disabled="[[!numNewRewards]]"
+              on-tap="addRewards_">
+            Add Rewards
+          </paper-button>
+        </div>
+      </div>
+
+      <ghvz-table
+          id="rewardsTable"
+          blueprint="[[makeRewardsTableBlueprint_()]]"
+          items="[[currentRewardCategory.rewards]]">
+        <template is="dom-repeat" id="rewardsRepeater" items="[[currentRewardCategory.rewards]]" as="reward" initial-count="1" target-framerate="5">
+          <div class="row">
+            <ghvz-table-control-cell item="[[reward]]"></ghvz-table-control-cell>
+            <div class="cell">[[reward.code]]</div>
+            <div class="cell">[[computePlayerName_(reward)]]</div>
+          </div>
+        </template>
+      </ghvz-table>
+
+    </div>
+  </template>
+</dom-module>

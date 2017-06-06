@@ -1,0 +1,60 @@
+
+<dom-module id="ghvz-next-mission">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-next-mission',
+
+        properties: {
+          bridge: Object,
+
+          game: Object,
+          player: Object,
+
+          nextMissionId: Object,
+        },
+
+        observers: [
+          "updateNextMissionId_(game.missions.length)",
+        ],
+
+        updateNextMissionId_: function() {
+          let nextMission = null;
+          // Of all the missions that end in the future, get the one that ends the soonest.
+          for (const mission of this.game.missions) {
+            if (new Date().getTime() < mission.endTime) {
+              if (!nextMission || mission.endTime < nextMission.endTime) {
+                nextMission = mission;
+              }
+            }
+          }
+          this.nextMissionId = nextMission && nextMission.id;
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #comingSoon {
+        margin: 16px;
+      }
+    </style>
+    <template is="dom-if" if="[[nextMissionId]]">
+      <ghvz-mission
+          player="[[player]]"
+          bridge="[[bridge]]"
+          game="[[game]]"
+          mission-id="[[nextMissionId]]">
+      </ghvz-mission>
+    </template>
+    <div id="comingSoon" hidden$="[[nextMissionId]]">
+      The next mission's details will be posted here.
+    </div>
+  </template>
+</dom-module>

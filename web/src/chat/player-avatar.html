@@ -1,0 +1,78 @@
+<dom-module id="ghvz-player-avatar">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-player-avatar',
+
+      properties: {
+        game: Object,
+        playerId: String,
+        withTooltip: {
+          type: Boolean,
+          value: false,
+        },
+
+        player: Object,
+      },
+
+      observers: [
+        'onPlayerIdChanged_(playerId, game.playersById)',
+      ],
+
+      onPlayerIdChanged_(playerId, playersById) {
+        this.$.selector.select(playersById[playerId]);
+      },
+
+      getAliveStatus_(allegiance) {
+        return allegiance == 'horde';
+      },
+
+      getAliveStatusClass_(allegiance) {
+        return this.getAliveStatus_(allegiance) ? "dead" : "alive";
+      },
+    });
+  });
+</script>
+<style>
+  .profile-pic {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-size: 100% auto;
+    background-position: center center;
+    border: 2px solid black;
+  }
+  :host[small] .profile-pic {
+    width: 28px;
+    height: 28px;
+  }
+  :host[medium] .profile-pic {
+    width: 40px;
+    height: 40px;
+  }
+  :host[large] .profile-pic {
+    width: 100px;
+    height: 100px;
+  }
+  .dead {
+    border-color: forestgreen;
+  }
+  .alive {
+    border-color: fuchsia;
+  }
+</style>
+<template>
+  <array-selector id="selector" items="[[game.players]]" selected="{{player}}"></array-selector>
+  <!-- Circular image style thanks to: https://jsfiddle.net/rvem3v8d/ -->
+  <div
+      style$="background-image: url('[[player.profileImageUrl]]')"
+      class$="profile-pic [[getAliveStatusClass_(player.allegiance)]]">
+  </div>
+  <template is="dom-if" if="[[withTooltip]]">
+    <paper-tooltip position="top" animation-delay="0">[[player.name]]</paper-tooltip>
+  </template>
+</template>
+</dom-module>

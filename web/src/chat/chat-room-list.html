@@ -1,0 +1,196 @@
+<dom-module id="ghvz-chat-room-list">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-room-list',
+
+        properties: {
+          bridge: Object,
+          game: String,
+          player: Object,
+          isAdmin: Boolean,
+
+          adminChatExists: Boolean,
+        },
+
+        observers: [
+          'onChatRoomsUpdated_(game, player.chatRoomMemberships.length)',
+        ],
+        
+        listeners: {
+          'tap': 'captureTap_',
+        },
+
+        onChatRoomsUpdated_() {
+          for (let chatRoomMembership of this.player.chatRoomMemberships) {
+            let chatRoomId = chatRoomMembership.chatRoomId;
+            let chatRoom = this.game.chatRoomsById[chatRoomId];
+            if (chatRoom.withAdmins) {
+              this.adminChatExists = true;
+              return;
+            }
+          }
+          this.adminChatExists = false;
+        },
+
+        captureTap_(e) {
+          let chatRoomId = e.target.dataset.chatRoomId;
+          if (chatRoomId) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', chatRoomId],
+            });
+          } else {
+            let action = e.target.dataset.action;
+            if (action == 'new') {
+              this.$.settings.openForCreate();
+            } else if (action == 'admin') {
+              this.createAdminChat_();
+            }
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        },
+
+        createAdminChat_() {
+          let name =  this.player.name + " & HvZ CDC";
+          let groupId = this.bridge.newGroupId('withadmins');
+          this.bridge.createGroup({
+            name: name,
+            groupId: groupId,
+            gameId: this.game.id,
+            allegianceFilter: 'none',
+            ownerPlayerId: this.player.id,
+            autoAdd: false,
+            autoRemove: false,
+            canAddOthers: false,
+            canRemoveOthers: false,
+          });
+          let chatRoomId = this.bridge.newChatRoomId('withadmins');
+          this.bridge.createChatRoom({
+            gameId: this.game.id,
+            chatRoomId: chatRoomId,
+            groupId: groupId,
+            name: name,
+            withAdmins: true,
+          });
+          this.bridge.addPlayerToGroup({
+            groupId: groupId,
+            playerToAddId: this.player.id,
+            playerId: this.player.id,
+          });
+          this.bridge.addPlayerToGroup({
+            groupId: groupId,
+            playerToAddId: this.game.adminContactPlayerId,
+            playerId: this.player.id,
+          });
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['chat', chatRoomId],
+          });
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    .action {
+      display: flex;
+      align-items: center;
+      opacity: .6;
+      padding-left: 4px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+    }
+    .frame {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .list-item {
+      padding-top: 8px;
+      height: 48px;
+      align-items: center;
+      display: flex;
+      padding-bottom: 8px;
+    }
+    .section {
+      border-top: 1px solid #ddd;
+      padding: 8px 0;
+    }
+    .name-label {
+      height: 48px;
+      align-items: center;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      --ghvz-chat-room-name-label-icon: {
+        padding-right: 8px;
+      }
+    }
+    iron-icon {
+      flex-shrink: 0;
+      padding-right: 8px;
+      margin: 0;
+    }
+    .with-admin {
+      display: flex;
+      align-items: center;
+      padding-left: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+      padding: 0 8px;
+    }
+    .action {
+      padding-left: 8px;
+    }
+  </style>
+  <template>
+    <div class="frame" on-tap="captureTap_">
+      <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
+        <ghvz-chat-room-name-label
+            class="layout horizontal list-item name-label"
+            with-icon
+            game="[[game]]"
+            chat-room-id="[[membership.chatRoomId]]"
+            data-chat-room-id$="[[membership.chatRoomId]]">
+        </ghvz-chat-room-name-label>
+      </template>
+    </div>
+
+    <template is="dom-if" if="[[!adminChatExists]]">
+      <div class="list-item">
+        <a href="javascript:void(0)" data-action="admin" class="with-admin">
+          <iron-icon icon="communication:chat"></iron-icon>
+          HvZ CDC Game Admins
+        </a>
+      </div>
+    </template>
+
+    <div class="list-item">
+      <a href="javascript:void(0)" data-action="new" class="action">
+        <iron-icon icon="icons:add"></iron-icon>
+        New chat
+      </a>
+    </div>
+
+    <ghvz-chat-room-settings 
+      id="settings" 
+      bridge="[[bridge]]"
+      game-id="[[game.id]]"
+      player="[[player]]"
+      is-admin="[[isAdmin]]">
+    </ghvz-chat-room-settings>
+  </template>
+</dom-module>

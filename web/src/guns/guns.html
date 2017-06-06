@@ -1,0 +1,180 @@
+
+<dom-module id="ghvz-guns">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-guns',
+
+        properties: {
+          bridge: Object,
+
+          editingGunIdOrNull: {
+            type: Object,
+            value: null,
+          },
+        },
+
+        attached: function() {
+          this.fire('ghvz-add-toolbar-button', { button: this.$.add });
+        },
+
+        consistentGun_: function(gun) {
+          return gun.playerId == null ||
+              this.game.playersById && this.game.playersById[gun.playerId];
+        },
+
+        makeTableBlueprint_: function() {
+          return {
+            itemsRepeater: this.$.repeater,
+            columns: [
+              {
+                property: "label",
+                name: "Label",
+                filterable: true,
+                sortable: true,
+              },
+              {
+                name: "Player",
+                filterable: true,
+                sortable: true,
+                getModel: (gun) => gun.playerId && this.game.playersById[gun.playerId].name,
+              },
+            ],
+            actions: [
+              {
+                name:"Edit",
+                handler: this.editGun_.bind(this),
+              },
+            ],
+          };
+        },
+
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "label",
+                label: "Label",
+                description: "Label on the gun, example 1404.",
+              },
+            ],
+          };
+        },
+
+        addGun_: function() {
+          this.$.gunForm.openForAdding()
+              .then((properties) => {
+                assert(properties.label);
+                let gunId = this.bridge.newGunId();
+                this.bridge.addGun({
+                  gameId: this.game.id,
+                  gunId: gunId,
+                  label: properties.label,
+                });
+              });
+        },
+
+        editGun_: function(gun) {
+          this.$.gunForm.openForEditing(gun)
+              .then((properties) => {
+                this.bridge.updateGun({
+                  gunId: gun.id,
+                  label: properties.label,
+                });
+              });
+        },
+
+        computePlayerName_: function(playerIdOrNull) {
+          return playerIdOrNull && this.game.playersById[playerIdOrNull].name || "(none)";
+        },
+
+        onSetGunPlayer_: function(e) {
+          let playerOrNull = e.detail.playerOrNull;
+          this.bridge.assignGun({
+            gameId: this.game.id,
+            gunId: this.editingGunIdOrNull,
+            playerId: playerOrNull && playerOrNull.id || null,
+          });
+          this.appendChild(this.$.travelingPlayerField);
+        },
+
+        summonTravelingPlayerField_: function(e) {
+          let gunId = e.target.dataset.gunId;
+          this.editingGunIdOrNull = gunId;
+          this.$.travelingPlayerField.playerInputValue = '';
+          this.$.travelingPlayerField.matchingPlayerOrNull = null;
+          this.$.travelingPlayerField.playerIdOrNull = this.game.gunsById[gunId].playerId;
+          let cell = e.target.closest('.cell');
+          cell.insertBefore(this.$.travelingPlayerField, cell.childNodes[0]);
+        },
+      });
+    });
+  </script>
+  <style>
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      padding: 4px 12px;
+    }
+    .pencil {
+      background-image: url('/pencil.jpg');
+      background-size: 20px 20px;
+      background-repeat: no-repeat;
+      background-position: left;
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: bottom;
+      cursor: pointer;
+    }
+    :host > ghvz-player-field {
+      display: none;
+    }
+    ghvz-player-field + .player-label {
+      display: none;
+    }
+  </style>
+  <template>
+
+    <paper-icon-button id="add" icon="icons:add" on-tap="addGun_">
+    </paper-icon-button>
+
+    <ghvz-player-field 
+        id="travelingPlayerField"
+        players="[[game.players]]"
+        players-by-id="[[game.playersById]]"
+        on-set-player="onSetGunPlayer_"
+        label="Player">
+    </ghvz-player-field>
+
+    <ghvz-table
+        id="table"
+        blueprint="[[makeTableBlueprint_()]]"
+        items="[[game.guns]]">
+      <template is="dom-repeat" id="repeater" items="[[game.guns]]" as="gun" initial-count="1" target-framerate="5">
+        <div class="row">
+          <ghvz-table-control-cell item="[[gun]]"></ghvz-table-control-cell>
+          <div class="cell">[[gun.label]]</div>
+          <div class="cell">
+            <div class="player-label">
+              <div class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>
+              [[computePlayerName_(gun.playerId)]]
+            </div>
+          </div>
+        </div>
+      </template>
+    </ghvz-table>
+
+    <ghvz-super-form
+        id="gunForm"
+        type-name="Gun"
+        blueprint="[[makeFormBlueprint_()]]">
+    </ghvz-super-form>
+  </template>
+</dom-module>

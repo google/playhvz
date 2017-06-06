@@ -1,0 +1,48 @@
+<dom-module id="ghvz-multiple-choice">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-multiple-choice',
+
+      properties: {
+        question: String,
+        answers: Array,
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .answer {
+    padding: 16px;
+  }
+  * {
+    /* This works around a mysterious polymer bug which causes buttons to disappear */
+    /* ...and also a weird bug that makes elements float over to the left of where they should be... */
+    transform: translate3d(0px, 0px, 0px);
+  }
+</style>
+<template>
+  <div>
+    [[question]]
+  </div>
+  <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
+    <iron-collapse opened>
+      <paper-material class="answer">
+        [[answer]]
+        <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
+      </paper-material>
+    </iron-collapse>
+  </template>
+</template>
+</dom-module>

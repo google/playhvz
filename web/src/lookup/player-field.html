@@ -1,0 +1,87 @@
+<dom-module id="ghvz-player-field">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-player-field',
+
+        properties: {
+          players: Array,
+          playersById: {
+            type: Object,
+          },
+          label: {
+            type: String,
+          },
+          value: {
+            type: String,
+            notify: true,
+          },
+          playerIdOrNull: {
+            type: String,
+          },
+          playerOrNull: {
+            type: Object,
+            computed: 'computePlayerOrNull(playerIdOrNull, playersById)',
+          },
+          playerInputValue: {
+            type: String,
+          },
+          matchingPlayerOrNull: {
+            type: Object,
+            notify: true,
+          },
+        },
+
+        computePlayerOrNull(playerIdOrNull, playersById) {
+          return playerIdOrNull && this.playersById[playerIdOrNull];
+        },
+
+        computeSetButtonEnabled_(playerInputValue, matchingPlayerOrNull) {
+          return !playerInputValue || !!matchingPlayerOrNull;
+        },
+
+        setPlayer_() {
+          this.fire('set-player', {
+            playerOrNull: this.matchingPlayerOrNull
+          });
+        },
+      });
+    });
+  </script>
+
+  <template class="layout vertical" style="height:300px">
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+      #setButton {
+        color: white;
+        background-color: #03A9F4;
+        padding: 4px 16px;
+        min-width: auto;
+        height: 24px;
+      }
+      #setButton[disabled] {
+        background-color: #C0C0C0;
+        opacity: .5;
+      }
+    </style>
+    <ghvz-player-lookup
+        players="[[players]]"
+        players-by-id="[[playersById]]"
+        matching-player-or-null="{{matchingPlayerOrNull}}"
+        value="{{playerInputValue}}">
+      <paper-button
+          id="setButton"
+          icon="icons:check"
+          disabled="[[!computeSetButtonEnabled_(playerInputValue, matchingPlayerOrNull)]]"
+          on-tap="setPlayer_"
+          suffix>
+        Set
+      </paper-button>
+    </ghvz-player-lookup>
+  </template>
+</dom-module>

@@ -1,0 +1,143 @@
+
+<dom-module id="ghvz-timestamp-picker">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-timestamp-picker',
+
+        properties: {
+          timestamp: {
+            type: Number,
+            notify: true,
+            observer: 'onTimestampChanged_',
+          },
+
+          year: {
+            type: String,
+          },
+
+          month: {
+            type: String,
+          },
+
+          day: {
+            type: String,
+          },
+
+          time: {
+            type: String,
+          },
+        },
+
+        attached: function() {
+          this.setAttribute("invalid", "");
+        },
+
+        onTimestampChanged_: function(newTimestamp, oldTimestamp) {
+          if (newTimestamp != oldTimestamp) {
+            if (newTimestamp) {
+              var date = new Date(newTimestamp);
+              this.$.year.value = date.getYear() + 1900;
+              this.$.month.value = date.getMonth();
+              this.$.day.value = date.getDate();
+
+              let time = "";
+              let pm = date.getHours() > 12;
+              time += date.getHours() - (pm ? 12 : 0);
+              time += ":";
+              time += (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+              time += (pm ? "pm" : "am");
+              this.$.time.value = time;
+              this.removeAttribute("invalid");
+            } else {
+              this.timestamp = null;
+              this.$.year.value = "";
+              this.$.month.value = "";
+              this.$.day.value = "";
+              this.$.time.value = "";
+              this.removeAttribute("invalid");
+            }
+          }
+        },
+
+        updateTimestamp_: function() {
+          let yearStr = this.$.year.value;
+          let monthStr = this.$.month.value;
+          let dayStr = this.$.day.value;
+          let timeStr = this.$.time.value;
+          let year = +yearStr;
+          let month = +monthStr;
+          let day = +dayStr;
+          let timeMatch = /(\d+):(\d+)(am|pm)/.exec(timeStr);
+          if (timeMatch && year > 2000 && month > 0 && day > 0) {
+            let hour = +timeMatch[1];
+            let minute = +timeMatch[2];
+            let pm = timeMatch[3] == "pm";
+            hour += (pm ? 12 : 0);
+            let date = new Date(year, month, day, hour, minute);
+            assert(date.getYear() + 1900 == year);
+            assert(date.getMonth() == month);
+            assert(date.getDate() == day);
+            assert(date.getHours() == hour);
+            assert(date.getMinutes() == minute);
+            this.timestamp = date.getTime();
+            this.removeAttribute("invalid");
+          } else {
+            console.error('invalid date');
+            this.setAttribute("invalid", "");
+          }
+        },
+
+        onYearChange_: function(newYear, oldYear) {
+          this.updateTimestamp_();
+        },
+
+        onMonthChange_: function(newMonth, oldMonth) {
+          this.updateTimestamp_();
+        },
+
+        onDayChange_: function(newDay, oldDay) {
+          this.updateTimestamp_();
+        },
+
+        onTimeChange_: function(newTime, oldTime) {
+          this.updateTimestamp_();
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: flex;
+    }
+    :host[invalid] {
+      background-color: #FFF0F0;
+    }
+    paper-input {
+    }
+    paper-input + paper-input {
+      margin-left: 8px;
+    }
+    #year {
+      width: 20%;
+    }
+    #month {
+      width: 25%;
+    }
+    #day {
+      width: 20%;
+    }
+    #time {
+      width: 35%;
+    }
+  </style>
+  <template>
+    <paper-input id="year" label="Year" type="number" on-keyup="onYearChange_" on-change="onYearChange_"></paper-input>
+    <paper-input id="month" label="Month" type="number" on-keyup="onMonthChange_" on-change="onMonthChange_"></paper-input>
+    <paper-input id="day" label="Day" type="number" on-keyup="onDayChange_" on-change="onDayChange_"></paper-input>
+    <paper-input id="time" label="Time" on-keyup="onTimeChange_" on-change="onTimeChange_"></paper-input>
+  </template>
+</dom-module>

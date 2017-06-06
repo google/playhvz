@@ -1,0 +1,224 @@
+<dom-module id="ghvz-order-question">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-order-question',
+
+      properties: {
+        game: Object,
+        question: {
+          type: String,
+          observer: 'reset_',
+        },
+
+        answers: {
+          type: Array,
+          value: () => [],
+        },
+
+        suppliedOrderedAnswerIds: {
+          type: Array,
+          value: () => [],
+        },
+
+        isCorrect: {
+          type: Boolean,
+          computed: 'computeIsCorrect_(question.answers, suppliedOrderedAnswerIds)',
+        },
+
+        prompt: {
+          type: String,
+          computed: 'computePrompt_(question.answers, suppliedOrderedAnswerIds, isCorrect)',
+        },
+
+        anyNoiseAnswers: {
+          type: Boolean,
+          computed: 'computeAnyUnused_(question.answers)',
+        },
+      },
+
+      onAnswerTapped_(e) {
+        let unorderedAnswer = e.target.closest('.answer');
+        let answerId = unorderedAnswer.dataset.answerId;
+        let orderedAnswer =
+            Array.from(this.querySelectorAll('#ordered .answer'))
+                .find(answer => answer.dataset.answerId == answerId);
+        assert(orderedAnswer);
+        unorderedAnswer.opened = false;
+        // Move it to the end
+        orderedAnswer.parentNode.appendChild(orderedAnswer);
+        orderedAnswer.opened = true;
+
+        this.suppliedOrderedAnswerIds =
+            Array.from(this.querySelectorAll("#ordered .answer"))
+                .filter(element => element.opened)
+                .map(element => element.dataset.answerId);
+      },
+
+      computePrompt_(answers, suppliedOrderedAnswerIds, isCorrect) {
+        if (isCorrect) {
+          return "Great! Hit Next to continue!";
+        } else {
+          if (suppliedOrderedAnswerIds.length == 0) {
+            return "Which comes first?";
+          } else if (suppliedOrderedAnswerIds.length == answers.length) {
+            return "Sorry, incorrect! Hit Reset below to try again.";
+          } else {
+            return "Which comes next?";
+          }
+        }
+      },
+
+      computeAnyUnused_(answers) {
+        return answers.filter(answer => !answer.isCorrect).length > 0;
+      },
+
+      computeIsCorrect_(answers, suppliedOrderedAnswerIds) {
+        let correctOrderedAnswerIds =
+            answers.slice()
+                .filter(answer => answer.isCorrect)
+                .sort((a, b) => a.order - b.order)
+                .map(answer => answer.id);
+
+        if (suppliedOrderedAnswerIds.length != correctOrderedAnswerIds.length) {
+          return false;
+        }
+        for (let i = 0; i < correctOrderedAnswerIds.length; i++) {
+          if (suppliedOrderedAnswerIds[i] != correctOrderedAnswerIds[i]) {
+            return false;
+          }
+        }
+        return true;
+      },
+
+      confirm_: function(event) {
+        this.fire('ghvz-quiz-done');
+      },
+
+      reset_: function(event) {
+        this.answers = Utils.shuffle(this.question.answers.slice());
+        Array.from(this.querySelectorAll("#unordered .answer"))
+            .forEach(element => element.opened = true);
+        Array.from(this.querySelectorAll("#ordered .answer"))
+            .forEach(element => element.opened = false);
+        this.suppliedOrderedAnswerIds = [];
+      },
+
+      computeAnswerIndex_(answer) {
+        return this.question.answers.indexOf(answer);
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 16px;
+  }
+  #answers {
+    display: flex;
+    flex-direction: row;
+  }
+  #unordered {
+    width: calc(50% - 8px);
+    padding-right: 8px;
+  }
+  #ordered {
+    width: calc(50% - 8px);
+    padding-left: 8px;
+  }
+  .answer {
+    margin: 8px 0
+  }
+  .answer paper-material {
+    padding: 8px;
+    overflow: hidden;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+  }
+  .button-container {
+    position: relative;
+    z-index: 1;
+  }
+  #text {
+    margin-bottom: 16px;
+    font-weight: bold;
+  }
+  #prompt, #noiseWarning, #answersBelow {
+    margin: 16px 0;
+  }
+  #rulesHeader {
+    margin-top: 32px;
+    margin-bottom: 16px;
+  }
+  .button-container {
+    float: right;
+  }
+  * {
+    /* This works around a mysterious polymer bug which causes buttons to disappear */
+    /* ...and also a weird bug that makes elements float over to the left of where they should be... */
+    transform: translate3d(0px, 0px, 0px);
+  }
+</style>
+<template>
+  <div id="text">
+    [[question.text]]
+  </div>
+  <div id="answersBelow">
+    (Scroll down to see the rules, feel free to use them!)
+  </div>
+  <div id="prompt">
+    [[prompt]]
+  </div>
+  <div id="noiseWarning" hidden$="[[!anyNoiseAnswers]]">
+    (hint: only some of these options will be used, pick carefully!)
+  </div>
+  <div id="answers">
+    <div id="unordered">
+      <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
+        <iron-collapse class="answer" opened data-answer-id$="[[answer.id]]">
+          <paper-material>
+            <div class="button-container">
+              <paper-button
+                  name$="answer[[computeAnswerIndex_(answer)]]"
+                  raised
+                  on-tap="onAnswerTapped_">
+                Choose
+              </paper-button>
+            </div>
+            <div class="text">
+              [[answer.text]]
+            </div>
+          </paper-material>
+        </iron-collapse>
+      </template>
+    </div>
+    <div id="ordered">
+      <template id="repeater" is="dom-repeat" items="[[question.answers]]" as="answer">
+        <iron-collapse class="answer" data-answer-id$="[[answer.id]]">
+          <paper-material>
+            [[answer.text]]
+          </paper-material>
+        </iron-collapse>
+      </template>
+    </div>
+  </div>
+  <div>
+    <paper-button raised name="reset" on-tap="reset_">Reset</paper-button>
+    <paper-button raised name="confirm" on-tap="confirm_" disabled="[[!isCorrect]]">Next</paper-button>
+  </div>
+  <div id="rulesHeader">
+    To help you out, here are the rules:
+  </div>
+  <ghvz-rules game="[[game]]"></ghvz-rules>
+</template>
+</dom-module>

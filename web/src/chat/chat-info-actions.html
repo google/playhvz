@@ -1,0 +1,160 @@
+
+<dom-module id="ghvz-chat-info-actions">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-info-actions',
+
+        properties: {
+          bridge: Object,
+          game: Object,
+          chatRoom: Object,
+
+          playerId: String,
+
+          playerInputValue: {
+            type: String,
+          },
+          
+          matchingPlayerOrNull: {
+            type: Object,
+            notify: true,
+          },
+
+          kickPlayer: {
+            type: Object,
+            value: function() { return []; },
+          }
+        },
+
+        executeAction(e) {
+          let action = e.detail.action;
+          let playerId = e.detail.playerId;
+          switch(action) {
+            case 'add':
+              this.addPlayer_();
+              break;
+            case 'notifications':
+              console.log("we didn't implement this yet...");
+              break;
+            case 'leave':
+              this.leaveChat_();
+              break;
+            case 'profile':
+              this.fire('ghvz-set-path', {
+                inGame: true,
+                path: ['profile', playerId],
+              });
+              break;
+            case 'ping':
+              console.log(action);
+              console.log(playerId);
+              break;
+            case 'kick':
+              this.kickFromChat_(playerId);
+              break;
+            default:
+              // Unrecognized action, do nothing
+          }
+        },
+
+        addPlayer_: function() {
+          this.$.addForm.open();
+        },
+
+        onSetPlayer_: function(e) {
+          var newPlayer = this.matchingPlayerOrNull;
+          this.$.lookup.value = "";
+          this.bridge.addPlayerToGroup({
+            gameId: this.game.id,
+            groupId: this.chatRoom.groupId,
+            playerId: this.playerId,
+            playerToAddId: newPlayer.id
+          });
+        },
+
+        leaveChat_: function() {
+          this.$.leaveForm.open();
+        },
+
+        onConfirmLeave_: function(e) {
+          this.bridge.removePlayerFromGroup({
+            gameId: this.game.id,
+            groupId: this.chatRoom.groupId,
+            playerId: this.playerId,
+            playerToAddId: this.playerId,
+          });
+        },
+
+        openPlayerProfile_(e) {
+          console.log(e);
+          // add option to kick player from chat
+        },
+
+        kickFromChat_: function(playerId, game) {
+          this.kickPlayer = this.game.playersById[playerId];
+          this.$.kickForm.open();
+        },
+
+        onConfirmKick_: function(e) {
+          this.bridge.removePlayerFromGroup({
+            gameId: this.game.id,
+            groupId: this.chatRoom.groupId,
+            playerId: this.playerId,
+            playerToAddId: this.kickPlayer.id,
+          });
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+    }
+    .form-contents {
+      padding: 8px;
+    }
+  </style>
+  <template>
+    <ghvz-form
+      id="addForm"
+      title="Add player"
+      close-label="Cancel"
+      done-label="Add"
+      on-ghvz-form-done="onSetPlayer_">
+      <ghvz-player-lookup
+        id="lookup"
+        class="form-contents"
+        players="[[game.players]]"
+        players-by-id="[[game.playersById]]"
+        matching-player-or-null="{{matchingPlayerOrNull}}"
+        value="{{playerInputValue}}">
+      </ghvz-player-lookup>
+    </ghvz-form>
+
+    <ghvz-form
+      id="leaveForm"
+      title="Really leave [[chatRoom.name]]?"
+      close-label="Cancel"
+      done-label="Yep, really leave"
+      on-ghvz-form-done="onConfirmLeave_">
+      <div class="form-contents">
+        Can't be undone, someone will have to add you back
+      </div>
+    </ghvz-form>
+
+    <ghvz-form
+      id="kickForm"
+      title="Really kick [[kickPlayer.name]] from [[chatRoom.name]]?"
+      close-label="Cancel"
+      done-label="Yep, really kick"
+      on-ghvz-form-done="onConfirmKick_">
+      <div class="form-contents">
+        Don't be a jerk! Removing them from the chat can't be undone, someone will have to add them back
+      </div>
+    </ghvz-form>
+  </template>
+</dom-module>

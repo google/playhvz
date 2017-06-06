@@ -1,0 +1,313 @@
+<dom-module id="ghvz-population-over-time">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-population-over-time',
+
+      properties: {
+        game: Object,
+
+        chartLoaded: {
+          type: Boolean,
+          value: undefined, // When this becomes not-undefined, the observer will fire
+        },
+      },
+
+      observers: [
+        'drawPopulationOverTimeChart(chartLoaded, game)',
+      ],
+
+      setChartLoaded() {
+        this.chartLoaded = true;
+      },
+
+	  prepareData() {
+        var logger = function(someString) {
+         //console.log(someString);
+        };
+
+        // Step 1: Get all the important bits:
+        var stats = {timeMin: undefined,
+        	timeMax: undefined,
+        	numPlayers: this.game.players.length};
+        var compareTimeToMinAndMax = function(newTime) {
+        	stats.timeMin =
+                stats.timeMin === undefined || stats.timeMin > newTime ?
+                	newTime : stats.timeMin;
+        	stats.timeMax =
+                stats.timeMax === undefined || stats.timeMax < newTime ?
+                	newTime : stats.timeMax;
+        }
+        for (let player of this.game.players) {
+          for (let life of player.lives) {
+        	  compareTimeToMinAndMax(life.time);
+          }
+          for (let infection of player.infections) {
+        	  compareTimeToMinAndMax(infection.time);
+          }
+        }
+
+        // Step 2: Create bins for each of the times
+        /**
+         * @param{!number} oneBin time (ms) within each bin
+         */
+        var DataForEachBin = function(oneBin) {
+          this.oneBin = oneBin;
+
+          /** @private{Array<[time:number, human:number, zombie:number>} */
+          this.typesForEachBin_ = [];
+
+          this.init_();
+        };
+
+        DataForEachBin.ONE_15_MINUTES = 900000;
+        DataForEachBin.ONE_HOUR       = 3600000;
+        DataForEachBin.ONE_DAY        = 86400000;
+
+        DataForEachBin.INDEX = {
+         TIME: 0,
+         HUMAN: 1,
+         ZOMBIE: 2
+        };
+
+        DataForEachBin.prototype.init_ = function() {
+          for (var someTime = stats.timeMin;
+        	  someTime < stats.timeMax + this.oneBin;
+        	  someTime += this.oneBin) {
+        	  
+        logger("BIN " + someTime + ": " + (new Date(someTime)));
+
+        	// Just assume that everyone stays human...initially
+        	var dataPoint = new Array(3);
+        	dataPoint[DataForEachBin.INDEX.TIME] = someTime;
+        	dataPoint[DataForEachBin.INDEX.HUMAN] = stats.numPlayers;
+        	dataPoint[DataForEachBin.INDEX.ZOMBIE] = 0;
+        	this.typesForEachBin_.push(dataPoint);
+          }
+        };
+
+        DataForEachBin.prototype.getBinIndex_ = function(someTime) {
+          for (var i = 0; i < this.typesForEachBin_.length; i++) {
+        	if (this.typesForEachBin_[i][DataForEachBin.INDEX.TIME] <= someTime &&
+                someTime <
+                 this.typesForEachBin_[i][DataForEachBin.INDEX.TIME] + this.oneBin) {
+        	  return i;
+        	}
+          }
+          return -1;
+        };
+
+        /** @param{{opt_start:number, opt_end:number}} range */
+        DataForEachBin.prototype.turnBinRangeToZombies = function(range) {
+          // Bassically if the startTime OR the endTime is within a bin
+          // then we assume there's a zombie in the whole bin
+          var indexStart = range.opt_start !== undefined ? 
+        	  typesForEachBin.getBinIndex_(range.opt_start) : 0;
+          var indexEnd = range.opt_end !== undefined ?
+        	  typesForEachBin.getBinIndex_(range.opt_end) : 
+                  this.typesForEachBin_.length;
+
+        logger("indexStart: " + indexStart + "\tindexEnd:" +
+        	  indexEnd + " range: " + range.opt_start + " " +
+        	  range.opt_end);
+
+          if (indexEnd < indexStart) {
+        	throw new Error("Unable to have indexEnd < indexStart: " +
+        	  indexStart + " " + indexEnd);
+          }
+          for (var i = indexStart; i < indexEnd; i++) {
+        	this.typesForEachBin_[i][DataForEachBin.INDEX.HUMAN]--;
+        	this.typesForEachBin_[i][DataForEachBin.INDEX.ZOMBIE]++;
+        logger("To Zombie: bin " + i + ": AFTER-> " + 
+        	this.dataToString_(i));
+          }
+        };
+
+        DataForEachBin.prototype.arrayToDataTable = function() {
+          var niceArray = [];
+          for (var i = 0; i < this.typesForEachBin_.length; i++) {
+        	niceArray.push(
+                [(new Date(
+                	this.typesForEachBin_[i][DataForEachBin.INDEX.TIME])
+                	).toString(),
+                this.typesForEachBin_[i][DataForEachBin.INDEX.HUMAN],
+                this.typesForEachBin_[i][DataForEachBin.INDEX.ZOMBIE]]);
+          }
+          return ([['Time', 'Human', 'Zed']]).concat(niceArray);
+        };
+
+        DataForEachBin.prototype.toString = function() {
+          var retString = '';
+          for (var i = 0; i < this.typesForEachBin_.length; i++) {
+           retString += this.dataToString_(i) + "\n";
+          }
+          return retString;
+        };
+
+        DataForEachBin.prototype.dataToString_ = function(someBin) {
+          return new Date(
+        	  this.typesForEachBin_[someBin][DataForEachBin.INDEX.TIME]) +
+        	  " " + 
+        	  this.typesForEachBin_[someBin][DataForEachBin.INDEX.HUMAN] +
+        	  " " + 
+        	  this.typesForEachBin_[someBin][DataForEachBin.INDEX.ZOMBIE];
+        }
+
+        var typesForEachBin = new DataForEachBin(
+        	DataForEachBin.ONE_DAY);
+
+        // Step 3: Figure out how many humans / zombies are in each bin
+        var determineStartsAsHuman = function(lives, infections) {
+          if (!lives.length || !infections.length) {
+        	throw new Error("Somehow there are 0 lives || 0 infections: " +
+                lives.length + " " + infections.length);
+          } else {
+        	var firstLife = lives[0].time;
+        	var firstInfect = infections[0].time;
+        	if (firstLife == firstInfect) {
+        	  throw new Error("firstLive and firsInfect is the same: " +
+                  firstLife + " " + firstInfect);
+        	}
+        	return firstLife < firstInfect;
+          }   
+        }
+
+        for (let player of this.game.players) {
+          var lives = player.lives;
+          var infections = player.infections;
+        logger("\nPlayer: " + player.id);	  
+
+          // Look for tricky error cases that I need more info to interpret
+          if ((Math.abs(lives.length - infections.length) > 1) ||
+        	  (!!infections.length && !lives.length)) {
+        	throw new Error("Some weird situation: " + lives + 
+                " " + infections);
+          }
+
+          // Case: Player stays human
+          if (lives.length && !infections.length) {
+        logger("STAYED HUMAN");
+        	continue; // Base assumes all stay human so do nothing
+          }
+
+          // Case: Player stays zombie
+          if (!lives.length && !infections.length) {
+        logger("STAYED ZOMBIE");
+        	typesForEachBin.turnBinRangeToZombies({});
+        	continue;
+          }
+          
+          // Case: Players swaps between the two
+          var startsAsHuman = determineStartsAsHuman(lives, infections);
+          var humanIndex = 0;
+          var zombieIndex = 0;
+          var isHuman = startsAsHuman;
+          var counter = 0;
+
+          while ((humanIndex < lives.length ||
+        	  zombieIndex < infections.length) && counter < 20000 /* just in case */) {
+        	counter++;
+        	var range = {};
+        	if (startsAsHuman) {
+        	  humanIndex++; // First index was human
+        	  if (humanIndex < lives.length) {
+
+        logger("HUMAN/startsAsHuman: ",
+        	new Date(lives[humanIndex].time) + " " +
+        	lives.length + " " + humanIndex);
+        	
+                range.opt_end = lives[humanIndex].time;
+                humanIndex++;
+        	  }
+        	  if (zombieIndex < infections.length) {
+        	  
+        logger("ZOMBIE/startsAsHuman: ",
+        	new Date(infections[zombieIndex].time) + " " + 
+        	infections.length + " " + zombieIndex);
+        	
+                range.opt_start = infections[zombieIndex].time;
+                zombieIndex++;
+        	  }
+        	  typesForEachBin.turnBinRangeToZombies(range);
+
+        	} else { // !startsAsHuman
+        	   console("No test data?");
+        	   zombieIndex++;
+
+        	  if (humanIndex < lives.length) {
+        logger("HUMAN/!!!: ",
+        	new Date(lives[humanIndex].time) + " " +
+        	lives.length + " " + humanIndex);
+                range.opt_end = lives[humanIndex].time;
+                humanIndex++;
+        	  }
+        	  if (zombieIndex < infections.length) {
+        logger("ZOMBIE/!!!: ",
+        	new Date(infections[zombieIndex].time) + " " + 
+        	infections.length + " " + zombieIndex);
+                range.opt_start = infections[zombieIndex].time;
+                zombieIndex++;
+        	  }
+        	  addZombieRange(range);
+        	}
+          }
+        }
+
+        //logger(typesForEachBin.toString());
+        return typesForEachBin.arrayToDataTable();
+
+	  },
+
+      drawPopulationOverTimeChart(chartLoaded, game) {
+        // console.log(this.game);
+         //for (let player of this.game.players) {
+         //  console.log("player", player.id, "lives", player.lives, "infections", player.infections);
+         //}
+         
+         var newData = this.prepareData();        
+         /*
+        var data = google.visualization.arrayToDataTable([
+          ['Day', 'Human', 'Zed'],
+          ['0',  199,      1],
+          ['1',  190,      10],
+          ['2',  180,      20],
+          ['3',  150,      50],
+          ['4',  130,      70],
+          ['5',  60,       140],
+          ['6',  50,       150],
+          ['7',  0,      200]
+          ]);
+		  */
+          
+        var data = google.visualization.arrayToDataTable(newData);
+
+        var options = {
+          title: "Population Over Time",
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(
+          this.$.population_over_time_chart);
+
+        chart.draw(data, options);
+
+        // The following makes Google Charts responsive and will resize the chart
+        // as the page is resized. 
+        window.addEventListener('resize', () => this.drawPopulationOverTimeChart());
+      },
+    });
+  });
+</script>
+
+<template>
+  <script type="text/javascript">
+    var component = document.currentScript.parentElement;
+    google.charts.setOnLoadCallback(() => component.setChartLoaded());
+  </script>
+  <div id="population_over_time_chart"></div>
+</template>
+</dom-module>

@@ -1,0 +1,38 @@
+<dom-module id="ghvz-reward-category-selector">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-reward-category-selector',
+
+      properties: {
+        game: Object,
+        rewardCategoryId: String,
+        rewardCategory: {
+          type: Object,
+          notify: true,
+        },
+      },
+
+      observers: ['onRewardCategoryIdChanged_(game.rewardCategories.length, rewardCategoryId)'],
+
+      onRewardCategoryIdChanged_() {
+        if (this.rewardCategoryId) {
+          let rewardCategory = this.game.rewardCategoriesById[this.rewardCategoryId];
+          if (rewardCategory)
+            this.$.rewardCategorySelector.select(rewardCategory);
+        } else {
+          this.$.rewardCategorySelector.select(null);
+        }
+      },
+    });
+  });
+</script>
+<style>
+</style>
+<template>
+  <array-selector id="rewardCategorySelector" items="[[game.rewardCategories]]" selected="{{rewardCategory}}"></array-selector>
+</template>
+</dom-module>

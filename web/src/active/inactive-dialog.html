@@ -1,0 +1,89 @@
+<dom-module id="ghvz-inactive-dialog">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-inactive-dialog',
+
+      properties: {
+        bridge: Object,
+        player: Object,
+
+        active: {
+          type: Boolean,
+          value: true,
+        },
+      },
+
+      observers: [
+        'onActiveChanged_(active, player.allegiance)',
+        'onZombify_(player.allegiance)',
+      ],
+
+      onActiveChanged_(newActive, allegiance) {
+        if (newActive == false && allegiance == 'resistance') {
+          this.$$("#dialog").open();
+        }
+      },
+
+      onClosed_(e) {
+        if (e.detail.confirmed) {
+          this.bridge.selfInfect({playerId: this.player.id});
+        } else {
+          this.$$("#dialog").close();
+        }
+      },
+
+      onZombify_(allegiance) {
+        if (allegiance == 'horde') {
+          let dialog = this.$$("#dialog");
+          if (dialog) {
+            dialog.close();
+          }
+        }
+      },
+
+      openFaq_() {
+        let dialog = this.$$("#dialog");
+        if (dialog) {
+          dialog.close();
+        }
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: ['faq'],
+        });
+      }
+    });
+  });
+</script>
+<style>
+  paper-dialog {
+    max-width: 500px;
+    padding-bottom: 16px;
+  }
+  a {
+    text-decoration: none;
+  }
+  .buttons {
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+    font-weight: bold;
+  }
+</style>
+<template>
+  <template is="dom-if" if="[[player]]">
+    <paper-dialog modal id="dialog" on-iron-overlay-closed="onClosed_">
+      <h2>Welcome back! Still human?</h2>
+      <p><a href="javascript:void(0)" on-tap="openFaq_">(Why do I see this?)</a></p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Yes, I'm human!</paper-button>
+        <paper-button dialog-confirm>No, glory to the horde!</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</template>
+</dom-module>

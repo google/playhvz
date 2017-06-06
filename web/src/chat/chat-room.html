@@ -1,0 +1,394 @@
+<dom-module id="ghvz-chat-room">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+    	Polymer({
+    		is: 'ghvz-chat-room',
+
+    		properties: {
+          bridge: Object,
+          game: Object,
+          currentPlayer: Object,
+          chatRoomId: String,
+          isAdmin: Boolean,
+
+          isAttached: {
+            type: Boolean,
+            value: null,
+          },
+
+          chatRoom: Object,
+
+          selectedPlayers: {
+            type: Object,
+            value: null,
+          },
+
+          previousMessagePlayerId: {
+            type: String,
+            value: "",
+          }, 
+
+          chatInfoVisible: {
+            type: Boolean,
+            vlaue: false,
+          },
+        },
+
+        listeners: {
+          'ghvz-chat-info-action': 'executeAction_',
+        },
+
+        observers: [
+          'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
+          'onChatRoomChange_(chatRoom)',
+          'onChatRoomNameChange_(chatRoom.name, isAttached)',
+          'onMessageReceived_(chatRoom.messages.length)',
+        ],
+
+        attached: function() {
+          this.isAttached = true;
+          this.fire('ghvz-add-toolbar-button', { button: this.$.info });
+        },
+
+        onChatRoomIdChange_(chatRoomId) {
+          assert(this.game.chatRoomsById[chatRoomId]);
+          this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
+        },
+
+        onChatRoomChange_: function() {
+          this.previousMessagePlayerId = "";
+          this.chatInfoVisible = false;
+        },
+
+        onChatRoomNameChange_: function() {
+          this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
+        },
+
+        onMessageReceived_() {
+          let scrollTop = this.$.conversationContainer.scrollTop;
+          let offsetHeight = this.$.conversationContainer.offsetHeight;
+          let scrollHeight = this.$.conversationContainer.scrollHeight;
+          let currentPosition = scrollTop + offsetHeight;
+          let scrollBuffer = 60;
+          if (currentPosition >= scrollHeight - scrollBuffer) {
+            this.async(() => {
+              this.$.conversationContainer.scrollTop =
+                  this.$.conversationContainer.scrollHeight;
+            });
+          }
+        },
+
+        computeMessageDisplayClass_(senderId, myId) {
+          return senderId === myId ? 'message-from-me' : 'message-from-other';
+        },
+
+        onSendClicked_: function() {
+          if (!this.$.messageInput.value) {
+            return;
+          }
+          this.bridge.sendChatMessage({
+            gameId: this.game.id,
+            messageId: this.bridge.newMessageId(), 
+            chatRoomId: this.chatRoom.id, 
+            playerId: this.currentPlayer.id, 
+            message: this.$.messageInput.value
+          });
+          this.$.messageInput.value = "";
+        },
+
+        /**
+        * Submit text on 'enter', allow shift+enter to insert a new line in
+        * the text field.
+        */
+        checkForEnter_: function(e) {
+         if (e.keyCode === 13 && !e.shiftKey) {
+            e.preventDefault();
+            this.$.messageSend.click();
+          }
+        },
+
+        displaySenderInfo(playerId) {
+          if (playerId != this.previousMessagePlayerId) {
+            this.previousMessagePlayerId = playerId;
+            return 'display-sender';
+          } else {
+            return 'hide-sender';
+          }
+        },
+
+        getName_(playerId) {
+          let player = this.game.playersById[playerId];
+         /* this.$.playerSelector.select(
+                this.game.players.find(player => player.id == playerId)); */
+          return player && player.name;
+        },
+
+        getProfilePic_(playerId) {
+          let player = this.game.playersById[playerId];
+          return player && player.profileImageUrl;
+        },
+
+        openPlayerProfile_(e) {
+          return;  // should we enable this?
+          var playerId = e.model.item.playerId;
+          if (playerId) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['profile', playerId],
+            });
+          }
+        },
+
+        /**
+        * Returns the date in format: Day 00:00
+        */
+        getTime_(time) {
+          var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          var date = new Date(time);
+          return days[date.getDay()] + " " + 
+          ("0" + date.getHours()).slice(-2) + ":" + 
+          ("0" + date.getMinutes()).slice(-2);
+        },
+
+        toggleChatInfo_: function() {
+          this.chatInfoVisible ? this.hideChatInfo() : this.showChatInfo();
+        },
+
+        showChatInfo() {
+          this.$.info.icon = "info";
+          this.$.drawer.style.pointerEvents = "auto";
+          this.$.drawer.openDrawer();
+          this.chatInfoVisible = true;
+        },
+
+        hideChatInfo() {
+          this.$.info.icon = "info-outline"
+          this.$.drawer.style.pointerEvents = "none";
+          this.$.drawer.closeDrawer();
+          this.chatInfoVisible = false;
+        },
+
+        /* Captures taps when the drawer is open. */
+        captureTap_(e) {
+          if (e.srcElement.id == 'scrim') {
+            this.hideChatInfo();
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        },
+
+        /* 
+        *  Catch action from drawer and pass to action executor.
+        *  This is required because drawer can't open dialogs in full
+        *  screen because it enjoys being difficult.
+        */
+        executeAction_(e) {
+          this.$.actions.executeAction(e);
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: flex;
+      flex-direction: column;
+    }
+    :host[small] {
+      max-height: 400px;
+    }
+    paper-button.send {
+      background-color: rgba(135, 206, 250, .5);
+      color: darkslategrey;
+      font-size: small;
+      font-weight: bold;
+    }
+    .conversation-container {
+      flex-grow: 1;
+      overflow-y: scroll;
+      padding: 8px;
+    }
+    .message-from-other {
+      display: flex;
+      justify-content: flex-start;
+      position: relative;
+    }
+    .message-from-me {
+      display: flex;
+      justify-content: flex-end;
+      position: relative;
+    }
+    .player-name {
+      padding-top: 8px;
+      font-size: 10px;
+      opacity: .6;
+    }
+    .message-from-me .player-name {
+      align-self: flex-end;
+    }
+    .message-from-other .player-name {
+      align-self: flex-start;
+    }
+    .display-avatar {
+      position: absolute;
+      top: 14px;
+    }
+    .display-sender {}
+    .hide-sender {}
+    .message-from-me .display-avatar {
+      order: 3;
+    }
+    .message-from-other .display-avatar {
+      order: 1;
+    }
+    .display-sender .player-name {
+      visibility: visible;
+    }
+    .display-sender .display-avatar {
+      visibility: visible;
+    }
+    .hide-sender .player-name {
+      display: none;
+    }
+    .hide-sender .display-avatar {
+      display: none;
+    }
+    .display-message {
+      align-self: center;
+      order: 2;
+    }
+    .message-from-me .display-message {
+      padding-right: 8px;
+      margin-right: 28px;
+    }
+    .message-from-other .display-message {
+      padding-left: 8px;
+      margin-left: 28px;
+    }
+    .profile-pic {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-size: 100% auto;
+      background-position: center center;
+      border: 2px solid green;
+    }
+    .message-text {
+      border-radius: 16px;
+      margin-bottom: 4px;
+      overflow-wrap: break-word;
+      padding: 4px;
+      padding-right: 8px;
+      padding-left: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
+    .message-text-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .message-from-me .message-text-container {
+      flex-direction: row;
+    }
+    .message-from-other .message-text-container {
+      flex-direction: row-reverse;
+    }
+    .message-from-me .message-text {
+      align-self: flex-end;
+      background-color: rgba(135, 206, 250, .4);
+    }
+    .message-from-other .message-text {
+      align-self: flex-start;
+      background-color: lightgrey;
+    }
+    .text-input {
+      display: flex;
+      flex-shrink: 0;
+      padding: 4px 8px 8px 8px;
+    }
+    .text-input-field {
+      flex-grow: 1;
+      position: relative;
+      padding-right: 16px;
+      word-break: break-all;
+    }
+  </style>
+  <template>
+    <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
+    <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
+
+    <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
+    </paper-icon-button>
+
+    <!-- For webdrivers -->
+    <div name$="ChatRoom: [[chatRoom.name]]"></div>
+
+    <div id="conversationContainer" class="conversation-container">
+      <template is="dom-repeat" items="[[chatRoom.messages]]">
+        <div class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
+          <div class="display-message">
+            <div class="player-name">
+              [[getName_(item.playerId, game.players.length)]]
+            </div>
+            <div class="message-text-container">
+              <div class="message-text">[[item.message]]</div>
+              <paper-tooltip position="top" animation-delay="0">
+                [[getTime_(item.time)]]
+              </paper-tooltip>
+            </div>
+          </div>
+          <div class="display-avatar">
+            <ghvz-player-avatar small game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
+          </div>
+        </div> 
+      </template>
+    </div>
+
+    <div class="text-input">
+      <div class="text-input-field">
+        <paper-textarea 
+          id="messageInput"
+          autocorrect
+          multiline
+          max-rows=3
+          label="message"
+          no-label-float
+          on-keydown="checkForEnter_">
+        </paper-textarea>
+      </div>
+      <paper-button 
+        class="send"
+        id="messageSend" 
+        raised
+        on-click="onSendClicked_">
+        SEND
+      </paper-button>
+    </div>
+
+    <div on-tap="captureTap_">
+      <paper-drawer-panel id="drawer" right-drawer disable-swipe force-narrow style="pointer-events: none;">
+        <paper-material drawer>
+          <ghvz-chat-info-drawer
+              bridge="[[bridge]]"
+              game="[[game]]"
+              is-admin="[[isAdmin]]"
+              chat-room="[[chatRoom]]"
+              player="[[currentPlayer]]">
+          </ghvz-chat-info-drawer>
+        </paper-material>
+        <div main></div>
+      </paper-drawer-panel>
+    </div>
+
+    <ghvz-chat-info-actions
+      id="actions"
+      bridge="[[bridge]]"
+      game="[[game]]"
+      player-id="[[currentPlayer.id]]"
+      chat-room="[[chatRoom]]">
+    </ghvz-chat-info-actions>
+  </template>
+</dom-module>

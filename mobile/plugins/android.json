@@ -1,0 +1,37 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-console": {
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "ionic-plugin-keyboard": {
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "phonegap-plugin-push": {
+            "SENDER_ID": "721599614458",
+            "PACKAGE_NAME": "com.ionicframework.sparkbarkle988242"
+        },
+        "cordova-plugin-googleplus": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        }
+    },
+    "dependent_plugins": {}
+}

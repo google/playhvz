@@ -1,0 +1,224 @@
+
+<dom-module id="ghvz-missions">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-missions',
+
+        properties: {
+          bridge: Object,
+
+          game: Object,
+
+          missions: {
+            type: Array,
+          },
+
+          newMission: {
+            type: Object,
+            value: () => ({
+              name: "",
+              beginTime: "",
+              endTime: "",
+              detailsHtml: "",
+            }),
+          },
+        },
+
+        makeTableBlueprint_: function() {
+          return {
+            itemsRepeater: this.$.repeater,
+            columns: [
+              {
+                property: "name",
+                name: "Name",
+                sortable: true,
+                filterable: true,
+              },
+              {
+                property: "groupId",
+                name: "Group",
+                sortable: true,
+                filterable: true,
+              },
+              {
+                property: "beginTime",
+                name: "Begin",
+                sortable: true,
+              },
+              {
+                property: "endTime",
+                name: "End",
+                sortable: true,
+              },
+              {
+                property: "detailsHtml",
+                name: "HTML",
+                sortable: true,
+                filterable: true,
+              },
+            ],
+            actions: [
+              {
+                name: "Edit",
+                handler: this.editMission_.bind(this),
+              },
+              {
+                name: "Delete",
+                handler: this.deleteMission_.bind(this),
+              },
+            ],
+          };
+        },
+
+        attached: function() {
+          this.fire('ghvz-add-toolbar-button', { button: this.$.add });
+        },
+
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "name",
+                label: "Name",
+              },
+              {
+                property: "beginTime",
+                label: "Begin timestamp",
+                width: "half",
+                description: "(in milliseconds)",
+                type: "timestamp",
+              },
+              {
+                property: "endTime",
+                label: "End timestamp",
+                width: "half",
+                description: "(in milliseconds)",
+                type: "timestamp",
+              },
+              {
+                property: "detailsHtml",
+                label: "Mission page html",
+                description: "HTML describing the mission",
+                type: "text",
+              },
+              {
+                property: "groupId",
+                label: "Group",
+                description: "Select the group that can see this mission",
+                type: "group",
+              }
+            ],
+          };
+        },
+
+        addMission_: function() {
+          var tomorrow4pm = new Date();
+          tomorrow4pm.setHours(24+12+4, 0, 0, 0);
+          var tomorrow5pm = new Date();
+          tomorrow5pm.setHours(24+12+5, 0, 0, 0);
+
+          this.$.missionForm.openForAdding({
+            beginTime: tomorrow4pm.getTime(),
+            endTime: tomorrow5pm.getTime(),
+          })
+              .then((properties) => {
+                this.bridge.addMission({
+                  gameId: this.game.id,
+                  missionId: this.bridge.newMissionId(),
+                  name: properties.name,
+                  beginTime: properties.beginTime,
+                  endTime: properties.endTime,
+                  detailsHtml: properties.detailsHtml,
+                  groupId: properties.groupId,
+                });
+              });
+        },
+
+        editMission_: function(mission) {
+          this.$.missionForm.openForEditing(mission)
+              .then((properties) => {
+                this.bridge.updateMission({
+                  gameId: this.game.id,
+                  missionId: mission.id,
+                  name: properties.name,
+                  beginTime: properties.beginTime,
+                  endTime: properties.endTime,
+                  detailsHtml: properties.detailsHtml,
+                  groupId: properties.groupId,
+                });
+              });
+        },
+
+        deleteMission_(mission) {
+          this.bridge.deleteMission({
+            gameId: this.game.id,
+            missionId: mission.id,
+          });
+        },
+
+        formatTime_: function(time) {
+          return Utils.formatTime(time);
+        },
+
+        shorten(html) {
+          if (html == null)
+            debugger;
+          if (html.length > 20)
+            return html.slice(0, 17) + '...';
+          return html;
+        },
+      });
+    });
+  </script>
+  <style>
+    paper-input {
+      display: block;
+      width: 100%;
+      --paper-input-container-underline: {
+        border-bottom-color: #C0C0C0;
+      }
+      margin-bottom: 4px;
+    }
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      padding: 4px 12px;
+    }
+  </style>
+  <template>
+    <paper-icon-button id="add" icon="icons:add" on-tap="addMission_">
+    </paper-icon-button>
+
+    <ghvz-table
+        selectable
+        id="table"
+        blueprint="[[makeTableBlueprint_()]]"
+        items="[[missions]]">
+      <template is="dom-repeat" id="repeater" items="[[missions]]" as="mission" initial-count="1" target-framerate="5">
+        <div class="row">
+          <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
+          <div class="cell">[[mission.name]]</div>
+          <div class="cell">
+            <ghvz-group-name-label game="[[game]]" group-id="[[mission.groupId]]"></ghvz-group-name-label>
+          </div>
+          <div class="cell">[[formatTime_(mission.beginTime)]]</div>
+          <div class="cell">[[formatTime_(mission.endTime)]]</div>
+          <div class="cell">[[shorten(mission.detailsHtml)]]</div>
+        </div>
+      </template>
+    </ghvz-table>
+
+    <ghvz-super-form
+        id="missionForm"
+        game="[[game]]"
+        type-name="Mission"
+        blueprint="[[makeFormBlueprint_()]]">
+    </ghvz-super-form>
+  </template>
+</dom-module>

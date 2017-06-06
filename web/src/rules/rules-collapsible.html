@@ -1,0 +1,49 @@
+<dom-module id="ghvz-rules-collapsible">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-rules-collapsible',
+
+      properties: {
+        title: String,
+        expanded: {
+          type: Boolean,
+          value: false,
+        },
+        icon: {
+          type: String,
+          computed: "computeIcon_(expanded)",
+        },
+      },
+
+      computeIcon_(expanded) {
+        return expanded ? "icons:expand-less" : "icons:expand-more";
+      },
+
+      toggle_() {
+        this.expanded = !this.expanded;
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+  }
+  .title {
+    cursor: pointer;
+  }
+</style>
+<template>
+  <div class="title" on-tap="toggle_">
+    [[title]]
+    <iron-icon icon="[[icon]]"></iron-icon>
+  </div>
+  <iron-collapse id="collapsible" opened="[[expanded]]">
+    <content/>
+  </iron-collapse>
+</template>
+</dom-module>

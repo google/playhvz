@@ -1,0 +1,36 @@
+<dom-module id="ghvz-group-name-label">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-group-name-label',
+
+      properties: {
+        game: String,
+        groupId: String,
+        group: Object,
+      },
+
+      observers: [
+        'onGroupIdChanged_(groupId, game.groups)',
+      ],
+
+      onGroupIdChanged_(groupId) {
+        this.$.selector.select(this.game.groupsById[groupId]);
+      },
+    });
+  });
+</script>
+<style>
+</style>
+<template>
+  <array-selector
+      id="selector"
+      items="[[game.groups]]"
+      selected="{{group}}">
+  </array-selector>
+  [[group.name]]
+</template>
+</dom-module>

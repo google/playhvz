@@ -1,0 +1,32 @@
+
+<dom-module id="ghvz-game-faq">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-game-faq',
+
+        properties: {
+          game: Object,
+        },
+
+        observers: ['rulesChanged_(game.faqHtml)'],
+
+        rulesChanged_(faqHtml) {
+          this.$.faq.innerHTML = faqHtml;
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin: 16px;
+      }
+    </style>
+    <div id="faq"></div>
+  </template>
+</dom-module>

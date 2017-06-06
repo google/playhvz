@@ -1,0 +1,40 @@
+<dom-module id="ghvz-site-faq">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-site-faq',
+
+      properties: {
+      },
+    });
+  });
+</script>
+<style>
+  .question {
+    font-weight: bold;
+    margin: 16px;
+  }
+  .answer {
+    padding-left: 16px;
+    margin: 16px 0;
+  }
+</style>
+<template>
+  <div class="question">Why do I see the "Are you still human?" dialog?</div>
+  <div class="answer">
+    One of the best benefits of the site is that we take humans out of zombie
+    chat rooms, and zombies out of human chat rooms. To do this, we ask that
+    players submit their infections as soon as possible. However, this isn't
+    always possible; not every player will go out into the game with a phone in
+    hand, and we can't require them for various reasons. So, if a zombie
+    infects a human but takes an hour to get back to their computer to submit
+    the infection, that's an hour that the system thinks the victim is still
+    human and shows notifications, chat messages, and other human-only things
+    to the victim. So, we added this dialog that asks the human to self-report
+    their infection, so that we can change their access accordingly.
+  </div>
+</template>
+</dom-module>

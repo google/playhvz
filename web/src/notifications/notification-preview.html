@@ -1,0 +1,139 @@
+
+<dom-module id="ghvz-notification-preview">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-notification-preview',
+
+        properties: {
+          bridge: Object,
+
+          categoriesById: Object,
+          categories: Array,
+
+          playerId: Object,
+
+          notification: Object,
+
+          withClose: {
+            type: Boolean,
+            value: false,
+          },
+
+          category: Object,
+
+          icon: {
+            type: String,
+            computed: 'computeIcon_(notification, category)',
+          },
+
+          destination: {
+            type: Boolean,
+            computed: 'computeDestination_(notification, category)',
+          },
+
+          previewText: {
+            type: String,
+            computed: 'computePreviewText_(notification, category)',
+          },
+        },
+
+        observers: ['updateCategory_(notification, categories.splices, categoriesById)'],
+
+        updateCategory_() {
+          let category = this.categoriesById[this.notification.notificationCategoryId];
+          if (category) {
+            this.$.categorySelector.select(category);
+          }
+        },
+
+        computePreviewText_(notification) {
+          let category = this.categoriesById[notification.notificationCategoryId];
+          if (category) {
+            return notification.previewMessage ||
+                category.previewMessage ||
+                notification.message ||
+                category.message;
+          }
+        },
+
+        computeDestination_(notification) {
+          let category = this.categoriesById[notification.notificationCategoryId];
+          let hasPreviewMessage = notification.previewMessage || category.previewMessage;
+          let hasMessage = notification.message || category.message;
+          if (hasPreviewMessage && hasMessage) {
+            return "notifications/" + notification.id;
+          } else if (notification.destination) {
+            return notification.destination;
+          } else {
+            return null;
+          }
+        },
+
+        computeIcon_(notification) {
+          let category = this.categoriesById[notification.notificationCategoryId];
+          return category.icon || "notification:sms";
+        },
+
+        handleTap_(e) {
+          if (this.destination) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: this.destination.split('/'),
+            });
+          }
+        },
+
+        close_(e) {
+          this.bridge.markNotificationSeen({
+            playerId: this.playerId,
+            notificationId: this.notification.id,
+          });
+          e.stopPropagation();
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+    }
+    #container {
+      display: flex;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      box-sizing: border-box;
+    }
+    #container[has-destination] {
+      cursor: pointer;
+    }
+    #container[has-destination]:hover {
+      background-color: #f0f0f0;
+    }
+    .icon {
+      opacity: .6;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .preview-message {
+      flex-grow: 1;
+    }
+    .notification .close {
+      flex-shrink: 0;
+      opacity: .75;
+    }
+  </style>
+  <template>
+    <array-selector id="categorySelector" items="[[categories]]" selected="{{category}}"></array-selector>
+    <div id="container" has-destination$="[[destination]]" on-tap="handleTap_">
+      <iron-icon icon="[[icon]]" class="icon"></iron-icon>
+      <div class="preview-message">[[previewText]]</div>
+      <paper-icon-button hidden$="[[!withClose]]" class="close" icon="icons:close" on-tap="close_"></paper-icon-button>
+    </div>
+  </template>
+</dom-module>

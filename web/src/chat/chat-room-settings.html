@@ -1,0 +1,222 @@
+<dom-module id="ghvz-chat-room-settings">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-room-settings',
+
+        properties: {
+          bridge: Object,
+          gameId: String,
+          player: Object,
+          isAdmin: Boolean,
+
+          doneEnabled: {
+            type: Boolean,
+            value: false,
+          },
+
+          newName: {
+            type: String,
+            value: "",
+          },
+        },
+
+        observers: [
+          'updateDoneEnabled_(newName)',
+        ],
+
+        computeChatPage_: function(chatRoomId) {
+          return "chat/" + chatRoomId;
+        },
+
+        openForCreate: function() {
+          this.$.settingsForm.open();
+          if (this.isAdmin) {
+            this.async(() => {
+              this.$$('paper-listbox').selected = 0;
+            });
+          }
+        },
+
+        updateDoneEnabled_: function() {
+          if (this.newName == "") {
+            this.doneEnabled = false;
+            return;
+          }
+          this.doneEnabled = true;
+        },
+
+        createChatRoom_: function(bridge, player) {
+          this.doneEnabled = false;
+          let name = this.$.chatName.value;
+
+          let autoRemove = false;
+          let allegianceFilter = 'none';
+          if (this.isAdmin) {
+            autoRemove = this.$$("#autoRemove").checked;
+            allegianceFilter = this.$$('#allegianceFilter').selectedItem.dataset.value;
+          } else {
+            let filter = this.$$("#allegianceFilter").checked;
+            if (filter) {
+              allegianceFilter = this.player.allegiance;
+              if (allegianceFilter) {
+                autoRemove = true;
+              }
+            }
+          }
+
+          let autoAdd = false;
+          if (this.isAdmin) {
+            autoAdd = this.$$("#autoAdd").checked;
+          }
+
+          let canAddOthers = true;
+          if (this.isAdmin) {
+            canAddOthers = this.$$("#canAddOthers").checked;
+          }
+
+          let canRemoveOthers = true;
+          if (this.isAdmin) {
+            canRemoveOthers = this.$$("#canRemoveOthers").checked;
+          }
+
+          let groupId = this.bridge.newGroupId();
+          var chatRoomId = this.bridge.newChatRoomId();
+          this.bridge.createGroup({
+            name: "Group for " + player.id + "'s chat room",
+            groupId: groupId,
+            gameId: this.gameId,
+            ownerPlayerId: this.player.id,
+            allegianceFilter: allegianceFilter,
+            autoAdd: autoAdd,
+            autoRemove: autoRemove,
+            canAddOthers: canAddOthers,
+            canRemoveOthers: canRemoveOthers,
+          }).then(() => {
+            return this.bridge.createChatRoom({
+              gameId: this.gameId,
+              chatRoomId: chatRoomId,
+              groupId: groupId,
+              name: name,
+              withAdmins: false,
+            });
+          }).then(() => {
+            return this.bridge.addPlayerToGroup({
+              gameId: this.gameId,
+              groupId: groupId,
+              playerToAddId: this.player.id,
+              playerId: this.player.id,
+            });
+          }).then(() => {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', chatRoomId],
+            });
+          });
+        },
+
+        getPlayerAllegiance_() {
+          return PlayerUtils.computeAllegiance(this.player);
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    paper-checkbox {
+      --paper-checkbox-vertical-align: top;
+      --paper-checkbox-margin: 2px 0 0 0;
+    }
+    paper-dropdown-menu {
+      margin-top: 16px;
+    }
+    .contents {
+      @apply(--layout-vertical)
+      padding: 8px;
+    }
+    .input {
+      padding-top: 16px;
+    }
+    .option {
+      font-size: 16px;
+      padding-top: 16px;
+    }
+    .subtext {
+      color: darkgrey;
+      font-size: 12px;
+    }
+  </style>
+  <template>
+    <ghvz-form
+      id="settingsForm"
+      title="Chat Settings"
+      close-label="Cancel"
+      done-label="Create"
+      done-enabled="[[doneEnabled]]"
+      on-ghvz-form-done="createChatRoom_">
+      <div class="contents">
+        <paper-input 
+          id="chatName"
+          class="input"
+          auto-validate
+          error-message="Name required!"
+          label="Name"
+          no-label-float
+          maxlength="40"
+          value="{{newName}}">
+        </paper-input>
+        <template is="dom-if" if="[[!isAdmin]]">
+          <paper-checkbox id="allegianceFilter" class="option">
+            <template is="dom-if" if="[[player]]">
+              [[getPlayerAllegiance_(player)]] only
+              <div class="subtext">
+              Have the server prune players from chat if they are no longer [[getPlayerAllegiance_(player)]]
+              </div>
+            </template>
+          </paper-checkbox>
+        </template>
+        <template is="dom-if" if="[[isAdmin]]">
+          <paper-dropdown-menu id="allegianceFilter" label="Allegiance Filter">
+            <paper-listbox class="dropdown-content">
+              <paper-item data-value="none">Everyone</paper-item>
+              <paper-item data-value="resistance">Resistance</paper-item>
+              <paper-item data-value="horde">Horde</paper-item>
+            </paper-listbox>
+          </paper-dropdown-menu>
+          Have the server prune players from chat if they are no longer the specified alliegance
+        </template>
+        <paper-checkbox id="canAddOthers" checked class="option">
+          Allow members adding other players
+          <div class="subtext">
+            If unchecked, only you control who can be in this chat
+          </div>
+        </paper-checkbox>
+        <template is="dom-if" if="[[isAdmin]]">
+          <paper-checkbox id="canRemoveOthers" checked class="option">
+            Enable members' leaving/kicking
+            <div class="subtext">
+              Use with care! If unchecked, players can't leave this chat unless you kick them out
+            </div>
+          </paper-checkbox>
+          <paper-checkbox id="autoAdd" class="option">
+            Automatically add members
+            <div class="subtext">
+              Auto add new players based on the Alliegance filter, if no alliegance filter is set auto add all players in the game to this chat
+            </div>
+          </paper-checkbox>  
+          <paper-checkbox id="autoRemove" class="option">
+            Automatically remove members
+            <div class="subtext">
+              Auto remove players based on the Alliegance filter, if no alliegance filter is set then this will do nothing.
+            </div>
+          </paper-checkbox>  
+        </template>
+      </div>
+    </ghvz-form>
+  </template>
+</dom-module>

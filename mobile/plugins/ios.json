@@ -1,0 +1,38 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-console": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "ionic-plugin-keyboard": {
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "phonegap-plugin-push": {
+            "SENDER_ID": "721599614458",
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        },
+        "cordova-plugin-googleplus": {
+            "REVERSED_CLIENT_ID": "myreversedclientid",
+            "PACKAGE_NAME": "com.ghvz.ghvz"
+        }
+    },
+    "dependent_plugins": {}
+}

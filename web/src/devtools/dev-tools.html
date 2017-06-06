@@ -1,0 +1,26 @@
+<dom-module id="ghvz-dev-tools">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-dev-tools',
+
+      properties: {
+        bridge: Object,
+      },
+
+      populate_() {
+        populateUsers(this.bridge, FAKE_USER_IDS);
+        populateGame(this.bridge, bridge.idGenerator.newGameId("poptest"), FAKE_USER_IDS, false);
+      },
+    });
+  });
+</script>
+<style>
+</style>
+<template>
+  <paper-button on-tap="populate_">Populate</paper-button>
+</template>
+</dom-module>

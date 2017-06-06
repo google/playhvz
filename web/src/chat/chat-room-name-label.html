@@ -1,0 +1,47 @@
+<dom-module id="ghvz-chat-room-name-label">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-room-name-label',
+
+        properties: {
+          game: String,
+          chatRoomId: String,
+          chatRoom: Object,
+        },
+
+        observers: [
+          'onChatRoomIdChanged_(chatRoomId, game.chatRooms)',
+        ],
+
+        onChatRoomIdChanged_(chatRoomId) {
+          this.$.selector.select(this.game.chatRoomsById[chatRoomId]);
+        },
+      });
+    });
+  </script>
+  <style>
+    #icon {
+      display: none;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      @apply(--ghvz-chat-room-name-label-icon);
+    }
+    :host[with-icon] #icon {
+      display: inline-block;
+    }
+  </style>
+  <template>
+    <iron-icon id="icon" icon="communication:chat" class="icon"></iron-icon>
+    <array-selector
+        id="selector"
+        items="[[game.chatRooms]]"
+        selected="{{chatRoom}}">
+    </array-selector>
+    [[chatRoom.name]]
+  </template>
+</dom-module>

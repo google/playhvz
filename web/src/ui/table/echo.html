@@ -1,0 +1,38 @@
+
+<dom-module id="ghvz-echo">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-echo',
+
+        properties: {
+          value: {
+            type: Object,
+          },
+        },
+
+        observers: ['changed_(value.*)'],
+
+        attached: function() {
+          this.changed_();
+        },
+
+        changed_: function(changeRecord) {
+          while (this.childNodes.length) {
+            this.removeChild(this.childNodes[0]);
+          }
+          if (this.value instanceof Node) {
+            this.appendChild(this.value);
+          } else {
+            this.appendChild(document.createTextNode("" + this.value));
+          }
+        },
+      });
+    });
+  </script>
+  <template>
+  </template>
+</dom-module>

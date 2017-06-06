@@ -1,0 +1,541 @@
+
+<dom-module id="ghvz-auto-table">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-auto-table',
+
+        properties: {
+          blueprint: {
+            type: Object,
+            value: {},
+          },
+
+          globalFilter: {
+            type: Function,
+            value: null,
+          },
+
+          getItemId: {
+            type: Function,
+            value: null,
+          },
+
+          columns: {
+            type: Array,
+            value: undefined,
+          },
+
+          actions: {
+            type: Array,
+            value: [],
+          },
+
+          items: {
+            type: Array,
+            value: function() { return []; },
+          },
+
+          sortingColumns: {
+            type: Array,
+            value: () => [],
+          },
+
+          selectable: {
+            type: Boolean,
+            value: false,
+          },
+
+          initialCount: {
+            type: Number,
+            value: 1,
+          },
+        },
+
+        observers: [
+          'resetRepeaterFilter_(globalFilter, columns)',
+        ],
+
+        attached: function() {
+          this.getItemId = this.blueprint.getItemId;
+
+          this.globalFilter = this.blueprint.globalFilter || null;
+
+          var columns = [];
+          for (let column of this.blueprint.columns) {
+            columns.push({
+              index: columns.length,
+              property: column.property,
+              name: column.name,
+              getModel: column.getModel,
+              getView: column.getView,
+              sortable: column.sortable,
+              filterable: column.filterable,
+              sorting: false,
+              comparator: column.comparator,
+              ascending: false,
+              filtering: false,
+              filterText: "", // "" means show everything
+              filter: column.filter,
+            });
+          }
+          this.columns = columns;
+
+          var actions = [];
+          for (let action of this.blueprint.actions) {
+            actions.push({
+              index: actions.length,
+              action: action.action,
+              name: action.name,
+              handler: action.handler,
+            });
+          }
+          this.actions = actions;
+
+          // setInterval(() => this.updateVisibilities_(), 500);
+        },
+
+        // overflow-y: auto;
+        // max-height: 400px;
+        // updateVisibilities_: function() {
+        //   let tableRect = this.getBoundingClientRect();
+        //   let rows = this.querySelectorAll('tr');
+        //   for (let row of rows) {
+        //     let rect = row.getBoundingClientRect();
+        //     let top = rect.top;
+        //     let bottom = rect.bottom;
+        //     let isHidden = "hidden" in row.dataset;
+        //     let shouldBeHidden = rect.bottom < tableRect.top || rect.top > tableRect.bottom;
+        //     if (isHidden && !shouldBeHidden) {
+        //       console.log('table', tableRect.top, tableRect.bottom, 'row', rect.top, rect.bottom, 'so showing');
+        //       row.style.height = '';
+        //       for (let cell of row.querySelectorAll('td')) {
+        //         cell.style.display = '';
+        //       }
+        //       delete row.dataset.hidden;
+        //     } else if (!isHidden && shouldBeHidden) {
+        //     console.log('table', tableRect.top, tableRect.bottom, 'row', rect.top, rect.bottom, 'so hiding');
+        //       row.style.height = rect.bottom - rect.top + "px";
+        //       for (let cell of row.querySelectorAll('td')) {
+        //         cell.style.display = 'none';
+        //       }
+        //       row.dataset.hidden = "";
+        //     }
+        //   }
+        // },
+
+        computeHasControlCell_: function(selectable, numActions) {
+          return selectable || numActions;
+        },
+
+        getModel_: function(item, columnIndex) {
+          let column = this.columns[columnIndex];
+          if (column.getModel) {
+            let result = column.getModel(item, column.property);
+            if (result !== undefined) {
+              return result;
+            }
+          } else if (column.property) {
+            return item[column.property];
+          } else {
+            return null;
+          }
+        },
+
+        getView_: function(item, columnIndex) {
+          let model = this.getModel_(item, columnIndex);
+
+          let column = this.columns[columnIndex];
+          if (column.getView) {
+            let result = column.getView(item, column.property, model);
+            if (result !== undefined) {
+              return result;
+            }
+          } else {
+            return model;
+          }
+        },
+
+        getItemId_: function(item) {
+          return this.getItemId(item);
+        },
+
+        onBulkActionTapped_: function(e) {
+          var matchingItems = [];
+          var rows = this.$.tbody.querySelectorAll('tr');
+          for (var i = 0; i < rows.length; i++) {
+            if (this.getSelected_(i)) {
+              matchingItems.push(this.items[i]);
+            }
+          }
+          for (var i = 0; i < matchingItems.length; i++) {
+            this.delegate.doAction(matchingItems[i], e.target.dataset.action);
+          }
+        },
+
+        onActionTapped_: function(e) {
+          let action = e.model.action;
+          let item = e.model.dataHost.item;
+          action.handler(item);
+        },
+
+        computeSortIcon_: function(sorting, ascending) {
+          if (!sorting) {
+            return "icons:swap-vert";
+          } else {
+            return ascending ? "icons:arrow-upward" : "icons:arrow-downward";
+          }
+        },
+
+        onSortButtonTapped_: function(e) {
+          const columnIndex = e.currentTarget.dataset.columnIndex;
+          const column = this.columns[columnIndex];
+          const sortingPath = 'columns.' + columnIndex + '.sorting';
+          const ascendingPath = 'columns.' + columnIndex + '.ascending';
+          if (!column.sorting) {
+            this.set(sortingPath, true);
+            this.set(ascendingPath, true);
+          } else if (column.sorting && column.ascending) {
+            this.set(sortingPath, true);
+            this.set(ascendingPath, false);
+          } else if (column.sorting && !column.ascending) {
+            this.set(sortingPath, false);
+            this.set(ascendingPath, false);
+          }
+
+          this.sortingColumns = this.sortingColumns.filter(c => c != column);
+          if (column.sorting) {
+            this.sortingColumns.push(column);
+          }
+          this.$.itemsRepeater.sort =
+              this.sortingColumns.length ? this.sort_.bind(this) : null;
+        },
+
+        sort_: function(a, b) {
+          for (const column of this.sortingColumns) {
+            if (column.comparator) {
+              const diff = column.comparator(a, b);
+              if (diff)
+                return diff * (column.ascending ? 1 : -1);
+            } else {
+              const aValue = this.getModel_(a, column.index);
+              const bValue = this.getModel_(b, column.index);
+              const diff = Utils.compare(aValue, bValue);
+              if (diff)
+                return diff * (column.ascending ? 1 : -1);
+            }
+          }
+          return 0;
+        },
+
+        onFilterButtonTapped_: function(e) {
+          const columnIndex = e.currentTarget.dataset.columnIndex;
+          const column = this.columns[columnIndex];
+          const filteringPath = 'columns.' + columnIndex + '.filtering';
+          const filterTextPath = 'columns.' + columnIndex + '.filterText';
+          if (column.filtering) {
+            this.set(filteringPath, false);
+            this.set(filterTextPath, "");
+          } else {
+            this.set(filterTextPath, "");
+            this.set(filteringPath, true);
+          }
+          this.resetRepeaterFilter_();
+        },
+
+        resetRepeaterFilter_: function() {
+          const anyFiltering =
+              this.globalFilter || !!this.columns.filter(c => c.filtering).length;
+          this.$.itemsRepeater.filter =
+              anyFiltering ? this.filter_.bind(this) : null;
+        },
+
+        filter_: function(item) {
+          if (this.globalFilter) {
+            if (!this.globalFilter(item)) {
+              return false;
+            }
+          }
+          for (let column of this.columns) {
+            if (column.filtering && column.filterText) {
+              if (column.filter) {
+                if (!column.filter(item, column.filterText)) {
+                  return false;
+                }
+              } else {
+                const value = this.getModel_(item, column.index);
+                if (!Utils.filter(value, column.filterText)) {
+                  return false;
+                }
+              }
+            }
+          }
+          return true;
+        },
+
+        filterKeyUp_: function() {
+          this.$.itemsRepeater.render();
+        },
+
+        getItemForId_: function(id) {
+          for (var i = 0; i < this.items.length; i++) {
+            if (this.getItemId(this.items[i]) == id) {
+              return this.items[i];
+            }
+          }
+          console.error('Item not found for id:', id);
+        },
+
+        getIndexForId_: function(id) {
+          for (var i = 0; i < this.items.length; i++) {
+            if (this.getItemId(this.items[i]) == id) {
+              return i;
+            }
+          }
+          console.error('Item index not found for id:', id);
+        },
+
+        onSelectChanged_: function(e) {
+          var row = e.target.closest('tr');
+          this.updateColor_(row, e.target.checked);
+
+          if (this.$$("#selectAll").checked && !e.target.checked) {
+            this.$$("#selectAll").checked = false;
+          }
+        },
+
+        onSelectAllChanged_: function(e) {
+          var rows = this.$.tbody.querySelectorAll('tr');
+          for (var i = 0; i < rows.length; i++) {
+            this.setSelected_(i, e.target.checked);
+          }
+        },
+
+        getSelected_: function(index) {
+          var row = this.$.tbody.querySelectorAll('tr')[index];
+          return row.querySelector('paper-checkbox').checked;
+        },
+
+        setSelected_: function(index, selected) {
+          var row = this.$.tbody.querySelectorAll('tr')[index];
+          row.querySelector('paper-checkbox').checked = selected;
+          this.updateColor_(row, selected);
+        },
+
+        updateColor_: function(row, selected) {
+          if (selected)
+            row.dataset.selected = "selected";
+          else
+            delete row.dataset.selected;
+        },
+      });
+    });
+  </script>
+  <template>
+    <style>
+      :host {
+        display: block;
+        overflow-x: auto;
+      }
+      #table {
+        border-spacing: 0;
+        font-size: 13pt;
+        font-family: Roboto;
+        font-weight: regular;
+        color: rgba(0, 0, 0, .87);
+        width: 100%;
+        border-bottom: 1px solid #C0C0C0;
+      }
+      thead {
+        background-color: #F0F0F0;
+      }
+      th {
+        font-size: 12pt;
+        font-weight: bold;
+        text-align: left;
+      }
+      .property-header {
+        color: rgba(0, 0, 0, .54);
+      }
+      tbody td {
+        border-top: 1px solid #d8d8d8;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      th {
+        border-bottom: 1px solid #f0f0f0;
+      }
+      th, td {
+        padding: 0 8px;
+        min-height: 40px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      td {
+        @apply(--ghvz-auto-table-td);
+      }
+      .control-cell {
+        padding: 0 0 0 8px;
+      }
+      .control-cell paper-menu-button {
+        padding: 0;
+      }
+      tr[data-selected] {
+        background-color: rgba(0, 0, 0, .1);
+      }
+      tr[data-selected] td {
+        border-bottom: 1px solid #d8d8d8;
+      }
+      ghvz-echo {
+        display: flex;
+        min-height: 40px;
+        align-items: center;
+      }
+      .column-header {
+        min-height: 40px;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        justify-content: center;
+        position: relative; /* for filter-input's absolute to grab width from */
+      }
+      .column-header-top {
+        display: flex;
+      }
+      .column-name {
+        order: 1;
+        margin-right: 4px;
+      }
+      .sort-button {
+        flex-shrink: 0;
+        order: 2;
+        width: 24px;
+        height: 24px;
+        padding: 0px;
+      }
+      .filter-button {
+        flex-shrink: 0;
+        order: 3;
+        width: 24px;
+        height: 24px;
+        padding: 0px;
+      }
+      .column-header-bottom {
+        height: 28px; /* enough room for filter-input */
+      }
+      .filter-input {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 28px;
+      }
+      .action-menu-button {
+        padding: 0;
+        width: 24px;
+        height: 24px;
+      }
+      .select-checkbox {
+        --paper-checkbox-label: {
+          padding: 0;
+        }
+      }
+    </style>
+    <table id="table">
+      <thead>
+        <tr id="headers">
+          <template is="dom-if" if="[[computeHasControlCell_(selectable, actions.length)]]">
+            <th class="control-cell">
+              <template is="dom-if" if="[[selectable]]">
+                <paper-checkbox id="selectAll" class="select-checkbox" on-change="onSelectAllChanged_"></paper-checkbox>
+              </template>
+              <paper-menu-button>
+                <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
+                <paper-menu class="dropdown-content">
+                  <template is="dom-repeat" items="[[actions]]" as="action">
+                    <paper-item on-tap="onBulkActionTapped_" data-action$="[[action.action]]">[[action.name]]</paper-item>
+                  </template>
+                </paper-menu>
+              </paper-menu-button>
+            </th>
+          </template>
+          <template is="dom-repeat" items="[[columns]]" as="column">
+            <th class="property-header">
+              <div class="column-header">
+                <div class="column-header-top">
+                  <div class="column-name">
+                    [[column.name]]
+                  </div>
+                  <template is="dom-if" if="[[column.sortable]]">
+                    <paper-icon-button
+                        class="sort-button"
+                        icon="[[computeSortIcon_(column.sorting, column.ascending)]]"
+                        data-column-index$="[[column.index]]"
+                        on-tap="onSortButtonTapped_">
+                    </paper-icon-button>
+                  </template>
+                  <template is="dom-if" if="[[column.filterable]]">
+                    <paper-icon-button
+                        class="filter-button"
+                        icon="icons:search"
+                        data-column-index$="[[column.index]]"
+                        on-tap="onFilterButtonTapped_">
+                    </paper-icon-button>
+                  </template>
+                </div>
+                <template is="dom-if" if="[[column.filtering]]">
+                  <div class="column-header-bottom">
+                    <paper-input
+                        no-label-float
+                        class="filter-input"
+                        on-keyup="filterKeyUp_"
+                        value={{column.filterText}}></paper-input>
+                  </div>
+                </template>
+              </div>
+            </th>
+          </template>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <template id="itemsRepeater" is="dom-repeat" items="[[items]]" initial-count="[[initialCount]]">
+          <tr data-item-id$="[[getItemId_(item, delegate)]]">
+            <template is="dom-if" if="[[computeHasControlCell_(selectable, actions.length)]]">
+              <td class="control-cell">
+                <template is="dom-if" if="[[selectable]]">
+                  <paper-checkbox
+                      class="select-checkbox"
+                      data-item-id$="[[getItemId_(item, delegate)]]"
+                      on-change="onSelectChanged_">
+                  </paper-checkbox>
+                </template>
+                <template is="dom-if" if="[[actions.length]]">
+                  <paper-menu-button>
+                    <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
+                    <paper-menu class="dropdown-content">
+                      <!-- Using item="[[item]]" to access outer dom-repeat's thing, see
+                          https://github.com/Polymer/polymer/issues/1919 use of outer-index. -->
+                      <template is="dom-repeat" items="[[actions]]" as="action" item="[[item]]">
+                        <paper-item on-tap="onActionTapped_">[[action.name]]</paper-item>
+                      </template>
+                    </paper-menu>
+                  </paper-menu-button>
+                </template>
+              </td>
+            </template>
+            <template is="dom-repeat" items="[[columns]]" as="column">
+              <td>
+                <ghvz-echo
+                    value="[[getView_(item, column.index, item.*)]]">
+                </ghvz-echo>
+              </td>
+            </template>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </template>
+</dom-module>

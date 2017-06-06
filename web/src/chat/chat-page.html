@@ -1,0 +1,150 @@
+<dom-module id="ghvz-chat-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-page',
+
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: String,
+          game: String,
+          player: Object,
+          path: String,
+          isAdmin: Boolean,
+          isMobile: {
+            type: Boolean,
+            value: false,
+          },
+
+          currentChatRoom: {
+            type: Object,
+            value: null,
+          },
+
+          showChatRoom: {
+            type: Boolean,
+            computed: 'computeShowChatRoom_(isMobile, path)',
+          },
+
+          showChatRoomList: {
+            type: Boolean,
+            computed: 'computeShowChatRoomList_(isMobile, path)',
+          },
+        },
+
+        observers: [
+          'onPathChanged_(path, game.chatRooms.*)',
+        ],
+
+        computeShowChatRoomList_(isMobile, path) {
+          if (isMobile) {
+            return !this.computeShowChatRoom_(isMobile, path);
+          } else {
+            return true;
+          }
+        },
+
+        computeShowChatRoom_(isMobile, path) {
+          if (isMobile) {
+            return path.includes('/') && path.split('/')[1];
+          } else {
+            return true;
+          }
+        },
+
+        onPathChanged_() {
+          if (this.path[0] != 'chat') {
+            return;
+          }
+          var chatRoomId = this.path[1];
+          if (chatRoomId) {
+            this.$.chatRoomSelector.select(
+                this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
+            if (this.$.chatRoomSelector.selected != null) {
+              return;
+            }
+          }
+          // If we get here, then there wasn't a chat room, it was just /chat in the url
+          // (or there was a chat room id but we couldnt find that chat room)
+          if (this.isMobile) {
+            // If we get here, that means we're at /chat and on mobile. In this case
+            // we just want to show the chat list.
+          } else {
+            // If we get here, that means we're at /chat and on desktop. In this case
+            // we want to just pick a chat room and show it.
+            if (this.game.chatRooms.length > 0) {
+              this.async(() => {
+                chatRoomId = this.game.chatRooms[0].id;
+                this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['chat', chatRoomId],
+                  replace: true,
+                });
+              });
+            }
+          }
+        },
+
+        extractChatRoomIdFromUrl_() {
+          let initialUrl = window.location.pathname;
+          let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
+          if (!match) {
+            return null;
+          }
+          let chatRoomId = match[1];
+          return chatRoomId;
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      height: 100%;
+      display: block;
+    }
+    .chat-window {
+      width: 100%;
+    }
+    .chat-room-list {
+      max-width: 15%;
+      overflow-y: auto;
+    }
+    #container[is-mobile] .chat-room-list {
+      max-width: 100%;
+    }
+    .vertical-separator {
+      border-right: 1px solid darkgray;
+    }
+  </style>
+  <template>
+    <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
+    <div id="container" is-mobile$="[[isMobile]]" class="flex layout horizontal" style="height: 100%;">
+      <template is="dom-if" if="[[showChatRoomList]]">
+        <ghvz-chat-room-list 
+            class="chat-room-list" 
+            bridge="[[bridge]]"
+            game="[[game]]"
+            player="[[player]]"
+            is-admin="[[isAdmin]]">
+        </ghvz-chat-room-list>
+      </template>
+      <template is="dom-if" if="[[showChatRoom]]">
+        <div class="vertical-separator"></div>
+        <template is="dom-if" if="true">  
+          <ghvz-chat-room
+              bridge="[[bridge]]"
+              game="[[game]]"
+              is-admin="[[isAdmin]]"
+              current-player="[[player]]"
+              chat-room="[[currentChatRoom]]"
+              class="chat-window">
+          </ghvz-chat-room>
+        </template>
+      </template>
+    </div>
+  </template>
+</dom-module>

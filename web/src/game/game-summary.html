@@ -1,0 +1,24 @@
+<dom-module id="ghvz-game-summary">
+<script>
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-game-summary',
+      properties: {
+        game: {
+          type: Object,
+          value: null,
+        }
+      },
+	});
+  });
+</script>
+<style>
+:host {
+  margin: 16px;
+  display: block;
+}
+</style>
+<template>
+<p><strong>Stun Timer:</strong> [[game.stunTimer]]</p>
+</template>
+</dom-module>

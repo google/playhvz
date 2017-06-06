@@ -1,0 +1,379 @@
+// Uses Firebase Bolt to generate firebase rules JSON.
+// https://github.com/firebase/bolt/blob/master/docs/guide.md
+// To generate the rules json:
+//    firebase-bolt rules.bolt
+// Then, paste it into firebase's rules console.
+
+type ChatRoomId extends String { validate() { this.startsWith("chatRoom-") } }
+type GroupId extends String { validate() { this.startsWith("group-") } }
+type PlayerId extends String { validate() { this.startsWith("player-") } }
+type GameId extends String { validate() { this.startsWith("game-") } }
+type MessageId extends String { validate() { this.startsWith("message-") } }
+type NotificationCategoryId extends String { validate() { this.startsWith("notificationCategory-") } }
+type NotificationId extends String { validate() { this.startsWith("notification-") } }
+type RewardCategoryId extends String { validate() { this.startsWith("rewardCategory-") } }
+type RewardId extends String { validate() { this.startsWith("reward-") } }
+type InfectionId extends String { validate() { this.startsWith("infection-") } }
+type LifeId extends String { validate() { this.startsWith("life-") } }
+type ClaimId extends String { validate() { this.startsWith("claim-") } }
+type QuizQuestionId extends String { validate() { this.startsWith("quizQuestion-") } }
+type QuizAnswerId extends String { validate() { this.startsWith("quizAnswer-") } }
+type MissionId extends String { validate() { this.startsWith("mission-") } }
+
+type Empty extends String { }
+type GunId extends String { validate() { this.length > 0 && !this.includes("-") } }
+
+type Allegiance extends String {
+  validate() {
+    this == 'resistance' || this == 'horde'
+  }
+}
+type OptionalAllegiance extends String {
+  validate() {
+    this == "" || this == 'resistance' || this == 'horde'
+  }
+}
+
+type UserId extends String { validate() { !this.includes("-") } }
+type Timestamp extends Number {
+  validate() {
+    this > 1490000000000 // March 2017, milliseconds
+  }
+}
+type OptionalTimestamp extends Number {
+  validate() {
+    this == 0 || this > 1490000000000 // March 2017, milliseconds
+  }
+}
+type OptionalPlayerId extends String { validate() { this == "" || this.startsWith("player-") } }
+type OptionalGameId extends String { validate() { this == "" || this.startsWith("game-") } }
+type HtmlUrl extends String {
+  validate() {
+    this.includes("/") && this.includes(".")
+  }
+}
+
+
+getGamePlayer(gameId, playerId) {
+  root.games[gameId].players[playerId]
+}
+getPlayerId(userId, gameId) {
+  "" + root.users[userId].playerIdsByGameId[gameId]
+}
+getCurrentPlayerId(gameId) {
+  getPlayerId(auth.uid, gameId)
+}
+getCurrentGamePlayer(gameId) {
+  getGamePlayer(gameId, getCurrentPlayerId(gameId))
+}
+getPrivatePlayer(userId, playerId) {
+  root.players[playerId]
+}
+getCurrentPrivatePlayer(gameId) {
+  getPrivatePlayer(auth.uid, getCurrentPlayerId(gameId))
+}
+
+isMember(chatRoom, playerId) {
+  root.groups[chatRoom.groupId].memberships[playerId] != null
+}
+
+isAdmin(gameId) {
+  root.games[gameId].admins[auth.uid] != null
+}
+
+isServer() {
+  auth.uid == 'ZiD9uLhDnrLq2n416MjWjn0JOrci6H0oGm7bKyVN'
+}
+
+type Message {
+  index: Number;
+  message: String;
+  playerId: PlayerId;
+  time: Timestamp;
+
+  // TODO: Once https://github.com/firebase/bolt/issues/58 is fixed, move
+  // this into a "path" statement which captures the gameId and playerId.
+  validate() {
+    root.games[this.parent().parent().gameId].players[this.playerId] != null
+  }
+}
+
+type Membership extends Empty {
+  // TODO: Once https://github.com/firebase/bolt/issues/58 is fixed, move
+  // this into a "path" statement which captures the gameId and playerId.
+  validate() {
+    root.games[this.parent().parent().gameId].players[key()] != null
+  }
+}
+
+type Group {
+  gameId: GameId;
+  memberships: Map<PlayerId, Membership>;
+  allegianceFilter: OptionalAllegiance;
+
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    this.memberships[getCurrentPlayerId(this.gameId)] != null
+  }
+  validate() {
+    root.games[this.gameId] != null
+  }
+}
+
+type ChatRoom {
+  name: String;
+  gameId: GameId;
+  groupId: GroupId;
+  messages: Map<MessageId, Message>;
+
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    root.groups[this.groupId].memberships[getCurrentPlayerId(this.gameId)] != null
+  }
+  validate() {
+    root.games[this.gameId] != null
+  }
+}
+
+type Claim {
+  rewardCategoryId: RewardCategoryId;
+  rewardId: RewardId;
+  time: Timestamp;
+
+  validate() {
+    // TODO: Once https://github.com/firebase/bolt/issues/58 is fixed, move
+    // this into a "path" statement which captures the gameId.
+    this.parent().parent().parent().parent()
+        .rewardCategories[this.rewardCategoryId]
+        .rewards[this.rewardId] != null
+  }
+}
+
+type Infection {
+  infectorId: OptionalPlayerId;
+  time: Timestamp;
+
+  validate() {
+    // TODO: Once https://github.com/firebase/bolt/issues/58 is fixed, move
+    // this into a "path" statement which captures the gameId.
+    this.parent().parent().parent().parent()
+        .players[this.infectorId] != null
+  }
+}
+
+type GamePlayerLife {
+  time: Timestamp;
+}
+
+type GamePlayer {
+  allegiance: Allegiance;
+  claims: Map<ClaimId, Claim>;
+  infectable: Boolean;
+  infections: Map<InfectionId, Infection>;
+  lives: Map<LifeId, GamePlayerLife>;
+  name: String;
+  needGun: Boolean;
+  number: Number;
+  points: Number;
+  profileImageUrl: String;
+  startAsZombie: Number;
+  userId: UserId;
+  volunteer: Boolean;
+
+  validate() {
+    // TODO: Once https://github.com/firebase/bolt/issues/58 is fixed, move
+    // this into a "path" statement which captures the gameId.
+    root.users[this.userId] != null
+  }
+}
+
+type Reward {
+  code: String;
+  playerId: OptionalPlayerId;
+
+  validate() {
+    // TODO: Once https://github.com/firebase/bolt/issues/58 is fixed, move
+    // this into a "path" statement which captures the gameId.
+    this.playerId == "" ||
+    this.parent().parent().parent().parent()
+        .players[this.playerId] != null
+  }
+}
+
+type RewardCategory {
+  claimed: Number;
+  name: String;
+  points: Number;
+  rewards: Map<RewardId, Reward>;
+  seed: String;
+}
+
+type Notification {
+  message: String;
+  notificationCategoryId: NotificationCategoryId;
+  previewMessage: String;
+  seenTime: OptionalTimestamp;
+
+  validate() {
+    root.notificationCategories[this.notificationCategoryId] != null
+  }
+}
+
+type NotificationCategory {
+  gameId: GameId;
+  name: String;
+  app: Boolean;
+  email: Boolean;
+  sound: Boolean;
+  vibrate: Boolean;
+  message: String;
+  previewMessage: String;
+
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    getCurrentPrivatePlayer(this.gameId).notifications[key()] != null
+  }
+  validate() {
+    root.games[this.gameId] != null
+  }
+}
+
+type PrivatePlayerLife {
+  code: String;
+
+  validate() {
+    root.games[this.parent().parent().gameId]
+        .players[this.parent().parent().playerId]
+        .lives[key()] != null
+  }
+}
+
+type PrivatePlayer {
+  playerId: PlayerId;
+  // Get rid of this once https://github.com/firebase/bolt/issues/95 is resolved
+  gameId: GameId;
+  userId: UserId;
+  notifications: Map<NotificationCategoryId, Map<NotificationId, Notification>>;
+  lives: Map<LifeId, PrivatePlayerLife>;
+  chatRoomMembershipsByChatRoomId: Map<ChatRoomId, Empty>;
+  beSecretZombie: Boolean;
+
+  read() {
+    isServer() ||
+    isAdmin(this.gameId) ||
+    auth.uid == this.userId
+  }
+  validate() {
+    key() == this.gameId && // Get rid of this once https://github.com/firebase/bolt/issues/95 is resolved
+    root.games[this.gameId].players[this.playerId] != null
+  }
+}
+
+type User {
+  registered: Boolean;
+  playerIdsByGameId: Map<GameId, PlayerId>;
+
+  validate() {
+    this.registered == true
+  }
+  read() {
+    isServer() ||
+    auth.uid == key()
+  }
+}
+
+type Admin extends Empty {
+  validate() {
+    root.users[key()] != null
+  }
+}
+
+type GameChatRoom extends Empty {
+  validate() {
+    root.chatRooms[key()] != null &&
+    root.chatRooms[key()].gameId == this.parent().parent().gameId
+  }
+}
+
+type GameGroup extends Empty {
+  validate() {
+    root.groups[key()] != null &&
+    root.groups[key()].gameId == this.parent().parent().gameId
+  }
+}
+
+type GameMission extends Empty {
+  validate() {
+    root.missions[key()] != null &&
+    root.missions[key()].gameId == this.parent().parent().gameId
+  }
+}
+
+type GameNotificationCategory extends Empty {
+  validate() {
+    root.notificationCategories[key()] != null &&
+    root.notificationCategories[key()].gameId == this.parent().parent().gameId
+  }
+}
+
+type Game {
+  gameId: GameId; // Get rid of this once https://github.com/firebase/bolt/issues/95 is resolved
+  adminUserIds: Map<UserId, Admin>;
+  chatRoomIds: Map<ChatRoomId, GameChatRoom>;
+  missionIds: Map<MissionId, GameMission>;
+  name: String;
+  notificationCategoryIds: Map<NotificationCategoryId, GameNotificationCategory>;
+  players: Map<PlayerId, GamePlayer>;
+  rewardCategories: Map<RewardCategoryId, RewardCategory>;
+
+  validate() {
+    key() == this.gameId
+  }
+}
+
+type Gun {
+  playerId: OptionalPlayerId;
+  gameId: OptionalGameId;
+
+  validate() {
+    root.games[this.gameId].players[this.playerId] != null
+  }
+}
+
+type Mission {
+  allegianceFilter: OptionalAllegiance;
+  beginTime: Timestamp;
+  endTime: Timestamp;
+  gameId: GameId;
+  name: String;
+  url: HtmlUrl;
+
+  read() {
+    this.allegianceFilter == "" ||
+    getCurrentGamePlayer(this.gameId).allegiance == this.allegianceFilter
+  }
+  validate() {
+    root.games[this.gameId] != null
+  }
+}
+
+path / {
+  write() { isServer() }
+}
+path /games {
+  read() { true }
+}
+path /guns {
+  read() { true }
+}
+path /players is Map<PlayerId, PrivatePlayer>;
+path /chatRooms is Map<ChatRoomId, ChatRoom>;
+path /groups is Map<ChatRoomId, Group>;
+path /missions is Map<MissionId, Mission>;
+path /games is Map<GameId, Game>;
+path /guns is Map<GunId, Gun>;
+path /notificationCategories is Map<NotificationCategoryId, NotificationCategory>;
+path /users is Map<UserId, User>;

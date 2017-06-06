@@ -1,0 +1,55 @@
+<dom-module id="ghvz-interview-string-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-interview-string-page',
+
+        properties: {
+          placeholder: String,
+        },
+
+        submit_: function(event) {
+          this.$.form.submit();
+        },
+
+        onSubmit_(event) {
+          this.fire('ghvz-interview-page-done', {
+            value: event.detail.value
+          });
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .buttons {
+      margin-top: 16px;
+    }
+    paper-input {
+      margin-top: -20px;
+    }
+    paper-button {
+      background-color: #03A9F4;
+      color: white;
+      margin: 0;
+    }
+  </style>
+  <template>
+    <form is="iron-form" id="form" on-iron-form-submit="onSubmit_">
+      <div>
+        <content/>
+      </div>
+      <paper-input name="value" label="[[placeholder]]" required></paper-input>
+      <div class="buttons">
+        <paper-button raised on-click="submit_">Next</paper-button>
+      </div>
+    </form>
+  </template>
+</dom-module>

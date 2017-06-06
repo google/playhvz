@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google HvZ</title>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">google.charts.load('current', {'packages':['corechart']});</script>
+
+<script src="https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
+
+<script src="/bower_components/webcomponentsjs/webcomponents.js"></script>
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/image-icons.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/iron-icons/device-icons.html">
+<link rel="import" href="/bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="/bower_components/iron-icons/av-icons.html">
+<link rel="import" href="/bower_components/iron-icons/notification-icons.html">
+<link rel="import" href="/bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="/bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="/bower_components/paper-dropdown-input/paper-dropdown-input.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button-light.html">
+<link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="/bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="/bower_components/paper-styles/demo-pages.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="/bower_components/neon-animation/animations/cascaded-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/hero-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/opaque-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/reverse-ripple-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/ripple-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/scale-down-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-from-bottom-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-from-top-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-left-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-right-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/transform-animation.html">
+<link rel="import" href="/bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="/bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="/bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="/bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
+
+<script src="/src/utils/utils.js"></script>
+<script src="/src/utils/gatedwriter.js"></script>
+<script src="/src/utils/cloningwriter.js"></script>
+<script src="/src/utils/simplewriter.js"></script>
+<script src="/src/utils/observablewriter.js"></script>
+<script src="/src/utils/teewriter.js"></script>
+<script src="/src/utils/batchingwriter.js"></script>
+<script src="/src/utils/timedgatedwriter.js"></script>
+<script src="/src/utils/simplereader.js"></script>
+<script src="/src/utils/playerutils.js"></script>
+<script src="/src/app/batchedpolymerwriter.js"></script>
+<script src="/src/bridge/bridge.js"></script>
+<script src="/src/bridge/model.js"></script>
+<script src="/src/bridge/fake/fakebridge.js"></script>
+<script src="/src/bridge/fake/checkedserver.js"></script>
+<script src="/src/bridge/fake/fakeserver.js"></script>
+<script src="/src/bridge/fake/populate.js"></script>
+<script src="/src/bridge/remote/firebaselistener.js"></script>
+<script src="/src/bridge/remote/remotebridge.js"></script>
+<script src="/src/bridge/remote/requester.js"></script>
+<script src="/src/bridge/mappingwriter.js"></script>
+<script src="/src/bridge/consistentwriter.js"></script>
+<script src="/src/bridge/pathfindingreader.js"></script>
+
+<link rel="import" href="/src/active/active.html">
+<link rel="import" href="/src/active/inactive-dialog.html">
+<link rel="import" href="/src/admin/admin.html">
+<link rel="import" href="/src/admin/desktop-admin.html">
+<link rel="import" href="/src/admin/mobile-admin.html">
+<link rel="import" href="/src/app/app.html">
+<link rel="import" href="/src/app/desktop-app.html">
+<link rel="import" href="/src/app/player-selector.html">
+<link rel="import" href="/src/app/display-page.html">
+<link rel="import" href="/src/app/fake-app.html">
+<link rel="import" href="/src/app/mobile-app.html">
+<link rel="import" href="/src/app/real-app.html">
+<link rel="import" href="/src/app/root-app.html">
+<link rel="import" href="/src/chat/chat-info-actions.html">
+<link rel="import" href="/src/chat/chat-info-drawer.html">
+<link rel="import" href="/src/chat/chat-page.html">
+<link rel="import" href="/src/chat/chat-room-list.html">
+<link rel="import" href="/src/chat/chat-room-name-label.html">
+<link rel="import" href="/src/chat/chat-room-settings.html">
+<link rel="import" href="/src/chat/chat-room.html">
+<link rel="import" href="/src/chat/player-avatar.html">
+<link rel="import" href="/src/declare/declare-dashlet.html">
+<link rel="import" href="/src/declare/declare-page.html">
+<link rel="import" href="/src/devtools/dev-tools.html">
+<link rel="import" href="/src/drawer/drawer.html">
+<link rel="import" href="/src/faq/faq-page.html">
+<link rel="import" href="/src/faq/game-faq.html">
+<link rel="import" href="/src/faq/site-faq.html">
+<link rel="import" href="/src/form/form-section.html">
+<link rel="import" href="/src/form/form.html">
+<link rel="import" href="/src/form/super-form.html">
+<link rel="import" href="/src/form/timestamp-picker.html">
+<link rel="import" href="/src/game/create-game.html">
+<link rel="import" href="/src/game/game-details.html">
+<link rel="import" href="/src/game/game-summary.html">
+<link rel="import" href="/src/game/game-selector.html">
+<link rel="import" href="/src/gamestats/game-stat-summary.html">
+<link rel="import" href="/src/gamestats/population-current.html">
+<link rel="import" href="/src/gamestats/population-over-time.html">
+<link rel="import" href="/src/gamestats/stats-page.html">
+<link rel="import" href="/src/guns/guns.html">
+<link rel="import" href="/src/infect/infect.html">
+<link rel="import" href="/src/infect/self-infect.html">
+<link rel="import" href="/src/leaderboard/leaderboard-summary.html">
+<link rel="import" href="/src/lookup/group-field.html">
+<link rel="import" href="/src/lookup/lookup.html">
+<link rel="import" href="/src/lookup/player-field.html">
+<link rel="import" href="/src/lookup/player-label.html">
+<link rel="import" href="/src/lookup/player-lookup.html">
+<link rel="import" href="/src/main/desktop-main.html">
+<link rel="import" href="/src/main/main-page.html">
+<link rel="import" href="/src/main/mobile-main.html">
+<link rel="import" href="/src/missions/group-name-label.html">
+<link rel="import" href="/src/missions/mission.html">
+<link rel="import" href="/src/missions/missions-page.html">
+<link rel="import" href="/src/missions/missions.html">
+<link rel="import" href="/src/missions/next-mission.html">
+<link rel="import" href="/src/missions/rsvp.html">
+<link rel="import" href="/src/notifications/notification-full.html">
+<link rel="import" href="/src/notifications/notification-preview.html">
+<link rel="import" href="/src/notifications/notifications-page.html">
+<link rel="import" href="/src/notifications/notifications.html">
+<link rel="import" href="/src/notifications/unseen-notifications.html">
+<link rel="import" href="/src/playertable/player-row.html">
+<link rel="import" href="/src/playertable/player-table.html">
+<link rel="import" href="/src/profile/profile-page.html">
+<link rel="import" href="/src/registration/game-registration.html">
+<link rel="import" href="/src/interview/multi-choice-page.html">
+<link rel="import" href="/src/interview/multiple-choice.html">
+<link rel="import" href="/src/interview/option-page.html">
+<link rel="import" href="/src/interview/order-question.html">
+<link rel="import" href="/src/interview/radio-group.html">
+<link rel="import" href="/src/interview/string-page.html">
+<link rel="import" href="/src/rewards/claim-reward.html">
+<link rel="import" href="/src/rewards/rewards.html">
+<link rel="import" href="/src/rewards/reward-category-selector.html">
+<link rel="import" href="/src/rules/rules-collapsible.html">
+<link rel="import" href="/src/rules/rules-section.html">
+<link rel="import" href="/src/rules/rules.html">
+<link rel="import" href="/src/ui/card.html">
+<link rel="import" href="/src/ui/dashboard.html">
+<link rel="import" href="/src/ui/table/auto-table.html">
+<link rel="import" href="/src/ui/table/echo.html">
+<link rel="import" href="/src/ui/table/table-control-cell.html">
+<link rel="import" href="/src/ui/table/table.html">
+
+
+<style>
+  html, body {
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* whoever designed the default paper-menu needs to be shot */
+  paper-menu,
+  paper-listbox {
+    padding: 0 !important;
+  }
+  paper-menu .iron-selected,
+  paper-listbox .iron-selected {
+    font-weight: inherit !important;
+  }
+  paper-menu paper-item,
+  paper-listbox paper-item {
+    min-height: 36px !important;
+    white-space: nowrap;
+  }
+  paper-listbox paper-item::before,
+  paper-listbox paper-item::after,
+  paper-menu paper-item::before,
+  paper-menu paper-item::after {
+    display: none;
+  }
+  paper-listbox paper-item:hover,
+  paper-menu paper-item:hover {
+    background-color: #F0F0F0 !important;
+    cursor: pointer;
+  }
+
+  paper-input-container {
+    padding: 0 !important;
+  }
+</style>
+
+</head>
+<body>
+  <ghvz-root-app id="root"></ghvz-root-app>
+</body>
+</html>

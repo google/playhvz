@@ -1,0 +1,125 @@
+
+<dom-module id="ghvz-mobile-main-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-mobile-main-page',
+
+      properties: {
+        bridge: Object,
+        database: Object,
+        user: Object,
+        game: Object,
+        player: Object,
+
+        isAdmin: {
+          type: Boolean,
+          computed: 'computeIsAdmin_(user, game, game.admins.*)',
+        },
+
+        isPlayer: {
+          type: Boolean,
+          computed: 'computeIsPlayer_(player)',
+        },
+
+        canRegister: {
+          type: Boolean,
+          computed: 'computeCanRegister_(game, player)',
+        },
+
+        canSelfInfect: {
+          type: Boolean,
+          computed: 'computeCanSelfInfect_(player.allegiance)',
+        },
+      },
+
+      computeIsAdmin_: function(user, game) {
+        let admin = game.admins.find((admin) => admin.userId == user.id);
+        return !!admin;
+      },
+
+      computeCanRegister_(game, player) {
+        return game && !player;
+      },
+
+      computeIsPlayer_(player) {
+        return !!player;
+      },
+
+      computeCanSelfInfect_: function(allegiance) {
+        return allegiance == 'resistance';
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .paper-header {
+    background-color: #03a9f4;
+    color: white;
+    font-size: 18px;
+    line-height: 48px;
+    font-weight: bold;
+  }
+</style>
+<template>
+  <ghvz-card full expand with-menu>
+    <div class="header">Humans vs Zombies</div>
+    
+    <template is="dom-if" if="[[canRegister]]">
+      <ghvz-card expand spaced>
+        <div class="header">Join Game</div>
+        <ghvz-game-registration
+            class="content"
+            bridge="[[bridge]]"
+            game="[[game]]"
+            user-id="[[user.id]]">
+        </ghvz-game-registration>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[isPlayer]]">
+      <template is="dom-if" if="[[player.canInfect]]">
+        <ghvz-card spaced>
+          <div class="header">Infect</div>
+          <ghvz-infect
+              bridge="[[bridge]]"
+              game-id="[[game]]"
+              player-id="[[player]]">
+          </ghvz-infect>
+        </ghvz-card>
+      </template>
+
+      <ghvz-card spaced left>
+        <div class="header">Game Summary</div>
+        <ghvz-game-summary
+            game="[[game]]">
+        </ghvz-game-summary>
+      </ghvz-card>
+
+
+      <ghvz-card spaced>
+        <div class="header">Next Mission</div>
+        <ghvz-next-mission
+            bridge="[[bridge]]"
+            game="[[game]]"
+            player="[[player]]">
+        </ghvz-next-mission>
+      </ghvz-card>
+
+      <ghvz-card spaced left>
+        <div class="header">Rules</div>
+        <ghvz-rules game="[[game]]"></ghvz-rules>
+      </ghvz-card>
+    </template>
+  </ghvz-card>
+</template>
+</dom-module>

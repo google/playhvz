@@ -1,0 +1,58 @@
+
+<dom-module id="ghvz-notification-full">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-notification-full',
+
+        properties: {
+          bridge: Object,
+
+          categoriesById: Object,
+          categories: Array,
+
+          notification: Object,
+
+          category: Object,
+        },
+
+        observers: [
+          'updateCategory_(notification, categories.length, categoriesById)',
+          'onNotificationChanged_(bridge, notification, category)',
+        ],
+
+        updateCategory_() {
+          let category = this.categoriesById[this.notification.notificationCategoryId];
+          if (category) {
+            this.$.categorySelector.select(category);
+          }
+        },
+
+        onNotificationChanged_() {
+          let newHtml = 
+              this.notification.message ||
+              this.category.message ||
+              this.notification.previewMessage ||
+              this.category.previewMessage;
+          this.$.contents.innerHTML = newHtml;
+          if (!this.notification.seenTime) {
+            this.bridge.markNotificationSeen({notificationId: this.notification.id});
+          }
+        },
+      });
+    });
+  </script>
+  <style>
+    :host {
+      display: block;
+      margin: 16px;
+    }
+  </style>
+  <template>
+    <array-selector id="categorySelector" items="[[categories]]" selected="{{category}}"></array-selector>
+    <div id="contents"></div>
+  </template>
+</dom-module>
