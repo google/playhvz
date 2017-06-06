@@ -35,6 +35,11 @@
             type: Boolean,
             vlaue: false,
           },
+
+          requestFilter: {
+            type: Function,
+            computed: 'makeRequestFilter_(currentPlayer.id)',
+          }
         },
 
         listeners: {
@@ -47,6 +52,12 @@
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
         ],
+
+        makeRequestFilter_(currentPlayerId) {
+          return (request) => {
+            return (request.playerId == this.currentPlayer.id) && (request.response == null);
+          };
+        },
 
         attached: function() {
           this.isAttached = true;
@@ -188,6 +199,27 @@
         executeAction_(e) {
           this.$.actions.executeAction(e);
         },
+
+        /*
+        ######
+        */
+        isSenderCurrentPlayer_(senderId, currentPlayerId) {
+          console.log(currentPlayerId);
+          return senderId == currentPlayerId;
+        },
+
+        isReceiveUnreadRequest_(request, currentPlayerId) {
+          window.alert(request.playerId == currentPlayerId);
+          return (request.playerId == currentPlayerId) && (request.response ==null);
+        },
+
+        acknowledge: function(e){
+          this.bridge.addResponse({
+            gameId: this.game.id,
+            requestId: e.model.request.id,
+            text: null,
+          });
+          }
       });
     });
   </script>
@@ -209,6 +241,12 @@
       flex-grow: 1;
       overflow-y: scroll;
       padding: 8px;
+    }
+    .ack-container {
+      flex-grow: 1;
+      overflow-y: scroll;
+      padding: 8px;
+      background: yellow;
     }
     .message-from-other {
       display: flex;
@@ -325,6 +363,23 @@
 
     <!-- For webdrivers -->
     <div name$="ChatRoom: [[chatRoom.name]]"></div>
+
+    <!-- ###### -->
+    <div id="ackContainer" class="ack-container">
+      <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
+        <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
+          <p1>True</p1>
+        </template>
+        <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
+          <template id="requestRepeater" is="dom-repeat" items="[[requestCategory.requests]]" as="request" filter="[[requestFilter]]">
+            <div class="view">
+              <label>[[requestCategory.text]]</label>
+              <button type="button" class="destroy" on-click="acknowledge">ACK</button>
+            </div>
+          </template>
+        </template>
+      </template>
+    </div>
 
     <div id="conversationContainer" class="conversation-container">
       <template is="dom-repeat" items="[[chatRoom.messages]]">
