@@ -31,6 +31,7 @@ function makePlayerProperties(id, userId, gameId, name) {
     name: name,
     canInfect: false,
     needGun: false,
+    beInPhotos: true,
     profileImageUrl: "",
     wantToBeSecretZombie: true,
     volunteer: {
