@@ -417,16 +417,30 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addRequestCategory', {
     required: {
+      gameId: 'GameId',
       requestCategoryId: '!RequestCategoryId',
       chatRoomId: 'ChatRoomId',
       playerId: 'PlayerId',
       text: 'String',
       type: 'String',
+      dismissed: 'Boolean',
+    },
+  });
+
+  serverMethods.set('updateRequestCategory', {
+    required: {
+      gameId: 'GameId',
+      requestCategoryId: 'RequestCategoryId',
+    },
+    optional: {
+      text: 'String',
+      dismissed: 'Boolean',
     },
   });
 
   serverMethods.set('addRequest', {
     required: {
+      gameId: 'GameId',
       requestCategoryId: 'RequestCategoryId',
       requestId: '!RequestId',
       playerId: 'PlayerId',
@@ -435,6 +449,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addResponse', {
     required: {
+      gameId: 'GameId',
       requestId: 'RequestId',
       text: '?String',
     },

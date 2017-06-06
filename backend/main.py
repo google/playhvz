@@ -12,6 +12,7 @@ import json
 
 import api_calls
 import constants
+import in_memory_store as store
 import notifications
 import secrets
 
@@ -21,6 +22,7 @@ HTTP_REQUEST = google.auth.transport.requests.Request()
 
 app = Flask(__name__)
 flask_cors.CORS(app)
+game_state = store.InMemoryStore()
 
 
 def GetFirebase():
@@ -142,6 +144,7 @@ def RouteRequest(method):
     raise AppError('Invalid method %s' % method)
   f = methods[method]
 
-  return jsonify(f(json.loads(request.data), GetFirebase()))
+  game_state.maybe_load(GetFirebase())
+  return jsonify(f(json.loads(request.data), game_state))
 
 # vim:ts=2:sw=2:expandtab
