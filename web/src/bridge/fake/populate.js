@@ -498,16 +498,16 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     bridge.addGun({gameId: gameId, gunId: bridge.idGenerator.newGunId(), label: "" + (1404 + i)});
   }
 
-  // let mission1AlertNotificationCategoryId = server.idGenerator.newNotificationCategoryId();
-  // server.addNotificationCategory({notificationCategoryId: mission1AlertNotificationCategoryId, gameId: gameId, name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});
-  // server.addNotification({gameId: gameId, notificationId: server.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: mission1AlertNotificationCategoryId, previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null, icon: null});
-  // let chatNotificationCategoryId = server.idGenerator.newNotificationCategoryId();
-  // server.addNotificationCategory({notificationCategoryId: chatNotificationCategoryId, gameId: gameId, name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
-  // server.addNotification({gameId: gameId, notificationId: server.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Drackan!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
+  // let mission1AlertNotificationCategoryId = bridge.idGenerator.newNotificationCategoryId();
+  // bridge.addNotificationCategory({notificationCategoryId: mission1AlertNotificationCategoryId, gameId: gameId, name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});
+  // bridge.addNotification({gameId: gameId, notificationId: bridge.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: mission1AlertNotificationCategoryId, previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null, icon: null});
+  // let chatNotificationCategoryId = bridge.idGenerator.newNotificationCategoryId();
+  // bridge.addNotificationCategory({notificationCategoryId: chatNotificationCategoryId, gameId: gameId, name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
+  // bridge.addNotification({gameId: gameId, notificationId: bridge.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Drackan!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
 
-  let requestCategoryId = server.idGenerator.newRequestCategoryId();
-  let requestId = server.idGenerator.newRequestId();
-  server.addRequestCategory({
+  let requestCategoryId = bridge.idGenerator.newRequestCategoryId();
+  let requestId = bridge.idGenerator.newRequestId();
+  bridge.addRequestCategory({
     gameId: gameId,
     requestCategoryId: requestCategoryId,
     chatRoomId: resistanceChatRoomId,
@@ -516,32 +516,32 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     type: 'ack',
     dismissed: false
   });
-  server.addRequest({
+  bridge.addRequest({
     gameId: gameId,
     requestId: requestId,
     requestCategoryId: requestCategoryId,
     playerId: jackPlayerId
   });
-  server.addRequest({
+  bridge.addRequest({
     gameId: gameId,
-    requestId: server.idGenerator.newRequestId(),
+    requestId: bridge.idGenerator.newRequestId(),
     requestCategoryId: requestCategoryId,
     playerId: zellaPlayerId
   });
-  server.addResponse({
+  bridge.addResponse({
     gameId: gameId,
     requestId: requestId,
     text: null
   });
-  server.updateRequestCategory({
+  bridge.updateRequestCategory({
     gameId: gameId,
     requestCategoryId: requestCategoryId,
     dismissed: true,
   });
 
-  let secondRequestCategoryId = server.idGenerator.newRequestCategoryId();
-  let secondRequestId = server.idGenerator.newRequestId();
-  server.addRequestCategory({
+  let secondRequestCategoryId = bridge.idGenerator.newRequestCategoryId();
+  let secondRequestId = bridge.idGenerator.newRequestId();
+  bridge.addRequestCategory({
     gameId: gameId,
     requestCategoryId: secondRequestCategoryId,
     chatRoomId: resistanceChatRoomId,
@@ -550,19 +550,19 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     type: 'ack',
     dismissed: false
   });
-  server.addRequest({
+  bridge.addRequest({
     gameId: gameId,
     requestId: secondRequestId,
     requestCategoryId: secondRequestCategoryId,
     playerId: jackPlayerId
   });
-  server.addRequest({
+  bridge.addRequest({
     gameId: gameId,
-    requestId: server.idGenerator.newRequestId(),
+    requestId: bridge.idGenerator.newRequestId(),
     requestCategoryId: secondRequestCategoryId,
     playerId: zellaPlayerId
   });
-  server.addResponse({
+  bridge.addResponse({
     gameId: gameId,
     requestId: secondRequestId,
     text: null

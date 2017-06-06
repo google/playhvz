@@ -150,7 +150,7 @@
               });
         }
 
-        this.bridge.getSignedInPromise({})
+        this.bridge.getSignedInPromise({userId})
             .then((userId) => {
               this.userId = userId;
             });
