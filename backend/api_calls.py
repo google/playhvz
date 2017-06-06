@@ -693,8 +693,6 @@ def AddPlayerToGroup(request, game_state):
     'playerToAddId': 'PlayerId',
   })
 
-  results = []
-
   game_id = request['gameId']
   requesting_user_id = request['requestingUserId']
   group_id = request['groupId']
@@ -957,12 +955,10 @@ def Infect(request, game_state):
   if victim['allegiance'] != constants.HUMAN:
     raise InvalidInputError('Your victim is not human and cannot be infected.')
 
-  results = []
-
   transaction = game_state.transaction()
   # Add points and an infection entry for a successful infection
   if player_id != victim_id:
-    results.append(helpers.AddPoints(game_state, transaction, player_id, constants.POINTS_INFECT))
+    helpers.AddPoints(game_state, transaction, player_id, constants.POINTS_INFECT)
     infect_path = '/playersPublic/%s/infections' % victim_id
     infect_data = {
       'infectorId': player_id,
@@ -981,7 +977,6 @@ def Infect(request, game_state):
     SetPlayerAllegiance(game_state, transaction, victim_id, allegiance=constants.ZOMBIE, can_infect=True)
 
   transaction.commit()
-  return results
 
 
 def SetAllegiance(request, game_state):
@@ -1512,7 +1507,6 @@ def AddLife(request, game_state, transaction=None):
   transaction.put('/playersPrivate/%s/lives' % player_id, life_code, private_life)
   if not larger_transaction:
     transaction.commit()
-  return results
 
 
 def DeleteTestData(request, game_state):
