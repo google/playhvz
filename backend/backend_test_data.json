@@ -54,6 +54,8 @@
       "gameId": "game-%(ident)s-1",
       "canAddOthers": false,
       "canRemoveOthers": false,
+      "canAddSelf": false,
+      "canRemoveSelf": false,
       "ownerPlayerId": "player-%(ident)s-1",
       "name": "group Foo",
       "players": {
@@ -70,6 +72,8 @@
       "gameId": "game-%(ident)s-1",
       "canAddOthers": true,
       "canRemoveOthers": true,
+      "canAddSelf": true,
+      "canRemoveSelf": true,
       "ownerPlayerId": "player-%(ident)s-1",
       "name": "group Bar",
       "players": {

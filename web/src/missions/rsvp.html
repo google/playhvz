@@ -39,7 +39,6 @@
         this.bridge.addPlayerToGroup({
           gameId: this.game.id,
           groupId: this.mission.rsvpersGroupId,
-          playerId: this.player.id,
           playerToAddId: this.player.id,
         });
       },
@@ -48,8 +47,7 @@
         this.bridge.removePlayerFromGroup({
           gameId: this.game.id,
           groupId: this.mission.rsvpersGroupId,
-          playerId: this.player.id,
-          playerToAddId: this.player.id,
+          playerToRemoveId: this.player.id,
         });
       },
     });
