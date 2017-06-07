@@ -17,10 +17,13 @@ class SimpleDriver:
     element = None
     for step in path:
       by, locator = step
-      if element is None:
-        element = self.selenium_driver.find_element(by, locator)
-      else:
-        element = element.find_element(by, locator)
+      try:
+        if element is None:
+          element = self.selenium_driver.find_element(by, locator)
+        else:
+          element = element.find_element(by, locator)
+      except NoSuchElementException:
+        element = None
       if element is None:
         break
     if should_exist:
@@ -214,7 +217,7 @@ class WholeDriver:
     return self.inner_driver.SwitchUser(user)
 
   def FindElement(self, path, wait_long = False, should_exist=True):
-    return self.inner_driver.FindElement(path, wait_long)
+    return self.inner_driver.FindElement(path, wait_long, should_exist=should_exist)
 
   def DontFindElement(self, path, wait_long = False):
     return self.FindElement(path, wait_long=wait_long, should_exist=False)
