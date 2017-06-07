@@ -320,7 +320,11 @@
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
 
-    <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
+    <paper-icon-button 
+      id="info" 
+      icon="icons:info-outline" 
+      on-tap="toggleChatInfo_"
+      name$="icon-[[chatRoom.name]]">
     </paper-icon-button>
 
     <!-- For webdrivers -->
@@ -328,20 +332,26 @@
 
     <div id="conversationContainer" class="conversation-container">
       <template is="dom-repeat" items="[[chatRoom.messages]]">
-        <div class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
+        <div name$="message-[[chatRoom.name]]-[[item.message]]"
+          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
           <div class="display-message">
-            <div class="player-name">
+            <div 
+              class="player-name">
               [[getName_(item.playerId, game.players.length)]]
             </div>
             <div class="message-text-container">
-              <div class="message-text">[[item.message]]</div>
+              <div 
+                class="message-text">[[item.message]]</div>
               <paper-tooltip position="top" animation-delay="0">
                 [[getTime_(item.time)]]
               </paper-tooltip>
             </div>
           </div>
           <div class="display-avatar">
-            <ghvz-player-avatar small game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
+            <ghvz-player-avatar 
+              small game="[[game]]" 
+              player-id="[[item.playerId]]"
+              name$="avatar-[[chatRoom.name]]-[[item.message]]"></ghvz-player-avatar>
           </div>
         </div> 
       </template>
@@ -349,8 +359,9 @@
 
     <div class="text-input">
       <div class="text-input-field">
-        <paper-textarea 
+      <paper-textarea 
           id="messageInput"
+          name$="input-[[chatRoom.name]]" 
           autocorrect
           multiline
           max-rows=3
@@ -361,6 +372,7 @@
       </div>
       <paper-button 
         class="send"
+        name$="submit-[[chatRoom.name]]"
         id="messageSend" 
         raised
         on-click="onSendClicked_">

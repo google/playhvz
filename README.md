@@ -54,7 +54,13 @@ Set project to humansvszombies-24348 (All of our collaborators should have acces
 
 `pip install -r backend/requirements.txt -t backend/lib`
 
-`dev_appserver.py backend/app.yaml`
+Copy backend/secrets_.py to backend/secrets.py
+
+Follow the instructions in backend/secrets.py regarding the firebase secret.
+
+Start up the local server with `dev_appserver.py backend/app.yaml`
+
+### Deploying to Prod
 
 To launch a new version (once you have gcloud hooked in to the right app engine account):
 
@@ -63,6 +69,10 @@ To launch a new version (once you have gcloud hooked in to the right app engine 
 ### Running Backend Tests
 
 WARNING: This test will nuke our prod firebase. This is fine, everyone knows that that data could disappear at any moment. Though if two people run this test at the same time, it could fail. There's an open task on go/hvz-milestones (#201) to fix these particular inconveniences.
+
+First, get a local backend server running.
+
+`pip install requests`
 
 `cd backend/`
 
