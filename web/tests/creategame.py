@@ -38,6 +38,8 @@ try:
       [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'stunTimer']],
       '60')
 
+  driver.Quit()
+
 finally:
   # driver.Quit()
   pass

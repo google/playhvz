@@ -52,7 +52,7 @@ Model.QuizAnswer = function(id, args) {
   Utils.addEmptyLists(this, QUIZ_ANSWER_COLLECTIONS);
 }
 
-const GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "membersCanAdd", "membersCanRemove", "autoRemove", "ownerPlayerId"];
+const GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "canAddOthers", "canRemoveOthers", "canAddSelf", "canRemoveSelf", "autoRemove", "ownerPlayerId"];
 const GROUP_COLLECTIONS = ["memberships"];
 Model.Group = function(id, args) {
   this.id = id;
@@ -124,7 +124,7 @@ Model.Message = function(id, args) {
   Utils.addEmptyLists(this, MESSAGE_COLLECTIONS);
 }
 
-const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type"];
+const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
 const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
 Model.RequestCategory = function(id, args) {
   this.id = id;
@@ -148,7 +148,7 @@ Model.Response = function(id, args) {
   Utils.addEmptyLists(this, RESPONSE_COLLECTIONS);
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId", "rsvpersGroupId"];
 const MISSION_COLLECTIONS = [];
 Model.Mission = function(id, args) {
   this.id = id;
