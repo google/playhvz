@@ -162,6 +162,7 @@ class FakeIdGenerator extends IdGenerator {
   const GAME_PROPERTIES = {
     name: 'String',
     rulesHtml: 'String',
+    faqHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
     started: 'Boolean',
@@ -277,6 +278,7 @@ class FakeIdGenerator extends IdGenerator {
   const REWARD_CATEGORY_PROPERTIES = {
     name: 'String',
     points: 'Number',
+    badgeImageUrl: '?String',
     shortName: 'String',
     limitPerPlayer: 'Number',
   };
@@ -287,7 +289,7 @@ class FakeIdGenerator extends IdGenerator {
             REWARD_CATEGORY_PROPERTIES),
   });
   serverMethods.set('updateRewardCategory', {
-    required: {rewardCategoryId: 'RewardCategoryId'},
+    required: {rewardCategoryId: 'RewardCategoryId', gameId: 'GameId'},
     optional: REWARD_CATEGORY_PROPERTIES,
   });
 

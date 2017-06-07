@@ -218,7 +218,7 @@ Model.Notification = function(id, args) {
   Utils.addEmptyLists(this, NOTIFICATION_COLLECTIONS);
 }
 
-const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer"];
+const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl"];
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 Model.RewardCategory = function(id, args) {
   this.id = id;

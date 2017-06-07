@@ -61,6 +61,7 @@ def AddGame(request, game_state):
     'adminUserId': 'UserId',
     'name': 'String',
     'rulesHtml': 'String',
+    'faqHtml': 'String',
     'stunTimer': 'Number',
     'active': 'Boolean',
     'started': 'Boolean',
@@ -69,6 +70,7 @@ def AddGame(request, game_state):
   put_data = {
     'name': request['name'],
     'rulesHtml': request['rulesHtml'],
+    'faqHtml': request['faqHtml'],
     'stunTimer': request['stunTimer'],
     'active': request['active'],
     'started': request['started'],
@@ -277,6 +279,7 @@ def AddPlayer(request, game_state):
     'profileImageUrl': '?String',
     'gotEquipment': 'Boolean',
     'notes': 'String',
+    'beInPhotos': 'Boolean',
     'wantToBeSecretZombie': 'Boolean',
     'notificationSettings': {
       'sound': 'Boolean',
@@ -315,6 +318,7 @@ def AddPlayer(request, game_state):
     'userId': user_id,
     'canInfect': False,
     'notes': request['notes'],
+    'beInPhotos': request['beInPhotos'],
     'needGun' : request['needGun'],
     'gotEquipment' : request['gotEquipment'],
     'wantToBeSecretZombie': request['wantToBeSecretZombie'],

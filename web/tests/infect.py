@@ -1,9 +1,13 @@
-from driver import RetryingDriver
+import sys
+from driver import WholeDriver
 
 from selenium.webdriver.common.by import By
 
 try:
-  driver = RetryingDriver("jack")
+  driver = WholeDriver(
+      user="jack",
+      env=sys.argv[1],
+      password=sys.argv[2])
 
   driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
 

@@ -177,7 +177,7 @@
   </style>
   <template>
     <array-selector id="groupsSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
-    <div on-tap="captureTap_">
+    <div name$="drawer-[[chatRoom.name]]" on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]
       </div>
@@ -202,9 +202,10 @@
         </div>
       </template>
 
-      <div class="drawer-section">
+      <div id="players-list" class="drawer-section">
         <div class="info-label">[[group.memberships.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
+          <div name$='[[item.name]]'</div>
           <div class="layout horizontal player-entry">
             <div class="layout horizontal player-info"
                 on-tap="captureTap_"

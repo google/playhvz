@@ -1,9 +1,15 @@
-from driver import RetryingDriver
+from driver import WholeDriver
+import sys
 
 from selenium.webdriver.common.by import By
 
 try:
-  driver = RetryingDriver(user="minny", page="createGame", populate=False)
+  driver = WholeDriver(
+      user="minny",
+      page="createGame",
+      populate=False,
+      env=sys.argv[1],
+      password=sys.argv[2])
 
   # ID
   # XPATH

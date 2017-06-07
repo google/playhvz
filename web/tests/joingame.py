@@ -1,10 +1,14 @@
+import sys
 import time
-from driver import RetryingDriver
+from driver import WholeDriver
 
 from selenium.webdriver.common.by import By
 
 try:
-  driver = RetryingDriver("reggie")
+  driver = WholeDriver(
+      user="reggie",
+      env=sys.argv[1],
+      password=sys.argv[2])
 
   driver.FindElement([[By.NAME, 'joinGame']])
 
