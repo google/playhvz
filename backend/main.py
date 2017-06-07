@@ -24,11 +24,7 @@ HTTP_REQUEST = google.auth.transport.requests.Request()
 app = Flask(__name__)
 flask_cors.CORS(app)
 game_state = store.InMemoryStore()
-<<<<<<< HEAD
 api_mutex = threading.Lock()
-=======
-
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
 
 def GetFirebase():
   """Get a Firebase connection, cached in the application context."""
@@ -149,7 +145,6 @@ def RouteRequest(method):
     raise AppError('Invalid method %s' % method)
   f = methods[method]
 
-<<<<<<< HEAD
   exception = None
   game_state.maybe_load(GetFirebase())
   api_mutex.acquire()
@@ -163,9 +158,5 @@ def RouteRequest(method):
   if exception:
     raise exception
   return result
-=======
-  game_state.maybe_load(GetFirebase())
-  return jsonify(f(json.loads(request.data), game_state))
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
 
 # vim:ts=2:sw=2:expandtab

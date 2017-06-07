@@ -116,6 +116,7 @@ class EndToEndTest(unittest.TestCase):
       'adminUserId': self.Id('userId'),
       'name': 'test Game',
       'rulesHtml': 'test rules',
+      'faqHtml': 'faq html',
       'stunTimer': 10,
       'active': True,
       'started': False,
@@ -150,6 +151,7 @@ class EndToEndTest(unittest.TestCase):
       'gotEquipment': True,
       'wantToBeSecretZombie': True,
       'notes': "",
+      'beInPhotos': True,
       'canInfect': False,
       'active': False,
       'notificationSettings': {

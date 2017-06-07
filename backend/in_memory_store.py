@@ -1,10 +1,6 @@
 """In memory model datastore"""
 
 import db_helpers as helpers
-<<<<<<< HEAD
-import json
-=======
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
 
 def follow_path(obj, path, create_missing=False):
   """Given a dict and a '/' separated path, follow that path and return the
@@ -29,18 +25,14 @@ def follow_path(obj, path, create_missing=False):
   path_parts = path.split('/')[1:]
   for path_part in path_parts:
     if not path_part in obj:
-<<<<<<< HEAD
       if create_missing and isinstance(obj, dict):
-=======
-      if create_missing:
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
         obj[path_part] = {}
       else:
         return None
     obj = obj[path_part]
   return obj
 
-<<<<<<< HEAD
+
 def crawl_paths(obj):
   """Given a tree of strings, return the paths to every leaf.
   Doesn't include the actual leaf value.
@@ -60,8 +52,7 @@ def crawl_paths(obj):
       all_paths.append(key)
   return all_paths
 
-=======
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
+
 def join_paths(path, suffix):
   """Joins a path and a suffix into a single path.
   Resolves leading and trailing '/'. The suffix can be null.
@@ -69,7 +60,6 @@ def join_paths(path, suffix):
   Examples:
     join_paths('abc/def/', '/hij') => 'abc/def/hij'
     join_paths('a', 'b/c/d') => 'a/b/c/d'
-<<<<<<< HEAD
     join_paths('abc/def', None) => 'abc/def'
   """
   if not path.endswith('/'):
@@ -82,17 +72,7 @@ def join_paths(path, suffix):
   if full_path[-1] == '/':
     full_path = full_path[:-1]
   return full_path
-=======
-    join_paths('abc/def', None) => 'abc/def/'
-  """
-  if not path.endswith('/'):
-    path = path + '/'
-  if suffix.startswith('/'):
-    suffix = suffix[1:]
-  if suffix is None:
-    suffix = ''
-  return '%s%s' % (path, suffix)
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
+
 
 def drop_last(path):
   """Returns a path with the last "part" dropped.
@@ -133,10 +113,7 @@ class InMemoryStore:
   def __init__(self):
     self.instance = None
     self.firebase = None
-<<<<<<< HEAD
     self.transaction = None
-=======
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
 
   def maybe_load(self, firebase):
     """Load the firebase model from the remote source if a local copy
@@ -147,24 +124,15 @@ class InMemoryStore:
       self.instance = firebase.get('/', None)
       self.firebase = firebase
 
-<<<<<<< HEAD
   def get(self, path, id, local_instance=True):
-=======
-  def get(self, path, id, params=None, local_instance=False):
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
     """Get data from the model. Getting data from the local instance and the
     remove instance is the same with some exceptions:
     - Remote fetches don't have mutations from an unclosed transaction,
       local fetches do.
-<<<<<<< HEAD
-=======
-    - params don't do anything in the local instance
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
 
     Arguments:
       path: The path to get
       id: The id of the value to get at the path
-<<<<<<< HEAD
       local_instance: If true, gets the data from the local copy,
           if false, gets the data from the remote copy.
     """
@@ -196,48 +164,12 @@ class InMemoryStore:
     """"""
     self.transaction.commit()
     self.transaction = None
-=======
-      params: Filtering and sorting params
-      local_instance: If true, gets the data from the local copy,
-          if false, gets the data from the remote copy.
 
-    TODO(yuhao93): Make params work locally
-    """
-    if not local_instance:
-      return self.firebase.get(path, id, params)
-    obj = follow_path(self.instance, path)
-    if obj is None:
-      return None
-    return obj.get(id)
-
-  def delete(self, path, id):
-    """Convenience wrapper for a transaction consisting of only a deletion"""
-    transaction = self.transaction()
-    transaction.delete(path, id)
-    transaction.commit()
-
-  def put(self, path, id, data):
-    """Convenience wrapper for a transaction consisting of only a put"""
-    transaction = self.transaction()
-    transaction.put(path, id, data)
-    transaction.commit()
-
-  def patch(self, path, data):
-    """Convenience wrapper for a transaction consisting of only a patch"""
-    transaction = self.transaction()
-    transaction.patch(path, data)
-    transaction.commit()
-
-  def transaction(self):
-    """Open a transaction for this model."""
-    return Transaction(self.firebase, self.instance)
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
 
 class Transaction:
   """A transaction is an atomic list of mutations that can be applied to the
   model. The mutation set is applied to the remote model only when the
   transaction is committed. All mutations are applied immediately to the
-<<<<<<< HEAD
   local model.
 
   Mutations in a transaction is stored in two parallel trees:
@@ -296,13 +228,6 @@ class Transaction:
     self.mutation_data = {}
     self.mutation_paths = {}
     self.has_mutation = False
-=======
-  local model."""
-  def __init__(self, firebase, instance):
-    self.instance = instance
-    self.firebase = firebase
-    self.batch_mutation = {}
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
     self.committed = False
 
   def delete(self, path, id):
@@ -320,7 +245,6 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
-<<<<<<< HEAD
     self.has_mutation = True
     mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
     if mutation_data_obj is not None and id in mutation_data_obj:
@@ -331,12 +255,7 @@ class Transaction:
     local_data_obj = follow_path(self.instance, path)
     if local_data_obj is not None and id in local_data_obj:
       del local_data_obj[id]
-=======
-    self.batch_mutation[join_paths(path, id)] = None
-    obj = follow_path(self.instance, path)
-    if obj is not None and id in obj:
-      del obj[id]
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
+
 
   def put(self, path, id, data):
     """Put a value at a given path and id. If the path/id combo doesn't
@@ -354,7 +273,6 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
-<<<<<<< HEAD
     self.has_mutation = True
     mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
     if mutation_data_obj is not None:
@@ -365,11 +283,7 @@ class Transaction:
     local_data_obj = follow_path(self.instance, path, create_missing=True)
     if local_data_obj is not None:
       local_data_obj[id] = data
-=======
-    self.batch_mutation[join_paths(path, id)] = data
-    obj = follow_path(self.instance, path, create_missing=True)
-    obj[id] = data
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
+
 
   def patch(self, path, data):
     """Patches a list of changes at a path. If the path/id combo doesn't
@@ -387,7 +301,6 @@ class Transaction:
     """
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
-<<<<<<< HEAD
     self.has_mutation = True
     for key, value in data.iteritems():
       mutation_data_obj = follow_path(self.mutation_data, join_paths(path, drop_last(key)), create_missing=True)
@@ -399,19 +312,13 @@ class Transaction:
       local_data_obj = follow_path(self.instance, join_paths(path, drop_last(key)), create_missing=True)
       if local_data_obj is not None:
         local_data_obj[last(key)] = value
-=======
-    for key, value in data.iteritems():
-      self.batch_mutation[join_paths(path, key)] = value
-      obj = follow_path(self.instance, join_paths(path, drop_last(key)), create_missing=True)
-      obj[last(key)] = value
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
+
 
   def commit(self):
     """Applies all mutations in the transaction to the remote model.
     Must be called for every transaction opened. Deleting a transaction without
     calling commit will throw an error.
 
-<<<<<<< HEAD
     We will crawl the path tree to find all the paths to include in the
     mutation. We then get the data in the data tree for each path.
     """
@@ -425,12 +332,6 @@ class Transaction:
       value = follow_path(self.mutation_data, leading_slash_path)
       batch_mutation[leading_slash_path] = value
     self.firebase.patch('/', batch_mutation)
-=======
-    TODO(yuhao93): Currently, transactions that have mutations which touch
-    upon the same path may result in incorrect states. Fix that.
-    """
-    self.firebase.patch('/', self.batch_mutation)
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
     self.committed = True
 
   def __del__(self):

@@ -42,6 +42,7 @@
         "player-%(ident)s-5": true
       },
       "rulesHtml": "test rule",
+      "faqHtml": "faq html",
       "stunTimer": 5,
       "started": false
     }
@@ -150,6 +151,7 @@
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
+      "beInPhotos": true,
       "userId": "user-%(ident)s-1",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
@@ -180,6 +182,7 @@
       "userId": "user-%(ident)s-2",
       "gotEquipment": true,
       "notes": "",
+      "beInPhotos": true,
       "wantToBeSecretZombie": true,
       "missions": {"mission-%(ident)s-1": true},
       "chatRooms": {"chatRoom-%(ident)s-1": true},
@@ -205,6 +208,7 @@
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
+      "beInPhotos": true,
       "userId": "user-%(ident)s-3",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
@@ -222,6 +226,7 @@
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
+      "beInPhotos": true,
       "userId": "user-%(ident)s-4",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
@@ -239,6 +244,7 @@
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
+      "beInPhotos": true,
       "userId": "user-%(ident)s-5",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,

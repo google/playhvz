@@ -120,13 +120,8 @@ def GroupToGame(game_state, group):
 
 def RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect=True):
   reward_category_short_name = reward_code.split('-')[0]
-<<<<<<< HEAD
   reward_categories = GetValueWithPropertyEqualTo(
       game_state,
-=======
-  reward_categories = game_state.get(
-      '/',
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
       'rewardCategories',
       'gameId',
       game_id)
@@ -143,13 +138,8 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
   reward_category_id = RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect)
   if reward_category_id is None:
     return None
-<<<<<<< HEAD
   rewards = GetValueWithPropertyEqualTo(
       game_state,
-=======
-  rewards = game_state.get(
-      '/',
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
       'rewards',
       'rewardCategoryId',
       reward_category_id)
@@ -162,13 +152,8 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
   return None
 
 def GetNextPlayerNumber(game_state, game_id):
-<<<<<<< HEAD
   players = GetValueWithPropertyEqualTo(
       game_state,
-=======
-  players = game_state.get(
-      '/',
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
       'playersPrivate',
       'gameId',
       game_id)
@@ -176,13 +161,8 @@ def GetNextPlayerNumber(game_state, game_id):
 
 def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   player_short_name = life_code.split('-')[0]
-<<<<<<< HEAD
   players = GetValueWithPropertyEqualTo(
       game_state,
-=======
-  players = game_state.get(
-      '/',
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
       'playersPrivate',
       'gameId',
       game_id)
@@ -203,12 +183,7 @@ def IsAdmin(game_state, game_id, user_id):
   return game_state.get('/games/%s/adminUsers' % game_id, user_id) is not None
 
 def GroupToEntity(game_state, group, entity):
-<<<<<<< HEAD
   rooms = GetValueWithPropertyEqualTo(game_state, entity, 'groupId', group)
-=======
-  rooms = game_state.get(
-      '/', entity, {'orderBy': '"groupId"', 'equalTo': '"%s"' % group})
->>>>>>> 0a9a675a68624f60b92a1eaa0bdbe3e53d16857e
   if rooms:
     return rooms.keys()
   return []
