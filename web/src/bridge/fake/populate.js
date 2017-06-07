@@ -1,12 +1,13 @@
+// These User IDs are from https://console.firebase.google.com/u/0/project/trogdors-29fa4/authentication/users
 let FAKE_USER_IDS = {
-  zellaUserId: 'user-vITrvbEGVvh9A4WLXxWFYMbzQP02', // hvzzella@gmail.com
-  reggieUserId: 'user-reggie',
-  minnyUserId: 'user-minny',
-  drakeUserId: 'user-NeNOfho4yeMZncSmX9OZ3xfBQx72', // hvzdrake@gmail.com
-  zekeUserId: 'user-qcLGfbZMLiaUZ8so1qfxT1LLuuF3', // verdagon9@gmail.com
-  moldaviUserId: 'user-zeke',
-  jackUserId: 'user-jack',
-  deckerdUserId: 'user-deckerd',
+  zellaUserId: 'user-5RlQZ0nmlWRRU8YyWv02L2Rjc1Z2',
+  reggieUserId: 'user-yvrDU9wqHfS4MqJdXLgxJmpmEx33',
+  minnyUserId: 'user-Xo12sw0fAAcz29B3vhyoVPBs6Zk2',
+  drakeUserId: 'user-HivmoaAlwUaxvB1lmP7wT4oDjkk2',
+  zekeUserId: 'user-nrzPOHivtWY8RY3I9B9jVcsyU193',
+  moldaviUserId: 'user-bfSoc4c8rOOagvwZE5YbDAkSUZl2',
+  jackUserId: 'user-hxVCen9qL7hlzr8bAlbWPzWrQBn1',
+  deckerdUserId: 'user-eipIEs24GvM6xMPdU9YRgamXcZ23',
 };
 
 function populateUsers(bridge, userIds) {
