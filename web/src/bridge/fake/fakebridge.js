@@ -24,7 +24,7 @@ class FakeBridge {
     this.server.register({userId: userId});
     return this.server.signIn({userId: userId});
   }
-  attemptAutoSignIn({userId}) {
+  getSignedInPromise({userId}) {
     assert(userId);
     this.server.register({userId: userId});
     return this.server.signIn({userId: userId});

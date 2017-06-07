@@ -30,6 +30,7 @@
               'main': 'main',
               'joinGame': 'joinGame',
               'createGame': 'createGame',
+              'createPopulatedGame': 'createPopulatedGame',
               'devTools': 'devTools',
               'chat': 'chat',
               'faq': 'faq',
@@ -90,6 +91,17 @@
               bridge="[[bridge]]"
               user-id="[[user.id]]">
         </ghvz-create-game>
+      </ghvz-card>
+    </template>
+
+    <template is="dom-if" if="[[computeShowPage_(showPage.createPopulatedGame, mostRecentPage)]]">
+      <ghvz-card expand padded full$="[[isMobile]]" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+        <div class="header">Create Game</div>
+        <ghvz-create-populated-game
+              class="content"
+              bridge="[[bridge]]"
+              user-id="[[user.id]]">
+        </ghvz-create-populated-game>
       </ghvz-card>
     </template>
 
@@ -221,6 +233,7 @@
           <div class="header">Missions</div>
           <ghvz-missions
               bridge="[[bridge]]"
+              player="[[player]]"
               game="[[game]]"
               missions="[[game.missions]]">
           </ghvz-missions>
@@ -271,7 +284,8 @@
           <ghvz-missions-page
               bridge="[[bridge]]"
               game="[[game]]"
-              player-id="[[player.id]]">
+              player-id="[[player.id]]"
+              player="[[player]]">
           </ghvz-missions-page>
         </ghvz-card>
       </template>

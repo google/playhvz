@@ -1,0 +1,58 @@
+<dom-module id="ghvz-create-populated-game">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-create-populated-game',
+
+      properties: {
+        bridge: Object,
+        userId: String,
+      },
+
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+            {
+              property: "id",
+              label: "Id",
+              description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
+            },
+          ],
+        };
+      },
+
+      addGame_: function() {
+        this.$.gameForm.openForAdding({})
+            .then((properties) => {
+              let gameId = properties.id;
+              if (!gameId.startsWith('game-'))
+                gameId = 'game-' + properties.id;
+              let trimmedGameId = gameId.slice('game-'.length);
+              populateUsers(this.bridge, FAKE_USER_IDS);
+              populateGame(this.bridge, gameId, FAKE_USER_IDS, false);
+            });
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: flex;
+  }
+  paper-button {
+    background-color: #9C27B0;
+    color: white;
+  }
+</style>
+<template>
+  <paper-button id="createGame" raised on-tap="addGame_">Create Populated Game</paper-button>
+  <ghvz-super-form
+      id="gameForm"
+      type-name="Game"
+      blueprint="[[makeFormBlueprint_()]]">
+  </ghvz-super-form>
+</template>
+</dom-module>

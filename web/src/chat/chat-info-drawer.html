@@ -39,12 +39,12 @@
 
           canAdd: {
             type: Boolean,
-            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.membersCanAdd)',
+            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.canAddOthers)',
           },
 
           canRemove: {
             type: Boolean,
-            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.membersCanRemove)',
+            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveOthers)',
           },
 
           showActionsSection: {
@@ -64,12 +64,12 @@
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
 
-        computeCanAdd_(isAdmin, playerId, ownerPlayerId, membersCanAdd) {
-          return isAdmin || playerId == ownerPlayerId || membersCanAdd;
+        computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers) {
+          return isAdmin || playerId == ownerPlayerId || canAddOthers;
         },
 
-        computeCanRemove_(isAdmin, playerId, ownerPlayerId, membersCanRemove) {
-          return isAdmin || playerId == ownerPlayerId || membersCanRemove;
+        computeCanRemove_(isAdmin, playerId, ownerPlayerId, canRemoveOthers) {
+          return isAdmin || playerId == ownerPlayerId || canRemoveOthers;
         },
 
         computeShowActionsSection_(canAdd, canRemove) {
@@ -177,7 +177,7 @@
   </style>
   <template>
     <array-selector id="groupsSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
-    <div on-tap="captureTap_">
+    <div name$="drawer-[[chatRoom.name]]" on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]
       </div>
@@ -202,9 +202,10 @@
         </div>
       </template>
 
-      <div class="drawer-section">
+      <div id="players-list" class="drawer-section">
         <div class="info-label">[[group.memberships.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
+          <div name$='[[item.name]]'</div>
           <div class="layout horizontal player-entry">
             <div class="layout horizontal player-info"
                 on-tap="captureTap_"

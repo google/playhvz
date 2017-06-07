@@ -183,8 +183,10 @@ class EndToEndTest(unittest.TestCase):
       'allegianceFilter': 'none',
       'autoAdd': False,
       'autoRemove': False,
-      'membersCanAdd': False,
-      'membersCanRemove': False,
+      'canAddOthers': False,
+      'canRemoveOthers': False,
+      'canAddSelf': False,
+      'canRemoveSelf': False,
       'ownerPlayerId': self.Id('playerId'),
     }
     update = {
@@ -197,8 +199,10 @@ class EndToEndTest(unittest.TestCase):
       'gameId': self.Id('gameId'),
       'groupId': self.Id('groupId', 2),
       'name': 'group Bar',
-      'membersCanAdd': True,
-      'membersCanRemove': True,
+      'canAddOthers': True,
+      'canRemoveOthers': True,
+      'canAddSelf': True,
+      'canRemoveSelf': True,
     })
     self.requester.Post('createGroup', create)
 
@@ -272,7 +276,7 @@ class EndToEndTest(unittest.TestCase):
     self.requester.SetRequestingUserId(self.Id('userId', 2))
     self.requester.SetRequestingPlayerId(self.Id('playerId', 2))
 
-    # Player-2 cant add player-3 to group 1, because membersCanAdd is false
+    # Player-2 cant add player-3 to group 1, because canAddOthers is false
     update = {
       'gameId': self.Id('gameId'),
       'playerToAddId': self.Id('playerId', 3),
@@ -280,7 +284,7 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertFails('addPlayerToGroup', update)
 
-    # Player-2 CAN add player-3 to group 2, because membersCanAdd is true
+    # Player-2 CAN add player-3 to group 2, because canAddOthers is true
     update = {
       'gameId': self.Id('gameId'),
       'playerToAddId': self.Id('playerId', 3),

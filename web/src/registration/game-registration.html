@@ -77,6 +77,11 @@
         this.pageNumber++;
       },
 
+      handlePhotosPageDone_(e) {
+        this.newPlayerArgs.beInPhotos = e.detail.value;
+        this.pageNumber++;
+      },
+
       handleVolunteerPageDone_(e) {
         if (e.detail.value) {
           this.pageNumber++;
@@ -113,6 +118,19 @@
         return [
           {value: true, buttonLabel: "Yes!", text: "I can bring/buy/steal/3D print my own nerf gun!"},
           {value: false, buttonLabel: "No...", text: "I need a nerf gun and can't get one before the game, save one for me please!"},
+        ];
+      },
+
+      makeTakePhotoOptions() {
+        return [
+            {
+                value: true, buttonLabel: "Yes!",
+                text: "I have a smart phone / camera / sketchbook"
+            },
+            {
+                value: false, buttonLabel: "No",
+                text: "Sorry, nada!"
+            },
         ];
       },
 
@@ -230,6 +248,16 @@
           on-ghvz-interview-page-done="handleGunPageDone_">
         <div class="maintext">Can you get your own Nerf gun before the game? (If not, we can get you one!)</div>
         <div class="subtext">We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href='https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050'>Disruptor</a> tried-and-true and only $12, most players will have them.</div>
+      </ghvz-interview-option-page>
+    </neon-animatable>
+
+    <neon-animatable>
+      <ghvz-interview-option-page
+          name="joingGameTakePhotos"
+          options="[[makeTakePhotoOptions()]]"
+          on-ghvz-interview-page-done="handlePhotosPageDone_">
+        <div class="maintext">Are you willing and able to take photos during the game?</div>
+        <div class="subtext">There may be missions or tasks that encourage photos. Although, photos can be shared with other player post-game.</div>
       </ghvz-interview-option-page>
     </neon-animatable>
 

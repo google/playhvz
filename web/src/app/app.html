@@ -102,8 +102,9 @@
 
       listeners: {
         'ghvz-set-path': 'handleSetPath_',
-      //   'ghvz-open-drawer': 'openDrawer_',
-      //   'ghvz-close-drawer': 'closeDrawer_',
+        'ghvz-sign-out': 'signOut_',
+        'ghvz-open-drawer': 'openDrawer_',
+        'ghvz-close-drawer': 'closeDrawer_',
       //   'ghvz-select-game': 'handleSelectGame_',
       },
 
@@ -149,18 +150,18 @@
               });
         }
 
-        this.bridge.attemptAutoSignIn({userId: this.userId})
+        this.bridge.getSignedInPromise({userId})
             .then((userId) => {
               this.userId = userId;
-              // this.onUserIdChanged_();
-            })
-            .catch((e) => {
-              // this.onUserIdChanged_();
             });
       },
 
       hideSignInButton_() {
         this.showSignInButton = false;
+      },
+
+      signOut_() {
+        this.bridge.signOut();
       },
 
       navigateEmptyPathToGamesPath_() {
@@ -304,13 +305,13 @@
       //   this.bridge.signOut();
       // },
 
-      // openDrawer_() {
-      //   this.$$("#drawer").openDrawer();
-      // },
+      openDrawer_() {
+        this.$$("#drawer").openDrawer();
+      },
 
-      // closeDrawer_() {
-      //   this.$$("#drawer").closeDrawer();
-      // },
+      closeDrawer_() {
+        this.$$("#drawer").closeDrawer();
+      },
 
       handleSetPath_(e) {
         assert('inGame' in e.detail);
@@ -400,10 +401,14 @@
   </ghvz-unseen-notifications>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
-    <paper-button on-tap="signIn_">Sign In With Google</paper-button>
+    <paper-button
+        name="signIn"
+        on-tap="signIn_">
+      Sign In With Google
+    </paper-button>
   </template>
   <template is="dom-if" if="[[user]]">
-    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isDesktop)]]">
+    <paper-drawer-panel id="drawer" disable-swipe><!--responsive-width="[[computeResponsiveWidth_(isDesktop)]]">-->
       <paper-material drawer>
         <ghvz-drawer
             bridge="[[bridge]]"

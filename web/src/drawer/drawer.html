@@ -65,7 +65,7 @@
       },
 
       computeChatPage_(chatRoomId) {
-        return "chat/" + chatRoomId;
+        return ["chat", chatRoomId];
       },
 
       signOut_(e) {
@@ -151,7 +151,7 @@
 
     <template is="dom-if" if="[[isAdmin]]">
       <div id="adminPages" class="drawer-section">
-        <a href="javascript:void(0)" data-page="adminMain" class="drawer-item">
+        <a href="javascript:void(0)" name="Admin Dashboard" data-page="adminMain" class="drawer-item">
           <iron-icon icon="icons:dashboard"></iron-icon>
           Admin Dashboard
         </a>
@@ -196,7 +196,7 @@
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
-      <div id="playerPages" class="drawer-section">
+      <div name="playerPagesJoined" id="playerPages" class="drawer-section">
         <a href="javascript:void(0)" data-page="main" class="drawer-item" name="drawerDashboard">
           <iron-icon icon="icons:dashboard"></iron-icon>
           Dashboard

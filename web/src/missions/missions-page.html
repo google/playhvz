@@ -13,6 +13,8 @@
 
         game: Object,
 
+        player: Object,
+
         playerId: String,
       },
 
@@ -44,6 +46,7 @@
       <div class="header">[[mission.name]]</div>
       <ghvz-mission
           bridge="[[bridge]]"
+          player="[[player]]"
           game-id="[[game.id]]"
           player-id="[[playerId]]"
           mission="[[mission]]">

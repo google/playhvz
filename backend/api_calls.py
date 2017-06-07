@@ -60,6 +60,7 @@ def AddGame(request, game_state):
     'adminUserId': 'UserId',
     'name': 'String',
     'rulesHtml': 'String',
+    'faqHtml': 'String',
     'stunTimer': 'Number',
     'active': 'Boolean',
     'started': 'Boolean',
@@ -68,6 +69,7 @@ def AddGame(request, game_state):
   put_data = {
     'name': request['name'],
     'rulesHtml': request['rulesHtml'],
+    'faqHtml': request['faqHtml'],
     'stunTimer': request['stunTimer'],
     'active': request['active'],
     'started': request['started'],
@@ -167,8 +169,8 @@ def AddGroup(request, game_state):
     allegianceFilter: Which allegiance this group is associated with.
     autoAdd: Automatically add players to this group based on allegiance.
     autoRemove: Automatically remove players to this group based on allegiance.
-    membersCanAdd: Group members can add other players.
-    membersCanRemove: Group members can add other players.
+    canAddOthers: Group members can add other players.
+    canRemoveOthers: Group members can add other players.
     ownerPlayerId: (optional) player who is the owner of this group.
 
   Firebase entries:
@@ -184,8 +186,10 @@ def AddGroup(request, game_state):
     'name': 'String',
     'autoRemove': 'Boolean',
     'autoAdd': 'Boolean',
-    'membersCanAdd': 'Boolean',
-    'membersCanRemove': 'Boolean'
+    'canAddOthers': 'Boolean',
+    'canRemoveOthers': 'Boolean',
+    'canAddSelf': 'Boolean',
+    'canRemoveSelf': 'Boolean'
   })
 
   group_id = request['groupId']
@@ -198,8 +202,10 @@ def AddGroup(request, game_state):
     'name': request['name'],
     'autoRemove': request['autoRemove'],
     'autoAdd': request['autoAdd'],
-    'membersCanAdd': request['membersCanAdd'],
-    'membersCanRemove': request['membersCanRemove'],
+    'canAddOthers': request['canAddOthers'],
+    'canRemoveOthers': request['canRemoveOthers'],
+    'canAddSelf': request['canAddSelf'],
+    'canRemoveSelf': request['canRemoveSelf'],
   }
   game_state.put('/groups', group_id, group)
   game_state.put('/games/%s/groups/' % request['gameId'], request['groupId'], True)
@@ -217,8 +223,8 @@ def UpdateGroup(request, game_state):
     name (optional):
     autoAdd (optional):
     autoRemove (optional):
-    membersCanAdd (optional):
-    membersCanRemove (optional):
+    canAddOthers (optional):
+    canRemoveOthers (optional):
     ownerPlayerId (optional):
 
   Firebase entries:
@@ -231,12 +237,14 @@ def UpdateGroup(request, game_state):
     'name': '|String',
     'autoAdd': '|Boolean',
     'autoRemove': '|Boolean',
-    'membersCanAdd': '|Boolean',
-    'membersCanRemove': '|Boolean'
+    'canAddOthers': '|Boolean',
+    'canRemoveOthers': '|Boolean',
+    'canAddSelf': '|Boolean',
+    'canRemoveSelf': '|Boolean'
   })
 
   put_data = {}
-  for property in ['name', 'autoAdd', 'autoRemove', 'membersCanAdd', 'membersCanRemove', 'ownerPlayerId']:
+  for property in ['name', 'autoAdd', 'autoRemove', 'canAddOthers', 'canRemoveOthers', 'canAddSelf', 'canRemoveSelf', 'ownerPlayerId']:
     if property in request:
       put_data[property] = request[property]
   game_state.patch('/groups/%s' % request['groupId'], put_data)
@@ -266,6 +274,7 @@ def AddPlayer(request, game_state):
     'profileImageUrl': '?String',
     'gotEquipment': 'Boolean',
     'notes': 'String',
+    'beInPhotos': 'Boolean',
     'wantToBeSecretZombie': 'Boolean',
     'notificationSettings': {
       'sound': 'Boolean',
@@ -302,6 +311,7 @@ def AddPlayer(request, game_state):
     'userId': user_id,
     'canInfect': False,
     'notes': request['notes'],
+    'beInPhotos': request['beInPhotos'],
     'needGun' : request['needGun'],
     'gotEquipment' : request['gotEquipment'],
     'wantToBeSecretZombie': request['wantToBeSecretZombie'],
@@ -637,13 +647,13 @@ def AddPlayerToGroup(request, game_state):
     * Player doing the adding is a member of the group AND the group supports adding
       or
       The player is the group owner.
-    * otherPlayerId is not already in the group.
+    * playerToAddId is not already in the group.
     * Both players and the groupId all point to the same game.
 
   Args:
     groupId: The group to add a player to.
     playerId: The player doing the adding (unless an admin).
-    otherPlayerId: The player being added.
+    playerToAddId: The player being added.
 
   Firebase entries:
     /groups/%(groupId)/players/%(playerId)
@@ -688,12 +698,12 @@ def AddPlayerToGroup(request, game_state):
     pass
   else:
     print "member? %d" % (not not game_state.get('/groups/%s/players' % group_id, player_to_add_id))
-    print "memberscanadd? %d" % (not not game_state.get('/groups/%s' % group_id, 'membersCanAdd'))
+    print "canAddOthers? %d" % (not not game_state.get('/groups/%s' % group_id, 'canAddOthers'))
     # Validate player_to_add_id is in the chat room.
     if not game_state.get('/groups/%s/players' % group_id, requesting_player_id):
       raise InvalidInputError('You are not a member of that group nor an owner.')
     # Validate players are allowed to add other players.
-    if not game_state.get('/groups/%s' % group_id, 'membersCanAdd'):
+    if not game_state.get('/groups/%s' % group_id, 'canAddOthers'):
       raise InvalidInputError('Players are not allowed to add to this group.')
   print "success, adding"
   AddPlayerToGroupInner(game_state, group_id, player_to_add_id)
@@ -742,13 +752,13 @@ def RemovePlayerFromGroup(request, game_state):
     * Player doing the removing is a member of the group AND the group supports removing
       or
       The player is the group owner.
-    * otherPlayerId is in the group.
+    * playerToAddId is in the group.
     * Both players and the groupId all point to the same game.
 
   Args:
     groupId: The group to remove a player from.
     playerId: The player doing the removing (unless an admin).
-    otherPlayerId: The player being removed.
+    playerToAddId: The player being removed.
 
   Firebase entries:
     /groups/%(groupId)/players/%(playerId)
@@ -793,7 +803,7 @@ def RemovePlayerFromGroup(request, game_state):
     if not game_state.get('/groups/%s/players' % group_id, requesting_player_id):
       raise InvalidInputError('You are not a member of that group nor an owner.')
     # Validate players are allowed to remove other players.
-    if not game_state.get('/groups/%s' % group_id, 'membersCanRemove'):
+    if not game_state.get('/groups/%s' % group_id, 'canRemoveOthers'):
       raise InvalidInputError('Players are not allowed to remove from this group.')
 
   RemovePlayerFromGroupInner(game_state, group_id, player_to_remove_id)
@@ -933,34 +943,6 @@ def Infect(request, game_state):
   else:
     logging.warn('Normal infection')
     SetPlayerAllegiance(game_state, victim_id, allegiance=constants.ZOMBIE, can_infect=True)
-
-
-def SetAllegiance(request, game_state):
-  """Set the allegiance of a player.
-
-  Used (by admins?) to set a player to human, zombie or secret zombie.
-  Shares code with Infect().
-
-  Args:
-    playerId: The player to update.
-    allegiance: Human or zombie.
-    canInfect: If they can infect. With allegiance, gives a secret zombie.
-
-  Validation:
-    Zombies must be able to infect.
-    TODO Must be admin to call?
-
-  Firebase entries:
-    /playersPublic/%(playerId)
-    /groups/%(groupId) indirectly
-  """
-  valid_args = ['playerId', 'allegiance']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, game_state, required_args, valid_args)
-
-  if request['allegiance'] == constants.ZOMBIE and not request['canInfect']:
-    raise InvalidInputError('Zombies can always infect.')
-  SetPlayerAllegiance(game_state, request['playerId'], request['allegiance'], request['canInfect'])
 
 
 def JoinResistance(request, game_state):
@@ -1398,7 +1380,7 @@ def RegisterUserDevice(request, game_state):
   game_state.patch('/users/%s', put_data)
 
 
-def AddLife(request, game_state=None):
+def AddLife(request, game_state):
   """Add a new player life.
 
   Validation:

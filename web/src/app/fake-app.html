@@ -102,7 +102,11 @@
         assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
         if (populate != 'none') {
           populateUsers(this.bridge, FAKE_USER_IDS);
-          populateGame(this.bridge, FAKE_USER_IDS, populate == 'heavy');
+          populateGame(
+              this.bridge,
+              this.bridge.idGenerator.newGameId("poptest"),
+              FAKE_USER_IDS,
+              populate == 'heavy');
         }
 
         this.navigateFromUrl_();

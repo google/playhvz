@@ -28,17 +28,6 @@ class Bridge {
     return this.inner.setPlayerId(playerId);
   }
 
-  attemptAutoSignIn() {
-    return this.inner.attemptAutoSignIn();
-  }
-
-  listenToGameAsAdmin(...args) {
-    return this.inner.listenToGameAsAdmin(...args);
-  }
-  listenToGameAsNonAdmin(...args) {
-    return this.inner.listenToGameAsNonAdmin(...args);
-  }
-
   check_(typeName, value) {
     if (typeName.startsWith("?")) {
       if (value === null)
@@ -173,6 +162,7 @@ class FakeIdGenerator extends IdGenerator {
   const GAME_PROPERTIES = {
     name: 'String',
     rulesHtml: 'String',
+    faqHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
     started: 'Boolean',
@@ -195,6 +185,7 @@ class FakeIdGenerator extends IdGenerator {
     canInfect: 'Boolean',
     profileImageUrl: 'String',
     wantToBeSecretZombie: 'Boolean',
+    beInPhotos: 'Boolean',
     volunteer: {
       advertising: 'Boolean',
       logistics: 'Boolean',
@@ -239,12 +230,16 @@ class FakeIdGenerator extends IdGenerator {
     endTime: 'TimestampMs',
     name: 'String',
     detailsHtml: 'String',
-    groupId: 'GroupId',
   };
   serverMethods.set('addMission', {
     required:
         Utils.merge(
-            {missionId: '!MissionId', groupId: 'GroupId', gameId: 'GameId'},
+            {
+              missionId: '!MissionId',
+              groupId: 'GroupId',
+              rsvpersGroupId: 'GroupId',
+              gameId: 'GameId'
+            },
             MISSION_PROPERTIES)
   });
   serverMethods.set('updateMission', {
@@ -266,8 +261,10 @@ class FakeIdGenerator extends IdGenerator {
     ownerPlayerId: '?PlayerId',
     autoAdd: 'Boolean',
     autoRemove: 'Boolean',
-    membersCanAdd: 'Boolean',
-    membersCanRemove: 'Boolean',
+    canAddOthers: 'Boolean',
+    canRemoveOthers: 'Boolean',
+    canAddSelf: 'Boolean',
+    canRemoveSelf: 'Boolean',
   };
   serverMethods.set('createGroup', {
     required:
@@ -281,6 +278,7 @@ class FakeIdGenerator extends IdGenerator {
   const REWARD_CATEGORY_PROPERTIES = {
     name: 'String',
     points: 'Number',
+    badgeImageUrl: '?String',
     shortName: 'String',
     limitPerPlayer: 'Number',
   };
@@ -291,7 +289,7 @@ class FakeIdGenerator extends IdGenerator {
             REWARD_CATEGORY_PROPERTIES),
   });
   serverMethods.set('updateRewardCategory', {
-    required: {rewardCategoryId: 'RewardCategoryId'},
+    required: {rewardCategoryId: 'RewardCategoryId', gameId: 'GameId'},
     optional: REWARD_CATEGORY_PROPERTIES,
   });
 
@@ -379,16 +377,15 @@ class FakeIdGenerator extends IdGenerator {
     required: {
       gameId: 'GameId',
       groupId: 'GroupId',
-      otherPlayerId: 'PlayerId',
-      playerId: '?PlayerId',
+      playerToAddId: 'PlayerId',
     },
   });
 
   serverMethods.set('removePlayerFromGroup', {
     required: {
+      gameId: 'GameId',
       groupId: 'GroupId',
-      otherPlayerId: 'PlayerId',
-      playerId: '?PlayerId',
+      playerToRemoveId: 'PlayerId',
     },
   });
 
@@ -423,16 +420,30 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addRequestCategory', {
     required: {
+      gameId: 'GameId',
       requestCategoryId: '!RequestCategoryId',
       chatRoomId: 'ChatRoomId',
       playerId: 'PlayerId',
       text: 'String',
       type: 'String',
+      dismissed: 'Boolean',
+    },
+  });
+
+  serverMethods.set('updateRequestCategory', {
+    required: {
+      gameId: 'GameId',
+      requestCategoryId: 'RequestCategoryId',
+    },
+    optional: {
+      text: 'String',
+      dismissed: 'Boolean',
     },
   });
 
   serverMethods.set('addRequest', {
     required: {
+      gameId: 'GameId',
       requestCategoryId: 'RequestCategoryId',
       requestId: '!RequestId',
       playerId: 'PlayerId',
@@ -441,6 +452,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addResponse', {
     required: {
+      gameId: 'GameId',
       requestId: 'RequestId',
       text: '?String',
     },
@@ -559,7 +571,9 @@ class FakeIdGenerator extends IdGenerator {
 
   let bridgeMethods = new Map(serverMethods);
 
-  bridgeMethods.set('attemptAutoSignIn', {});
+  bridgeMethods.set('signIn', {});
+  bridgeMethods.set('signOut', {});
+  bridgeMethods.set('getSignedInPromise', {});
   bridgeMethods.set('listenToDatabase', {});
   bridgeMethods.set('listenToGameAsAdmin', {});
   bridgeMethods.set('listenToGameAsNonAdmin', {});

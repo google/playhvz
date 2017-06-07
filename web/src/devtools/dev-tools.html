@@ -13,7 +13,7 @@
 
       populate_() {
         populateUsers(this.bridge, FAKE_USER_IDS);
-        populateGame(this.bridge, FAKE_USER_IDS, false);
+        populateGame(this.bridge, bridge.idGenerator.newGameId("poptest"), FAKE_USER_IDS, false);
       },
     });
   });
