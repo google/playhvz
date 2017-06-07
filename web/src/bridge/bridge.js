@@ -72,6 +72,8 @@ class IdGenerator {
   verifyChatRoomId(id) { return this.verify('chatRoom', id); }
   newClaimId(note) { return this.generateId('claim', note); }
   verifyClaimId(id) { return this.verify('claim', id); }
+  newDefaultProfileImageId(note) { return this.generateId('defaultProfileImage', note); }
+  verifyDefaultProfileImageId(id) { return this.verify('defaultProfileImage', id); }
   newGameId(note) { return this.generateId('game', note); }
   verifyGameId(id) { return this.verify('game', id); }
   newGroupId(note) { return this.generateId('group', note); }
@@ -98,8 +100,6 @@ class IdGenerator {
   verifyPlayerId(id) { return this.verify('player', id); }
   newPointId(note) { return this.generateId('point', note); }
   verifyPointId(id) { return this.verify('point', id); }
-  newProfileImageId(note) { return this.generateId('profileImage', note); }
-  verifyProfileImageId(id) { return this.verify('profileImage', id); }
   newQuizAnswerId(note) { return this.generateId('quizAnswer', note); }
   verifyQuizAnswerId(id) { return this.verify('quizAnswer', id); }
   newQuizQuestionId(note) { return this.generateId('quizQuestion', note); }
@@ -192,7 +192,7 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('addDefaultProfileImage', {
     required: {
       gameId: 'GameId',
-      profileImageId: 'ProfileImageId',
+      defaultProfileImageId: '!DefaultProfileImageId',
       allegianceFilter: 'String',
       profileImageUrl: 'String', 
     }

@@ -50,7 +50,7 @@
                 gameId = 'game-' + properties.id;
               let trimmedGameId = gameId.slice('game-'.length);
               
-              let profileImageId = this.bridge.newProfileImageId();
+              let defaultProfileImageId = this.bridge.newDefaultProfileImageId();
               let everyoneGroupId = this.bridge.newGroupId('everyone');
               let everyoneChatRoomId = this.bridge.newChatRoomId('everyone');
               var resistanceGroupId = this.bridge.newGroupId('resistance');
@@ -69,7 +69,7 @@
               });
               this.bridge.addDefaultProfileImage({
                 gameId: gameId,
-                profileImageId: profileImageId,
+                defaultProfileImageId: defaultProfileImageId,
                 allegianceFilter: 'horde',
                 profileImageUrl: 'https://goo.gl/DP2vlY',
               });

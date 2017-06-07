@@ -234,12 +234,12 @@ Model.Reward = function(id, args) {
   Utils.addEmptyLists(this, REWARD_COLLECTIONS);
 }
 
-const DEFAULT_PROFILE_IMAGE_PROPERTIES = ["gameId", "profileImageId", "allegianceFilter", "profileImageUrl"];
+const DEFAULT_PROFILE_IMAGE_PROPERTIES = ["gameId", "defaultProfileImageId", "allegianceFilter", "profileImageUrl"];
 const DEFAULT_PROFILE_IMAGE_COLLECTIONS = [];
-Model.Response = function(id, args) {
+Model.DefaultProfileImage = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, DEFAULT_PROFILE_IMAGE_PROPERTIES);
-  Utils.addEmptyLists(this, RESPONSE_COLLECTIONS);
+  Utils.addEmptyLists(this, DEFAULT_PROFILE_IMAGE_COLLECTIONS);
 }
 
 

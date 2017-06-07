@@ -74,12 +74,11 @@ class FakeServer {
         new Model.Admin(userId, {userId: userId}));
   }
   addDefaultProfileImage(args) {
-    debugger;
-    let {gameId, profileImageId} = args;
+    let {gameId, defaultProfileImageId} = args;
     this.writer.insert(
-        this.reader.getGamePath(gameId, null),
+        this.reader.getDefaultProfileImagePath(gameId, null),
         null,
-        new Model.DefaultProfileImage(profileImageId, args)
+        new Model.DefaultProfileImage(defaultProfileImageId, args)
     );
   }
   createPlayer(args) {
