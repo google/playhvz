@@ -50,6 +50,7 @@ class SimpleDriver:
         element.get_attribute('textContent').strip() or
         element.get_attribute('innerText').strip())
     # print 'Checking if "%s" is in "%s"' % (needle, text)
+    print 'Checking if "%s" is present.' % (needle)
     # Leaving innerHTML out because it seems like it can have a lot of false
     # positives, because who knows whats in the html...
     if needle not in text:
@@ -216,7 +217,7 @@ class WholeDriver:
     return self.inner_driver.FindElement(path, wait_long)
 
   def DontFindElement(self, path, wait_long = False):
-    return self.FindElement(self, path, wait_long=wait_long, should_exist=False)
+    return self.FindElement(path, wait_long=wait_long, should_exist=False)
 
   def Click(self, path):
     return self.inner_driver.Click(path)
