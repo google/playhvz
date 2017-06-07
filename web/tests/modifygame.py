@@ -21,11 +21,11 @@ try:
   driver.FindElement([[By.NAME, 'Rules']])
   driver.Click([[By.TAG_NAME, 'ghvz-desktop-admin-page'], [By.NAME, 'rules-icon'], [By.ID, 'icon']]) 
   driver.SendKeys(
-      [[By.NAME, 'HELLO WORLD!!!'], [By.TAG_NAME, 'textarea']],
+      [[By.NAME, 'admin-page'], [By.TAG_NAME, 'textarea']],
       'rules are cools')
 
   # If you click Cancel, the new words shouldn't show up.
-  driver.Click([[By.NAME, 'HELLO WORLD!!!'],[By.ID, 'cancel']])
+  driver.Click([[By.NAME, 'admin-page'],[By.ID, 'cancel']])
   driver.DontExpectContains(
       [[By.ID, 'rulesForm']],
       'rules are cools')
@@ -34,11 +34,11 @@ try:
   driver.FindElement([[By.NAME, 'Rules']])
   driver.Click([[By.TAG_NAME, 'ghvz-desktop-admin-page'], [By.NAME, 'rules-icon'], [By.ID, 'icon']]) 
   driver.SendKeys(
-      [[By.NAME, 'HELLO WORLD!!!'], [By.TAG_NAME, 'textarea']],
+      [[By.NAME, 'admin-page'], [By.TAG_NAME, 'textarea']],
       'rules are cools when you save them')
 
   # # If you click Save, the new words should show up.
-  driver.Click([[By.NAME, 'HELLO WORLD!!!'],[By.ID, 'cancel']])
+  driver.Click([[By.NAME, 'admin-page'],[By.ID, 'cancel']])
   driver.DontExpectContains(
       [[By.ID, 'rulesForm']],
       'rules are cools when you save them')
@@ -49,11 +49,11 @@ try:
       [[By.ID, 'gameForm'], [By.TAG_NAME, 'input']],
       'grobble forgbobbly')
 
-  # # If you click Cancel, the new stun timer shouldn't show up.
-  # driver.Click([[By.ID, 'infect']])
-  # driver.ExpectContains(
-  #     [[By.NAME, 'victimName']],
-  #     'Jack Slayer the Bean Slasher')
+  # If you click Cancel, the new stun timer shouldn't show up.
+  driver.Click([[By.ID, 'infect']])
+  driver.ExpectContains(
+      [[By.NAME, 'victimName']],
+      'Jack Slayer the Bean Slasher')
 
   # # Open up settings, set a new stun timer.
   # driver.Click([[By.NAME, 'drawerDashboard']])  
