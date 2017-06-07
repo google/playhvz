@@ -320,7 +320,12 @@
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
 
-    <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
+    <paper-icon-button 
+      id="info" 
+      icon="icons:info-outline" 
+      on-tap="toggleChatInfo_"
+      randomProp="HELLO!"
+      name$="icon-[[chatRoom.name]]">
     </paper-icon-button>
 
     <!-- For webdrivers -->
@@ -328,30 +333,28 @@
 
     <div id="conversationContainer" class="conversation-container">
       <template is="dom-repeat" items="[[chatRoom.messages]]">
-        <div name$="message-[[chatRoom.name]]-[[item.message]]">
-          <div 
-            class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
-            <div class="display-message">
+        <div name$="message-[[chatRoom.name]]-[[item.message]]"
+          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
+          <div class="display-message">
+            <div 
+              class="player-name">
+              [[getName_(item.playerId, game.players.length)]]
+            </div>
+            <div class="message-text-container">
               <div 
-                class="player-name">
-                [[getName_(item.playerId, game.players.length)]]
-              </div>
-              <div class="message-text-container">
-                <div 
-                  class="message-text">[[item.message]]</div>
-                <paper-tooltip position="top" animation-delay="0">
-                  [[getTime_(item.time)]]
-                </paper-tooltip>
-              </div>
+                class="message-text">[[item.message]]</div>
+              <paper-tooltip position="top" animation-delay="0">
+                [[getTime_(item.time)]]
+              </paper-tooltip>
             </div>
-            <div class="display-avatar">
-              <ghvz-player-avatar 
-                small game="[[game]]" 
-                player-id="[[item.playerId]]"
-                name$="avatar-[[chatRoom.name]]-[[item.message]]"></ghvz-player-avatar>
-            </div>
-          </div> 
-        </div>
+          </div>
+          <div class="display-avatar">
+            <ghvz-player-avatar 
+              small game="[[game]]" 
+              player-id="[[item.playerId]]"
+              name$="avatar-[[chatRoom.name]]-[[item.message]]"></ghvz-player-avatar>
+          </div>
+        </div> 
       </template>
     </div>
 

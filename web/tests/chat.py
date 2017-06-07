@@ -2,7 +2,7 @@ from driver import RetryingDriver
 
 from selenium.webdriver.common.by import By
 
-driver = RetryingDriver('zella') 
+driver = RetryingDriver('zella', page="createGame") 
 
 playerNames = {
       'zella': 'Zella the Ultimate',
@@ -20,6 +20,12 @@ def testChat(playersInChat, playersNotInChat, chatName):
     for index, player in enumerate(playersInChat):
 
       driver.SwitchUser(player)
+
+      # Make sure drawer opens fine
+      driver.Click([[By.NAME, 'icon-%s' % chatName]])
+      driver.FindElement(
+        [[By.NAME, 'drawer-%s' % chatName], [By.NAME, playerNames[player]]])
+      driver.Click([[By.NAME, 'icon-%s' % chatName]])
 
       # Post a message
       driver.FindElement([[By.NAME, 'ChatRoom: %s' % chatName]]) # Check that the chat exists
@@ -46,11 +52,9 @@ def testChat(playersInChat, playersNotInChat, chatName):
         # Check the last one shows up as yours, and all others belong to other people
         if i == index:
           driver.FindElement([
-            [By.NAME, 'message-%s-Brains for %s' % (chatName, currPlayer)], 
             [By.CLASS_NAME, 'message-from-me']])
         else:
           driver.FindElement([
-            [By.NAME, 'message-%s-Brains for %s' % (chatName, currPlayer)], 
             [By.CLASS_NAME, 'message-from-other']])
 
     for player in playersNotInChat:
@@ -58,8 +62,6 @@ def testChat(playersInChat, playersNotInChat, chatName):
       driver.DontFindElement([[By.NAME, 'ChatRoom: %s' % chatName]]) # Check that the chat doesn't exist
 
   finally:
-
-    
     pass
 
 # GLOBAL CHAT ROOM - all types of joined players + admins should view.
