@@ -47,6 +47,10 @@
                 name: "Claimed",
                 getModel: (category) => this.computeNumClaimed_(category),
               },
+              {
+                property: "badgeImageUrl",
+                name: "Badge URL",
+              },
             ],
             actions: [
               {
@@ -94,6 +98,11 @@
                 width: "half",
                 description: "Maximum number of rewards of this category a player can claim.",
               },
+              {
+                property: "badgeImageUrl",
+                label: "Badge",
+                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
+              },
             ],
           };
         },
@@ -112,6 +121,7 @@
           this.$.categoryForm.openForEditing(category)
               .then((newProperties) => {
                 this.bridge.updateRewardCategory(Utils.merge(newProperties, {
+                    gameId: this.gameId,
                     rewardCategoryId: category.id,
                 }));
               });
@@ -241,6 +251,7 @@
           <div class="cell">[[category.points]]</div>
           <div class="cell">[[category.shortName]]</div>
           <div class="cell">[[computeNumClaimed_(category)]] / [[category.rewards.length]]</div>
+          <div class="cell">[[category.badgeImageUrl]]</div>
         </div>
       </template>
     </ghvz-table>

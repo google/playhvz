@@ -148,6 +148,7 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     adminUserId: zellaUserId,
     name: "Test game",
     rulesHtml: RULES_HTML,
+    faqHtml: FAQ_HTML,
     stunTimer: 60,
     active: true,
     started: true,
@@ -479,6 +480,7 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     gameId: gameId,
     name: "signed up!",
     points: 2,
+    badgeImageUrl: 'https://maxcdn.icons8.com/Share/icon/ultraviolet/Baby//nerf_gun1600.png',
     shortName: "signed",
     limitPerPlayer: 1
   });
@@ -723,6 +725,10 @@ brans
 arbs
 <p>
 <iframe style="width: 100%; height: 300px; border-width: 0;" src="https://www.google.com/maps/d/embed?mid=1_jSfVfafWm3IZ-txxSQ4rcSYrsA&ll=37.42155881938754%2C-122.08218634299163&z=17"></iframe>
+`;
+
+const FAQ_HTML = `
+<b>I am a FAQ!</b>
 `;
 
 const RULES_HTML = `
