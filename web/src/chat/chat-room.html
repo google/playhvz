@@ -19,6 +19,11 @@
             value: null,
           },
 
+          isMobile: {
+            type: Boolean,
+            value: false,
+          },
+
           chatRoom: Object,
 
           selectedPlayers: {
@@ -371,6 +376,10 @@
           on-keydown="checkForEnter_">
         </paper-textarea>
       </div>
+      <template is="dom-if" if="mobile">
+      <div>send location</div>
+        
+      </template>
       <paper-button 
         class="send"
         name$="submit-[[chatRoom.name]]"
