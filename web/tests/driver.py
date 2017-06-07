@@ -13,7 +13,7 @@ class SimpleDriver:
   def __init__(self, selenium_driver):
     self.selenium_driver = selenium_driver
 
-  def FindElement(self, path):
+  def FindElement(self, path, should_exist=True):
     element = None
     for step in path:
       by, locator = step
@@ -21,8 +21,12 @@ class SimpleDriver:
         element = self.selenium_driver.find_element(by, locator)
       else:
         element = element.find_element(by, locator)
+      if element is None:
+        break
+    if should_exist:
       assert element is not None
-    assert element is not None
+    else:
+      assert element is None
     return element
 
   def Click(self, path):
@@ -33,7 +37,6 @@ class SimpleDriver:
 
   def ExpectContains(self, path, needle):
     element = self.FindElement(path)
-
     # There's four ways to get the contents of an element:
     # print 'el text is "%s" "%s" "%s" "%s"' % (
     #     element.text.strip(),
@@ -60,8 +63,8 @@ class RetryingDriver:
   def __init__(self, inner_driver):
     self.inner_driver = inner_driver
 
-  def FindElement(self, path, wait_long=False):
-    return self.Retry(lambda: self.inner_driver.FindElement(path), wait_long=wait_long)
+  def FindElement(self, path, wait_long=False, should_exist=True):
+    return self.Retry(lambda: self.inner_driver.FindElement(path, should_exist=should_exist), wait_long=wait_long)
 
   def Click(self, path):
     return self.Retry(lambda: self.inner_driver.Click(path))
@@ -127,8 +130,8 @@ class ProdDriver:
 
     self.FindElement([[By.ID, 'root']], wait_long=True)
 
-  def FindElement(self, path, wait_long=False):
-    self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long)
+  def FindElement(self, path, wait_long=False, should_exist=True):
+    self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist)
 
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
@@ -164,11 +167,11 @@ class FakeDriver:
     self.Click([[By.ID, user + 'Button']], scoped=False)
     self.FindElement([[By.ID, user + 'App']], scoped=False)
 
-  def FindElement(self, path, wait_long = False, scoped = True):
+  def FindElement(self, path, wait_long = False, scoped = True, should_exist=True):
     if scoped:
-      self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long)
+      self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist)
     else:
-      self.inner_driver.FindElement(path, wait_long)
+      self.inner_driver.FindElement(path, wait_long, should_exist)
 
   def Click(self, path, scoped = True):
     if scoped:
@@ -209,8 +212,11 @@ class WholeDriver:
   def SwitchUser(self, user):
     return self.inner_driver.SwitchUser(user)
 
-  def FindElement(self, path, wait_long = False):
+  def FindElement(self, path, wait_long = False, should_exist=True):
     return self.inner_driver.FindElement(path, wait_long)
+
+  def DontFindElement(self, path, wait_long = False):
+    return self.FindElement(self, path, wait_long=wait_long, should_exist=False)
 
   def Click(self, path):
     return self.inner_driver.Click(path)
