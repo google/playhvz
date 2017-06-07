@@ -58,6 +58,14 @@ class RetryingDriver:
     self.ClickInner([[By.ID, user + 'Button']])
     self.FindElementInner([[By.ID, user + 'App']])
 
+  def DontFindElement(self, path, wait_long = False):
+    try:
+      element = self.FindElement(path, wait_long)
+      print("we found the element!!!")
+      raise AssertionError("Element exists (but shouldn't): %s" % path)
+    except NoSuchElementException:
+      print "Element %s doesn't exist, as expected" % path
+
   def FindElement(self, path, wait_long = False):
     return self.FindElementInner(
         [[By.ID, self.user + "App"]] + path,
@@ -71,7 +79,6 @@ class RetryingDriver:
 
 
   def ExpectContains(self, path, needle):
-
     return Retry(lambda: self.ExpectContainsInner(path, needle))
 
   def ExpectContainsInner(self, path, needle):
