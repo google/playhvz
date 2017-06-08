@@ -120,10 +120,11 @@ def GroupToGame(game_state, group):
 
 def RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect=True):
   reward_category_short_name = reward_code.split('-')[0]
-  reward_categories = game_state.get(
-      '/',
+  reward_categories = GetValueWithPropertyEqualTo(
+      game_state,
       'rewardCategories',
-      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+      'gameId',
+      game_id)
   if reward_categories is not None:
     for reward_category_id, reward_category in reward_categories.iteritems():
       if reward_category['shortName'] == reward_category_short_name:
@@ -137,10 +138,11 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
   reward_category_id = RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect)
   if reward_category_id is None:
     return None
-  rewards = game_state.get(
-      '/',
+  rewards = GetValueWithPropertyEqualTo(
+      game_state,
       'rewards',
-      {'orderBy': '"rewardCategoryId"', 'equalTo': '"%s"' % reward_category_id})
+      'rewardCategoryId',
+      reward_category_id)
   if rewards is not None:
     for reward_id, reward in rewards.iteritems():
       if reward['code'] == reward_code:
@@ -150,18 +152,20 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
   return None
 
 def GetNextPlayerNumber(game_state, game_id):
-  players = game_state.get(
-      '/',
+  players = GetValueWithPropertyEqualTo(
+      game_state,
       'playersPrivate',
-      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+      'gameId',
+      game_id)
   return 101 + len(players)
 
 def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   player_short_name = life_code.split('-')[0]
-  players = game_state.get(
-      '/',
+  players = GetValueWithPropertyEqualTo(
+      game_state,
       'playersPrivate',
-      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+      'gameId',
+      game_id)
   if players is not None:
     for player_id, player in players.iteritems():
       if 'lives' in player:
@@ -179,8 +183,7 @@ def IsAdmin(game_state, game_id, user_id):
   return game_state.get('/games/%s/adminUsers' % game_id, user_id) is not None
 
 def GroupToEntity(game_state, group, entity):
-  rooms = game_state.get(
-      '/', entity, {'orderBy': '"groupId"', 'equalTo': '"%s"' % group})
+  rooms = GetValueWithPropertyEqualTo(game_state, entity, 'groupId', group)
   if rooms:
     return rooms.keys()
   return []
@@ -226,5 +229,14 @@ def AddPoints(game_state, player_id, points):
   return 'Player points = %d + %d => %d' % (current_points, points, new_points)
 
 
+def GetValueWithPropertyEqualTo(game_state, property, key, target):
+  all_values= game_state.get('/', property)
+  values = {}
+  if not all_values:
+    return values
+  for k, v in all_values.iteritems():
+    if v[key] == target:
+      values[k] = v
+  return values
 
 # vim:ts=2:sw=2:expandtab
