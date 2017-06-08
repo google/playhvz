@@ -38,7 +38,7 @@
 
           chatInfoVisible: {
             type: Boolean,
-            vlaue: false,
+            value: false,
           },
         },
 
@@ -52,6 +52,10 @@
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
         ],
+
+        locationEnabled(isMobile) {
+          return isMobile && false;
+        },
 
         attached: function() {
           this.isAttached = true;
@@ -193,6 +197,10 @@
         executeAction_(e) {
           this.$.actions.executeAction(e);
         },
+
+        sendCurrentLocation_() {
+          console.log('not implemented');
+        },
       });
     });
   </script>
@@ -309,6 +317,9 @@
       align-self: flex-start;
       background-color: lightgrey;
     }
+    .icon-button {
+      color: dodgerblue;
+    }
     .text-input {
       display: flex;
       flex-shrink: 0;
@@ -375,9 +386,13 @@
           on-keydown="checkForEnter_">
         </paper-textarea>
       </div>
-      <template is="dom-if" if="mobile">
-      <div>send location</div>
-        
+      <template is="dom-if" if="[[locationEnabled(isMobile)]]">
+        <paper-icon-button
+          class="icon-button"
+          icon="maps:my-location"
+          title="Send current location"
+          on-click="sendCurrentLocation_">
+        </paper-icon-button>
       </template>
       <paper-button 
         class="send"
