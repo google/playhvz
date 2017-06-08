@@ -407,7 +407,17 @@
       Sign In With Google
     </paper-button>
   </template>
-  <template is="dom-if" if="[[user]]">
+
+  <template is="dom-if" if="[[userId]]">
+    <ghvz-display-page
+        bridge="[[bridge]]"
+        user="[[user]]"
+        path="[[path]]"
+        is-mobile="[[isMobile]]">
+    </ghvz-display-page>
+  </template>
+
+  <template is="dom-if" if="[[game]]">
     <paper-drawer-panel id="drawer" disable-swipe><!--responsive-width="[[computeResponsiveWidth_(isDesktop)]]">-->
       <paper-material drawer>
         <ghvz-drawer

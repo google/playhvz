@@ -165,7 +165,9 @@ class FakeIdGenerator extends IdGenerator {
     faqHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
-    started: 'Boolean',
+    startTime: 'TimestampMs',
+    endTime: 'TimestampMs',
+    registrationEndTime: 'TimestampMs',
   };
   serverMethods.set('createGame', {
     required: Utils.merge({gameId: '!GameId', adminUserId: 'UserId'}, GAME_PROPERTIES),

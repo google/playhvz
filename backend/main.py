@@ -17,6 +17,8 @@ import in_memory_store as store
 import notifications
 import secrets
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 requests_toolbelt.adapters.appengine.monkeypatch()
 HTTP_REQUEST = google.auth.transport.requests.Request()
@@ -152,7 +154,9 @@ def RouteRequest(method):
   try:
     result = jsonify(f(json.loads(request.data), game_state))
   except Exception as e:
+    logger.exception(e)
     exception = e
+  print 'committing'
   game_state.commit_transaction()
   api_mutex.release()
   if exception:
