@@ -12,7 +12,6 @@ class ServerError(Exception):
 
 def ExpectExistence(game_state, path, id, test_property, should_exist):
   exists = game_state.get(path, test_property) is not None
-  print 'Couldnt find at path %s test prop %s' % (path, test_property)
   if exists and not should_exist:
     raise InvalidInputError('ID "%s" should not have existed!' % id)
   if not exists and should_exist:
@@ -74,7 +73,7 @@ def ValidateInputsInner(request, game_state, params):
         continue
 
     if expectation == "Number":
-      if str(int(data)) != str(data):
+      if type(data) != float and type(data) != int:
         raise InvalidInputError('Argument "%s" is "%s" but should have been a number!' % (key, data))
     elif expectation == "Timestamp":
       if str(int(data)) != str(data) or data < 1420000000000 or data > 2210000000000:
