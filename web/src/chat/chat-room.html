@@ -57,6 +57,10 @@
           return isMobile && false;
         },
 
+        imageUploadEnabled() {
+          return false;
+        },
+
         attached: function() {
           this.isAttached = true;
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
@@ -196,6 +200,10 @@
         */
         executeAction_(e) {
           this.$.actions.executeAction(e);
+        },
+
+        sendImage_() {
+          console.log('not implemented');
         },
 
         sendCurrentLocation_() {
@@ -386,6 +394,14 @@
           on-keydown="checkForEnter_">
         </paper-textarea>
       </div>
+      <template is="dom-if" if="[[imageUploadEnabled()]]">
+        <paper-icon-button
+          class="icon-button"
+          icon="image:photo"
+          title="Send image"
+          on-click="sendImage_">
+        </paper-icon-button>
+      </template>
       <template is="dom-if" if="[[locationEnabled(isMobile)]]">
         <paper-icon-button
           class="icon-button"
