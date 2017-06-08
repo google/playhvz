@@ -2,6 +2,10 @@
 
 import constants
 
+class Optional:
+  def __init__(self, expectation):
+    self.expectation = expectation
+
 class InvalidInputError(Exception):
   """Error used when the inputs fail to pass validation."""
   pass
@@ -18,10 +22,10 @@ def ExpectExistence(game_state, path, id, test_property, should_exist):
     raise InvalidInputError('ID "%s" should have existed!' % id)
 
 
-def ValidateInputs(request, game_state, params):
+def ValidateInputs(request, game_state, expectations_by_param_name):
   """Validate args.
 
-  params is a map of parameter name to an "expectation".
+  expectations_by_param_name is a map of parameter name to an "expectation".
   Examples:
     addGun might have { 'gunId': '!GunId', 'label': 'String' }
     updateGun might have { 'gunId': 'GunId' 'playerId': '|?PlayerId' }
@@ -37,35 +41,47 @@ def ValidateInputs(request, game_state, params):
   if request is None:
     request = {}
 
-  params['requestingUserToken'] = 'String'
-  params['requestingUserId'] = '?UserId'
-  params['requestingPlayerId'] = '?PlayerId'
+  expectations_by_param_name['requestingUserToken'] = 'String'
+  expectations_by_param_name['requestingUserId'] = '?UserId'
+  expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
 
-  ValidateInputsInner(request, game_state, params)
+  ValidateInputsInner(request, game_state, expectations_by_param_name)
 
-def ValidateInputsInner(request, game_state, params):
-  for key in request:
-    if key not in params:
-      raise InvalidInputError('Unrecognized argument: "%s"' % key)
+def ValidateInputsInner(request, game_state, expectations_by_param_name):
+  for param_name in request.keys():
+    if param_name not in expectations_by_param_name:
+      raise InvalidInputError('Unrecognized argument: "%s"' % param_name)
 
-  for key, expectation in params.iteritems():
+  for param_name, expectation in expectations_by_param_name.iteritems():
+    if isinstance(expectation, Optional):
+      if param_name not in request:
+        continue
+      # An Optional is just a wrapper with a property called 'expectation'
+      # Now that we know the user did supply it, just pretend that we're
+      # checking against that expectation property
+      expectation = expectation.expectation
+
     if isinstance(expectation, dict):
-      if key not in request:
-        request[key] = {}
-      if not isinstance(request[key], dict):
-        raise InvalidInputError('Expected map for argument "%s"' % key)
-      ValidateInputsInner(request[key], game_state, params[key])
+      if param_name not in request:
+        request[param_name] = {}
+      if not isinstance(request[param_name], dict):
+        raise InvalidInputError('Expected map for argument "%s"' % param_name)
+      ValidateInputsInner(request[param_name], game_state, expectation)
       continue
 
-    if key not in request:
+    # At this point, expectation should be a string
+    if not isinstance(expectation, str):
+      raise ServerError('Unknown type for expectation')
+
+    if param_name not in request:
       if expectation[0] == '|':
         continue
       else:
-        raise InvalidInputError('Missing argument: "%s"' % key)
+        raise InvalidInputError('Missing argument: "%s"' % param_name)
     if expectation[0] == '|':
       expectation = expectation[1:]
 
-    data = request[key]
+    data = request[param_name]
 
     if expectation[0] == '?':
       expectation = expectation[1:]
@@ -74,16 +90,16 @@ def ValidateInputsInner(request, game_state, params):
 
     if expectation == "Number":
       if type(data) != float and type(data) != int:
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a number!' % (key, data))
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a number!' % (param_name, data))
     elif expectation == "Timestamp":
       if str(int(data)) != str(data) or data < 1420000000000 or data > 2210000000000:
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a timestamp in milliseconds!' % (key, data))
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a timestamp in milliseconds!' % (param_name, data))
     elif expectation == "String":
       if not isinstance(data, basestring):
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a string!' % (key, data))
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a string!' % (param_name, data))
     elif expectation == "Boolean":
       if str(not not data) != str(data):
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a boolean!' % (key, data))
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a boolean!' % (param_name, data))
     else:
       should_exist = True
       if expectation[0] == '!':
@@ -119,10 +135,11 @@ def GroupToGame(game_state, group):
 
 def RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect=True):
   reward_category_short_name = reward_code.split('-')[0]
-  reward_categories = game_state.get(
-      '/',
+  reward_categories = GetValueWithPropertyEqualTo(
+      game_state,
       'rewardCategories',
-      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+      'gameId',
+      game_id)
   if reward_categories is not None:
     for reward_category_id, reward_category in reward_categories.iteritems():
       if reward_category['shortName'] == reward_category_short_name:
@@ -136,10 +153,11 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
   reward_category_id = RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect)
   if reward_category_id is None:
     return None
-  rewards = game_state.get(
-      '/',
+  rewards = GetValueWithPropertyEqualTo(
+      game_state,
       'rewards',
-      {'orderBy': '"rewardCategoryId"', 'equalTo': '"%s"' % reward_category_id})
+      'rewardCategoryId',
+      reward_category_id)
   if rewards is not None:
     for reward_id, reward in rewards.iteritems():
       if reward['code'] == reward_code:
@@ -149,18 +167,20 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
   return None
 
 def GetNextPlayerNumber(game_state, game_id):
-  players = game_state.get(
-      '/',
+  players = GetValueWithPropertyEqualTo(
+      game_state,
       'playersPrivate',
-      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+      'gameId',
+      game_id)
   return 101 + len(players)
 
 def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   player_short_name = life_code.split('-')[0]
-  players = game_state.get(
-      '/',
+  players = GetValueWithPropertyEqualTo(
+      game_state,
       'playersPrivate',
-      {'orderBy': '"gameId"', 'equalTo': '"%s"' % game_id})
+      'gameId',
+      game_id)
   if players is not None:
     for player_id, player in players.iteritems():
       if 'lives' in player:
@@ -178,8 +198,7 @@ def IsAdmin(game_state, game_id, user_id):
   return game_state.get('/games/%s/adminUsers' % game_id, user_id) is not None
 
 def GroupToEntity(game_state, group, entity):
-  rooms = game_state.get(
-      '/', entity, {'orderBy': '"groupId"', 'equalTo': '"%s"' % group})
+  rooms = GetValueWithPropertyEqualTo(game_state, entity, 'groupId', group)
   if rooms:
     return rooms.keys()
   return []
@@ -225,5 +244,14 @@ def AddPoints(game_state, player_id, points):
   return 'Player points = %d + %d => %d' % (current_points, points, new_points)
 
 
+def GetValueWithPropertyEqualTo(game_state, property, key, target):
+  all_values= game_state.get('/', property)
+  values = {}
+  if not all_values:
+    return values
+  for k, v in all_values.iteritems():
+    if v[key] == target:
+      values[k] = v
+  return values
 
 # vim:ts=2:sw=2:expandtab

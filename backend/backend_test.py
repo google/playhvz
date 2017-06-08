@@ -36,7 +36,7 @@ class EndToEndTest(unittest.TestCase):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertTrue(r.ok, msg='Expected to POST 200 [ %s ] but got %d:\n%s\nfor: %s' % (method, r.status_code, r.text, data))
-  
+
   def AssertFails(self, method, data):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
@@ -65,12 +65,12 @@ class EndToEndTest(unittest.TestCase):
     ident = '%s-%s-%d' % (key, self.identifier, num)
     return ident
 
-  def AssertDataMatches(self):
+  def AssertDataMatches(self, use_local):
     # Compare a dump of the DB to the JSON string below.
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL})
+    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL, 'use_local': use_local})
     expected = json.loads(expected_raw)
     actual = r.json()
     self.CleanTestData(actual)
@@ -86,7 +86,7 @@ class EndToEndTest(unittest.TestCase):
   def setUp(self):
     self.requester = Requester()
     self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
-  
+
   def tearDown(self):
     pass
     # self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
@@ -114,6 +114,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'adminUserId': self.Id('userId'),
+      'active': True,
       'name': 'test Game',
       'rulesHtml': 'test rules',
       'faqHtml': 'test faq',
@@ -153,6 +154,7 @@ class EndToEndTest(unittest.TestCase):
       'wantToBeSecretZombie': True,
       'beInPhotos': True,
       'notes': "",
+      'beInPhotos': True,
       'canInfect': False,
       'active': False,
       'notificationSettings': {
@@ -178,150 +180,150 @@ class EndToEndTest(unittest.TestCase):
     create_player['userId'] = self.Id('userId', 3)
     self.AssertOk('createPlayer', create_player)
 
-    # # Create groups
-    # create = {
-    #   'groupId': self.Id('groupId'),
-    #   'gameId': self.Id('gameId'),
-    #   'name': 'group Foo',
-    #   'allegianceFilter': 'none',
-    #   'autoAdd': False,
-    #   'autoRemove': False,
-    #   'canAddOthers': False,
-    #   'canRemoveOthers': False,
-    #   'canAddSelf': False,
-    #   'canRemoveSelf': False,
-    #   'ownerPlayerId': self.Id('playerId'),
-    # }
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'groupId': self.Id('groupId'),
-    #   'autoAdd': True,
-    # }
-    # self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
-    # create.update({
-    #   'gameId': self.Id('gameId'),
-    #   'groupId': self.Id('groupId', 2),
-    #   'name': 'group Bar',
-    #   'canAddOthers': True,
-    #   'canRemoveOthers': True,
-    #   'canAddSelf': True,
-    #   'canRemoveSelf': True,
-    # })
-    # self.requester.Post('createGroup', create)
+    # Create groups
+    create = {
+      'groupId': self.Id('groupId'),
+      'gameId': self.Id('gameId'),
+      'name': 'group Foo',
+      'allegianceFilter': 'none',
+      'autoAdd': False,
+      'autoRemove': False,
+      'canAddOthers': False,
+      'canRemoveOthers': False,
+      'canAddSelf': False,
+      'canRemoveSelf': False,
+      'ownerPlayerId': self.Id('playerId'),
+    }
+    update = {
+      'gameId': self.Id('gameId'),
+      'groupId': self.Id('groupId'),
+      'autoAdd': True,
+    }
+    self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
+    create.update({
+      'gameId': self.Id('gameId'),
+      'groupId': self.Id('groupId', 2),
+      'name': 'group Bar',
+      'canAddOthers': True,
+      'canRemoveOthers': True,
+      'canAddSelf': True,
+      'canRemoveSelf': True,
+    })
+    self.requester.Post('createGroup', create)
 
-    # create_player['playerId'] = self.Id('playerId', 4)
-    # create_player['userId'] = self.Id('userId', 4)
-    # self.AssertOk('createPlayer', create_player)
+    create_player['playerId'] = self.Id('playerId', 4)
+    create_player['userId'] = self.Id('userId', 4)
+    self.AssertOk('createPlayer', create_player)
 
-    # # Create chat rooms
-    # create = {
-    #   'gameId': self.Id('gameId'),
-    #   'chatRoomId': self.Id('chatRoomId'),
-    #   'groupId': self.Id('groupId'),
-    #   'name': 'test Chat',
-    #   'withAdmins': False
-    # }
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'chatRoomId': self.Id('chatRoomId'),
-    #   'name': 'test Chat Room'
-    # }
-    # self.AssertCreateUpdateSequence('createChatRoom', create, 'updateChatRoom', update)
+    # Create chat rooms
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'groupId': self.Id('groupId'),
+      'name': 'test Chat',
+      'withAdmins': False
+    }
+    update = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'name': 'test Chat Room'
+    }
+    self.AssertCreateUpdateSequence('createChatRoom', create, 'updateChatRoom', update)
 
-    # create = {
-    #   'gameId': self.Id('gameId'),
-    #   'chatRoomId': self.Id('chatRoomId'),
-    #   'playerId': self.Id('playerId'),
-    #   'messageId': self.Id('messageId'),
-    #   'message': 'test Message',
-    # }
-    # self.AssertOk('sendChatMessage', create)
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId'),
+      'message': 'test Message',
+    }
+    self.AssertOk('sendChatMessage', create)
 
-    # create = {
-    #   'gameId': self.Id('gameId'),
-    #   'chatRoomId': self.Id('chatRoomId'),
-    #   'playerId': self.Id('playerId'),
-    #   'messageId': self.Id('messageId', 2),
-    #   'message': 'test Message',
-    #   'image': {
-    #     'url': 'google.com/image.png',
-    #   }
-    # }
-    # self.AssertOk('sendChatMessage', create)
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 2),
+      'message': 'test Message',
+      'image': {
+        'url': 'google.com/image.png',
+      }
+    }
+    self.AssertOk('sendChatMessage', create)
 
-    # create = {
-    #   'gameId': self.Id('gameId'),
-    #   'chatRoomId': self.Id('chatRoomId'),
-    #   'playerId': self.Id('playerId'),
-    #   'messageId': self.Id('messageId', 3),
-    #   'message': 'test Message',
-    #   'location': {
-    #     'latitude': 34.5645654,
-    #     'longitude': -124.5345234,
-    #   }
-    # }
-    # self.AssertOk('sendChatMessage', create)
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 3),
+      'message': 'test Message',
+      'location': {
+        'latitude': 34.5645654,
+        'longitude': -124.5345234,
+      }
+    }
+    self.AssertOk('sendChatMessage', create)
 
-    # # Create missions
-    # create = {
-    #   'gameId': self.Id('gameId'),
-    #   'missionId': self.Id('missionId'),
-    #   'groupId': self.Id('groupId'),
-    #   'name': 'test Mission',
-    #   'beginTime': 1500000000000,
-    #   'endTime': 1600000000000,
-    #   'detailsHtml': 'test Details',
-    # }
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'missionId': self.Id('missionId'),
-    #   'endTime': 1700000000000,
-    # }
-    # self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
+    # Create missions
+    create = {
+      'gameId': self.Id('gameId'),
+      'missionId': self.Id('missionId'),
+      'groupId': self.Id('groupId'),
+      'name': 'test Mission',
+      'beginTime': 1500000000000,
+      'endTime': 1600000000000,
+      'detailsHtml': 'test Details',
+    }
+    update = {
+      'gameId': self.Id('gameId'),
+      'missionId': self.Id('missionId'),
+      'endTime': 1700000000000,
+    }
+    self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
 
-    # create_player['playerId'] = self.Id('playerId', 5)
-    # create_player['userId'] = self.Id('userId', 5)
-    # self.AssertOk('createPlayer', create_player)
+    create_player['playerId'] = self.Id('playerId', 5)
+    create_player['userId'] = self.Id('userId', 5)
+    self.AssertOk('createPlayer', create_player)
 
-    # # Add players to groups.
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'playerToAddId': self.Id('playerId', 2),
-    #   'groupId': self.Id('groupId')
-    # }
-    # # Owner adds player-2 to both groups
-    # self.AssertOk('addPlayerToGroup', update)
-    # self.AssertFails('addPlayerToGroup', update)
-    # update['groupId'] = self.Id('groupId', 2)
-    # self.AssertOk('addPlayerToGroup', update)
+    # Add players to groups.
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId', 2),
+      'groupId': self.Id('groupId')
+    }
+    # Owner adds player-2 to both groups
+    self.AssertOk('addPlayerToGroup', update)
+    self.AssertFails('addPlayerToGroup', update)
+    update['groupId'] = self.Id('groupId', 2)
+    self.AssertOk('addPlayerToGroup', update)
 
-    # self.requester.SetRequestingUserId(self.Id('userId', 2))
-    # self.requester.SetRequestingPlayerId(self.Id('playerId', 2))
+    self.requester.SetRequestingUserId(self.Id('userId', 2))
+    self.requester.SetRequestingPlayerId(self.Id('playerId', 2))
 
-    # # Player-2 cant add player-3 to group 1, because canAddOthers is false
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'playerToAddId': self.Id('playerId', 3),
-    #   'groupId': self.Id('groupId')
-    # }
-    # self.AssertFails('addPlayerToGroup', update)
+    # Player-2 cant add player-3 to group 1, because canAddOthers is false
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId', 3),
+      'groupId': self.Id('groupId')
+    }
+    self.AssertFails('addPlayerToGroup', update)
 
-    # # Player-2 CAN add player-3 to group 2, because canAddOthers is true
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'playerToAddId': self.Id('playerId', 3),
-    #   'groupId': self.Id('groupId', 2)
-    # }
-    # self.AssertOk('addPlayerToGroup', update)
-    # self.AssertFails('addPlayerToGroup', update)
+    # Player-2 CAN add player-3 to group 2, because canAddOthers is true
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId', 3),
+      'groupId': self.Id('groupId', 2)
+    }
+    self.AssertOk('addPlayerToGroup', update)
+    self.AssertFails('addPlayerToGroup', update)
 
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'playerToRemoveId': self.Id('playerId', 3),
-    #   'groupId': self.Id('groupId', 2)
-    # }
-    # self.AssertOk('removePlayerFromGroup', update)
-    # self.AssertFails('removePlayerFromGroup', update)
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToRemoveId': self.Id('playerId', 3),
+      'groupId': self.Id('groupId', 2)
+    }
+    self.AssertOk('removePlayerFromGroup', update)
+    self.AssertFails('removePlayerFromGroup', update)
 
     # Create and assign guns
     create = {'gameId': self.Id('gameId'), 'gunId': self.Id('gunId'), 'label': "1404"}
@@ -355,14 +357,15 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertOk('addReward', create)
     self.AssertFails('addReward', create)
-    
+
     claim = {
       'gameId': self.Id('gameId'),
       'playerId': self.Id('playerId'),
       'rewardCode': 'testrew-purple-striker-balloon',
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
-    self.AssertDataMatches()
+    self.AssertDataMatches(True)
+    self.AssertDataMatches(False)
 
 
 if __name__ == '__main__':
