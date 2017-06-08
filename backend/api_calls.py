@@ -5,6 +5,7 @@ import textwrap
 
 import constants
 import db_helpers as helpers
+from db_helpers import Optional
 import secrets
 
 
@@ -58,21 +59,25 @@ def AddGame(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'gameId': '!GameId',
     'adminUserId': 'UserId',
+    'active': 'Boolean',
     'name': 'String',
     'rulesHtml': 'String',
     'faqHtml': 'String',
     'stunTimer': 'Number',
-    'active': 'Boolean',
-    'started': 'Boolean',
+    'startTime': 'Timestamp',
+    'endTime': 'Timestamp',
+    'registrationEndTime': 'Timestamp',
   })
 
   put_data = {
     'name': request['name'],
+    'active': request['active'],
     'rulesHtml': request['rulesHtml'],
     'faqHtml': request['faqHtml'],
     'stunTimer': request['stunTimer'],
-    'active': request['active'],
-    'started': request['started'],
+    'startTime': request['startTime'],
+    'endTime': request['endTime'],
+    'registrationEndTime': request['registrationEndTime'],
   }
   game_state.put('/games', request['gameId'], put_data)
   game_state.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True)
@@ -101,14 +106,6 @@ def SetAdminContact(request, game_state):
 def UpdateGame(request, game_state):
   """Update a game entry.
 
-  Validation:
-
-  Args:
-    gameId:
-    name (optional):
-    rulesHtml (optional):
-    stunTimer (optional):
-
   Firebase entries:
     /games/%(gameId)
   """
@@ -118,12 +115,15 @@ def UpdateGame(request, game_state):
     'gameId': 'GameId',
     'name': '|String',
     'rulesHtml': '|String',
+    'faqHtml': '|String',
     'stunTimer': '|Number',
-    'active': '|Boolean'
+    'startTime': '|Timestamp',
+    'endTime': '|Timestamp',
+    'registrationEndTime': '|Timestamp',
   })
 
   put_data = {}
-  for property in ['name', 'rulesHtml', 'stunTimer']:
+  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'active', 'startTime', 'endTime', 'registrationEndTime']:
     if property in request:
       put_data[property] = request[property]
 
@@ -159,19 +159,6 @@ def AddGameAdmin(request, game_state):
 
 def AddGroup(request, game_state):
   """Add a new player group.
-
-  Validation:
-
-  Args:
-    groupId: New ID to use to create the group.
-    gameId: The game associated with this group.
-    name: Group name.
-    allegianceFilter: Which allegiance this group is associated with.
-    autoAdd: Automatically add players to this group based on allegiance.
-    autoRemove: Automatically remove players to this group based on allegiance.
-    canAddOthers: Group members can add other players.
-    canRemoveOthers: Group members can add other players.
-    ownerPlayerId: (optional) player who is the owner of this group.
 
   Firebase entries:
     /groups/%(groupId)
@@ -215,17 +202,6 @@ def AddGroup(request, game_state):
 
 def UpdateGroup(request, game_state):
   """Update a group entry.
-
-  Validation:
-
-  Args:
-    groupId:
-    name (optional):
-    autoAdd (optional):
-    autoRemove (optional):
-    canAddOthers (optional):
-    canRemoveOthers (optional):
-    ownerPlayerId (optional):
 
   Firebase entries:
     /groups/%(groupId)
@@ -398,11 +374,6 @@ def UpdatePlayer(request, game_state):
     if property in request:
       private_update[property] = request[property]
 
-  print "patching public:"
-  print public_update
-  print "patching private:"
-  print private_update
-
   game_state.patch('/playersPrivate/%s' % player_id, private_update)
   game_state.patch('/playersPrivate/%s/volunteer' % player_id, volunteer_update)
   game_state.patch('/playersPrivate/%s/notificationSettings' % player_id, notification_settings_update)
@@ -545,12 +516,6 @@ def AddChatRoom(request, game_state):
 def UpdateChatRoom(request, game_state):
   """Update a chat room.
 
-  Validation:
-
-  Args:
-    chatRoomId: Chat room ID
-    name: Chat room name (optional)
-
   Firebase entries:
     /chatRooms/%(chatRoomId)
   """
@@ -584,7 +549,14 @@ def SendChatMessage(request, game_state):
     'chatRoomId': 'ChatRoomId',
     'messageId': '!MessageId',
     'message': 'String',
-    'playerId': 'PlayerId'
+    'playerId': 'PlayerId',
+    'image': Optional({
+      'url': 'String'
+    }),
+    'location': Optional({
+      'latitude': 'Number',
+      'longitude': 'Number',
+    }),
   })
 
   chat = request['chatRoomId']
@@ -602,6 +574,16 @@ def SendChatMessage(request, game_state):
     'message': request['message'],
     'time': int(time.time())
   }
+  if 'image' in request:
+    put_data['image'] = {
+      'url': request['image']['url']
+    }
+  if 'location' in request:
+    put_data['location'] = {
+      'latitude': request['location']['latitude'],
+      'longitude': request['location']['longitude']
+    }
+
   game_state.put('/chatRooms/%s/messages' % chat, messageId, put_data)
 
 
@@ -689,23 +671,17 @@ def AddPlayerToGroup(request, game_state):
     raise InvalidInputError('Other player is already in the chat.')
 
   # Player must be the owner or (be in the group and group allows adding).
-  print "user id is " + requesting_user_id
-  print "Is admin: " + str(helpers.IsAdmin(game_state, game_id, requesting_user_id))
-  print "requesting player id %s and owner is %s" % (requesting_player_id, game_state.get('/groups/%s' % group_id, 'ownerPlayerId'))
   if helpers.IsAdmin(game_state, game_id, requesting_user_id):
     pass
   elif requesting_player_id == game_state.get('/groups/%s' % group_id, 'ownerPlayerId'):
     pass
   else:
-    print "member? %d" % (not not game_state.get('/groups/%s/players' % group_id, player_to_add_id))
-    print "canAddOthers? %d" % (not not game_state.get('/groups/%s' % group_id, 'canAddOthers'))
     # Validate player_to_add_id is in the chat room.
     if not game_state.get('/groups/%s/players' % group_id, requesting_player_id):
       raise InvalidInputError('You are not a member of that group nor an owner.')
     # Validate players are allowed to add other players.
     if not game_state.get('/groups/%s' % group_id, 'canAddOthers'):
       raise InvalidInputError('Players are not allowed to add to this group.')
-  print "success, adding"
   AddPlayerToGroupInner(game_state, group_id, player_to_add_id)
 
 
@@ -727,21 +703,15 @@ def AddPlayerToGroupInner(game_state, group_id, player_to_add_id):
     /playersPrivate/%(playerId)/missions/
   """
 
-  print 'flamingo 1'
   game_state.put('/groups/%s/players' % group_id, player_to_add_id, True)
 
-  print 'flamingo 2'
   chats = helpers.GroupToChats(game_state, group_id)
   for chat in chats:
-    print 'flamingo 3'
     game_state.put('/playersPrivate/%s/chatRooms' % player_to_add_id, chat, True)
 
   missions = helpers.GroupToMissions(game_state, group_id)
   for mission in missions:
-    print 'flamingo 4'
     game_state.put('/playersPrivate/%s/missions' % player_to_add_id, mission, True)
-
-  print 'flamingo 5'
 
 def RemovePlayerFromGroup(request, game_state):
   """Remove a player from a group.
@@ -857,19 +827,14 @@ def AutoUpdatePlayerGroups(game_state, player_id, new_player=False):
   game = helpers.PlayerToGame(game_state, player_id)
   allegiance = helpers.PlayerAllegiance(game_state, player_id)
   groups = game_state.get('/games/%s' % game, 'groups') or []
-  print 'lizard 1'
   for group_id in groups:
-    print 'lizard 2'
     group = game_state.get('/groups', group_id)
     if group['autoAdd'] and group['allegianceFilter'] == allegiance:
-      print 'lizard 3'
       AddPlayerToGroupInner(game_state, group_id, player_id)
     elif (not new_player and group['autoRemove'] and
           group['allegianceFilter'] != allegiance):
-      print 'lizard 4'
       RemovePlayerFromGroupInner(game_state, group_id, player_id)
     elif new_player and group['autoAdd'] and group['allegianceFilter'] == 'none':
-      print 'lizard 5'
       AddPlayerToGroupInner(game_state, group_id, player_id)
 
 
@@ -1025,7 +990,9 @@ def AddRewardCategory(request, game_state):
     'name': 'String',
     'shortName': 'String',
     'points': 'Number',
-    'limitPerPlayer': 'Number'
+    'limitPerPlayer': 'Number',
+    'badgeUrl': '?String',
+    'description': 'String',
   })
 
   game = request['gameId']
@@ -1037,6 +1004,7 @@ def AddRewardCategory(request, game_state):
     'shortName': request['shortName'],
     'name': request['name'],
     'points': int(request['points']),
+    'badgeUrl': request['badgeUrl'],
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
@@ -1056,13 +1024,15 @@ def UpdateRewardCategory(request, game_state):
     'name': '|String',
     'shortName': '|String',
     'points': '|Number',
-    'limitPerPlayer': '|Number'
+    'limitPerPlayer': '|Number',
+    'badgeUrl': '|String',
+    'description': '|String',
   })
 
   reward_category_id = request['rewardCategoryId']
 
   reward_category_data = {}
-  for k in ('name', 'points', 'limitPerPlayer'):
+  for k in ('name', 'points', 'limitPerPlayer', 'badgeUrl', 'description'):
     if k in request:
       reward_category_data[k] = request[k]
 

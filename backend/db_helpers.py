@@ -2,6 +2,10 @@
 
 import constants
 
+class Optional:
+  def __init__(self, expectation):
+    self.expectation = expectation
+
 class InvalidInputError(Exception):
   """Error used when the inputs fail to pass validation."""
   pass
@@ -12,17 +16,16 @@ class ServerError(Exception):
 
 def ExpectExistence(game_state, path, id, test_property, should_exist):
   exists = game_state.get(path, test_property) is not None
-  print 'Couldnt find at path %s test prop %s' % (path, test_property)
   if exists and not should_exist:
     raise InvalidInputError('ID "%s" should not have existed!' % id)
   if not exists and should_exist:
     raise InvalidInputError('ID "%s" should have existed!' % id)
 
 
-def ValidateInputs(request, game_state, params):
+def ValidateInputs(request, game_state, expectations_by_param_name):
   """Validate args.
 
-  params is a map of parameter name to an "expectation".
+  expectations_by_param_name is a map of parameter name to an "expectation".
   Examples:
     addGun might have { 'gunId': '!GunId', 'label': 'String' }
     updateGun might have { 'gunId': 'GunId' 'playerId': '|?PlayerId' }
@@ -38,35 +41,47 @@ def ValidateInputs(request, game_state, params):
   if request is None:
     request = {}
 
-  params['requestingUserToken'] = 'String'
-  params['requestingUserId'] = '?UserId'
-  params['requestingPlayerId'] = '?PlayerId'
+  expectations_by_param_name['requestingUserToken'] = 'String'
+  expectations_by_param_name['requestingUserId'] = '?UserId'
+  expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
 
-  ValidateInputsInner(request, game_state, params)
+  ValidateInputsInner(request, game_state, expectations_by_param_name)
 
-def ValidateInputsInner(request, game_state, params):
-  for key in request:
-    if key not in params:
-      raise InvalidInputError('Unrecognized argument: "%s"' % key)
+def ValidateInputsInner(request, game_state, expectations_by_param_name):
+  for param_name in request.keys():
+    if param_name not in expectations_by_param_name:
+      raise InvalidInputError('Unrecognized argument: "%s"' % param_name)
 
-  for key, expectation in params.iteritems():
+  for param_name, expectation in expectations_by_param_name.iteritems():
+    if isinstance(expectation, Optional):
+      if param_name not in request:
+        continue
+      # An Optional is just a wrapper with a property called 'expectation'
+      # Now that we know the user did supply it, just pretend that we're
+      # checking against that expectation property
+      expectation = expectation.expectation
+
     if isinstance(expectation, dict):
-      if key not in request:
-        request[key] = {}
-      if not isinstance(request[key], dict):
-        raise InvalidInputError('Expected map for argument "%s"' % key)
-      ValidateInputsInner(request[key], game_state, params[key])
+      if param_name not in request:
+        request[param_name] = {}
+      if not isinstance(request[param_name], dict):
+        raise InvalidInputError('Expected map for argument "%s"' % param_name)
+      ValidateInputsInner(request[param_name], game_state, expectation)
       continue
 
-    if key not in request:
+    # At this point, expectation should be a string
+    if not isinstance(expectation, str):
+      raise ServerError('Unknown type for expectation')
+
+    if param_name not in request:
       if expectation[0] == '|':
         continue
       else:
-        raise InvalidInputError('Missing argument: "%s"' % key)
+        raise InvalidInputError('Missing argument: "%s"' % param_name)
     if expectation[0] == '|':
       expectation = expectation[1:]
 
-    data = request[key]
+    data = request[param_name]
 
     if expectation[0] == '?':
       expectation = expectation[1:]
@@ -74,17 +89,17 @@ def ValidateInputsInner(request, game_state, params):
         continue
 
     if expectation == "Number":
-      if str(int(data)) != str(data):
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a number!' % (key, data))
+      if type(data) != float and type(data) != int:
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a number!' % (param_name, data))
     elif expectation == "Timestamp":
       if str(int(data)) != str(data) or data < 1420000000000 or data > 2210000000000:
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a timestamp in milliseconds!' % (key, data))
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a timestamp in milliseconds!' % (param_name, data))
     elif expectation == "String":
       if not isinstance(data, basestring):
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a string!' % (key, data))
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a string!' % (param_name, data))
     elif expectation == "Boolean":
       if str(not not data) != str(data):
-        raise InvalidInputError('Argument "%s" is "%s" but should have been a boolean!' % (key, data))
+        raise InvalidInputError('Argument "%s" is "%s" but should have been a boolean!' % (param_name, data))
     else:
       should_exist = True
       if expectation[0] == '!':

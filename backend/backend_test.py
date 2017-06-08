@@ -114,18 +114,20 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'adminUserId': self.Id('userId'),
+      'active': True,
       'name': 'test Game',
       'rulesHtml': 'test rules',
-      'faqHtml': 'faq html',
+      'faqHtml': 'test faq',
       'stunTimer': 10,
-      'active': True,
-      'started': False,
+      'registrationEndTime': 1506884521000,
+      'startTime': 1606884521000,
+      'endTime': 1706884521000,
     }
     update = {
       'gameId': self.Id('gameId'),
-      'rulesHtml': 'test rule',
+      'rulesHtml': 'test rule 2',
+      'faqHtml': 'test faq 2',
       'stunTimer': 5,
-      'active': False
     }
     self.AssertCreateUpdateSequence('createGame', create, 'updateGame', update)
 
@@ -150,6 +152,7 @@ class EndToEndTest(unittest.TestCase):
       'profileImageUrl': 'http://jpg',
       'gotEquipment': True,
       'wantToBeSecretZombie': True,
+      'beInPhotos': True,
       'notes': "",
       'beInPhotos': True,
       'canInfect': False,
@@ -234,12 +237,31 @@ class EndToEndTest(unittest.TestCase):
       'messageId': self.Id('messageId'),
       'message': 'test Message',
     }
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'chatRoomId': self.Id('chatRoomId'),
-    #   'playerId': self.Id('playerId'),
-    #   'messageId': self.Id('messageId'),
-    # }
+    self.AssertOk('sendChatMessage', create)
+
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 2),
+      'message': 'test Message',
+      'image': {
+        'url': 'google.com/image.png',
+      }
+    }
+    self.AssertOk('sendChatMessage', create)
+
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 3),
+      'message': 'test Message',
+      'location': {
+        'latitude': 34.5645654,
+        'longitude': -124.5345234,
+      }
+    }
     self.AssertOk('sendChatMessage', create)
 
     # Create missions
@@ -315,11 +337,14 @@ class EndToEndTest(unittest.TestCase):
       'points': 8,
       'limitPerPlayer': 2,
       'shortName': 'testrew',
+      'badgeUrl': 'google.com/someimage.png',
+      'description': 'this is a cool reward',
     }
     update = {
       'gameId': self.Id('gameId'),
       'rewardCategoryId': self.Id('rewardCategoryId'),
       'points': 5,
+      'description': 'this is a VERY cool reward',
     }
     self.AssertCreateUpdateSequence('addRewardCategory', create, 'updateRewardCategory', update)
 
