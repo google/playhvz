@@ -156,7 +156,6 @@ def RouteRequest(method):
   game_state.commit_transaction()
   api_mutex.release()
   if exception:
-    print exception
     raise exception
   return result
 

@@ -1004,6 +1004,7 @@ def AddRewardCategory(request, game_state):
     'shortName': request['shortName'],
     'name': request['name'],
     'points': int(request['points']),
+    'badgeUrl': request['badgeUrl'],
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
@@ -1024,13 +1025,14 @@ def UpdateRewardCategory(request, game_state):
     'shortName': '|String',
     'points': '|Number',
     'limitPerPlayer': '|Number',
-    'description': 'String',
+    'badgeUrl': '|String',
+    'description': '|String',
   })
 
   reward_category_id = request['rewardCategoryId']
 
   reward_category_data = {}
-  for k in ('name', 'points', 'limitPerPlayer'):
+  for k in ('name', 'points', 'limitPerPlayer', 'badgeUrl', 'description'):
     if k in request:
       reward_category_data[k] = request[k]
 
