@@ -167,7 +167,9 @@ class FakeIdGenerator extends IdGenerator {
     faqHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
-    started: 'Boolean',
+    startTime: 'TimestampMs',
+    endTime: 'TimestampMs',
+    registrationEndTime: 'TimestampMs',
   };
   serverMethods.set('createGame', {
     required: Utils.merge({gameId: '!GameId', adminUserId: 'UserId'}, GAME_PROPERTIES),
@@ -290,6 +292,7 @@ class FakeIdGenerator extends IdGenerator {
     points: 'Number',
     badgeImageUrl: '?String',
     shortName: 'String',
+    description: 'String',
     limitPerPlayer: 'Number',
   };
   serverMethods.set('addRewardCategory', {
@@ -388,6 +391,7 @@ class FakeIdGenerator extends IdGenerator {
       gameId: 'GameId',
       groupId: 'GroupId',
       playerToAddId: 'PlayerId',
+      actingPlayerId: '?PlayerId',
     },
   });
 
@@ -396,6 +400,7 @@ class FakeIdGenerator extends IdGenerator {
       gameId: 'GameId',
       groupId: 'GroupId',
       playerToRemoveId: 'PlayerId',
+      actingPlayerId: '?PlayerId',
     },
   });
 

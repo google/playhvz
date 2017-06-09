@@ -86,18 +86,13 @@ def AddGame(request, game_state):
 def SetAdminContact(request, game_state):
   """Update a game entry.
 
-  Validation:
-
-  Args:
-    gameId:
-    playerId:
-
   Firebase entries:
     /games/%(gameId)/a
   """
-  valid_args = ['gameId', 'playerId']
-  required_args = list(valid_args)
-  helpers.ValidateInputs(request, game_state, required_args, valid_args)
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'playerId': 'PlayerId',
+  })
 
   put_data = {'adminContactPlayerId': request['playerId']}
   game_state.patch('/games/%s' % request['gameId'], put_data)
@@ -196,8 +191,8 @@ def AddGroup(request, game_state):
   }
   game_state.put('/groups', group_id, group)
   game_state.put('/games/%s/groups/' % request['gameId'], request['groupId'], True)
-  if request['ownerPlayerId'] is not None:
-    AddPlayerToGroupInner(game_state, group_id, owner_player_id)
+  # if request['ownerPlayerId'] is not None:
+  #   AddPlayerToGroupInner(game_state, group_id, owner_player_id)
 
 
 def UpdateGroup(request, game_state):
@@ -435,13 +430,14 @@ def AddMission(request, game_state):
     'gameId': 'GameId',
     'missionId': '!MissionId',
     'groupId': 'GroupId',
+    'rsvpersGroupId': 'GroupId',
     'name': 'String',
     'beginTime': 'Timestamp',
     'endTime': 'Timestamp',
     'detailsHtml': 'String'
   })
 
-  mission_data = {k: request[k] for k in ['name', 'beginTime', 'endTime', 'detailsHtml', 'groupId', 'gameId']}
+  mission_data = {k: request[k] for k in ['name', 'beginTime', 'endTime', 'detailsHtml', 'groupId', 'rsvpersGroupId', 'gameId']}
 
   game_state.put('/missions', request['missionId'], mission_data)
   game_state.put('/games/%s/missions' % request['gameId'], request['missionId'], True)
@@ -475,7 +471,7 @@ def UpdateMission(request, game_state):
   mission_id = request['missionId']
 
   put_data = {}
-  for property in ['name', 'begin', 'end', 'detailsHtml']:
+  for property in ['name', 'beginTime', 'endTime', 'detailsHtml']:
     if property in request:
       put_data[property] = request[property]
 
@@ -646,17 +642,18 @@ def AddPlayerToGroup(request, game_state):
     'gameId': 'GameId',
     'groupId': 'GroupId',
     'playerToAddId': 'PlayerId',
+    'actingPlayerId': '?PlayerId'
   })
 
   game_id = request['gameId']
   requesting_user_id = request['requestingUserId']
   group_id = request['groupId']
-  requesting_player_id = request['requestingPlayerId']
+  acting_player_id = request['actingPlayerId']
   player_to_add_id = request['playerToAddId']
 
   if helpers.IsAdmin(game_state, game_id, requesting_user_id):
     pass
-  elif requesting_player_id is not None:
+  elif acting_player_id is not None:
     pass
   else:
     raise InvalidInputError('Only a player or an admin can call this method!')
@@ -673,11 +670,11 @@ def AddPlayerToGroup(request, game_state):
   # Player must be the owner or (be in the group and group allows adding).
   if helpers.IsAdmin(game_state, game_id, requesting_user_id):
     pass
-  elif requesting_player_id == game_state.get('/groups/%s' % group_id, 'ownerPlayerId'):
+  elif acting_player_id == game_state.get('/groups/%s' % group_id, 'ownerPlayerId'):
     pass
   else:
     # Validate player_to_add_id is in the chat room.
-    if not game_state.get('/groups/%s/players' % group_id, requesting_player_id):
+    if not game_state.get('/groups/%s/players' % group_id, acting_player_id):
       raise InvalidInputError('You are not a member of that group nor an owner.')
     # Validate players are allowed to add other players.
     if not game_state.get('/groups/%s' % group_id, 'canAddOthers'):
@@ -738,18 +735,20 @@ def RemovePlayerFromGroup(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'groupId': 'GroupId',
     'gameId': 'GameId',
-    'playerToRemoveId': 'PlayerId'
+    'playerToRemoveId': 'PlayerId',
+    'actingPlayerId': '?PlayerId'
   })
 
   requesting_player_id = request['requestingPlayerId']
   requesting_user_id = request['requestingUserId']
+  acting_player_id = request['actingPlayerId']
   group_id = request['groupId']
   player_to_remove_id = request['playerToRemoveId']
   game_id = request['gameId']
 
   if helpers.IsAdmin(game_state, game_id, requesting_user_id):
     pass
-  elif requesting_player_id is not None:
+  elif acting_player_id is not None:
     pass
   else:
     raise InvalidInputError('Only a player or an admin can call this method!')
@@ -766,11 +765,11 @@ def RemovePlayerFromGroup(request, game_state):
   # Player must be admin or the owner or (be in the group and group allows adding).
   if helpers.IsAdmin(game_state, game_id, requesting_user_id):
     pass
-  elif requesting_player_id == game_state.get('/groups/%s' % group_id, 'ownerPlayerId'):
+  elif acting_player_id == game_state.get('/groups/%s' % group_id, 'ownerPlayerId'):
     pass
   else:
     # Validate player is in the chat room.
-    if not game_state.get('/groups/%s/players' % group_id, requesting_player_id):
+    if not game_state.get('/groups/%s/players' % group_id, acting_player_id):
       raise InvalidInputError('You are not a member of that group nor an owner.')
     # Validate players are allowed to remove other players.
     if not game_state.get('/groups/%s' % group_id, 'canRemoveOthers'):
@@ -932,6 +931,7 @@ def JoinResistance(request, game_state):
 
 def JoinHorde(request, game_state):
   helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
     'playerId': 'PlayerId',
   })
 
@@ -961,6 +961,8 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
   """
   game_id = helpers.PlayerToGame(game_state, player_id)
   game_state.put('/playersPublic/%s' % player_id, 'allegiance', allegiance)
+  print 'just after put:'
+  print game_state.get('/playersPublic/%s' % player_id, 'allegiance')
   game_state.put('/playersPrivate/%s' % player_id, 'canInfect', can_infect)
   AutoUpdatePlayerGroups(game_state, player_id, new_player=False)
 
@@ -991,7 +993,7 @@ def AddRewardCategory(request, game_state):
     'shortName': 'String',
     'points': 'Number',
     'limitPerPlayer': 'Number',
-    'badgeUrl': '?String',
+    'badgeImageUrl': '?String',
     'description': 'String',
   })
 
@@ -1004,7 +1006,7 @@ def AddRewardCategory(request, game_state):
     'shortName': request['shortName'],
     'name': request['name'],
     'points': int(request['points']),
-    'badgeUrl': request['badgeUrl'],
+    'badgeImageUrl': request['badgeImageUrl'],
     'limitPerPlayer': request['limitPerPlayer'],
   }
 
@@ -1066,15 +1068,17 @@ def AddReward(request, game_state):
   game_id = request['gameId']
   reward_id = request['rewardId']
   reward_category_id = request['rewardCategoryId']
-  reward_code = request['code'] or '%s-%s' % (reward_category.shortName, RandomWords(3))
+
+  reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
+
+  reward_code = request['code'] or '%s-%s' % (reward_category['shortName'], RandomWords(3))
 
   if helpers.RewardCodeToRewardId(game_state, game_id, reward_code, False) is not None:
     raise InvalidInputError('Reward with that code already exists!')
 
-  reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
   reward_category_short_name = reward_category['shortName']
   if reward_code.split('-')[0] != reward_category_short_name:
-    raise InvalidInputError('Reward code must start with category\'s shortName. code: "%s", shortName: "%s"' % (code, reward_category_short_name))
+    raise InvalidInputError('Reward code must start with category\'s shortName. code: "%s", shortName: "%s"' % (reward_code, reward_category_short_name))
 
   reward_data = {
     'rewardCategoryId': reward_category_id,

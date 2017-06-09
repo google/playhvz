@@ -27,9 +27,9 @@ class SimpleDriver:
       if element is None:
         break
     if should_exist:
-      assert element is not None
+      assert element is not None, "Element %s doesnt exist!" % path
     else:
-      assert element is None
+      assert element is None, "Element %s exists!" % path
     return element
 
   def Click(self, path):
@@ -106,8 +106,9 @@ class ProdDriver:
     self.game_id = 'game-webdriver-%d' % random.randint(0, 2**52)
     if populate:
       self.MakeDriver('zella', 'createPopulatedGame')
-      self.SendKeys([[By.NAME, 'populateGameId']], self.game_id)
-      self.Click([[By.NAME, 'populate']])
+      self.Click([[By.ID, 'createGame']])
+      self.SendKeys([[By.NAME, 'idInput']], self.game_id)
+      self.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
       self.ExpectContains([[By.NAME, 'populateResult']], 'Success!')
     self.SwitchUser(user, page)
 
