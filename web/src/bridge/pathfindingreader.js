@@ -19,6 +19,14 @@ class PathFindingReader {
     }
     return path;
   }
+  getDefaultProfileImagePath(gameId, defaultProfileImageId) {
+    assert(gameId);
+    assert(typeof defaultProfileImageId == 'string' || defaultProfileImageId == null);
+    let path = this.getGamePath(gameId).concat(["defaultProfileImages"]);
+    if (defaultProfileImageId)
+      path = path.concat([Utils.findIndexById(this.get(path), defaultProfileImageId)]);
+    return path;
+  }
   getUserPath(userId) {
     assert(typeof userId == 'string' || userId == null);
     let path = ["users"];

@@ -1,8 +1,14 @@
-from driver import RetryingDriver
+import sys
+import time
+from driver import WholeDriver
 
 from selenium.webdriver.common.by import By
 
-driver = RetryingDriver('zella', page="createGame") 
+driver = WholeDriver(
+    user="zella",
+    page="createGame",
+    env=sys.argv[1],
+    password=sys.argv[2])
 
 playerNames = {
       'zella': 'Zella the Ultimate',

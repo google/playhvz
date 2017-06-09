@@ -103,8 +103,8 @@
       listeners: {
         'ghvz-set-path': 'handleSetPath_',
         'ghvz-sign-out': 'signOut_',
-      //   'ghvz-open-drawer': 'openDrawer_',
-      //   'ghvz-close-drawer': 'closeDrawer_',
+        'ghvz-open-drawer': 'openDrawer_',
+        'ghvz-close-drawer': 'closeDrawer_',
       //   'ghvz-select-game': 'handleSelectGame_',
       },
 
@@ -305,13 +305,13 @@
       //   this.bridge.signOut();
       // },
 
-      // openDrawer_() {
-      //   this.$$("#drawer").openDrawer();
-      // },
+      openDrawer_() {
+        this.$$("#drawer").openDrawer();
+      },
 
-      // closeDrawer_() {
-      //   this.$$("#drawer").closeDrawer();
-      // },
+      closeDrawer_() {
+        this.$$("#drawer").closeDrawer();
+      },
 
       handleSetPath_(e) {
         assert('inGame' in e.detail);
@@ -408,7 +408,7 @@
     </paper-button>
   </template>
   <template is="dom-if" if="[[user]]">
-    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isDesktop)]]">
+    <paper-drawer-panel id="drawer" disable-swipe><!--responsive-width="[[computeResponsiveWidth_(isDesktop)]]">-->
       <paper-material drawer>
         <ghvz-drawer
             bridge="[[bridge]]"

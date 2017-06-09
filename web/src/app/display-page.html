@@ -97,12 +97,11 @@
     <template is="dom-if" if="[[computeShowPage_(showPage.createPopulatedGame, mostRecentPage)]]">
       <ghvz-card expand padded full$="[[isMobile]]" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
         <div class="header">Create Game</div>
-        <ghvz-create-game
+        <ghvz-create-populated-game
               class="content"
-              populated
               bridge="[[bridge]]"
               user-id="[[user.id]]">
-        </ghvz-create-game>
+        </ghvz-create-populated-game>
       </ghvz-card>
     </template>
 

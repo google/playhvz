@@ -73,6 +73,14 @@ class FakeServer {
         null,
         new Model.Admin(userId, {userId: userId}));
   }
+  addDefaultProfileImage(args) {
+    let {gameId, defaultProfileImageId} = args;
+    this.writer.insert(
+        this.reader.getDefaultProfileImagePath(gameId, null),
+        null,
+        new Model.DefaultProfileImage(defaultProfileImageId, args)
+    );
+  }
   createPlayer(args) {
     let {gameId, playerId, userId} = args;
     let game = this.database.gamesById[gameId];
@@ -332,7 +340,8 @@ class FakeServer {
         new Model.RewardCategory(rewardCategoryId, args));
   }
   updateRewardCategory(args) {
-    let rewardCategoryPath = this.reader.pathForId(rewardCategoryId);
+    let {gameId, rewardCategoryId} = args;
+    let rewardCategoryPath = this.reader.getRewardCategoryPath(gameId, rewardCategoryId);
     for (let argName in args) {
       this.writer.set(rewardCategoryPath.concat([argName]), args[argName]);
     }
