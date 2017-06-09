@@ -86,17 +86,17 @@ try:
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-page'],
+      [[By.TAG_NAME, 'ghvz-display-game-page'],
        [By.NAME, 'Leaderboard Allegiance Cell Deckerd the Hesitant']],
       'resistance')
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-page'],
+      [[By.TAG_NAME, 'ghvz-display-game-page'],
        [By.NAME, 'Leaderboard Points Cell Deckerd the Hesitant']],
       '0')
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-page'],
+      [[By.TAG_NAME, 'ghvz-display-game-page'],
        [By.NAME, 'Leaderboard Name Cell Deckerd the Hesitant']],
       'Deckerd the Hesitant')
 
