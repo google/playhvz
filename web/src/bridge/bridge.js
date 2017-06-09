@@ -61,6 +61,8 @@ class IdGenerator {
   verifyChatRoomId(id) { return this.verify('chatRoom', id); }
   newClaimId(note) { return this.generateId('claim', note); }
   verifyClaimId(id) { return this.verify('claim', id); }
+  newDefaultProfileImageId(note) { return this.generateId('defaultProfileImage', note); }
+  verifyDefaultProfileImageId(id) { return this.verify('defaultProfileImage', id); }
   newGameId(note) { return this.generateId('game', note); }
   verifyGameId(id) { return this.verify('game', id); }
   newGroupId(note) { return this.generateId('group', note); }
@@ -178,6 +180,14 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('setAdminContact', {
     required: {gameId: 'GameId', playerId: 'PlayerId'},
+  });
+  serverMethods.set('addDefaultProfileImage', {
+    required: {
+      gameId: 'GameId',
+      defaultProfileImageId: '!DefaultProfileImageId',
+      allegianceFilter: 'String',
+      profileImageUrl: 'String', 
+    }
   });
 
   // Players

@@ -68,6 +68,8 @@
             autoRemove: false,
             canAddOthers: false,
             canRemoveOthers: false,
+            canAddSelf: true,
+            canRemoveSelf: true,
           });
           let chatRoomId = this.bridge.newChatRoomId('withadmins');
           this.bridge.createChatRoom({
@@ -78,14 +80,14 @@
             withAdmins: true,
           });
           this.bridge.addPlayerToGroup({
+            gameId: this.game.id,
             groupId: groupId,
             playerToAddId: this.player.id,
-            playerId: this.player.id,
           });
           this.bridge.addPlayerToGroup({
+            gameId: this.game.id,
             groupId: groupId,
             playerToAddId: this.game.adminContactPlayerId,
-            playerId: this.player.id,
           });
           this.fire('ghvz-set-path', {
             inGame: true,
