@@ -2,18 +2,18 @@
 
 window.FirebaseListener = (function() {
 
-const GUN_PROPERTIES = ["gameId", "playerId", "label"];
-const GUN_COLLECTIONS = [];
 const USER_PROPERTIES = ["a"];
 const USER_COLLECTIONS = ["players"];
+const GAME_PROPERTIES = ["active", "startTime", "endTime", "registrationEndTime", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
+const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
+const GUN_PROPERTIES = ["gameId", "playerId", "label"];
+const GUN_COLLECTIONS = [];
 const PRIVATE_PLAYER_PROPERTIES = ["gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
 const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
 const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
 const PRIVATE_PLAYER_COLLECTIONS = ["lives", "chatRooms", "missions"];
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
-const GAME_PROPERTIES = ["active", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
-const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
 const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
 const QUIZ_QUESTION_COLLECTIONS = ["answers"];
 const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order"];

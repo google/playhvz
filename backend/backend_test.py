@@ -200,6 +200,16 @@ class EndToEndTest(unittest.TestCase):
       'autoAdd': True,
     }
     self.AssertCreateUpdateSequence('createGroup', create, 'updateGroup', update)
+
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId'),
+      'groupId': self.Id('groupId'),
+      'actingPlayerId': self.Id('playerId'),
+    }
+    self.AssertOk('addPlayerToGroup', update)
+
+
     create.update({
       'gameId': self.Id('gameId'),
       'groupId': self.Id('groupId', 2),
@@ -210,6 +220,15 @@ class EndToEndTest(unittest.TestCase):
       'canRemoveSelf': True,
     })
     self.requester.Post('createGroup', create)
+
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('playerId'),
+      'groupId': self.Id('groupId', 2),
+      'actingPlayerId': self.Id('playerId'),
+    }
+    self.AssertOk('addPlayerToGroup', update)
+
 
     create_player['playerId'] = self.Id('playerId', 4)
     create_player['userId'] = self.Id('userId', 4)
@@ -273,6 +292,7 @@ class EndToEndTest(unittest.TestCase):
       'beginTime': 1500000000000,
       'endTime': 1600000000000,
       'detailsHtml': 'test Details',
+      'rsvpersGroupId': self.Id('groupId'),
     }
     update = {
       'gameId': self.Id('gameId'),
@@ -289,7 +309,8 @@ class EndToEndTest(unittest.TestCase):
     update = {
       'gameId': self.Id('gameId'),
       'playerToAddId': self.Id('playerId', 2),
-      'groupId': self.Id('groupId')
+      'groupId': self.Id('groupId'),
+      'actingPlayerId': self.Id('playerId'),
     }
     # Owner adds player-2 to both groups
     self.AssertOk('addPlayerToGroup', update)
@@ -304,7 +325,8 @@ class EndToEndTest(unittest.TestCase):
     update = {
       'gameId': self.Id('gameId'),
       'playerToAddId': self.Id('playerId', 3),
-      'groupId': self.Id('groupId')
+      'groupId': self.Id('groupId'),
+      'actingPlayerId': self.Id('playerId', 2),
     }
     self.AssertFails('addPlayerToGroup', update)
 
@@ -312,7 +334,8 @@ class EndToEndTest(unittest.TestCase):
     update = {
       'gameId': self.Id('gameId'),
       'playerToAddId': self.Id('playerId', 3),
-      'groupId': self.Id('groupId', 2)
+      'groupId': self.Id('groupId', 2),
+      'actingPlayerId': self.Id('playerId', 2),
     }
     self.AssertOk('addPlayerToGroup', update)
     self.AssertFails('addPlayerToGroup', update)
@@ -320,7 +343,8 @@ class EndToEndTest(unittest.TestCase):
     update = {
       'gameId': self.Id('gameId'),
       'playerToRemoveId': self.Id('playerId', 3),
-      'groupId': self.Id('groupId', 2)
+      'groupId': self.Id('groupId', 2),
+      'actingPlayerId': self.Id('playerId', 2),
     }
     self.AssertOk('removePlayerFromGroup', update)
     self.AssertFails('removePlayerFromGroup', update)
@@ -337,7 +361,7 @@ class EndToEndTest(unittest.TestCase):
       'points': 8,
       'limitPerPlayer': 2,
       'shortName': 'testrew',
-      'badgeUrl': 'google.com/someimage.png',
+      'badgeImageUrl': 'google.com/someimage.png',
       'description': 'this is a cool reward',
     }
     update = {
