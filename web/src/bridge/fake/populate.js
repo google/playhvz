@@ -152,7 +152,9 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     faqHtml: FAQ_HTML,
     stunTimer: 60,
     active: true,
-    started: true,
+    registrationEndTime: 1566966838000,
+    startTime: 1596966838000,
+    endTime: 1696966838000,
   });
 
   let everyoneGroupId = bridge.idGenerator.newGroupId('everyone');

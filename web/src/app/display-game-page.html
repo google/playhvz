@@ -52,7 +52,7 @@
       },
 
       onPathChanged_(newPath, oldPath) {
-        if (newPath && newPath[0] != 'main') {
+        if (newPath) {
           this.mostRecentPage = newPath[0];
         }
       },
@@ -97,6 +97,7 @@
         database="[[database]]"
         game="[[game]]"
         user="[[user]]"
+        is-mobile="[[isMobile]]"
         player="[[player]]">
     </ghvz-main-page>
   </template>
