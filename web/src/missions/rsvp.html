@@ -1,0 +1,86 @@
+
+<dom-module id="ghvz-rsvp">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-rsvp',
+
+      properties: {
+        bridge: Object,
+        game: Object,
+        player: Object,
+        missionId: String,
+        mission: Object,
+        inGroup: {
+          type: Boolean,
+          computed: "computeInGroup_(mission.groupId, player.groupMemberships.length)",
+        }
+      },
+
+      observers: [
+        "onMissionIdChanged_(game, missionId)",
+      ],
+
+      onMissionIdChanged_: function() {
+        let mission = this.game.missionsById[this.missionId];
+        this.$.missionSelector.select(mission);
+      },
+
+      computeInGroup_() {
+        if (!this.mission)
+          return false;
+        return !!this.player.groupMemberships.find(m => m.groupId == this.mission.rsvpersGroupId);
+      },
+
+      rsvp_() {
+        this.bridge.addPlayerToGroup({
+          gameId: this.game.id,
+          groupId: this.mission.rsvpersGroupId,
+          playerToAddId: this.player.id,
+        });
+      },
+
+      unrsvp_() {
+        this.bridge.removePlayerFromGroup({
+          gameId: this.game.id,
+          groupId: this.mission.rsvpersGroupId,
+          playerToRemoveId: this.player.id,
+        });
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+  }
+  #comingSoon {
+    margin: 16px;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+  }
+</style>
+<template>
+  <array-selector id="missionSelector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
+  <array-selector id="groupSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
+  <template is="dom-if" if="[[!inGroup]]">
+    <paper-button
+        raised
+        on-tap="rsvp_">
+      RSVP
+    </paper-button>
+  </template>
+  <template is="dom-if" if="[[inGroup]]">
+    <paper-button
+        raised
+        on-tap="unrsvp_">
+      Un-RSVP
+    </paper-button>
+  </template>
+</template>
+</dom-module>

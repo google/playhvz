@@ -1,10 +1,14 @@
+import sys
 import time
-from driver import RetryingDriver
+from driver import WholeDriver
 
 from selenium.webdriver.common.by import By
 
 try:
-  driver = RetryingDriver("reggie")
+  driver = WholeDriver(
+      user="reggie",
+      env=sys.argv[1],
+      password=sys.argv[2])
 
   driver.FindElement([[By.NAME, 'joinGame']])
 
@@ -17,6 +21,8 @@ try:
   driver.Click([[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-button']])
 
   driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option1']])
+
+  driver.Click([[By.NAME, 'joingGameTakePhotos'], [By.NAME, 'option1']])
 
   driver.Click([[By.NAME, 'joinGameBeVolunteerPage'], [By.NAME, 'option1']])
 
@@ -80,6 +86,7 @@ try:
   
   # driver.Click([[By.NAME, 'drawerProfile']])
 
+  driver.Quit()
 
 finally:
   # driver.Quit()

@@ -1,10 +1,14 @@
+import sys
 import time
-from driver import RetryingDriver
+from driver import WholeDriver
 
 from selenium.webdriver.common.by import By
 
 try:
-  driver = RetryingDriver("deckerd")
+  driver = WholeDriver(
+      user="deckerd",
+      env=sys.argv[1],
+      password=sys.argv[2])
 
   driver.Click([[By.NAME, 'declareAllegiance']])
 
@@ -130,6 +134,7 @@ try:
   
   # driver.Click([[By.NAME, 'drawerProfile']])
 
+  driver.Quit()
 
 finally:
   # driver.Quit()

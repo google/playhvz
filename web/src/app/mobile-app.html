@@ -15,29 +15,29 @@
         user: Object,
         game: Object,
         player: Object,
-        page: {
+        path: {
           type: String,
-          observer: 'onPageChanged_',
+          observer: 'onPathChanged_',
         },
 
-        secondPage: {
+        secondPath: {
           type: String,
           value: null,
         },
       },
 
-      onPageChanged_: function(newPage, oldPage) {
-        if (oldPage) {
+      onPathChanged_: function(newPath, oldPath) {
+        if (oldPath) {
           this.$.pages.entryAnimation = '';
           this.$.pages.exitAnimation = '';
-          if (newPage == 'main') {
+          if (newPath == 'main') {
             this.$.pages.exitAnimation = 'slide-right-animation';
           } else {
-            this.secondPage = newPage;
+            this.secondPath = newPath;
             this.$.pages.entryAnimation = 'slide-from-right-animation';
           }
         }
-        if (newPage == 'main') {
+        if (newPath == 'main') {
           this.$.pages.selected = 0;
         } else {
           this.$.pages.selected = 1;

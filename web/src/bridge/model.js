@@ -29,7 +29,7 @@ Model.UserPlayer = function(id, args) {
 }
 
 const GAME_PROPERTIES = ["active", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
-const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups", "maps"];
+const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups", "maps", "defaultProfileImages"];
 Model.Game = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, GAME_PROPERTIES);
@@ -52,7 +52,7 @@ Model.QuizAnswer = function(id, args) {
   Utils.addEmptyLists(this, QUIZ_ANSWER_COLLECTIONS);
 }
 
-const GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "membersCanAdd", "membersCanRemove", "autoRemove", "ownerPlayerId"];
+const GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "canAddOthers", "canRemoveOthers", "canAddSelf", "canRemoveSelf", "autoRemove", "ownerPlayerId"];
 const GROUP_COLLECTIONS = ["memberships"];
 Model.Group = function(id, args) {
   this.id = id;
@@ -124,7 +124,7 @@ Model.Message = function(id, args) {
   Utils.addEmptyLists(this, MESSAGE_COLLECTIONS);
 }
 
-const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type"];
+const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
 const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
 Model.RequestCategory = function(id, args) {
   this.id = id;
@@ -148,7 +148,7 @@ Model.Response = function(id, args) {
   Utils.addEmptyLists(this, RESPONSE_COLLECTIONS);
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId", "rsvpersGroupId"];
 const MISSION_COLLECTIONS = [];
 Model.Mission = function(id, args) {
   this.id = id;
@@ -218,7 +218,7 @@ Model.Notification = function(id, args) {
   Utils.addEmptyLists(this, NOTIFICATION_COLLECTIONS);
 }
 
-const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer"];
+const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl"];
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 Model.RewardCategory = function(id, args) {
   this.id = id;
@@ -233,6 +233,15 @@ Model.Reward = function(id, args) {
   Utils.copyProperties(this, args, REWARD_PROPERTIES);
   Utils.addEmptyLists(this, REWARD_COLLECTIONS);
 }
+
+const DEFAULT_PROFILE_IMAGE_PROPERTIES = ["gameId", "defaultProfileImageId", "allegianceFilter", "profileImageUrl"];
+const DEFAULT_PROFILE_IMAGE_COLLECTIONS = [];
+Model.DefaultProfileImage = function(id, args) {
+  this.id = id;
+  Utils.copyProperties(this, args, DEFAULT_PROFILE_IMAGE_PROPERTIES);
+  Utils.addEmptyLists(this, DEFAULT_PROFILE_IMAGE_COLLECTIONS);
+}
+
 
 return Model;
 
