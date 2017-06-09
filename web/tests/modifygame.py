@@ -1,5 +1,5 @@
+import sys
 from driver import WholeDriver
-
 from selenium.webdriver.common.by import By
 
 try:
@@ -7,18 +7,18 @@ try:
   # Sign in as an admin
   driver = WholeDriver(
     user="zella",
-    env=sys.argv[1] || "fake",
+    env=sys.argv[1],
     password=sys.argv[2])
 
   # See rules sheet on dashboard
   driver.FindElement([[By.ID, 'rules']])
 
   # See rules page and FAQ page on sidebar
-  driver.ExpectContains([[By.NAME, 'drawer-Rules']], "Rules")
-  driver.ExpectContains([[By.NAME, 'drawer-FAQ']], "FAQ")
+  driver.ExpectContains([[By.NAME, 'drawerRules']], "Rules")
+  driver.ExpectContains([[By.NAME, 'drawerFAQ']], "FAQ")
 
   # # Go to the Admin dashboard
-  driver.Click([[By.NAME, 'drawer-Admin Dashboard']])
+  driver.Click([[By.NAME, 'drawerAdmin Dashboard']])
 
   # Open up rules, type something.
   driver.FindElement([[By.NAME, 'Rules']])
@@ -34,7 +34,7 @@ try:
       'rules are cools', False)
 
   # Open up rules, type something different.
-  driver.FindElement([[By.NAME, 'drawer-Rules']])
+  driver.FindElement([[By.NAME, 'drawerRules']])
   driver.Click([[By.TAG_NAME, 'ghvz-desktop-admin-page'], [By.NAME, 'rules-icon'], [By.ID, 'icon']]) 
   driver.SendKeys(
       [[By.NAME, 'admin-page'], [By.TAG_NAME, 'textarea']],
@@ -67,7 +67,7 @@ try:
   driver.ExpectContains([[By.NAME, 'game-stunTimer']], "42")
 
   # Go to the FAQ page
-  driver.Click([[By.NAME, 'drawer-FAQ']])
+  driver.Click([[By.NAME, 'drawerFAQ']])
 
   # TODO: Add in FAQ change when it has been implemented.
 
@@ -76,7 +76,7 @@ try:
   for player in players:
     driver.SwitchUser(player)
     driver.ExpectContains([[By.ID, 'rules']], 'rules are cools when you save them')
-    driver.FindElement([[By.NAME, 'drawer-Rules']])
+    driver.FindElement([[By.NAME, 'drawerRules']])
 
 finally:
   # driver.Quit()
