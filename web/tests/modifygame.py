@@ -76,6 +76,7 @@ try:
   for player in players:
     driver.SwitchUser(player)
     driver.ExpectContains([[By.ID, 'rules']], 'rules are cools when you save them')
+    driver.ExpectContains([[By.NAME, 'game-summary-box']], '42') # New stun timer
     driver.FindElement([[By.NAME, 'drawerRules']])
 
 finally:
