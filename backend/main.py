@@ -1,5 +1,7 @@
 # [START app]
 import logging
+import time
+import random
 
 from firebase import firebase
 from flask import Flask, jsonify, request, g
@@ -140,9 +142,28 @@ def CronNotification():
   notifications.ExecuteNotifications(None, GetFirebase())
   return 'OK'
 
+@app.route('/stressTest', methods=['POST'])
+def StressTest():
+  begin_time = time.time()
+
+  for i in range(0, 50):
+    RouteRequestInner('register', {
+      'requestingUserId': None,
+      'requestingUserToken': 'blark',
+      'requestingPlayerId': None,
+      'userId': 'user-wat-%d' % random.randint(0, 2**52),
+    })
+
+  end_time = time.time()
+  print "Did 50 requests in %f seconds" % (end_time - begin_time)
+  return ''
 
 @app.route('/api/<method>', methods=['POST'])
 def RouteRequest(method):
+  return RouteRequestInner(method, json.loads(request.data))
+
+def RouteRequestInner(method, requestDict):
+  print 'Lizard handling method! %s' % method
   if method not in methods:
     raise AppError('Invalid method %s' % method)
   f = methods[method]
@@ -152,7 +173,7 @@ def RouteRequest(method):
   api_mutex.acquire()
   game_state.start_transaction()
   try:
-    result = jsonify(f(json.loads(request.data), game_state))
+    result = jsonify(f(requestDict, game_state))
   except Exception as e:
     logger.exception(e)
     exception = e

@@ -219,7 +219,7 @@ def PlayerToGame(game_state, player):
 
 def PlayerAllegiance(game_state, player):
   """Map a player to an allegiance."""
-  return game_state.get('playersPublic/%s' % player, 'allegiance')
+  return game_state.get('/playersPublic/%s' % player, 'allegiance')
 
 
 def ChatToGroup(game_state, chat):

@@ -114,8 +114,9 @@
       "gameId": "game-%(ident)s-1",
       "beginTime": 1500000000000,
       "detailsHtml": "test Details",
-      "endTime": 1600000000000,
+      "endTime": 1700000000000,
       "name": "test Mission",
+      "rsvpersGroupId": "group-%(ident)s-1",
       "groupId": "group-%(ident)s-1"
     }
   },
@@ -313,7 +314,7 @@
   "rewardCategories": {
     "rewardCategory-%(ident)s-1": {
       "claimed": 1,
-      "badgeUrl": "google.com/someimage.png",
+      "badgeImageUrl": "google.com/someimage.png",
       "description": "this is a VERY cool reward",
       "name": "test Reward",
       "gameId": "game-%(ident)s-1",

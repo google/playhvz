@@ -21,13 +21,13 @@ class NormalRequester {
   // Take this method out when the server single-threads itself
   sendRequest_(verb, path, urlParams, body) {
     if (this.openRequestPromise) {
-      this.openRequestPromise =
-          this.openRequestPromise.then(() => {
-            console.log('Sending!', path);
+      // this.openRequestPromise =
+      //     this.openRequestPromise.then(() => {
+      //       console.log('Sending!', path);
             return this.sendRequestInner_(verb, path, urlParams, body);
-          });
+          // });
     } else {
-      this.openRequestPromise =
+      // this.openRequestPromise =
           this.sendRequestInner_(verb, path, urlParams, body);
     }
     return this.openRequestPromise;
