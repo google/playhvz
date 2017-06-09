@@ -1,7 +1,9 @@
+*.pyc
+*.sublime-project
+*.sublime-workspace
 .DS_Store
 firebase-debug.log
 firebase/rules.json
-*.pyc
 node_modules
 npm-debug.log
 geckodriver.log
