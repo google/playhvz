@@ -36,7 +36,7 @@ class EndToEndTest(unittest.TestCase):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertTrue(r.ok, msg='Expected to POST 200 [ %s ] but got %d:\n%s\nfor: %s' % (method, r.status_code, r.text, data))
-  
+
   def AssertFails(self, method, data):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
@@ -65,12 +65,12 @@ class EndToEndTest(unittest.TestCase):
     ident = '%s-%s-%d' % (key, self.identifier, num)
     return ident
 
-  def AssertDataMatches(self):
+  def AssertDataMatches(self, use_local):
     # Compare a dump of the DB to the JSON string below.
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL})
+    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL, 'use_local': use_local})
     expected = json.loads(expected_raw)
     actual = r.json()
     self.CleanTestData(actual)
@@ -86,7 +86,7 @@ class EndToEndTest(unittest.TestCase):
   def setUp(self):
     self.requester = Requester()
     self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
-  
+
   def tearDown(self):
     pass
     # self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
@@ -114,17 +114,20 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'adminUserId': self.Id('userId'),
+      'active': True,
       'name': 'test Game',
       'rulesHtml': 'test rules',
+      'faqHtml': 'test faq',
       'stunTimer': 10,
-      'active': True,
-      'started': False,
+      'registrationEndTime': 1506884521000,
+      'startTime': 1606884521000,
+      'endTime': 1706884521000,
     }
     update = {
       'gameId': self.Id('gameId'),
-      'rulesHtml': 'test rule',
+      'rulesHtml': 'test rule 2',
+      'faqHtml': 'test faq 2',
       'stunTimer': 5,
-      'active': False
     }
     self.AssertCreateUpdateSequence('createGame', create, 'updateGame', update)
 
@@ -149,7 +152,9 @@ class EndToEndTest(unittest.TestCase):
       'profileImageUrl': 'http://jpg',
       'gotEquipment': True,
       'wantToBeSecretZombie': True,
+      'beInPhotos': True,
       'notes': "",
+      'beInPhotos': True,
       'canInfect': False,
       'active': False,
       'notificationSettings': {
@@ -183,8 +188,10 @@ class EndToEndTest(unittest.TestCase):
       'allegianceFilter': 'none',
       'autoAdd': False,
       'autoRemove': False,
-      'membersCanAdd': False,
-      'membersCanRemove': False,
+      'canAddOthers': False,
+      'canRemoveOthers': False,
+      'canAddSelf': False,
+      'canRemoveSelf': False,
       'ownerPlayerId': self.Id('playerId'),
     }
     update = {
@@ -197,8 +204,10 @@ class EndToEndTest(unittest.TestCase):
       'gameId': self.Id('gameId'),
       'groupId': self.Id('groupId', 2),
       'name': 'group Bar',
-      'membersCanAdd': True,
-      'membersCanRemove': True,
+      'canAddOthers': True,
+      'canRemoveOthers': True,
+      'canAddSelf': True,
+      'canRemoveSelf': True,
     })
     self.requester.Post('createGroup', create)
 
@@ -228,12 +237,31 @@ class EndToEndTest(unittest.TestCase):
       'messageId': self.Id('messageId'),
       'message': 'test Message',
     }
-    # update = {
-    #   'gameId': self.Id('gameId'),
-    #   'chatRoomId': self.Id('chatRoomId'),
-    #   'playerId': self.Id('playerId'),
-    #   'messageId': self.Id('messageId'),
-    # }
+    self.AssertOk('sendChatMessage', create)
+
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 2),
+      'message': 'test Message',
+      'image': {
+        'url': 'google.com/image.png',
+      }
+    }
+    self.AssertOk('sendChatMessage', create)
+
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 3),
+      'message': 'test Message',
+      'location': {
+        'latitude': 34.5645654,
+        'longitude': -124.5345234,
+      }
+    }
     self.AssertOk('sendChatMessage', create)
 
     # Create missions
@@ -272,7 +300,7 @@ class EndToEndTest(unittest.TestCase):
     self.requester.SetRequestingUserId(self.Id('userId', 2))
     self.requester.SetRequestingPlayerId(self.Id('playerId', 2))
 
-    # Player-2 cant add player-3 to group 1, because membersCanAdd is false
+    # Player-2 cant add player-3 to group 1, because canAddOthers is false
     update = {
       'gameId': self.Id('gameId'),
       'playerToAddId': self.Id('playerId', 3),
@@ -280,7 +308,7 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertFails('addPlayerToGroup', update)
 
-    # Player-2 CAN add player-3 to group 2, because membersCanAdd is true
+    # Player-2 CAN add player-3 to group 2, because canAddOthers is true
     update = {
       'gameId': self.Id('gameId'),
       'playerToAddId': self.Id('playerId', 3),
@@ -309,11 +337,14 @@ class EndToEndTest(unittest.TestCase):
       'points': 8,
       'limitPerPlayer': 2,
       'shortName': 'testrew',
+      'badgeUrl': 'google.com/someimage.png',
+      'description': 'this is a cool reward',
     }
     update = {
       'gameId': self.Id('gameId'),
       'rewardCategoryId': self.Id('rewardCategoryId'),
       'points': 5,
+      'description': 'this is a VERY cool reward',
     }
     self.AssertCreateUpdateSequence('addRewardCategory', create, 'updateRewardCategory', update)
 
@@ -326,14 +357,15 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertOk('addReward', create)
     self.AssertFails('addReward', create)
-    
+
     claim = {
       'gameId': self.Id('gameId'),
       'playerId': self.Id('playerId'),
       'rewardCode': 'testrew-purple-striker-balloon',
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
-    self.AssertDataMatches()
+    self.AssertDataMatches(True)
+    self.AssertDataMatches(False)
 
 
 if __name__ == '__main__':

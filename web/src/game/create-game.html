@@ -50,6 +50,7 @@
                 gameId = 'game-' + properties.id;
               let trimmedGameId = gameId.slice('game-'.length);
               
+              let defaultProfileImageId = this.bridge.newDefaultProfileImageId();
               let everyoneGroupId = this.bridge.newGroupId('everyone');
               let everyoneChatRoomId = this.bridge.newChatRoomId('everyone');
               var resistanceGroupId = this.bridge.newGroupId('resistance');
@@ -63,8 +64,15 @@
                 adminUserId: this.userId,
                 active: true,
                 rulesHtml: '',
+                faqHtml: '',
                 name: properties.name,
                 started: false,
+              });
+              this.bridge.addDefaultProfileImage({
+                gameId: gameId,
+                defaultProfileImageId: defaultProfileImageId,
+                allegianceFilter: 'horde',
+                profileImageUrl: 'https://goo.gl/DP2vlY',
               });
               this.bridge.createGroup({
                 gameId: gameId,
@@ -74,8 +82,10 @@
                 allegianceFilter: 'none',
                 autoAdd: true,
                 autoRemove: false,
-                membersCanAdd: false,
-                membersCanRemove: false,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
               });
               this.bridge.createChatRoom({
                 gameId: gameId,
@@ -92,8 +102,10 @@
                 allegianceFilter: 'resistance',
                 autoAdd: true,
                 autoRemove: true,
-                membersCanAdd: false,
-                membersCanRemove: false,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
               });
               this.bridge.createChatRoom({
                 gameId: gameId,
@@ -109,10 +121,12 @@
                 ownerPlayerId: null,
                 allegianceFilter: 'horde',
                 autoAdd: true,
-                membersCanAdd: true,
+                canAddOthers: true,
                 autoRemove: true,
-                membersCanAdd: false,
-                membersCanRemove: false,
+                canAddOthers: false,
+                canRemoveOthers: false,
+                canAddSelf: false,
+                canRemoveSelf: false,
               });
               this.bridge.createChatRoom({
                 gameId: gameId,
