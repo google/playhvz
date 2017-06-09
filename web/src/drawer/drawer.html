@@ -54,10 +54,16 @@
         if (e.target.classList.contains('drawer-item')) {
           let page = e.target.dataset.page;
           assert(page);
+          let path = [page];
+          if (page == "chat" && e.target.dataset.chatRoomId) {
+            let chatRoomId = e.target.dataset.chatRoomId;
+            assert(chatRoomId);
+            path = path.concat(chatRoomId);
+          }
           this.fire('ghvz-close-drawer');
           this.fire('ghvz-set-path', {
             inGame: true,
-            path: [page],
+            path: path,
           });
           e.preventDefault();
           e.stopPropagation();
@@ -226,10 +232,6 @@
           <iron-icon icon="editor:pie-chart"></iron-icon>
           Game Stats
         </a>
-        <a href="javascript:void(0)" data-page="rewards" class="drawer-item">
-          <iron-icon icon="icons:stars"></iron-icon>
-          Rewards
-        </a>
         <a href="javascript:void(0)" data-page="notifications" class="drawer-item">
           <iron-icon icon="notification:sms"></iron-icon>
           Notifications
@@ -246,7 +248,8 @@
                 with-icon
                 game="[[game]]"
                 chat-room-id="[[chatRoom.id]]"
-                data-page$="[[computeChatPage_(chatRoom.id)]]">
+                data-page="chat"
+                data-chat-room-id$="[[chatRoom.id]]">
             </ghvz-chat-room-name-label>
           </template>
         </template>
@@ -257,7 +260,8 @@
                 with-icon
                 game="[[game]]"
                 chat-room-id="[[membership.chatRoomId]]"
-                data-page$="[[computeChatPage_(membership.chatRoomId)]]">
+                data-page="chat"
+                data-chat-room-id$="[[membership.chatRoomId]]">
             </ghvz-chat-room-name-label>
           </template>
         </template>
