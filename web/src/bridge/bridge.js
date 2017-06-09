@@ -173,6 +173,7 @@ class FakeIdGenerator extends IdGenerator {
   const GAME_PROPERTIES = {
     name: 'String',
     rulesHtml: 'String',
+    faqHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
     started: 'Boolean',

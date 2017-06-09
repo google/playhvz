@@ -148,6 +148,7 @@ function populateGame(server, userIds, populateLotsOfPlayers) {
     adminUserId: zellaUserId,
     name: "Test game",
     rulesHtml: RULES_HTML,
+    faqHtml: FAQ_HTML,
     stunTimer: 60,
     active: true,
     started: true,
@@ -643,4 +644,16 @@ Moderators look like this and this is how you find them
 <li>Don't intentionally create an unsafe situation.</li>
 </ul>
 </ghvz-rules-section>
+`;
+
+const FAQ_HTML = `
+<p>Bacon ipsum dolor amet pancetta pork chop tail, boudin fatback chicken tri-tip hamburger meatball ball tip cupim pig doner. Cow prosciutto kielbasa ball tip tenderloin ribeye bresaola ham rump alcatra turkey. Chuck ham hock bacon bresaola pork loin shank, kevin pig. Biltong filet mignon pig strip steak pork loin pancetta sirloin bacon turkey pork kevin.</p>
+
+<p>Corned beef shoulder bacon kevin, pork chop meatloaf capicola ham hock picanha doner pork brisket tongue fatback alcatra. Picanha beef salami, beef ribs andouille kevin rump jerky turducken spare ribs boudin pork loin drumstick shankle frankfurter. Picanha tongue brisket tri-tip, fatback hamburger leberkas short loin prosciutto rump biltong tenderloin pancetta kielbasa alcatra. Picanha fatback pancetta rump chicken beef. Doner rump salami t-bone short ribs filet mignon.</p>
+
+<p>Kevin hamburger cow beef t-bone landjaeger tail, rump ribeye flank bacon venison pork belly burgdoggen. Pork loin chuck porchetta bacon drumstick ribeye ball tip corned beef. Meatball tri-tip pork shank short ribs pork chop. Flank fatback ribeye alcatra corned beef hamburger meatloaf ham sirloin doner filet mignon shankle leberkas. Burgdoggen rump corned beef ham brisket pork belly t-bone salami tenderloin. Strip steak meatball jerky sausage kevin chuck. Drumstick fatback ball tip, tri-tip pork belly pastrami pig tail tongue boudin pork cow meatball spare ribs.</p>
+
+<p>Rump andouille pork belly short loin kielbasa capicola filet mignon tongue ball tip meatball short ribs. Pastrami shank ham hock biltong tongue, shoulder t-bone swine bresaola jowl turkey ground round sirloin boudin. Kevin pork chop short ribs filet mignon shoulder ham boudin flank prosciutto rump capicola sirloin. Cow ball tip pig shankle turducken bacon tenderloin sirloin. Frankfurter chuck capicola meatloaf boudin biltong andouille jowl picanha short ribs ribeye. Biltong fatback landjaeger, ham flank shoulder t-bone prosciutto hamburger tenderloin turkey ball tip jowl doner swine.</p>
+
+<p>Jerky drumstick ham, rump ham hock filet mignon meatloaf leberkas prosciutto short loin frankfurter. Flank sirloin jerky turkey burgdoggen, bresaola tongue pancetta brisket beef ribs meatloaf. Alcatra t-bone picanha shank, pancetta porchetta frankfurter tenderloin salami rump ribeye turkey shankle. Corned beef kevin flank turkey ham pork chop frankfurter kielbasa short ribs. Venison picanha pork, pastrami kielbasa alcatra fatback rump.</p>
 `;
