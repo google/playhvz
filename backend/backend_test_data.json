@@ -313,6 +313,8 @@
   "rewardCategories": {
     "rewardCategory-%(ident)s-1": {
       "claimed": 1,
+      "badgeUrl": "google.com/someimage.png",
+      "description": "this is a VERY cool reward",
       "name": "test Reward",
       "gameId": "game-%(ident)s-1",
       "shortName": "testrew",
