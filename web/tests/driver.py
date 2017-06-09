@@ -38,7 +38,7 @@ class SimpleDriver:
   def SendKeys(self, path, keys):
     self.FindElement(path).send_keys(keys)
 
-  def ExpectContains(self, path, needle):
+  def ExpectContains(self, path, needle, should_exist=True):
     element = self.FindElement(path)
     # There's four ways to get the contents of an element:
     # print 'el text is "%s" "%s" "%s" "%s"' % (
@@ -47,7 +47,7 @@ class SimpleDriver:
     #     element.get_attribute('innerText').strip(),
     #     element.get_attribute('innerHTML').strip())
     # Sometimes some of them work and others don't.
-    # TODO: Figure out why elemene.text doesn't work sometimes when others do
+    # TODO: Figure out why element.text doesn't work sometimes when others do
     text = (
         element.text.strip() or
         element.get_attribute('textContent').strip() or
@@ -56,8 +56,10 @@ class SimpleDriver:
     print 'Checking if "%s" is present.' % (needle)
     # Leaving innerHTML out because it seems like it can have a lot of false
     # positives, because who knows whats in the html...
-    if needle not in text:
-      raise AssertionError('Element doesnt contain text: %s' % needle)
+    if should_exist:
+      assert needle in text
+    else:
+      assert needle not in text
 
   def Quit(self):
     self.selenium_driver.quit()
@@ -76,13 +78,13 @@ class RetryingDriver:
   def SendKeys(self, path, keys):
     return self.Retry(lambda: self.inner_driver.SendKeys(path, keys))
 
-  def ExpectContains(self, path, needle):
-    return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle))
+  def ExpectContains(self, path, needle, should_exist=True):
+    return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist))
 
   def Quit(self):
     self.inner_driver.Quit()
 
-  def Retry(self, callback, wait_long = False):
+  def Retry(self, callback, wait_long=False):
     sleep_durations = [.5, .5, .5, .5, 1, 1]
     if wait_long:
       sleep_durations = [1, 1, 1, 1, 1, 1, 2, 4, 8]
@@ -140,8 +142,8 @@ class ProdDriver:
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
 
-  def ExpectContains(self, path, needle):
-    self.drivers_by_user[self.current_user].ExpectContains(path, needle)
+  def ExpectContains(self, path, needle, should_exist=True):
+    self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist)
 
   def SendKeys(self, path, keys):
     self.drivers_by_user[self.current_user].SendKeys(path, keys)
@@ -171,36 +173,36 @@ class FakeDriver:
     self.Click([[By.ID, user + 'Button']], scoped=False)
     self.FindElement([[By.ID, user + 'App']], scoped=False)
 
-  def FindElement(self, path, wait_long = False, scoped = True, should_exist=True):
+  def FindElement(self, path, wait_long=False, scoped=True, should_exist=True):
     if scoped:
       self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist)
     else:
       self.inner_driver.FindElement(path, wait_long, should_exist)
 
-  def Click(self, path, scoped = True):
+  def Click(self, path, scoped=True):
     if scoped:
       self.inner_driver.Click([[By.ID, self.current_user + "App"]] + path)
     else:
       self.inner_driver.Click(path)
 
-  def SendKeys(self, path, keys, scoped = True):
+  def SendKeys(self, path, keys, scoped=True):
     if scoped:
       self.inner_driver.SendKeys([[By.ID, self.current_user + "App"]] + path, keys)
     else:
       self.inner_driver.SendKeys(path, keys)
 
-  def ExpectContains(self, path, needle, scoped = True):
+  def ExpectContains(self, path, needle, scoped=True, should_exist=True):
     if scoped:
-      self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle)
+      self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist)
     else:
-      self.inner_driver.ExpectContains(path, needle)
+      self.inner_driver.ExpectContains(path, needle, should_exist)
 
   def Quit(self):
     self.inner_driver.Quit()
 
 
 class WholeDriver:
-  def __init__(self, user = "zella", page = "", populate = True, env = "fake", password = None):
+  def __init__(self, user="zella", page="", populate=True, env="fake", password=None):
     self.env = env
     self.password = password
     self.populate = populate
@@ -216,10 +218,10 @@ class WholeDriver:
   def SwitchUser(self, user):
     return self.inner_driver.SwitchUser(user)
 
-  def FindElement(self, path, wait_long = False, should_exist=True):
+  def FindElement(self, path, wait_long=False, should_exist=True):
     return self.inner_driver.FindElement(path, wait_long, should_exist=should_exist)
 
-  def DontFindElement(self, path, wait_long = False):
+  def DontFindElement(self, path, wait_long=False):
     return self.FindElement(path, wait_long=wait_long, should_exist=False)
 
   def Click(self, path):
@@ -228,8 +230,9 @@ class WholeDriver:
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)
 
-  def ExpectContains(self, path, needle):
-    return self.inner_driver.ExpectContains(path, needle)
+  def ExpectContains(self, path, needle, should_exist=True):
+    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
+
 
   # def FindElement(self, by, locator, wait_long=True):
   #   return Element(driver, FindElement(self.driver, by, locator, container = self.element, wait_long = wait_long))
