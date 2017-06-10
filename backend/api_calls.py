@@ -1,3 +1,4 @@
+import copy
 import logging
 import random
 import time
@@ -603,6 +604,19 @@ def AddQuizQuestion(request, game_state):
 def AddQuizAnswer(request, game_state):
   pass
 
+def AddMap(request, game_state):
+  pass
+
+def AddPoint(request, game_state):
+  pass
+
+def AddDefaultProfileImage(request, game_state):
+  # gameId: gameId,
+  # defaultProfileImageId: bridge.idGenerator.newGroupId(),
+  # allegianceFilter: 'resistance',
+  # profileImageUrl: 'https://cdn.vectorstock.com/i/thumb-large/03/81/1890381.jpg',
+  pass
+
 
 
 def AckChatMessage(request, game_state):
@@ -886,49 +900,54 @@ def Infect(request, game_state):
   })
 
   game_id = request['gameId']
-  player_id = request['infectorPlayerId']
+  infector_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
   victim_life_code = request['victimLifeCode']
-  victim_id = helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
+  victim_player_id = helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
 
-  player = {
-    'allegiance': game_state.get('/playersPublic/%s' % player_id, 'allegiance'),
-    'canInfect': game_state.get('/playersPrivate/%s' % player_id, 'canInfect')
-  }
-  victim = {
-    'allegiance': game_state.get('/playersPublic/%s' % victim_id, 'allegiance'),
-    'canInfect': game_state.get('/playersPrivate/%s' % victim_id, 'canInfect')
-  }
+  infector_player = helpers.GetWholePlayer(game_state, infector_player_id)
+  victim_player = helpers.GetWholePlayer(game_state, victim_player_id)
+
+  print "Infector %s is infecting %s" % (infector_player_id, victim_player_id)
+  print "infector:"
+  print infector_player
 
   # Both players must be in the same game.
-  if helpers.PlayerToGame(game_state, victim_id) != game_id:
+  if helpers.PlayerToGame(game_state, victim_player_id) != game_id:
     raise InvalidInputError('Those players are not part of the same game!')
   # The infector must be able to infect or be doing a self-infect
-  if player_id != victim_id and not player['canInfect']:
+  if infector_player_id != victim_player_id and not infector_player['canInfect']:
     raise InvalidInputError('You cannot infect another player at the present time.')
   # The victim must be human to be infected
-  if victim['allegiance'] != constants.HUMAN:
+  if victim_player['allegiance'] != constants.HUMAN:
     raise InvalidInputError('Your victim is not human and cannot be infected.')
 
   # Add points and an infection entry for a successful infection
-  if player_id != victim_id:
-    helpers.AddPoints(game_state, player_id, constants.POINTS_INFECT)
-    infect_path = '/playersPublic/%s/infections' % victim_id
+  if infector_player_id != victim_player_id:
+    helpers.AddPoints(game_state, infector_player_id, constants.POINTS_INFECT)
+    infect_path = '/playersPublic/%s/infections' % victim_player_id
     infect_data = {
-      'infectorId': player_id,
+      'infectorId': infector_player_id,
       'time': int(time.time()),
     }
     game_state.put(infect_path, infection_id, infect_data)
 
   # If secret zombie, set the victim to secret zombie and the infector to zombie
   # Else set the victom to zombie
-  if player_id != victim_id and player['allegiance'] == constants.HUMAN:
+  if infector_player_id != victim_player_id and infector_player['allegiance'] == constants.HUMAN:
     logging.warn('Secret infection')
-    SetPlayerAllegiance(game_state, victim_id, allegiance=constants.HUMAN, can_infect=True)
-    SetPlayerAllegiance(game_state, player_id, allegiance=constants.ZOMBIE, can_infect=True)
+    SetPlayerAllegiance(game_state, victim_player_id, allegiance=constants.HUMAN, can_infect=True)
+    SetPlayerAllegiance(game_state, infector_player_id, allegiance=constants.ZOMBIE, can_infect=True)
   else:
     logging.warn('Normal infection')
-    SetPlayerAllegiance(game_state, victim_id, allegiance=constants.ZOMBIE, can_infect=True)
+    SetPlayerAllegiance(game_state, victim_player_id, allegiance=constants.ZOMBIE, can_infect=True)
+
+  # DO NOT BLINDLY COPY THIS
+  # Returning game data from the server (other than an error message or a success boolean)
+  # is risky for the client; the client has to be careful about race conditions when reading
+  # data returned from the server. In this case, this playerId response will likely reach
+  # the client before firebase tells the client that this player was zombified.
+  return victim_player_id
 
 
 def JoinResistance(request, game_state):
@@ -1172,17 +1191,17 @@ def ClaimReward(request, game_state):
     'rewardCode': 'String'
   })
 
-  player = request['playerId']
+  player_id = request['playerId']
   game_id = request['gameId']
   reward_code = request['rewardCode']
-  game = helpers.PlayerToGame(game_state, player)
+  game = helpers.PlayerToGame(game_state, player_id)
 
   reward_id = helpers.RewardCodeToRewardId(game_state, game_id, reward_code)
   reward = game_state.get('/rewards', reward_id)
   reward_category_id = reward['rewardCategoryId']
   reward_category_path = '/rewardCategories/%s' % reward_category_id
 
-  player_path = '/playersPublic/%s' % player
+  player_path = '/playersPublic/%s' % player_id
   reward_path = '/rewards/%s' % reward_id
 
   reward_category =  game_state.get(reward_category_path, None)
@@ -1203,14 +1222,14 @@ def ClaimReward(request, game_state):
       if len(claims) >= limit:
         raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % limit)
 
-  game_state.patch(reward_path, {'playerId': player})
+  game_state.patch(reward_path, {'playerId': player_id})
 
   reward_points = int(reward_category['points'])
   rewards_claimed = int(reward_category['claimed'])
 
-  helpers.AddPoints(game_state, player, reward_points)
+  helpers.AddPoints(game_state, player_id, reward_points)
   game_state.patch(reward_category_path, {'claimed': rewards_claimed + 1})
-  game_state.patch(reward_path, {'playerId': player})
+  game_state.patch(reward_path, {'playerId': player_id})
   claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time())}
   game_state.put('%s/claims' % player_path, reward_id, claim_data)
 

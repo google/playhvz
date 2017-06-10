@@ -5,9 +5,10 @@ from selenium.webdriver.common.by import By
 
 try:
   driver = WholeDriver(
+      client_url=sys.argv[1],
       user="jack",
-      env=sys.argv[1],
-      password=sys.argv[2])
+      env=sys.argv[2],
+      password=sys.argv[3])
 
   driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
 
@@ -15,7 +16,7 @@ try:
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
@@ -31,7 +32,7 @@ try:
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
 
   driver.SwitchUser("jack")
 

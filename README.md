@@ -19,10 +19,6 @@ Go to `localhost:5000`
 
 This will run against the in-memory fake JS server.
 
-### Installing a Polymer component
-
-Run `bower install paper-button` under web directory
-
 #### Running against the prod server and prod firebase
 
 Go to `localhost:5000/?env=prod`
@@ -36,6 +32,10 @@ Go to `localhost:5000/?env=localprod`
 Go to `localhost:5000`
 
 (yes, the default is the in-memory fake JS server)
+
+#### Installing a Polymer component
+
+Run `bower install paper-button` under web directory
 
 
 ## Backend

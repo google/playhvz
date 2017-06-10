@@ -1,13 +1,13 @@
 // These User IDs are from https://console.firebase.google.com/u/0/project/trogdors-29fa4/authentication/users
 let FAKE_USER_IDS = {
-  zellaUserId: 'user-5RlQZ0nmlWRRU8YyWv02L2Rjc1Z2',
-  reggieUserId: 'user-yvrDU9wqHfS4MqJdXLgxJmpmEx33',
-  minnyUserId: 'user-Xo12sw0fAAcz29B3vhyoVPBs6Zk2',
-  drakeUserId: 'user-HivmoaAlwUaxvB1lmP7wT4oDjkk2',
-  zekeUserId: 'user-nrzPOHivtWY8RY3I9B9jVcsyU193',
-  moldaviUserId: 'user-bfSoc4c8rOOagvwZE5YbDAkSUZl2',
-  jackUserId: 'user-hxVCen9qL7hlzr8bAlbWPzWrQBn1',
-  deckerdUserId: 'user-eipIEs24GvM6xMPdU9YRgamXcZ23',
+  zellaUserId: 'user-3wSU8h9ONrenQEGWAHUdfyi0ifl1',
+  reggieUserId: 'user-9kmCUI3VBpb8NhbO8yeYrv9jFk02',
+  minnyUserId: 'user-XmAFbKI4EhORFG5nGJIk6rgcPxI3',
+  drakeUserId: 'user-V1Qzso4PZLR06II3cDzQpYhQkv13',
+  zekeUserId: 'user-dXQVCY2folR1H5YOIBHNrgcVsot2',
+  moldaviUserId: 'user-jAgZVgNVgHcbKDhdeYMzAUzaP4L2',
+  jackUserId: 'user-Uvpnj4GU3WPYoPAOkI6ZnRau3Vr1',
+  deckerdUserId: 'user-54jqFxbj0VYKNcvTYEFWgd1tnI12',
 };
 
 function populateUsers(bridge, userIds) {
@@ -82,14 +82,23 @@ function populatePlayers(bridge, gameId, time, numPlayers, numStartingZombies, n
   }
   playerIds = Utils.deterministicShuffle(playerIds, numShuffles);
   let lifeCodesByPlayerId = {};
+  for (let i = 0; i < zombiesEndIndex; i++) {
+    bridge.joinHorde({
+      gameId: gameId,
+      serverTime: gameStartOffset,
+      playerId: playerIds[i],
+    });
+  }
   for (let i = zombiesEndIndex; i < playerIds.length; i++) {
     let lifeCode = "life-" + lifeCodeNumber++;
     lifeCodesByPlayerId[playerIds[i]] = lifeCode;
-    bridge.addLife({
+
+    bridge.joinResistance({
+      gameId: gameId,
       serverTime: gameStartOffset,
-      lifeId: bridge.idGenerator.newLifeId(),
       playerId: playerIds[i],
-      lifeCode: lifeCode
+      lifeId: bridge.idGenerator.newLifeId(),
+      lifeCode: lifeCode,
     });
     // console.log("Adding first life to player", playerIds[i]);
     numHumans++;
@@ -119,6 +128,7 @@ function populatePlayers(bridge, gameId, time, numPlayers, numStartingZombies, n
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         bridge.addLife({
+          gameId: gameId,
           serverTime: dayStartOffset + 12 * 60 * 60 * 1000, // 12 hours past day start
           lifeId: bridge.idGenerator.newLifeId(),
           playerId: playerIds[j],
@@ -134,6 +144,7 @@ function populatePlayers(bridge, gameId, time, numPlayers, numStartingZombies, n
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         bridge.addLife({
+          gameId: gameId,
           serverTime: dayStartOffset + 12 * 60 * 60 * 1000, // 12 hours past day start,
           lifeId: bridge.idGenerator.newLifeId(),
           playerId: playerIds[j],
@@ -169,6 +180,30 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     registrationEndTime: 1483286400000,
     startTime: 1483344000000,
     endTime: 1483689600000,
+  });
+  bridge.addDefaultProfileImage({
+    gameId: gameId,
+    defaultProfileImageId: bridge.idGenerator.newGroupId(),
+    allegianceFilter: 'resistance',
+    profileImageUrl: 'http://dfwresistance.us/images/resistance-dfw-icon.png',
+  });
+  bridge.addDefaultProfileImage({
+    gameId: gameId,
+    defaultProfileImageId: bridge.idGenerator.newGroupId(),
+    allegianceFilter: 'resistance',
+    profileImageUrl: 'https://cdn.vectorstock.com/i/thumb-large/03/81/1890381.jpg',
+  });
+  bridge.addDefaultProfileImage({
+    gameId: gameId,
+    defaultProfileImageId: bridge.idGenerator.newGroupId(),
+    allegianceFilter: 'horde',
+    profileImageUrl: 'https://goo.gl/DP2vlY',
+  });
+  bridge.addDefaultProfileImage({
+    gameId: gameId,
+    defaultProfileImageId: bridge.idGenerator.newGroupId(),
+    allegianceFilter: 'horde',
+    profileImageUrl: 'https://cdn4.iconfinder.com/data/icons/miscellaneous-icons-3/200/monster_zombie_hand-512.png',
   });
 
   let everyoneGroupId = bridge.idGenerator.newGroupId('everyone');
@@ -467,20 +502,20 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     profileImageUrl: 'https://sdl-stickershop.line.naver.jp/products/0/0/1/1009925/android/main.png'
   });
 
-  // var resistanceMapId = bridge.idGenerator.newMapId();
-  // bridge.createMap({gameId: gameId, mapId: resistanceMapId, groupId: resistanceGroupId, name: "Resistance Players"});
-  // bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
-  // bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
-  // bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
-  // bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
+  var resistanceMapId = bridge.idGenerator.newMapId();
+  bridge.createMap({gameId: gameId, mapId: resistanceMapId, groupId: resistanceGroupId, name: "Resistance Players"});
+  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
+  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
+  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
+  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
   
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hi'});
 
-  if (populateLotsOfPlayers) {
-    populatePlayersHeavy(bridge, gameId, 1483344000000);
-  } else {
-    populatePlayersLight(bridge, gameId, 1483344000000);
-  }
+  // if (populateLotsOfPlayers) {
+  //   populatePlayersHeavy(bridge, gameId, 1483344000000);
+  // } else {
+  //   populatePlayersLight(bridge, gameId, 1483344000000);
+  // }
 
   let firstMissionRsvpersGroupId = bridge.idGenerator.newMissionId();
   bridge.createGroup({

@@ -1,160 +1,160 @@
 
 <dom-module id="ghvz-card">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-card',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-card',
 
-        properties: {
-          fullscreenPage: {
-            type: String,
-            value: null,
-          },
-          
-          withMenu: {
-            type: Boolean,
-            value: false,
-          },
-
-          withBack: {
-            type: Boolean,
-            value: false,
-          },
+      properties: {
+        fullscreenPage: {
+          type: String,
+          value: null,
         },
-
-        listeners: {
-          'ghvz-add-toolbar-button': 'addToolbarButton_',
-          'ghvz-set-card-header-text': 'setCardHeaderText_',
-        },
-
-        addToolbarButton_: function(event) {
-          this.$.buttons.appendChild(event.detail.button);
-        },
-
-        setCardHeaderText_: function(event) {
-          this.$.header.innerText = event.detail.headerText;
-        },
-
-        openFullscreen_() {
-          this.fire('ghvz-set-path', {
-            inGame: true,
-            path: this.fullscreenPage.split('/'),
-          });
-        },
-
-        back_() {
-          this.fire('ghvz-set-path', {
-            inGame: true,
-            path: ['main'],
-          });
-        },
-
-        openDrawer_(e) {
-          this.fire('ghvz-open-drawer');
-        },
-      });
-    });
-  </script>
-  <template>
-  	<style>
-      :host {
-        box-sizing: border-box;
-        display: block;
-      }
-      :host[expand] {
-        position: relative;
-        width: 100%;
-        height: 100%;
-      }
-      :host[expand] paper-material {
-        display: flex;
-        flex-direction: column;
-      }
-      :host[expand] paper-material #contents {
-        flex-grow: 1;
-        overflow-y: auto;
-      }
-      :host[spaced] {
-        padding: 8px;
-      }
-      paper-material {
-        background-color: white;
-        display: block;
-        height: 100%;
-      }
-      .header {
-        background-color: #03A9F4;
-        color: white;
-        display: flex;
-        align-items: center;
-        height: 48px;
-        padding-right: 4px;
-      }
-      #menu {
-        order: 1;
-      }
-      :host[admin] .header {
-        background-color: #9C27B0;
-      }
-      #buttons {
-        flex-grow: 0;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: row-reverse;
-        order: 2;
-      }
-      .header > .text {
-        font-size: 13pt;
-        font-weight: bold;
-        flex-grow: 1;
-        order: 2;
-      }
-      .header > .text[pad-left] {
-        padding-left: 16px;
-      }
-      #contents {
-        height: 100%;
-        overflow: hidden;
-      }
-      :host[scrolling] #contents {
-        overflow-y: auto;
-        max-height: 400px;
-      }
-      :host[padded] #contents {
-        padding: 16px;
-      }
-  	</style>
-
-    <paper-material>
-      <div class="header">
-        <template is="dom-if" if="[[withMenu]]">
-          <paper-icon-button id="menu" icon="icons:menu" raised on-tap="openDrawer_">
-          </paper-icon-button>
-        </template>
-        <template is="dom-if" if="[[withBack]]">
-          <paper-icon-button id="menu" icon="icons:arrow-back" raised on-tap="back_">
-          </paper-icon-button>
-        </template>
-        <div id="header" class="text" pad-left$="[[!withMenu]]"><content select=".header"></div>
-        <!-- <paper-icon-button class="button" icon="icons:chevron-left"></paper-icon-button>
-        <paper-icon-button class="button" icon="icons:chevron-right"></paper-icon-button> -->
-        <!-- <paper-icon-button class="header-button" icon="icons:refresh">
-        </paper-icon-button> -->
-        <div id="buttons">
-          <content select=".header-button">
-          <paper-icon-button hidden$="[[!fullscreenPage]]" class="button" icon="icons:fullscreen" on-tap="openFullscreen_"></paper-icon-button>
-        </div>
         
-        <!-- <paper-icon-button class="button" icon="icons:more-vert">
-        </paper-icon-button> -->
-      </div>
-      <div id="contents" style="position: relative;">
-        <content/>
-      </div>
-    </paper-material>
+        withMenu: {
+          type: Boolean,
+          value: false,
+        },
 
-  </template>
+        withBack: {
+          type: Boolean,
+          value: false,
+        },
+      },
+
+      listeners: {
+        'ghvz-add-toolbar-button': 'addToolbarButton_',
+        'ghvz-set-card-header-text': 'setCardHeaderText_',
+      },
+
+      addToolbarButton_: function(event) {
+        this.$.buttons.appendChild(event.detail.button);
+      },
+
+      setCardHeaderText_: function(event) {
+        this.$.header.innerText = event.detail.headerText;
+      },
+
+      openFullscreen_() {
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: this.fullscreenPage.split('/'),
+        });
+      },
+
+      back_() {
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: ['main'],
+        });
+      },
+
+      openDrawer_(e) {
+        this.fire('ghvz-open-drawer');
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    box-sizing: border-box;
+    display: block;
+  }
+  :host([expand]) {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  :host([expand]) paper-material {
+    display: flex;
+    flex-direction: column;
+  }
+  :host([expand]) paper-material #contents {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  :host([spaced]) {
+    padding: 8px;
+  }
+  paper-material {
+    background-color: white;
+    display: block;
+    height: 100%;
+  }
+  .header {
+    background-color: #03A9F4;
+    color: white;
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding-right: 4px;
+  }
+  #menu {
+    order: 1;
+  }
+  :host([admin]) .header {
+    background-color: #9C27B0;
+  }
+  #buttons {
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    order: 2;
+  }
+  .header > .text {
+    font-size: 13pt;
+    font-weight: bold;
+    flex-grow: 1;
+    order: 2;
+  }
+  .header > .text[pad-left] {
+    padding-left: 16px;
+  }
+  #contents {
+    height: 100%;
+    overflow: hidden;
+  }
+  :host([scrolling]) #contents {
+    overflow-y: auto;
+    max-height: 400px;
+  }
+  :host([padded]) #contents {
+    padding: 16px;
+  }
+</style>
+<template>
+
+  <paper-material>
+    <div class="header">
+      <template is="dom-if" if="[[withMenu]]">
+        <paper-icon-button id="menu" icon="icons:menu" raised on-tap="openDrawer_">
+        </paper-icon-button>
+      </template>
+      <template is="dom-if" if="[[withBack]]">
+        <paper-icon-button id="menu" icon="icons:arrow-back" raised on-tap="back_">
+        </paper-icon-button>
+      </template>
+      <div id="header" class="text" pad-left$="[[!withMenu]]"><content select=".header"></div>
+      <!-- <paper-icon-button class="button" icon="icons:chevron-left"></paper-icon-button>
+      <paper-icon-button class="button" icon="icons:chevron-right"></paper-icon-button> -->
+      <!-- <paper-icon-button class="header-button" icon="icons:refresh">
+      </paper-icon-button> -->
+      <div id="buttons">
+        <content select=".header-button">
+        <paper-icon-button hidden$="[[!fullscreenPage]]" class="button" icon="icons:fullscreen" on-tap="openFullscreen_"></paper-icon-button>
+      </div>
+      
+      <!-- <paper-icon-button class="button" icon="icons:more-vert">
+      </paper-icon-button> -->
+    </div>
+    <div id="contents" style="position: relative;">
+      <content/>
+    </div>
+  </paper-material>
+
+</template>
 </dom-module>

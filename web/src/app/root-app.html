@@ -13,9 +13,9 @@
           value: () => {
             var env = Utils.getParameterByName('env');
             var defaultEnv = 'fake';
-            if (window.location.hostname == "dev.googlehvz.com")
+            if (window.location.hostname == "dev.playhvz.com")
               defaultEnv = 'dev';
-            if (window.location.hostname == "googlehvz.com")
+            if (window.location.hostname == "playhvz.com")
               defaultEnv = 'prod';
             if (!env)
               env = defaultEnv;

@@ -1,12 +1,12 @@
 echo 'Running creategame test!'
-python creategame.py fake $1
+python creategame.py $1 $2 $3
 echo 'Running joingame test!'
-python joingame.py fake $1
+python joingame.py $1 $2 $3
 echo 'Running infect test!'
-python infect.py fake $1
+python infect.py $1 $2 $3
 echo 'Running declare test!'
-python declare.py fake $1
+python declare.py $1 $2 $3
 echo 'Running chat test!'
-python chat.py fake $1
+python chat.py $1 $2 $3
 echo 'Running modify game test!'
-python modifygame.py fake $1
+python modifygame.py $1 $2 $3

@@ -35,18 +35,21 @@ class NormalRequester {
       if (!('requestingPlayerId' in body))
         body.requestingPlayerId = this.playerId;
 
+      let wereNoWaitingRequests = this.waitingRequests.length == 0;
       this.waitingRequests.push({
         method: method,
         body: body,
         resolve: resolve,
         reject: reject,
       });
-      setTimeout(() => {
-        this.openRequestPromise =
-            this.openRequestPromise.then(() => {
-              return this.sendRequests_();
-            });
-      }, 0);
+      if (wereNoWaitingRequests) {
+        setTimeout(() => {
+          this.openRequestPromise =
+              this.openRequestPromise.then(() => {
+                return this.sendRequests_();
+              });
+        }, 0);
+      }
     });
   }
 
