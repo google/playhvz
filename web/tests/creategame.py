@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 try:
   driver = WholeDriver(
       user="minny",
-      page="createGame",
+      page="/createGame",
       populate=False,
       env=sys.argv[1],
       password=sys.argv[2])
@@ -35,6 +35,8 @@ try:
       '60')
   
   driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
+
+  driver.Click([[By.NAME, 'drawerAdmin Dashboard']])
 
   driver.ExpectContains(
       [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'name']],

@@ -117,6 +117,9 @@ methods = {
   'addResponse': api_calls.AddResponse,
   'addQuizQuestion': api_calls.AddQuizQuestion,
   'addQuizAnswer': api_calls.AddQuizAnswer,
+  'addDefaultProfileImage': api_calls.AddDefaultProfileImage,
+  'createMap': api_calls.AddMap,
+  'addPoint': api_calls.AddPoint,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
 }
@@ -212,6 +215,7 @@ def HandleBatchRequest(requests):
     for i, request in enumerate(requests):
       method = request['method']
       body = request['body']
+      print "Handling request %d: %s" % (i, method)
       results.append(CallApiMethod(method, body))
   finally:
     game_state.commit_transaction()

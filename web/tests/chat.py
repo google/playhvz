@@ -6,9 +6,9 @@ from selenium.webdriver.common.by import By
 
 driver = WholeDriver(
     user="zella",
-    page="createGame",
     env=sys.argv[1],
     password=sys.argv[2])
+driver.WaitForGameLoaded()
 
 playerNames = {
       'zella': 'Zella the Ultimate',

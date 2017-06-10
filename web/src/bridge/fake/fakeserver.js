@@ -436,6 +436,9 @@ class FakeServer {
           this.writer.set(
               this.reader.getRewardPath(gameId, rewardCategory.id, reward.id).concat(["playerId"]),
               playerId);
+          this.writer.set(
+              this.reader.getPlayerPath(gameId, player.id).concat(["points"]),
+              player.points + rewardCategory.points);
           this.writer.insert(
               this.reader.getClaimPath(gameId, playerId, null),
               null,

@@ -100,6 +100,8 @@ class RetryingDriver:
 
 
 class ProdDriver:
+  # To get a non-game-subpage, start page with /
+  # See creategame.py for an example
   def __init__(self, env, password, populate, user, page):
     self.drivers_by_user = {}
     self.env = env
@@ -108,21 +110,26 @@ class ProdDriver:
     self.game_id = 'game-webdriver-%d' % random.randint(0, 2**52)
     if populate:
       self.MakeDriver('zella', 'createPopulatedGame')
-      self.Click([[By.ID, 'createGame']])
-      self.SendKeys([[By.NAME, 'idInput']], self.game_id)
+      self.Click([[By.ID, 'createPopulatedGame']])
+      self.SendKeys(
+          [[By.ID, 'idInput'], [By.TAG_NAME, 'input']],
+          self.game_id)
       self.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
-      self.ExpectContains([[By.NAME, 'populateResult']], 'Success!')
     self.SwitchUser(user, page)
 
-  def SwitchUser(self, user, page):
+  def SwitchUser(self, user, page=""):
     if user not in self.drivers_by_user:
-      self.MakeDriver(user, 'game/' + self.game_id[len('game-'):] + '/' + page)
+      if len(page) and page[0] == '/':
+        page = page[1:]
+      else:
+        page = 'game/' + self.game_id[len('game-'):] + '/' + page
+      self.MakeDriver(user, page)
     else:
       self.current_user = user
 
   def MakeDriver(self, user, page):
     selenium_driver = webdriver.Chrome()
-    url = "http://localhost:5000/%s?user=%s&env=%s&signInMethod=email&email=%s&password=%s" % (page, user, self.env, 'hvz' + user + '@gmail.com', self.password)
+    url = "http://localhost:5000/%s?user=%s&env=%s&signInMethod=email&email=%s&password=%s" % (page, user, self.env, user + '@playhvz.com', self.password)
     selenium_driver.get(url)
 
     simple_driver = SimpleDriver(selenium_driver)
@@ -156,6 +163,10 @@ class ProdDriver:
 class FakeDriver:
   def __init__(self, populate, user, page):
     selenium_driver = webdriver.Chrome()
+
+    if page and len(page) and page[0] == '/':
+      page = page[1:]
+
     url = "http://localhost:5000/%s?user=%s&env=fake" % (page, user)
     if not populate:
       url = url + '&populate=none'
@@ -212,6 +223,9 @@ class WholeDriver:
       self.inner_driver = ProdDriver(env, password, populate, user, page)
     else:
       self.inner_driver = FakeDriver(populate, user, page)
+
+  def WaitForGameLoaded(self):
+    self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True)
 
   def Quit(self):
     self.inner_driver.Quit()

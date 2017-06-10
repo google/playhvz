@@ -33,6 +33,10 @@
               let trimmedGameId = gameId.slice('game-'.length);
               populateUsers(this.bridge, FAKE_USER_IDS);
               populateGame(this.bridge, gameId, FAKE_USER_IDS, false);
+              this.fire('ghvz-set-path', {
+                inGame: false,
+                path: ['game', trimmedGameId, 'main'],
+              });
             });
       },
     });

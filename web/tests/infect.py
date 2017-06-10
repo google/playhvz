@@ -15,7 +15,7 @@ try:
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
@@ -31,7 +31,7 @@ try:
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
 
   driver.SwitchUser("jack")
 

@@ -20,6 +20,10 @@
         'drawPopulationOverTimeChart(chartLoaded, game)',
       ],
 
+      attached() {
+        google.charts.setOnLoadCallback(() => this.setChartLoaded());
+      },
+
       setChartLoaded() {
         this.chartLoaded = true;
       },
@@ -309,10 +313,6 @@
 </script>
 
 <template>
-  <script type="text/javascript">
-    var component = document.currentScript.parentElement;
-    google.charts.setOnLoadCallback(() => component.setChartLoaded());
-  </script>
   <div id="population_over_time_chart"></div>
 </template>
 </dom-module>
