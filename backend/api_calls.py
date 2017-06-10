@@ -579,7 +579,6 @@ def SendChatMessage(request, game_state):
       'latitude': request['location']['latitude'],
       'longitude': request['location']['longitude']
     }
-
   game_state.put('/chatRooms/%s/messages' % chat, messageId, put_data)
 
 
