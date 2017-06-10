@@ -581,6 +581,29 @@ def SendChatMessage(request, game_state):
     }
   game_state.put('/chatRooms/%s/messages' % chat, messageId, put_data)
 
+def AddRequestCategory(request, game_state):
+  pass
+
+def UpdateRequestCategory(request, game_state):
+  pass
+
+def AddRequest(request, game_state):
+  pass
+
+def AddResponse(request, game_state):
+  pass
+
+
+def UpdateRequestCategory(request, game_state):
+  pass
+
+def AddQuizQuestion(request, game_state):
+  pass
+
+def AddQuizAnswer(request, game_state):
+  pass
+
+
 
 def AckChatMessage(request, game_state):
   """Ack a chat message which sets the ack to the timestamp of that message.
@@ -925,7 +948,7 @@ def JoinResistance(request, game_state):
 
   AddLife(request, game_state)
 
-  SetPlayerAllegiance(game_state, player_id, constants.HUMAN, False)
+  SetPlayerAllegiance(game_state, player_id, allegiance=constants.HUMAN, can_infect=False)
 
 
 def JoinHorde(request, game_state):
@@ -939,7 +962,7 @@ def JoinHorde(request, game_state):
   player = game_state.get('/playersPublic', player_id)
   if player['allegiance'] != 'undeclared':
     raise InvalidInputError('Already have an allegiance!')
-  SetPlayerAllegiance(game_state, player_id, constants.ZOMBIE, True)
+  SetPlayerAllegiance(game_state, player_id, allegiance=constants.ZOMBIE, can_infect=True)
 
 
 def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
@@ -960,8 +983,6 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
   """
   game_id = helpers.PlayerToGame(game_state, player_id)
   game_state.put('/playersPublic/%s' % player_id, 'allegiance', allegiance)
-  print 'just after put:'
-  print game_state.get('/playersPublic/%s' % player_id, 'allegiance')
   game_state.put('/playersPrivate/%s' % player_id, 'canInfect', can_infect)
   AutoUpdatePlayerGroups(game_state, player_id, new_player=False)
 

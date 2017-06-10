@@ -333,8 +333,6 @@ class Transaction:
       leading_slash_path = '/' + path
       data_obj = follow_path(self.mutation_data, drop_last(leading_slash_path))
       batch_mutation[leading_slash_path] = data_obj.get(last(leading_slash_path))
-    print 'sending patch!'
-    print batch_mutation
     self.firebase.patch('/', batch_mutation)
     self.committed = True
 

@@ -44,6 +44,7 @@ def ValidateInputs(request, game_state, expectations_by_param_name):
   expectations_by_param_name['requestingUserToken'] = 'String'
   expectations_by_param_name['requestingUserId'] = '?UserId'
   expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
+  expectations_by_param_name['serverTime'] = '|Timestamp'
 
   ValidateInputsInner(request, game_state, expectations_by_param_name)
 

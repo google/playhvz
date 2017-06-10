@@ -64,6 +64,11 @@ def HandleError(e):
   """Pretty print data validation errors."""
   return 'The request is not valid. %s' % e.message, 500
 
+@app.errorhandler(AppError)
+def HandleError(e):
+  """Pretty print data validation errors."""
+  return 'Something went wrong. %s' % e.message, 500
+
 
 @app.errorhandler(500)
 def HandleError(e):
@@ -106,6 +111,12 @@ methods = {
   'joinResistance': api_calls.JoinResistance,
   'joinHorde': api_calls.JoinHorde,
   'setAdminContact': api_calls.SetAdminContact,
+  'updateRequestCategory': api_calls.UpdateRequestCategory,
+  'addRequestCategory': api_calls.AddRequestCategory,
+  'addRequest': api_calls.AddRequest,
+  'addResponse': api_calls.AddResponse,
+  'addQuizQuestion': api_calls.AddQuizQuestion,
+  'addQuizAnswer': api_calls.AddQuizAnswer,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
 }
@@ -147,7 +158,7 @@ def StressTest():
   begin_time = time.time()
 
   for i in range(0, 50):
-    RouteRequestInner('register', {
+    HandleSingleRequest('register', {
       'requestingUserId': None,
       'requestingUserToken': 'blark',
       'requestingPlayerId': None,
@@ -158,30 +169,59 @@ def StressTest():
   print "Did 50 requests in %f seconds" % (end_time - begin_time)
   return ''
 
+@app.route('/stressTestBatch', methods=['POST'])
+def StressTestBatch():
+  begin_time = time.time()
+
+  requests = []
+  for i in range(0, 50):
+    requests.append({
+      'method': 'register',
+      'body': {
+        'requestingUserId': None,
+        'requestingUserToken': 'blark',
+        'requestingPlayerId': None,
+        'userId': 'user-wat-%d' % random.randint(0, 2**52),
+      }
+    })
+  HandleBatchRequest(requests)
+
+  end_time = time.time()
+  print "Did 50 requests in %f seconds" % (end_time - begin_time)
+  return ''
+
 @app.route('/api/<method>', methods=['POST'])
-def RouteRequest(method):
-  return RouteRequestInner(method, json.loads(request.data))
+def SingleEndpoint(method):
+  return jsonify(HandleSingleRequest(method, json.loads(request.data)))
 
-def RouteRequestInner(method, requestDict):
-  print 'Lizard handling method! %s' % method
-  if method not in methods:
-    raise AppError('Invalid method %s' % method)
-  f = methods[method]
+@app.route('/api/batch', methods=['POST'])
+def BatchEndpoint():
+  return jsonify(HandleBatchRequest(json.loads(request.data)))
 
-  exception = None
-  game_state.maybe_load(GetFirebase())
-  api_mutex.acquire()
-  game_state.start_transaction()
+def HandleSingleRequest(method, body):
+  result = HandleBatchRequest([{'method': method, 'body': body}])
+  return result[0]
+
+def HandleBatchRequest(requests):
+  results = []
   try:
-    result = jsonify(f(requestDict, game_state))
-  except Exception as e:
-    logger.exception(e)
-    exception = e
-  print 'committing'
-  game_state.commit_transaction()
-  api_mutex.release()
-  if exception:
-    raise exception
-  return result
+    game_state.maybe_load(GetFirebase())
+    api_mutex.acquire()
+    game_state.start_transaction()
+
+    for i, request in enumerate(requests):
+      method = request['method']
+      body = request['body']
+      results.append(CallApiMethod(method, body))
+  finally:
+    game_state.commit_transaction()
+    api_mutex.release()
+  return results
+
+def CallApiMethod(method, request_body):
+  if method not in methods:
+    raise AppError("Invalid method %s" % method)
+  f = methods[method]
+  return f(request_body, game_state)
 
 # vim:ts=2:sw=2:expandtab

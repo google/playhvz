@@ -15,25 +15,14 @@ class FakeServer {
 
     this.reader = new PathFindingReader(new SimpleReader(this.database));
 
-    this.timeOffset = 0;
-
     this.writer.set(this.reader.getGamePath(null), []);
     this.writer.set(this.reader.getUserPath(null), []);
 
     window.fakeServer = this;
   }
-  setTimeOffset(args) {
-    let {offsetMs} = args;
-    this.timeOffset = offsetMs;
-  }
-  getTime_() {
-    return new Date().getTime() + this.timeOffset;
-  }
-  signIn(args) {
-    let {userId} = args;
-    assert(userId);
-    this.reader.getUserPath(userId);
-    return userId;
+  getTime_(args) {
+    let {serverTime} = args;
+    return serverTime || new Date().getTime();
   }
   register(args) {
     let {userId, name} = args;
@@ -249,7 +238,7 @@ class FakeServer {
           this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
           null,
           new Model.Message(messageId, Utils.merge(args, {
-            time: this.getTime_(),
+            time: this.getTime_(args),
             playerId: playerId,
           })));
     } else {
@@ -264,7 +253,7 @@ class FakeServer {
         this.reader.getRequestCategoryPath(gameId, chatRoomId, null),
         null,
         new Model.RequestCategory(requestCategoryId, Utils.merge(args, {
-          time: this.getTime_(),
+          time: this.getTime_(args),
         })));
   }
 
@@ -306,7 +295,7 @@ class FakeServer {
     else
       throwError('Bad request type');
     this.writer.set(requestPath.concat(["response"]), {
-      time: this.getTime_(),
+      time: this.getTime_(args),
       text: text
     });
   }
@@ -381,7 +370,7 @@ class FakeServer {
     let [gameId, playerId] = this.reader.getGameIdAndPlayerIdForNotificationId(notificationId);
     this.writer.set(
         this.reader.getNotificationPath(gameId, playerId, notificationId).concat(["seenTime"]),
-        this.getTime_());
+        this.getTime_(args));
   }
   addReward(args) {
     let {rewardCategoryId, rewardId, code} = args;
@@ -578,7 +567,7 @@ class FakeServer {
         null,
         new Model.Infection(this.idGenerator.newInfectionId(), {
           infectorId: infectorPlayerId,
-          time: this.getTime_(),
+          time: this.getTime_(args),
         }));
     victimPlayer = this.reader.get(victimPlayerPath);
     if (victimPlayer.infections.length >= victimPlayer.lives.length) {
@@ -596,7 +585,7 @@ class FakeServer {
         null,
         new Model.Life(lifeId, {
           code: code,
-          time: this.getTime_(),
+          time: this.getTime_(args),
         }));
     let player = this.reader.get(playerPath);
     if (player.lives.length > player.infections.length) {
