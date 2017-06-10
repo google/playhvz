@@ -58,7 +58,7 @@ try:
 
   # driver.SwitchUser("drake")
 
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   # driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
 
@@ -74,7 +74,7 @@ try:
   #     [[By.ID, 'victimName']],
   #     'Jack Slayer the Bean Slasher')
 
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   # driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
 
@@ -84,7 +84,7 @@ try:
 
   # driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
   
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   driver.Quit()
 

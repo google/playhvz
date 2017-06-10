@@ -61,6 +61,8 @@ class IdGenerator {
   verifyChatRoomId(id) { return this.verify('chatRoom', id); }
   newClaimId(note) { return this.generateId('claim', note); }
   verifyClaimId(id) { return this.verify('claim', id); }
+  newDefaultProfileImageId(note) { return this.generateId('defaultProfileImage', note); }
+  verifyDefaultProfileImageId(id) { return this.verify('defaultProfileImage', id); }
   newGameId(note) { return this.generateId('game', note); }
   verifyGameId(id) { return this.verify('game', id); }
   newGroupId(note) { return this.generateId('group', note); }
@@ -165,7 +167,9 @@ class FakeIdGenerator extends IdGenerator {
     faqHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
-    started: 'Boolean',
+    startTime: 'TimestampMs',
+    endTime: 'TimestampMs',
+    registrationEndTime: 'TimestampMs',
   };
   serverMethods.set('createGame', {
     required: Utils.merge({gameId: '!GameId', adminUserId: 'UserId'}, GAME_PROPERTIES),
@@ -176,6 +180,14 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('setAdminContact', {
     required: {gameId: 'GameId', playerId: 'PlayerId'},
+  });
+  serverMethods.set('addDefaultProfileImage', {
+    required: {
+      gameId: 'GameId',
+      defaultProfileImageId: '!DefaultProfileImageId',
+      allegianceFilter: 'String',
+      profileImageUrl: 'String', 
+    }
   });
 
   // Players
@@ -280,6 +292,7 @@ class FakeIdGenerator extends IdGenerator {
     points: 'Number',
     badgeImageUrl: '?String',
     shortName: 'String',
+    description: 'String',
     limitPerPlayer: 'Number',
   };
   serverMethods.set('addRewardCategory', {
@@ -378,6 +391,7 @@ class FakeIdGenerator extends IdGenerator {
       gameId: 'GameId',
       groupId: 'GroupId',
       playerToAddId: 'PlayerId',
+      actingPlayerId: '?PlayerId',
     },
   });
 
@@ -386,6 +400,7 @@ class FakeIdGenerator extends IdGenerator {
       gameId: 'GameId',
       groupId: 'GroupId',
       playerToRemoveId: 'PlayerId',
+      actingPlayerId: '?PlayerId',
     },
   });
 

@@ -6,3 +6,5 @@ echo 'Running infect test!'
 python infect.py fake $1
 echo 'Running declare test!'
 python declare.py fake $1
+echo 'Running chat test!'
+python chat.py fake $1

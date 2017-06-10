@@ -152,7 +152,9 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     faqHtml: FAQ_HTML,
     stunTimer: 60,
     active: true,
-    started: true,
+    registrationEndTime: 1566966838000,
+    startTime: 1596966838000,
+    endTime: 1696966838000,
   });
 
   let everyoneGroupId = bridge.idGenerator.newGroupId('everyone');
@@ -209,7 +211,13 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
   var deckerdPlayerId = bridge.idGenerator.newPlayerId();
   bridge.createPlayer(makePlayerProperties(deckerdPlayerId, deckerdUserId, gameId, 'Deckerd the Hesitant'));
 
-  bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: zellaPlayerId, message: 'yo dawg i hear the zeds r comin!'});
+  bridge.sendChatMessage({
+    gameId: gameId,
+    messageId: bridge.idGenerator.newMessageId(),
+    chatRoomId: resistanceChatRoomId,
+    playerId: zellaPlayerId,
+    message: 'yo dawg i hear the zeds r comin!'
+  });
 
   var hordeGroupId = bridge.idGenerator.newGroupId('horde');
   bridge.createGroup({
@@ -307,11 +315,13 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     gameId: gameId,
     groupId: zedSecondChatRoomGroupId,
     playerToAddId: zekePlayerId,
+    actingPlayerId: zekePlayerId,
   });
   bridge.addPlayerToGroup({
     gameId: gameId,
     groupId: zedSecondChatRoomGroupId,
-    playerToAddId: drakePlayerId
+    playerToAddId: drakePlayerId,
+    actingPlayerId: zekePlayerId,
   });
   bridge.sendChatMessage({
     gameId: gameId,
@@ -354,7 +364,8 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
   bridge.addPlayerToGroup({
     gameId: gameId,
     groupId: resistanceSecondChatRoomGroupId,
-    playerToAddId: zellaPlayerId
+    playerToAddId: zellaPlayerId,
+    actingPlayerId: zellaPlayerId,
   });
   bridge.sendChatMessage({
     gameId: gameId,
@@ -483,20 +494,31 @@ function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
     points: 2,
     badgeImageUrl: 'https://maxcdn.icons8.com/Share/icon/ultraviolet/Baby//nerf_gun1600.png',
     shortName: "signed",
+    description: 'signed up for the game!',
     limitPerPlayer: 1
   });
   bridge.addReward({
     gameId: gameId,
     rewardId: bridge.idGenerator.newRewardId(),
     rewardCategoryId: rewardCategoryId,
-    code: "flarklebark",
+    code: "signed-flarklebark",
   });
-  bridge.addReward({gameId: gameId, rewardId: bridge.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId, code: null});
-  bridge.addReward({gameId: gameId, rewardId: bridge.idGenerator.newRewardId(), rewardCategoryId: rewardCategoryId, code: null});
+  bridge.addReward({
+    gameId: gameId,
+    rewardId: bridge.idGenerator.newRewardId(),
+    rewardCategoryId: rewardCategoryId,
+    code: null
+  });
+  bridge.addReward({
+    gameId: gameId,
+    rewardId: bridge.idGenerator.newRewardId(),
+    rewardCategoryId: rewardCategoryId,
+    code: null,
+  });
   bridge.claimReward({
     gameId: gameId,
     playerId: drakePlayerId,
-    rewardCode: "flarklebark",
+    rewardCode: "signed-flarklebark",
   });
   for (let i = 0; i < 80; i++) {
     bridge.addGun({gameId: gameId, gunId: bridge.idGenerator.newGunId(), label: "" + (1404 + i)});

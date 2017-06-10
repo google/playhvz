@@ -38,6 +38,24 @@
               type: 'number',
               width: "third",
             },
+            {
+              property: "registrationEndTime",
+              label: "End Time",
+              type: 'timestamp',
+              width: "third",
+            },
+            {
+              property: "startTime",
+              label: "Start Time",
+              type: 'timestamp',
+              width: "third",
+            },
+            {
+              property: "endTime",
+              label: "End Time",
+              type: 'timestamp',
+              width: "third",
+            },
           ],
         };
       },
@@ -50,6 +68,7 @@
                 gameId = 'game-' + properties.id;
               let trimmedGameId = gameId.slice('game-'.length);
               
+              let defaultProfileImageId = this.bridge.newDefaultProfileImageId();
               let everyoneGroupId = this.bridge.newGroupId('everyone');
               let everyoneChatRoomId = this.bridge.newChatRoomId('everyone');
               var resistanceGroupId = this.bridge.newGroupId('resistance');
@@ -65,7 +84,16 @@
                 rulesHtml: '',
                 faqHtml: '',
                 name: properties.name,
-                started: false,
+                adminUserId: this.userId,
+                registrationEndTime: properties.registrationEndTime,
+                startTime: properties.startTime,
+                endTime: properties.endTime,
+              });
+              this.bridge.addDefaultProfileImage({
+                gameId: gameId,
+                defaultProfileImageId: defaultProfileImageId,
+                allegianceFilter: 'horde',
+                profileImageUrl: 'https://goo.gl/DP2vlY',
               });
               this.bridge.createGroup({
                 gameId: gameId,

@@ -21,15 +21,6 @@
             type: Boolean,
             value: false,
           },
-
-          showMainPage_: {
-            type: Boolean,
-            computed: 'computeShowMainPage_(path)',
-          },
-        },
-
-        computeShowMainPage_(path) {
-          return path[0] == 'main';
         },
       });
     });
@@ -59,27 +50,16 @@
         categories="[[game.notificationCategories]]"
         player="[[player]]">
     </ghvz-unseen-notifications>
-    <template is="dom-if" if="[[showMainPage_]]">
-      <ghvz-desktop-main-page
+    <ghvz-display-game-page
         bridge="[[bridge]]"
+        is-admin="[[isAdmin]]"
         database="[[database]]"
-        game="[[game]]"
+        is-mobile="[[isMobile]]"
         user="[[user]]"
-        player="[[player]]">
-      </ghvz-desktop-main-page>
-    </template>
-    <template is="dom-if" if="[[!showMainPage_]]">
-      <ghvz-display-page
-          bridge="[[bridge]]"
-          is-admin="[[isAdmin]]"
-          database="[[database]]"
-          is-mobile="[[isMobile]]"
-          user="[[user]]"
-          game="[[game]]"
-          player="[[player]]"
-          player-id="[[playerId]]"
-          path="[[path]]">
-      </ghvz-display-page>
-    </template>
+        game="[[game]]"
+        player="[[player]]"
+        player-id="[[playerId]]"
+        path="[[path]]">
+    </ghvz-display-game-page>
   </template>
 </dom-module>

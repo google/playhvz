@@ -49,6 +49,7 @@
               index: fields.length,
               property: field.property,
               type: field.type || "string",
+              name: field.name || "",
               label: field.label || "",
               required: field.required == null ? true : field.required,
               width: field.width || null,
@@ -223,6 +224,8 @@
       <template is="dom-repeat" items="{{fields}}" as="field">
         <ghvz-form-section
             section-width$="[[field.width]]"
+            name="[[field.name]]"
+            label="[[field.label]]"
             description="[[field.description]]">
           <template is="dom-if" if="[[usePaperDropdown_(field)]]">
             <paper-dropdown-menu
