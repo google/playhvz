@@ -6,9 +6,10 @@ from selenium.webdriver.common.by import By
 
 try:
   driver = WholeDriver(
+      client_url=sys.argv[1],
       user="deckerd",
-      env=sys.argv[1],
-      password=sys.argv[2])
+      env=sys.argv[2],
+      password=sys.argv[3])
 
   driver.Click([[By.NAME, 'declareAllegiance']])
 

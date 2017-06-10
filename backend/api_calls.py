@@ -942,6 +942,13 @@ def Infect(request, game_state):
     logging.warn('Normal infection')
     SetPlayerAllegiance(game_state, victim_player_id, allegiance=constants.ZOMBIE, can_infect=True)
 
+  # DO NOT BLINDLY COPY THIS
+  # Returning game data from the server (other than an error message or a success boolean)
+  # is risky for the client; the client has to be careful about race conditions when reading
+  # data returned from the server. In this case, this playerId response will likely reach
+  # the client before firebase tells the client that this player was zombified.
+  return victim_player_id
+
 
 def JoinResistance(request, game_state):
   helpers.ValidateInputs(request, game_state, {

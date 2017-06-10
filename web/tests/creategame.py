@@ -5,20 +5,12 @@ from selenium.webdriver.common.by import By
 
 try:
   driver = WholeDriver(
+      client_url=sys.argv[1],
       user="minny",
       page="/createGame",
       populate=False,
-      env=sys.argv[1],
-      password=sys.argv[2])
-
-  # ID
-  # XPATH
-  # LINK_TEXT
-  # PARTIAL_LINK_TEXT
-  # NAME
-  # TAG_NAME
-  # CLASS_NAME
-  # CSS_SELECTOR
+      env=sys.argv[2],
+      password=sys.argv[3])
 
   driver.Click([[By.ID, 'createGame']])
 

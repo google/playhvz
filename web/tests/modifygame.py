@@ -6,9 +6,10 @@ try:
 
   # Sign in as an admin
   driver = WholeDriver(
+    client_url=sys.argv[1],
     user="zella",
-    env=sys.argv[1],
-    password=sys.argv[2])
+    env=sys.argv[2],
+    password=sys.argv[3])
 
   # See rules sheet on dashboard
   driver.FindElement([[By.ID, 'rules']])
@@ -52,7 +53,7 @@ try:
   driver.SendKeys([[By.ID, 'form-section-game-stunTimer'], [By.TAG_NAME, 'input']], 100)
 
   # If you click Cancel, the new changes shouldn't show up.
-  driver.Click([[By.ID, 'gameForm'],[By.ID, 'cancel']])
+  driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'cancel']])
   driver.ExpectContains([[By.NAME, 'game-name']], 'A Quick and Certain Death to Humanity', False)
   driver.ExpectContains([[By.NAME, 'game-stunTimer']], "100", False)
 
@@ -62,7 +63,7 @@ try:
   driver.SendKeys([[By.ID, 'form-section-game-stunTimer'], [By.TAG_NAME, 'input']], 42)
 
   # # If you click Save, the new stun timer should show up.
-  driver.Click([[By.ID, 'gameForm'],[By.ID, 'done']])
+  driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
   driver.ExpectContains([[By.NAME, 'game-name']], 'Welcome to the Zombies-Have-Hunger Games')
   driver.ExpectContains([[By.NAME, 'game-stunTimer']], "42")
 
@@ -78,6 +79,8 @@ try:
     driver.ExpectContains([[By.ID, 'rules']], 'rules are cools when you save them')
     driver.ExpectContains([[By.NAME, 'game-summary-box']], '42') # New stun timer
     driver.FindElement([[By.NAME, 'drawerRules']])
+
+  driver.Quit()
 
 finally:
   # driver.Quit()
