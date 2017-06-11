@@ -277,6 +277,8 @@ def AddPlayer(request, game_state):
 
   user_player = {'gameId': game_id}
   game_state.put('/users/%s/players' % user_id, player_id, user_player)
+  user_game = {'playerId': player_id}
+  game_state.put('/users/%s/games' % user_id, game_id, user_game)
 
   private_player = {
     'gameId': game_id,
