@@ -56,7 +56,9 @@
                 throw "Couldn't find firebaseConfig!"
               }
 
-              this.config = config;
+              this.async(() => {
+                this.config = config;
+              });
 
             } catch (e) {
               console.error("Got exception:", e);

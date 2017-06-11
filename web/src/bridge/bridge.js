@@ -230,7 +230,6 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('updatePlayer', {
     playerId: 'PlayerId',
-    userId: 'UserId',
     gameId: 'GameId',
     serverTime: '|Timestamp',
     name: '|String',
