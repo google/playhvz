@@ -1,5 +1,5 @@
 # Humans vs Zombies
-Full stack solution leveraging firebase, polymer, and app engine (NodeJS) to create a live action game. Learn more at https://humansvszombies.org/
+Full stack solution leveraging Firebase, Polymer, and a Python Flask server on App Engine to create a live action game. Learn more at https://humansvszombies.org/
 
 ## Contributing
 Pull requests very welcome and encouraged, to help you get started we have broken it down to the level you want to test against.
