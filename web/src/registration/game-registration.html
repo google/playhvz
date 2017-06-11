@@ -35,6 +35,7 @@
       done_() {
         // As the new player comes down from firebase,
         // <ghvz-app> will detect it and auto-choose it.
+        this.newPlayerArgs.profileImageUrl = PlayerUtils.getDefaultProfilePic(this.newPlayerArgs.name || "");
         this.bridge.createPlayer(
             Utils.merge(
                 {
@@ -125,7 +126,7 @@
         return [
             {
                 value: true, buttonLabel: "Yes!",
-                text: "I have a smart phone / camera / sketchbook"
+                text: "I'm good with pictures of me being used for promotional content of the game and/or a public gallery of highlights."
             },
             {
                 value: false, buttonLabel: "No",
@@ -256,8 +257,8 @@
           name="joingGameTakePhotos"
           options="[[makeTakePhotoOptions()]]"
           on-ghvz-interview-page-done="handlePhotosPageDone_">
-        <div class="maintext">Are you willing and able to take photos during the game?</div>
-        <div class="subtext">There may be missions or tasks that encourage photos. Although, photos can be shared with other player post-game.</div>
+        <div class="maintext">Are you ok with photos including your face being taken during the game?</div>
+        <div class="subtext">Photos taken may be included in promotional content of the game and/or a public gallery of highlights.</div>
       </ghvz-interview-option-page>
     </neon-animatable>
 

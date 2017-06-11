@@ -9,11 +9,7 @@ class Bridge {
     for (let [method, expectations] of Bridge.METHODS_MAP) {
       this[method] =
           (...args) => {
-            Utils.checkObject(
-                args[0],
-                expectations.required,
-                expectations.optional,
-                this.check_.bind(this));
+            new Utils.Validator(expectations, this.check_.bind(this)).validate(args[0]);
             assert(this.inner[method]);
             return this.inner[method](...args);
           };
@@ -24,27 +20,31 @@ class Bridge {
     }
   }
 
+  signIn(...args) {
+    return this.inner.signIn(...args);
+  }
+  signOut(...args) {
+    return this.inner.signOut(...args);
+  }
+  getSignedInPromise(...args) {
+    return this.inner.getSignedInPromise(...args);
+  }
+  listenToDatabase(...args) {
+    return this.inner.listenToDatabase(...args);
+  }
+  listenToGameAsAdmin(...args) {
+    return this.inner.listenToGameAsAdmin(...args);
+  }
+  listenToGameAsNonAdmin(...args) {
+    return this.inner.listenToGameAsNonAdmin(...args);
+  }
   setPlayerId(playerId) {
     return this.inner.setPlayerId(playerId);
   }
 
   check_(typeName, value) {
-    if (typeName.startsWith("?")) {
-      if (value === null)
-        return true;
-      typeName = typeName.slice(1); // Example "?UserId" to UserId
-    }
-    if (typeName == 'Boolean')
-      return Utils.isBoolean(value);
-    if (typeName == 'String')
-      return Utils.isString(value);
-    if (typeName == 'Number')
-      return Utils.isNumber(value);
-    if (typeName == 'TimestampMs')
-      return Utils.isTimestampMs(value);
     if (typeName.startsWith('!'))
       typeName = typeName.slice(1);
-
     assert(('verify' + typeName) in this.idGenerator);
     assert(value);
 
@@ -61,6 +61,8 @@ class IdGenerator {
   verifyChatRoomId(id) { return this.verify('chatRoom', id); }
   newClaimId(note) { return this.generateId('claim', note); }
   verifyClaimId(id) { return this.verify('claim', id); }
+  newDefaultProfileImageId(note) { return this.generateId('defaultProfileImage', note); }
+  verifyDefaultProfileImageId(id) { return this.verify('defaultProfileImage', id); }
   newGameId(note) { return this.generateId('game', note); }
   verifyGameId(id) { return this.verify('game', id); }
   newGroupId(note) { return this.generateId('group', note); }
@@ -123,62 +125,80 @@ class FakeIdGenerator extends IdGenerator {
 
 // Sets Bridge.METHODS_MAP and Bridge.serverMethods
 (function() {
+  let optional = Utils.Validator.optional;
+
   let serverMethods = new Map();
 
-  serverMethods.set('setTimeOffset', {
-    required: {offsetMs: 'Number'},
-  });
-
   // Users
-  serverMethods.set('signIn', {});
   serverMethods.set('register', {
-    required: {userId: 'String'}
+    userId: 'String'
   });
 
   // Guns
   serverMethods.set('addGun', {
-    required: {
-      gameId: 'GameId',
-      gunId: '!GunId',
-      label: 'String',
-    }
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    gunId: '!GunId',
+    label: 'String',
   });
   serverMethods.set('editGun', {
-    required: {
-      gameId: 'GameId',
-      gunId: '!GunId',
-      label: '|String',
-    }
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    gunId: '!GunId',
+    label: '|String',
   });
   serverMethods.set('assignGun', {
-    required: {
-      gameId: 'GameId',
-      gunId: 'GunId',
-      playerId: '?PlayerId',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    gunId: 'GunId',
+    playerId: '?PlayerId',
   });
 
   // Games
-  const GAME_PROPERTIES = {
+  serverMethods.set('createGame', {
+    gameId: '!GameId',
+    serverTime: '|Timestamp',
+    adminUserId: 'UserId',
     name: 'String',
     rulesHtml: 'String',
+    faqHtml: 'String',
     stunTimer: 'Number',
     active: 'Boolean',
-    started: 'Boolean',
-  };
-  serverMethods.set('createGame', {
-    required: Utils.merge({gameId: '!GameId', adminUserId: 'UserId'}, GAME_PROPERTIES),
+    startTime: 'Timestamp',
+    endTime: 'Timestamp',
+    registrationEndTime: 'Timestamp',
   });
   serverMethods.set('updateGame', {
-    required: {gameId: 'GameId'},
-    optional: GAME_PROPERTIES,
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    name: '|String',
+    rulesHtml: '|String',
+    faqHtml: '|String',
+    stunTimer: '|Number',
+    active: '|Boolean',
+    startTime: '|Timestamp',
+    endTime: '|Timestamp',
+    registrationEndTime: '|Timestamp',
   });
   serverMethods.set('setAdminContact', {
-    required: {gameId: 'GameId', playerId: 'PlayerId'},
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    playerId: 'PlayerId',
+  });
+  serverMethods.set('addDefaultProfileImage', {
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    defaultProfileImageId: '!DefaultProfileImageId',
+    allegianceFilter: 'String',
+    profileImageUrl: 'String',
   });
 
   // Players
-  const PLAYER_PROPERTIES = {
+  serverMethods.set('createPlayer', {
+    playerId: '!PlayerId',
+    userId: 'UserId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
     name: 'String',
     needGun: 'Boolean',
     canInfect: 'Boolean',
@@ -207,54 +227,77 @@ class FakeIdGenerator extends IdGenerator {
     active: 'Boolean',
     gotEquipment: 'Boolean',
     notes: 'String',
-  };
-  serverMethods.set('createPlayer', {
-      required:
-          Utils.merge(
-              {playerId: '!PlayerId', userId: 'UserId', gameId: 'GameId'},
-              PLAYER_PROPERTIES)
   });
   serverMethods.set('updatePlayer', {
-    required: {
-      gameId: 'GameId',
-      playerId: 'PlayerId'
-    },
-    optional: PLAYER_PROPERTIES
+    playerId: 'PlayerId',
+    userId: 'UserId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    name: '|String',
+    needGun: '|Boolean',
+    canInfect: '|Boolean',
+    profileImageUrl: '|String',
+    wantToBeSecretZombie: '|Boolean',
+    beInPhotos: '|Boolean',
+    volunteer: optional({
+      advertising: '|Boolean',
+      logistics: '|Boolean',
+      communications: '|Boolean',
+      moderator: '|Boolean',
+      cleric: '|Boolean',
+      sorcerer: '|Boolean',
+      admin: '|Boolean',
+      photographer: '|Boolean',
+      chronicler: '|Boolean',
+      server: '|Boolean',
+      android: '|Boolean',
+      ios: '|Boolean',
+      client: '|Boolean',
+    }),
+    notificationSettings: optional({
+      vibrate: '|Boolean',
+      sound: '|Boolean',
+    }),
+    active: '|Boolean',
+    gotEquipment: '|Boolean',
+    notes: '|String',
   });
 
 
-  // Missions
-  const MISSION_PROPERTIES = {
-    beginTime: 'TimestampMs',
-    endTime: 'TimestampMs',
+  serverMethods.set('addMission', {
+    missionId: '!MissionId',
+    groupId: 'GroupId',
+    rsvpersGroupId: 'GroupId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    beginTime: 'Timestamp',
+    endTime: 'Timestamp',
     name: 'String',
     detailsHtml: 'String',
-  };
-  serverMethods.set('addMission', {
-    required:
-        Utils.merge(
-            {
-              missionId: '!MissionId',
-              groupId: 'GroupId',
-              rsvpersGroupId: 'GroupId',
-              gameId: 'GameId'
-            },
-            MISSION_PROPERTIES)
   });
   serverMethods.set('updateMission', {
-    required: {missionId: 'MissionId'},
-    optional: MISSION_PROPERTIES
+    missionId: 'MissionId',
+    groupId: 'GroupId',
+    rsvpersGroupId: 'GroupId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    beginTime: '|Timestamp',
+    endTime: '|Timestamp',
+    name: '|String',
+    detailsHtml: '|String',
   });
   serverMethods.set('deleteMission', {
-    required: {
-      gameId: 'GameId',
-      missionId: 'MissionId',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    missionId: 'MissionId',
   });
 
   serverMethods.set('selfInfect', {required: {playerId: 'PlayerId'}});
 
-  const GROUP_PROPERTIES = {
+  serverMethods.set('createGroup', {
+    groupId: '!GroupId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
     name: 'String',
     allegianceFilter: 'String',
     ownerPlayerId: '?PlayerId',
@@ -264,217 +307,215 @@ class FakeIdGenerator extends IdGenerator {
     canRemoveOthers: 'Boolean',
     canAddSelf: 'Boolean',
     canRemoveSelf: 'Boolean',
-  };
-  serverMethods.set('createGroup', {
-    required:
-        Utils.merge({groupId: '!GroupId', gameId: 'GameId'}, GROUP_PROPERTIES)
   });
   serverMethods.set('updateGroup', {
-    required: {groupId: 'GroupId'},
-    optional: GROUP_PROPERTIES,
+    gameId: 'GameId',
+    groupId: 'GroupId',
+    name: '|String',
+    serverTime: '|Timestamp',
+    allegianceFilter: '|String',
+    ownerPlayerId: '|?PlayerId',
+    autoAdd: '|Boolean',
+    autoRemove: '|Boolean',
+    canAddOthers: '|Boolean',
+    canRemoveOthers: '|Boolean',
+    canAddSelf: '|Boolean',
+    canRemoveSelf: '|Boolean',
   });
 
-  const REWARD_CATEGORY_PROPERTIES = {
+  serverMethods.set('addRewardCategory', {
+    rewardCategoryId: '!RewardCategoryId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
     name: 'String',
     points: 'Number',
+    badgeImageUrl: '?String',
     shortName: 'String',
+    description: 'String',
     limitPerPlayer: 'Number',
-  };
-  serverMethods.set('addRewardCategory', {
-    required:
-        Utils.merge(
-            {rewardCategoryId: '!RewardCategoryId', gameId: 'GameId'},
-            REWARD_CATEGORY_PROPERTIES),
   });
   serverMethods.set('updateRewardCategory', {
-    required: {rewardCategoryId: 'RewardCategoryId'},
-    optional: REWARD_CATEGORY_PROPERTIES,
+    rewardCategoryId: 'RewardCategoryId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    name: '|String',
+    points: '|Number',
+    badgeImageUrl: '|?String',
+    shortName: '|String',
+    description: '|String',
+    limitPerPlayer: '|Number',
   });
 
   serverMethods.set('addReward', {
-    required: {
-      gameId: 'GameId',
-      rewardId: '!RewardId',
-      rewardCategoryId: 'RewardCategoryId',
-      code: '?String',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    rewardId: '!RewardId',
+    rewardCategoryId: 'RewardCategoryId',
+    code: '?String',
   });
 
   serverMethods.set('addRewards', {
-    required: {
-      gameId: 'GameId',
-      rewardCategoryId: 'RewardCategoryId',
-      count: 'Number',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    rewardCategoryId: 'RewardCategoryId',
+    count: 'Number',
   });
 
   serverMethods.set('claimReward', {
-    required: {
-      gameId: 'GameId',
-      playerId: 'PlayerId',
-      rewardCode: 'String',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    playerId: 'PlayerId',
+    rewardCode: 'String',
   });
 
 
-  const CHAT_ROOM_PROPERTIES = {
+  serverMethods.set('createChatRoom', {
+    chatRoomId: '!ChatRoomId',
+    groupId: 'GroupId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
     name: 'String',
     withAdmins: 'Boolean',
-  };
-  serverMethods.set('createChatRoom', {
-    required:
-        Utils.merge(
-            {chatRoomId: '!ChatRoomId', groupId: 'GroupId', gameId: 'GameId'},
-            CHAT_ROOM_PROPERTIES)
   });
   serverMethods.set('updateChatRoom', {
-    required: {chatRoomId: 'ChatRoomId', gameId: 'GameId'},
-    optional: CHAT_ROOM_PROPERTIES,
+    chatRoomId: 'ChatRoomId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    name: '|String',
+    withAdmins: '|Boolean',
   });
   serverMethods.set('setLastSeenChatTime', {
-    required: {
-      gameId: 'GameId',
-      chatRoomId: 'ChatRoomId',
-      playerId: 'PlayerId',
-      timestamp: 'TimestampMs',
-    },
+    gameId: 'GameId',
+    chatRoomId: 'ChatRoomId',
+    serverTime: '|Timestamp',
+    playerId: 'PlayerId',
+    timestamp: 'Timestamp',
   });
 
-  const MAP_PROPERTIES = {
-    name: 'String',
-  };
   serverMethods.set('createMap', {
-    required:
-        Utils.merge(
-            {gameId: 'GameId', mapId: '!MapId', groupId: 'GroupId'},
-            MAP_PROPERTIES)
+    gameId: 'GameId',
+    mapId: '!MapId',
+    serverTime: '|Timestamp',
+    groupId: 'GroupId',
+    name: 'String',
   });
   serverMethods.set('updateMap', {
-    required: {
-      gameId: 'GameId',
-      mapId: 'MapId'
-    },
-    optional: MAP_PROPERTIES,
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    mapId: 'MapId',
+    name: 'String',
   });
 
-  const POINT_PROPERTIES = {
+  serverMethods.set('addPoint', {
+    pointId: '!PointId',
+    mapId: 'MapId',
+    serverTime: '|Timestamp',
     name: 'String',
     playerId: '?PlayerId',
     color: 'String',
     latitude: 'Number',
     longitude: 'Number',
-  };
-  serverMethods.set('addPoint', {
-    required:
-        Utils.merge(
-            {pointId: '!PointId', mapId: 'MapId'},
-            POINT_PROPERTIES)
   });
 
   serverMethods.set('addPlayerToGroup', {
-    required: {
-      gameId: 'GameId',
-      groupId: 'GroupId',
-      playerToAddId: 'PlayerId',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    groupId: 'GroupId',
+    playerToAddId: 'PlayerId',
+    actingPlayerId: '?PlayerId',
   });
 
   serverMethods.set('removePlayerFromGroup', {
-    required: {
-      gameId: 'GameId',
-      groupId: 'GroupId',
-      playerToRemoveId: 'PlayerId',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    groupId: 'GroupId',
+    playerToRemoveId: 'PlayerId',
+    actingPlayerId: '?PlayerId',
   });
 
   serverMethods.set('addAdmin', {
-    required: {gameId: 'GameId', userId: 'UserId'}
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    userId: 'UserId',
   });
 
   serverMethods.set('joinHorde', {
-    required: {
-      gameId: 'GameId',
-      playerId: 'PlayerId'
-    }
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    playerId: 'PlayerId'
   });
   serverMethods.set('joinResistance', {
-    required: {
-      gameId: 'GameId',
-      playerId: 'PlayerId',
-      lifeCode: '?String',
-      lifeId: '?!LifeId',
-    }
+    gameId: 'GameId',
+    playerId: 'PlayerId',
+    serverTime: '|Timestamp',
+    lifeCode: '?String',
+    lifeId: '?!LifeId',
   });
 
   serverMethods.set('sendChatMessage', {
-    required: {
-      gameId: 'GameId',
-      messageId: '!MessageId',
-      chatRoomId: 'ChatRoomId',
-      playerId: 'PlayerId',
-      message: 'String',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    messageId: '!MessageId',
+    chatRoomId: 'ChatRoomId',
+    playerId: 'PlayerId',
+    message: 'String',
   });
 
   serverMethods.set('addRequestCategory', {
-    required: {
-      gameId: 'GameId',
-      requestCategoryId: '!RequestCategoryId',
-      chatRoomId: 'ChatRoomId',
-      playerId: 'PlayerId',
-      text: 'String',
-      type: 'String',
-      dismissed: 'Boolean',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    requestCategoryId: '!RequestCategoryId',
+    chatRoomId: 'ChatRoomId',
+    playerId: 'PlayerId',
+    text: 'String',
+    type: 'String',
+    dismissed: 'Boolean',
   });
 
   serverMethods.set('updateRequestCategory', {
-    required: {
-      gameId: 'GameId',
-      requestCategoryId: 'RequestCategoryId',
-    },
-    optional: {
-      text: 'String',
-      dismissed: 'Boolean',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    requestCategoryId: 'RequestCategoryId',
+    text: '|String',
+    dismissed: '|Boolean',
   });
 
   serverMethods.set('addRequest', {
-    required: {
-      gameId: 'GameId',
-      requestCategoryId: 'RequestCategoryId',
-      requestId: '!RequestId',
-      playerId: 'PlayerId',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    requestCategoryId: 'RequestCategoryId',
+    requestId: '!RequestId',
+    playerId: 'PlayerId',
   });
 
   serverMethods.set('addResponse', {
-    required: {
-      gameId: 'GameId',
-      requestId: 'RequestId',
-      text: '?String',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    requestId: 'RequestId',
+    text: '?String',
   });
 
   serverMethods.set('addLife', {
-    required: {
-      playerId: 'PlayerId',
-      lifeId: '!LifeId',
-      lifeCode: '?String',
-    }
+    gameId: 'GameId',
+    playerId: 'PlayerId',
+    serverTime: '|Timestamp',
+    lifeId: '!LifeId',
+    lifeCode: '?String',
   });
 
   serverMethods.set('infect', {
-    required: {
-      gameId: 'GameId',
-      infectionId: '!InfectionId',
-      infectorPlayerId: '?PlayerId',
-      victimLifeCode: '?String',
-      victimPlayerId: '?PlayerId',
-    },
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    infectionId: '!InfectionId',
+    infectorPlayerId: '?PlayerId',
+    victimLifeCode: '?String',
+    victimPlayerId: '?PlayerId',
   });
 
-  const NOTIFICATION_CATEGORY_PROPERTIES = {
+  serverMethods.set('sendNotification', {
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    notificationId: '!NotificationCategoryId',
     name: 'String',
     message: 'String',
     previewMessage: 'String',
@@ -482,100 +523,72 @@ class FakeIdGenerator extends IdGenerator {
     vibrate: 'Boolean',
     groupId: '?GroupId',
     playerId: '?PlayerId',
-    // email: 'Boolean',
+    email: 'Boolean',
     app: 'Boolean',
     destination: '?String',
-    sendTime: 'TimestampMs',
-    // allegianceFilter: 'String',
+    sendTime: 'Timestamp',
+    allegianceFilter: 'String',
     icon: '?String',
-  };
-  serverMethods.set('sendNotification', {
-    required:
-        Utils.merge(
-            {
-              notificationId: '!NotificationCategoryId',
-              // gameId: 'GameId'
-            },
-            NOTIFICATION_CATEGORY_PROPERTIES),
   });
   serverMethods.set('updateNotification', {
-    required: {notificationId: 'NotificationCategoryId'},
-    optional: NOTIFICATION_CATEGORY_PROPERTIES,
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    notificationId: 'NotificationCategoryId',
+    name: '|String',
+    message: '|String',
+    previewMessage: '|String',
+    sound: '|Boolean',
+    vibrate: '|Boolean',
+    groupId: '|?GroupId',
+    playerId: '|?PlayerId',
+    email: '|Boolean',
+    app: '|Boolean',
+    destination: '|?String',
+    sendTime: '|Timestamp',
+    allegianceFilter: '|String',
+    icon: '|?String',
   });
 
-
-  const NOTIFICATION_PROPERTIES = {
-    message: '?String',
-    previewMessage: '?String',
-    sound: '?Boolean',
-    vibrate: '?Boolean',
-    email: '?Boolean',
-    app: '?Boolean',
-    destination: '?String',
-    icon: '?String',
-  };
-  serverMethods.set('addNotification', {
-    required:
-        Utils.merge(
-            {
-              notificationId: '!NotificationId',
-              notificationCategoryId: 'NotificationCategoryId',
-              gameId: 'GameId',
-              playerId: 'PlayerId',
-            },
-            NOTIFICATION_PROPERTIES),
-  });
-
-
-  const QUIZ_QUESTION_PROPERTIES = {
+  serverMethods.set('addQuizQuestion', {
+    quizQuestionId: '!QuizQuestionId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
     text: 'String',
     type: 'String',
-  };
-  serverMethods.set('addQuizQuestion', {
-    required:
-        Utils.merge(
-            {quizQuestionId: '!QuizQuestionId', gameId: 'GameId'},
-            QUIZ_QUESTION_PROPERTIES)
   });
   serverMethods.set('updateQuizQuestion', {
-    required: {quizQuestionId: 'QuizQuestionId'},
-    optional: QUIZ_QUESTION_PROPERTIES,
+    quizQuestionId: 'QuizQuestionId',
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    text: '|String',
+    type: '|String',
   });
 
-
-  const QUIZ_ANSWER_PROPERTEIS = {
+  serverMethods.set('addQuizAnswer', {
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    quizAnswerId: '!QuizAnswerId',
+    quizQuestionId: 'QuizQuestionId',
     text: 'String',
     order: 'Number',
     isCorrect: 'Boolean',
-  };
-  serverMethods.set('addQuizAnswer', {
-    required:
-        Utils.merge(
-            {quizAnswerId: '!QuizAnswerId', quizQuestionId: 'QuizQuestionId'},
-            QUIZ_ANSWER_PROPERTEIS)
   });
   serverMethods.set('updateQuizAnswer', {
-    required: {quizAnswerId: 'QuizAnswerId'},
-    optional: QUIZ_ANSWER_PROPERTEIS,
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    quizAnswerId: 'QuizAnswerId',
+    text: '|String',
+    order: '|Number',
+    isCorrect: '|Boolean',
   });
 
   serverMethods.set('markNotificationSeen', {
-    required: {playerId: 'PlayerId', notificationId: 'NotificationCategoryId',}
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    playerId: 'PlayerId',
+    notificationId: 'NotificationCategoryId',
   });
 
-  
-  Bridge.SERVER_METHODS_MAP = serverMethods;
-  Bridge.SERVER_METHODS = Array.from(serverMethods.keys());
-
-  let bridgeMethods = new Map(serverMethods);
-
-  bridgeMethods.set('signIn', {});
-  bridgeMethods.set('signOut', {});
-  bridgeMethods.set('getSignedInPromise', {});
-  bridgeMethods.set('listenToDatabase', {});
-  bridgeMethods.set('listenToGameAsAdmin', {});
-  bridgeMethods.set('listenToGameAsNonAdmin', {});
-
-  Bridge.METHODS_MAP = bridgeMethods;
-  Bridge.METHODS = Array.from(bridgeMethods.keys());
+  Bridge.METHODS_MAP = serverMethods;
+  Bridge.METHODS = Array.from(serverMethods.keys());
 })();

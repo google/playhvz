@@ -1,11 +1,11 @@
-<dom-module id="ghvz-create-game">
+<dom-module id="ghvz-create-populated-game">
 <script>
   // Not sure why this HTMLImports.whenReady is really needed.
   // Something about polymer initialization order.
   // I think we're not supposed to need this.
   HTMLImports.whenReady(() => {
     Polymer({
-      is: 'ghvz-create-game',
+      is: 'ghvz-create-populated-game',
 
       properties: {
         bridge: Object,
@@ -31,7 +31,12 @@
               if (!gameId.startsWith('game-'))
                 gameId = 'game-' + properties.id;
               let trimmedGameId = gameId.slice('game-'.length);
-              populateGame(this.bridge, gameId);
+              populateUsers(this.bridge, this.config);
+              populateGame(this.bridge, gameId, this.config, false);
+              this.fire('ghvz-set-path', {
+                inGame: false,
+                path: ['game', trimmedGameId, 'main'],
+              });
             });
       },
     });
@@ -47,7 +52,7 @@
   }
 </style>
 <template>
-  <paper-button id="createGame" raised on-tap="addGame_">Create Game</paper-button>
+  <paper-button id="createPopulatedGame" raised on-tap="addGame_">Create Populated Game</paper-button>
   <ghvz-super-form
       id="gameForm"
       type-name="Game"

@@ -19,6 +19,11 @@
             value: null,
           },
 
+          isMobile: {
+            type: Boolean,
+            value: false,
+          },
+
           chatRoom: Object,
 
           selectedPlayers: {
@@ -33,7 +38,7 @@
 
           chatInfoVisible: {
             type: Boolean,
-            vlaue: false,
+            value: false,
           },
         },
 
@@ -47,6 +52,14 @@
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
         ],
+
+        locationEnabled(isMobile) {
+          return isMobile && false;
+        },
+
+        imageUploadEnabled() {
+          return false;
+        },
 
         attached: function() {
           this.isAttached = true;
@@ -188,6 +201,14 @@
         executeAction_(e) {
           this.$.actions.executeAction(e);
         },
+
+        sendImage_() {
+          console.log('not implemented');
+        },
+
+        sendCurrentLocation_() {
+          console.log('not implemented');
+        },
       });
     });
   </script>
@@ -304,6 +325,9 @@
       align-self: flex-start;
       background-color: lightgrey;
     }
+    .icon-button {
+      color: dodgerblue;
+    }
     .text-input {
       display: flex;
       flex-shrink: 0;
@@ -320,7 +344,11 @@
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
 
-    <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_">
+    <paper-icon-button 
+      id="info" 
+      icon="icons:info-outline" 
+      on-tap="toggleChatInfo_"
+      name$="icon-[[chatRoom.name]]">
     </paper-icon-button>
 
     <!-- For webdrivers -->
@@ -328,20 +356,26 @@
 
     <div id="conversationContainer" class="conversation-container">
       <template is="dom-repeat" items="[[chatRoom.messages]]">
-        <div class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
+        <div name$="message-[[chatRoom.name]]-[[item.message]]"
+          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
           <div class="display-message">
-            <div class="player-name">
+            <div 
+              class="player-name">
               [[getName_(item.playerId, game.players.length)]]
             </div>
             <div class="message-text-container">
-              <div class="message-text">[[item.message]]</div>
+              <div 
+                class="message-text">[[item.message]]</div>
               <paper-tooltip position="top" animation-delay="0">
                 [[getTime_(item.time)]]
               </paper-tooltip>
             </div>
           </div>
           <div class="display-avatar">
-            <ghvz-player-avatar small game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
+            <ghvz-player-avatar 
+              small game="[[game]]" 
+              player-id="[[item.playerId]]"
+              name$="avatar-[[chatRoom.name]]-[[item.message]]"></ghvz-player-avatar>
           </div>
         </div> 
       </template>
@@ -349,8 +383,9 @@
 
     <div class="text-input">
       <div class="text-input-field">
-        <paper-textarea 
+      <paper-textarea 
           id="messageInput"
+          name$="input-[[chatRoom.name]]" 
           autocorrect
           multiline
           max-rows=3
@@ -359,8 +394,25 @@
           on-keydown="checkForEnter_">
         </paper-textarea>
       </div>
+      <template is="dom-if" if="[[imageUploadEnabled()]]">
+        <paper-icon-button
+          class="icon-button"
+          icon="image:photo"
+          title="Send image"
+          on-click="sendImage_">
+        </paper-icon-button>
+      </template>
+      <template is="dom-if" if="[[locationEnabled(isMobile)]]">
+        <paper-icon-button
+          class="icon-button"
+          icon="maps:my-location"
+          title="Send current location"
+          on-click="sendCurrentLocation_">
+        </paper-icon-button>
+      </template>
       <paper-button 
         class="send"
+        name$="submit-[[chatRoom.name]]"
         id="messageSend" 
         raised
         on-click="onSendClicked_">

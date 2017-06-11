@@ -143,8 +143,13 @@
         </template>
 
         <ghvz-card spaced right padded>
-          <div class="header">Rules</div>
+          <div class="header" name="Rules">Rules</div>
           <ghvz-rules game="[[game]]"></ghvz-rules>
+        </ghvz-card>
+
+        <ghvz-card spaced right padded>
+          <div class="header">FAQ</div>
+          <ghvz-game-faq game="[[game]]"></ghvz-game-faq>
         </ghvz-card>
 
         <ghvz-card spaced left>
@@ -196,9 +201,6 @@
 
         <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
           <ghvz-card spaced left>
-            <div class="header">
-              <ghvz-chat-room-name-label game="[[game]]" chat-room-id="[[membership.chatRoomId]]"></ghvz-chat-room-name-label>
-            </div>
             <ghvz-chat-room
                 small
                 bridge="[[bridge]]"

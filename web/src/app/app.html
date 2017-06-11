@@ -8,6 +8,8 @@
       is: 'ghvz-app',
 
       properties: {
+        config: Object,
+        
         bridge: {
           type: Object,
           value: undefined,
@@ -53,9 +55,9 @@
           computed: 'computeInnerPath_(path)',
         },
 
-        isDesktop: {
+        isMobile: {
           type: Boolean,
-          value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
+          value: () => Utils.isMobile() || Utils.getParameterByName('layout') == 'mobile',
         },
 
         isAdmin: {
@@ -78,47 +80,22 @@
         'listenToDatabaseAndAutoSignIn_(bridge, userId)',
         'selectUser_(userId, database.users.length)',
         'hideSignInButton_(userId)',
+        'hideSignInButton_(user)',
         'navigateEmptyPathToGamesPath_(path)',
         'autoChooseGameToPutIntoPath_(path, database.games.length, user.players.length)',
         'loadGameInPath_(path, userId, gameId, database.games.length, user.players.length)',
         'listenToGame_(game, game.admins.length, playerId)',
         'selectPlayer_(user, game, user.players.length)',
         'navigateGameToDashboard_(path)',
-
-        // 'onUserIdChanged_(bridge, database, userId, database.users.length)',
-        // 'autoNavigate_(bridge, database, url, game.admins.length)',
-        // 'autoNavigate_(bridge, database, url, database.games.splices)',
-        // 'autoNavigate_(bridge, database, url, database.users.splices)',
-        // 'autoNavigate_(bridge, database, url, game.players.length)',
-        // 'autoNavigate_(bridge, database, url, game.players.splices)',
-        // 'autoNavigapte_(bridge, database, url, user.players.length)',
-        // 'autoNavigate_(bridge, database, url, user.players.splices)',
-        // 'autoNavigate_(bridge, database, url, userId)',
-        // 'autoNavigate_(bridge, database, url, user)',
-        // 'autoNavigate_(bridge, database, url, gameId)',
-        // 'autoNavigate_(bridge, database, url, game)',
-        // 'autoNavigate_(bridge, database, url, playerId)',
       ],
 
       listeners: {
         'ghvz-set-path': 'handleSetPath_',
         'ghvz-sign-out': 'signOut_',
-      //   'ghvz-open-drawer': 'openDrawer_',
-      //   'ghvz-close-drawer': 'closeDrawer_',
+        'ghvz-open-drawer': 'openDrawer_',
+        'ghvz-close-drawer': 'closeDrawer_',
       //   'ghvz-select-game': 'handleSelectGame_',
       },
-
-      // // Called manually and also by observers
-      // onUserIdChanged_() {
-      //   this.showLoadingSpinner = false;
-      //   this.showSignInButton = (!this.userId || !this.user);
-      //   if (!this.user) {
-      //     let user = this.database.users.find(user => user.id == this.userId);
-      //     if (user) {
-      //       this.$.userSelector.select(user);
-      //     }
-      //   }
-      // },
 
       computeInnerPath_(path) {
         if (path.length >= 2 && path[0] == 'game') {
@@ -132,7 +109,6 @@
 
       selectUser_(userId) {
         this.showLoadingSpinner = false;
-        this.showSignInButton = (!this.userId || !this.user);
         if (!this.user) {
           let user = this.database.users.find(user => user.id == this.userId);
           if (user) {
@@ -157,7 +133,7 @@
       },
 
       hideSignInButton_() {
-        this.showSignInButton = false;
+        this.showSignInButton = (!this.userId || !this.user);
       },
 
       signOut_() {
@@ -305,13 +281,13 @@
       //   this.bridge.signOut();
       // },
 
-      // openDrawer_() {
-      //   this.$$("#drawer").openDrawer();
-      // },
+      openDrawer_() {
+        this.$$("#drawer").openDrawer();
+      },
 
-      // closeDrawer_() {
-      //   this.$$("#drawer").closeDrawer();
-      // },
+      closeDrawer_() {
+        this.$$("#drawer").closeDrawer();
+      },
 
       handleSetPath_(e) {
         assert('inGame' in e.detail);
@@ -351,8 +327,8 @@
       //   return [null, null, null];
       // },
 
-      computeResponsiveWidth_(isDesktop) {
-        return isDesktop ? "0" : null;
+      computeResponsiveWidth_(isMobile) {
+        return this.isMobile ? "1000px" : null;
       }
     });
   });
@@ -407,8 +383,22 @@
       Sign In With Google
     </paper-button>
   </template>
-  <template is="dom-if" if="[[user]]">
-    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isDesktop)]]">
+
+  <template is="dom-if" if="[[userId]]">
+    <ghvz-display-page
+        config="[[config]]"
+        bridge="[[bridge]]"
+        user="[[user]]"
+        path="[[path]]"
+        is-mobile="[[isMobile]]">
+    </ghvz-display-page>
+  </template>
+
+  <template is="dom-if" if="[[game]]">
+    <!-- For webdrivers -->
+    <div name="gameLoaded"></div>
+
+    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isMobile)]]">
       <paper-material drawer>
         <ghvz-drawer
             bridge="[[bridge]]"
@@ -420,7 +410,7 @@
         </ghvz-drawer>
       </paper-material>
       <div main>
-        <template is="dom-if" if="[[isDesktop]]">
+        <template is="dom-if" if="[[!isMobile]]">
           <ghvz-desktop-app
               bridge="[[bridge]]"
               is-admin="[[isAdmin]]"
@@ -432,7 +422,7 @@
               path="[[innerPath]]">
           </ghvz-desktop-app>
         </template>
-        <template is="dom-if" if="[[!isDesktop]]">
+        <template is="dom-if" if="[[isMobile]]">
           <ghvz-mobile-app
               bridge="[[bridge]]"
               is-admin="[[isAdmin]]"

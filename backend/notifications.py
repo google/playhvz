@@ -2,7 +2,7 @@ import logging
 import time
 
 import ionic
-import secrets
+import config
 
 def HandleNotification(firebase, ionic_client, notification_id, notification):
   """Helper function to propogate a notification."""
@@ -55,8 +55,8 @@ def ExecuteNotifications(request, firebase):
   future notifications must have a newer timestamp, and thus will show up in
   the query first.
   """
-  ionic_client = ionic.Ionic(secrets.IONIC_APPID, secrets.IONIC_SECURITY_TAG,
-                             secrets.IONIC_TOKEN)
+  ionic_client = ionic.Ionic(config.IONIC_APPID, config.IONIC_SECURITY_TAG,
+                             config.IONIC_TOKEN)
   # Handle notifications, 20 at a time so we don't need to get the entire
   # notification database.
   current_time = int(time.time())

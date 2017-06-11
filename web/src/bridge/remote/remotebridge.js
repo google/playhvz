@@ -14,37 +14,39 @@ class RemoteBridge {
     for (let methodName of Bridge.METHODS) {
       if (!this[methodName]) {
         this[methodName] = function(args) {
-          return this.requester.sendPostRequest(methodName, {}, args);
+          return this.requester.sendRequest(methodName, args);
         };
       }
     }
 
-    this.signedInPromise = new Promise((resolve, reject) => {
-      firebase.auth().onAuthStateChanged((firebaseUser) => {
-        if (firebaseUser) {
-          if (this.userId == null) {
-            this.userId = "user-" + firebaseUser.uid;
-            this.firebaseListener.listenToUser(this.userId)
-                .then((exists) => {
-                  if (exists) {
-                    resolve(this.userId);
-                  } else {
-                    this.register({userId: this.userId}).then(() => {
-                      this.firebaseListener.listenToUser(this.userId);
-                      resolve(this.userId);
-                    });
-                  }
-                });
-          } else {
-            // Sometimes we get spurious auth changes.
-            // As long as we stick with the same user, its fine.
-            assert("user-" + firebaseUser.uid == this.userId);
-          }
-        } else {
-          // reject();
-        }
-      });
-    });
+    this.signedInPromise =
+        new Promise((resolve, reject) => {
+          firebase.auth().onAuthStateChanged((firebaseUser) => {
+            if (firebaseUser) {
+              firebase.auth().currentUser.getToken(false).then((userToken) => {
+                if (this.userId == null) {
+                  this.userId = "user-" + firebaseUser.uid;
+                  this.requester.setRequestingUserTokenAndId(userToken, this.userId);
+                  this.firebaseListener.listenToUser(this.userId)
+                      .then((exists) => {
+                        if (exists) {
+                          resolve(this.userId);
+                        } else {
+                          this.register({userId: this.userId}).then(() => {
+                            this.firebaseListener.listenToUser(this.userId);
+                            resolve(this.userId);
+                          });
+                        }
+                      });
+                } else {
+                  // Sometimes we get spurious auth changes.
+                  // As long as we stick with the same user, its fine.
+                  assert("user-" + firebaseUser.uid == this.userId);
+                }
+              });
+            }
+          });
+        });
   }
 
   signIn({}) {
@@ -99,7 +101,7 @@ class RemoteBridge {
 
   register(args) {
     let {userId} = args;
-    return this.requester.sendPostRequest('register', {}, {
+    return this.requester.sendRequest('register', {
       userId: userId,
       requestingUserId: null, // Overrides what the requester wants to do
     }).then(() => {
