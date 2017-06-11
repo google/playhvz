@@ -9,6 +9,8 @@
 
 `./node_modules/firebase-tools/bin/firebase login [your username]`
 
+`./node_modules/firebase-tools/bin/firebase use --add` and select the firebase project you want to use. trogdors-29fa4 is our prod project.
+
 `npm start`
 
 Go to `localhost:5000`
@@ -154,7 +156,7 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`./run.sh`
+`./run.sh http://localhost:5000 fake PASSWORDHERE` replacing PASSWORDHERE with the fake accounts' password (ask someone on the team).
 
 
 

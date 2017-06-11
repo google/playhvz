@@ -45,10 +45,20 @@
         ajaxRequest.send();
         ajaxRequest.onreadystatechange = () => {
           if (ajaxRequest.readyState == XMLHttpRequest.DONE) {
-            let config = JSON.parse(ajaxRequest.responseText);
-            if ('backendUrl' in config && 'firebaseConfig' in config) {
+            try {
+              let config = JSON.parse(ajaxRequest.responseText);
+              
+              if (!('backendUrl' in config)) {
+                throw "Couldn't find backendUrl!"
+              }
+              if (!('firebaseConfig' in config)) {
+                throw "Couldn't find firebaseConfig!"
+              }
+
               this.config = config;
-            } else {
+
+            } catch (e) {
+              console.error("Got exception:", e);
               console.error("Received config response:", ajaxRequest.responseText);
               console.error("Attempted parsed json:", config);
               alert("Invalid json. Must be well formed, and contain backendUrl and firebaseConfig! See console for the received response.");
