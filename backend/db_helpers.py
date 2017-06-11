@@ -1,5 +1,6 @@
 """DB helper methods."""
 
+import copy
 import constants
 
 class Optional:
@@ -44,6 +45,7 @@ def ValidateInputs(request, game_state, expectations_by_param_name):
   expectations_by_param_name['requestingUserToken'] = 'String'
   expectations_by_param_name['requestingUserId'] = '?UserId'
   expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
+  expectations_by_param_name['serverTime'] = '|Timestamp'
 
   ValidateInputsInner(request, game_state, expectations_by_param_name)
 
@@ -217,6 +219,33 @@ def PlayerToGame(game_state, player):
   return game_state.get('/playersPrivate/%s' % player, 'gameId')
 
 
+def CopyMerge(a, b):
+  a = copy.deepcopy(a)
+  b = copy.deepcopy(b)
+  MergeInto(a, b)
+  return a
+
+def MergeInto(a, b, path=None):
+    if path is None:
+      path = []
+    for key in b:
+        if key in a:
+            if isinstance(a[key], dict) and isinstance(b[key], dict):
+                MergeInto(a[key], b[key], path + [str(key)])
+            elif a[key] == b[key]:
+                pass # same leaf value
+            else:
+                raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
+        else:
+            a[key] = b[key]
+    return a
+
+def GetWholePlayer(game_state, player_id):
+  return CopyMerge(
+        game_state.get('/playersPublic', player_id),
+        game_state.get('/playersPrivate', player_id))
+
+
 def PlayerAllegiance(game_state, player):
   """Map a player to an allegiance."""
   return game_state.get('/playersPublic/%s' % player, 'allegiance')
@@ -241,7 +270,7 @@ def AddPoints(game_state, player_id, points):
   current_points = int(game_state.get(player_path, 'points'))
   new_points = current_points + points
   game_state.put(player_path, 'points', new_points)
-  return 'Player points = %d + %d => %d' % (current_points, points, new_points)
+  print 'Player points = %d + %d => %d' % (current_points, points, new_points)
 
 
 def GetValueWithPropertyEqualTo(game_state, property, key, target):

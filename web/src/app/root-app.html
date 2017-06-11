@@ -8,29 +8,65 @@
       is: 'ghvz-root-app',
 
       properties: {
-        env: {
+        bridgeType: {
           type: String,
           value: () => {
-            var env = Utils.getParameterByName('env');
-            var defaultEnv = 'fake';
-            if (window.location.hostname == "dev.googlehvz.com")
-              defaultEnv = 'dev';
-            if (window.location.hostname == "googlehvz.com")
-              defaultEnv = 'prod';
-            if (!env)
-              env = defaultEnv;
-            return env;
+            var defaultBridgeType = null;
+            if (window.location.hostname.includes("localhost") ||
+                window.location.hostname.includes("127.0.0.1")) {
+              defaultBridgeType = 'fake';
+            }
+            var bridgeType = Utils.getParameterByName('bridge', defaultBridgeType);
+            if (bridgeType != 'fake' && bridgeType != 'remote') {
+              alert("bridgeType must either be 'fake' or 'remote'! Falling back to fake.");
+              bridgeType = 'fake';
+            }
+            return bridgeType;
           },
+        },
+
+        config: {
+          type: Object,
+          value: undefined,
         },
       },
 
-      isRealEnv(env) {
-        return env == 'prod' || env == 'dev' || env == 'localprod';
+      isRealEnv(bridgeType) {
+        return bridgeType == 'remote';
       },
 
-      isFakeEnv(env) {
-        return !this.isRealEnv(env);
+      isFakeEnv(bridgeType) {
+        return !this.isRealEnv(bridgeType);
       },
+
+      attached() {
+        let ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.open('GET', '/config.json', true);
+        ajaxRequest.send();
+        ajaxRequest.onreadystatechange = () => {
+          if (ajaxRequest.readyState == XMLHttpRequest.DONE) {
+            let config;
+            try {
+              config = JSON.parse(ajaxRequest.responseText);
+
+              if (!('backendUrl' in config)) {
+                throw "Couldn't find backendUrl!"
+              }
+              if (!('firebaseConfig' in config)) {
+                throw "Couldn't find firebaseConfig!"
+              }
+
+              this.config = config;
+
+            } catch (e) {
+              console.error("Got exception:", e);
+              console.error("Received config response:", ajaxRequest.responseText);
+              console.error("Attempted parsed json:", config);
+              alert("Invalid config.json! Must be well formed, and contain backendUrl and firebaseConfig! See console for the received response.");
+            }
+          }
+        };
+      }
     });
   });
 </script>
@@ -42,11 +78,11 @@
   }
 </style>
 <template>
-  <template is="dom-if" if="[[isRealEnv(env)]]">
-    <ghvz-real-app env="[[env]]"></ghvz-real-app>
+  <template is="dom-if" if="[[isRealEnv(bridgeType)]]">
+    <ghvz-real-app config="[[config]]"></ghvz-real-app>
   </template>
-  <template is="dom-if" if="[[isFakeEnv(env)]]">
-    <ghvz-fake-app></ghvz-fake-app>
+  <template is="dom-if" if="[[isFakeEnv(bridgeType)]]">
+    <ghvz-fake-app config="[[config]]"></ghvz-fake-app>
   </template>
 </template>
 </dom-module>
