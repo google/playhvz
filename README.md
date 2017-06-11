@@ -67,7 +67,7 @@ These are one time firebase setup instructions along with backend configuration
 1. Click on the Service Accounts tab and navigate to the Database Secrets sub tab.
 1. Show your the secrets key and copy it over for the FIREBASE_SECRET value in config.py.
 1. You can now run your server with `dev_appserver.py app.yaml`
-1. You can also navigate your front end to use this server with [localhost:5000/?env=remote](localhost:5000/?env=remote) as long as you setup your front end config's backend URL (config.json)
+1. You can also navigate your front end to use this server with [localhost:5000/?bridge=remote](localhost:5000/?bridge=remote) as long as you setup your front end config's backend URL (config.json)
 
 ## Setup
 
