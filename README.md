@@ -17,8 +17,14 @@ cd web
 npm install
 ./node_modules/firebase-tools/bin/firebase login
 ./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4
+```
+
+Copy the first relevant part of web/config_.json to web/config.json (i.e., remove the underscore)
+
+```
 npm start
 ```
+
 Visit [`localhost:5000`](localhost:5000)
 
 Stop your webserver via Ctrl-C to abort
