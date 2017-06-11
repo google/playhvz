@@ -49,12 +49,6 @@
           type: Array,
         },
 
-        // Path, without the game/2017m in front
-        innerPath: {
-          type: Array,
-          computed: 'computeInnerPath_(path)',
-        },
-
         isMobile: {
           type: Boolean,
           value: () => Utils.isMobile() || Utils.getParameterByName('layout') == 'mobile',
@@ -92,19 +86,7 @@
       listeners: {
         'ghvz-set-path': 'handleSetPath_',
         'ghvz-sign-out': 'signOut_',
-        'ghvz-open-drawer': 'openDrawer_',
-        'ghvz-close-drawer': 'closeDrawer_',
       //   'ghvz-select-game': 'handleSelectGame_',
-      },
-
-      computeInnerPath_(path) {
-        if (path.length >= 2 && path[0] == 'game') {
-          return path.slice(2);
-        } else if (path.length == 1 && path[0] == 'game') {
-          return [];
-        } else {
-          return path.slice();
-        }
       },
 
       selectUser_(userId) {
@@ -281,14 +263,6 @@
       //   this.bridge.signOut();
       // },
 
-      openDrawer_() {
-        this.$$("#drawer").openDrawer();
-      },
-
-      closeDrawer_() {
-        this.$$("#drawer").closeDrawer();
-      },
-
       handleSetPath_(e) {
         assert('inGame' in e.detail);
         if (e.detail.inGame) {
@@ -326,10 +300,6 @@
       //   }
       //   return [null, null, null];
       // },
-
-      computeResponsiveWidth_(isMobile) {
-        return this.isMobile ? "1000px" : null;
-      }
     });
   });
 </script>
@@ -343,9 +313,6 @@
     top: 0;
     align-items: center;
     justify-content: center;
-  }
-  div[main] {
-    overflow-y: auto;
   }
   paper-spinner {
     width: 32px;
@@ -388,53 +355,15 @@
     <ghvz-display-page
         config="[[config]]"
         bridge="[[bridge]]"
+        is-admin="[[isAdmin]]"
+        database="[[database]]"
         user="[[user]]"
+        game="[[game]]"
+        player="[[player]]"
+        player-id="[[playerId]]"
         path="[[path]]"
         is-mobile="[[isMobile]]">
     </ghvz-display-page>
-  </template>
-
-  <template is="dom-if" if="[[game]]">
-    <!-- For webdrivers -->
-    <div name="gameLoaded"></div>
-
-    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isMobile)]]">
-      <paper-material drawer>
-        <ghvz-drawer
-            bridge="[[bridge]]"
-            is-admin="[[isAdmin]]"
-            database="[[database]]"
-            user="[[user]]"
-            game="[[game]]"
-            player="[[player]]">
-        </ghvz-drawer>
-      </paper-material>
-      <div main>
-        <template is="dom-if" if="[[!isMobile]]">
-          <ghvz-desktop-app
-              bridge="[[bridge]]"
-              is-admin="[[isAdmin]]"
-              database="[[database]]"
-              user="[[user]]"
-              game="[[game]]"
-              player="[[player]]"
-              player-id="[[playerId]]"
-              path="[[innerPath]]">
-          </ghvz-desktop-app>
-        </template>
-        <template is="dom-if" if="[[isMobile]]">
-          <ghvz-mobile-app
-              bridge="[[bridge]]"
-              is-admin="[[isAdmin]]"
-              database="[[database]]"
-              user="[[user]]"
-              game="[[game]]"
-              player="[[player]]"
-              path="[[innerPath]]">
-          </ghvz-mobile-app>
-        </template>
-      </div>
-    </paper-drawer-panel>
   </template>
 </template>
 </dom-module>

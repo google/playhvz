@@ -8,7 +8,7 @@ try:
 
   driver.SendKeys(
       [[By.ID, 'idInput'], [By.TAG_NAME, 'input']],
-      'mygame')
+      driver.GetGameId())
 
   driver.SendKeys(
       [[By.ID, 'nameInput'], [By.TAG_NAME, 'input']],
