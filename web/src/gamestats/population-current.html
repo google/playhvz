@@ -1,22 +1,33 @@
 <dom-module id="ghvz-population-current">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-population-current',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-population-current',
 
-        properties: {
-          game: Object,
-        },
-      });
-    });
-  </script>
-  <template>
-    <script type="text/javascript">
-      var component = document.currentScript.parentElement;
-      var drawCurrentPopulationChart = function() {
+      properties: {
+        game: Object,
+        chartLoaded: {
+          type: Boolean,
+          value: undefined,
+        }
+      },
+
+      attached() {
+        google.charts.setOnLoadCallback(() => this.setChartLoaded());
+      },
+
+      setChartLoaded() {
+        this.chartLoaded = true;
+      },
+
+      observers: [
+        'drawCurrentPopulationChart(chartLoaded, game)',
+      ],
+
+      drawCurrentPopulationChart: function() {
         var numZombies = 0;
         for (let player of this.game.players) {
           numZombies += !!player.canInfect;
@@ -38,14 +49,15 @@
           this.$.current_population_chart);
 
         chart.draw(data, options);
-      }.bind(component);
 
-      google.charts.setOnLoadCallback(drawCurrentPopulationChart);
-
-      // The following makes Google Charts responsive and will resize the chart
-      // as the page is resized. 
-      window.addEventListener('resize', drawCurrentPopulationChart);
-    </script>
-    <div id="current_population_chart" style="width: 100%, height: 100%"></div>
-  </template>
+        // The following makes Google Charts responsive and will resize the chart
+        // as the page is resized. 
+        window.addEventListener('resize', () => this.drawCurrentPopulationChart());
+      }
+    });
+  });
+</script>
+<template>
+  <div id="current_population_chart" style="width: 100%, height: 100%"></div>
+</template>
 </dom-module>

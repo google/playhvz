@@ -30,6 +30,8 @@ def follow_path(obj, path, create_missing=False):
       else:
         return None
     obj = obj[path_part]
+    if not isinstance(obj, dict):
+      return None
   return obj
 
 
@@ -329,10 +331,8 @@ class Transaction:
     all_paths = crawl_paths(self.mutation_paths)
     for path in all_paths:
       leading_slash_path = '/' + path
-      value = follow_path(self.mutation_data, leading_slash_path)
-      batch_mutation[leading_slash_path] = value
-    print 'sending patch!'
-    print batch_mutation
+      data_obj = follow_path(self.mutation_data, drop_last(leading_slash_path))
+      batch_mutation[leading_slash_path] = data_obj.get(last(leading_slash_path))
     self.firebase.patch('/', batch_mutation)
     self.committed = True
 

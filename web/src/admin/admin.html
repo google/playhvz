@@ -11,6 +11,7 @@
       properties: {
         bridge: Object,
         isMobile: Boolean,
+        isAdmin: Boolean,
         database: Object,
         user: Object,
         game: Object,
@@ -32,23 +33,28 @@
   }
 </style>
 <template>
-  <template is="dom-if" if="[[!isMobile]]">
-    <ghvz-desktop-admin-page
-        bridge="[[bridge]]"
-        database="[[database]]"
-        game="[[game]]"
-        user="[[user]]"
-        player="[[player]]">
-    </ghvz-desktop-admin-page>
+  <template is="dom-if" if="[[!isAdmin]]">
+    You are not an admin of this game.
   </template>
-  <template is="dom-if" if="[[isMobile]]">
-    <ghvz-mobile-admin-page
-        bridge="[[bridge]]"
-        database="[[database]]"
-        game="[[game]]"
-        user="[[user]]"
-        player="[[player]]">
-    </ghvz-mobile-admin-page>
+  <template is="dom-if" if="[[isAdmin]]">
+    <template is="dom-if" if="[[!isMobile]]">
+      <ghvz-desktop-admin-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user="[[user]]"
+          player="[[player]]">
+      </ghvz-desktop-admin-page>
+    </template>
+    <template is="dom-if" if="[[isMobile]]">
+      <ghvz-mobile-admin-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user="[[user]]"
+          player="[[player]]">
+      </ghvz-mobile-admin-page>
+    </template>
   </template>
 </template>
 </dom-module>

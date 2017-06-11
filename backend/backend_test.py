@@ -8,7 +8,7 @@ import random
 import unittest
 
 import constants
-import secrets
+import config
 
 
 class Requester:
@@ -70,7 +70,7 @@ class EndToEndTest(unittest.TestCase):
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL, 'use_local': use_local})
+    r = self.requester.Post('DumpTestData', {'id': config.FIREBASE_EMAIL, 'use_local': use_local})
     expected = json.loads(expected_raw)
     actual = r.json()
     self.CleanTestData(actual)
@@ -85,11 +85,11 @@ class EndToEndTest(unittest.TestCase):
 
   def setUp(self):
     self.requester = Requester()
-    self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
+    # self.requester.Post('DeleteTestData', {'id': config.FIREBASE_EMAIL})
 
   def tearDown(self):
     pass
-    # self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
+    # self.requester.Post('DeleteTestData', {'id': config.FIREBASE_EMAIL})
 
   def testEndToEnd(self):
     self.identifier = 'test-%d' % random.randint(0, 2**52)
@@ -400,7 +400,7 @@ if __name__ == '__main__':
 
   # def GetFirebase(self):
   #   auth = firebase.FirebaseAuthentication(
-  #       secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
+  #       config.FIREBASE_SECRET, config.FIREBASE_EMAIL, admin=True)
   #   db = firebase.FirebaseApplication(
   #       'https://trogdors-29fa4.firebaseio.com', authentication=auth)
   #   return db

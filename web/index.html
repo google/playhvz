@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
 <title>Google HvZ</title>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -11,6 +12,13 @@
 <script src="https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
 
 <script src="/bower_components/webcomponentsjs/webcomponents.js"></script>
+<!-- <script>
+  /* this script must run before Polymer is imported */
+  window.Polymer = {
+    dom: 'shadow',
+    lazyRegister: true
+  };
+</script> -->
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">

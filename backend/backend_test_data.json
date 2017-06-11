@@ -284,30 +284,45 @@
       "a": true,
       "players": {
         "player-%(ident)s-1": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-1" }
       }
     },
     "user-%(ident)s-2": {
       "a": true,
       "players": {
         "player-%(ident)s-2": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-2" }
       }
     },
     "user-%(ident)s-3": {
       "a": true,
       "players": {
         "player-%(ident)s-3": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-3" }
       }
     },
     "user-%(ident)s-4": {
       "a": true,
       "players": {
         "player-%(ident)s-4": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-4" }
       }
     },
     "user-%(ident)s-5": {
       "a": true,
       "players": {
         "player-%(ident)s-5": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-5" }
       }
     }
   },

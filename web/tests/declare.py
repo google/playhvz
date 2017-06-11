@@ -4,12 +4,9 @@ from driver import WholeDriver
 
 from selenium.webdriver.common.by import By
 
-try:
-  driver = WholeDriver(
-      user="deckerd",
-      env=sys.argv[1],
-      password=sys.argv[2])
+driver = setup.MakeDriver(user="deckerd")
 
+try:
   driver.Click([[By.NAME, 'declareAllegiance']])
 
   driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']])

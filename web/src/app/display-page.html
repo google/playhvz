@@ -9,6 +9,7 @@
       is: 'ghvz-display-page',
 
       properties: {
+        config: Object,
         bridge: Object,
         user: Object,
 
@@ -76,6 +77,7 @@
       <div class="header">Create Game</div>
       <ghvz-create-populated-game
             class="content"
+            config="[[config]]"
             bridge="[[bridge]]"
             user-id="[[user.id]]">
       </ghvz-create-populated-game>
@@ -87,6 +89,7 @@
       <div class="header">Create Game</div>
       <ghvz-dev-tools
             class="content"
+            config="[[config]]"
             bridge="[[bridge]]"
             user-id="[[user.id]]">
       </ghvz-dev-tools>
