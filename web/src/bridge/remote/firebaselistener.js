@@ -16,7 +16,7 @@ window.FirebaseListener = (function() {
 //   hierarchy, because it's easier for polymer to understand.
 
 const USER_PROPERTIES = ["a"];
-const USER_COLLECTIONS = ["players"];
+const USER_COLLECTIONS = ["players", "games"];
 const GAME_PROPERTIES = ["active", "startTime", "endTime", "registrationEndTime", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
 const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups"];
 const GUN_PROPERTIES = ["gameId", "playerId", "label"];
@@ -67,6 +67,31 @@ const REWARD_CATEGORY_PROPERTIES = ["name", "description", "shortName", "points"
 const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 const REWARD_PROPERTIES = ["gameId", "rewardCategoryId", "playerId", "code"];
 const REWARD_COLLECTIONS = [];
+
+// Once the outside code constructs FirebaseListener, it should soon afterwards
+// call listenToUser.
+
+// listenToUser will start listening to the /users/[userId] and will also start
+// listening shallowly to everything under /games, so that elsewhere in the
+// code we can decide which game to listen more closely to, and how to listen
+// to it (whether as an admin or regular player).
+
+// Sometime after listenToUser, the outside code should call
+// listenToGameAsAdmin or listenToGameAsPlayer.
+
+// listenToGameAsAdmin will listen in a somewhat straightforward way; it will
+// look at /games/[gameId], see /games/[gameId]/missions,
+// /games/[gameId]/chatRooms, /games/[gameId]/players, etc. which are lists of
+// IDS, and use those IDs to start listening to /missions/[missionId],
+// /chatRooms/[chatRoomId], /playersPublic/[playerId],
+// /playersPrivate/[playerId], etc.
+
+// listenToGameAsPlayer can't take that approach, because since we're not an
+// admin, we can't just blindly listen to everything. To know what we have
+// access to, we look at /playersPrivate/[playerId]/chatRooms,
+// /playersPrivate/[playerId]/missions, etc. which are lists of IDs, and
+// use those IDs to start listening to /missions/[missionId],
+// /chatRooms/[chatRoomId], etc.
 
 class FirebaseListener {
   constructor(firebaseRoot) {
@@ -180,6 +205,7 @@ class FirebaseListener {
   }
 
   listenOnce_(path) {
+    console.log('Listening to:', path);
     if (this.listenedToPaths[path]) {
       // Never resolves
       return new Promise((resolve, reject) => {});
@@ -196,6 +222,7 @@ class FirebaseListener {
     return this.listenOnce_(`/users/${userId}`)
         .then((snap) => {
           if (snap.val() == null) {
+            // Just for curiosity, I don't think this actually ever happens.
             console.log('value is null?', snap.val());
             this.unlisten_(`/users/${userId}`);
             return null;
@@ -208,15 +235,19 @@ class FirebaseListener {
               (property, value) => {
                 this.writer.set(this.reader.getUserPath(userId).concat([property]), value);
               });
-          this.firebaseRoot.child(`users/${userId}/players`)
+          this.firebaseRoot.child(`/users/${userId}/players`)
               .on("child_added", (snap) => this.listenToUserPlayer_(userId, snap.getKey()));
-          this.firebaseRoot.child(`games`)
-              .on("child_added", (snap) => this.listenToGameShallow_(snap.getKey()));
+          console.log('Trying to listen to /games...')
+          this.firebaseRoot.child(`/games`)
+              .on("child_added", (snap) => {
+                console.log('Found a game!', snap.getKey());
+                this.listenToGameShallow_(snap.getKey())
+              });
           return userId;
         });
   }
   listenToUserPlayer_(userId, playerId) {
-    this.listenOnce_(`users/${userId}/players/${playerId}`).then((snap) => {
+    this.listenOnce_(`/users/${userId}/players/${playerId}`).then((snap) => {
       let obj = new Model.UserPlayer(playerId, {
         playerId: playerId,
         gameId: snap.val().gameId,
@@ -231,7 +262,7 @@ class FirebaseListener {
     });
   }
   listenToGun_(gameId, gunId) {
-    this.listenOnce_(`guns/${gunId}`).then((snap) => {
+    this.listenOnce_(`/guns/${gunId}`).then((snap) => {
       let gunId = snap.getKey();
       let obj = new Model.Gun(gunId, snap.val());
       this.writer.insert(this.reader.getGunPath(gameId, null), null, obj);
@@ -243,7 +274,7 @@ class FirebaseListener {
     });
   }
   listenToGameShallow_(gameId) {
-    this.listenOnce_(`games/${gameId}`).then((snap) => {
+    this.listenOnce_(`/games/${gameId}`).then((snap) => {
       let props = snap.val();
       props.loaded = false;
       let game = new Model.Game(gameId, props);
@@ -253,14 +284,14 @@ class FirebaseListener {
           (property, value) => {
             this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
           });
-      this.firebaseRoot.child(`games/${gameId}/adminUsers`)
+      this.firebaseRoot.child(`/games/${gameId}/adminUsers`)
           .on("child_added", (snap) => this.listenToAdmin_(gameId, snap.getKey()));
       // listen to quiz questions etc
     });
   }
 
   listenToAdmin_(gameId, userId) {
-    this.listenOnce_(`games/${gameId}/adminUsers/${userId}`).then((snap) => {
+    this.listenOnce_(`/games/${gameId}/adminUsers/${userId}`).then((snap) => {
       let obj = new Model.Admin(userId, {userId: userId});
       this.writer.insert(this.reader.getAdminPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
@@ -273,17 +304,17 @@ class FirebaseListener {
 
   listenToGamePublic_(gameId) {
     this.writer.set(this.reader.getGamePath(gameId).concat(["loaded"]), true);
-    this.firebaseRoot.child(`games/${gameId}/guns`)
+    this.firebaseRoot.child(`/games/${gameId}/guns`)
         .on("child_added", (snap) => this.listenToGun_(gameId, snap.getKey()));
-    this.firebaseRoot.child(`games/${gameId}/quizQuestions`)
+    this.firebaseRoot.child(`/games/${gameId}/quizQuestions`)
         .on("child_added", (snap) => this.listenToQuizQuestion_(gameId, snap.getKey()));
   }
 
   listenToGameAsAdmin({gameId}) {
     this.listenToGamePublic_(gameId);
-    this.firebaseRoot.child(`games/${gameId}/missions`)
+    this.firebaseRoot.child(`/games/${gameId}/missions`)
         .on("child_added", (snap) => this.listenToMission_(gameId, snap.getKey()));
-    this.firebaseRoot.child(`games/${gameId}/missions`)
+    this.firebaseRoot.child(`/games/${gameId}/missions`)
         .on("child_removed", (snap) => {
           let missionId = snap.getKey();
           let path = this.reader.getMissionPath(gameId, missionId);
@@ -291,24 +322,24 @@ class FirebaseListener {
           path = path.slice(0, path.length - 1);
           this.writer.remove(path, index, missionId);
         });
-    this.firebaseRoot.child(`games/${gameId}/players`)
+    this.firebaseRoot.child(`/games/${gameId}/players`)
         .on("child_added", (snap) => this.listenToPlayerPrivate_(gameId, snap.getKey()));
-    this.firebaseRoot.child(`games/${gameId}/groups`)
+    this.firebaseRoot.child(`/games/${gameId}/groups`)
         .on("child_added", (snap) => this.listenToGroup_(gameId, snap.getKey()));
-    this.firebaseRoot.child(`games/${gameId}/chatRooms`)
+    this.firebaseRoot.child(`/games/${gameId}/chatRooms`)
         .on("child_added", (snap) => this.listenToChatRoom_(gameId, snap.getKey()));
-    this.firebaseRoot.child(`games/${gameId}/rewardCategories`)
+    this.firebaseRoot.child(`/games/${gameId}/rewardCategories`)
         .on("child_added", (snap) => this.listenToRewardCategory_(gameId, snap.getKey()));
-    this.firebaseRoot.child(`games/${gameId}/notificationCategories`)
+    this.firebaseRoot.child(`/games/${gameId}/notificationCategories`)
         .on("child_added", (snap) => this.listenToNotificationCategory_(gameId, snap.getKey()));
   }
 
-  listenToGameAsNonAdmin({gameId, playerId}) {
+  listenToGameAsPlayer({gameId, playerId}) {
     let currentPlayerId = playerId;
     this.listenToGamePublic_(gameId);
-    this.firebaseRoot.child(`games/${gameId}/rewardCategories`)
+    this.firebaseRoot.child(`/games/${gameId}/rewardCategories`)
         .on("child_added", (snap) => this.listenToRewardCategory_(gameId, snap.getKey()));
-    this.firebaseRoot.child(`games/${gameId}/players`)
+    this.firebaseRoot.child(`/games/${gameId}/players`)
         .on("child_added", (snap) => {
       let playerId = snap.getKey();
       if (playerId == currentPlayerId) {
@@ -362,13 +393,13 @@ class FirebaseListener {
         this.listenToNotification_(gameId, playerId, notificationId);
         this.listenToNotificationCategory_(gameId, notificationCategoryId);
       });
-      this.firebaseRoot.child(`playersPrivate/${playerId}/chatRooms`)
+      this.firebaseRoot.child(`/playersPrivate/${playerId}/chatRooms`)
           .on("child_added", (snap) => {
         let chatRoomId = snap.getKey();
         this.listenToPlayerChatRoomMembership_(gameId, playerId, chatRoomId);
         this.listenToChatRoom_(gameId, chatRoomId);
       });
-      this.firebaseRoot.child(`playersPrivate/${playerId}/chatRooms`)
+      this.firebaseRoot.child(`/playersPrivate/${playerId}/chatRooms`)
           .on("child_removed", (snap) => {
         let chatRoomId = snap.getKey();
         let path = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
@@ -376,7 +407,7 @@ class FirebaseListener {
         path = path.slice(0, path.length - 1);
         this.writer.remove(path, index, chatRoomId);
       });
-      this.firebaseRoot.child(`playersPrivate/${playerId}/missions`)
+      this.firebaseRoot.child(`/playersPrivate/${playerId}/missions`)
           .on("child_added", (snap) => {
         let missionId = snap.getKey();
         this.listenToPlayerMissionMembership_(gameId, playerId, missionId);
@@ -386,7 +417,7 @@ class FirebaseListener {
   }
 
   listenToPlayerPublic_(gameId, playerId) {
-    this.listenOnce_(`playersPublic/${playerId}`).then((snap) => {
+    this.listenOnce_(`/playersPublic/${playerId}`).then((snap) => {
       this.loadPlayer_(gameId, playerId, snap.val());
       this.listenForPropertyChanges_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS.concat(["canInfect"]),
@@ -436,7 +467,7 @@ class FirebaseListener {
   }
 
   listenToInfection_(gameId, playerId, infectionId) {
-    var ref = this.firebaseRoot.child(`playersPublic/${playerId}/infections`);
+    var ref = this.firebaseRoot.child(`/playersPublic/${playerId}/infections`);
     ref.on("child_added", (snap) => {
       let infectionId = snap.getKey();
       let obj = new Model.Infection(infectionId, snap.val());
@@ -450,7 +481,7 @@ class FirebaseListener {
   }
 
   listenToClaim_(gameId, playerId, claimId) {
-    var ref = this.firebaseRoot.child(`playersPublic/${playerId}/claims`);
+    var ref = this.firebaseRoot.child(`/playersPublic/${playerId}/claims`);
     ref.on("child_added", (snap) => {
       let claimId = snap.getKey();
       let obj = new Model.Claim(claimId, snap.val());
