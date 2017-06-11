@@ -29,7 +29,7 @@ function makePlayerProperties(id, userId, gameId, time, name) {
     canInfect: false,
     needGun: false,
     beInPhotos: true,
-    profileImageUrl: "",
+    profileImageUrl: PlayerUtils.getDefaultProfilePic(name),
     wantToBeSecretZombie: true,
     volunteer: {
       advertising: false,
