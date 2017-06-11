@@ -8,7 +8,7 @@ try:
   driver = WholeDriver(
       client_url=sys.argv[1],
       user="deckerd",
-      env=sys.argv[2],
+      bridge_type=sys.argv[2],
       password=sys.argv[3])
 
   driver.Click([[By.NAME, 'declareAllegiance']])

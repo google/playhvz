@@ -7,7 +7,7 @@ import textwrap
 import constants
 import db_helpers as helpers
 from db_helpers import Optional
-import secrets
+import config
 
 
 InvalidInputError = helpers.InvalidInputError
@@ -1430,7 +1430,7 @@ def AddLife(request, game_state):
 
 
 def DeleteTestData(request, game_state):
-  if request['id'] != secrets.FIREBASE_EMAIL:
+  if request['id'] != config.FIREBASE_EMAIL:
     return
   for entry in ROOT_ENTRIES:
     data = game_state.get('/', entry)
@@ -1441,7 +1441,7 @@ def DeleteTestData(request, game_state):
 
 
 def DumpTestData(request, game_state):
-  if request['id'] != secrets.FIREBASE_EMAIL:
+  if request['id'] != config.FIREBASE_EMAIL:
     return
   use_local = request['use_local']
   res = {}

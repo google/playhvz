@@ -9,7 +9,7 @@ try:
       user="minny",
       page="/createGame",
       populate=False,
-      env=sys.argv[2],
+      bridge_type=sys.argv[2],
       password=sys.argv[3])
 
   driver.Click([[By.ID, 'createGame']])

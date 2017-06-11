@@ -8,29 +8,54 @@
       is: 'ghvz-root-app',
 
       properties: {
-        env: {
+        bridgeType: {
           type: String,
           value: () => {
-            var env = Utils.getParameterByName('env');
-            var defaultEnv = 'fake';
-            if (window.location.hostname == "dev.playhvz.com")
-              defaultEnv = 'dev';
-            if (window.location.hostname == "playhvz.com")
-              defaultEnv = 'prod';
-            if (!env)
-              env = defaultEnv;
-            return env;
+            var defaultBridgeType = null;
+            if (window.location.hostname.includes("localhost") ||
+                window.location.hostname.includes("127.0.0.1")) {
+              defaultBridgeType = 'fake';
+            }
+            var bridgeType = Utils.getParameterByName('bridge', defaultBridgeType);
+            if (bridgeType != 'fake' && bridgeType != 'remote') {
+              alert("bridgeType must either be 'fake' or 'remote'! Falling back to fake.");
+              bridgeType = 'fake';
+            }
+            return bridgeType;
           },
+        },
+
+        config: {
+          type: Object,
+          value: undefined,
         },
       },
 
-      isRealEnv(env) {
-        return env == 'prod' || env == 'dev' || env == 'localprod';
+      isRealEnv(bridgeType) {
+        return bridgeType == 'remote';
       },
 
-      isFakeEnv(env) {
-        return !this.isRealEnv(env);
+      isFakeEnv(bridgeType) {
+        return !this.isRealEnv(bridgeType);
       },
+
+      attached() {
+        let ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.open('GET', '/config.json', true);
+        ajaxRequest.send();
+        ajaxRequest.onreadystatechange = () => {
+          if (ajaxRequest.readyState == XMLHttpRequest.DONE) {
+            let config = JSON.parse(ajaxRequest.responseText);
+            if ('backendUrl' in config && 'firebaseConfig' in config) {
+              this.config = config;
+            } else {
+              console.error("Received config response:", ajaxRequest.responseText);
+              console.error("Attempted parsed json:", config);
+              alert("Invalid json. Must be well formed, and contain backendUrl and firebaseConfig! See console for the received response.");
+            }
+          }
+        };
+      }
     });
   });
 </script>
@@ -42,11 +67,11 @@
   }
 </style>
 <template>
-  <template is="dom-if" if="[[isRealEnv(env)]]">
-    <ghvz-real-app env="[[env]]"></ghvz-real-app>
+  <template is="dom-if" if="[[isRealEnv(bridgeType)]]">
+    <ghvz-real-app config="[[config]]"></ghvz-real-app>
   </template>
-  <template is="dom-if" if="[[isFakeEnv(env)]]">
-    <ghvz-fake-app></ghvz-fake-app>
+  <template is="dom-if" if="[[isFakeEnv(bridgeType)]]">
+    <ghvz-fake-app config="[[config]]"></ghvz-fake-app>
   </template>
 </template>
 </dom-module>
