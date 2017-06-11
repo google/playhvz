@@ -60,6 +60,12 @@ class SimpleDriver:
     else:
       assert needle not in text
 
+  def getCurrentUrl(self):
+    return self.selenium_driver.current_url
+
+  def switchToUrl(self, url):
+    self.selenium_driver.get(url)
+
   def Quit(self):
     self.selenium_driver.quit()
 
@@ -79,6 +85,12 @@ class RetryingDriver:
 
   def ExpectContains(self, path, needle, should_exist=True):
     return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist))
+
+  def getCurrentUrl(self):
+    return self.inner_driver.getCurrentUrl()
+
+  def switchToUrl(self, url):
+    return self.inner_driver.switchToUrl(url)
 
   def Quit(self):
     self.inner_driver.Quit()
@@ -224,6 +236,21 @@ class FakeDriver:
     else:
       self.inner_driver.ExpectContains(path, needle, should_exist)
 
+  def SwitchPage(self, page):
+    parsed_url = self.inner_driver.getCurrentUrl().split("/")
+    params = parsed_url[len(parsed_url)-1].split("?")[1]
+    index = 0
+    while (parsed_url[index] != 'poptest-1' and index < len(parsed_url)):
+      index = index + 1
+    if (index >= len(parsed_url)):
+      raise AssertionError('Cannot parse url to switch page')
+    current_page = parsed_url[index+1]
+    new_url = ""
+    for i in range(index+1):
+      new_url = new_url + parsed_url[i] + "/"
+    new_url = new_url + page + "?" + params
+    self.inner_driver.switchToUrl(new_url)
+
   def Quit(self):
     self.inner_driver.Quit()
 
@@ -262,6 +289,9 @@ class WholeDriver:
 
   def ExpectContains(self, path, needle, should_exist=True):
     return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
+
+  def SwitchPage(self, page):
+    return self.inner_driver.SwitchPage(page)
 
 
   # def FindElement(self, by, locator, wait_long=True):
