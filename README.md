@@ -23,17 +23,16 @@ Visit [`localhost:5000`](localhost:5000)
 
 Stop your webserver via Ctrl-C to abort
 
-
 ### Installing a Polymer component
 Run `bower install paper-button` under web directory
 
 ### Running against prod
-1. `cp web/config_.json web/config.json` (i.e., remove the underscore)
+1. Copy the first relevant part of web/config_.json to web/config.json (i.e., remove the underscore)
 1. Restart your web server
 1. Go to [`localhost:5000/?bridge=remote`](localhost:5000/?bridge=remote)
 
-### Your own Firebase project
-This is a one time firebase setup
+### Your own Firebase project and backend
+These are one time firebase setup instructions along with backend configuration
 
 #### Front End (/web)
 1. [Create a firebase project](https://console.firebase.google.com/?pli=1)
@@ -62,10 +61,13 @@ This is a one time firebase setup
 
 #### Back End (/backend)
 1. Open your Firebase account page and use the gear icon to select the settings
+1. Copy your project ID to app.yaml in your /backend folder
+1. Make a copy of config\_.py and name it config.py (remove the underscore)
+1. Back in Firebase copy your webconfig and place a copy into your newly created config.py
 1. Click on the Service Accounts tab and navigate to the Database Secrets sub tab.
-1. Show your the secrets key and copy it over for the FIREBASE_SECRET value in config\_.py.
+1. Show your the secrets key and copy it over for the FIREBASE_SECRET value in config.py.
 1. You can now run your server with `dev_appserver.py app.yaml`
-
+1. You can also navigate your front end to use this server with [localhost:5000/?env=localprod](localhost:5000/?env=localprod)
 
 ## Setup
 
