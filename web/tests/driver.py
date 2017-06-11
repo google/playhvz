@@ -53,7 +53,6 @@ class SimpleDriver:
         element.get_attribute('textContent').strip() or
         element.get_attribute('innerText').strip())
     # print 'Checking if "%s" is in "%s"' % (needle, text)
-    print 'Checking if "%s" is present.' % (needle)
     # Leaving innerHTML out because it seems like it can have a lot of false
     # positives, because who knows whats in the html...
     if should_exist:
@@ -231,6 +230,7 @@ class FakeDriver:
 
 class WholeDriver:
   def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
+    self.is_mobile = is_mobile
     if use_remote:
       self.inner_driver = RemoteDriver(client_url, is_mobile, password, populate, user, page)
     else:

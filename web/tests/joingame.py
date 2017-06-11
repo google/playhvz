@@ -1,16 +1,9 @@
-import sys
-import time
-from driver import WholeDriver
-
+import setup
 from selenium.webdriver.common.by import By
 
-try:
-  driver = WholeDriver(
-      client_url=sys.argv[1],
-      user="reggie",
-      bridge_type=sys.argv[2],
-      password=sys.argv[3])
+driver = setup.MakeDriver(user="reggie")
 
+try:
   driver.FindElement([[By.NAME, 'joinGame']])
 
   driver.Click([[By.NAME, 'joinGame']])

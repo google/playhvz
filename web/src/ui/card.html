@@ -92,7 +92,7 @@
     height: 48px;
     padding-right: 4px;
   }
-  #menu {
+  .menu {
     order: 1;
   }
   :host([admin]) .header {
@@ -131,11 +131,11 @@
   <paper-material>
     <div class="header">
       <template is="dom-if" if="[[withMenu]]">
-        <paper-icon-button id="menu" icon="icons:menu" raised on-tap="openDrawer_">
+        <paper-icon-button name="drawerButton" class="menu" icon="icons:menu" raised on-tap="openDrawer_">
         </paper-icon-button>
       </template>
       <template is="dom-if" if="[[withBack]]">
-        <paper-icon-button id="menu" icon="icons:arrow-back" raised on-tap="back_">
+        <paper-icon-button name="backButton" class="menu" icon="icons:arrow-back" raised on-tap="back_">
         </paper-icon-button>
       </template>
       <div id="header" class="text" pad-left$="[[!withMenu]]"><content select=".header"></div>
