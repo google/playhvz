@@ -432,7 +432,7 @@ def AddMission(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
     'missionId': '!MissionId',
-    'groupId': 'GroupId',
+    'accessGroupId': 'GroupId',
     'rsvpersGroupId': 'GroupId',
     'name': 'String',
     'beginTime': 'Timestamp',
@@ -440,7 +440,7 @@ def AddMission(request, game_state):
     'detailsHtml': 'String'
   })
 
-  mission_data = {k: request[k] for k in ['name', 'beginTime', 'endTime', 'detailsHtml', 'groupId', 'rsvpersGroupId', 'gameId']}
+  mission_data = {k: request[k] for k in ['name', 'beginTime', 'endTime', 'detailsHtml', 'accessGroupId', 'rsvpersGroupId', 'gameId']}
 
   game_state.put('/missions', request['missionId'], mission_data)
   game_state.put('/games/%s/missions' % request['gameId'], request['missionId'], True)
@@ -498,7 +498,7 @@ def AddChatRoom(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
     'chatRoomId': '!ChatRoomId',
-    'groupId': 'GroupId',
+    'accessGroupId': 'GroupId',
     'withAdmins': 'Boolean',
     'name': 'String'
   })
@@ -506,7 +506,7 @@ def AddChatRoom(request, game_state):
   chat_room_id = request['chatRoomId']
   game_id = request['gameId']
 
-  chat_room = {k: request[k] for k in ('groupId', 'name', 'withAdmins', 'gameId')}
+  chat_room = {k: request[k] for k in ('accessGroupId', 'name', 'withAdmins', 'gameId')}
 
   game_state.put('/chatRooms', chat_room_id, chat_room)
   game_state.put('/games/%s/chatRooms' % game_id, chat_room_id, True)
@@ -742,11 +742,11 @@ def AddPlayerToGroupInner(game_state, group_id, player_to_add_id):
 
   chats = helpers.GroupToChats(game_state, group_id)
   for chat in chats:
-    game_state.put('/playersPrivate/%s/chatRooms' % player_to_add_id, chat, True)
+    game_state.put('/playersPrivate/%s/accessibleChatRooms' % player_to_add_id, chat, True)
 
   missions = helpers.GroupToMissions(game_state, group_id)
   for mission in missions:
-    game_state.put('/playersPrivate/%s/missions' % player_to_add_id, mission, True)
+    game_state.put('/playersPrivate/%s/accessibleMissions' % player_to_add_id, mission, True)
 
 def RemovePlayerFromGroup(request, game_state):
   """Remove a player from a group.

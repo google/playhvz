@@ -24,7 +24,7 @@ const GUN_COLLECTIONS = [];
 const PRIVATE_PLAYER_PROPERTIES = ["beInPhotos", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
 const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
 const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
-const PRIVATE_PLAYER_COLLECTIONS = ["lives", "chatRooms", "missions"];
+const PRIVATE_PLAYER_COLLECTIONS = ["lives", "accessibleChatRooms", "accessibleMissions"];
 const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
 const USER_PLAYER_COLLECTIONS = [];
 const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
@@ -362,13 +362,13 @@ class FirebaseListener {
         this.listenToNotification_(gameId, playerId, notificationId);
         this.listenToNotificationCategory_(gameId, notificationCategoryId);
       });
-      this.firebaseRoot.child(`playersPrivate/${playerId}/chatRooms`)
+      this.firebaseRoot.child(`playersPrivate/${playerId}/accessibleChatRooms`)
           .on("child_added", (snap) => {
         let chatRoomId = snap.getKey();
         this.listenToPlayerChatRoomMembership_(gameId, playerId, chatRoomId);
         this.listenToChatRoom_(gameId, chatRoomId);
       });
-      this.firebaseRoot.child(`playersPrivate/${playerId}/chatRooms`)
+      this.firebaseRoot.child(`playersPrivate/${playerId}/accessibleChatRooms`)
           .on("child_removed", (snap) => {
         let chatRoomId = snap.getKey();
         let path = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
@@ -376,7 +376,7 @@ class FirebaseListener {
         path = path.slice(0, path.length - 1);
         this.writer.remove(path, index, chatRoomId);
       });
-      this.firebaseRoot.child(`playersPrivate/${playerId}/missions`)
+      this.firebaseRoot.child(`playersPrivate/${playerId}/accessibleMissions`)
           .on("child_added", (snap) => {
         let missionId = snap.getKey();
         this.listenToPlayerMissionMembership_(gameId, playerId, missionId);

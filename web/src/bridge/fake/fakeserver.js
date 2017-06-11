@@ -131,7 +131,7 @@ class FakeServer {
         this.reader.getChatRoomPath(gameId, null),
         null,
         new Model.ChatRoom(chatRoomId, Utils.merge(args, {
-          groupId: groupId,
+          accessGroupId: groupId,
         })));
   }
   updateChatRoom(args) {
