@@ -172,11 +172,6 @@ type Game {
   players: Map<PlayerId, Boolean>;
   rewardCategories: Map<RewardCategoryId, Boolean>;
 
-  // Everyone can read a game so they can add themselves
-  read() {
-    isAuthenticated() 
-  }
-
   write() {     isServer()   }
   
   validate() {
@@ -415,6 +410,12 @@ type PublicLife extends LifeBase {
 /chatRooms/{ChatRoomId} is ChatRoom;
 /chatRooms/ChatRoomId/messages/{MessageId} is Message;
 /games/{GameId} is Game;
+/games {
+  // Everyone can read a game so they can add themselves
+  read() {
+    isAuthenticated() 
+  }
+}
 /games/GameId/adminUsers/{UserId} is User;
 /groups/{GroupId} is Group;
 /groups/GroupId/players/{PlayerId} is PrivatePlayer;
