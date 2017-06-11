@@ -37,8 +37,6 @@ Go to `localhost:5000/?bridge=remote`
 
 `cd web`
 
-`./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4` (make sure you have the access to this project)
-
 See the config in web/config_.json and put it in a new web/config.json file (note the lack of an underscore there).
 
 `npm start`
@@ -62,6 +60,10 @@ Run `bower install paper-button` under web directory
 
 ## Backend
 
+### Setting up
+
+#### Linux
+
 `sudo goobuntu-add-repo -e cloud-sdk-trusty`
 
 `sudo apt-get update`
@@ -70,34 +72,52 @@ Run `bower install paper-button` under web directory
 
 `sudo apt-get install google-cloud-sdk-app-engine-python`
 
+(continue in the Common section)
+
+#### Mac
+
+Go to https://cloud.google.com/appengine/downloads
+
+Click Python
+
+Click DOWNLOAD AND INSTALL THE CLOUD SDK
+
+Download and install that SDK.
+
+(continue in the Common section)
+
+#### Common
+
+`cd backend`
+
 `gcloud init`
 
-Set project to humansvszombies-24348 (All of our collaborators should have access to this)
+Set project to humansvszombies-24348 (You should have access to this, but if you don't see this or don't have access to this, ask someone on the team)
 
-`pip install -r backend/requirements.txt -t backend/lib`
+`pip install -r requirements.txt -t lib`
 
-Copy backend/config_.py to backend/config.py
+Copy config_.py to config.py
 
 If you're running your server against the prod firebase instance, replace FIREBASE_SECRET with
-the key from https://console.firebase.google.com/project/trogdors-29fa4/settings/serviceaccounts/databasesecrets and replace the FIREBASE_CONFIG map with the map from clicking on "Add Firebase to your web app" at https://console.firebase.google.com/project/trogdors-29fa4/settings/serviceaccounts/databasesecrets
+the key from https://console.firebase.google.com/project/trogdors-29fa4/settings/serviceaccounts/databasesecrets and replace the FIREBASE_CONFIG map with the map from clicking on "Web Setup" link at https://console.firebase.google.com/u/0/project/trogdors-29fa4/authentication
 
-Start up the local server with `dev_appserver.py backend/app.yaml`
+Start up the local server with `dev_appserver.py app.yaml`
 
 ### Deploying to Prod
 
 To launch a new version (once you have gcloud hooked in to the right app engine account):
 
-`gcloud app deploy backend/app.yaml`
+`gcloud app deploy app.yaml`
 
 ### Running Backend Tests
 
 WARNING: This test will nuke our prod firebase. This is fine, everyone knows that that data could disappear at any moment. Though if two people run this test at the same time, it could fail. There's an open task on go/hvz-milestones (#201) to fix these particular inconveniences.
 
-First, get a local backend server running.
-
-`pip install requests`
+First, get a local backend server running. Then:
 
 `cd backend/`
+
+`pip install requests`
 
 `python backend_test.py`
 
@@ -182,18 +202,20 @@ In the Secrets section, hover over the secrets key and hit Show.
 
 Use that value for the FIREBASE_SECRET value in config\_.py.
 
-Click on the Authentication tab, and click on the Sign In Method tab. Enable Google and Email/Password.
+You can now run your server with `dev_appserver.py app.yaml`
 
-Click the Users tab.
+### Setting up your local web server to talk to your own firebase and local backend
+
+Go to your Firebase project, and click on the Authentication tab.
+
+Click on the Sign In Method tab. Enable Google and Email/Password.
+
+Click on the Users tab.
 
 Make eight users: zella@playhvz.com, deckerd@playhvz.com, zeke@playhvz.com, moldavi@playhvz.com, jack@playhvz.com, minny@playhvz.com, reggie@playhvz.com, drake@playhvz.com, all using the same password (write down the password, youll need it if you want to run webdrivers).
 
 Hit the copy button next to zella's name and put that into your config.py and config.json. Repeat
 for the remaining seven fake users.
-
-You can now run your server with `dev_appserver.py backend/app.yaml`
-
-### Setting up your local web server to talk to your own firebase and local backend
 
 Make a new web/config.json file, similar to the examples in web/config_.json.
 

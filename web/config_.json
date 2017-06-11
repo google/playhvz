@@ -23,7 +23,7 @@ have a config.json which only contains this:
 		"zeke": "dXQVCY2folR1H5YOIBHNrgcVsot2",
 		"moldavi": "jAgZVgNVgHcbKDhdeYMzAUzaP4L2",
 		"jack": "Uvpnj4GU3WPYoPAOkI6ZnRau3Vr1",
-		"deckerd": "54jqFxbj0VYKNcvTYEFWgd1tnI12",
+		"deckerd": "54jqFxbj0VYKNcvTYEFWgd1tnI12"
 	}
 }
 
@@ -48,7 +48,7 @@ have a config.json which only contains this:
 		"zeke": "dXQVCY2folR1H5YOIBHNrgcVsot2",
 		"moldavi": "jAgZVgNVgHcbKDhdeYMzAUzaP4L2",
 		"jack": "Uvpnj4GU3WPYoPAOkI6ZnRau3Vr1",
-		"deckerd": "54jqFxbj0VYKNcvTYEFWgd1tnI12",
+		"deckerd": "54jqFxbj0VYKNcvTYEFWgd1tnI12"
 	}
 }
 
@@ -74,7 +74,7 @@ instance (see the README for how to make your own firebase instance).
 		"zeke": (something),
 		"moldavi": (something),
 		"jack": (something),
-		"deckerd": (something),
+		"deckerd": (something)
 	}
 }
 

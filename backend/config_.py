@@ -6,4 +6,4 @@ IONIC_TOKEN = ''
 IONIC_APPID = ''
 IONIC_SECURITY_TAG = ''
 FIREBASE_CONFIG = { ... }
-FAKE_USER_IDS = { ... }
+# FAKE_USER_IDS = { ... } coming soon!
