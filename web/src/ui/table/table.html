@@ -464,7 +464,7 @@
       <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
       <paper-menu class="dropdown-content">
         <template is="dom-repeat" items="[[actions]]" as="action">
-          <paper-item on-tap="onActionTapped_">[[action.name]]</paper-item>
+          <paper-item name$="menu-item-[[action.name]]" on-tap="onActionTapped_">[[action.name]]</paper-item>
         </template>
       </paper-menu>
     </paper-menu-button>

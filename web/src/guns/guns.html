@@ -58,6 +58,7 @@
               {
                 property: "label",
                 label: "Label",
+                name: "create-gun",
                 description: "Label on the gun, example 1404.",
               },
             ],
@@ -158,12 +159,13 @@
         blueprint="[[makeTableBlueprint_()]]"
         items="[[game.guns]]">
       <template is="dom-repeat" id="repeater" items="[[game.guns]]" as="gun" initial-count="1" target-framerate="5">
-        <div class="row">
+        <div class="row" name$="gun-row-[[gun.label]]">
           <ghvz-table-control-cell item="[[gun]]"></ghvz-table-control-cell>
           <div class="cell">[[gun.label]]</div>
           <div class="cell">
             <div class="player-label">
-              <div class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>
+              <div 
+                class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>
               [[computePlayerName_(gun.playerId)]]
             </div>
           </div>
