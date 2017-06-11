@@ -35,6 +35,7 @@
       done_() {
         // As the new player comes down from firebase,
         // <ghvz-app> will detect it and auto-choose it.
+        this.newPlayerArgs.profileImageUrl = PlayerUtils.getDefaultProfilePic(this.newPlayerArgs.name || "");
         this.bridge.createPlayer(
             Utils.merge(
                 {
