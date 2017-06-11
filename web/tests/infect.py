@@ -1,15 +1,9 @@
-import sys
-from driver import WholeDriver
-
+import setup
 from selenium.webdriver.common.by import By
 
-try:
-  driver = WholeDriver(
-      client_url=sys.argv[1],
-      user="jack",
-      env=sys.argv[2],
-      password=sys.argv[3])
+driver = setup.MakeDriver(user="jack")
 
+try:
   driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
 
   driver.SwitchUser("drake")

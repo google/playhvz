@@ -1,16 +1,9 @@
-import sys
-from driver import WholeDriver
+import setup
 from selenium.webdriver.common.by import By
 
+driver = setup.MakeDriver(user="zella")
+
 try:
-
-  # Sign in as an admin
-  driver = WholeDriver(
-    client_url=sys.argv[1],
-    user="zella",
-    env=sys.argv[2],
-    password=sys.argv[3])
-
   # See rules sheet on dashboard
   driver.FindElement([[By.ID, 'rules']])
 

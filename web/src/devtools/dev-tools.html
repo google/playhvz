@@ -9,11 +9,12 @@
 
       properties: {
         bridge: Object,
+        config: Object,
       },
 
       populate_() {
-        populateUsers(this.bridge, FAKE_USER_IDS);
-        populateGame(this.bridge, bridge.idGenerator.newGameId("poptest"), FAKE_USER_IDS, false);
+        populateUsers(this.bridge, this.config);
+        populateGame(this.bridge, bridge.idGenerator.newGameId("poptest"), this.config, false);
       },
     });
   });

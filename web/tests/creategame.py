@@ -1,17 +1,9 @@
-from driver import WholeDriver
-import sys
-
+import setup
 from selenium.webdriver.common.by import By
 
-try:
-  driver = WholeDriver(
-      client_url=sys.argv[1],
-      user="minny",
-      page="/createGame",
-      populate=False,
-      env=sys.argv[2],
-      password=sys.argv[3])
+driver = setup.MakeDriver(user="minny", page="/createGame", populate=False)
 
+try:
   driver.Click([[By.ID, 'createGame']])
 
   driver.SendKeys(
@@ -27,6 +19,11 @@ try:
       '60')
   
   driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
+  
+  driver.WaitForGameLoaded()
+
+  if driver.is_mobile:
+    driver.Click([[By.TAG_NAME, 'ghvz-mobile-main-page'], [By.NAME, 'drawerButton']])
 
   driver.Click([[By.NAME, 'drawerAdmin Dashboard']])
 

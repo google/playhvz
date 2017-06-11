@@ -1,14 +1,7 @@
-import sys
-import time
-from driver import WholeDriver
-
+import setup
 from selenium.webdriver.common.by import By
 
-driver = WholeDriver(
-    client_url=sys.argv[1],
-    user="zella",
-    env=sys.argv[2],
-    password=sys.argv[3])
+driver = setup.MakeDriver()
 driver.WaitForGameLoaded()
 
 try:

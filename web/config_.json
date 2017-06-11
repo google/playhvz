@@ -1,0 +1,82 @@
+Welcome to config_.json!
+This is a template file which you can use to create the REAL config.json.
+See which of the below cases apply to you and use the appropriate config.
+
+To have a client which talks to the prod backend and the prod firebase,
+have a config.json which only contains this:
+
+{
+	"backendUrl": "https://humansvszombies-24348.appspot.com/",
+	"firebaseConfig": {
+		"apiKey": "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+		"authDomain": "trogdors-29fa4.firebaseapp.com",
+		"databaseURL": "https://trogdors-29fa4.firebaseio.com",
+		"projectId": "trogdors-29fa4",
+		"storageBucket": "trogdors-29fa4.appspot.com",
+		"messagingSenderId": "625580091272"
+	},
+	"fakeUserIds": {
+		"zella": "3wSU8h9ONrenQEGWAHUdfyi0ifl1",
+		"reggie": "9kmCUI3VBpb8NhbO8yeYrv9jFk02",
+		"minny": "XmAFbKI4EhORFG5nGJIk6rgcPxI3",
+		"drake": "V1Qzso4PZLR06II3cDzQpYhQkv13",
+		"zeke": "dXQVCY2folR1H5YOIBHNrgcVsot2",
+		"moldavi": "jAgZVgNVgHcbKDhdeYMzAUzaP4L2",
+		"jack": "Uvpnj4GU3WPYoPAOkI6ZnRau3Vr1",
+		"deckerd": "54jqFxbj0VYKNcvTYEFWgd1tnI12"
+	}
+}
+
+To have a client which talks to a local backend and the prod firebase,
+have a config.json which only contains this:
+
+{
+	"backendUrl": "http://localhost:8080/",
+	"firebaseConfig": {
+		"apiKey": "AIzaSyCyNJ8cgkeiWNOO9axMDx1BLXSgf69I2RM",
+		"authDomain": "trogdors-29fa4.firebaseapp.com",
+		"databaseURL": "https://trogdors-29fa4.firebaseio.com",
+		"projectId": "trogdors-29fa4",
+		"storageBucket": "trogdors-29fa4.appspot.com",
+		"messagingSenderId": "625580091272"
+	},
+	"fakeUserIds": {
+		"zella": "3wSU8h9ONrenQEGWAHUdfyi0ifl1",
+		"reggie": "9kmCUI3VBpb8NhbO8yeYrv9jFk02",
+		"minny": "XmAFbKI4EhORFG5nGJIk6rgcPxI3",
+		"drake": "V1Qzso4PZLR06II3cDzQpYhQkv13",
+		"zeke": "dXQVCY2folR1H5YOIBHNrgcVsot2",
+		"moldavi": "jAgZVgNVgHcbKDhdeYMzAUzaP4L2",
+		"jack": "Uvpnj4GU3WPYoPAOkI6ZnRau3Vr1",
+		"deckerd": "54jqFxbj0VYKNcvTYEFWgd1tnI12"
+	}
+}
+
+To have a client which talks to a local backend and your own development firebase,
+have a config.json which looks like this, but with values from your own firebase
+instance (see the README for how to make your own firebase instance).
+
+{
+	"backendUrl": "http://localhost:8080/",
+	"firebaseConfig": {
+		"apiKey": (something),
+		"authDomain": (something),
+		"databaseURL": (something),
+		"projectId": (something),
+		"storageBucket": (something),
+		"messagingSenderId": (something)
+	},
+	"fakeUserIds": {
+		"zella": (something),
+		"reggie": (something),
+		"minny": (something),
+		"drake": (something),
+		"zeke": (something),
+		"moldavi": (something),
+		"jack": (something),
+		"deckerd": (something)
+	}
+}
+
+There's more to getting a local client, local backend, and development firebase
+instance to work, see the README.
