@@ -8,7 +8,7 @@ try:
   driver = WholeDriver(
     client_url=sys.argv[1],
     user="zella",
-    env=sys.argv[2],
+    bridge_type=sys.argv[2],
     password=sys.argv[3])
 
   # See rules sheet on dashboard

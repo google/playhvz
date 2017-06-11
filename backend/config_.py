@@ -1,8 +1,9 @@
 # Copy this file secrets_.py to a new file called secrets.py
-# Then fill out with value from
-# https://console.firebase.google.com/project/trogdors-29fa4/settings/serviceaccounts/databasesecrets
+# Then follow the instructions in README to fill in these values.
 FIREBASE_SECRET = ''
 FIREBASE_EMAIL = ''
 IONIC_TOKEN = ''
 IONIC_APPID = ''
 IONIC_SECURITY_TAG = ''
+FIREBASE_CONFIG = { ... }
+# FAKE_USER_IDS = { ... } coming soon!

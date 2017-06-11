@@ -3,15 +3,13 @@
 
 ### Running Web Server
 
-To startup the server, run:
-
 `cd web`
 
-`npm install` 
+`npm install`
 
 `./node_modules/firebase-tools/bin/firebase login [your username]`
 
-`./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4` (make sure you have the access to this project)
+`./node_modules/firebase-tools/bin/firebase use --add` and select the firebase project you want to use. trogdors-29fa4 is our prod project.
 
 `npm start`
 
@@ -19,19 +17,41 @@ Go to `localhost:5000`
 
 This will run against the in-memory fake JS server.
 
-#### Running against the prod server and prod firebase
-
-Go to `localhost:5000/?env=prod`
-
-#### Running against a local server and prod firebase
-
-Go to `localhost:5000/?env=localprod`
-
 #### Running against the in-memory fake JS server:
 
 Go to `localhost:5000`
 
 (yes, the default is the in-memory fake JS server)
+
+#### Running against the prod server and prod firebase
+
+`cd web`
+
+See the config in web/config_.json and put it in a new web/config.json file (note the lack of an underscore there).
+
+`npm start`
+
+Go to `localhost:5000/?bridge=remote`
+
+#### Running against a local backend and prod firebase
+
+`cd web`
+
+See the config in web/config_.json and put it in a new web/config.json file (note the lack of an underscore there).
+
+`npm start`
+
+Go to `localhost:5000/?bridge=remote`
+
+#### Running against your own firebase, local client, and local backend
+
+See the similarly named section at the end.
+
+#### Deploying to Prod
+
+`./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4` (make sure you have the access to this project)
+
+`./node_modules/firebase-tools/bin/firebase deploy`
 
 #### Installing a Polymer component
 
@@ -39,6 +59,10 @@ Run `bower install paper-button` under web directory
 
 
 ## Backend
+
+### Setting up
+
+#### Linux
 
 `sudo goobuntu-add-repo -e cloud-sdk-trusty`
 
@@ -48,35 +72,59 @@ Run `bower install paper-button` under web directory
 
 `sudo apt-get install google-cloud-sdk-app-engine-python`
 
+(continue in the Common section)
+
+#### Mac
+
+Go to https://cloud.google.com/appengine/downloads
+
+Click Python
+
+Click DOWNLOAD AND INSTALL THE CLOUD SDK
+
+Download and install that SDK.
+
+(continue in the Common section)
+
+#### Common
+
+`cd backend`
+
 `gcloud init`
 
-Set project to humansvszombies-24348 (All of our collaborators should have access to this)
+Set project to humansvszombies-24348 (You should have access to this, but if you don't see this or don't have access to this, ask someone on the team)
 
-`pip install -r backend/requirements.txt -t backend/lib`
+`pip install -r requirements.txt -t lib`
 
-Copy backend/secrets_.py to backend/secrets.py
+Copy config_.py to config.py
 
-Follow the instructions in backend/secrets.py regarding the firebase secret.
+If you're running your server against the prod firebase instance, replace FIREBASE_SECRET with
+the key from https://console.firebase.google.com/project/trogdors-29fa4/settings/serviceaccounts/databasesecrets and replace the FIREBASE_CONFIG map with the map from clicking on "Web Setup" link at https://console.firebase.google.com/u/0/project/trogdors-29fa4/authentication
 
-Start up the local server with `dev_appserver.py backend/app.yaml`
+Start up the local server with `dev_appserver.py app.yaml`
 
 ### Deploying to Prod
 
 To launch a new version (once you have gcloud hooked in to the right app engine account):
 
-`gcloud app deploy backend/app.yaml`
+`gcloud app deploy app.yaml`
 
 ### Running Backend Tests
 
 WARNING: This test will nuke our prod firebase. This is fine, everyone knows that that data could disappear at any moment. Though if two people run this test at the same time, it could fail. There's an open task on go/hvz-milestones (#201) to fix these particular inconveniences.
 
-First, get a local backend server running.
-
-`pip install requests`
+First, get a local backend server running. Then:
 
 `cd backend/`
 
+`pip install requests`
+
 `python backend_test.py`
+
+
+### Running against your own firebase, and local backend
+
+See the similarly named section at the end.
 
 
 ## Set up Firebase
@@ -128,4 +176,53 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`./run.sh`
+`./run.sh http://localhost:5000 fake PASSWORDHERE` replacing PASSWORDHERE with the fake accounts' password (ask someone on the team).
+
+
+
+## Setting up your own firebase, local client, and local backend
+
+Go to http://firebase.com/
+
+Click Get Started
+
+Add a project, give it a name, hit Create Project.
+
+In the project overview page, click "Add Firebase to your web app"
+
+Use these values to fill in config\_.py. Keep reading to find out what FIREBASE_SECRET should be.
+
+In the Firebase project overview page, hit the gear icon, and hit Project Settings.
+
+Click on the Service Accounts tab.
+
+Click on the Database Secrets tab.
+
+In the Secrets section, hover over the secrets key and hit Show.
+
+Use that value for the FIREBASE_SECRET value in config\_.py.
+
+You can now run your server with `dev_appserver.py app.yaml`
+
+### Setting up your local web server to talk to your own firebase and local backend
+
+Go to your Firebase project, and click on the Authentication tab.
+
+Click on the Sign In Method tab. Enable Google and Email/Password.
+
+Click on the Users tab.
+
+Make eight users: zella@playhvz.com, deckerd@playhvz.com, zeke@playhvz.com, moldavi@playhvz.com, jack@playhvz.com, minny@playhvz.com, reggie@playhvz.com, drake@playhvz.com, all using the same password (write down the password, youll need it if you want to run webdrivers).
+
+Hit the copy button next to zella's name and put that into your config.py and config.json. Repeat
+for the remaining seven fake users.
+
+Make a new web/config.json file, similar to the examples in web/config_.json.
+
+Fill in the values from when you set up your local backend to talk to your firebase.
+
+`cd web`
+
+Run your web server with `npm start`
+
+Go to `localhost:5000/?bridge=remote`

@@ -1,17 +1,13 @@
-// These User IDs are from https://console.firebase.google.com/u/0/project/trogdors-29fa4/authentication/users
-let FAKE_USER_IDS = {
-  zellaUserId: 'user-3wSU8h9ONrenQEGWAHUdfyi0ifl1',
-  reggieUserId: 'user-9kmCUI3VBpb8NhbO8yeYrv9jFk02',
-  minnyUserId: 'user-XmAFbKI4EhORFG5nGJIk6rgcPxI3',
-  drakeUserId: 'user-V1Qzso4PZLR06II3cDzQpYhQkv13',
-  zekeUserId: 'user-dXQVCY2folR1H5YOIBHNrgcVsot2',
-  moldaviUserId: 'user-jAgZVgNVgHcbKDhdeYMzAUzaP4L2',
-  jackUserId: 'user-Uvpnj4GU3WPYoPAOkI6ZnRau3Vr1',
-  deckerdUserId: 'user-54jqFxbj0VYKNcvTYEFWgd1tnI12',
-};
 
-function populateUsers(bridge, userIds) {
-  let {zellaUserId, reggieUserId, minnyUserId, deckerdUserId, drakeUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
+function populateUsers(bridge, config) {
+  let zellaUserId = 'user-' + config.fakeUserIds.zella;
+  let reggieUserId = 'user-' + config.fakeUserIds.reggie;
+  let minnyUserId = 'user-' + config.fakeUserIds.minny;
+  let deckerdUserId = 'user-' + config.fakeUserIds.deckerd;
+  let drakeUserId = 'user-' + config.fakeUserIds.drake;
+  let moldaviUserId = 'user-' + config.fakeUserIds.moldavi;
+  let zekeUserId = 'user-' + config.fakeUserIds.zeke;
+  let jackUserId = 'user-' + config.fakeUserIds.jack;
 
   bridge.register({userId: zellaUserId});
   bridge.register({userId: reggieUserId});
@@ -165,8 +161,15 @@ function populatePlayersHeavy(bridge, gameId, time) {
   populatePlayers(bridge, gameId, time, 300, 7, 5, 3);
 }
 
-function populateGame(bridge, gameId, userIds, populateLotsOfPlayers) {
-  let {zellaUserId, reggieUserId, minnyUserId, deckerdUserId, drakeUserId, moldaviUserId, zekeUserId, jackUserId} = userIds;
+function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
+  let zellaUserId = 'user-' + config.fakeUserIds.zella;
+  let reggieUserId = 'user-' + config.fakeUserIds.reggie;
+  let minnyUserId = 'user-' + config.fakeUserIds.minny;
+  let deckerdUserId = 'user-' + config.fakeUserIds.deckerd;
+  let drakeUserId = 'user-' + config.fakeUserIds.drake;
+  let moldaviUserId = 'user-' + config.fakeUserIds.moldavi;
+  let zekeUserId = 'user-' + config.fakeUserIds.zeke;
+  let jackUserId = 'user-' + config.fakeUserIds.jack;
 
   bridge.createGame({
     gameId: gameId,

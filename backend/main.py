@@ -17,7 +17,7 @@ import api_calls
 import constants
 import in_memory_store as store
 import notifications
-import secrets
+import config
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -35,9 +35,9 @@ def GetFirebase():
   db = getattr(g, '_database', None)
   if db is None:
     auth = firebase.FirebaseAuthentication(
-        secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
+        config.FIREBASE_SECRET, config.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
-        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+        config.FIREBASE_CONFIG['databaseURL'], authentication=auth)
     g._database = db
   return db
 
@@ -206,9 +206,9 @@ def HandleSingleRequest(method, body):
   return result[0]
 
 def HandleBatchRequest(requests):
+  game_state.maybe_load(GetFirebase())
   results = []
   try:
-    game_state.maybe_load(GetFirebase())
     api_mutex.acquire()
     game_state.start_transaction()
 
