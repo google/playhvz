@@ -45,9 +45,10 @@
         ajaxRequest.send();
         ajaxRequest.onreadystatechange = () => {
           if (ajaxRequest.readyState == XMLHttpRequest.DONE) {
+            let config;
             try {
-              let config = JSON.parse(ajaxRequest.responseText);
-              
+              config = JSON.parse(ajaxRequest.responseText);
+
               if (!('backendUrl' in config)) {
                 throw "Couldn't find backendUrl!"
               }
