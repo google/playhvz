@@ -413,3 +413,25 @@ Utils.isNumber = (x) => typeof x == 'number';
 Utils.isString = (x) => typeof x == 'string';
 Utils.isBoolean = (x) => typeof x == 'boolean';
 Utils.isTimestampMs = (x) => x > 1470000000000;
+
+/**
+ * Determine the mobile operating system.
+ * This function returns one of 'iOS', 'Android', 'Windows Phone', or 'unknown'.
+ *
+ * @returns {String}
+ */
+Utils.isMobile = function() {
+  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  // Windows Phone must come first because its UA also contains "Android"
+  if (/windows phone/i.test(userAgent)) {
+    return true;
+  }
+  if (/android/i.test(userAgent)) {
+    return true;
+  }
+  // iOS detection from: http://stackoverflow.com/a/9039885/177710
+  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+    return true;
+  }
+  return false;
+}

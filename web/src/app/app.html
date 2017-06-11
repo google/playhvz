@@ -55,9 +55,9 @@
           computed: 'computeInnerPath_(path)',
         },
 
-        isDesktop: {
+        isMobile: {
           type: Boolean,
-          value: () => !window.matchMedia("only screen and (max-width: 760px)").matches,
+          value: () => Utils.isMobile() || Utils.getParameterByName('layout') == 'mobile',
         },
 
         isAdmin: {
@@ -327,8 +327,8 @@
       //   return [null, null, null];
       // },
 
-      computeResponsiveWidth_(isDesktop) {
-        return isDesktop ? "0" : null;
+      computeResponsiveWidth_(isMobile) {
+        return this.isMobile ? "1000px" : null;
       }
     });
   });
@@ -398,7 +398,7 @@
     <!-- For webdrivers -->
     <div name="gameLoaded"></div>
 
-    <paper-drawer-panel id="drawer" disable-swipe><!--responsive-width="[[computeResponsiveWidth_(isDesktop)]]">-->
+    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isMobile)]]">
       <paper-material drawer>
         <ghvz-drawer
             bridge="[[bridge]]"
@@ -410,7 +410,7 @@
         </ghvz-drawer>
       </paper-material>
       <div main>
-        <template is="dom-if" if="[[isDesktop]]">
+        <template is="dom-if" if="[[!isMobile]]">
           <ghvz-desktop-app
               bridge="[[bridge]]"
               is-admin="[[isAdmin]]"
@@ -422,7 +422,7 @@
               path="[[innerPath]]">
           </ghvz-desktop-app>
         </template>
-        <template is="dom-if" if="[[!isDesktop]]">
+        <template is="dom-if" if="[[isMobile]]">
           <ghvz-mobile-app
               bridge="[[bridge]]"
               is-admin="[[isAdmin]]"
