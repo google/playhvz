@@ -33,7 +33,7 @@ const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order"];
 const QUIZ_ANSWER_COLLECTIONS = [];
 const GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "canAddOthers", "canRemoveOthers", "canAddSelf", "canRemoveSelf", "autoRemove", "ownerPlayerId"];
 const GROUP_COLLECTIONS = ["players"];
-const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmins"];
+const CHAT_ROOM_PROPERTIES = ["gameId", "name", "accessGroupId", "withAdmins"];
 const CHAT_ROOM_COLLECTIONS = ["messages", "acks"];
 const GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
 const GROUP_MEMBERSHIP_COLLECTIONS = [];
@@ -45,7 +45,7 @@ const PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
 const PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
 const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time", "image", "location"];
 const MESSAGE_COLLECTIONS = [];
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId", "rsvpersGroupId"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "accessGroupId", "rsvpersGroupId"];
 const MISSION_COLLECTIONS = [];
 const ADMIN_PROPERTIES = ["userId"];
 const ADMIN_COLLECTIONS = [];
@@ -498,7 +498,7 @@ class FirebaseListener {
     this.listenOnce_(`/missions/${missionId}`).then((snap) => {
       let obj = new Model.Mission(missionId, snap.val());
       this.writer.insert(this.reader.getMissionPath(gameId, null), null, obj);
-      this.listenToGroup_(gameId, obj.groupId);
+      this.listenToGroup_(gameId, obj.accessGroupId);
       this.listenForPropertyChanges_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
           (property, value) => {
@@ -542,7 +542,7 @@ class FirebaseListener {
   listenToChatRoom_(gameId, chatRoomId) {
     this.listenOnce_(`/chatRooms/${chatRoomId}`).then((snap) => {
       let obj = new Model.ChatRoom(chatRoomId, snap.val());
-      this.listenToGroup_(gameId, obj.groupId);
+      this.listenToGroup_(gameId, obj.accessGroupId);
       this.writer.insert(this.reader.getChatRoomPath(gameId, null), null, obj);
       this.listenForPropertyChanges_(
           snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,

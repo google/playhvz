@@ -59,7 +59,7 @@
         },
 
         observers: [
-          'onGroupIdChanged_(chatRoom.groupId, game.groupsById)',
+          'onGroupIdChanged_(chatRoom.accessGroupId, game.groupsById)',
           'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
