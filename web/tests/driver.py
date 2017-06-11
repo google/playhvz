@@ -102,10 +102,10 @@ class RetryingDriver:
 class RemoteDriver:
   # To get a non-game-subpage, start page with /
   # See creategame.py for an example
-  def __init__(self, client_url, bridge_type, password, populate, user, page):
+  def __init__(self, client_url, is_mobile, password, populate, user, page):
+    self.is_mobile = is_mobile
     self.client_url = client_url
     self.drivers_by_user = {}
-    self.bridge_type = bridge_type
     self.password = password
     self.current_user = None
     self.game_id = 'game-webdriver-%d' % random.randint(0, 2**52)
@@ -129,8 +129,17 @@ class RemoteDriver:
       self.current_user = user
 
   def MakeDriver(self, user, page):
+    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s" % (
+        self.client_url,
+        page,
+        user,
+        user + '@playhvz.com',
+        self.password,
+        'mobile' if self.is_mobile else 'desktop')
+
     selenium_driver = webdriver.Chrome()
-    url = "%s/%s?user=%s&bridge=%s&signInMethod=email&email=%s&password=%s" % (self.client_url, page, user, self.bridge_type, user + '@playhvz.com', self.password)
+    if self.is_mobile:
+      selenium_driver.set_window_size(480, 640);
     selenium_driver.get(url)
 
     simple_driver = SimpleDriver(selenium_driver)
@@ -162,15 +171,21 @@ class RemoteDriver:
       driver.Quit()
 
 class FakeDriver:
-  def __init__(self, client_url, populate, user, page):
+  def __init__(self, client_url, is_mobile, populate, user, page):
     selenium_driver = webdriver.Chrome()
 
     if page and len(page) and page[0] == '/':
       page = page[1:]
 
-    url = "%s/%s?user=%s&bridge=fake" % (client_url, page, user)
+    url = "%s/%s?user=%s&bridge=fake&layout=%s" % (
+        client_url,
+        page,
+        user,
+        'mobile' if is_mobile else 'desktop')
     if not populate:
       url = url + '&populate=none'
+    if is_mobile:
+      selenium_driver.set_window_size(480, 640);
     selenium_driver.get(url)
 
     simple_driver = SimpleDriver(selenium_driver)
@@ -215,16 +230,11 @@ class FakeDriver:
 
 
 class WholeDriver:
-  def __init__(self, client_url, user="zella", page="", populate=True, bridge_type="fake", password=None):
-    self.client_url = client_url
-    self.bridge_type = bridge_type
-    self.password = password
-    self.populate = populate
-
-    if bridge_type == "remote":
-      self.inner_driver = RemoteDriver(client_url, bridge_type, password, populate, user, page)
+  def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
+    if use_remote:
+      self.inner_driver = RemoteDriver(client_url, is_mobile, password, populate, user, page)
     else:
-      self.inner_driver = FakeDriver(client_url, populate, user, page)
+      self.inner_driver = FakeDriver(client_url, is_mobile, populate, user, page)
 
   def WaitForGameLoaded(self):
     self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True)
