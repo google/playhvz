@@ -214,8 +214,8 @@
       "notes": "",
       "beInPhotos": true,
       "wantToBeSecretZombie": true,
-      "missions": {"mission-%(ident)s-1": true},
-      "chatRooms": {"chatRoom-%(ident)s-1": true},
+      "accessibleMissions": {"mission-%(ident)s-1": true},
+      "accessibleChatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
         "advertising": false,
         "logistics": false,
@@ -278,8 +278,8 @@
       "userId": "user-%(ident)s-5",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
-      "missions": {"mission-%(ident)s-1": true},
-      "chatRooms": {"chatRoom-%(ident)s-1": true},
+      "accessibleMissions": {"mission-%(ident)s-1": true},
+      "accessibleChatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
         "advertising": false, "logistics": false, "communications": false, "moderator": false,
         "cleric": false, "sorcerer": false, "admin": false, "photographer": false,

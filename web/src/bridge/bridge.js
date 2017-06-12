@@ -265,7 +265,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addMission', {
     missionId: '!MissionId',
-    groupId: 'GroupId',
+    accessGroupId: 'GroupId',
     rsvpersGroupId: 'GroupId',
     gameId: 'GameId',
     serverTime: '|Timestamp',
@@ -276,8 +276,6 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('updateMission', {
     missionId: 'MissionId',
-    groupId: 'GroupId',
-    rsvpersGroupId: 'GroupId',
     gameId: 'GameId',
     serverTime: '|Timestamp',
     beginTime: '|Timestamp',
@@ -370,7 +368,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('createChatRoom', {
     chatRoomId: '!ChatRoomId',
-    groupId: 'GroupId',
+    accessGroupId: 'GroupId',
     gameId: 'GameId',
     serverTime: '|Timestamp',
     name: 'String',
@@ -395,7 +393,7 @@ class FakeIdGenerator extends IdGenerator {
     gameId: 'GameId',
     mapId: '!MapId',
     serverTime: '|Timestamp',
-    groupId: 'GroupId',
+    accessGroupId: 'GroupId',
     name: 'String',
   });
   serverMethods.set('updateMap', {
