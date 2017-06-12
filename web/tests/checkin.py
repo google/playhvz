@@ -1,12 +1,10 @@
-import sys
-from driver import WholeDriver
+import setup
 from selenium.webdriver.common.by import By
 
 try:
 
   # Sign in as an admin
-  driver = WholeDriver(
-    user="zella")
+  driver = setup.MakeDriver(user="zella")
 
   ######################  Testing Admin Guns Page  ######################
 
@@ -133,7 +131,7 @@ try:
   # TODO - add a note (once it's the right style)
 
   # TODO - once we can add notes, search by notes
+  driver.Quit()
 
 finally:
-  # driver.Quit()
   pass

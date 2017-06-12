@@ -246,8 +246,7 @@ class FakeDriver:
 
 
 class WholeDriver:
-  #def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
-  def __init__(self, client_url="http://localhost:5000", is_mobile=False, use_remote=False, use_dashboards=True, user="zella", password="brainsmmm", page="/", populate=True):
+  def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
     self.is_mobile = is_mobile
     if use_remote:
       self.inner_driver = RemoteDriver(client_url, is_mobile, password, populate, user, page)
