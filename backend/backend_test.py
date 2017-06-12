@@ -85,7 +85,7 @@ class EndToEndTest(unittest.TestCase):
 
   def setUp(self):
     self.requester = Requester()
-    # self.requester.Post('DeleteTestData', {'id': config.FIREBASE_EMAIL})
+    self.requester.Post('DeleteTestData', {'id': config.FIREBASE_EMAIL})
 
   def tearDown(self):
     pass
@@ -388,6 +388,82 @@ class EndToEndTest(unittest.TestCase):
       'rewardCode': 'testrew-purple-striker-balloon',
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
+
+    # Create Maps
+    create = {
+      'accessGroupId': self.Id('groupId'),
+      'gameId': self.Id('gameId'),
+      'mapId': self.Id('mapId', 1),
+      'name': "Test map 1" ,
+    }
+    self.AssertOk('createMap', create)
+
+    create = {
+      'accessGroupId': self.Id('groupId', 2),
+      'gameId': self.Id('gameId'),
+      'mapId': self.Id('mapId', 2),
+      'name': "Test map 2" ,
+    }
+    self.AssertOk('createMap', create)
+    self.AssertFails('createMap', create)
+
+    # Create Markers
+    self.requester.SetRequestingPlayerId(self.Id('playerId'))
+
+    create = {
+      'color': '187C09',
+      'latitude': 'oldLat',
+      'longitude': 'oldLong',
+      'mapId': self.Id('mapId', 1),
+      'markerId': self.Id('markerId', 1),
+      'name': 'Test marker 1',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    create = {
+      'color': '187C09',
+      'latitude': 'oldLat',
+      'longitude': 'oldLong',
+      'mapId': self.Id('mapId', 1),
+      'markerId': self.Id('markerId', 2),
+      'name': 'Test marker 2',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    create = {
+      'color': '187C09',
+      'latitude': 'oldLat',
+      'longitude': 'oldLong',
+      'mapId': self.Id('mapId', 2),
+      'markerId': self.Id('markerId', 3),
+      'name': 'Test marker 3',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    create = {
+      'color': '187C09',
+      'latitude': 'oldLat',
+      'longitude': 'oldLong',
+      'mapId': self.Id('mapId', 2),
+      'markerId': self.Id('markerId', 4),
+      'name': 'Test marker 4',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    # Update all points
+    update = {
+      'latitude': 'newLat',
+      'longitude': 'newLong',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('updatePlayerMarkers', update)
+
+
+    # Final keep last
     self.AssertDataMatches(True)
     self.AssertDataMatches(False)
 

@@ -128,7 +128,12 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
         pass
       if expectation == "NotificationCategoryId":
         ExpectExistence(game_state, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
-
+      if expectation == "MapId":
+        ExpectExistence(game_state,
+          '/maps/%s' % data,
+          data,
+          'accessGroupId',
+          should_exist)
 
 def GroupToGame(game_state, group):
   """Map a group to a game."""

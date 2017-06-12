@@ -3,8 +3,9 @@ import logging
 import time
 import random
 
+from api_helpers import AppError, respondError
 from firebase import firebase
-from flask import Flask, jsonify, request, g
+from flask import abort, Flask, jsonify, make_response, request, g
 from google.appengine.ext import ndb
 import flask_cors
 import google.auth.transport.requests
@@ -40,24 +41,6 @@ def GetFirebase():
         config.FIREBASE_CONFIG['databaseURL'], authentication=auth)
     g._database = db
   return db
-
-
-class AppError(Exception):
-  """Generic error class for app errors."""
-  status_code = 500
-  def __init__(self, message, status_code=None, payload=None):
-    Exception.__init__(self)
-    self.message = message
-    if status_code is None:
-      self.status_code = status_code
-    if payload is None:
-      self.payload = payload
-
-  def to_dict(self):
-    rv = dict(self.payload or ())
-    rv['message'] = self.message
-    return rv
-
 
 @app.errorhandler(api_calls.InvalidInputError)
 def HandleError(e):
@@ -122,6 +105,9 @@ methods = {
   'addPoint': api_calls.AddPoint,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
+  'createMap': api_calls.CreateMap,
+  'addMarker': api_calls.AddMarker,
+  'updatePlayerMarkers': api_calls.UpdatePlayerMarkers,
 }
 
 
