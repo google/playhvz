@@ -7,6 +7,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 
 class SimpleDriver:
@@ -27,7 +28,7 @@ class SimpleDriver:
       if element is None:
         break
     if should_exist:
-      assert element is not None, "Element %s doesnt exist!" % path
+      assert element is not None, "Element %s doesn't exist!" % path
     else:
       assert element is None, "Element %s exists!" % path
     return element
@@ -37,6 +38,10 @@ class SimpleDriver:
 
   def SendKeys(self, path, keys):
     self.FindElement(path).send_keys(keys)
+
+  def Backspace(self, path, number):
+    for i in range(number):
+      self.FindElement(path).send_keys(Keys.BACKSPACE)
 
   def ExpectContains(self, path, needle, should_exist=True):
     element = self.FindElement(path)
@@ -76,6 +81,9 @@ class RetryingDriver:
 
   def SendKeys(self, path, keys):
     return self.Retry(lambda: self.inner_driver.SendKeys(path, keys))
+
+  def Backspace(self, path, number):
+    return self.Retry(lambda: self.inner_driver.Backspace(path, number))
 
   def ExpectContains(self, path, needle, should_exist=True):
     return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist))
@@ -165,6 +173,9 @@ class RemoteDriver:
   def SendKeys(self, path, keys):
     self.drivers_by_user[self.current_user].SendKeys(path, keys)
 
+  def Backspace(self, path, number):
+    self.drivers_by_user[self.current_user].Backspace(path, number)
+
   def Quit(self):
     for driver in self.drivers_by_user.values():
       driver.Quit()
@@ -218,6 +229,12 @@ class FakeDriver:
     else:
       self.inner_driver.SendKeys(path, keys)
 
+  def Backspace(self, path, number, scoped=True):
+    if scoped:
+      self.inner_driver.Backspace([[By.ID, self.current_user + "App"]] + path, number)
+    else:
+      self.inner_driver.Backspace(path, number)
+
   def ExpectContains(self, path, needle, scoped=True, should_exist=True):
     if scoped:
       self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist)
@@ -229,7 +246,8 @@ class FakeDriver:
 
 
 class WholeDriver:
-  def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
+  #def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
+  def __init__(self, client_url="http://localhost:5000", is_mobile=False, use_remote=False, use_dashboards=True, user="zella", password="brainsmmm", page="/", populate=True):
     self.is_mobile = is_mobile
     if use_remote:
       self.inner_driver = RemoteDriver(client_url, is_mobile, password, populate, user, page)
@@ -259,6 +277,9 @@ class WholeDriver:
 
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)
+
+  def Backspace(self, path, number=1):
+    return self.inner_driver.Backspace(path, number)
 
   def ExpectContains(self, path, needle, should_exist=True):
     return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
