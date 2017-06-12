@@ -214,7 +214,7 @@
           this.bridge.listenToGameAsAdmin({gameId: this.gameId});
         } else if (this.playerId) {
           this.listeningToGame = true;
-          this.bridge.listenToGameAsNonAdmin({gameId: this.gameId, playerId: this.playerId});
+          this.bridge.listenToGameAsPlayer({gameId: this.gameId, playerId: this.playerId});
         }
       },
 

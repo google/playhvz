@@ -54,8 +54,8 @@ class CheckedServer {
   listenToGameAsAdmin(...args) {
     return this.inner.listenToGameAsAdmin(...args);
   }
-  listenToGameAsNonAdmin(...args) {
-    return this.inner.listenToGameAsNonAdmin(...args);
+  listenToGameAsPlayer(...args) {
+    return this.inner.listenToGameAsPlayer(...args);
   }
   setPlayerId(playerId) {
     return this.inner.setPlayerId(playerId);

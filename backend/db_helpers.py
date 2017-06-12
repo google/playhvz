@@ -128,7 +128,12 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
         pass
       if expectation == "NotificationCategoryId":
         ExpectExistence(game_state, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
-
+      if expectation == "MapId":
+        ExpectExistence(game_state,
+          '/maps/%s' % data,
+          data,
+          'accessGroupId',
+          should_exist)
 
 def GroupToGame(game_state, group):
   """Map a group to a game."""
@@ -199,20 +204,19 @@ def IsAdmin(game_state, game_id, user_id):
     return False
   return game_state.get('/games/%s/adminUsers' % game_id, user_id) is not None
 
-def GroupToEntity(game_state, group, entity):
-  rooms = GetValueWithPropertyEqualTo(game_state, entity, 'groupId', group)
-  if rooms:
-    return rooms.keys()
+
+def GroupToMissions(game_state, group_id):
+  missions = GetValueWithPropertyEqualTo(game_state, 'missions', 'accessGroupId', group_id)
+  if missions:
+    return missions.keys()
   return []
 
 
-def GroupToMissions(game_state, group):
-  return GroupToEntity(game_state, group, 'missions')
-
-
-def GroupToChats(game_state, group):
-  return GroupToEntity(game_state, group, 'chatRooms')
-
+def GroupToChats(game_state, group_id):
+  rooms = GetValueWithPropertyEqualTo(game_state, 'chatRooms', 'accessGroupId', group_id)
+  if rooms:
+    return rooms.keys()
+  return []
 
 def PlayerToGame(game_state, player):
   """Map a player to a game."""
@@ -253,7 +257,7 @@ def PlayerAllegiance(game_state, player):
 
 def ChatToGroup(game_state, chat):
   """Map a chat to a group."""
-  return game_state.get('/chatRooms/%s' % chat, 'groupId')
+  return game_state.get('/chatRooms/%s' % chat, 'accessGroupId')
 
 
 def ChatToGame(game_state, chat):

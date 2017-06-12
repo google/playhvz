@@ -71,6 +71,12 @@ type Location {
   longitude: Number;
 }
 
+type PublicEntity {
+  read() { isAuthenticated() }
+  write() { isServer() }
+  validate() { true; }
+}
+
 /******************************************************************************
  Helper Functions Needed By Complex Types
 ******************************************************************************/
@@ -92,7 +98,7 @@ isGroupMember(groupId, gameId) {
 }
 
 isAdmin(gameId) {
-  root.games[gameId].adminsUsers[getUserId()]
+  root.games[gameId].adminUsers[getUserId()]
 }
 
 isAuthenticated() {
@@ -119,18 +125,18 @@ type ChatRoom {
   name: String;
   withAdmins: Boolean;
   gameId: GameId;
-  groupId: GroupId;
+  accessGroupId: GroupId;
   messages: Map<MessageId, Message>;
 
   read() {
-    isAuthenticatedMember(this.groupId, this.gameId)
+    isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
   write() {     isServer()   }
 
   validate() {
     root.games[this.gameId] &&
-    root.groups[this.groupId]
+    root.groups[this.accessGroupId]
   }
 }
 
@@ -144,7 +150,7 @@ type Message {
   location: Location;
 
   read() {
-    isAuthenticatedMember(this.parent().groupId, this.parent().gameId)
+    isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)
   }
 
   write() {     isServer()   }
@@ -180,7 +186,7 @@ type Game {
   write() {     isServer()   }
   
   validate() {
-    key() == this.GameId
+    true;
   }
 }
 
@@ -199,7 +205,7 @@ type Group {
   players: Map<PlayerId, Boolean>;
 
   read() {
-    isAuthenticatedMember(this.GroupId, this.gameId)
+    isAuthenticatedMember(key(), this.gameId)
   }
   
   write() {     isServer()   }
@@ -233,12 +239,12 @@ type Mission {
   endTime: Timestamp;
   detailsHtml: String;
   gameId: GameId;
-  groupId: GroupId;
+  accessGroupId: GroupId;
   name: String;
   rsvpersGroupId: GroupId;
 
   read() {
-    isAuthenticatedMember(this.groupId, this.gameId)
+    isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
   write() {     isServer()   }
@@ -286,7 +292,7 @@ type PrivatePlayer extends PlayerBase {
 
   read() {
     isAuthenticated() && (isServer() ||
-    getUserId() == this.userId)
+    getUserId() == this.userId || isAdmin(this.gameId))
   }
 
   write() {     isServer()   }
@@ -327,9 +333,9 @@ type PublicPlayer extends PlayerBase {
   userId: UserId;
   lives: Map<LifeId, PublicLife>
 
+  // Public players can be seen by all
   read() {
-    isAuthenticated() && (isServer() ||
-    getUserId() == this.userId)
+    isAuthenticated()
   }
 
   write() {     isServer()   }
@@ -415,6 +421,7 @@ type PublicLife extends LifeBase {
 /chatRooms/{ChatRoomId} is ChatRoom;
 /chatRooms/ChatRoomId/messages/{MessageId} is Message;
 /games/{GameId} is Game;
+/games is PublicEntity;
 /games/GameId/adminUsers/{UserId} is User;
 /groups/{GroupId} is Group;
 /groups/GroupId/players/{PlayerId} is PrivatePlayer;

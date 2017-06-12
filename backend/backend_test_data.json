@@ -163,6 +163,16 @@
   },
   "playersPrivate": {
     "player-%(ident)s-1": {
+      "associatedMaps": {
+        "map-%(ident)s-1": {
+          "marker-%(ident)s-1": "true",
+          "marker-%(ident)s-2": "true"
+        },
+        "map-%(ident)s-2": {
+          "marker-%(ident)s-3": "true",
+          "marker-%(ident)s-4": "true"
+        }
+      },
       "notificationSettings": {
         "sound": true,
         "vibrate": true
@@ -204,8 +214,8 @@
       "notes": "",
       "beInPhotos": true,
       "wantToBeSecretZombie": true,
-      "missions": {"mission-%(ident)s-1": true},
-      "chatRooms": {"chatRoom-%(ident)s-1": true},
+      "accessibleMissions": {"mission-%(ident)s-1": true},
+      "accessibleChatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
         "advertising": false,
         "logistics": false,
@@ -268,8 +278,8 @@
       "userId": "user-%(ident)s-5",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
-      "missions": {"mission-%(ident)s-1": true},
-      "chatRooms": {"chatRoom-%(ident)s-1": true},
+      "accessibleMissions": {"mission-%(ident)s-1": true},
+      "accessibleChatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
         "advertising": false, "logistics": false, "communications": false, "moderator": false,
         "cleric": false, "sorcerer": false, "admin": false, "photographer": false,
@@ -342,6 +352,50 @@
     }
   },
   "notifications": {},
+  "maps": {
+    "map-%(ident)s-1": {
+      "accessGroupId": "group-%(ident)s-1",
+      "gameId": "game-%(ident)s-1",
+      "name": "Test map 1",
+      "markers": {
+        "marker-%(ident)s-1": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 1",
+          "playerId": "player-%(ident)s-1"
+        },
+        "marker-%(ident)s-2": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 2",
+          "playerId": "player-%(ident)s-1"
+        }
+      }
+    },
+    "map-%(ident)s-2": {
+      "accessGroupId": "group-%(ident)s-2",
+      "gameId": "game-%(ident)s-1",
+      "name": "Test map 2",
+      "markers": {
+        "marker-%(ident)s-3": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 3",
+          "playerId": "player-%(ident)s-1"
+        },
+        "marker-%(ident)s-4": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 4",
+          "playerId": "player-%(ident)s-1"
+        }
+      }
+    }
+  },
   "rewards": {
     "reward-%(ident)s-1": {
       "code": "testrew-purple-striker-balloon",

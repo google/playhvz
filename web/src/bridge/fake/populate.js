@@ -229,7 +229,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483257600000,
     chatRoomId: everyoneChatRoomId,
-    groupId: everyoneGroupId,
+    accessGroupId: everyoneGroupId,
     name: "Global Chat",
     withAdmins: false
   });
@@ -254,7 +254,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483257600000,
     chatRoomId: resistanceChatRoomId,
-    groupId: resistanceGroupId,
+    accessGroupId: resistanceGroupId,
     name: "Resistance Comms Hub",
     withAdmins: false
   });
@@ -308,7 +308,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483257600000,
     chatRoomId: zedChatRoomId,
-    groupId: hordeGroupId,
+    accessGroupId: hordeGroupId,
     name: "Horde ZedLink",
     withAdmins: false
   });
@@ -397,7 +397,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483364000000,
     chatRoomId: zedSecondChatRoomId,
-    groupId: zedSecondChatRoomGroupId,
+    accessGroupId: zedSecondChatRoomGroupId,
     name: "Zeds Internal Secret Police",
     withAdmins: false,
   });
@@ -453,7 +453,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483364000000,
     chatRoomId: resistanceSecondChatRoomId,
-    groupId: resistanceSecondChatRoomGroupId,
+    accessGroupId: resistanceSecondChatRoomGroupId,
     name: "My Chat Room!",
     withAdmins: false
   });
@@ -506,7 +506,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
 
   var resistanceMapId = bridge.idGenerator.newMapId();
-  bridge.createMap({gameId: gameId, mapId: resistanceMapId, groupId: resistanceGroupId, name: "Resistance Players"});
+  bridge.createMap({gameId: gameId, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
   bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
   bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
   bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
@@ -541,7 +541,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     serverTime: 1483364000000,
     chatRoomId: bridge.idGenerator.newChatRoomId(),
     name: "RSVPers for first human mission!",
-    groupId: firstMissionRsvpersGroupId,
+    accessGroupId: firstMissionRsvpersGroupId,
     withAdmins: false,
   });
 
@@ -554,7 +554,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     endTime: new Date().getTime() + 60 * 60 * 1000,
     name: "first human mission!",
     detailsHtml: HUMAN_MISSION_HTML,
-    groupId: resistanceGroupId,
+    accessGroupId: resistanceGroupId,
     rsvpersGroupId: firstMissionRsvpersGroupId,
   });
 
@@ -579,7 +579,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     serverTime: 1483364000000,
     chatRoomId: bridge.idGenerator.newChatRoomId(),
     name: "RSVPers for first zed mission!",
-    groupId: zedMissionRsvpersGroupId,
+    accessGroupId: zedMissionRsvpersGroupId,
     withAdmins: false,
   });
 
@@ -592,7 +592,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     endTime: new Date().getTime() + 60 * 60 * 1000,
     name: "first zed mission!",
     detailsHtml: ZOMBIE_MISSION_HTML,
-    groupId: hordeGroupId,
+    accessGroupId: hordeGroupId,
     rsvpersGroupId: zedMissionRsvpersGroupId,
   });
 
