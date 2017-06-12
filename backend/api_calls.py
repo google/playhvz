@@ -1,3 +1,5 @@
+from api_helpers import AppError, respondError
+
 import copy
 import logging
 import random
@@ -13,10 +15,19 @@ import config
 InvalidInputError = helpers.InvalidInputError
 
 
-# Used for trawling the full DB.
 ROOT_ENTRIES = (
-    'chatRooms', 'games', 'groups', 'guns', 'missions', 'playersPrivate', 'playersPublic',
-    'users', 'rewardCategories', 'rewards', 'notifications')
+    'chatRooms',
+    'games',
+    'groups',
+    'guns',
+    'maps',
+    'missions',
+    'playersPrivate',
+    'playersPublic',
+    'users',
+    'rewardCategories',
+    'rewards',
+    'notifications')
 
 
 def Register(request, game_state):
@@ -1454,5 +1465,174 @@ def DumpTestData(request, game_state):
       res[entry] = {r: data[r] for r in data if 'test-' in r}
   return res
 
+def CreateMap(request, game_state):
+  """Creates a new Map with the given mapId associated with the given groupId.
+
+    Validation:
+      gameId must exist
+      groupId must exist
+      mapId must not exist
+      name must be present
+
+    Args:
+      gameID: Id uniquely identifying the game the map will be associated with.
+      groupId: Id uniquely identifying the group the map will be associated
+        with.
+      mapId: Id uniquely identifying the map to be created.
+      name: Name of the map to create
+
+    Firebase entries:
+      /maps/%(mapId)
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'accessGroupId': 'GroupId',
+    'mapId': '!MapId',
+    'name': 'String',
+  })
+
+  return game_state.put(
+    '/maps',
+    request['mapId'],
+    {
+      'gameId': request['gameId'],
+      'accessGroupId': request['accessGroupId'],
+      'name': request['name']
+  })
+
+# For lack of any organization in this project and my devious inclusion to
+# entropy I placed this here, right before I used it.
+hex_range = range(0,10) + ['a','b','c','d','e','f']
+
+# All of them should be unicode chars.
+hex_range = map(lambda x: unicode(str(x), "utf-8"), list(hex_range))
+
+
+def AddMarker(request, game_state):
+  """Adds the marker (location) of a player to a map with a set color and name.
+
+    Validation:
+      color must exist
+      latitude must exist
+      longitude must exist
+      mapId must exist
+      name must exist
+      playerId must exist
+      markerId must not exist
+
+    Args:
+      color: The color will be used to draw the marker in the UI.
+      latitude: Latitude of the player's location.
+      longitude: Longitude of the player's location.
+      mapId: The unique id of the map the marker will be added to.
+      name: The name associated with the marker.
+      playerId: The unique of the id that the marker will be associated with.
+      markerId: The unique id of the marker to be added.
+
+    Firebase entries:
+      /maps/%(mapId)/points/%(markerId)
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'color': 'String',
+    'latitude': 'String',
+    'longitude': 'String',
+    'mapId': 'MapId',
+    'name': 'String',
+    'playerId': 'PlayerId',
+    'markerId': 'String',
+  })
+
+  map_id = request['mapId']
+
+  requesting_user_id = request['requestingUserId']
+  requesting_player_id = request['requestingPlayerId']
+
+  # The requesting player should have access to the map
+  # by being an admin of the game the map belongs to or the owner of the group
+  # the map belongs to.
+  target_map = game_state.get('/maps', map_id)
+
+  map_group = game_state.get('/groups', target_map['accessGroupId'])
+  if map_group is None:
+    raise AppError("Data corruption")
+
+  map_game = game_state.get('/games', map_group['gameId'])
+  if map_game is None:
+    raise AppError("Data corruption")
+
+  if map_group['ownerPlayerId'] != requesting_player_id and \
+    requesting_user_id not in map_game['adminUsers']:
+    return respondError(401, "User does not have access")
+
+  # Basic Color verification. Should be a 6 character string composed of only
+  # hex digits.
+  marker_color_list = list(request['color'].lower())
+  if len(marker_color_list) != 6 or \
+    not all(map(lambda x: x in hex_range, marker_color_list)):
+    return respondError(400, 'Color was formatted incorrectly; should be six ' +
+        'hexadecimal digits'
+      )
+
+  marker_data = {
+    'color': request['color'].lower(),
+    'latitude': request['latitude'],
+    'longitude': request['longitude'],
+    'name': request['name'],
+    'playerId': request['playerId'],
+  }
+
+  return [
+    game_state.put(
+      '/maps/%s/markers' % map_id,
+      request['markerId'],
+      marker_data),
+    game_state.put(
+      '/playersPrivate/%s/associatedMaps/%s' % (request['playerId'], map_id),
+      request['markerId'],
+      "true")
+  ]
+
+def UpdatePlayerMarkers(request, game_state):
+  """Updates all markers belonging to this player to the given [latitude] and
+  [longitude].
+
+    Validation:
+      latitude must be present
+      longitude must be present
+      playerId must exist
+
+    Args:
+      latitude: Latitude of the player's location.
+      longitude: Longitude of the player's location.
+      playerId: The unique id of the player whose location should be updated
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'latitude': 'String',
+    'longitude': 'String',
+    'playerId': 'PlayerId',
+  })
+
+  player = game_state.get('/playersPrivate', request['playerId'])
+  if 'associatedMaps' not in player:
+    return []
+  associated_maps = player['associatedMaps']
+
+  location_data = {
+    'latitude': request['latitude'],
+    'longitude': request['longitude']
+  }
+
+  results = []
+  print associated_maps
+
+  for map_to_update in associated_maps:
+    for marker in associated_maps[map_to_update]:
+      print "" + map_to_update + ": " + marker
+      patch_result = game_state.patch(
+        '/maps/%s/markers/%s' % (map_to_update, marker),
+        location_data)
+      results.append(patch_result)
+
+  return results
 
 # vim:ts=2:sw=2:expandtab
