@@ -29,7 +29,7 @@ class SimpleDriver:
     if should_exist:
       assert element is not None, "Element %s doesnt exist!" % path
     else:
-      assert element is None, "Element %s exists!" % path
+      assert element is None or not element.is_displayed(), "Element %s exists!" % path
     return element
 
   def Click(self, path):
