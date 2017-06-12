@@ -106,8 +106,7 @@ class FakeServer {
     throwError('Implement!');
   }
   createMap(args) {
-    let {groupId, mapId} = args;
-    let gameId = this.reader.getGameIdForGroupId(groupId);
+    let {gameId, mapId} = args;
     this.writer.insert(
         this.reader.getMapPath(gameId, null),
         null,
@@ -125,14 +124,15 @@ class FakeServer {
         new Model.Point(pointId, args));
   }
   createChatRoom(args) {
-    let {groupId, chatRoomId} = args;
-    let gameId = this.reader.getGameIdForGroupId(groupId);
+    let {gameId, chatRoomId, accessGroupId} = args;
     this.writer.insert(
         this.reader.getChatRoomPath(gameId, null),
         null,
-        new Model.ChatRoom(chatRoomId, Utils.merge(args, {
-          groupId: groupId,
-        })));
+        new Model.ChatRoom(chatRoomId, args));
+    let group = this.database.gamesById[gameId].groupsById[accessGroupId];
+    for (let {playerId} of group.memberships) {
+      this.addPlayerToChatRoom_(gameId, chatRoomId, playerId);
+    }
   }
   updateChatRoom(args) {
     throwError('Implement!');
@@ -171,8 +171,13 @@ class FakeServer {
         new Model.PlayerGroupMembership(groupId, {groupId: groupId}));
 
     for (let chatRoom of game.chatRooms) {
-      if (chatRoom.groupId == groupId) {
-        this.addPlayerToChatRoom_(gameId, groupId, chatRoom.id, playerToAddId);
+      if (chatRoom.accessGroupId == groupId) {
+        this.addPlayerToChatRoom_(gameId, chatRoom.id, playerToAddId);
+      }
+    }
+    for (let mission of game.missions) {
+      if (mission.accessGroupId == groupId) {
+        this.addPlayerToMission_(gameId, mission.id, playerToAddId);
       }
     }
   }
@@ -190,8 +195,14 @@ class FakeServer {
       return;
 
     for (let chatRoom of game.chatRooms) {
-      if (chatRoom.groupId == groupId) {
-        this.removePlayerFromChatRoom_(game.id, group.id, chatRoom.id, player.id);
+      if (chatRoom.accessGroupId == groupId) {
+        this.removePlayerFromChatRoom_(game.id, chatRoom.id, player.id);
+      }
+    }
+
+    for (let mission of game.missions) {
+      if (mission.accessGroupId == groupId) {
+        this.removePlayerFromMission_(game.id, mission.id, player.id);
       }
     }
 
@@ -208,7 +219,7 @@ class FakeServer {
         groupId);
   }
 
-  addPlayerToChatRoom_(gameId, groupId, chatRoomId, playerId) {
+  addPlayerToChatRoom_(gameId, chatRoomId, playerId) {
     // Assumes already added to group
     this.writer.insert(
         this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null),
@@ -216,13 +227,31 @@ class FakeServer {
         new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId}));
   }
 
-  removePlayerFromChatRoom_(gameId, groupId, chatRoomId, playerId) {
+  addPlayerToMission_(gameId, missionId, playerId) {
+    // Assumes already added to group
+    console.log('adding player', playerId, ' to mission', missionId);
+    this.writer.insert(
+        this.reader.getPlayerMissionMembershipPath(gameId, playerId, null),
+        null,
+        new Model.PlayerMissionMembership(missionId, {missionId: missionId}));
+  }
+
+  removePlayerFromChatRoom_(gameId, chatRoomId, playerId) {
     // Assumes still in the group, and will be removed after this call
     let playerChatRoomMembershipPath = this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId);
     this.writer.remove(
         playerChatRoomMembershipPath.slice(0, playerChatRoomMembershipPath.length - 1),
         playerChatRoomMembershipPath.slice(-1)[0],
         chatRoomId);
+  }
+
+  removePlayerFromMission_(gameId, missionId, playerId) {
+    // Assumes still in the group, and will be removed after this call
+    let playerMissionMembershipPath = this.reader.getPlayerMissionMembershipPath(gameId, playerId, missionId);
+    this.writer.remove(
+        playerMissionMembershipPath.slice(0, playerMissionMembershipPath.length - 1),
+        playerMissionMembershipPath.slice(-1)[0],
+        missionId);
   }
 
   sendChatMessage(args) {
@@ -232,7 +261,7 @@ class FakeServer {
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];
     let chatRoom = game.chatRoomsById[chatRoomId];
-    let group = game.groupsById[chatRoom.groupId];
+    let group = game.groupsById[chatRoom.accessGroupId];
     if (group.membershipsByPlayerId[player.id]) {
       this.writer.insert(
           this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
@@ -301,11 +330,15 @@ class FakeServer {
   }
 
   addMission(args) {
-    let {gameId, missionId} = args;
+    let {gameId, missionId, accessGroupId} = args;
     this.writer.insert(
         this.reader.getMissionPath(gameId, null),
         null,
         new Model.Mission(missionId, args));
+    let group = this.database.gamesById[gameId].groupsById[accessGroupId];
+    for (let {playerId} of group.memberships) {
+      this.addPlayerToMission_(gameId, missionId, playerId);
+    }
   }
   updateMission(args) {
     let missionPath = this.reader.pathForId(missionId);

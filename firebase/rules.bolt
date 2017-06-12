@@ -125,18 +125,18 @@ type ChatRoom {
   name: String;
   withAdmins: Boolean;
   gameId: GameId;
-  groupId: GroupId;
+  accessGroupId: GroupId;
   messages: Map<MessageId, Message>;
 
   read() {
-    isAuthenticatedMember(this.groupId, this.gameId)
+    isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
   write() {     isServer()   }
 
   validate() {
     root.games[this.gameId] &&
-    root.groups[this.groupId]
+    root.groups[this.accessGroupId]
   }
 }
 
@@ -150,7 +150,7 @@ type Message {
   location: Location;
 
   read() {
-    isAuthenticatedMember(this.parent().groupId, this.parent().gameId)
+    isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)
   }
 
   write() {     isServer()   }
@@ -239,12 +239,12 @@ type Mission {
   endTime: Timestamp;
   detailsHtml: String;
   gameId: GameId;
-  groupId: GroupId;
+  accessGroupId: GroupId;
   name: String;
   rsvpersGroupId: GroupId;
 
   read() {
-    isAuthenticatedMember(this.groupId, this.gameId)
+    isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
   write() {     isServer()   }
