@@ -6,9 +6,7 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
-        "./node_modules/firebase-tools/.eslintrc"
     ],
-    "extends": "",
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "module",
@@ -32,6 +30,25 @@ module.exports = {
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "no-console": "off",
+    },
+    "globals": {
+        // From utils
+        "assert": "false",
+        "BatchingWriter": "false",
+        "CloningWriter": "false",
+        "ConsistentWriter": "false",
+        "GatedWriter": "false",
+        "ObservableWriter": "false",
+        "PlayerUtils": "false",
+        "PathFindingReader": "false",
+        "SimpleReader": "false",
+        "SimpleWriter": "false",
+        "TeeWriter": "false",
+        "TimedGatedWriter": "false",
+        "MappingWriter": "false",
+        "Utils": "false",
+        "Model": "false"
     }
 };
