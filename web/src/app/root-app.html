@@ -16,9 +16,12 @@
                 window.location.hostname.includes("127.0.0.1")) {
               defaultBridgeType = 'fake';
             }
+            if (window.location.hostname.includes("playhvz.com")) {
+              defaultBridgeType = 'remote';
+            }
             var bridgeType = Utils.getParameterByName('bridge', defaultBridgeType);
             if (bridgeType != 'fake' && bridgeType != 'remote') {
-              alert("bridgeType must either be 'fake' or 'remote'! Falling back to fake.");
+              alert("'bridge' must either be 'fake' or 'remote'! Falling back to fake.");
               bridgeType = 'fake';
             }
             return bridgeType;
@@ -47,6 +50,12 @@
           if (ajaxRequest.readyState == XMLHttpRequest.DONE) {
             let config;
             try {
+              if (ajaxRequest.status == 404) {
+                throw "Couldn't find config.json! See README.md for steps on setting up!";
+              }
+              if (ajaxRequest.status != 200) {
+                throw "Unknown error getting config.json.";
+              }
               config = JSON.parse(ajaxRequest.responseText);
 
               if (!('backendUrl' in config)) {
@@ -64,7 +73,7 @@
               console.error("Got exception:", e);
               console.error("Received config response:", ajaxRequest.responseText);
               console.error("Attempted parsed json:", config);
-              alert("Invalid config.json! Must be well formed, and contain backendUrl and firebaseConfig! See console for the received response.");
+              alert("Problems getting config: " + e);
             }
           }
         };
