@@ -150,7 +150,7 @@
         items="[[players]]">
       <template is="dom-repeat" id="repeater" items="[[players]]" as="player" initial-count="1" target-framerate="5">
         <ghvz-player-row
-            name$="player-row-[[player.id]]"
+            name$="player-row-[[player.name]]"
             game="[[game]]"
             reward-categories-by-id="[[rewardCategoriesById]]"
             player="[[player]]">
