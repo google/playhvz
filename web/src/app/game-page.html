@@ -1,0 +1,113 @@
+<dom-module id="ghvz-game-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-game-page',
+
+      properties: {
+        bridge: Object,
+        isAdmin: Boolean,
+        database: Object,
+        user: Object,
+        game: Object,
+        player: Object,
+        path: Array,
+        isMobile: Boolean,
+
+        // Path, without the game/2017m in front
+        innerPath: {
+          type: Array,
+          computed: 'computeInnerPath_(path)',
+        },
+      },
+
+      listeners: {
+        'ghvz-open-drawer': 'openDrawer_',
+        'ghvz-close-drawer': 'closeDrawer_',
+      },
+
+      computeInnerPath_(path) {
+        if (path.length >= 2 && path[0] == 'game') {
+          return path.slice(2);
+        } else if (path.length == 1 && path[0] == 'game') {
+          return [];
+        } else {
+          return path.slice();
+        }
+      },
+
+      computeResponsiveWidth_(isMobile) {
+        return this.isMobile ? "1000px" : null;
+      },
+
+      openDrawer_() {
+        this.$$("#drawer").openDrawer();
+      },
+
+      closeDrawer_() {
+        this.$$("#drawer").closeDrawer();
+      },
+
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  div[main] {
+    overflow-y: auto;
+  }
+</style>
+<template>
+  <template is="dom-if" if="[[game]]">
+    <!-- For webdrivers -->
+    <div name="gameLoaded"></div>
+
+    <paper-drawer-panel id="drawer" disable-swipe responsive-width="[[computeResponsiveWidth_(isMobile)]]">
+      <paper-material drawer>
+        <ghvz-drawer
+            bridge="[[bridge]]"
+            is-admin="[[isAdmin]]"
+            database="[[database]]"
+            user="[[user]]"
+            game="[[game]]"
+            player="[[player]]">
+        </ghvz-drawer>
+      </paper-material>
+      <div main>
+        <template is="dom-if" if="[[!isMobile]]">
+          <ghvz-desktop-app
+              bridge="[[bridge]]"
+              is-admin="[[isAdmin]]"
+              database="[[database]]"
+              user="[[user]]"
+              game="[[game]]"
+              player="[[player]]"
+              player-id="[[playerId]]"
+              path="[[innerPath]]">
+          </ghvz-desktop-app>
+        </template>
+        <template is="dom-if" if="[[isMobile]]">
+          <ghvz-mobile-app
+              bridge="[[bridge]]"
+              is-admin="[[isAdmin]]"
+              database="[[database]]"
+              user="[[user]]"
+              game="[[game]]"
+              player="[[player]]"
+              path="[[innerPath]]">
+          </ghvz-mobile-app>
+        </template>
+      </div>
+    </paper-drawer-panel>
+  </template>
+</template>
+</dom-module>

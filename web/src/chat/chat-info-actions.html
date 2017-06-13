@@ -89,11 +89,6 @@
           });
         },
 
-        openPlayerProfile_(e) {
-          console.log(e);
-          // add option to kick player from chat
-        },
-
         kickFromChat_: function(playerId, game) {
           this.kickPlayer = this.game.playersById[playerId];
           this.$.kickForm.open();

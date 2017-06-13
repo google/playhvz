@@ -29,7 +29,7 @@ function makePlayerProperties(id, userId, gameId, time, name) {
     canInfect: false,
     needGun: false,
     beInPhotos: true,
-    profileImageUrl: "",
+    profileImageUrl: PlayerUtils.getDefaultProfilePic(name),
     wantToBeSecretZombie: true,
     volunteer: {
       advertising: false,
@@ -229,7 +229,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483257600000,
     chatRoomId: everyoneChatRoomId,
-    groupId: everyoneGroupId,
+    accessGroupId: everyoneGroupId,
     name: "Global Chat",
     withAdmins: false
   });
@@ -254,7 +254,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483257600000,
     chatRoomId: resistanceChatRoomId,
-    groupId: resistanceGroupId,
+    accessGroupId: resistanceGroupId,
     name: "Resistance Comms Hub",
     withAdmins: false
   });
@@ -308,7 +308,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483257600000,
     chatRoomId: zedChatRoomId,
-    groupId: hordeGroupId,
+    accessGroupId: hordeGroupId,
     name: "Horde ZedLink",
     withAdmins: false
   });
@@ -397,7 +397,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483364000000,
     chatRoomId: zedSecondChatRoomId,
-    groupId: zedSecondChatRoomGroupId,
+    accessGroupId: zedSecondChatRoomGroupId,
     name: "Zeds Internal Secret Police",
     withAdmins: false,
   });
@@ -453,7 +453,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     serverTime: 1483364000000,
     chatRoomId: resistanceSecondChatRoomId,
-    groupId: resistanceSecondChatRoomGroupId,
+    accessGroupId: resistanceSecondChatRoomGroupId,
     name: "My Chat Room!",
     withAdmins: false
   });
@@ -506,7 +506,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
 
   var resistanceMapId = bridge.idGenerator.newMapId();
-  bridge.createMap({gameId: gameId, mapId: resistanceMapId, groupId: resistanceGroupId, name: "Resistance Players"});
+  bridge.createMap({gameId: gameId, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
   bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
   bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
   bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
@@ -541,7 +541,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     serverTime: 1483364000000,
     chatRoomId: bridge.idGenerator.newChatRoomId(),
     name: "RSVPers for first human mission!",
-    groupId: firstMissionRsvpersGroupId,
+    accessGroupId: firstMissionRsvpersGroupId,
     withAdmins: false,
   });
 
@@ -554,7 +554,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     endTime: new Date().getTime() + 60 * 60 * 1000,
     name: "first human mission!",
     detailsHtml: HUMAN_MISSION_HTML,
-    groupId: resistanceGroupId,
+    accessGroupId: resistanceGroupId,
     rsvpersGroupId: firstMissionRsvpersGroupId,
   });
 
@@ -579,7 +579,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     serverTime: 1483364000000,
     chatRoomId: bridge.idGenerator.newChatRoomId(),
     name: "RSVPers for first zed mission!",
-    groupId: zedMissionRsvpersGroupId,
+    accessGroupId: zedMissionRsvpersGroupId,
     withAdmins: false,
   });
 
@@ -592,7 +592,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     endTime: new Date().getTime() + 60 * 60 * 1000,
     name: "first zed mission!",
     detailsHtml: ZOMBIE_MISSION_HTML,
-    groupId: hordeGroupId,
+    accessGroupId: hordeGroupId,
     rsvpersGroupId: zedMissionRsvpersGroupId,
   });
 
@@ -728,25 +728,25 @@ function populateQuiz(bridge, gameId) {
     text: "When you're a zombie, and a human shoots you with a nerf dart, what do you do?",
     type: 'order',
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Crouch/sit down,",
     order: 0,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "For 50 seconds, don't move from your spot (unless safety requires it),",
     order: 1,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
     order: 2,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Stand up, return to mauling humans,",
     order: 3,
@@ -759,31 +759,31 @@ function populateQuiz(bridge, gameId) {
     text: "When you're a zombie, and you touch a human, what do you do?",
     type: 'order',
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Crouch/sit down,",
     order: 0,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Ask the human for their life code,",
     order: 1,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "For 50 seconds, don't move from your spot (unless safety requires it),",
     order: 2,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
     order: 3,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Stand up, return to mauling humans,",
     order: 4,
@@ -796,61 +796,61 @@ function populateQuiz(bridge, gameId) {
     text: "When you want to cross the street, what do you do?",
     type: 'order',
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Get within 15 feet of a crosswalk button (now you're out of play),",
     order: 0,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Press the crosswalk button,",
     order: 1,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "When the walk signal appears, walk (not run) across the crosswalk,",
     order: 2,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Wait until there are no more players in the crosswalk,",
     order: 3,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Have a human count \"3 resistance, 2 resistance, 1 resistance, go!\" and the humans are in play,",
     order: 4,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "When the humans go, have a zombie count \"3 zombie horde, 2 zombie horde, 1 zombie horde, go!\" and the zombies are in play,",
     order: 5,
     isCorrect: true,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Once you're across, count \"3 resistance, 2 resistance, 1 resistance!\" and go,",
     order: 0,
     isCorrect: false,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Count to 15, then take off your armband,",
     order: 0,
     isCorrect: false,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Raise your nerf gun in the air so you're visible,",
     order: 0,
     isCorrect: false,
   });
-  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId,
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Start walking across the street, looking both ways for cars,",
     order: 0,

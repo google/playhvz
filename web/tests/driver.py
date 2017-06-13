@@ -135,6 +135,9 @@ class RemoteDriver:
     else:
       self.current_user = user
 
+  def GetGameId(self):
+    return self.game_id
+
   def MakeDriver(self, user, page):
     url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s" % (
         self.client_url,
@@ -206,6 +209,9 @@ class FakeDriver:
 
     self.current_user = user
 
+  def GetGameId(self):
+    return "poptest-1" # This is the ID that fake-app.html makes for its fake game
+
   def SwitchUser(self, user):
     self.current_user = user
     self.Click([[By.ID, user + 'Button']], scoped=False)
@@ -258,6 +264,9 @@ class WholeDriver:
 
   def WaitForGameLoaded(self):
     self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True)
+
+  def GetGameId(self):
+    return self.inner_driver.GetGameId()
 
   def Quit(self):
     self.inner_driver.Quit()

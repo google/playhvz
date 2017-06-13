@@ -4,7 +4,6 @@
 .DS_Store
 firebase-debug.log
 firebase/rules.json
+geckodriver.log
 node_modules
 npm-debug.log
-geckodriver.log
-

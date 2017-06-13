@@ -126,6 +126,14 @@ Utils.compare = function(aValue, bValue) {
     return 0;
 }
 
+Utils.getKeys = function(...objs) {
+  let keys = [];
+  for (let obj of objs)
+    for (let key in obj)
+      keys.push(key);
+  return keys;
+}
+
 Utils.formatTime = function(timestampInMs) {
   var date = new Date(timestampInMs);
   var result = "";
@@ -365,7 +373,7 @@ Utils.Validator.prototype.validateInner = function(key, object, expectation) {
 
   if (typeof expectation == 'object') {
     assert(typeof object == 'object');
-    for (let innerKey in object) {
+    for (let innerKey of Utils.getKeys(object, expectation)) {
       assert(innerKey in expectation, "Extra property", innerKey, "!");
       this.validateInner(innerKey, object[innerKey], expectation[innerKey]);
     }
@@ -375,6 +383,8 @@ Utils.Validator.prototype.validateInner = function(key, object, expectation) {
         return;
       expectation = expectation.slice(1);
     }
+
+    assert(object !== undefined, "'" + key + "' not present!");
 
     if (expectation[0] == '?') {
       if (object === null)
