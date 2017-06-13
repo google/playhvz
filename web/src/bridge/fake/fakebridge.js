@@ -64,7 +64,7 @@ class FakeBridge {
   listenToGameAsAdmin(gameId) {
     // Do nothing. This method is really just an optimization.
   }
-  listenToGameAsNonAdmin(gameId, playerId) {
+  listenToGameAsPlayer(gameId, playerId) {
     // Do nothing. This method is really just an optimization.
   }
   setPlayerId(playerId) {

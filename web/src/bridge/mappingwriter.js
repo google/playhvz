@@ -29,6 +29,7 @@ let MAPPINGS = [
   {pattern: ["games", null, "players", null, "lives"], newMap: "livesById", keyBy: "id"},
   {pattern: ["games", null, "players", null, "notifications"], newMap: "notificationsById", keyBy: "id"},
   {pattern: ["games", null, "players", null, "chatRoomMemberships"], newMap: "chatRoomMembershipsById", keyBy: "id"},
+  {pattern: ["games", null, "players", null, "missionMemberships"], newMap: "missionMembershipsById", keyBy: "id"},
   {pattern: ["games", null, "players", null, "groupMemberships"], newMap: "groupMembershipsById", keyBy: "groupId"},
   {pattern: ["games", null, "rewardCategories"], newMap: "rewardCategoriesById", keyBy: "id"},
   {pattern: ["games", null, "rewardCategories", null, "rewards"], newMap: "rewardsById", keyBy: "id"},
@@ -98,6 +99,7 @@ class MappingWriter {
           newBatch.push({type: 'remove', path: path, index: index, id: null});
           if (id != null) {
             let mapPath = this.mapifyPath_(path);
+            assert(mapPath);
             newBatch.push({type: 'remove', path: mapPath, index: null, id: id});
           }
           break;

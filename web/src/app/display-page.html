@@ -28,6 +28,7 @@
             'createGame': 'createGame',
             'createPopulatedGame': 'createPopulatedGame',
             'devTools': 'devTools',
+            'game': 'game',
           },
         },
       },
@@ -76,10 +77,10 @@
     <ghvz-card expand padded full$="[[isMobile]]" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Create Game</div>
       <ghvz-create-populated-game
-            class="content"
-            config="[[config]]"
-            bridge="[[bridge]]"
-            user-id="[[user.id]]">
+          class="content"
+          config="[[config]]"
+          bridge="[[bridge]]"
+          user-id="[[user.id]]">
       </ghvz-create-populated-game>
     </ghvz-card>
   </template>
@@ -88,12 +89,27 @@
     <ghvz-card expand padded full$="[[isMobile]]" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Create Game</div>
       <ghvz-dev-tools
-            class="content"
-            config="[[config]]"
-            bridge="[[bridge]]"
-            user-id="[[user.id]]">
+          class="content"
+          config="[[config]]"
+          bridge="[[bridge]]"
+          user-id="[[user.id]]">
       </ghvz-dev-tools>
     </ghvz-card>
+  </template>
+
+  <template is="dom-if" if="[[computeShowPage_(showPage.game, mostRecentPage)]]">
+    <ghvz-game-page
+        config="[[config]]"
+        bridge="[[bridge]]"
+        is-admin="[[isAdmin]]"
+        database="[[database]]"
+        user="[[user]]"
+        game="[[game]]"
+        player="[[player]]"
+        player-id="[[playerId]]"
+        path="[[path]]"
+        is-mobile="[[isMobile]]">
+    </ghvz-game-page>
   </template>
 
 </template>

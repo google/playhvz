@@ -60,7 +60,7 @@ Model.Group = function(id, args) {
   Utils.addEmptyLists(this, GROUP_COLLECTIONS);
 }
 
-const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmins"];
+const CHAT_ROOM_PROPERTIES = ["gameId", "name", "accessGroupId", "withAdmins"];
 const CHAT_ROOM_COLLECTIONS = ["messages", "requestCategories"];
 Model.ChatRoom = function(id, args) {
   this.id = id;
@@ -148,7 +148,7 @@ Model.Response = function(id, args) {
   Utils.addEmptyLists(this, RESPONSE_COLLECTIONS);
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId", "rsvpersGroupId"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "accessGroupId", "rsvpersGroupId"];
 const MISSION_COLLECTIONS = [];
 Model.Mission = function(id, args) {
   this.id = id;

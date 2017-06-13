@@ -90,6 +90,7 @@
                   this.$.addToGroupForm.openForAdding()
                       .then((properties) => {
                         this.bridge.addPlayerToGroup({
+                          gameId: this.game.id,
                           playerId: null,
                           playerToAddId: player.id,
                           groupId: properties.groupId,
@@ -101,6 +102,7 @@
                 name: "Set Got Equipment",
                 handler: (player) => {
                   this.bridge.updatePlayer({
+                    gameId: this.game.id,
                     playerId: player.id,
                     gotEquipment: true,
                   });
@@ -110,6 +112,7 @@
                 name: "Unset Got Equipment",
                 handler: (player) => {
                   this.bridge.updatePlayer({
+                    gameId: this.game.id,
                     playerId: player.id,
                     gotEquipment: false,
                   });
@@ -121,6 +124,7 @@
                   let notes = prompt("Set the new notes for this player", player.notes);
                   if (notes != null) {
                     this.bridge.updatePlayer({
+                      gameId: this.game.id,
                       playerId: player.id,
                       notes: notes,
                     });
@@ -149,6 +153,7 @@
         items="[[players]]">
       <template is="dom-repeat" id="repeater" items="[[players]]" as="player" initial-count="1" target-framerate="5">
         <ghvz-player-row
+            name$="player-row-[[player.id]]"
             game="[[game]]"
             reward-categories-by-id="[[rewardCategoriesById]]"
             player="[[player]]">

@@ -10,15 +10,21 @@ You may run against the fake JS server (do nothing), run against production, or 
 
 ### Quick Start
 
-Clone this project and follow the setup section if you are missing any dependencies 
+Clone this project and follow the setup section if you are missing any dependencies
 
 ```bash
 cd web
 npm install
 ./node_modules/firebase-tools/bin/firebase login
 ./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4
+```
+
+Copy the first relevant part of web/config_.json to web/config.json (i.e., remove the underscore)
+
+```
 npm start
 ```
+
 Visit [`localhost:5000`](localhost:5000)
 
 Stop your webserver via Ctrl-C to abort
@@ -37,7 +43,7 @@ These are one time firebase setup instructions along with backend configuration
 #### Front End (/web)
 1. [Create a firebase project](https://console.firebase.google.com/?pli=1)
 1. Open authentication using the left hand pane and enable (1) Google and (2) Email/Password
-1. Open the users tab, create 8 users listed below 
+1. Open the users tab, create 8 users listed below
 
    Use the same password (**write it down**, you'll need it if you want to run webdrivers)
 1. Hit the copy button next to zella's name and put that into your config.py and config.json
@@ -61,13 +67,12 @@ These are one time firebase setup instructions along with backend configuration
 
 #### Back End (/backend)
 1. Open your Firebase account page and use the gear icon to select the settings
-1. Copy your project ID to app.yaml in your /backend folder
 1. Make a copy of config\_.py and name it config.py (remove the underscore)
 1. Back in Firebase copy your webconfig and place a copy into your newly created config.py
 1. Click on the Service Accounts tab and navigate to the Database Secrets sub tab.
 1. Show your the secrets key and copy it over for the FIREBASE_SECRET value in config.py.
 1. You can now run your server with `dev_appserver.py app.yaml`
-1. You can also navigate your front end to use this server with [localhost:5000/?env=remote](localhost:5000/?env=remote) as long as you setup your front end config's backend URL (config.json)
+1. You can also navigate your front end to use this server with [localhost:5000/?bridge=remote](localhost:5000/?bridge=remote) as long as you setup your front end config's backend URL (config.json)
 
 ## Setup
 
@@ -155,7 +160,7 @@ To run the webdrivers:
 
 WARNING: This test will nuke our prod firebase. This is fine, everyone knows that that data could disappear at any moment. Though if two people run this test at the same time, it could fail. There's an open task on go/hvz-milestones (#201) to fix these particular inconveniences.
 
-First, get a local backend server running. Then:
+**First, get a local backend server running.** Then:
 ```bash
 cd backend/
 pip install requests

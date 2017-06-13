@@ -8,7 +8,7 @@ try:
 
   driver.SendKeys(
       [[By.ID, 'idInput'], [By.TAG_NAME, 'input']],
-      'mygame')
+      driver.GetGameId())
 
   driver.SendKeys(
       [[By.ID, 'nameInput'], [By.TAG_NAME, 'input']],
@@ -27,13 +27,16 @@ try:
 
   driver.Click([[By.NAME, 'drawerAdmin Dashboard']])
 
-  driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'name']],
-      'My Game')
+  if driver.is_mobile:
+    driver.FindElement([[By.TAG_NAME, 'ghvz-notifications']])
+  else:
+    driver.ExpectContains(
+        [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'name']],
+        'My Game')
 
-  driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'stunTimer']],
-      '60')
+    driver.ExpectContains(
+        [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'stunTimer']],
+        '60')
 
   driver.Quit()
 
