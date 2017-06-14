@@ -95,24 +95,28 @@
       },
       deactivate_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           active: false,
         });
       },
       activate_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           active: true,
         });
       },
       unsetCanInfect_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           canInfect: false,
         });
       },
       setCanInfect_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           canInfect: true,
         });
