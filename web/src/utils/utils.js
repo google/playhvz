@@ -140,9 +140,14 @@ Utils.formatTime = function(timestampInMs) {
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
   result += months[date.getMonth()] + ' ';
   result += date.getDate() + ' ';
-  var am = date.getHours() <= 12;
-  result += (am ? date.getHours() : date.getHours() - 12);
-  result += ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (am ? 'am' : 'pm');
+  let hours = date.getHours();
+  var pm = hours >= 12;
+  if (pm)
+    hours -= 12;
+  if (hours == 0)
+    hours += 12;
+  result += hours;
+  result += ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (pm ? 'pm' : 'am');
   return result;
 }
 

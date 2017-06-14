@@ -148,11 +148,12 @@
         updateDoneEnabled_() {
           for (let field of this.fields) {
             if (field.required) {
+              console.log(field, field.required, field.type, field.value);
               if ((field.type == 'text' || field.type == 'string') && field.value == "") {
                 this.doneEnabled = false;
                 return;
               }
-              if (field.value == null) {
+              if (field.value == null || field.value == "") {
                 this.doneEnabled = false;
                 return;
               }
