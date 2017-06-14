@@ -23,10 +23,10 @@ try:
         driver.SwitchUser(player)
 
         # Make sure drawer opens fine
-        driver.Click([[By.NAME, 'icon-%s' % chatName]])
+        driver.Click([[By.NAME, 'chat-info-%s' % chatName]])
         driver.FindElement(
-          [[By.NAME, 'drawer-%s' % chatName], [By.NAME, playerNames[player]]])
-        driver.Click([[By.NAME, 'icon-%s' % chatName]])
+          [[By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
+        driver.Click([[By.NAME, 'chat-info-%s' % chatName]])
 
         # Post a message
         driver.FindElement([[By.NAME, 'ChatRoom: %s' % chatName]]) # Check that the chat exists

@@ -183,8 +183,8 @@ class FakeServer {
   }
 
   removePlayerFromGroup(args) {
-    let {groupId, playerToAddId} = args;
-    let playerId = playerToAddId;
+    let {groupId, playerToRemoveId} = args;
+    let playerId = playerToRemoveId;
     let gameId = this.reader.getGameIdForGroupId(groupId);
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];

@@ -15,33 +15,33 @@ try:
       }
 
   adminPlayers = ['zella', 'moldavi']
-  nonAdminPlayers = ['deckerd', 'drake', 'zeke', 'jack']
   
-  def testAdminChat(adminPlayers, nonAdminPlayers):
+  def testAdminChat(actingPlayer, adminPlayers):
     try: 
-      actingPlayer = nonAdminPlayers[0]
       actingPlayerName = playerNames[actingPlayer]
+      chatName = actingPlayerName + ' & HvZ CDC'
+      xpathForPageElement = "//ghvz-app[contains(@id, '%sApp')]//ghvz-card[contains(@class, 'ghvz-display-game-page')]//%s[contains(@name, '%s')]"
+
+      # Create chat with admin
       driver.SwitchUser(actingPlayer)
 
       driver.Click([[By.NAME, 'drawerChat']])  # Change to chat page
 
-      driver.FindElement([[By.NAME, 'create-admin-chat-button']])  # Check that the create admin chat exists
-
-      driver.Click([[By.NAME, 'create-admin-chat-button']])  # Create admin chat
-      chatName = actingPlayerName + ' & HvZ CDC'
-      driver.FindElement([[By.NAME, 'ChatRoom: %s' % chatName]])  # Check that the admin chat now exists
-      driver.DontFindElement([[By.NAME, 'create-admin-chat-button']]) # Check that the create admin chat button is gone
+      driver.FindElement([[By.NAME, 'create-admin-chat-button']])
+      driver.Click([[By.NAME, 'create-admin-chat-button']]) 
+      driver.FindElement([[By.NAME, 'ChatRoom: %s' % chatName]])  
+      driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
       # Type a message into the chat
-      xpathForChatWindowElement = "//ghvz-chat-room[contains(@class, 'chat-window')]//%s[contains(@name, '%s')]"
-      xpathTextarea = xpathForChatWindowElement % ('textarea', 'input-' + chatName)
-      xpathSend = xpathForChatWindowElement % ('paper-button', 'submit-' + chatName)
+      xpathTextarea = xpathForPageElement % (actingPlayer, 'textarea', 'input-' + chatName)
+      xpathSend = xpathForPageElement % (actingPlayer, 'paper-button', 'submit-' + chatName)
+      
       driver.FindElement([[By.NAME, 'input-%s' % chatName], [By.XPATH, xpathTextarea]]) 
       driver.SendKeys([[By.NAME, 'input-%s' % chatName], [By.XPATH, xpathTextarea]], 
         'Hi im %s, how do i know if im the possessed zombie?' % actingPlayerName)
       driver.Click([[By.NAME, 'submit-%s' % chatName], [By.XPATH, xpathSend]])
 
-      # Check that every admin sees the chat and the chat message
+      # Check that every admin sees the chat and message
       for admin in adminPlayers:
         driver.SwitchUser(admin)
         driver.FindElement([[By.NAME, 'drawer-' + chatName]])  
@@ -51,13 +51,31 @@ try:
             [By.CLASS_NAME, 'message-text']], 
             'Hi im %s, how do i know if im the possessed zombie?' % actingPlayerName)
 
-      raise AssertionError("Test still in development, this is expected")
+      # Non-Admin should leave admin chat
+      driver.SwitchUser(actingPlayer)
+      driver.Click([[By.NAME, 'drawer-' + chatName]])  # Open Admin chat room
+
+      xpathChatDrawerButton = xpathForPageElement % (actingPlayer, 'paper-icon-button', 'chat-info-' + chatName)
+      driver.Click([[By.XPATH, xpathChatDrawerButton]])  
+      driver.FindElement([[By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[actingPlayer]]])
+      
+      xpathLeaveButton = xpathForPageElement % (actingPlayer, 'a', 'chat-drawer-leave')
+      driver.FindElement([[By.XPATH, xpathLeaveButton]])
+      driver.Click([[By.XPATH, xpathLeaveButton]])
+
+      xpathLeaveDialog = xpathForPageElement % (actingPlayer, '*', 'chat-leave-dialog-' + chatName)
+      driver.FindElement([[By.XPATH, xpathLeaveDialog]])
+      driver.Click([[By.XPATH, xpathLeaveDialog], [By.ID, 'done']])
+      driver.DontFindElement([[By.XPATH, xpathLeaveDialog]])
+      
+      # Verify chat with admin button is available after leaving admin chat
+      driver.FindElement([[By.NAME, 'create-admin-chat-button']])
       
     finally:
       pass
 
   # Run admin chat tests 
-  testAdminChat(adminPlayers, nonAdminPlayers)
+  testAdminChat('zeke', adminPlayers)
 
   driver.Quit()
 
