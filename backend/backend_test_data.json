@@ -1,7 +1,7 @@
 {
   "chatRooms": {
     "chatRoom-%(ident)s-1" : {
-      "groupId" : "group-%(ident)s-1",
+      "accessGroupId" : "group-%(ident)s-1",
       "gameId": "game-%(ident)s-1",
       "name" : "test Chat Room",
       "withAdmins" : false,
@@ -57,6 +57,23 @@
         "player-%(ident)s-3": true,
         "player-%(ident)s-4": true,
         "player-%(ident)s-5": true
+      },
+      "quizQuestions": {
+        "quizQuestion-%(ident)s-1": {
+          "answers": {
+            "quizAnswer-%(ident)s-1": {
+              "isCorrect": true,
+              "order": 13,
+              "text": "Test answer"
+            }
+          },
+          "text": "Test question 1",
+          "type": "order"
+        },
+        "quizQuestion-%(ident)s-2": {
+          "text": "Test question 2",
+          "type": "multipleChoice"
+        }
       },
       "rulesHtml": "test rule 2",
       "faqHtml": "test faq 2",
@@ -117,7 +134,7 @@
       "endTime": 1700000000000,
       "name": "test Mission",
       "rsvpersGroupId": "group-%(ident)s-1",
-      "groupId": "group-%(ident)s-1"
+      "accessGroupId": "group-%(ident)s-1"
     }
   },
   "playersPublic": {
