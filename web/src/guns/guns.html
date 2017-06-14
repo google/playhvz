@@ -82,6 +82,7 @@
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
                 this.bridge.updateGun({
+                  gameId: this.game.id,
                   gunId: gun.id,
                   label: properties.label,
                 });

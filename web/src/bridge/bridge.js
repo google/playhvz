@@ -141,10 +141,10 @@ class FakeIdGenerator extends IdGenerator {
     gunId: '!GunId',
     label: 'String',
   });
-  serverMethods.set('editGun', {
+  serverMethods.set('updateGun', {
     gameId: 'GameId',
     serverTime: '|Timestamp',
-    gunId: '!GunId',
+    gunId: 'GunId',
     label: '|String',
   });
   serverMethods.set('assignGun', {

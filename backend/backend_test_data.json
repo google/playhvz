@@ -50,6 +50,10 @@
       "rewardCategories": {
          "rewardCategory-%(ident)s-1": true
       },
+      "maps": {
+        "map-%(ident)s-1": true,
+        "map-%(ident)s-2": true
+      },
       "name": "test Game",
       "players": {
         "player-%(ident)s-1": true,
@@ -182,12 +186,12 @@
     "player-%(ident)s-1": {
       "associatedMaps": {
         "map-%(ident)s-1": {
-          "marker-%(ident)s-1": "true",
-          "marker-%(ident)s-2": "true"
+          "marker-%(ident)s-1": true,
+          "marker-%(ident)s-2": true
         },
         "map-%(ident)s-2": {
-          "marker-%(ident)s-3": "true",
-          "marker-%(ident)s-4": "true"
+          "marker-%(ident)s-3": true,
+          "marker-%(ident)s-4": true
         }
       },
       "notificationSettings": {
