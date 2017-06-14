@@ -147,7 +147,7 @@ class EndToEndTest(unittest.TestCase):
       'gameId': self.Id('gameId'),
       'userId': self.Id('userId'),
       'playerId': self.Id('playerId'),
-      'name': 'test Bobby',
+      'name': 'testBobby',
       'needGun': True,
       'profileImageUrl': 'http://jpg',
       'gotEquipment': True,
@@ -166,7 +166,7 @@ class EndToEndTest(unittest.TestCase):
     update = {
       'gameId': self.Id('gameId'),
       'playerId': self.Id('playerId'),
-      'name': 'test Charles',
+      'name': 'testCharles',
       'volunteer': {
         'server': True
       }
@@ -175,9 +175,11 @@ class EndToEndTest(unittest.TestCase):
     self.requester.SetRequestingPlayerId(self.Id('playerId'))
     create_player['playerId'] = self.Id('playerId', 2)
     create_player['userId'] = self.Id('userId', 2)
+    create_player['name'] = '%s2' % create_player['name']
     self.AssertOk('createPlayer', create_player)
     create_player['playerId'] = self.Id('playerId', 3)
     create_player['userId'] = self.Id('userId', 3)
+    create_player['name'] = '%s3' % create_player['name'][:-1]
     self.AssertOk('createPlayer', create_player)
 
     # Create groups
@@ -254,7 +256,7 @@ class EndToEndTest(unittest.TestCase):
       'chatRoomId': self.Id('chatRoomId'),
       'playerId': self.Id('playerId'),
       'messageId': self.Id('messageId'),
-      'message': 'test Message',
+      'message': '@testCharles @testBobby test Message',
     }
     self.AssertOk('sendChatMessage', create)
 

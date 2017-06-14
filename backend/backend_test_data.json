@@ -7,7 +7,7 @@
       "withAdmins" : false,
       "messages": {
         "message-%(ident)s-1": {
-          "message": "test Message",
+          "message": "@testCharles @testBobby test Message",
           "playerId": "player-%(ident)s-1",
           "time": 0
         },
@@ -131,7 +131,7 @@
           "time": 0
         }
       },
-      "name": "test Charles",
+      "name": "testCharles",
       "points": 5,
       "profileImageUrl": "http://jpg",
       "userId": "user-%(ident)s-1"
@@ -140,24 +140,24 @@
       "active": false,
       "number": 102,
       "allegiance": "undeclared",
-      "name": "test Bobby",
+      "name": "testBobby2",
       "points": 0,
       "profileImageUrl": "http://jpg",
       "userId": "user-%(ident)s-2"
     },
     "player-%(ident)s-3": {
       "allegiance": "undeclared",
-      "active": false, "number": 103, "name": "test Bobby",
+      "active": false, "number": 103, "name": "testBobby3",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
     },
     "player-%(ident)s-4": {
       "allegiance": "undeclared",
-      "active": false, "number": 104, "name": "test Bobby",
+      "active": false, "number": 104, "name": "testBobby3",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-4"
     },
     "player-%(ident)s-5": {
       "allegiance": "undeclared",
-      "active": false, "number": 105, "name": "test Bobby",
+      "active": false, "number": 105, "name": "testBobby3",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-5"
     }
   },

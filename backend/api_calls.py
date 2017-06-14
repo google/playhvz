@@ -4,7 +4,6 @@ import copy
 import logging
 import random
 import time
-import textwrap
 
 import constants
 import db_helpers as helpers
@@ -577,7 +576,26 @@ def SendChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
-  # TODO Scan message for any @all or @player to turn into notifications.
+  players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
+  tokens = request['message'].split(' ')
+  notification_data = {
+    'notificationId': 'notification-%s' % hash(request['message']),
+    'message': request['message'],
+    'app': True,
+    'vibrate': True,
+    'destination': 'TODO',
+    'sendTime': time.time(),
+    'icon': 'TODO'
+  }
+  for token in tokens:
+    if not token.startswith('@'):
+      continue
+    name = token[1:]
+    if name in players_in_room:
+      n = notification_data.copy()
+      n['notificationId'] = '%s%s' % (n['notificationId'], name)
+      n['playerId'] = players_in_room[name]
+      helpers.QueueNotification(game_state, n)
 
   put_data = {
     'playerId': request['playerId'],
@@ -1297,20 +1315,7 @@ def SendNotification(request, game_state):
   current_time = int(time.time())
   if 'sendTime' in request and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
-
-  if 'previewMessage' not in request:
-    request['previewMessage'] = textwrap.wrap(request['message'], 100)[0]
-
-  put_data = {}
-  properties = ['message', 'app', 'vibrate', 'sound', 'destination', 'sendTime',
-                'groupId', 'playerId', 'icon', 'previewMessage']
-
-  for property in properties:
-    if property in request:
-      put_data[property] = request[property]
-
-  game_state.put('/notifications',
-                      request['notificationId'], put_data)
+  helpers.QueueNotification(game_state, request)
 
 
 def UpdateNotification(request, game_state):
