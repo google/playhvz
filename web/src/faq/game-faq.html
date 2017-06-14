@@ -10,23 +10,63 @@
 
         properties: {
           game: Object,
+          isAdmin: {
+            type: Boolean,
+            value: false,
+          },
         },
 
-        observers: ['rulesChanged_(game.faqHtml)'],
+        observers: ['faqChanged_(game.faqHtml)'],
 
-        rulesChanged_(faqHtml) {
+        attached() {
+          this.fire('ghvz-add-toolbar-button', { button: this.$.update });
+        },
+
+        faqChanged_(faqHtml) {
           this.$.faq.innerHTML = faqHtml;
+          this.scopeSubtree(this.$.faq);
+        },
+
+        makeFormBlueprint_: function() {
+          return {
+            fields: [
+              {
+                property: "faqHtml",
+                label: "FAQ html",
+                description: "HTML answering FAQs",
+                type: 'text',
+              },
+            ],
+          };
+        },
+
+        updateFaq_: function() {
+          this.$.faqForm.openForEditing({
+            faqHtml: this.game.faqHtml,
+          }).then((properties) => {
+            this.bridge.updateGame({
+              gameId: this.game.id,
+              faqHtml: properties.faqHtml
+            });
+          });
         },
       });
     });
   </script>
+  <style>
+    :host {
+      display: block;
+      margin: 16px;
+    }
+  </style>
   <template>
-    <style>
-      :host {
-        display: block;
-        margin: 16px;
-      }
-    </style>
+    <paper-icon-button hidden$="[[!isAdmin]]" id="update" icon="icons:create" on-tap="updateFaq_">
+    </paper-icon-button>
+    <ghvz-super-form
+        id="faqForm"
+        type-name="Faq"
+        blueprint="[[makeFormBlueprint_()]]">
+    </ghvz-super-form>
     <div id="faq"></div>
   </template>
 </dom-module>

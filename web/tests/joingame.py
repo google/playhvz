@@ -1,15 +1,9 @@
-import sys
-import time
-from driver import WholeDriver
-
+import setup
 from selenium.webdriver.common.by import By
 
-try:
-  driver = WholeDriver(
-      user="reggie",
-      env=sys.argv[1],
-      password=sys.argv[2])
+driver = setup.MakeDriver(user="reggie")
 
+try:
   driver.FindElement([[By.NAME, 'joinGame']])
 
   driver.Click([[By.NAME, 'joinGame']])
@@ -58,7 +52,7 @@ try:
 
   # driver.SwitchUser("drake")
 
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   # driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
 
@@ -74,7 +68,7 @@ try:
   #     [[By.ID, 'victimName']],
   #     'Jack Slayer the Bean Slasher')
 
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   # driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
 
@@ -84,7 +78,7 @@ try:
 
   # driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
   
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   driver.Quit()
 

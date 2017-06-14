@@ -60,7 +60,7 @@ Model.Group = function(id, args) {
   Utils.addEmptyLists(this, GROUP_COLLECTIONS);
 }
 
-const CHAT_ROOM_PROPERTIES = ["gameId", "name", "groupId", "withAdmins"];
+const CHAT_ROOM_PROPERTIES = ["gameId", "name", "accessGroupId", "withAdmins"];
 const CHAT_ROOM_COLLECTIONS = ["messages", "requestCategories"];
 Model.ChatRoom = function(id, args) {
   this.id = id;
@@ -69,19 +69,19 @@ Model.ChatRoom = function(id, args) {
 }
 
 const MAP_PROPERTIES = ["gameId", "name", "groupId"];
-const MAP_COLLECTIONS = ["points"];
+const MAP_COLLECTIONS = ["markers"];
 Model.Map = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, MAP_PROPERTIES);
   Utils.addEmptyLists(this, MAP_COLLECTIONS);
 }
 
-const POINT_PROPERTIES = ["name", "color", "playerId", "latitude", "longitude"];
-const POINT_COLLECTIONS = [];
-Model.Point = function(id, args) {
+const MARKER_PROPERTIES = ["name", "color", "playerId", "latitude", "longitude"];
+const MARKER_COLLECTIONS = [];
+Model.Marker = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, POINT_PROPERTIES);
-  Utils.addEmptyLists(this, POINT_COLLECTIONS);
+  Utils.copyProperties(this, args, MARKER_PROPERTIES);
+  Utils.addEmptyLists(this, MARKER_COLLECTIONS);
 }
 
 const GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
@@ -148,7 +148,7 @@ Model.Response = function(id, args) {
   Utils.addEmptyLists(this, RESPONSE_COLLECTIONS);
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "groupId", "rsvpersGroupId"];
+const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "accessGroupId", "rsvpersGroupId"];
 const MISSION_COLLECTIONS = [];
 Model.Mission = function(id, args) {
   this.id = id;

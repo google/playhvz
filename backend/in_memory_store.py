@@ -30,6 +30,8 @@ def follow_path(obj, path, create_missing=False):
       else:
         return None
     obj = obj[path_part]
+    if not isinstance(obj, dict):
+      return None
   return obj
 
 
@@ -121,7 +123,7 @@ class InMemoryStore:
     """
     if self.instance is None and self.firebase is None:
       print '*************** LOADING INSTANCE FROM FIREBASE *******************'
-      self.instance = firebase.get('/', None)
+      self.instance = firebase.get('/', None) or {}
       self.firebase = firebase
 
   def get(self, path, id, local_instance=True):
@@ -329,8 +331,8 @@ class Transaction:
     all_paths = crawl_paths(self.mutation_paths)
     for path in all_paths:
       leading_slash_path = '/' + path
-      value = follow_path(self.mutation_data, leading_slash_path)
-      batch_mutation[leading_slash_path] = value
+      data_obj = follow_path(self.mutation_data, drop_last(leading_slash_path))
+      batch_mutation[leading_slash_path] = data_obj.get(last(leading_slash_path))
     self.firebase.patch('/', batch_mutation)
     self.committed = True
 

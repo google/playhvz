@@ -1,8 +1,13 @@
 # [START app]
 import logging
+import sys
+import traceback
+import time
+import random
 
+from api_helpers import AppError, respondError
 from firebase import firebase
-from flask import Flask, jsonify, request, g
+from flask import abort, Flask, jsonify, make_response, request, g
 from google.appengine.ext import ndb
 import flask_cors
 import google.auth.transport.requests
@@ -15,8 +20,10 @@ import api_calls
 import constants
 import in_memory_store as store
 import notifications
-import secrets
+import config
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 requests_toolbelt.adapters.appengine.monkeypatch()
 HTTP_REQUEST = google.auth.transport.requests.Request()
@@ -31,40 +38,30 @@ def GetFirebase():
   db = getattr(g, '_database', None)
   if db is None:
     auth = firebase.FirebaseAuthentication(
-        secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
+        config.FIREBASE_SECRET, config.FIREBASE_EMAIL, admin=True)
     db = firebase.FirebaseApplication(
-        'https://trogdors-29fa4.firebaseio.com', authentication=auth)
+        config.FIREBASE_CONFIG['databaseURL'], authentication=auth)
     g._database = db
   return db
 
-
-class AppError(Exception):
-  """Generic error class for app errors."""
-  status_code = 500
-  def __init__(self, message, status_code=None, payload=None):
-    Exception.__init__(self)
-    self.message = message
-    if status_code is None:
-      self.status_code = status_code
-    if payload is None:
-      self.payload = payload
-
-  def to_dict(self):
-    rv = dict(self.payload or ())
-    rv['message'] = self.message
-    return rv
-
-
 @app.errorhandler(api_calls.InvalidInputError)
 def HandleError(e):
+  print e.message
   """Pretty print data validation errors."""
   return 'The request is not valid. %s' % e.message, 500
+
+@app.errorhandler(AppError)
+def HandleError(e):
+  print e.message
+  """Pretty print data validation errors."""
+  return 'Something went wrong. %s' % e.message, 500
 
 
 @app.errorhandler(500)
 def HandleError(e):
   """Pretty print data validation errors."""
   logging.exception(e)
+  print e
   return '500: %r %r' % (type(e), e), 500
 
 
@@ -102,8 +99,20 @@ methods = {
   'joinResistance': api_calls.JoinResistance,
   'joinHorde': api_calls.JoinHorde,
   'setAdminContact': api_calls.SetAdminContact,
+  'updateRequestCategory': api_calls.UpdateRequestCategory,
+  'addRequestCategory': api_calls.AddRequestCategory,
+  'addRequest': api_calls.AddRequest,
+  'addResponse': api_calls.AddResponse,
+  'addQuizQuestion': api_calls.AddQuizQuestion,
+  'updateQuizQuestion': api_calls.UpdateQuizQuestion,
+  'addQuizAnswer': api_calls.AddQuizAnswer,
+  'updateQuizAnswer': api_calls.UpdateQuizAnswer,
+  'addDefaultProfileImage': api_calls.AddDefaultProfileImage,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
+  'createMap': api_calls.CreateMap,
+  'addMarker': api_calls.AddMarker,
+  'updatePlayerMarkers': api_calls.UpdatePlayerMarkers,
 }
 
 
@@ -138,25 +147,80 @@ def CronNotification():
   notifications.ExecuteNotifications(None, GetFirebase())
   return 'OK'
 
+@app.route('/stressTest', methods=['POST'])
+def StressTest():
+  begin_time = time.time()
+
+  for i in range(0, 50):
+    HandleSingleRequest('register', {
+      'requestingUserId': None,
+      'requestingUserToken': 'blark',
+      'requestingPlayerId': None,
+      'userId': 'user-wat-%d' % random.randint(0, 2**52),
+    })
+
+  end_time = time.time()
+  print "Did 50 requests in %f seconds" % (end_time - begin_time)
+  return ''
+
+@app.route('/stressTestBatch', methods=['POST'])
+def StressTestBatch():
+  begin_time = time.time()
+
+  requests = []
+  for i in range(0, 50):
+    requests.append({
+      'method': 'register',
+      'body': {
+        'requestingUserId': None,
+        'requestingUserToken': 'blark',
+        'requestingPlayerId': None,
+        'userId': 'user-wat-%d' % random.randint(0, 2**52),
+      }
+    })
+  HandleBatchRequest(requests)
+
+  end_time = time.time()
+  print "Did 50 requests in %f seconds" % (end_time - begin_time)
+  return ''
 
 @app.route('/api/<method>', methods=['POST'])
-def RouteRequest(method):
-  if method not in methods:
-    raise AppError('Invalid method %s' % method)
-  f = methods[method]
+def SingleEndpoint(method):
+  return jsonify(HandleSingleRequest(method, json.loads(request.data)))
 
-  exception = None
+@app.route('/api/batch', methods=['POST'])
+def BatchEndpoint():
+  return jsonify(HandleBatchRequest(json.loads(request.data)))
+
+def HandleSingleRequest(method, body):
+  result = HandleBatchRequest([{'method': method, 'body': body}])
+  return result[0]
+
+def HandleBatchRequest(requests):
   game_state.maybe_load(GetFirebase())
-  api_mutex.acquire()
-  game_state.start_transaction()
+  results = []
   try:
-    result = jsonify(f(json.loads(request.data), game_state))
-  except Exception as e:
-    exception = e
-  game_state.commit_transaction()
-  api_mutex.release()
-  if exception:
-    raise exception
-  return result
+    api_mutex.acquire()
+    game_state.start_transaction()
+
+    for i, request in enumerate(requests):
+      method = request['method']
+      body = request['body']
+      print "Handling request %d: %s" % (i, method)
+      results.append(CallApiMethod(method, body))
+  except:
+    print "Unexpected error:", sys.exc_info()[0]
+    traceback.print_exc()
+    raise
+  finally:
+    game_state.commit_transaction()
+    api_mutex.release()
+  return results
+
+def CallApiMethod(method, request_body):
+  if method not in methods:
+    raise AppError("Invalid method %s" % method)
+  f = methods[method]
+  return f(request_body, game_state)
 
 # vim:ts=2:sw=2:expandtab

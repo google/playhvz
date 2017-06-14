@@ -4,12 +4,9 @@ from driver import WholeDriver
 
 from selenium.webdriver.common.by import By
 
-try:
-  driver = WholeDriver(
-      user="deckerd",
-      env=sys.argv[1],
-      password=sys.argv[2])
+driver = setup.MakeDriver(user="deckerd")
 
+try:
   driver.Click([[By.NAME, 'declareAllegiance']])
 
   driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']])
@@ -86,17 +83,17 @@ try:
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-page'],
+      [[By.TAG_NAME, 'ghvz-display-game-page'],
        [By.NAME, 'Leaderboard Allegiance Cell Deckerd the Hesitant']],
       'resistance')
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-page'],
+      [[By.TAG_NAME, 'ghvz-display-game-page'],
        [By.NAME, 'Leaderboard Points Cell Deckerd the Hesitant']],
       '0')
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-page'],
+      [[By.TAG_NAME, 'ghvz-display-game-page'],
        [By.NAME, 'Leaderboard Name Cell Deckerd the Hesitant']],
       'Deckerd the Hesitant')
 
@@ -106,7 +103,7 @@ try:
 
   # driver.SwitchUser("drake")
 
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   # driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
 
@@ -122,7 +119,7 @@ try:
   #     [[By.ID, 'victimName']],
   #     'Jack Slayer the Bean Slasher')
 
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   # driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
 
@@ -132,7 +129,7 @@ try:
 
   # driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
   
-  # driver.Click([[By.NAME, 'drawerProfile']])
+  # driver.Click([[By.NAME, 'drawerMy Profile']])
 
   driver.Quit()
 

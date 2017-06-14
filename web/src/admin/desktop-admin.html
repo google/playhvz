@@ -1,107 +1,116 @@
 
 <dom-module id="ghvz-desktop-admin-page">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-desktop-admin-page',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-desktop-admin-page',
 
-        properties: {
-          bridge: Object,
-          database: Object,
-          user: String,
-          game: String,
-        },
-      });
+      properties: {
+        bridge: Object,
+        database: Object,
+        user: String,
+        game: String,
+      },
     });
-  </script>
-  <style>
-    :host {
-      display: block;
-      position: relative;
-    }
-    paper-button {
-      background-color: #03A9F4;
-      color: white;
-    }
-  </style>
-  <template>
-    <ghvz-dashboard>
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    position: relative;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+  }
+</style>
+<template>
+  <ghvz-dashboard>
 
-      <ghvz-card spaced admin left padded>
-        <div class="header">Game</div>
-        <ghvz-game-details
-            modify
-            bridge="[[bridge]]"
-            game="[[game]]"
-            user-id="[[user.id]]">
-        </ghvz-game-details>
-      </ghvz-card>
+    <ghvz-card spaced admin left padded>
+      <div class="header">Game</div>
+      <ghvz-game-details
+          modify
+          bridge="[[bridge]]"
+          game="[[game]]"
+          user-id="[[user.id]]">
+      </ghvz-game-details>
+    </ghvz-card>
 
-      <ghvz-card spaced admin left padded>
-        <div class="header" name="Rules">Rules</div>
-        <ghvz-rules
-            name="HELLO WORLD!!!"
-            is-admin
-            bridge="[[bridge]]"
-            game="[[game]]">
-        </ghvz-rules>
-      </ghvz-card>
+    <ghvz-card spaced admin left padded>
+      <div class="header" name="Rules">Rules</div>
+      <ghvz-rules
+          name="admin-page"
+          is-admin
+          bridge="[[bridge]]"
+          game="[[game]]">
+      </ghvz-rules>
+    </ghvz-card>
 
-      <ghvz-card spaced admin full>
-        <div class="header">Missions</div>
-        <ghvz-missions
-            bridge="[[bridge]]"
-            player="[[player]]"
-            game="[[game]]"
-            missions="[[game.missions]]">
-        </ghvz-missions>
-      </ghvz-card>
+    <ghvz-card spaced admin left padded>
+      <div class="header">FAQ</div>
+      <ghvz-game-faq
+          is-admin
+          bridge="[[bridge]]"
+          game="[[game]]">
+      </ghvz-game-faq>
+    </ghvz-card>
 
-      <ghvz-card spaced scrolling admin full>
-        <div class="header">Players</div>
-        <ghvz-player-table
-            id="playerTableModule"
-            game="[[game]]"
-            bridge="[[bridge]]"
-            reward-categories-by-id="[[game.rewardCategoriesById]]"
-            players="[[game.players]]"
-            players-by-id="[[game.playersById]]">
-        </ghv-player-table>
-      </ghvz-card>
+    <ghvz-card spaced admin full>
+      <div class="header">Missions</div>
+      <ghvz-missions
+          bridge="[[bridge]]"
+          player="[[player]]"
+          game="[[game]]"
+          missions="[[game.missions]]">
+      </ghvz-missions>
+    </ghvz-card>
 
-      <ghvz-card spaced scrolling admin right>
-        <div class="header">Guns</div>
-        <ghvz-guns
-            bridge="[[bridge]]"
-            game="[[game]]">
-        </ghvz-guns>
-      </ghvz-card>
+    <ghvz-card spaced scrolling admin full>
+      <div class="header">Players</div>
+      <ghvz-player-table
+          id="playerTableModule"
+          game="[[game]]"
+          bridge="[[bridge]]"
+          reward-categories-by-id="[[game.rewardCategoriesById]]"
+          players="[[game.players]]"
+          players-by-id="[[game.playersById]]">
+      </ghv-player-table>
+    </ghvz-card>
 
-      <ghvz-card spaced scrolling admin right>
-        <div class="header">Rewards</div>
-        <ghvz-rewards
-            bridge="[[bridge]]"
-            game-id="[[game.id]]"
-            players-by-id="[[game.playersById]]"
-            reward-categories="[[game.rewardCategories]]"
-            reward-categories-by-id="[[game.rewardCategoriesById]]">
-        </ghvz-rewards>
-      </ghvz-card>
+    <ghvz-card spaced scrolling admin right>
+      <div class="header">Guns</div>
+      <ghvz-guns
+          bridge="[[bridge]]"
+          game="[[game]]">
+      </ghvz-guns>
+    </ghvz-card>
 
-      <ghvz-card spaced scrolling admin right>
-        <div class="header">Notifications</div>
-        <ghvz-notifications
-            bridge="[[bridge]]"
-            game="[[game]]"
-            players-by-id="[[game.playersById]]"
-            notification-categories="[[game.notificationCategories]]"
-            notification-categories-by-id="[[game.notificationCategoriesById]]">
-        </ghvz-notifications>
-      </ghvz-card>
+    <ghvz-card spaced scrolling admin right>
+      <div class="header">Rewards</div>
+      <ghvz-rewards
+          bridge="[[bridge]]"
+          game-id="[[game.id]]"
+          players-by-id="[[game.playersById]]"
+          reward-categories="[[game.rewardCategories]]"
+          reward-categories-by-id="[[game.rewardCategoriesById]]">
+      </ghvz-rewards>
+    </ghvz-card>
 
-    </ghvz-dashboard>
-  </template>
+    <ghvz-card spaced scrolling admin right>
+      <div class="header">Notifications</div>
+      <ghvz-notifications
+          bridge="[[bridge]]"
+          game="[[game]]"
+          players-by-id="[[game.playersById]]"
+          notification-categories="[[game.notificationCategories]]"
+          notification-categories-by-id="[[game.notificationCategoriesById]]">
+      </ghvz-notifications>
+    </ghvz-card>
+
+  </ghvz-dashboard>
+</template>
 </dom-module>

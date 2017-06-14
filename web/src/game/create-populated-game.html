@@ -31,8 +31,12 @@
               if (!gameId.startsWith('game-'))
                 gameId = 'game-' + properties.id;
               let trimmedGameId = gameId.slice('game-'.length);
-              populateUsers(this.bridge, FAKE_USER_IDS);
-              populateGame(this.bridge, gameId, FAKE_USER_IDS, false);
+              populateUsers(this.bridge, this.config);
+              populateGame(this.bridge, gameId, this.config, false);
+              this.fire('ghvz-set-path', {
+                inGame: false,
+                path: ['game', trimmedGameId, 'main'],
+              });
             });
       },
     });
@@ -48,7 +52,7 @@
   }
 </style>
 <template>
-  <paper-button id="createGame" raised on-tap="addGame_">Create Populated Game</paper-button>
+  <paper-button id="createPopulatedGame" raised on-tap="addGame_">Create Populated Game</paper-button>
   <ghvz-super-form
       id="gameForm"
       type-name="Game"

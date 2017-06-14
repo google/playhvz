@@ -1,7 +1,7 @@
 {
   "chatRooms": {
     "chatRoom-%(ident)s-1" : {
-      "groupId" : "group-%(ident)s-1",
+      "accessGroupId" : "group-%(ident)s-1",
       "gameId": "game-%(ident)s-1",
       "name" : "test Chat Room",
       "withAdmins" : false,
@@ -50,6 +50,10 @@
       "rewardCategories": {
          "rewardCategory-%(ident)s-1": true
       },
+      "maps": {
+        "map-%(ident)s-1": true,
+        "map-%(ident)s-2": true
+      },
       "name": "test Game",
       "players": {
         "player-%(ident)s-1": true,
@@ -57,6 +61,23 @@
         "player-%(ident)s-3": true,
         "player-%(ident)s-4": true,
         "player-%(ident)s-5": true
+      },
+      "quizQuestions": {
+        "quizQuestion-%(ident)s-1": {
+          "answers": {
+            "quizAnswer-%(ident)s-1": {
+              "isCorrect": true,
+              "order": 13,
+              "text": "Test answer"
+            }
+          },
+          "text": "Test question 1",
+          "type": "order"
+        },
+        "quizQuestion-%(ident)s-2": {
+          "text": "Test question 2",
+          "type": "multipleChoice"
+        }
       },
       "rulesHtml": "test rule 2",
       "faqHtml": "test faq 2",
@@ -114,9 +135,10 @@
       "gameId": "game-%(ident)s-1",
       "beginTime": 1500000000000,
       "detailsHtml": "test Details",
-      "endTime": 1600000000000,
+      "endTime": 1700000000000,
       "name": "test Mission",
-      "groupId": "group-%(ident)s-1"
+      "rsvpersGroupId": "group-%(ident)s-1",
+      "accessGroupId": "group-%(ident)s-1"
     }
   },
   "playersPublic": {
@@ -162,6 +184,16 @@
   },
   "playersPrivate": {
     "player-%(ident)s-1": {
+      "associatedMaps": {
+        "map-%(ident)s-1": {
+          "marker-%(ident)s-1": true,
+          "marker-%(ident)s-2": true
+        },
+        "map-%(ident)s-2": {
+          "marker-%(ident)s-3": true,
+          "marker-%(ident)s-4": true
+        }
+      },
       "notificationSettings": {
         "sound": true,
         "vibrate": true
@@ -203,8 +235,8 @@
       "notes": "",
       "beInPhotos": true,
       "wantToBeSecretZombie": true,
-      "missions": {"mission-%(ident)s-1": true},
-      "chatRooms": {"chatRoom-%(ident)s-1": true},
+      "accessibleMissions": {"mission-%(ident)s-1": true},
+      "accessibleChatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
         "advertising": false,
         "logistics": false,
@@ -267,8 +299,8 @@
       "userId": "user-%(ident)s-5",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
-      "missions": {"mission-%(ident)s-1": true},
-      "chatRooms": {"chatRoom-%(ident)s-1": true},
+      "accessibleMissions": {"mission-%(ident)s-1": true},
+      "accessibleChatRooms": {"chatRoom-%(ident)s-1": true},
       "volunteer": {
         "advertising": false, "logistics": false, "communications": false, "moderator": false,
         "cleric": false, "sorcerer": false, "admin": false, "photographer": false,
@@ -283,36 +315,53 @@
       "a": true,
       "players": {
         "player-%(ident)s-1": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-1" }
       }
     },
     "user-%(ident)s-2": {
       "a": true,
       "players": {
         "player-%(ident)s-2": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-2" }
       }
     },
     "user-%(ident)s-3": {
       "a": true,
       "players": {
         "player-%(ident)s-3": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-3" }
       }
     },
     "user-%(ident)s-4": {
       "a": true,
       "players": {
         "player-%(ident)s-4": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-4" }
       }
     },
     "user-%(ident)s-5": {
       "a": true,
       "players": {
         "player-%(ident)s-5": { "gameId": "game-%(ident)s-1" }
+      },
+      "games": {
+        "game-%(ident)s-1": { "playerId": "player-%(ident)s-5" }
       }
     }
   },
   "rewardCategories": {
     "rewardCategory-%(ident)s-1": {
       "claimed": 1,
+      "badgeImageUrl": "google.com/someimage.png",
+      "description": "this is a VERY cool reward",
       "name": "test Reward",
       "gameId": "game-%(ident)s-1",
       "shortName": "testrew",
@@ -324,6 +373,50 @@
     }
   },
   "notifications": {},
+  "maps": {
+    "map-%(ident)s-1": {
+      "accessGroupId": "group-%(ident)s-1",
+      "gameId": "game-%(ident)s-1",
+      "name": "Test map 1",
+      "markers": {
+        "marker-%(ident)s-1": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 1",
+          "playerId": "player-%(ident)s-1"
+        },
+        "marker-%(ident)s-2": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 2",
+          "playerId": "player-%(ident)s-1"
+        }
+      }
+    },
+    "map-%(ident)s-2": {
+      "accessGroupId": "group-%(ident)s-2",
+      "gameId": "game-%(ident)s-1",
+      "name": "Test map 2",
+      "markers": {
+        "marker-%(ident)s-3": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 3",
+          "playerId": "player-%(ident)s-1"
+        },
+        "marker-%(ident)s-4": {
+          "color": "187c09",
+          "latitude": "newLat",
+          "longitude": "newLong",
+          "name": "Test marker 4",
+          "playerId": "player-%(ident)s-1"
+        }
+      }
+    }
+  },
   "rewards": {
     "reward-%(ident)s-1": {
       "code": "testrew-purple-striker-balloon",

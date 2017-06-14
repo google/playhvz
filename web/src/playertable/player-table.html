@@ -90,6 +90,7 @@
                   this.$.addToGroupForm.openForAdding()
                       .then((properties) => {
                         this.bridge.addPlayerToGroup({
+                          gameId: this.game.id,
                           playerId: null,
                           playerToAddId: player.id,
                           groupId: properties.groupId,
@@ -101,6 +102,7 @@
                 name: "Set Got Equipment",
                 handler: (player) => {
                   this.bridge.updatePlayer({
+                    gameId: this.game.id,
                     playerId: player.id,
                     gotEquipment: true,
                   });
@@ -110,6 +112,7 @@
                 name: "Unset Got Equipment",
                 handler: (player) => {
                   this.bridge.updatePlayer({
+                    gameId: this.game.id,
                     playerId: player.id,
                     gotEquipment: false,
                   });
@@ -118,13 +121,14 @@
               {
                 name: "Set Notes",
                 handler: (player) => {
-                  let notes = prompt("Set the new notes for this player", player.notes);
-                  if (notes != null) {
-                    this.bridge.updatePlayer({
-                      playerId: player.id,
-                      notes: notes,
-                    });
-                  }
+                  this.$.notesForm.openForAdding()
+                      .then((properties) => {
+                        this.bridge.updatePlayer({
+                          gameId: this.game.id,
+                          playerId: player.id,
+                          notes: properties.notes,
+                        });
+                      });
                 }
               },
             ],
@@ -135,6 +139,12 @@
     });
   </script>
   <template>
+
+    <ghvz-super-form
+        id="notesForm"
+        type-name="Notes"
+        blueprint='{"fields": [{"property": "notes", "type": "string"}]}'>
+    </ghvz-super-form>
 
     <ghvz-super-form
         id="addToGroupForm"

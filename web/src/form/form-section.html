@@ -13,6 +13,10 @@
             type: String,
             value: "",
           },
+          name: {
+            type: String,
+            value: ""
+          }
         },
       });
     });
@@ -39,7 +43,9 @@
         color: #606060;
       }
     </style>
-    <content></content>
+    <div id$="form-section-[[name]]">
+      <content></content>
+    </div>
     <div class="description">
       [[description]]
     </div>
