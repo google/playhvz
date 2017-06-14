@@ -1662,14 +1662,19 @@ def CreateMap(request, game_state):
     'name': 'String',
   })
 
-  return game_state.put(
-    '/maps',
-    request['mapId'],
-    {
-      'gameId': request['gameId'],
-      'accessGroupId': request['accessGroupId'],
-      'name': request['name']
-  })
+  return [
+    game_state.put(
+      '/maps',
+      request['mapId'],
+      {
+        'gameId': request['gameId'],
+        'accessGroupId': request['accessGroupId'],
+        'name': request['name']}),
+    game_state.put(
+      '/games/%s/maps' % request['gameId'],
+      request['mapId'],
+      True)
+  ]
 
 # For lack of any organization in this project and my devious inclusion to
 # entropy I placed this here, right before I used it.
@@ -1760,7 +1765,7 @@ def AddMarker(request, game_state):
     game_state.put(
       '/playersPrivate/%s/associatedMaps/%s' % (request['playerId'], map_id),
       request['markerId'],
-      "true")
+      True)
   ]
 
 def UpdatePlayerMarkers(request, game_state):
