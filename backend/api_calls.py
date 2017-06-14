@@ -279,6 +279,10 @@ def AddPlayer(request, game_state):
     }
   })
 
+  # TODO: Maybe also check for duplicate names in the same game?
+  if ' '  in request['name']:
+    raise InvalidInputError('Name cannot contain spaces.')
+
   game_id = request['gameId']
   player_id = request['playerId']
   user_id = request['userId']
@@ -359,6 +363,10 @@ def UpdatePlayer(request, game_state):
   })
 
   player_id = request['playerId']
+
+  # TODO: Maybe also check for duplicate names in the same game?
+  if ' '  in request['name']:
+    raise InvalidInputError('Name cannot contain spaces.')
 
   public_update = {}
   for property in ['active', 'name', 'profileImageUrl']:
