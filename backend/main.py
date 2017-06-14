@@ -1,5 +1,7 @@
 # [START app]
 import logging
+import sys
+import traceback
 import time
 import random
 
@@ -44,11 +46,13 @@ def GetFirebase():
 
 @app.errorhandler(api_calls.InvalidInputError)
 def HandleError(e):
+  print e.message
   """Pretty print data validation errors."""
   return 'The request is not valid. %s' % e.message, 500
 
 @app.errorhandler(AppError)
 def HandleError(e):
+  print e.message
   """Pretty print data validation errors."""
   return 'Something went wrong. %s' % e.message, 500
 
@@ -57,6 +61,7 @@ def HandleError(e):
 def HandleError(e):
   """Pretty print data validation errors."""
   logging.exception(e)
+  print e
   return '500: %r %r' % (type(e), e), 500
 
 
@@ -99,10 +104,10 @@ methods = {
   'addRequest': api_calls.AddRequest,
   'addResponse': api_calls.AddResponse,
   'addQuizQuestion': api_calls.AddQuizQuestion,
+  'updateQuizQuestion': api_calls.UpdateQuizQuestion,
   'addQuizAnswer': api_calls.AddQuizAnswer,
+  'updateQuizAnswer': api_calls.UpdateQuizAnswer,
   'addDefaultProfileImage': api_calls.AddDefaultProfileImage,
-  'createMap': api_calls.AddMap,
-  'addPoint': api_calls.AddPoint,
   'DeleteTestData': api_calls.DeleteTestData,
   'DumpTestData': api_calls.DumpTestData,
   'createMap': api_calls.CreateMap,
@@ -203,6 +208,10 @@ def HandleBatchRequest(requests):
       body = request['body']
       print "Handling request %d: %s" % (i, method)
       results.append(CallApiMethod(method, body))
+  except:
+    print "Unexpected error:", sys.exc_info()[0]
+    traceback.print_exc()
+    raise
   finally:
     game_state.commit_transaction()
     api_mutex.release()

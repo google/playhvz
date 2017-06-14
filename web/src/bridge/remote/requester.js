@@ -85,6 +85,7 @@ class NormalRequester {
         }
       }
     } else {
+      alert('There was an error with your request: ' + ajaxRequest.responseText);
       for (let i = 0; i < requests.length; i++) {
         requests[i].reject(ajaxRequest.responseText);
       }

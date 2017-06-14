@@ -39,7 +39,7 @@
                 filterable: true,
               },
               {
-                property: "groupId",
+                property: "accessGroupId",
                 name: "Group",
                 sortable: true,
                 filterable: true,
@@ -106,7 +106,7 @@
                 type: "text",
               },
               {
-                property: "groupId",
+                property: "accessGroupId",
                 label: "Group",
                 description: "Select the group that can see this mission",
                 type: "group",
@@ -126,6 +126,21 @@
             endTime: tomorrow5pm.getTime(),
           })
               .then((properties) => {
+                let accessGroup = this.game.groupsById[properties.accessGroupId];
+                let rsvpersGroupId = this.bridge.idGenerator.newMissionId();
+                this.bridge.createGroup({
+                  groupId: rsvpersGroupId,
+                  gameId: this.game.id,
+                  ownerPlayerId: null,
+                  allegianceFilter: accessGroup.allegianceFilter,
+                  name: 'Rsvpers for ' + properties.name,
+                  autoAdd: false,
+                  autoRemove: true,
+                  canAddOthers: false,
+                  canRemoveOthers: false,
+                  canAddSelf: true,
+                  canRemoveSelf: true,
+                });
                 this.bridge.addMission({
                   gameId: this.game.id,
                   missionId: this.bridge.newMissionId(),
@@ -133,7 +148,8 @@
                   beginTime: properties.beginTime,
                   endTime: properties.endTime,
                   detailsHtml: properties.detailsHtml,
-                  groupId: properties.groupId,
+                  accessGroupId: properties.accessGroupId,
+                  rsvpersGroupId: rsvpersGroupId,
                 });
               });
         },
@@ -148,7 +164,7 @@
                   beginTime: properties.beginTime,
                   endTime: properties.endTime,
                   detailsHtml: properties.detailsHtml,
-                  groupId: properties.groupId,
+                  accessGroupId: properties.accessGroupId,
                 });
               });
         },
@@ -205,7 +221,7 @@
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
           <div class="cell">[[mission.name]]</div>
           <div class="cell">
-            <ghvz-group-name-label game="[[game]]" group-id="[[mission.groupId]]"></ghvz-group-name-label>
+            <ghvz-group-name-label game="[[game]]" group-id="[[mission.accessGroupId]]"></ghvz-group-name-label>
           </div>
           <div class="cell">[[formatTime_(mission.beginTime)]]</div>
           <div class="cell">[[formatTime_(mission.endTime)]]</div>
