@@ -1,7 +1,7 @@
 {
   "chatRooms": {
     "chatRoom-%(ident)s-1" : {
-      "groupId" : "group-%(ident)s-1",
+      "accessGroupId" : "group-%(ident)s-1",
       "gameId": "game-%(ident)s-1",
       "name" : "test Chat Room",
       "withAdmins" : false,
@@ -117,7 +117,7 @@
       "endTime": 1700000000000,
       "name": "test Mission",
       "rsvpersGroupId": "group-%(ident)s-1",
-      "groupId": "group-%(ident)s-1"
+      "accessGroupId": "group-%(ident)s-1"
     }
   },
   "playersPublic": {

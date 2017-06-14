@@ -238,7 +238,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
-      'groupId': self.Id('groupId'),
+      'accessGroupId': self.Id('groupId'),
       'name': 'test Chat',
       'withAdmins': False
     }
@@ -287,7 +287,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'missionId': self.Id('missionId'),
-      'groupId': self.Id('groupId'),
+      'accessGroupId': self.Id('groupId'),
       'name': 'test Mission',
       'beginTime': 1500000000000,
       'endTime': 1600000000000,
