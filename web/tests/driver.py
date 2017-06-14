@@ -271,9 +271,5 @@ class WholeDriver:
   def ExpectContains(self, path, needle, should_exist=True):
     return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
 
-  def SwitchPage(self, page):
-    return self.inner_driver.SwitchPage(page)
-
-
   # def FindElement(self, by, locator, wait_long=True):
   #   return Element(driver, FindElement(self.driver, by, locator, container = self.element, wait_long = wait_long))
