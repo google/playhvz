@@ -29,10 +29,11 @@
 
       drawCurrentPopulationChart: function() {
         var numZombies = 0;
+		var numHumans = 0;
         for (let player of this.game.players) {
-          numZombies += !!player.canInfect;
+		  numZombies += player.allegiance == 'horde';
+          numHumans += player.allegiance == 'resistance';
         }
-        var numHumans = this.game.players.length - numZombies;
 
         var data = google.visualization.arrayToDataTable([
           ['Type', 'Number'],
