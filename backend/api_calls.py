@@ -612,16 +612,187 @@ def UpdateRequestCategory(request, game_state):
   pass
 
 def AddQuizQuestion(request, game_state):
-  pass
+  """Adds a quiz question with the given information
+
+    Validation:
+      gameId must exist
+      quizQuestionId must not exist
+      text must be present
+      type must be present
+
+    Args:
+      gameId: the quiz question will be associated with
+      quizQuestionId: The id used to identify the question
+      text: Text that represents the question
+      type: The type of the question. Either 'order' or 'multipleChoice'
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'quizQuestionId': 'String',
+    'text': 'String',
+    'type': 'String'
+  })
+
+  question = game_state.get(
+    '/games/%s/quizQuestions' % request['gameId'],
+    request['quizQuestionId'])
+
+  if question is not None:
+    return respondError(400, 'Quiz question already exists')
+
+  question_type = request['type']
+  if question_type != 'order' and question_type != 'multipleChoice':
+    return respondError(400, 'type must be "order" or "multipleChoice"')
+
+  return game_state.put(
+    '/games/%s/quizQuestions' % request['gameId'],
+    request['quizQuestionId'],
+    {
+      'text': request['text'],
+      'type': request['type']
+  })
+
+def UpdateQuizQuestion(request, game_state):
+  """Updates a quiz question with the given information
+
+    Validation:
+      gameId must exist
+      quizQuestionId must exist
+
+    Args:
+      quizQuestionId: The id used to identify the question
+      text: Text that represents the question
+      type: The type of the question. Either 'order' or 'multipleChoice'
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'quizQuestionId': 'String',
+    'text': '|String',
+    'type': '|String'
+  })
+
+  question = game_state.get(
+    '/games/%s/quizQuestions' % request['gameId'],
+    request['quizQuestionId'])
+
+  if question is None:
+    return respondError(400, 'Quiz question should exist')
+
+  patch_data = {}
+
+  if 'text' in request:
+    patch_data['text'] = request['text']
+
+  if 'type' in request:
+    question_type = request['type']
+    if question_type != 'order' and question_type != 'multipleChoice':
+      return respondError(400, 'type must be "order" or "multipleChoice"')
+    patch_data['type'] = question_type
+
+  if len(patch_data) > 0:
+    return game_state.patch(
+      '/games/%s/quizQuestions/%s' %
+        (request['gameId'], request['quizQuestionId']),
+      patch_data
+    )
+  return []
 
 def AddQuizAnswer(request, game_state):
-  pass
+  """Adds a quiz answer with the given information
 
-def AddMap(request, game_state):
-  pass
+    Validation:
+      gameId must exist
+      isCorrect must a Boolean
+      order must be a Number
+      quizAnswerId must exist
+      quizQuestionId must not exist
+      text must be a String
 
-def AddPoint(request, game_state):
-  pass
+    Args:
+      gameId: the quiz question will be associated with
+      isCorrect: Whether or not the answer is the correct one to the question
+      order: The order the answer should be displayed relative to others
+      quizAnswerId: The id used to identify the answer
+      quizQuestionId: The id used to identify the question the answer is to
+      text: Text representing the answer
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'isCorrect': 'Boolean',
+    'order': 'Number',
+    'quizAnswerId': 'String',
+    'quizQuestionId': 'String',
+    'text': 'String',
+  })
+
+  question = game_state.get(
+    '/games/%s/quizQuestions' % request['gameId'],
+    request['quizQuestionId'])
+  if question is None:
+    return respondError(400, 'Quiz question should exist')
+  if 'answers' in question and request['quizAnswerId'] in question['answers']:
+    return respondError(400, 'Quiz answer should not exist')
+
+  return game_state.put(
+    '/games/%s/quizQuestions/%s/answers'
+      % (request['gameId'], request['quizQuestionId']),
+    request['quizAnswerId'],
+    {
+      'isCorrect': request['isCorrect'],
+      'order': request['order'],
+      'text': request['text'],
+  })
+
+def UpdateQuizAnswer(request, game_state):
+  """Updates a quiz answer with the given information
+
+    Validation:
+      gameId must exist
+      quizAnswerId must exist
+      quizQuestionId must exist
+
+    Args:
+      gameId: the quiz question will be associated with
+      isCorrect: Whether or not the answer is the correct one to the question
+      order: The order the answer should be displayed relative to others
+      quizAnswerId: The id used to identify the answer
+      quizQuestionId: The id used to identify the question the answer is to
+      text: Text representing the answer
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'isCorrect': '|Boolean',
+    'order': '|Number',
+    'quizAnswerId': 'String',
+    'quizQuestionId': 'String',
+    'text': '|String',
+  })
+
+  question = game_state.get(
+    '/games/%s/quizQuestions' % request['gameId'],
+    request['quizQuestionId'])
+  if question is None:
+    return respondError(400, 'Quiz question should exist')
+  if 'answers' not in question or \
+      request['quizAnswerId'] not in question['answers']:
+    return respondError(400, 'Quiz answer should exist')
+
+  patch_data = {}
+
+  if 'text' in request:
+    patch_data['text'] = request['text']
+  if 'isCorrect' in request:
+    patch_data['isCorrect'] = request['isCorrect']
+  if 'order' in request:
+    patch_data['order'] = request['order']
+
+  if len(patch_data) > 0:
+    return game_state.patch(
+      '/games/%s/quizQuestions/%s/answers/%s' %
+        (request['gameId'], request['quizQuestionId'], request['quizAnswerId']),
+      patch_data
+    )
+  return []
 
 def AddDefaultProfileImage(request, game_state):
   # gameId: gameId,
@@ -1491,14 +1662,19 @@ def CreateMap(request, game_state):
     'name': 'String',
   })
 
-  return game_state.put(
-    '/maps',
-    request['mapId'],
-    {
-      'gameId': request['gameId'],
-      'accessGroupId': request['accessGroupId'],
-      'name': request['name']
-  })
+  return [
+    game_state.put(
+      '/maps',
+      request['mapId'],
+      {
+        'gameId': request['gameId'],
+        'accessGroupId': request['accessGroupId'],
+        'name': request['name']}),
+    game_state.put(
+      '/games/%s/maps' % request['gameId'],
+      request['mapId'],
+      True)
+  ]
 
 # For lack of any organization in this project and my devious inclusion to
 # entropy I placed this here, right before I used it.
@@ -1589,7 +1765,7 @@ def AddMarker(request, game_state):
     game_state.put(
       '/playersPrivate/%s/associatedMaps/%s' % (request['playerId'], map_id),
       request['markerId'],
-      "true")
+      True)
   ]
 
 def UpdatePlayerMarkers(request, game_state):

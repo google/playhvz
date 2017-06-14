@@ -436,10 +436,8 @@ class FakeServer {
         null,
         properties);
   }
-  editGun(args) {
+  updateGun(args) {
     let {gameId, gunId} = args;
-    delete args.gameId;
-    delete args.gunId;
     for (let argName in args) {
       this.writer.set(
           this.reader.getGunPath(gameId, gunId).concat([argName]),

@@ -1,0 +1,56 @@
+
+<dom-module id="ghvz-mobile-admin-page">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-mobile-admin-page',
+
+      properties: {
+        bridge: Object,
+        database: Object,
+        user: String,
+        game: Object,
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+  }
+</style>
+<template>
+
+  <ghvz-card expand full with-back with-menu>
+
+    <ghvz-card spaced fullscreen-page="stats">
+      <div class="header">Game Stats</div>
+      <ghvz-game-stat-summary game="[[game]]">
+      </ghvz-game-stat-summary>
+    </ghvz-card>
+
+  	<ghvz-card spaced scrolling>
+  	  <div class="header">Notifications</div>
+  	  <ghvz-notifications
+  	      bridge="[[bridge]]"
+  	      game="[[game]]"
+  	      players-by-id="[[game.playersById]]"
+  	      notification-categories="[[game.notificationCategories]]"
+  	      notification-categories-by-id="[[game.notificationCategoriesById]]">
+  	  </ghvz-notifications>
+  	</ghvz-card>
+
+  </ghvz-card>
+
+</template>
+</dom-module>
