@@ -288,6 +288,7 @@ def GetValueWithPropertyEqualTo(game_state, property, key, target):
       values[k] = v
   return values
 
+
 def GetPlayerNamesInChatRoom(game_state, chatroom_id):
   names = {}
   group_id = game_state.get('/chatRooms/%s' % chatroom_id, 'accessGroupId')
@@ -303,6 +304,7 @@ def GetPlayerNamesInChatRoom(game_state, chatroom_id):
     names[name] = player
   return names
 
+
 def QueueNotification(game_state, request):
   if 'previewMessage' not in request:
     request['previewMessage'] = textwrap.wrap(request['message'], 100)[0]
@@ -317,5 +319,4 @@ def QueueNotification(game_state, request):
 
   game_state.put('/notifications',
                  request['notificationId'], put_data)
-
 # vim:ts=2:sw=2:expandtab

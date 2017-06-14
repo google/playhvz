@@ -78,7 +78,7 @@ class EndToEndTest(unittest.TestCase):
 
   def CleanTestData(self, data):
     for k, v in data.iteritems():
-      if k == 'time':
+      if k in ['time', 'sendTime']:
         data[k] = 0
       elif type(v) == dict:
         self.CleanTestData(v)
@@ -256,7 +256,7 @@ class EndToEndTest(unittest.TestCase):
       'chatRoomId': self.Id('chatRoomId'),
       'playerId': self.Id('playerId'),
       'messageId': self.Id('messageId'),
-      'message': '@testCharles @testBobby test Message',
+      'message': '@testCharles @testBobby test single Message',
     }
     self.AssertOk('sendChatMessage', create)
 
@@ -281,6 +281,18 @@ class EndToEndTest(unittest.TestCase):
       'location': {
         'latitude': 34.5645654,
         'longitude': -124.5345234,
+      }
+    }
+    self.AssertOk('sendChatMessage', create)
+
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 4),
+      'message': '@all test all Message',
+      'image': {
+        'url': 'google.com/image.png',
       }
     }
     self.AssertOk('sendChatMessage', create)

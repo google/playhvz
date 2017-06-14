@@ -576,10 +576,10 @@ def SendChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
+  user_id = game_state.get('/playersPublic/%s' % request['playerId'], 'userId')
   players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
-  tokens = request['message'].split(' ')
   notification_data = {
-    'notificationId': 'notification-%s' % hash(request['message']),
+    'notificationId': 'notification-%s' % request['messageId'][len('message-'):],
     'message': request['message'],
     'app': True,
     'vibrate': True,
@@ -587,15 +587,28 @@ def SendChatMessage(request, game_state):
     'sendTime': time.time(),
     'icon': 'TODO'
   }
-  for token in tokens:
-    if not token.startswith('@'):
-      continue
-    name = token[1:]
-    if name in players_in_room:
+  # If we check for all @all, then there is no need to send out additional
+  # player notifications.
+  if '@all' in request['message'] and helpers.IsAdmin(game_state,
+                                                      request['gameId'],
+                                                      user_id):
+
+    for player in players_in_room:
       n = notification_data.copy()
-      n['notificationId'] = '%s%s' % (n['notificationId'], name)
-      n['playerId'] = players_in_room[name]
+      n['notificationId'] = '%s%s' % (n['notificationId'], player)
+      n['playerId'] = players_in_room[player]
       helpers.QueueNotification(game_state, n)
+  else:
+    tokens = request['message'].split(' ')
+    for token in tokens:
+      if not token.startswith('@'):
+        continue
+      name = token[1:]
+      if name in players_in_room:
+        n = notification_data.copy()
+        n['notificationId'] = '%s%s' % (n['notificationId'], name)
+        n['playerId'] = players_in_room[name]
+        helpers.QueueNotification(game_state, n)
 
   put_data = {
     'playerId': request['playerId'],

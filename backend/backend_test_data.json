@@ -7,7 +7,7 @@
       "withAdmins" : false,
       "messages": {
         "message-%(ident)s-1": {
-          "message": "@testCharles @testBobby test Message",
+          "message": "@testCharles @testBobby test single Message",
           "playerId": "player-%(ident)s-1",
           "time": 0
         },
@@ -26,6 +26,14 @@
           "location": {
             "latitude": 34.5645654,
             "longitude": -124.5345234
+          }
+        },
+        "message-%(ident)s-4": {
+          "message": "@all test all Message",
+          "playerId": "player-%(ident)s-1",
+          "time": 0,
+          "image": {
+            "url": "google.com/image.png"
           }
         }
       }
@@ -118,6 +126,38 @@
       "name": "test Mission",
       "rsvpersGroupId": "group-%(ident)s-1",
       "accessGroupId": "group-%(ident)s-1"
+    }
+  },
+  "notifications": {
+    "notification-%(ident)s-1testCharles": {
+      "app": true,
+      "destination": "TODO",
+      "icon": "TODO",
+      "message": "@testCharles @testBobby test single Message",
+      "playerId": "player-%(ident)s-1",
+      "previewMessage": "@testCharles @testBobby test single Message",
+      "sendTime": 0,
+      "vibrate": true
+    },
+    "notification-%(ident)s-4testBobby3": {
+      "app": true,
+      "destination": "TODO",
+      "icon": "TODO",
+      "message": "@all test all Message",
+      "playerId": "player-%(ident)s-4",
+      "previewMessage": "@all test all Message",
+      "sendTime": 0,
+      "vibrate": true
+    },
+    "notification-%(ident)s-4testCharles": {
+      "app": true,
+      "destination": "TODO",
+      "icon": "TODO",
+      "message": "@all test all Message",
+      "playerId": "player-%(ident)s-1",
+      "previewMessage": "@all test all Message",
+      "sendTime": 0,
+      "vibrate": true
     }
   },
   "playersPublic": {
@@ -351,7 +391,6 @@
       }
     }
   },
-  "notifications": {},
   "maps": {
     "map-%(ident)s-1": {
       "accessGroupId": "group-%(ident)s-1",
