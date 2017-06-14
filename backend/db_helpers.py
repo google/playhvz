@@ -1,5 +1,7 @@
 """DB helper methods."""
 
+
+import sys
 import copy
 import constants
 
@@ -47,7 +49,16 @@ def ValidateInputs(request, game_state, expectations_by_param_name):
   expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
   expectations_by_param_name['serverTime'] = '|Timestamp'
 
-  ValidateInputsInner(request, game_state, expectations_by_param_name)
+
+  try:
+    ValidateInputsInner(request, game_state, expectations_by_param_name)
+  except:
+    print "Error while validating:", sys.exc_info()[0]
+    print "Expectations:"
+    print expectations_by_param_name
+    print "Request:"
+    print request
+    raise
 
 def ValidateInputsInner(request, game_state, expectations_by_param_name):
   for param_name in request.keys():
@@ -124,16 +135,17 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
         ExpectExistence(game_state, '/chatRooms/%s' % data, data, 'gameId', should_exist)
       if expectation == "RewardCategoryId":
         ExpectExistence(game_state, '/rewardCategories/%s' % data, data, 'gameId', should_exist)
+      # TODO: Do a deep search to find these IDs to check that they exist or not
       if expectation == "RewardId":
+        pass
+      if expectation == "MessageId":
+        pass
+      if expectation == "MarkerId":
         pass
       if expectation == "NotificationCategoryId":
         ExpectExistence(game_state, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
       if expectation == "MapId":
-        ExpectExistence(game_state,
-          '/maps/%s' % data,
-          data,
-          'accessGroupId',
-          should_exist)
+        ExpectExistence(game_state, '/maps/%s' % data, data, 'accessGroupId', should_exist)
 
 def GroupToGame(game_state, group):
   """Map a group to a game."""
@@ -278,6 +290,10 @@ def AddPoints(game_state, player_id, points):
 
 
 def GetValueWithPropertyEqualTo(game_state, property, key, target):
+  print 'GetValueWithPropertyEqualTo'
+  print property
+  print key
+  print target
   all_values= game_state.get('/', property)
   values = {}
   if not all_values:
