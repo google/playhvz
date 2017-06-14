@@ -29,9 +29,9 @@
 
       drawCurrentPopulationChart: function() {
         var numZombies = 0;
-		var numHumans = 0;
+        var numHumans = 0;
         for (let player of this.game.players) {
-		  numZombies += player.allegiance == 'horde';
+          numZombies += player.allegiance == 'horde';
           numHumans += player.allegiance == 'resistance';
         }
 
