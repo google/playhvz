@@ -37,18 +37,18 @@ class EndToEndTest(unittest.TestCase):
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertTrue(r.ok, msg='Expected to POST 200 [ %s ] but got %d:\n%s\nfor: %s' % (method, r.status_code, r.text, data))
 
-  def AssertFails(self, method, data):
+  def AssertFails(self, method, data, expected_status = 500):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
-    self.assertEqual(500, r.status_code,
+    self.assertEqual(expected_status, r.status_code,
         msg='Expected 500 but got %d for %s\n%r' % (r.status_code, method, data))
 
-  def AssertCreateUpdateSequence(self, create_method, create_data, update_method, update_data):
+  def AssertCreateUpdateSequence(self, create_method, create_data, update_method, update_data, fail_code=500):
     """Update fails before create but passes after. Second create fails, first passes."""
     if update_method:
-      self.AssertFails(update_method, update_data)
+      self.AssertFails(update_method, update_data, fail_code)
     self.AssertOk(create_method, create_data)
-    self.AssertFails(create_method, create_data)
+    self.AssertFails(create_method, create_data, fail_code)
     if update_method:
       self.AssertOk(update_method, update_data)
 
@@ -462,6 +462,59 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertOk('updatePlayerMarkers', update)
 
+    # Create quiz question
+    create = {
+      'gameId': self.Id('gameId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 1),
+      'text': 'Test question 1',
+      'type': 'a wrong type'
+    }
+    self.AssertFails('addQuizQuestion', create, 400)
+
+    create['type'] = 'order'
+    self.AssertOk('addQuizQuestion', create)
+    self.AssertFails('addQuizQuestion', create, 400)
+
+    create['quizQuestionId'] = self.Id('quizQuestionId', 2)
+    create['text'] = 'Test question 2'
+    self.AssertOk('addQuizQuestion', create)
+
+    # Update quiz questions
+    update = {
+      'gameId': self.Id('gameId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 2),
+      'type': 'wrong type in update'
+    }
+    self.AssertFails('updateQuizQuestion', update, 400)
+
+    update['type'] = 'multipleChoice'
+    self.AssertOk('updateQuizQuestion', update)
+
+    update['quizQuestionId'] = 'non-existent id'
+    self.AssertFails('updateQuizQuestion', update, 400)
+
+    # Quiz answers
+    create = {
+      'gameId': self.Id('gameId', 1),
+      'isCorrect': True,
+      'order': 17,
+      'quizAnswerId': self.Id('quizAnswerId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 1),
+      'text': 'Test answer',
+    }
+
+    update = {
+      'gameId': self.Id('gameId', 1),
+      'quizAnswerId': self.Id('quizAnswerId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 1),
+      'order': 13,
+    }
+    self.AssertCreateUpdateSequence(
+      'addQuizAnswer',
+      create,
+      'updateQuizAnswer',
+      update,
+      400)
 
     # Final keep last
     self.AssertDataMatches(True)
