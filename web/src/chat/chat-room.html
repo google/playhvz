@@ -209,18 +209,19 @@
           return senderId == currentPlayerId;
         },
 
-        isReceiveUnreadRequest_(request, currentPlayerId) {
+        isReceiveUnreadRequest_(request, response, currentPlayerId) {
           return (request.playerId == currentPlayerId) && (request.response ==null);
         },
 
         acknowledge: function(e){
-          debugger;
           this.bridge.addResponse({
             gameId: this.game.id,
             requestId: e.model.request.id,
             text: null,
           });
-          },
+
+
+        },
 
         sendImage_() {
           console.log('not implemented');
@@ -367,6 +368,7 @@
     }
   </style>
   <template>
+  <!-- -->
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
 
@@ -383,16 +385,21 @@
     <!-- ###### -->
     <div id="ackContainer" class="ack-container">
       <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
-        <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
-          <p1>True</p1>
-        </template>
-        <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
-          <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
-            <template is="dom-if" if="[[isReceiveUnreadRequest_(request, currentPlayer.id)]]">
-              <div class="view">
-                <label>[[requestCategory.text]]</label>
-                <button type="button" class="destroy" on-click="acknowledge">ACK</button>
-              </div>
+        <template is="dom-if" if="[[!requestCategory.dismissed]]">
+          <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
+            <template is="dom-if" if="[[!requestCategory.dismissed]]">
+              <p>True</p>
+            </template>
+          </template>
+          <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
+            <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
+              <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
+                <div class="view">
+                  <b hidden>[[request.time]]</b>
+                  <label>[[requestCategory.text]]</label>
+                  <button type="button" on-click="acknowledge">ACK</button>
+                </div>
+              </template>
             </template>
           </template>
         </template>
