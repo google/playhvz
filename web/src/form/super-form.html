@@ -73,7 +73,6 @@
         populate_(values) {
           for (let field of this.fields) {
             if (field.property in values) {
-              console.log('Setting', 'fields.' + field.index + '.value', values[field.property]);
               this.set('fields.' + field.index + '.value', null);
               this.set('fields.' + field.index + '.value', values[field.property]);
               if (field.type == 'enum') {
@@ -148,7 +147,6 @@
         updateDoneEnabled_() {
           for (let field of this.fields) {
             if (field.required) {
-              console.log(field, field.required, field.type, field.value);
               if ((field.type == 'text' || field.type == 'string') && field.value == "") {
                 this.doneEnabled = false;
                 return;
