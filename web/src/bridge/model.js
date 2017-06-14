@@ -69,19 +69,19 @@ Model.ChatRoom = function(id, args) {
 }
 
 const MAP_PROPERTIES = ["gameId", "name", "groupId"];
-const MAP_COLLECTIONS = ["points"];
+const MAP_COLLECTIONS = ["markers"];
 Model.Map = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, MAP_PROPERTIES);
   Utils.addEmptyLists(this, MAP_COLLECTIONS);
 }
 
-const POINT_PROPERTIES = ["name", "color", "playerId", "latitude", "longitude"];
-const POINT_COLLECTIONS = [];
-Model.Point = function(id, args) {
+const MARKER_PROPERTIES = ["name", "color", "playerId", "latitude", "longitude"];
+const MARKER_COLLECTIONS = [];
+Model.Marker = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, POINT_PROPERTIES);
-  Utils.addEmptyLists(this, POINT_COLLECTIONS);
+  Utils.copyProperties(this, args, MARKER_PROPERTIES);
+  Utils.addEmptyLists(this, MARKER_COLLECTIONS);
 }
 
 const GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];

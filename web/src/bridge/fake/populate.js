@@ -507,10 +507,10 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
 
   var resistanceMapId = bridge.idGenerator.newMapId();
   bridge.createMap({gameId: gameId, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
   
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hi'});
 

@@ -1693,7 +1693,7 @@ def AddMarker(request, game_state):
       longitude must exist
       mapId must exist
       name must exist
-      playerId must exist
+      playerId, if not None, must exist
       markerId must not exist
 
     Args:
@@ -1710,12 +1710,12 @@ def AddMarker(request, game_state):
   """
   helpers.ValidateInputs(request, game_state, {
     'color': 'String',
-    'latitude': 'String',
-    'longitude': 'String',
+    'latitude': 'Number',
+    'longitude': 'Number',
     'mapId': 'MapId',
     'name': 'String',
-    'playerId': 'PlayerId',
-    'markerId': 'String',
+    'playerId': '?PlayerId',
+    'markerId': '!MarkerId',
   })
 
   map_id = request['mapId']
@@ -1757,16 +1757,16 @@ def AddMarker(request, game_state):
     'playerId': request['playerId'],
   }
 
-  return [
-    game_state.put(
-      '/maps/%s/markers' % map_id,
-      request['markerId'],
-      marker_data),
+  game_state.put(
+    '/maps/%s/markers' % map_id,
+    request['markerId'],
+    marker_data),
+
+  if request['playerId'] is not None:
     game_state.put(
       '/playersPrivate/%s/associatedMaps/%s' % (request['playerId'], map_id),
       request['markerId'],
       True)
-  ]
 
 def UpdatePlayerMarkers(request, game_state):
   """Updates all markers belonging to this player to the given [latitude] and

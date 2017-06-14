@@ -235,13 +235,13 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), mapId)]);
     return path;
   }
-  getPointPath(gameId, mapId, pointId) {
+  getMarkerPath(gameId, mapId, markerId) {
     assert(gameId);
     assert(mapId);
-    assert(typeof pointId == 'string' || pointId == null);
-    let path = this.getMapPath(gameId, mapId).concat(["points"]);
-    if (pointId)
-      path = path.concat([Utils.findIndexById(this.get(path), pointId)]);
+    assert(typeof markerId == 'string' || markerId == null);
+    let path = this.getMapPath(gameId, mapId).concat(["markers"]);
+    if (markerId)
+      path = path.concat([Utils.findIndexById(this.get(path), markerId)]);
     return path;
   }
   // getChatRoomMembershipPath(gameId, chatRoomId, membershipId) {
