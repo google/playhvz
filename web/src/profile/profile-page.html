@@ -185,7 +185,7 @@
         <div class="name">
           [[player.name]]
         </div>
-        <div class="sub-item">
+        <div name="status" class="sub-item">
           Status: 
           <span class="status">
             [[getAliveStatusLabel_(player.allegiance)]]
@@ -226,7 +226,7 @@
           </b>
         </div>
         <div>Active: <b>[[computeBooleanText_(player.active)]]</b></div>
-        <div>Can infect: <b>[[computeBooleanText_(player.canInfect)]]</b></div>
+        <div name="can-infect">Can infect: <b>[[computeBooleanText_(player.canInfect)]]</b></div>
         <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
         <div>Can be starting zombie: <b>[[computeBooleanText_(player.startAsZombie)]]</b></div>
         <div>Wants to be secret zombie: <b>[[computeBooleanText_(player.wantToBeSecretZombie)]]</b></div>
@@ -238,10 +238,10 @@
           <paper-button raised on-tap="activate_">Activate</paper-button>
         </template>
         <template is="dom-if" if="[[player.canInfect]]">
-          <paper-button raised on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
+          <paper-button raised id="unset-infect-button" on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
         </template>
         <template is="dom-if" if="[[!player.canInfect]]">
-          <paper-button raised on-tap="setCanInfect_">Set Can Infect</paper-button>
+          <paper-button raised id="set-infect-button" on-tap="setCanInfect_">Set Can Infect</paper-button>
         </template>
         <div>Notes: [[player.notes]]</div>
       </template>
