@@ -290,10 +290,6 @@ def AddPoints(game_state, player_id, points):
 
 
 def GetValueWithPropertyEqualTo(game_state, property, key, target):
-  print 'GetValueWithPropertyEqualTo'
-  print property
-  print key
-  print target
   all_values= game_state.get('/', property)
   values = {}
   if not all_values:
