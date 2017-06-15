@@ -53,13 +53,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
+        signIn();
         if(currentUser != null) {
             signIn();
         }
         else{
             try {
-                mWebView.loadUrl("http://playhvz.com/?userToken=" + currentUser.getIdToken(true));
+                mWebView.loadUrl("http://playhvz.com/?userToken=" + currentUser.getToken(true));
             }catch(NullPointerException e){
             }
         }
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Toast.makeText(MainActivity.this, "Authentication success.",
                                     Toast.LENGTH_SHORT).show();
                             // TODO: 6/13/17 send user token to webview
-                            mWebView.loadUrl("http://playhvz.com/?userToken=" + user.getIdToken(true));
+                            mWebView.loadUrl("http://playhvz.com/?userToken=" + user.getToken(true));
                         } else {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
