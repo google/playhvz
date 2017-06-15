@@ -160,6 +160,7 @@
       "previewMessage" : "hell",
       "sent" : true,
       "site" : true,
+      "email" : true,
       "sound" : false,
       "vibrate" : false
     },
@@ -174,6 +175,7 @@
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "sound": false,
+      "email" : false,
       "vibrate": true,
       "sent": true
     },
@@ -187,6 +189,7 @@
       "gameId": "game-%(ident)s-1",
       "mobile": true,
       "sound": false,
+      "email" : false,
       "vibrate": true,
       "site": true,
       "sent": true
@@ -199,6 +202,7 @@
       "previewMessage": "@all test all Message",
       "sendTime": 0,
       "mobile": true,
+      "email" : false,
       "gameId": "game-%(ident)s-1",
       "sound": false,
       "site": true,

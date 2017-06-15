@@ -149,8 +149,6 @@
       <ghvz-notifications-page
           bridge="[[bridge]]"
           game="[[game]]"
-          categories-by-id="[[game.notificationCategoriesById]]"
-          categories="[[game.notificationCategories]]"
           player="[[player]]"
           path="[[path]]">
       </ghvz-notifications-page>
@@ -223,8 +221,8 @@
           bridge="[[bridge]]"
           game="[[game]]"
           players-by-id="[[game.playersById]]"
-          notification-categories="[[game.notificationCategories]]"
-          notification-categories-by-id="[[game.notificationCategoriesById]]">
+          queued-notification="[[game.queuedNotifications]]"
+          queued-notification-by-id="[[game.queuedNotificationsById]]">
       </ghvz-notifications>
     </ghvz-card>
   </template>

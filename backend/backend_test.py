@@ -303,6 +303,7 @@ class EndToEndTest(unittest.TestCase):
       'message': 'hello!',
       'previewMessage': 'hell',
       'site': True,
+      'email': True,
       'mobile': False,
       'vibrate': False,
       'sound': False,

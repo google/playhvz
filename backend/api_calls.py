@@ -366,7 +366,7 @@ def UpdatePlayer(request, game_state):
   player_id = request['playerId']
 
   # TODO: Maybe also check for duplicate names in the same game?
-  if ' '  in request['name']:
+  if 'name' in request and ' '  in request['name']:
     raise InvalidInputError('Name cannot contain spaces.')
 
   public_update = {}
@@ -593,6 +593,7 @@ def SendChatMessage(request, game_state):
     'message': request['message'],
     'previewMessage': textwrap.wrap(request['message'], 100)[0],
     'site': True,
+    'email': False,
     'mobile': True,
     'vibrate': True,
     'sound': False,
@@ -1486,6 +1487,7 @@ def SendNotification(request, game_state):
     'message': 'String', # Message to send to client.
     'previewMessage': 'String', # Short preview of the message comments.
     'site': 'Boolean', # Whether to send to the web client.
+    'email': 'Boolean', # Whether to send to the player's email.
     'mobile': 'Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': 'Boolean', # Whether the notification should vibrate on iOS/Android.
     'sound': 'Boolean', # Whether the notification should play a sound on iOS/Android.
@@ -1493,7 +1495,7 @@ def SendNotification(request, game_state):
     'sendTime': '?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '?PlayerId', # Player to send it to. Either this or groupId must be present.
     'groupId': '?GroupId', # Group to send it to. Either this or playerId must be present.
-    'icon': 'String', # An icon code to show.
+    'icon': '?String', # An icon code to show. Null to show the default.
   })
 
   # groupId or playerId must be present.
@@ -1519,6 +1521,7 @@ def UpdateNotification(request, game_state):
     'message': '|String', # Message to send to client.
     'previewMessage': '|String', # Short preview of the message comments.
     'site': '|Boolean', # Whether to send to the web client.
+    'email': '|Boolean', # Whether to send to the player's email.
     'mobile': '|Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': '|Boolean', # Whether the notification should vibrate on iOS/Android.
     'sound': '|Boolean', # Whether the notification should play a sound on iOS/Android.
@@ -1526,7 +1529,7 @@ def UpdateNotification(request, game_state):
     'sendTime': '|?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '|?PlayerId', # Player to send it to. Either this or groupId must be present.
     'groupId': '|?GroupId', # Group to send it to. Either this or playerId must be present.
-    'icon': '|String', # An icon code to show.
+    'icon': '|?String', # An icon code to show. Null to show the default.
   })
 
   current_time = int(time.time() * 1000)
@@ -1541,7 +1544,7 @@ def UpdateNotification(request, game_state):
     raise InvalidInputError('Cannot modify sent notification.')
 
   put_data = {}
-  properties = ['message', 'site', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
+  properties = ['message', 'site', 'email', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
                 'groupId', 'playerId', 'icon', 'previewMessage']
 
   for property in properties:

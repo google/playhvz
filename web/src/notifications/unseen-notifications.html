@@ -10,14 +10,16 @@
 
       properties: {
         bridge: Object,
-        categoriesById: Object,
-        categories: Array,
+        game: Object,
         player: Object,
       },
     });
   });
 </script>
 <style>
+  :host {
+    display: block;
+  }
   .notification {
     margin: 8px;
     background-color: white;
@@ -29,9 +31,8 @@
       <paper-material class="notification" elevation="5">
         <ghvz-notification-preview
             bridge="[[bridge]]"
-            player-id="[[player.id]]"
-            categories-by-id="[[categoriesById]]"
-            categories="[[categories]]"
+            player="[[player]]"
+            game="[[game]]"
             notification="[[notification]]"
             with-close>
         </ghvz-notification-preview>

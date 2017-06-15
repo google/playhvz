@@ -6,12 +6,12 @@ driver.WaitForGameLoaded()
 
 try:
   playerNames = {
-        'zella': 'Zella the Ultimate',
-        'deckerd': 'Deckerd the Hesitant',
-        'moldavi': 'Moldavi the Moldavish',
+        'zella': 'ZellaTheUltimate',
+        'deckerd': 'DeckerdTheHesitant',
+        'moldavi': 'MoldaviTheMoldavish',
         'drake': 'Drackan',
         'zeke': 'Zeke',
-        'jack': 'Jack Slayer the Bean Slasher'
+        'jack': 'JackSlayerTheBeanSlasher'
       }
 
   def testChat(playersInChat, playersNotInChat, chatName):

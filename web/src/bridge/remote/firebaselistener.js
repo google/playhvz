@@ -18,13 +18,13 @@ window.FirebaseListener = (function () {
   const USER_PROPERTIES = ['a'];
   const USER_COLLECTIONS = ['players', 'games'];
   const GAME_PROPERTIES = ['active', 'startTime', 'endTime', 'registrationEndTime', 'name', 'number', 'rulesHtml', 'faqHtml', 'stunTimer', 'adminContactPlayerId'];
-  const GAME_COLLECTIONS = ['guns', 'missions', 'rewardCategories', 'chatRooms', 'players', 'admins', 'notificationCategories', 'quizQuestions', 'groups', 'maps'];
+  const GAME_COLLECTIONS = ['guns', 'missions', 'rewardCategories', 'chatRooms', 'players', 'admins', 'queuedNotifications', 'quizQuestions', 'groups', 'maps'];
   const GUN_PROPERTIES = ['gameId', 'playerId', 'label'];
   const GUN_COLLECTIONS = [];
   const PRIVATE_PLAYER_PROPERTIES = ['beInPhotos', 'gameId', 'userId', 'canInfect', 'needGun', 'startAsZombie', 'wantToBeSecretZombie', 'gotEquipment', 'notes'];
   const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ['sound', 'vibrate'];
   const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ['advertising', 'logistics', 'communications', 'moderator', 'cleric', 'sorcerer', 'admin', 'photographer', 'chronicler', 'android', 'ios', 'server', 'client'];
-  const PRIVATE_PLAYER_COLLECTIONS = ['lives', 'accessibleChatRooms', 'accessibleMissions'];
+  const PRIVATE_PLAYER_COLLECTIONS = ['lives', 'accessibleChatRooms', 'accessibleMissions', 'notifications'];
   const USER_PLAYER_PROPERTIES = ['gameId', 'userId'];
   const USER_PLAYER_COLLECTIONS = [];
   const GROUP_PROPERTIES = ['name', 'gameId', 'allegianceFilter', 'autoAdd', 'canAddOthers', 'canRemoveOthers', 'canAddSelf', 'canRemoveSelf', 'autoRemove', 'ownerPlayerId'];
@@ -53,6 +53,8 @@ window.FirebaseListener = (function () {
   const PRIVATE_LIFE_COLLECTIONS = [];
   const INFECTION_PROPERTIES = ['time', 'infectorId'];
   const INFECTION_COLLECTIONS = [];
+  const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "queuedNotificationId", "seenTime", "sound", "vibrate", "site", "mobile", "time", "email", "destination"];
+  const NOTIFICATION_COLLECTIONS = [];
   const REWARD_CATEGORY_PROPERTIES = ['name', 'description', 'shortName', 'points', 'shortName', 'claimed', 'gameId', 'limitPerPlayer', 'badgeImageUrl'];
   const REWARD_CATEGORY_COLLECTIONS = ['rewards'];
   const REWARD_PROPERTIES = ['gameId', 'rewardCategoryId', 'playerId', 'code'];
@@ -270,7 +272,7 @@ window.FirebaseListener = (function () {
         let game = new Model.Game(gameId, props);
         this.writer.insert(this.reader.getGamePath(null), null, game);
         this.listenForPropertyChanges_(
-          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(['accessibleMissions', 'accessibleChatRooms', 'adminUsers', 'notificationCategories', 'groups']),
+          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(['accessibleMissions', 'accessibleChatRooms', 'adminUsers', 'queuedNotifications', 'groups']),
           (property, value) => {
             this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
           });
@@ -324,8 +326,8 @@ window.FirebaseListener = (function () {
         .on('child_added', (snap) => this.listenToChatRoom_(gameId, snap.getKey()));
       this.firebaseRoot.child(`/games/${gameId}/rewardCategories`)
         .on('child_added', (snap) => this.listenToRewardCategory_(gameId, snap.getKey()));
-      this.firebaseRoot.child(`/games/${gameId}/notificationCategories`)
-        .on('child_added', (snap) => this.listenToNotificationCategory_(gameId, snap.getKey()));
+      this.firebaseRoot.child(`/games/${gameId}/queuedNotifications`)
+        .on('child_added', (snap) => this.listenToQueuedNotification_(gameId, snap.getKey()));
     }
 
     listenToGameAsPlayer({
@@ -387,9 +389,8 @@ window.FirebaseListener = (function () {
           this.firebaseRoot.child(`/playersPrivate/${playerId}/notifications`)
             .on('child_added', (snap) => {
               let notificationId = snap.getKey();
-              let notificationCategoryId = snap.getKey();
+              let queuedNotificationId = snap.getKey();
               this.listenToNotification_(gameId, playerId, notificationId);
-              this.listenToNotificationCategory_(gameId, notificationCategoryId);
             });
           this.firebaseRoot.child(`/playersPrivate/${playerId}/accessibleChatRooms`)
             .on('child_added', (snap) => {
@@ -535,6 +536,18 @@ window.FirebaseListener = (function () {
           });
         this.firebaseRoot.child(`/groups/${groupId}/players`)
           .on('child_added', (snap) => this.listenToGroupMembership_(gameId, groupId, snap.getKey()));
+      });
+    }
+
+    listenToNotification_(gameId, playerId, notificationId) {
+      this.listenOnce_(`/playersPrivate/${playerId}/notifications/${notificationId}`).then((snap) => {
+        let obj = new Model.Notification(notificationId, snap.val());
+        this.writer.insert(this.reader.getNotificationPath(gameId, playerId, null), null, obj);
+        this.listenForPropertyChanges_(
+          snap.ref, NOTIFICATION_PROPERTIES, NOTIFICATION_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getNotificationPath(gameId, playerId, notificationId).concat([property]), value);
+          });
       });
     }
 
