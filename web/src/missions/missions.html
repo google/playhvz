@@ -39,7 +39,7 @@
                 filterable: true,
               },
               {
-                property: "groupId",
+                property: "accessGroupId",
                 name: "Group",
                 sortable: true,
                 filterable: true,
@@ -111,7 +111,7 @@
               },
               {
                 name: "mission-group",
-                property: "groupId",
+                property: "accessGroupId",
                 label: "Group",
                 description: "Select the group that can see this mission",
                 type: "group",
@@ -138,7 +138,7 @@
                   beginTime: properties.beginTime,
                   endTime: properties.endTime,
                   detailsHtml: properties.detailsHtml,
-                  groupId: properties.groupId,
+                  accessGroupId: properties.accessGroupId,
                 });
               });
         },
@@ -153,7 +153,7 @@
                   beginTime: properties.beginTime,
                   endTime: properties.endTime,
                   detailsHtml: properties.detailsHtml,
-                  groupId: properties.groupId,
+                  accessGroupId: properties.accessGroupId,
                 });
               });
         },
@@ -206,7 +206,7 @@
         blueprint="[[makeTableBlueprint_()]]"
         items="[[missions]]">
       <template is="dom-repeat" id="repeater" items="[[missions]]" as="mission" initial-count="1" target-framerate="5">
-        <div class="row">
+        <div class="row" name$="mission-row-[[misison.name]]">
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
           <div class="cell">[[mission.name]]</div>
           <div class="cell">
