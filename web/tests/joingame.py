@@ -10,7 +10,7 @@ try:
 
   driver.SendKeys(
       [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
-      'Reggie the Ravager')
+      'ReggieTheRavager')
 
   driver.Click([[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-button']])
 
@@ -35,15 +35,15 @@ try:
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Name Cell Reggie the Ravager']],
-      'Reggie the Ravager')
+      [[By.NAME, 'Leaderboard Name Cell ReggieTheRavager']],
+      'ReggieTheRavager')
 
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Allegiance Cell Reggie the Ravager']],
+      [[By.NAME, 'Leaderboard Allegiance Cell ReggieTheRavager']],
       'undeclared')
 
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Points Cell Reggie the Ravager']],
+      [[By.NAME, 'Leaderboard Points Cell ReggieTheRavager']],
       '0')
 
   driver.Click([[By.NAME, 'drawerDashboard']])

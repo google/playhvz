@@ -13,68 +13,30 @@
 
         game: Object,
         player: Object,
-        categoriesById: Object,
-        categories: Array,
 
-        page: String,
-
-        currentNotification: {
-          type: Object,
-          value: null,
-        },
+        path: String,
       },
 
-      observers: [
-        'onPageChanged_(page, player.notifications.*)',
-      ],
-
-      onPageChanged_() {
-        if (this.page.includes('/')) {
-          let [ , notificationId] = this.page.split('/');
-          this.$.notificationSelector.select(
-              this.player.notifications.find(notification => notification.id == notificationId));
-        }
-      },
-
-      isCurrentNotification(notification, expandedNotificationsById) {
-        return expandedNotificationsById[notification.id] || false;
+      computeExpanded_(notificationId, path) {
+        return path.slice(-1)[0] == notificationId;
       },
     });
   });
 </script>
 <style>
   :host {
-    display: flex;
-  }
-  #list {
-    width: 50%;
-  }
-  #current {
-    width: 50%;
+    display: block;
   }
 </style>
 <template>
-  <array-selector id="notificationSelector" items="[[player.notifications]]" selected="{{currentNotification}}"></array-selector>
-  <div id="list">
-    <template is="dom-repeat" items="[[player.notifications]]" as="notification">
-      <ghvz-notification-preview
-          bridge="[[bridge]]"
-          player-id="[[player.id]]"
-          categories-by-id="[[categoriesById]]"
-          categories="[[categories]]"
-          notification="[[notification]]">
-      </ghvz-notification-preview>
-    </template>
-  </div>
-  <div id="current">
-    <template is="dom-if" if="[[currentNotification]]">
-      <ghvz-notification-full
-          bridge="[[bridge]]"
-          categories-by-id="[[categoriesById]]"
-          categories="[[categories]]"
-          notification="[[currentNotification]]">
-      </ghvz-notification-full>
-    </template>
-  </div>
+  <template is="dom-repeat" items="[[player.notifications]]" as="notification">
+    <ghvz-expandable-notification
+        bridge="[[bridge]]"
+        player="[[player]]"
+        game="[[game]]"
+        notification="[[notification]]"
+        expanded="[[computeExpanded_(notification.id, path)]]">
+    </ghvz-expandable-notification>
+  </template>
 </template>
 </dom-module>

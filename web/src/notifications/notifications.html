@@ -12,8 +12,8 @@
           bridge: Object,
 
           game: Object,
-          notificationCategories: Array,
-          notificationCategoriesById: Object,
+          queuedNotifications: Array,
+          queuedNotificationsById: Object,
         },
 
         attached: function() {
@@ -25,8 +25,8 @@
             itemsRepeater: this.$.repeater,
             columns: [
               {
-                property: "name",
-                name: "Name",
+                property: "previewMessage",
+                name: "Preview Message",
               },
               {
                 property: "sendTime",
@@ -41,7 +41,8 @@
                 getModel: (category) => {
                   let how = [];
                   category.email && how.push('email');
-                  category.app && how.push('app');
+                  category.site && how.push('site');
+                  category.mobile && how.push('mobile');
                   category.sound && how.push('sound');
                   category.vibrate && how.push('vibrate');
                   return how.join('+');
@@ -60,9 +61,10 @@
         computeIcons_: function(category) {
           let howIcons = [];
           category.email && howIcons.push({name: 'Email', icon: 'communication:email'});
-          category.app && howIcons.push({name: 'Notification', icon: 'icons:announcement'});
-          category.sound && howIcons.push({name: 'Sound', icon: 'av:volume-up'});
-          category.vibrate && howIcons.push({name: 'Vibrate', icon: 'notification:vibration'});
+          category.site && howIcons.push({name: 'Site', icon: 'icons:announcement'});
+          category.mobile && howIcons.push({name: 'Mobile', icon: 'hardware:smartphone'});
+          category.sound && howIcons.push({name: 'Mobile Sound', icon: 'av:volume-up'});
+          category.vibrate && howIcons.push({name: 'Mobile Vibrate', icon: 'notification:vibration'});
           return howIcons;
         },
 
@@ -149,7 +151,7 @@
               .then((properties) => {
                 delete properties.email;
                 this.bridge.sendNotification(Utils.merge(properties, {
-                    notificationId: this.bridge.newNotificationCategoryId(),
+                    notificationId: this.bridge.newQueuedNotificationId(),
                     playerId: null,
                     //gameId: this.gameId,
                 }));
@@ -159,8 +161,8 @@
         startEditingCategory_: function(category) {
           this.$.form.openForEditing(category)
               .then((newProperties) => {
-                this.bridge.updateNotificationCategory(Utils.merge(newProperties, {
-                    notificationCategoryId: category.id
+                this.bridge.updateQueuedNotification(Utils.merge(newProperties, {
+                    queuedNotificationId: category.id
                 }));
               });
         },
@@ -193,13 +195,16 @@
     <ghvz-table
         id="table"
         blueprint="[[makeTableBlueprint_()]]"
-        items="[[notificationCategories]]">
-      <template is="dom-repeat" id="repeater" items="[[notificationCategories]]" as="category" initial-count="1" target-framerate="5">
+        items="[[queuedNotifications]]">
+      <template is="dom-repeat" id="repeater" items="[[queuedNotifications]]" as="category" initial-count="1" target-framerate="5">
         <div class="row">
           <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
-          <div class="cell">[[category.name]]</div>
+          <div class="cell">[[category.previewMessage]]</div>
           <div class="cell">[[formatTime_(category.sendTime)]]</div>
-          <div class="cell">[[category.allegianceFilter]]</div>
+          <div class="cell">
+            <ghvz-group-name-label game="[[game]]" group-id="[[category.groupId]]"></ghvz-group-name-label>
+            <ghvz-player-label game="[[game]]" player-id="[[category.playerId]]"></ghvz-player-label>
+          </div>
           <div class="cell icons">
             <template is="dom-repeat" items="[[computeIcons_(category, category.*)]]" as="icon">
               <span>

@@ -1,0 +1,62 @@
+
+<dom-module id="ghvz-expandable-notification">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-expandable-notification',
+
+      properties: {
+        bridge: Object,
+
+        game: Object,
+        player: Object,
+        notification: Object,
+
+        expanded: Boolean,
+      },
+
+      handleTap_(e) {
+        if (this.destination) {
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: this.destination.split('/'),
+          });
+        }
+      },
+
+      close_(e) {
+        this.bridge.markNotificationSeen({
+          playerId: this.playerId,
+          notificationId: this.notification.id,
+        });
+        e.stopPropagation();
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+  }
+</style>
+<template>
+  <ghvz-notification-preview
+      bridge="[[bridge]]"
+      player="[[player]]"
+      game="[[game]]"
+      notification="[[notification]]">
+  </ghvz-notification-preview>
+  <iron-collapse>
+    <ghvz-notification-full
+        bridge="[[bridge]]"
+        game="[[game]]"
+        player="[[player]]"
+        notification="[[notification]]">
+    </ghvz-notification-full>
+  </iron-collapse>
+</template>
+</dom-module>
+

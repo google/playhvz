@@ -31,7 +31,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
       'previewMessage': queued_notification['previewMessage'],
       'destination': queued_notification['destination'],
       'time': int(time.time() * 1000),
-      'icon': queued_notification['icon'],
+      'icon': queued_notification['icon'] if 'icon' in queued_notification else None,
     }
     game_state.put('/playersPrivate/%s/notifications' % player_id,
                   notification_id, notification)
