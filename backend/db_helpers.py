@@ -4,6 +4,7 @@
 import sys
 import copy
 import constants
+import textwrap
 
 class Optional:
   def __init__(self, expectation):
@@ -142,8 +143,10 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
         pass
       if expectation == "MarkerId":
         pass
-      if expectation == "NotificationCategoryId":
-        ExpectExistence(game_state, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
+      if expectation == "NotificationId":
+        pass
+      if expectation == "QueuedNotificationId":
+        ExpectExistence(game_state, '/queuedNotifications/%s' % data, data, 'gameId', should_exist)
       if expectation == "MapId":
         ExpectExistence(game_state, '/maps/%s' % data, data, 'accessGroupId', should_exist)
 
@@ -298,5 +301,39 @@ def GetValueWithPropertyEqualTo(game_state, property, key, target):
     if v[key] == target:
       values[k] = v
   return values
+
+
+def GetPlayerNamesInChatRoom(game_state, chatroom_id):
+  names = {}
+  group_id = game_state.get('/chatRooms/%s' % chatroom_id, 'accessGroupId')
+  if not group_id:
+    return names
+  players = game_state.get('/groups/%s' % group_id, 'players')
+  if not players:
+    return names
+  for player in players.keys():
+    name = game_state.get('/playersPublic/%s' % player, 'name')
+    if not name:
+      continue
+    names[name] = player
+  return names
+
+
+def QueueNotification(game_state, request):
+  put_data = {
+    'sent': False,
+  }
+  properties = ['message', 'site', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
+                'groupId', 'playerId', 'icon', 'previewMessage', 'gameId']
+
+  for property in properties:
+    if property in request and request[property] is not None:
+      put_data[property] = request[property]
+
+  print 'request were putting:'
+  print put_data
+
+  game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
+
 
 # vim:ts=2:sw=2:expandtab
