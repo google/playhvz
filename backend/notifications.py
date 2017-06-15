@@ -8,8 +8,6 @@ import config
 def HandleNotification(game_state, queued_notification_id, queued_notification):
   """Helper function to propogate a notification."""
 
-  print 'handlenotification!'
-  print queued_notification
   if 'playerId' in queued_notification and queued_notification['playerId'] is not None:
     player_ids = set([queued_notification['playerId']])
   elif 'groupId' in queued_notification:
@@ -22,9 +20,6 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
     logging.error('Queued notification %s does not have a playerId or a groupId!' % (
         queued_notification_id))
     return
-
-  print 'player_ids is'
-  print player_ids
 
   device_tokens = set()
 
