@@ -4,7 +4,6 @@ import copy
 import logging
 import random
 import time
-import textwrap
 
 import constants
 import db_helpers as helpers
@@ -280,6 +279,10 @@ def AddPlayer(request, game_state):
     }
   })
 
+  # TODO: Maybe also check for duplicate names in the same game?
+  if ' '  in request['name']:
+    raise InvalidInputError('Name cannot contain spaces.')
+
   game_id = request['gameId']
   player_id = request['playerId']
   user_id = request['userId']
@@ -360,6 +363,10 @@ def UpdatePlayer(request, game_state):
   })
 
   player_id = request['playerId']
+
+  # TODO: Maybe also check for duplicate names in the same game?
+  if ' '  in request['name']:
+    raise InvalidInputError('Name cannot contain spaces.')
 
   public_update = {}
   for property in ['active', 'name', 'profileImageUrl']:
@@ -577,7 +584,39 @@ def SendChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
-  # TODO Scan message for any @all or @player to turn into notifications.
+  user_id = game_state.get('/playersPublic/%s' % request['playerId'], 'userId')
+  players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
+  notification_data = {
+    'notificationId': 'notification-%s' % request['messageId'][len('message-'):],
+    'message': request['message'],
+    'app': True,
+    'vibrate': True,
+    'destination': 'TODO',
+    'sendTime': time.time(),
+    'icon': 'TODO'
+  }
+  # If we check for all @all, then there is no need to send out additional
+  # player notifications.
+  if '@all' in request['message'] and helpers.IsAdmin(game_state,
+                                                      request['gameId'],
+                                                      user_id):
+
+    for player in players_in_room:
+      n = notification_data.copy()
+      n['notificationId'] = '%s%s' % (n['notificationId'], player)
+      n['playerId'] = players_in_room[player]
+      helpers.QueueNotification(game_state, n)
+  else:
+    tokens = request['message'].split(' ')
+    for token in tokens:
+      if not token.startswith('@'):
+        continue
+      name = token[1:]
+      if name in players_in_room:
+        n = notification_data.copy()
+        n['notificationId'] = '%s%s' % (n['notificationId'], name)
+        n['playerId'] = players_in_room[name]
+        helpers.QueueNotification(game_state, n)
 
   put_data = {
     'playerId': request['playerId'],
@@ -1468,20 +1507,7 @@ def SendNotification(request, game_state):
   current_time = int(time.time())
   if 'sendTime' in request and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
-
-  if 'previewMessage' not in request:
-    request['previewMessage'] = textwrap.wrap(request['message'], 100)[0]
-
-  put_data = {}
-  properties = ['message', 'app', 'vibrate', 'sound', 'destination', 'sendTime',
-                'groupId', 'playerId', 'icon', 'previewMessage']
-
-  for property in properties:
-    if property in request:
-      put_data[property] = request[property]
-
-  game_state.put('/notifications',
-                      request['notificationId'], put_data)
+  helpers.QueueNotification(game_state, request)
 
 
 def UpdateNotification(request, game_state):

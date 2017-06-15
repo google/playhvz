@@ -4,6 +4,7 @@
 import sys
 import copy
 import constants
+import textwrap
 
 class Optional:
   def __init__(self, expectation):
@@ -299,4 +300,35 @@ def GetValueWithPropertyEqualTo(game_state, property, key, target):
       values[k] = v
   return values
 
+
+def GetPlayerNamesInChatRoom(game_state, chatroom_id):
+  names = {}
+  group_id = game_state.get('/chatRooms/%s' % chatroom_id, 'accessGroupId')
+  if not group_id:
+    return names
+  players = game_state.get('/groups/%s' % group_id, 'players')
+  if not players:
+    return names
+  for player in players.keys():
+    name = game_state.get('/playersPublic/%s' % player, 'name')
+    if not name:
+      continue
+    names[name] = player
+  return names
+
+
+def QueueNotification(game_state, request):
+  if 'previewMessage' not in request:
+    request['previewMessage'] = textwrap.wrap(request['message'], 100)[0]
+
+  put_data = {}
+  properties = ['message', 'app', 'vibrate', 'sound', 'destination', 'sendTime',
+                'groupId', 'playerId', 'icon', 'previewMessage']
+
+  for property in properties:
+    if property in request:
+      put_data[property] = request[property]
+
+  game_state.put('/notifications',
+                 request['notificationId'], put_data)
 # vim:ts=2:sw=2:expandtab
