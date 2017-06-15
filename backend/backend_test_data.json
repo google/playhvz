@@ -381,15 +381,15 @@
       "markers": {
         "marker-%(ident)s-1": {
           "color": "187c09",
-          "latitude": "newLat",
-          "longitude": "newLong",
+          "latitude": 16.0,
+          "longitude": 17.0,
           "name": "Test marker 1",
           "playerId": "player-%(ident)s-1"
         },
         "marker-%(ident)s-2": {
           "color": "187c09",
-          "latitude": "newLat",
-          "longitude": "newLong",
+          "latitude": 16.0,
+          "longitude": 17.0,
           "name": "Test marker 2",
           "playerId": "player-%(ident)s-1"
         }
@@ -402,15 +402,15 @@
       "markers": {
         "marker-%(ident)s-3": {
           "color": "187c09",
-          "latitude": "newLat",
-          "longitude": "newLong",
+          "latitude": 16.0,
+          "longitude": 17.0,
           "name": "Test marker 3",
           "playerId": "player-%(ident)s-1"
         },
         "marker-%(ident)s-4": {
           "color": "187c09",
-          "latitude": "newLat",
-          "longitude": "newLong",
+          "latitude": 16.0,
+          "longitude": 17.0,
           "name": "Test marker 4",
           "playerId": "player-%(ident)s-1"
         }
