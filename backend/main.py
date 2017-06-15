@@ -113,6 +113,7 @@ methods = {
   'createMap': api_calls.CreateMap,
   'addMarker': api_calls.AddMarker,
   'updatePlayerMarkers': api_calls.UpdatePlayerMarkers,
+  'executeNotifications': notifications.ExecuteNotifications,
 }
 
 
@@ -144,7 +145,7 @@ def CronNotification():
   cron_key = 'X-Appengine-Cron'
   if cron_key not in request.headers or not request.headers[cron_key]:
     return 'Unauthorized', 403
-  notifications.ExecuteNotifications(None, GetFirebase())
+  HandleSingleRequest('executeNotifications', {})
   return 'OK'
 
 @app.route('/stressTest', methods=['POST'])

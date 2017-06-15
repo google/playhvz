@@ -1,83 +1,79 @@
 import logging
+import random
 import time
 
 import ionic
 import config
 
-def HandleNotification(firebase, ionic_client, notification_id, notification):
+def HandleNotification(game_state, queued_notification_id, queued_notification):
   """Helper function to propogate a notification."""
 
-  # TODO: Send to ionic
-  if 'playerId' in notification:
-    players = set(notification['playerId'])
-  elif 'groupId' in notification:
-    players = firebase.get('/groups/%s' % notification['groupId'],
-                           'players')
-    if players is None:
-      players = []
+  print 'handlenotification!'
+  print queued_notification
+  if 'playerId' in queued_notification and queued_notification['playerId'] is not None:
+    player_ids = set([queued_notification['playerId']])
+  elif 'groupId' in queued_notification:
+    player_ids = game_state.get('/groups/%s' % queued_notification['groupId'], 'players')
+    if player_ids is None:
+      player_ids = []
     else:
-      players = set(players)
+      player_ids = set(player_ids)
   else:
-    logging.error('Notification %s does not have a playerId or a groupId!' % (
-        notification_id))
+    logging.error('Queued notification %s does not have a playerId or a groupId!' % (
+        queued_notification_id))
     return
 
-  for player in players:
-    firebase.put('/playersPrivate/%s/notifications' % player,
+  print 'player_ids is'
+  print player_ids
+
+  device_tokens = set()
+
+  for index, player_id in enumerate(player_ids):
+    notification_id = queued_notification_id.replace('queuedNotification-', 'notification-') + '-' + str(index)
+    notification = {
+      'queuedNotificationId': queued_notification_id,
+      'message': queued_notification['message'],
+      'previewMessage': queued_notification['previewMessage'],
+      'destination': queued_notification['destination'],
+      'time': int(time.time() * 1000),
+      'icon': queued_notification['icon'],
+    }
+    game_state.put('/playersPrivate/%s/notifications' % player_id,
                   notification_id, notification)
 
-  if 'app' in notification:
-    # This is really depressing... This is only barely acceptable because we
-    # expect less than 100 players for the minigame.
-    users = firebase.get('/users', None)
-    tokens = set()
-    if users is None:
-      logging.error('Error querying all users.')
-      return
-    for user in users.values():
-      if 'players' in user:
-        for player in user['players']:
-          if player in players and 'deviceToken' in user:
-            tokens.add(user['deviceToken'])
-    ionic_client.SendNotification(tokens, notification['message'],
-                                  notification['destination'])
+    if queued_notification['mobile']:
+      user_id = game_state.get('/playersPublic/%s' % queued_notification['gameId'], 'userId')
+      user = game_state.get('/users', user_id)
+      if 'deviceToken' in user:
+        tokens.add(user['deviceToken'])
+
+  # TODO: Send notification to device_tokens
 
 
-def ExecuteNotifications(request, firebase):
+def ExecuteNotifications(request, game_state):
   """INTERNAL ONLY: Send the notifications.
 
   This method will execute queued notifications and send them to apps and add
   them to the player specific notification database URLs.
 
-  This method works by fetching the last 20 notifications that are less than
-  the current time. Once the notifications are handled, their time is set to 0
-  indicating that they have been handled. Since now that they are zero, all
-  future notifications must have a newer timestamp, and thus will show up in
-  the query first.
+  Changes 'sent' from False to True once it's sent.
+
+  We iterate over the entire set of notifications in existence currently. Soon,
+  we'll iterate over all notifications in the given game id.
   """
-  ionic_client = ionic.Ionic(config.IONIC_APPID, config.IONIC_SECURITY_TAG,
-                             config.IONIC_TOKEN)
-  # Handle notifications, 20 at a time so we don't need to get the entire
-  # notification database.
-  current_time = int(time.time())
-  get_params = {
-      'orderBy': '"sendTime"',
-      'limitToLast': 20,
-      'endAt': current_time
-  }
+
+  current_time = int(time.time() * 1000)
   while True:
     updates = False
-    notifications = firebase.get('/notifications', None, params=get_params)
-    if notifications is None:
+    queued_notifications = game_state.get('/queuedNotifications', None)
+    if queued_notifications is None:
       return
-    for notification_id, notification in notifications.iteritems():
-      if notification['sendTime'] > 0 and current_time > int(notification['sendTime']):
+    for queued_notification_id, queued_notification in queued_notifications.iteritems():
+      send_time = queued_notification['sendTime'] if 'sendTime' in queued_notification else None
+      sent = queued_notification['sent']
+      if not sent and (send_time is None or send_time < current_time):
         updates = True
-        HandleNotification(firebase, ionic_client, notification_id, notification)
-        notifications[notification_id]['sendTime'] = 0
-    if updates:
-      result = firebase.patch('/notifications', notifications)
-      if result is None:
-        logging.error('Error updating notification results for %s...' % notification_id)
-    else:
+        HandleNotification(game_state, queued_notification_id, queued_notification)
+        game_state.patch('/queuedNotifications/%s' % queued_notification_id, {'sent': True})
+    if not updates:
       return

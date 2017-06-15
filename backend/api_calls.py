@@ -3,6 +3,7 @@ from api_helpers import AppError, respondError
 import copy
 import logging
 import random
+import textwrap
 import time
 
 import constants
@@ -26,7 +27,7 @@ ROOT_ENTRIES = (
     'users',
     'rewardCategories',
     'rewards',
-    'notifications')
+    'queuedNotifications')
 
 
 def Register(request, game_state):
@@ -279,6 +280,10 @@ def AddPlayer(request, game_state):
     }
   })
 
+  # TODO: Maybe also check for duplicate names in the same game?
+  if ' '  in request['name']:
+    raise InvalidInputError('Name cannot contain spaces.')
+
   game_id = request['gameId']
   player_id = request['playerId']
   user_id = request['userId']
@@ -359,6 +364,10 @@ def UpdatePlayer(request, game_state):
   })
 
   player_id = request['playerId']
+
+  # TODO: Maybe also check for duplicate names in the same game?
+  if ' '  in request['name']:
+    raise InvalidInputError('Name cannot contain spaces.')
 
   public_update = {}
   for property in ['active', 'name', 'profileImageUrl']:
@@ -576,7 +585,43 @@ def SendChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
-  # TODO Scan message for any @all or @player to turn into notifications.
+  user_id = game_state.get('/playersPublic/%s' % request['playerId'], 'userId')
+  players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
+  notification_data = {
+    'gameId': request['gameId'],
+    'queuedNotificationId': 'queuedNotification-%s' % request['messageId'][len('message-'):],
+    'message': request['message'],
+    'previewMessage': textwrap.wrap(request['message'], 100)[0],
+    'site': True,
+    'mobile': True,
+    'vibrate': True,
+    'sound': False,
+    'destination': 'TODO',
+    'sendTime': int(time.time() * 1000),
+    'icon': 'TODO'
+  }
+  # If we check for all @all, then there is no need to send out additional
+  # player notifications.
+  if '@all' in request['message'] and helpers.IsAdmin(game_state,
+                                                      request['gameId'],
+                                                      user_id):
+
+    for player in players_in_room:
+      n = notification_data.copy()
+      n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
+      n['playerId'] = players_in_room[player]
+      helpers.QueueNotification(game_state, n)
+  else:
+    tokens = request['message'].split(' ')
+    for token in tokens:
+      if not token.startswith('@'):
+        continue
+      name = token[1:]
+      if name in players_in_room:
+        n = notification_data.copy()
+        n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
+        n['playerId'] = players_in_room[name]
+        helpers.QueueNotification(game_state, n)
 
   put_data = {
     'playerId': request['playerId'],
@@ -1444,7 +1489,7 @@ def SendNotification(request, game_state):
     'mobile': 'Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': 'Boolean', # Whether the notification should vibrate on iOS/Android.
     'sound': 'Boolean', # Whether the notification should play a sound on iOS/Android.
-    'destination': 'String', # URL that notification should open when clicked.
+    'destination': '?String', # URL that notification should open when clicked. Null means it will just open to the notifications page on the site, to this notification.
     'sendTime': '?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '?PlayerId', # Player to send it to. Either this or groupId must be present.
     'groupId': '?GroupId', # Group to send it to. Either this or playerId must be present.
@@ -1452,24 +1497,14 @@ def SendNotification(request, game_state):
   })
 
   # groupId or playerId must be present.
-  if ('groupId' in request) == ('playerId' in request):
+  if (request['groupId'] is None) == (request['playerId'] is None):
     raise InvalidInputError('Must include either a playerId or a groupId')
 
   current_time = int(time.time() * 1000)
   if request['sendTime'] is not None and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
 
-  put_data = {
-    'sent': False,
-  }
-  properties = ['message', 'site', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
-                'groupId', 'playerId', 'icon', 'previewMessage']
-
-  for property in properties:
-    if property in request:
-      put_data[property] = request[property]
-
-  game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
+  helpers.QueueNotification(game_state, request)
 
 
 def UpdateNotification(request, game_state):
