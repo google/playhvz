@@ -287,13 +287,13 @@
         "sorcerer": false
       },
       "notifications": {
-        "notification-%(ident)s-1-0": {
+        "notification-%(ident)s-1-1": {
           "destination": "http://some.url/moo",
           "icon": "icons:close",
           "message": "hello!",
           "previewMessage": "hell",
           "queuedNotificationId": "queuedNotification-%(ident)s-1",
-          "time": 1497504710470
+          "time": 0
         },
         "notification-%(ident)s-1testCharles-0": {
           "destination": "TODO",
