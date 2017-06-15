@@ -202,6 +202,42 @@
           this.$.actions.executeAction(e);
         },
 
+        /*
+        ######
+        */
+        isSenderCurrentPlayer_(senderId, currentPlayerId) {
+          return senderId == currentPlayerId;
+        },
+
+        isReceiveUnreadRequest_(request, response, currentPlayerId) {
+          return (request.playerId == currentPlayerId) && (request.response ==null);
+        },
+
+        countRespondPlayer_(requests){
+          var count=0;
+          for(let i=0; i<requests.length; i++){
+            if(requests[i].response != null)
+              count++;
+          }
+          return count;
+        },
+
+        acknowledge: function(e){
+          this.bridge.addResponse({
+            gameId: this.game.id,
+            requestId: e.model.request.id,
+            text: null,
+          });
+        },
+
+        deleteAck: function(e){
+          this.bridge.updateRequestCategory({
+            gameId: this.game.id,
+            requestCategoryId: e.model.requestCategory.id,
+            dismissed: true,
+          });
+        },
+
         sendImage_() {
           console.log('not implemented');
         },
@@ -218,7 +254,7 @@
       flex-direction: column;
     }
     :host[small] {
-      max-height: 400px;
+      height: 400px;
     }
     paper-button.send {
       background-color: rgba(135, 206, 250, .5);
@@ -228,6 +264,11 @@
     }
     .conversation-container {
       flex-grow: 1;
+      overflow-y: scroll;
+      padding: 8px;
+    }
+    .ack-container {
+      flex-grow: 0;
       overflow-y: scroll;
       padding: 8px;
     }
@@ -341,6 +382,7 @@
     }
   </style>
   <template>
+  <!-- -->
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
 
@@ -353,6 +395,30 @@
 
     <!-- For webdrivers -->
     <div name$="ChatRoom: [[chatRoom.name]]"></div>
+
+    <div id="ackContainer" class="ack-container">
+      <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
+        <template is="dom-if" if="[[!requestCategory.dismissed]]">
+          <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
+              <div class="view">
+                <label>"[[requestCategory.text]]" has been responsed by <b>[[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]]</b></label>
+                <button type="button" on-click="deleteAck">Delete</button>
+              </div>
+          </template>
+          <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
+            <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
+              <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
+                <div class="view">
+                  <b hidden>[[request.time]]</b>
+                  <label>[[requestCategory.playerId]] sends you an ACK: <b>"[[requestCategory.text]]"</b></label>
+                  <button type="button" on-click="acknowledge">ACK</button>
+                </div>
+              </template>
+            </template>
+          </template>
+        </template>
+      </template>
+    </div>
 
     <div id="conversationContainer" class="conversation-container">
       <template is="dom-repeat" items="[[chatRoom.messages]]">

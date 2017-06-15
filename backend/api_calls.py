@@ -1809,8 +1809,8 @@ def UpdatePlayerMarkers(request, game_state):
       playerId: The unique id of the player whose location should be updated
   """
   helpers.ValidateInputs(request, game_state, {
-    'latitude': 'String',
-    'longitude': 'String',
+    'latitude': 'Number',
+    'longitude': 'Number',
     'playerId': 'PlayerId',
   })
 

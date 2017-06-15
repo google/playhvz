@@ -426,8 +426,8 @@ class EndToEndTest(unittest.TestCase):
 
     create = {
       'color': '187C09',
-      'latitude': 'oldLat',
-      'longitude': 'oldLong',
+      'latitude': 12.4,
+      'longitude': 14.5,
       'mapId': self.Id('mapId', 1),
       'markerId': self.Id('markerId', 1),
       'name': 'Test marker 1',
@@ -437,8 +437,8 @@ class EndToEndTest(unittest.TestCase):
 
     create = {
       'color': '187C09',
-      'latitude': 'oldLat',
-      'longitude': 'oldLong',
+      'latitude': 12.4,
+      'longitude': 14.5,
       'mapId': self.Id('mapId', 1),
       'markerId': self.Id('markerId', 2),
       'name': 'Test marker 2',
@@ -448,8 +448,8 @@ class EndToEndTest(unittest.TestCase):
 
     create = {
       'color': '187C09',
-      'latitude': 'oldLat',
-      'longitude': 'oldLong',
+      'latitude': 12.4,
+      'longitude': 14.5,
       'mapId': self.Id('mapId', 2),
       'markerId': self.Id('markerId', 3),
       'name': 'Test marker 3',
@@ -459,8 +459,8 @@ class EndToEndTest(unittest.TestCase):
 
     create = {
       'color': '187C09',
-      'latitude': 'oldLat',
-      'longitude': 'oldLong',
+      'latitude': 12.4,
+      'longitude': 14.5,
       'mapId': self.Id('mapId', 2),
       'markerId': self.Id('markerId', 4),
       'name': 'Test marker 4',
@@ -470,8 +470,8 @@ class EndToEndTest(unittest.TestCase):
 
     # Update all points
     update = {
-      'latitude': 'newLat',
-      'longitude': 'newLong',
+      'latitude': 16.0,
+      'longitude': 17.0,
       'playerId': self.Id('playerId', 1),
     }
     self.AssertOk('updatePlayerMarkers', update)
