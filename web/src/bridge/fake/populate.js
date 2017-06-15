@@ -693,7 +693,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     requestCategoryId: secondRequestCategoryId,
     chatRoomId: resistanceChatRoomId,
     playerId: moldaviPlayerId,
-    text: 'yee?',
+    text: 'yee2?',
     type: 'ack',
     dismissed: false
   });
@@ -716,6 +716,39 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     serverTime: 1483364000000,
     requestId: secondRequestId,
     text: null
+  });
+
+  let textRequestCategoryId = bridge.idGenerator.newRequestCategoryId();
+  let textRequestId = bridge.idGenerator.newRequestId();
+  bridge.addRequestCategory({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestCategoryId: textRequestCategoryId,
+    chatRoomId: resistanceChatRoomId,
+    playerId: moldaviPlayerId,
+    text: 'text?',
+    type: 'text',
+    dismissed: false
+  });
+  bridge.addRequest({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestId: textRequestId,
+    requestCategoryId: textRequestCategoryId,
+    playerId: jackPlayerId
+  });
+  bridge.addRequest({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestId: bridge.idGenerator.newRequestId(),
+    requestCategoryId: textRequestCategoryId,
+    playerId: zellaPlayerId
+  });
+  bridge.addResponse({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestId: textRequestId,
+    text: "responseText",
   });
   
   populateQuiz(bridge, gameId);
