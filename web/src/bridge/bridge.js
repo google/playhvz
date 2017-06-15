@@ -87,8 +87,8 @@ class IdGenerator {
   verifyNotificationId(id) { return this.verify('notification', id); }
   newPlayerId(note) { return this.generateId('player', note); }
   verifyPlayerId(id) { return this.verify('player', id); }
-  newPointId(note) { return this.generateId('point', note); }
-  verifyPointId(id) { return this.verify('point', id); }
+  newMarkerId(note) { return this.generateId('marker', note); }
+  verifyMarkerId(id) { return this.verify('marker', id); }
   newQuizAnswerId(note) { return this.generateId('quizAnswer', note); }
   verifyQuizAnswerId(id) { return this.verify('quizAnswer', id); }
   newQuizQuestionId(note) { return this.generateId('quizQuestion', note); }
@@ -403,8 +403,8 @@ class FakeIdGenerator extends IdGenerator {
     name: 'String',
   });
 
-  serverMethods.set('addPoint', {
-    pointId: '!PointId',
+  serverMethods.set('addMarker', {
+    markerId: '!MarkerId',
     mapId: 'MapId',
     serverTime: '|Timestamp',
     name: 'String',

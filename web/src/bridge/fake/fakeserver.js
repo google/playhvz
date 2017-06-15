@@ -115,13 +115,13 @@ class FakeServer {
   updateMap(args) {
     throwError('Implement!');
   }
-  addPoint(args) {
-    let {pointId, mapId} = args;
+  addMarker(args) {
+    let {markerId, mapId} = args;
     let gameId = this.reader.getGameIdForMapId(mapId);
     this.writer.insert(
-        this.reader.getPointPath(gameId, mapId, null),
+        this.reader.getMarkerPath(gameId, mapId, null),
         null,
-        new Model.Point(pointId, args));
+        new Model.Marker(markerId, args));
   }
   createChatRoom(args) {
     let {gameId, chatRoomId, accessGroupId} = args;
@@ -229,7 +229,6 @@ class FakeServer {
 
   addPlayerToMission_(gameId, missionId, playerId) {
     // Assumes already added to group
-    console.log('adding player', playerId, ' to mission', missionId);
     this.writer.insert(
         this.reader.getPlayerMissionMembershipPath(gameId, playerId, null),
         null,

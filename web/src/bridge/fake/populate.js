@@ -507,10 +507,10 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
 
   var resistanceMapId = bridge.idGenerator.newMapId();
   bridge.createMap({gameId: gameId, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
-  bridge.addPoint({pointId: bridge.idGenerator.newPointId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
+  bridge.addMarker({markerId: bridge.idGenerator.newMarkerId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
   
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hi'});
 
@@ -693,7 +693,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     requestCategoryId: secondRequestCategoryId,
     chatRoomId: resistanceChatRoomId,
     playerId: moldaviPlayerId,
-    text: 'yee?',
+    text: 'yee2?',
     type: 'ack',
     dismissed: false
   });
@@ -716,6 +716,39 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     serverTime: 1483364000000,
     requestId: secondRequestId,
     text: null
+  });
+
+  let textRequestCategoryId = bridge.idGenerator.newRequestCategoryId();
+  let textRequestId = bridge.idGenerator.newRequestId();
+  bridge.addRequestCategory({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestCategoryId: textRequestCategoryId,
+    chatRoomId: resistanceChatRoomId,
+    playerId: moldaviPlayerId,
+    text: 'text?',
+    type: 'text',
+    dismissed: false
+  });
+  bridge.addRequest({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestId: textRequestId,
+    requestCategoryId: textRequestCategoryId,
+    playerId: jackPlayerId
+  });
+  bridge.addRequest({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestId: bridge.idGenerator.newRequestId(),
+    requestCategoryId: textRequestCategoryId,
+    playerId: zellaPlayerId
+  });
+  bridge.addResponse({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    requestId: textRequestId,
+    text: "responseText",
   });
   
   populateQuiz(bridge, gameId);

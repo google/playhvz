@@ -193,6 +193,14 @@
               " " + infections);
           }
 
+          // Case: Undeclared allegiance
+          if (player.allegiance != 'horde' && player.allegiance != 'resistance') {
+            if (player.allegiance != 'undeclared') {
+              throw new Error("Un-anticipated allegiance: " + player.allegiance);
+            }
+            continue; // Assume that they're not a player
+          }
+
           // Case: Player stays human
           if (lives.length && !infections.length) {
             logger("STAYED HUMAN");
