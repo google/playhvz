@@ -123,6 +123,7 @@
           }
         },
 
+
         displaySenderInfo(playerId) {
           if (playerId != this.previousMessagePlayerId) {
             this.previousMessagePlayerId = playerId;
@@ -214,12 +215,38 @@
         },
 
         countRespondPlayer_(requests){
-          var count=0;
+          let count=0;
           for(let i=0; i<requests.length; i++){
             if(requests[i].response != null)
               count++;
           }
           return count;
+        },
+
+        notEveryPlayerRespond_(requests){
+           let count=0;
+          for(let i=0; i<requests.length; i++){
+            if(requests[i].response != null)
+              count++;
+          }
+          return count<requests.length;
+        },
+
+        getNoRespondPlayer_(requests){
+          let players="";
+          for(let i=0; i<requests.length; i++){
+            if(requests[i].response == null)
+              players += requests[i].playerId+",";
+          }
+          return players.substring(0,players.length-1);
+        },
+
+        isRequestAck_(requestCategoryType){
+          return requestCategoryType=="ack";
+        },
+
+        isResponseNull_(response){
+          return response==null;
         },
 
         acknowledge: function(e){
@@ -230,12 +257,32 @@
           });
         },
 
+        sendAckText: function(e){
+          this.bridge.addResponse({
+            gameId: this.game.id,
+            requestId: e.model.request.id,
+            text: e.target.previousSibling.value,
+          });
+        },
+
         deleteAck: function(e){
           this.bridge.updateRequestCategory({
             gameId: this.game.id,
             requestCategoryId: e.model.requestCategory.id,
             dismissed: true,
           });
+        },
+
+        /**
+        * Submit text on 'enter', allow shift+enter to insert a new line in
+        * the text field.
+        */
+        checkForEnterTextRequest_: function(e) {
+         if (e.keyCode === 13 && !e.shiftKey) {
+            e.preventDefault();
+            debugger;
+            e.target.parentNode.parentNode.parentNode.parentNode.nextSibling.click();
+          }
         },
 
         sendImage_() {
@@ -380,6 +427,9 @@
       padding-right: 16px;
       word-break: break-all;
     }
+    .text-request { display: flex; }
+    .text-request-label {display: block; flex-grow: 1;}
+    .text-request-input {display: block; flex-shrink: 0;}
   </style>
   <template>
   <!-- -->
@@ -402,16 +452,37 @@
           <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
               <div class="view">
                 <label>"[[requestCategory.text]]" has been responsed by <b>[[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]]</b></label>
-                <button type="button" on-click="deleteAck">Delete</button>
+                <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.requests, requestCategory.requests.*)]]">
+                  <label>, the no responde player(s) are <b>[[getNoRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]</b></label>
+                 </template>
+                <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
+                  <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
+                    <template is="dom-if" if="[[!isResponseNull_(request.response)]]">
+                      <label><p><b>[[request.playerId]]</b> responds <b>"[[request.response.text]]"</b></p></label>
+                    </template>
+                  </template>
+                </template>
+
+                <paper-button on-click="deleteAck">Delete</paper-button>
               </div>
           </template>
           <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
             <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
               <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
-                <div class="view">
-                  <b hidden>[[request.time]]</b>
-                  <label>[[requestCategory.playerId]] sends you an ACK: <b>"[[requestCategory.text]]"</b></label>
-                  <button type="button" on-click="acknowledge">ACK</button>
+                  <template is="dom-if" if="[[isRequestAck_(requestCategory.type)]]">
+                    <div class="view">
+                      <label>[[requestCategory.playerId]] sends you an ACK: <b>"[[requestCategory.text]]"</b></label>
+                      <b hidden>[[request.time]]</b>
+                      <paper-button on-click="acknowledge">ACK</paper-button>
+                    </div>
+                  </template>
+                  <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
+                    <div class="text-request">
+                      <p hidden>[[request.time]]</p>
+                      <label class="text-request-label">[[requestCategory.playerId]] sends you a question: <b>"[[requestCategory.text]]"</b></label>
+                      <paper-input class="text-request-input" on-keydown="checkForEnterTextRequest_" type="string" label="Answer"></paper-input><paper-button id="textRequestSend" raised on-click="sendAckText">Done</paper-button>
+                    </div>
+                  </template>
                 </div>
               </template>
             </template>
