@@ -12,8 +12,6 @@
         bridge: Object,
 
         game: Object,
-        queuedNotifications: Array,
-        queuedNotificationsById: Object,
       },
 
       attached: function() {
@@ -136,6 +134,7 @@
               label: "Full Message",
               type: 'text',
               description: "The full message text that the user sees when they click on the notification.",
+              required: false,
             },
           ],
         };
@@ -168,7 +167,7 @@
       startEditingCategory_: function(queuedNotification) {
         this.$.form.openForEditing(queuedNotification)
             .then((newProperties) => {
-              this.bridge.updateQueuedNotification({
+              this.bridge.updateNotification({
                 gameId: this.game.id,
                 queuedNotificationId: queuedNotification.id,
                 playerId: null,
@@ -215,8 +214,8 @@
   <ghvz-table
       id="table"
       blueprint="[[makeTableBlueprint_()]]"
-      items="[[queuedNotifications]]">
-    <template is="dom-repeat" id="repeater" items="[[queuedNotifications]]" as="category" initial-count="1" target-framerate="5">
+      items="[[game.queuedNotifications]]">
+    <template is="dom-repeat" id="repeater" items="[[game.queuedNotifications]]" as="category" initial-count="1" target-framerate="5">
       <div class="row">
         <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
         <div class="cell">[[category.previewMessage]]</div>
