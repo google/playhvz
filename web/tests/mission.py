@@ -55,8 +55,10 @@ driver = setup.MakeDriver(user="zella")
 try:
   driver.Click([[By.NAME, 'drawerAdmin Missions']])
 
-  # Close the notification
-  driver.Click([[By.NAME, 'close-notification']])
+  try: # If the user has a notification, close it
+    driver.Click([[By.NAME, 'close-notification']])
+  finally:
+    pass
 
 
   # Create a human mission
@@ -107,7 +109,7 @@ try:
   # As an admin, change the mission end date to later than the other human mission
   #Log in as a human (Jack). Show that the new mission doesn't show up anymore
   
-  ##driver.Quit()
+  driver.Quit()
 
 finally:
   pass

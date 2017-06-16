@@ -8,7 +8,7 @@ try:
 
   # Go to Jack's profile (currently can't infect)
   driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'name']]) 
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) 
 
   # Click the Set Can Infect button
   driver.Click([[By.ID, 'set-infect-button']])
@@ -22,7 +22,7 @@ try:
         [[By.NAME, 'infect-box'], [By.TAG_NAME, 'input']],
         'glarple zerp wobbledob') # Zella's life code
   driver.Click([[By.ID, 'infect']])
-  driver.ExpectContains([[By.NAME, 'infect-box']], "you've infected Zella the Ultimate!")
+  driver.ExpectContains([[By.NAME, 'infect-box']], "you've infected ZellaTheUltimate!")
 
   # Sign back in as Zella (admin)
   driver.SwitchUser("zella")
@@ -33,7 +33,7 @@ try:
 
   # Navigate to Jack's profile
   driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'name']]) 
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) 
 
   # Unset Can Infect for Jack
   driver.Click([[By.ID, 'unset-infect-button']])
@@ -43,6 +43,8 @@ try:
   # Sign in as Jack, confirm that he can no longer infect people
   driver.SwitchUser("jack")
   driver.FindElement([[By.NAME, "infect-box"]], False)
+
+  driver.Quit()
 
 finally:
   pass

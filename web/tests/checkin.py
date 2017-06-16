@@ -8,6 +8,12 @@ try:
 
   ######################  Testing Admin Guns Page  ######################
 
+  # If the user has a notification, close it
+  try: 
+    driver.Click([[By.NAME, 'close-notification']])
+  finally:
+    pass
+
   # Admin adds gun
   driver.Click([[By.NAME, 'drawerAdmin Guns']])
   driver.Click([[By.ID, 'add']])
@@ -24,11 +30,11 @@ try:
   driver.Click([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'pencil']])
   driver.SendKeys(
         [[By.NAME, 'gun-row-3.14'], [By.TAG_NAME, 'input']],
-        'Jack Slayer the Bean Slasher')
+        'JackSlayerTheBeanSlasher')
   driver.Click([[By.NAME, 'gun-row-3.14'], [By.ID, 'setButton']])
 
   # Show that player shows up as having the gun
-  driver.ExpectContains([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'player-label']], "Jack Slayer the Bean Slasher")
+  driver.ExpectContains([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'player-label']], "JackSlayerTheBeanSlasher")
 
   #Add another gun, assign to another player
   driver.Click([[By.ID, 'add']])
@@ -38,7 +44,7 @@ try:
   driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
   driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
   driver.Click([[By.NAME, 'gun-row-pancake'], [By.TAG_NAME, 'input']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.NAME, '2: Moldavi the Moldavish']])
+  driver.Click([[By.NAME, 'gun-row-pancake'], [By.NAME, '2: MoldaviTheMoldavish']])
   driver.Click([[By.NAME, 'gun-row-pancake'], [By.ID, 'setButton']])
 
   # Search by label
@@ -62,13 +68,13 @@ try:
   # THEORETICALLY WORKS, BUT NO PROMISES SINCE ITS CURRENTLY BROKEN SO I CAN'T TEST
   # Uncomment this block later
   # Change the weapon ID, and show that it shows up
-  # driver.Click([[By.NAME, 'gun-row-3.14'], [By.ID, 'menu']])
-  # driver.Click([[By.NAME, 'gun-row-3.14'], [By.NAME, 'menu-item-Edit']])
-  # driver.SendKeys(
-  #       [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-  #       '42')
-  # driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
-  # ## driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
+  driver.Click([[By.NAME, 'gun-row-3.14'], [By.ID, 'menu']])
+  driver.Click([[By.NAME, 'gun-row-3.14'], [By.NAME, 'menu-item-Edit']])
+  driver.SendKeys(
+        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
+        '42')
+  driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
+  ## driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
    
   # TODO - when implemented, have a player see that they've been assigned a gun
    
@@ -79,26 +85,26 @@ try:
 
   # Admin - set got equipment for Jack
   driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'menu']]) # This is Jack (non-admin, human)
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.NAME, 'menu-item-Set Got Equipment']]) # Doesn't update like it's supposed to - remote server
-  driver.ExpectContains([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'gotEquipment']], "Yes") #Crashes here remote server
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']]) # This is Jack (non-admin, human)
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Got Equipment']]) # Doesn't update like it's supposed to - remote server
+  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "Yes") #Crashes here remote server
 
   # Check Jack's profile, make sure the change showed up
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'name']])
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])
   driver.ExpectContains([[By.NAME, 'got-equipment']], "Yes")
 
   # If you set the equipment of someone who already has it, nothing should happen
   driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'menu']]) # This is Jack (non-admin, human)
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.NAME, 'menu-item-Set Got Equipment']])
-  driver.ExpectContains([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'gotEquipment']], "Yes")
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']]) # This is Jack (non-admin, human)
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Got Equipment']])
+  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "Yes")
 
   # Unset Jack's equipment
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.NAME, 'menu-item-Unset Got Equipment']])
-  driver.ExpectContains([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'gotEquipment']], "No")
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Unset Got Equipment']])
+  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "No")
 
   # Check Jack's profile, make sure the change showed up
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'name']])
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])
   driver.ExpectContains([[By.NAME, 'got-equipment']], "No")
 
   # Go back to the Admin Guns page
@@ -126,11 +132,11 @@ try:
 
   # TODO - add a note
   driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'menu']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.NAME, 'menu-item-Set Notes']])
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']])
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Notes']])
 
   # TODO - once we can add notes, search by notes
-  # driver.Quit()
+  driver.Quit()
 
 finally:
   pass

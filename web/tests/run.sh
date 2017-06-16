@@ -42,8 +42,8 @@ run_test() {
 	# # print_and_run "python declare.py $args"
 	# print_and_run "python chat.py $args"
 	# print_and_run "python modifygame.py $args"
-	print_and_run "python mission.py $args"
-	# print_and_run "python checkin.py $args"
+	# print_and_run "python mission.py $args"
+	print_and_run "python checkin.py $args"
 	# print_and_run "python changeallegiance.py $args"
 }
 
