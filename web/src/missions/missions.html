@@ -222,15 +222,15 @@
         blueprint="[[makeTableBlueprint_()]]"
         items="[[missions]]">
       <template is="dom-repeat" id="repeater" items="[[missions]]" as="mission" initial-count="1" target-framerate="5">
-        <div class="row" name$="mission-row-[[misison.name]]">
+        <div class="row" name$="mission-row-[[mission.name]]">
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
-          <div class="cell">[[mission.name]]</div>
+          <div class="cell" name="missionName">[[mission.name]]</div>
           <div class="cell">
-            <ghvz-group-name-label game="[[game]]" group-id="[[mission.accessGroupId]]"></ghvz-group-name-label>
+            <ghvz-group-name-label name="missionGroup" game="[[game]]" group-id="[[mission.accessGroupId]]"></ghvz-group-name-label>
           </div>
-          <div class="cell">[[formatTime_(mission.beginTime)]]</div>
-          <div class="cell">[[formatTime_(mission.endTime)]]</div>
-          <div class="cell">[[shorten(mission.detailsHtml)]]</div>
+          <div class="cell" name="missionStart">[[formatTime_(mission.beginTime)]]</div>
+          <div class="cell" name="missionEnd">[[formatTime_(mission.endTime)]]</div>
+          <div class="cell" name="missionDetails">[[shorten(mission.detailsHtml)]]</div>
         </div>
       </template>
     </ghvz-table>
