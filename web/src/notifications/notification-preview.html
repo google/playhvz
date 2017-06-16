@@ -16,6 +16,11 @@
 
         notification: Object,
 
+        navigateOnTap: {
+          type: Boolean,
+          value: false,
+        },
+
         withClose: {
           type: Boolean,
           value: false,
@@ -27,21 +32,24 @@
       },
 
       handleTap_(e) {
-        this.bridge.markNotificationSeen({
-          gameId: this.game.id,
-          playerId: this.player.id,
-          notificationId: this.notification.id,
-        });
-        let destinationString = this.notification.destination || 'notifications/' + this.notification.id;
-        let destinationPath = destinationString.split('/');
-        this.fire('ghvz-set-path', {
-          inGame: !destinationString.startsWith('/'),
-          path: destinationPath,
-        });
+        if (this.navigateOnTap) {
+          this.bridge.markNotificationSeen({
+            gameId: this.game.id,
+            playerId: this.player.id,
+            notificationId: this.notification.id,
+          });
+          let destinationString = this.notification.destination || 'notifications/' + this.notification.id;
+          let destinationPath = destinationString.split('/');
+          this.fire('ghvz-set-path', {
+            inGame: !destinationString.startsWith('/'),
+            path: destinationPath,
+          });
+        }
       },
 
       close_(e) {
         this.bridge.markNotificationSeen({
+          gameId: this.game.id,
           playerId: this.player.id,
           notificationId: this.notification.id,
         });

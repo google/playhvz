@@ -378,6 +378,8 @@ class FakeServer {
     for (let game of this.database.games) {
       for (let queuedNotification of game.queuedNotifications) {
         if (!queuedNotification.sent && (queuedNotification.sendTime == null || queuedNotification.sendTime <= this.getTime_(args))) {
+          this.writer.set(this.reader.getQueuedNotificationPath(game.id, queuedNotification.id).concat(['sent']), true);
+
           let playerIds = new Set();
           if (queuedNotification.playerId) {
             playerIds.add(queuedNotification.playerId);
