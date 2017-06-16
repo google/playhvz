@@ -14,11 +14,7 @@
         game: Object,
         player: Object,
 
-        path: String,
-      },
-
-      computeExpanded_(notificationId, path) {
-        return path.slice(-1)[0] == notificationId;
+        path: Array,
       },
     });
   });
@@ -35,7 +31,7 @@
         player="[[player]]"
         game="[[game]]"
         notification="[[notification]]"
-        expanded="[[computeExpanded_(notification.id, path)]]">
+        path="[[path]]">
     </ghvz-expandable-notification>
   </template>
 </template>

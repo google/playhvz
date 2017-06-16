@@ -61,13 +61,16 @@
             switch (input.tagName.toLowerCase()) {
               case 'input':
               case 'paper-button':
-                  input.focus();
-                  break;
+                input.focus();
+                break;
+              case 'ghvz-timestamp-picker':
+                input.focus();
+                break;
               case 'paper-textarea':
               case 'paper-input':
               default:
-                  input.$.input.focus();
-                  break;
+                input.$.input.focus();
+                break;
             }
           }
         },

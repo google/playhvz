@@ -15,15 +15,36 @@
         player: Object,
         notification: Object,
 
-        expanded: Boolean,
+        path: Array,
+
+        expanded: {
+          type: Boolean,
+          computed: 'computeExpanded_(notification.id, path)',
+        },
+      },
+
+      computeExpanded_(notificationId, path) {
+        return path.slice(-1)[0] == notificationId;
       },
 
       handleTap_(e) {
-        if (this.destination) {
+        if (this.notification.destination) {
           this.fire('ghvz-set-path', {
             inGame: true,
-            path: this.destination.split('/'),
+            path: this.notification.destination.split('/'),
           });
+        } else {
+          if (this.expanded) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ["notifications"],
+            });
+          } else {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ["notifications", this.notification.id],
+            });
+          }
         }
       },
 
@@ -47,9 +68,10 @@
       bridge="[[bridge]]"
       player="[[player]]"
       game="[[game]]"
-      notification="[[notification]]">
+      notification="[[notification]]"
+      on-tap="handleTap_">
   </ghvz-notification-preview>
-  <iron-collapse>
+  <iron-collapse opened="[[expanded]]">
     <ghvz-notification-full
         bridge="[[bridge]]"
         game="[[game]]"
