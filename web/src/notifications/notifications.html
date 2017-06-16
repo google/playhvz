@@ -1,222 +1,247 @@
 
 <dom-module id="ghvz-notifications">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-notifications',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-notifications',
 
-        properties: {
-          bridge: Object,
+      properties: {
+        bridge: Object,
 
-          game: Object,
-          notificationCategories: Array,
-          notificationCategoriesById: Object,
-        },
+        game: Object,
+        queuedNotifications: Array,
+        queuedNotificationsById: Object,
+      },
 
-        attached: function() {
-          this.fire('ghvz-add-toolbar-button', { button: this.$.add });
-        },
+      attached: function() {
+        this.fire('ghvz-add-toolbar-button', { button: this.$.add });
+      },
 
-        makeTableBlueprint_: function() {
-          return {
-            itemsRepeater: this.$.repeater,
-            columns: [
-              {
-                property: "name",
-                name: "Name",
+      makeTableBlueprint_: function() {
+        return {
+          itemsRepeater: this.$.repeater,
+          columns: [
+            {
+              property: "previewMessage",
+              name: "Preview Message",
+            },
+            {
+              property: "sendTime",
+              name: "Send Time",
+            },
+            {
+              property: "allegianceFilter",
+              name: "To",
+            },
+            {
+              name: "How",
+              getModel: (category) => {
+                let how = [];
+                category.email && how.push('email');
+                category.site && how.push('site');
+                category.mobile && how.push('mobile');
+                category.sound && how.push('sound');
+                category.vibrate && how.push('vibrate');
+                return how.join('+');
               },
-              {
-                property: "sendTime",
-                name: "Send Time",
-              },
-              {
-                property: "allegianceFilter",
-                name: "To",
-              },
-              {
-                name: "How",
-                getModel: (category) => {
-                  let how = [];
-                  category.email && how.push('email');
-                  category.app && how.push('app');
-                  category.sound && how.push('sound');
-                  category.vibrate && how.push('vibrate');
-                  return how.join('+');
-                },
-              },
-            ],
-            actions: [
-              {
-                name: "Edit",
-                handler: this.startEditingCategory_.bind(this),
-              },
-            ],
-          };
-        },
+            },
+          ],
+          actions: [
+            {
+              name: "Edit",
+              handler: this.startEditingCategory_.bind(this),
+            },
+          ],
+        };
+      },
 
-        computeIcons_: function(category) {
-          let howIcons = [];
-          category.email && howIcons.push({name: 'Email', icon: 'communication:email'});
-          category.app && howIcons.push({name: 'Notification', icon: 'icons:announcement'});
-          category.sound && howIcons.push({name: 'Sound', icon: 'av:volume-up'});
-          category.vibrate && howIcons.push({name: 'Vibrate', icon: 'notification:vibration'});
-          return howIcons;
-        },
+      computeIcons_: function(category) {
+        let howIcons = [];
+        category.email && howIcons.push({name: 'Email', icon: 'communication:email'});
+        category.site && howIcons.push({name: 'Site', icon: 'icons:announcement'});
+        category.mobile && howIcons.push({name: 'Mobile', icon: 'hardware:smartphone'});
+        category.sound && howIcons.push({name: 'Mobile Sound', icon: 'av:volume-up'});
+        category.vibrate && howIcons.push({name: 'Mobile Vibrate', icon: 'notification:vibration'});
+        return howIcons;
+      },
 
-        makeFormBlueprint_: function() {
-          return {
-            fields: [
-              {
-                property: "name",
-                label: "Name",
-                description: "Title of the notification category, for admin use only.",
-              },
-              {
-                property: "sendTime",
-                type: "timestamp",
-                label: "Points",
-                width: "half",
-                description: "When to send this notification. Enter now or a past time to send immediately.",
-              },
-              {
-                property: "groupId",
-                width: "half",
-                type: "group",
-                description: "Who to send this message to.",
-              },
-              {
-                property: "email",
-                label: "Email",
-                width: "fourth",
-                type: 'boolean',
-                description: "Whether to send as an email.",
-              },
-              {
-                property: "app",
-                label: "App",
-                width: "fourth",
-                type: 'boolean',
-                description: "Whether to send to all android, ios, and webapp windows.",
-              },
-              {
-                property: "sound",
-                label: "Sound",
-                width: "fourth",
-                type: 'boolean',
-                description: "Android/iOS only: whether to play a sound.",
-              },
-              {
-                property: "vibrate",
-                label: "Vibrate",
-                width: "fourth",
-                type: 'boolean',
-                description: "Android/iOS only: whether to vibrate.",
-              },
-              {
-                property: "destination",
-                label: "Destination",
-                description: "When clicked, will go to this url.",
-                width: "half",
-              },
-              {
-                property: "icon",
-                label: "Icon",
-                description: "Polymer icon code of icon to show.",
-                width: "half",
-              },
-              {
-                property: "previewMessage",
-                label: "Preview Message",
-                description: "The small message that will appear in the notification box.",
-              },
-              {
-                property: "message",
-                label: "Full Message",
-                type: 'text',
-                description: "The full message text that the user sees when they click on the notification.",
-              },
-            ],
-          };
-        },
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+            {
+              property: "sendTime",
+              type: "timestamp",
+              label: "Points",
+              width: "half",
+              description: "When to send this notification. Enter now or a past time to send immediately.",
+            },
+            {
+              property: "groupId",
+              width: "half",
+              type: "group",
+              description: "Who to send this message to.",
+            },
+            {
+              property: "site",
+              label: "Site",
+              width: "fourth",
+              type: 'boolean',
+              description: "Whether to send to all website windows.",
+            },
+            {
+              property: "mobile",
+              label: "Mobile",
+              width: "fourth",
+              type: 'boolean',
+              description: "Whether to send to all android and ios devices.",
+            },
+            {
+              property: "sound",
+              label: "Sound",
+              width: "fourth",
+              type: 'boolean',
+              description: "Android/iOS only: whether to play a sound.",
+            },
+            {
+              property: "vibrate",
+              label: "Vibrate",
+              width: "fourth",
+              type: 'boolean',
+              description: "Android/iOS only: whether to vibrate.",
+            },
+            {
+              property: "destination",
+              label: "Destination",
+              description: "When clicked, will go to this url. Leave blank to open this notification fullscreen.",
+              width: "half",
+              required: false,
+            },
+            {
+              property: "icon",
+              label: "Icon",
+              description: "Polymer icon code of icon to show. Leave blank for default icon.",
+              width: "half",
+              required: false,
+            },
+            {
+              property: "previewMessage",
+              label: "Preview Message",
+              description: "The small message that will appear in the notification box.",
+            },
+            {
+              property: "message",
+              label: "Full Message",
+              type: 'text',
+              description: "The full message text that the user sees when they click on the notification.",
+            },
+          ],
+        };
+      },
 
-        startAddingCategory_: function() {
-          this.$.form.openForAdding({
-                sendTime: Math.floor(new Date().getTime()),
-              })
-              .then((properties) => {
-                delete properties.email;
-                this.bridge.sendNotification(Utils.merge(properties, {
-                    notificationId: this.bridge.newNotificationCategoryId(),
-                    playerId: null,
-                    //gameId: this.gameId,
-                }));
+      startAddingCategory_: function() {
+        this.$.form.openForAdding({
+              sendTime: Math.floor(new Date().getTime()),
+            })
+            .then((properties) => {
+              this.bridge.sendNotification({
+                gameId: this.game.id,
+                queuedNotificationId: this.bridge.newQueuedNotificationId(),
+                playerId: null,
+                email: false,
+                destination: properties.destination,
+                groupId: properties.groupId,
+                icon: properties.icon,
+                message: properties.message,
+                mobile: properties.mobile,
+                previewMessage: properties.previewMessage,
+                sendTime: properties.sendTime,
+                site: properties.site,
+                sound: properties.sound,
+                vibrate: properties.vibrate,
               });
-        },
+            });
+      },
 
-        startEditingCategory_: function(category) {
-          this.$.form.openForEditing(category)
-              .then((newProperties) => {
-                this.bridge.updateNotificationCategory(Utils.merge(newProperties, {
-                    notificationCategoryId: category.id
-                }));
+      startEditingCategory_: function(queuedNotification) {
+        this.$.form.openForEditing(queuedNotification)
+            .then((newProperties) => {
+              this.bridge.updateQueuedNotification({
+                gameId: this.game.id,
+                queuedNotificationId: queuedNotification.id,
+                playerId: null,
+                email: newProperties.email,
+                destination: newProperties.destination,
+                groupId: newProperties.groupId,
+                icon: newProperties.icon,
+                message: newProperties.message,
+                mobile: newProperties.mobile,
+                previewMessage: newProperties.previewMessage,
+                sendTime: newProperties.sendTime,
+                site: newProperties.site,
+                sound: newProperties.sound,
+                vibrate: newProperties.vibrate,
               });
-        },
+            });
+      },
 
-        formatTime_: function(time) {
-          return Utils.formatTime(time);
-        },
-      });
+      formatTime_: function(time) {
+        return Utils.formatTime(time);
+      },
     });
-  </script>
-  <style>
-    .row {
-      display: table-row;
-    }
-    .cell {
-      display: table-cell;
-      padding: 4px 12px;
-    }
-    .icons {
-      white-space: nowrap;
-    }
-    iron-icon {
-      opacity: .75;
-    }
-  </style>
-  <template>
-    <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
-    </paper-icon-button>
+  });
+</script>
+<style>
+  .row {
+    display: table-row;
+  }
+  .cell {
+    display: table-cell;
+    padding: 4px 12px;
+  }
+  .icons {
+    white-space: nowrap;
+  }
+  iron-icon {
+    opacity: .75;
+  }
+</style>
+<template>
+  <paper-icon-button id="add" icon="icons:add" on-tap="startAddingCategory_">
+  </paper-icon-button>
 
-    <ghvz-table
-        id="table"
-        blueprint="[[makeTableBlueprint_()]]"
-        items="[[notificationCategories]]">
-      <template is="dom-repeat" id="repeater" items="[[notificationCategories]]" as="category" initial-count="1" target-framerate="5">
-        <div class="row">
-          <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
-          <div class="cell">[[category.name]]</div>
-          <div class="cell">[[formatTime_(category.sendTime)]]</div>
-          <div class="cell">[[category.allegianceFilter]]</div>
-          <div class="cell icons">
-            <template is="dom-repeat" items="[[computeIcons_(category, category.*)]]" as="icon">
-              <span>
-                <iron-icon icon="[[icon.icon]]"></iron-icon>
-                <paper-tooltip>[[icon.name]]</paper-tooltip>
-              </span>
-            </template>
-          </div>
+  <ghvz-table
+      id="table"
+      blueprint="[[makeTableBlueprint_()]]"
+      items="[[queuedNotifications]]">
+    <template is="dom-repeat" id="repeater" items="[[queuedNotifications]]" as="category" initial-count="1" target-framerate="5">
+      <div class="row">
+        <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
+        <div class="cell">[[category.previewMessage]]</div>
+        <div class="cell">[[formatTime_(category.sendTime)]]</div>
+        <div class="cell">
+          <ghvz-group-name-label game="[[game]]" group-id="[[category.groupId]]"></ghvz-group-name-label>
+          <ghvz-player-label game="[[game]]" player-id="[[category.playerId]]"></ghvz-player-label>
         </div>
-      </template>
-    </ghvz-table>
+        <div class="cell icons">
+          <template is="dom-repeat" items="[[computeIcons_(category, category.*)]]" as="icon">
+            <span>
+              <iron-icon icon="[[icon.icon]]"></iron-icon>
+              <paper-tooltip>[[icon.name]]</paper-tooltip>
+            </span>
+          </template>
+        </div>
+      </div>
+    </template>
+  </ghvz-table>
 
-    <ghvz-super-form
-        id="form"
-        game="[[game]]"
-        type-name="Notification Category"
-        blueprint="[[makeFormBlueprint_()]]">
-    </ghvz-super-form>
-  </template>
+  <ghvz-super-form
+      id="form"
+      game="[[game]]"
+      type-name="Notification Category"
+      blueprint="[[makeFormBlueprint_()]]">
+  </ghvz-super-form>
+</template>
 </dom-module>

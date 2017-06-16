@@ -368,33 +368,67 @@ class FakeServer {
     }
   }
   updateNotification(args) {
-    this.updateNotificationCategory(args);
+    this.updateQueuedNotification(args);
   }
   sendNotification(args) {
-    this.addNotificationCategory(args);
+    this.addQueuedNotification(args);
+    this.executeNotifications(args);
   }
-  addNotificationCategory(args) {
-    let {gameId, notificationCategoryId} = args;
+  executeNotifications(args) {
+    for (let game of this.database.games) {
+      for (let queuedNotification of game.queuedNotifications) {
+        if (!queuedNotification.sent && (queuedNotification.sendTime == null || queuedNotification.sendTime <= this.getTime_(args))) {
+          this.writer.set(this.reader.getQueuedNotificationPath(game.id, queuedNotification.id).concat(['sent']), true);
+
+          let playerIds = new Set();
+          if (queuedNotification.playerId) {
+            playerIds.add(queuedNotification.playerId);
+          } else {
+            assert(queuedNotification.groupId);
+            let group = game.groupsById[queuedNotification.groupId];
+            playerIds = new Set(group.memberships.map(membership => membership.playerId));
+          }
+          for (let playerId of playerIds) {
+            this.addNotification({
+              gameId: args.gameId,
+              playerId: playerId,
+              notificationId: this.idGenerator.newNotificationId(),
+              queuedNotificationId: queuedNotification.id,
+              message: queuedNotification.message,
+              previewMessage: queuedNotification.previewMessage,
+              destination: queuedNotification.destination,
+              time: this.getTime_(args),
+              icon: queuedNotification.icon,
+            });
+          }
+        }
+      }
+    }
+  }
+  addQueuedNotification(args) {
+    let {gameId, queuedNotificationId} = args;
+    args.sent = false;
     this.writer.insert(
-        this.reader.getNotificationCategoryPath(gameId, null),
+        this.reader.getQueuedNotificationPath(gameId, null),
         null,
-        new Model.NotificationCategory(notificationCategoryId, args));
+        new Model.QueuedNotification(queuedNotificationId, args));
   }
   addNotification(args) {
-    let {notificationCategoryId, notificationId, playerId} = args;
+    let {queuedNotificationId, notificationId, playerId} = args;
     let properties = Utils.copyOf(args);
     properties.seenTime = null;
-    properties.notificationCategoryId = notificationCategoryId;
+    properties.queuedNotificationId = queuedNotificationId;
+    properties.time = this.getTime_(args);
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     this.writer.insert(
         this.reader.getNotificationPath(gameId, playerId, null),
         null,
         new Model.Notification(notificationId, properties));
   }
-  updateNotificationCategory(args) {
-    let notificationCategoryPath = this.reader.pathForId(notificationCategoryId);
+  updateQueuedNotification(args) {
+    let queuedNotificationPath = this.reader.pathForId(queuedNotificationId);
     for (let argName in args) {
-      this.writer.set(notificationCategoryPath.concat([argName]), args[argName]);
+      this.writer.set(queuedNotificationPath.concat([argName]), args[argName]);
     }
   }
   markNotificationSeen(args) {

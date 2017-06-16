@@ -29,7 +29,7 @@ Model.UserPlayer = function(id, args) {
 }
 
 const GAME_PROPERTIES = ["active", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
-const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups", "maps", "defaultProfileImages"];
+const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "queuedNotifications", "quizQuestions", "groups", "maps", "defaultProfileImages"];
 Model.Game = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, GAME_PROPERTIES);
@@ -164,12 +164,12 @@ Model.Admin = function(id, args) {
   Utils.addEmptyLists(this, ADMIN_COLLECTIONS);
 }
 
-const NOTIFICATION_CATEGORY_PROPERTIES = ["gameId", "name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate", "destination", "icon"];
-const NOTIFICATION_CATEGORY_COLLECTIONS = [];
-Model.NotificationCategory = function(id, args) {
+const QUEUED_NOTIFICATION_PROPERTIES = ["gameId", "message", "site", "mobile", "previewMessage", "sendTime", "sent", "groupId", "email", "sound", "vibrate", "destination", "icon"];
+const QUEUED_NOTIFICATION_COLLECTIONS = [];
+Model.QueuedNotification = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, NOTIFICATION_CATEGORY_PROPERTIES);
-  Utils.addEmptyLists(this, NOTIFICATION_CATEGORY_COLLECTIONS);
+  Utils.copyProperties(this, args, QUEUED_NOTIFICATION_PROPERTIES);
+  Utils.addEmptyLists(this, QUEUED_NOTIFICATION_COLLECTIONS);
 }
 
 const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
@@ -210,7 +210,7 @@ Model.Infection = function(id, args) {
   Utils.addEmptyLists(this, INFECTION_COLLECTIONS);
 }
 
-const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "notificationCategoryId", "seenTime", "sound", "vibrate", "app", "email", "destination"];
+const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "queuedNotificationId", "seenTime", "sound", "vibrate", "site", "mobile", "time", "email", "destination"];
 const NOTIFICATION_COLLECTIONS = [];
 Model.Notification = function(id, args) {
   this.id = id;
