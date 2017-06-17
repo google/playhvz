@@ -585,6 +585,10 @@ class FakeIdGenerator extends IdGenerator {
     notificationId: 'NotificationId',
   });
 
+  serverMethods.set('executeNotifications', {
+    serverTime: '|Timestamp',
+  });
+
   Bridge.METHODS_MAP = serverMethods;
   Bridge.METHODS = Array.from(serverMethods.keys());
 })();
