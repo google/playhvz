@@ -379,7 +379,7 @@
           "userId":"user-test-3840579180089170-3"
         }
       ],
-      "notificationCategories":[],
+      "queuedNotifications":[],
       "quizQuestions":[],
       "groups":[
         {

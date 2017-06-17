@@ -38,7 +38,7 @@ let MAPPINGS = [
   {pattern: ["games", null, "admins"], newMap: "adminsByUserId", keyBy: "userId"},
   {pattern: ["games", null, "groups"], newMap: "groupsById", keyBy: "id"},
   {pattern: ["games", null, "groups", null, "memberships"], newMap: "membershipsByPlayerId", keyBy: "id"},
-  {pattern: ["games", null, "notificationCategories"], newMap: "notificationCategoriesById", keyBy: "id"},
+  {pattern: ["games", null, "queuedNotifications"], newMap: "queuedNotificationsById", keyBy: "id"},
   {pattern: ["games", null, "missions"], newMap: "missionsById", keyBy: "id"},
   {pattern: ["games", null, "guns"], newMap: "gunsById", keyBy: "id"},
   {pattern: ["users"], newMap: "usersById", keyBy: "id"},

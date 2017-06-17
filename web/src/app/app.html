@@ -335,13 +335,6 @@
       player="[[player]]"
       active="[[userActive]]">
   </ghvz-inactive-dialog>
-  <ghvz-unseen-notifications
-      id="notifications"
-      bridge="[[bridge]]"
-      categories-by-id="[[game.notificationCategoriesById]]"
-      categories="[[game.notificationCategories]]"
-      player="[[player]]">
-  </ghvz-unseen-notifications>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
     <paper-button

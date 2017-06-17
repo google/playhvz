@@ -1,0 +1,84 @@
+
+<dom-module id="ghvz-expandable-notification">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-expandable-notification',
+
+      properties: {
+        bridge: Object,
+
+        game: Object,
+        player: Object,
+        notification: Object,
+
+        path: Array,
+
+        expanded: {
+          type: Boolean,
+          computed: 'computeExpanded_(notification.id, path)',
+        },
+      },
+
+      computeExpanded_(notificationId, path) {
+        return path.slice(-1)[0] == notificationId;
+      },
+
+      handleTap_(e) {
+        if (this.notification.destination) {
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: this.notification.destination.split('/'),
+          });
+        } else {
+          if (this.expanded) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ["notifications"],
+            });
+          } else {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ["notifications", this.notification.id],
+            });
+          }
+        }
+      },
+
+      close_(e) {
+        this.bridge.markNotificationSeen({
+          playerId: this.playerId,
+          notificationId: this.notification.id,
+        });
+        e.stopPropagation();
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+  }
+</style>
+<template>
+  <ghvz-notification-preview
+      bridge="[[bridge]]"
+      player="[[player]]"
+      game="[[game]]"
+      notification="[[notification]]"
+      on-tap="handleTap_">
+  </ghvz-notification-preview>
+  <iron-collapse opened="[[expanded]]">
+    <ghvz-notification-full
+        bridge="[[bridge]]"
+        game="[[game]]"
+        player="[[player]]"
+        notification="[[notification]]">
+    </ghvz-notification-full>
+  </iron-collapse>
+</template>
+</dom-module>
+
