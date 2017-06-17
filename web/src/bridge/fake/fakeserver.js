@@ -81,7 +81,7 @@ class FakeServer {
             userId: userId,
             canInfect: false,
             points: 0,
-            number: game.players.length
+            number: 101 + game.players.length
         })));
     this.writer.insert(
         this.reader.getUserPlayerPath(userId, null),
@@ -649,8 +649,9 @@ class FakeServer {
             time: this.getTime_(args),
           }));
       // Set the infector to zombie
-      if (victimPlayer.infections.length >= victimPlayer.lives.length) {
-        this.setPlayerZombie(victimPlayer.id);
+      // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
+      if (infectorPlayer.infections.length >= infectorPlayer.lives.length) {
+        this.setPlayerZombie(infectorPlayer.id);
       }
       // The victim can now infect
       this.writer.set(victimPlayerPath.concat(["canInfect"]), true);

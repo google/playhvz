@@ -36,13 +36,13 @@ run_test() {
 		args="$args -m"
 	fi
 
-	# print_and_run "python creategame.py $args"
-	# print_and_run "python joingame.py $args"
-	# print_and_run "python infect.py $args"
-	# # print_and_run "python declare.py $args"
-	# print_and_run "python chat.py $args"
-	# print_and_run "python modifygame.py $args"
-	# print_and_run "python checkin.py $args"
+	print_and_run "python creategame.py $args"
+	print_and_run "python joingame.py $args"
+	print_and_run "python infect.py $args"
+	# print_and_run "python declare.py $args"
+	print_and_run "python chat.py $args"
+	print_and_run "python modifygame.py $args"
+	print_and_run "python checkin.py $args"
 	print_and_run "python changeallegiance.py $args"
 }
 
@@ -59,8 +59,8 @@ desktop_and_mobile_tests() {
 fake_and_remote_tests() {
 	client_url=$1
 	password=$2
-	use_remote=0
-	desktop_and_mobile_tests $client_url $password $use_remote
+	# use_remote=0
+	# desktop_and_mobile_tests $client_url $password $use_remote
 	use_remote=1
 	desktop_and_mobile_tests $client_url $password $use_remote
 }
