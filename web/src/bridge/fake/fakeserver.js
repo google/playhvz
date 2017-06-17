@@ -340,7 +340,8 @@ class FakeServer {
     }
   }
   updateMission(args) {
-    let missionPath = this.reader.pathForId(missionId);
+    let {gameId, missionId} = args;
+    let missionPath = this.reader.getMissionPath(gameId, missionId);
     for (let argName in args) {
       this.writer.set(missionPath.concat([argName]), args[argName]);
     }
@@ -372,7 +373,14 @@ class FakeServer {
   }
   sendNotification(args) {
     this.addQueuedNotification(args);
-    this.executeNotifications(args);
+    let millisecondsUntilSend = args.sendTime - this.getTime_(args);
+    if (millisecondsUntilSend > 0) {
+      setTimeout(
+          () => this.executeNotifications(args),
+          millisecondsUntilSend);
+    } else {
+      this.executeNotifications(args);
+    }
   }
   executeNotifications(args) {
     for (let game of this.database.games) {
@@ -426,7 +434,8 @@ class FakeServer {
         new Model.Notification(notificationId, properties));
   }
   updateQueuedNotification(args) {
-    let queuedNotificationPath = this.reader.pathForId(queuedNotificationId);
+    let {gameId, queuedNotificationId} = args;
+    let queuedNotificationPath = this.reader.getQueuedNotificationPath(gameId, queuedNotificationId);
     for (let argName in args) {
       this.writer.set(queuedNotificationPath.concat([argName]), args[argName]);
     }
