@@ -170,15 +170,13 @@
           </ghvz-card>
         </template>
 
-        <template is="dom-if" if="[[game.started]]">
-          <ghvz-card spaced scrolling right>
-            <div class="header">Leaderboard</div>
-            <ghvz-leaderboard-summary
-                players="[[game.players]]"
-                num-to-show="3">
-            </ghvz-leaderboard-summary>
-          </ghvz-card>
-        </template>
+        <ghvz-card spaced scrolling right>
+          <div class="header">Leaderboard</div>
+          <ghvz-leaderboard-summary
+              game="[[game]]"
+              limit="3">
+          </ghvz-leaderboard-summary>
+        </ghvz-card>
 
         <template is="dom-if" if="[[isDeclared]]">
           <ghvz-card spaced right fullscreen-page="stats">
