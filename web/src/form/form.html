@@ -107,14 +107,12 @@
       :host {
         display: block;
       }
-      #dialog {
-        overflow-y: auto;
-      }
       form {
         display: flex;
         flex-wrap: wrap;
         margin-top: 0;
         padding-top: 0;
+        overflow-y: auto;
       }
       .button-container {
         display: flex;
@@ -133,6 +131,10 @@
         font-size: 13pt;
         padding: 16px;
         font-weight: bold;
+      }
+      #dialog {
+        display: flex;
+        flex-direction: column;
       }
     </style>
 
