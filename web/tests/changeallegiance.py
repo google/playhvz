@@ -8,7 +8,7 @@ try:
 
   # Go to Jack's profile (currently can't infect)
   driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'name']]) 
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) 
 
   # Click the Set Can Infect button
   driver.Click([[By.ID, 'set-infect-button']])
@@ -22,26 +22,31 @@ try:
         [[By.NAME, 'infect-box'], [By.TAG_NAME, 'input']],
         'glarple zerp wobbledob') # Zella's life code
   driver.Click([[By.ID, 'infect']])
-  driver.ExpectContains([[By.NAME, 'infect-box']], "you've infected Zella the Ultimate!")
+  driver.ExpectContains([[By.NAME, 'infect-box']], "you've infected ZellaTheUltimate!")
+
+  # Confirm that he can no longer infect people
+  driver.FindElement([[By.NAME, "infect-box"]], False)
+
+  # Check his profile, see that he's now a zombie
+  driver.Click([[By.NAME, 'drawerMy Profile']])
+  driver.ExpectContains([[By.NAME, 'status']], "Living Dead")
 
   # Sign back in as Zella (admin)
   driver.SwitchUser("zella")
 
-  # Check her profile, see that she's now a zombie
+  # Check her profile, see that she's still a human
   driver.Click([[By.NAME, 'drawerMy Profile']])
-  driver.ExpectContains([[By.NAME, 'status']], "Living Dead")
+  driver.ExpectContains([[By.NAME, 'status']], "Alive")
 
-  # Navigate to Jack's profile
-  driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-Jack Slayer the Bean Slasher'], [By.ID, 'name']]) 
+  # Confirm that she can infect people now
+  driver.FindElement([[By.NAME, "infect-box"]], False)
 
-  # Unset Can Infect for Jack
+  # Unset Can Infect for Zella
   driver.Click([[By.ID, 'unset-infect-button']])
   driver.FindElement([[By.ID, 'set-infect-button']])
   driver.ExpectContains([[By.NAME, 'can-infect']], "No")
 
-  # Sign in as Jack, confirm that he can no longer infect people
-  driver.SwitchUser("jack")
+  # Confirm that she can no longer infect people
   driver.FindElement([[By.NAME, "infect-box"]], False)
 
 finally:

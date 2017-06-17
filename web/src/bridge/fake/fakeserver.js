@@ -634,20 +634,39 @@ class FakeServer {
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId, gameId} = args;
     let victimPlayer = this.findPlayerByIdOrLifeCode_(gameId, victimPlayerId, victimLifeCode);
     let infectorPlayerPath = this.reader.getPlayerPath(gameId, infectorPlayerId);
+    let infectorPlayer = this.reader.get(infectorPlayerPath);
     this.writer.set(
-        this.reader.getPlayerPath(gameId, infectorPlayerId).concat(["points"]),
+        infectorPlayerPath.concat(["points"]),
         this.reader.get(infectorPlayerPath.concat(["points"])) + 100);
     let victimPlayerPath = this.reader.getPlayerPath(gameId, victimPlayer.id);
-    this.writer.insert(
-        victimPlayerPath.concat(["infections"]),
-        null,
-        new Model.Infection(this.idGenerator.newInfectionId(), {
-          infectorId: infectorPlayerId,
-          time: this.getTime_(args),
-        }));
-    victimPlayer = this.reader.get(victimPlayerPath);
-    if (victimPlayer.infections.length >= victimPlayer.lives.length) {
-      this.setPlayerZombie(victimPlayer.id);
+    if (infectorPlayer.allegiance == 'resistance') {
+      // Add a self-infection
+      this.writer.insert(
+          infectorPlayerPath.concat(["infections"]),
+          null,
+          new Model.Infection(this.idGenerator.newInfectionId(), {
+            infectorId: infectorPlayerId,
+            time: this.getTime_(args),
+          }));
+      // Set the infector to zombie
+      if (victimPlayer.infections.length >= victimPlayer.lives.length) {
+        this.setPlayerZombie(victimPlayer.id);
+      }
+      // The victim can now infect
+      this.writer.set(victimPlayerPath.concat(["canInfect"]), true);
+    } else {
+      // Add an infection to the victim
+      this.writer.insert(
+          victimPlayerPath.concat(["infections"]),
+          null,
+          new Model.Infection(this.idGenerator.newInfectionId(), {
+            infectorId: infectorPlayerId,
+            time: this.getTime_(args),
+          }));
+      // Set the victim to zombie
+      if (victimPlayer.infections.length >= victimPlayer.lives.length) {
+        this.setPlayerZombie(victimPlayer.id);
+      }
     }
     return victimPlayer.id;
   }
