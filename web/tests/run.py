@@ -20,9 +20,10 @@ def runTest(clientUrl, password, useRemote, useMobile):
 	# # printAndRun("python declare.py %s" % args)
 	# printAndRun("python chat.py %s" % args)
 	# printAndRun("python modifygame.py %s" % args)
-	printAndRun("python mission.py %s" % args)
+	# printAndRun("python mission.py %s" % args)
 	# printAndRun("python checkin.py %s" % args)
 	# printAndRun("python changeallegiance.py %s" % args)
+	printAndRun("python startgame.py %s" $ args)
 
 def desktopAndMobileTests(clientUrl, password, useRemote):
 	#runTest(clientUrl, password, useRemote, useMobile=True)
