@@ -197,7 +197,6 @@ window.FirebaseListener = (function () {
     }
 
     listenOnce_(path) {
-      console.log('Listening to:', path);
       if (this.listenedToPaths[path]) {
         // Never resolves
         return new Promise((resolve, reject) => {});
@@ -210,15 +209,25 @@ window.FirebaseListener = (function () {
       delete this.listenedToPaths[path];
     }
 
-    listenToUser(userId) {
-      return this.listenOnce_(`/users/${userId}`)
+    listenToUser(userId, wait) {
+      assert(wait !== undefined);
+      return this.firebaseRoot.child(`/users/${userId}`).once('value')
         .then((snap) => {
+          // If it doesnt exist yet, it could be because we just registered and
+          // it's not yet in the database.
           if (snap.val() == null) {
-            // Just for curiosity, I don't think this actually ever happens.
-            console.log('value is null?', snap.val());
-            this.unlisten_(`/users/${userId}`);
-            return null;
+            if (wait) {
+              // Return the result of trying again in a second
+              return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  this.listenToUser(userId, wait);
+                }, 1000);
+              });
+            } else {
+              return null;
+            }
           }
+
           let obj = new Model.User(userId, snap.val());
           this.userId = userId;
           this.writer.insert(this.reader.getUserPath(null), null, obj);
@@ -229,10 +238,8 @@ window.FirebaseListener = (function () {
             });
           this.firebaseRoot.child(`/users/${userId}/players`)
             .on('child_added', (snap) => this.listenToUserPlayer_(userId, snap.getKey()));
-          console.log('Trying to listen to /games...')
           this.firebaseRoot.child(`/games`)
             .on("child_added", (snap) => {
-              console.log('Found a game!', snap.getKey());
               this.listenToGameShallow_(snap.getKey())
             });
           return userId;
