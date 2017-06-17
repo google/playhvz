@@ -84,6 +84,15 @@
               {
                 property: "name",
                 label: "Name",
+                width: "half",
+                description: "Name the players will see.",
+              },
+              {
+                property: "accessGroupId",
+                label: "Group",
+                description: "Select the group that can see this mission",
+                type: "group",
+                width: "half",
               },
               {
                 property: "beginTime",
@@ -105,12 +114,6 @@
                 description: "HTML describing the mission",
                 type: "text",
               },
-              {
-                property: "accessGroupId",
-                label: "Group",
-                description: "Select the group that can see this mission",
-                type: "group",
-              }
             ],
           };
         },
