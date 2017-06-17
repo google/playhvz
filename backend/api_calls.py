@@ -340,6 +340,7 @@ def UpdatePlayer(request, game_state):
     'needGun': '|Boolean',
     'profileImageUrl': '|?String',
     'gotEquipment': '|Boolean',
+    'canInfect': '|Boolean',
     'notes': '|String',
     'wantToBeSecretZombie': '|Boolean',
     'notificationSettings': {
@@ -387,7 +388,7 @@ def UpdatePlayer(request, game_state):
         notification_settings_update[property] = request['notificationSettings'][property]
 
   private_update = {}
-  for property in ['needGun', 'gotEquipment', 'notes', 'wantToBeSecretZombie']:
+  for property in ['needGun', 'gotEquipment', 'notes', 'wantToBeSecretZombie', 'canInfect']:
     if property in request:
       private_update[property] = request[property]
 

@@ -166,7 +166,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminPlayers, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" name="playerTablePage">
       <div class="header">Players</div>
       <ghvz-player-table
           game="[[game]]"

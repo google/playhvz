@@ -900,6 +900,7 @@ function populateQuiz(bridge, gameId) {
     order: 0,
     isCorrect: false,
   });
+  bridge.executeNotifications({});
 }
 
 // const HUMAN_MISSION_HTML = 'mmm human mission';
