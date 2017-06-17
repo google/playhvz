@@ -15,17 +15,30 @@ try:
       }
 
   adminPlayers = ['zella', 'moldavi']
+
+  def getPathToElement(player, tag, name):
+    xpathForPageElement = "//ghvz-app[contains(@id, '%sApp')]//ghvz-card[contains(@class, 'ghvz-display-game-page')]//%s[contains(@name, '%s')]"
+    return xpathForPageElement % (player, tag, name)
+
+  def changeToPage(driver, drawerOption):
+    driver.Click([[By.NAME, 'drawer' + drawerOption]])
+
+  def closeNotifications(driver):
+    try: 
+      driver.Click([[By.NAME, 'close-notification']])
+    finally:
+      pass
   
   def testAdminChat(actingPlayer, adminPlayers):
     try: 
       actingPlayerName = playerNames[actingPlayer]
       chatName = actingPlayerName + ' & HvZ CDC'
-      xpathForPageElement = "//ghvz-app[contains(@id, '%sApp')]//ghvz-card[contains(@class, 'ghvz-display-game-page')]//%s[contains(@name, '%s')]"
 
       # Create chat with admin
       driver.SwitchUser(actingPlayer)
+      closeNotifications(driver)
 
-      driver.Click([[By.NAME, 'drawerChat']])  # Change to chat page
+      changeToPage(driver, 'Chat')
 
       driver.FindElement([[By.NAME, 'create-admin-chat-button']])
       driver.Click([[By.NAME, 'create-admin-chat-button']]) 
@@ -33,8 +46,8 @@ try:
       driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
       # Type a message into the chat
-      xpathTextarea = xpathForPageElement % (actingPlayer, 'textarea', 'input-' + chatName)
-      xpathSend = xpathForPageElement % (actingPlayer, 'paper-button', 'submit-' + chatName)
+      xpathTextarea = getPathToElement(actingPlayer, 'textarea', 'input-' + chatName)
+      xpathSend = getPathToElement(actingPlayer, 'paper-button', 'submit-' + chatName)
       
       driver.FindElement([[By.NAME, 'input-%s' % chatName], [By.XPATH, xpathTextarea]]) 
       driver.SendKeys([[By.NAME, 'input-%s' % chatName], [By.XPATH, xpathTextarea]], 
@@ -44,8 +57,9 @@ try:
       # Check that every admin sees the chat and message
       for admin in adminPlayers:
         driver.SwitchUser(admin)
+        closeNotifications(driver)
         driver.FindElement([[By.NAME, 'drawer-' + chatName]])  
-        driver.Click([[By.NAME, 'drawer-' + chatName]])  
+        changeToPage(driver, '-' + chatName)
         driver.ExpectContains([
             [By.NAME, 'message-%s-Hi im %s, how do i know if im the possessed zombie?' % (chatName, actingPlayerName)], 
             [By.CLASS_NAME, 'message-text']], 
@@ -53,17 +67,17 @@ try:
 
       # Non-Admin should leave admin chat
       driver.SwitchUser(actingPlayer)
-      driver.Click([[By.NAME, 'drawer-' + chatName]])  # Open Admin chat room
+      changeToPage(driver, '-' + chatName)
 
-      xpathChatDrawerButton = xpathForPageElement % (actingPlayer, 'paper-icon-button', 'chat-info-' + chatName)
+      xpathChatDrawerButton = getPathToElement(actingPlayer, 'paper-icon-button', 'chat-info-' + chatName)
       driver.Click([[By.XPATH, xpathChatDrawerButton]])  
       driver.FindElement([[By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[actingPlayer]]])
       
-      xpathLeaveButton = xpathForPageElement % (actingPlayer, 'a', 'chat-drawer-leave')
+      xpathLeaveButton = getPathToElement(actingPlayer, 'a', 'chat-drawer-leave')
       driver.FindElement([[By.XPATH, xpathLeaveButton]])
       driver.Click([[By.XPATH, xpathLeaveButton]])
 
-      xpathLeaveDialog = xpathForPageElement % (actingPlayer, '*', 'chat-leave-dialog-' + chatName)
+      xpathLeaveDialog = getPathToElement(actingPlayer, '*', 'chat-leave-dialog-' + chatName)
       driver.FindElement([[By.XPATH, xpathLeaveDialog]])
       driver.Click([[By.XPATH, xpathLeaveDialog], [By.ID, 'done']])
       driver.DontFindElement([[By.XPATH, xpathLeaveDialog]])
