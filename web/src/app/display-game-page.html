@@ -104,7 +104,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.chat, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="chat-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <ghvz-chat-page
           bridge="[[bridge]]"
           database="[[database]]"
@@ -251,7 +251,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.leaderboard, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="leaderboard-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Leaderboard</div>
       <ghvz-leaderboard-summary
           players="[[game.players]]">
@@ -260,7 +260,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.profile, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="profile-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <ghvz-profile-page
           class="content"
           bridge="[[bridge]]"

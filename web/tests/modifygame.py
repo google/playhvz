@@ -4,14 +4,19 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="zella")
 
 try:
+
   # See rules sheet on dashboard
-  driver.FindElement([[By.ID, 'rules']])
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'drawerButton']])
+    driver.FindElement([[By.NAME, 'drawerRules']])
+  else:
+    driver.FindElement([[By.ID, 'rules']])
 
   # See rules page and FAQ page on sidebar
-  driver.ExpectContains([[By.NAME, 'drawerRules']], "Rules")
-  driver.ExpectContains([[By.NAME, 'drawerFAQ']], "FAQ")
+  driver.FindElement([[By.NAME, 'drawerRules']])
+  driver.FindElement([[By.NAME, 'drawerFAQ']])
 
-  # # Go to the Admin dashboard
+  # Go to the Admin dashboard
   driver.Click([[By.NAME, 'drawerAdmin Dashboard']])
 
   # Open up rules, type something.

@@ -16,18 +16,18 @@ def runTest(clientUrl, password, useRemote, useMobile):
 
 	# printAndRun("python creategame.py %s" % args)
 	# printAndRun("python joingame.py %s" % args)
-	# printAndRun("python infect.py %s" % args)
+	# printAndRun("python infect.py %s" % args) # eww
 	# # printAndRun("python declare.py %s" % args)
 	# printAndRun("python chat.py %s" % args)
-	# printAndRun("python modifygame.py %s" % args)
+	printAndRun("python modifygame.py %s" % args)
 	# printAndRun("python mission.py %s" % args)
 	# printAndRun("python checkin.py %s" % args)
 	# printAndRun("python changeallegiance.py %s" % args)
-	printAndRun("python startgame.py %s" $ args)
+	# printAndRun("python startgame.py %s" % args)
 
 def desktopAndMobileTests(clientUrl, password, useRemote):
-	#runTest(clientUrl, password, useRemote, useMobile=True)
-	runTest(clientUrl, password, useRemote, useMobile=False)
+	runTest(clientUrl, password, useRemote, useMobile=True)
+	#runTest(clientUrl, password, useRemote, useMobile=False)
 
 def fakeAndRemoteTests(clientUrl, password):
 	#desktopAndMobileTests(clientUrl, password, useRemote=True)
