@@ -153,6 +153,7 @@
         <template is="dom-repeat" items="[[filteredItems]]" as="item">
           <paper-item
               on-focus="onFocus_"
+              name$="[[computeItemText_(item)]]"
               on-focusout="onFocusOut_"
               on-tap="onItemClicked_">
             [[computeItemText_(item)]]
