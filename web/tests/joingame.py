@@ -16,7 +16,7 @@ try:
 
   driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option1']])
 
-  driver.Click([[By.NAME, 'joingGameTakePhotos'], [By.NAME, 'option1']])
+  driver.Click([[By.NAME, 'joinGameTakePhotos'], [By.NAME, 'option1']])
 
   driver.Click([[By.NAME, 'joinGameBeVolunteerPage'], [By.NAME, 'option1']])
 

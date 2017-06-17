@@ -8,6 +8,12 @@ try:
 
   ######################  Testing Admin Guns Page  ######################
 
+  # If the user has a notification, close it
+  try: 
+    driver.Click([[By.NAME, 'close-notification']])
+  finally:
+    pass
+
   # Admin adds gun
   driver.Click([[By.TAG_NAME, 'ghvz-unseen-notifications'], [By.CLASS_NAME, 'close']])
 
@@ -63,22 +69,20 @@ try:
   # driver.ExpectContains([[By.ID, 'table']], "Moldavi", False)
   driver.Backspace([[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']], 4)
 
-  # THEORETICALLY WORKS, BUT NO PROMISES SINCE ITS CURRENTLY BROKEN SO I CAN'T TEST
-  # Uncomment this block later
   # Change the weapon ID, and show that it shows up
-  # driver.Click([[By.NAME, 'gun-row-3.14'], [By.ID, 'menu']])
-  # driver.Click([[By.NAME, 'gun-row-3.14'], [By.NAME, 'menu-item-Edit']])
-  # driver.SendKeys(
-  #       [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-  #       '42')
-  # driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
-  # ## driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
+  driver.Click([[By.NAME, 'gun-row-3.14'], [By.ID, 'menu']])
+  driver.Click([[By.NAME, 'gun-row-3.14'], [By.NAME, 'menu-item-Edit']])
+  driver.SendKeys(
+        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
+        '42')
+  driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
+  driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
    
   # TODO - when implemented, have a player see that they've been assigned a gun
    
 
 
-  #####################  Testing Admin Players Page  ######################
+  ####################  Testing Admin Players Page  ######################
 
 
   # Admin - set got equipment for Jack
@@ -130,13 +134,23 @@ try:
 
   # TODO - search by equipment once this works
 
-  # TODO - add a note
+  # Add a note
   driver.Click([[By.NAME, 'drawerAdmin Players']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Notes']])
 
-  # TODO - once we can add notes, search by notes
-  # driver.Quit()
+  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']], 'zapfinkle skaddleblaster')
+  driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
+
+  # Search by notes
+  driver.Click([[By.NAME, 'header-Notes'], [By.NAME, 'icon-search']])
+  driver.SendKeys(
+        [[By.NAME, 'header-Notes'], [By.TAG_NAME, 'input']],
+        'zap')
+  driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
+  driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
+
+  driver.Quit()
 
 finally:
   pass

@@ -33,7 +33,7 @@
   <paper-dropdown-input filter-property="id" label="Pick a group" items="[[game.groups]]">
     <template>
       <template is="dom-repeat" items="[[items]]" as="group">
-        <paper-item class="group" data-group-id$="[[group.id]]" on-tap="onItemTapped_">
+        <paper-item name$="[[group.id]]" class="group" data-group-id$="[[group.id]]" on-tap="onItemTapped_">
           [[group.name]] - [[group.id]]
         </paper-item>
       </template>
