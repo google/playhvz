@@ -23,6 +23,7 @@ try:
         driver.SwitchUser(player)
 
         # Make sure drawer opens fine
+        # TODO(verdagon): known flake (on remote only?)
         driver.Click([[By.NAME, 'chat-info-%s' % chatName]])
         driver.FindElement(
           [[By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])

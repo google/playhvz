@@ -219,7 +219,8 @@
       close-label="Cancel"
       done-label="Done"
       done-enabled="[[doneEnabled]]"
-      on-ghvz-form-done="done_">
+      on-ghvz-form-done="done_"
+      type-name="[[typeName]]">
     <template is="dom-repeat" items="{{fields}}" as="field">
       <ghvz-form-section
           section-width$="[[field.width]]"
@@ -255,9 +256,6 @@
         <template is="dom-if" if="[[useGroupField_(field)]]">
           <ghvz-group-field game="[[game]]" value="{{field.value}}">
           </ghvz-group-field>
-          <div>
-            (Start typing 'group' if nothing shows up)
-          </div>
         </template>
         <template is="dom-if" if="[[usePaperCheckbox_(field)]]">
           <paper-checkbox checked="{{field.value}}">

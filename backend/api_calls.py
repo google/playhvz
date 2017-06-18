@@ -421,6 +421,28 @@ def AddGun(request, game_state):
   game_state.put('/games/%s/guns' % game_id, gun_id, True)
 
 
+def UpdateGun(request, game_state):
+  """Update details of a mission.
+
+  Firebase entries:
+    /missions/%(missionId)
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'gunId': 'GunId',
+    'label': '|String',
+  })
+
+  gun_id = request['gunId']
+
+  put_data = {}
+  for property in ['label']:
+    if property in request:
+      put_data[property] = request[property]
+
+  game_state.patch('/guns/%s' % gun_id, put_data)
+
+
 def AssignGun(request, game_state):
   """Assign a gun to a given player.
 
