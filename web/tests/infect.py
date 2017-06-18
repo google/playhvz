@@ -27,11 +27,12 @@ try:
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
-    driver.Click([[By.NAME, 'drawerDashboard']])
+  
+  driver.Click([[By.NAME, 'drawerDashboard']]) # Crashed here once (mobile)
 
   driver.SendKeys(
       [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-      'grobble forgbobbly')
+      'grobble forgbobbly') # Crashed here once (desktop)
 
   driver.Click([[By.ID, 'infect']])
 

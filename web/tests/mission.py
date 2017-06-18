@@ -44,7 +44,7 @@ def insertAndVerifyMissionInfo(
 
   # Verify the mission shows up in the admin's list of missions
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionName']], name)
-  driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionGroup']], groupName)
+  ##driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionGroup']], groupName)
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionStart']], startTime)
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionEnd']], endTime)
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionDetails']], details[0:10])
@@ -53,12 +53,19 @@ def insertAndVerifyMissionInfo(
 driver = setup.MakeDriver(user="zella")
 
 try:
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawerAdmin Missions']])
 
-  try: # If the user has a notification, close it
-    driver.Click([[By.NAME, 'close-notification']])
-  finally:
-    pass
+  driver.Click([[By.NAME, 'close-notification']])
+
+
+  # try: # If the user has a notification, close it
+  #   driver.Click([[By.NAME, 'close-notification']])
+  # finally:
+  #   pass
 
 
   # Create a human mission
@@ -95,11 +102,19 @@ try:
 
   # Log in as a human (Jack), make sure he can see the human mission
   driver.SwitchUser('jack')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawerMissions']])
   #driver.ExpectContains([[By.NAME, 'mission-card']], 'insert witty and entertaining name here') TODO - can't get this to work yet
 
   # Log in as a zombie (Deckerd), make sure he can see the zombie mission
   driver.SwitchUser('deckerd')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'drawerButton']])
+    
   driver.Click([[By.NAME, 'drawerMissions']])
   # driver.ExpectContains([[By.NAME, 'mission-card']], 'zed mission') TODO - this can't get this to work yet
 

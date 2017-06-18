@@ -28,7 +28,10 @@ try:
 
   # Have a player join the game
   driver.SwitchUser("reggie")
-  driver.Click([[By.NAME, 'joinGame']])
+
+  if not driver.is_mobile:
+    driver.Click([[By.NAME, 'joinGame']])
+
   driver.SendKeys(
       [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
       'ReggieTheRavager')
@@ -38,6 +41,9 @@ try:
   driver.Click([[By.NAME, 'joinGameBeVolunteerPage'], [By.NAME, 'option2']])
   driver.Click([[By.TAG_NAME, 'ghvz-game-registration'], [By.NAME, 'submitJoinGame']])
 
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+
   # Check that the leaderboard has the person show up with 0 points
   driver.Click([[By.NAME, 'drawerLeaderboard']])
   driver.ExpectContains(
@@ -46,6 +52,9 @@ try:
       [[By.NAME, 'Leaderboard Allegiance Cell ReggieTheRavager']], 'undeclared')
   driver.ExpectContains(
       [[By.NAME, 'Leaderboard Points Cell ReggieTheRavager']], '0')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])
 
   # Declare allegiance as a human
   driver.Click([[By.NAME, 'drawerDashboard']])

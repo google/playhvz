@@ -1,6 +1,7 @@
 import sys
 import time
 from driver import WholeDriver
+import setup
 
 from selenium.webdriver.common.by import By
 

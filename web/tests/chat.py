@@ -23,7 +23,7 @@ try:
         driver.SwitchUser(player)
 
         if driver.is_mobile:
-          driver.Click([[By.NAME, 'drawerButton']])
+          driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
           driver.Click([[By.NAME, 'drawerChat']])
           driver.Click([[By.NAME, chatId]])
 
@@ -65,14 +65,14 @@ try:
 
         if driver.is_mobile:
           driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
-          driver.Click([[By.NAME, 'drawerDashboard']])
+          driver.Click([[By.NAME, 'drawerDashboard']]) #TODO - sometimes this doesn't work
 
       # Check that the chat doesn't exist for players not in the chat
       for player in playersNotInChat:
         driver.SwitchUser(player)
 
         if driver.is_mobile:
-          driver.Click([[By.NAME, 'drawerButton']])
+          driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
           driver.Click([[By.NAME, 'drawerChat']])
           driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], chatName, False)
           driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
