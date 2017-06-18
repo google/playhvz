@@ -698,7 +698,8 @@ def AddQuizQuestion(request, game_state):
     'gameId': 'GameId',
     'quizQuestionId': 'String',
     'text': 'String',
-    'type': 'String'
+    'type': 'String',
+    'number': 'Number',
   })
 
   question = game_state.get(
@@ -717,7 +718,8 @@ def AddQuizQuestion(request, game_state):
     request['quizQuestionId'],
     {
       'text': request['text'],
-      'type': request['type']
+      'type': request['type'],
+      'number': request['number'],
   })
 
 def UpdateQuizQuestion(request, game_state):
@@ -736,7 +738,8 @@ def UpdateQuizQuestion(request, game_state):
     'gameId': 'GameId',
     'quizQuestionId': 'String',
     'text': '|String',
-    'type': '|String'
+    'type': '|String',
+    'number': '|Number',
   })
 
   question = game_state.get(
@@ -756,6 +759,9 @@ def UpdateQuizQuestion(request, game_state):
     if question_type != 'order' and question_type != 'multipleChoice':
       return respondError(400, 'type must be "order" or "multipleChoice"')
     patch_data['type'] = question_type
+
+  if 'number' in request:
+    patch_data['number'] = request['number']
 
   if len(patch_data) > 0:
     return game_state.patch(
@@ -791,6 +797,7 @@ def AddQuizAnswer(request, game_state):
     'quizAnswerId': 'String',
     'quizQuestionId': 'String',
     'text': 'String',
+    'number': 'Number',
   })
 
   question = game_state.get(
@@ -809,6 +816,7 @@ def AddQuizAnswer(request, game_state):
       'isCorrect': request['isCorrect'],
       'order': request['order'],
       'text': request['text'],
+      'number': request['number'],
   })
 
 def UpdateQuizAnswer(request, game_state):
@@ -834,6 +842,7 @@ def UpdateQuizAnswer(request, game_state):
     'quizAnswerId': 'String',
     'quizQuestionId': 'String',
     'text': '|String',
+    'number': '|Number',
   })
 
   question = game_state.get(
@@ -853,6 +862,8 @@ def UpdateQuizAnswer(request, game_state):
     patch_data['isCorrect'] = request['isCorrect']
   if 'order' in request:
     patch_data['order'] = request['order']
+  if 'number' in request:
+    patch_data['number'] = request['number']
 
   if len(patch_data) > 0:
     return game_state.patch(
