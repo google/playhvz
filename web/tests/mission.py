@@ -13,7 +13,6 @@ def insertAndVerifyMissionInfo(
   endDay, 
   endTime,
   details,
-  group,
   groupName):
 
   driver.SendKeys([[By.ID, 'form-section-mission-name'],[By.TAG_NAME, 'input']], name)
@@ -38,9 +37,9 @@ def insertAndVerifyMissionInfo(
 
   driver.SendKeys([[By.ID, 'form-section-mission-details'],[By.TAG_NAME, 'textarea']], details)
 
-  driver.Click([[By.ID, 'form-section-mission-group'], [By.TAG_NAME, 'input']])
-  driver.Click([[By.NAME, group]])
-  driver.Click([[By.ID, 'missionForm'], [By.ID, 'done']])
+  driver.Click([[By.ID, 'missionForm'], [By.ID, 'form-section-mission-group'], [By.ID, 'name']])
+  driver.Click([[By.ID, 'missionForm'], [By.ID, 'form-section-mission-group'], [By.NAME, 'group-name-' + groupName]])
+  driver.Click([[By.ID, 'missionForm'], [By.NAME, 'form-buttons-Mission'], [By.ID, 'done']])
 
   # Verify the mission shows up in the admin's list of missions
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionName']], name)
@@ -74,7 +73,6 @@ try:
     endDay='2',
     endTime='10:15pm',
     details='<div>take over the world</div>',
-    group='group-resistance-6',
     groupName='Resistance')
 
   # Create a zombie mission
@@ -90,7 +88,6 @@ try:
     endDay='2',
     endTime='2:34pm',
     details='<div>eat humans</div>',
-    group='group-horde-7',
     groupName='Horde')
 
   # Log in as a human (Jack), make sure he can see the human mission

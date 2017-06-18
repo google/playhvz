@@ -85,8 +85,19 @@
                 property: "name",
                 label: "Name",
                 name: "mission-name",
+                width: "half",
+                description: "Name the players will see.",
               },
               {
+                property: "accessGroupId",
+                name: "mission-group",
+                label: "Group",
+                description: "Select the group that can see this mission",
+                type: "group",
+                width: "half",
+              },
+              {
+                name: "begin",
                 name: "mission-begin",
                 property: "beginTime",
                 label: "Begin timestamp",
@@ -95,6 +106,7 @@
                 type: "timestamp",
               },
               {
+                name: "end",
                 name: "mission-end",
                 property: "endTime",
                 label: "End timestamp",
@@ -103,19 +115,13 @@
                 type: "timestamp",
               },
               {
+                name: "details",
                 name: "mission-details",
                 property: "detailsHtml",
                 label: "Mission page html",
                 description: "HTML describing the mission",
                 type: "text",
               },
-              {
-                name: "mission-group",
-                property: "accessGroupId",
-                label: "Group",
-                description: "Select the group that can see this mission",
-                type: "group",
-              }
             ],
           };
         },
