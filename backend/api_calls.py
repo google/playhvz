@@ -340,6 +340,7 @@ def UpdatePlayer(request, game_state):
     'needGun': '|Boolean',
     'profileImageUrl': '|?String',
     'gotEquipment': '|Boolean',
+    'canInfect': '|Boolean',
     'notes': '|String',
     'wantToBeSecretZombie': '|Boolean',
     'notificationSettings': {
@@ -387,7 +388,7 @@ def UpdatePlayer(request, game_state):
         notification_settings_update[property] = request['notificationSettings'][property]
 
   private_update = {}
-  for property in ['needGun', 'gotEquipment', 'notes', 'wantToBeSecretZombie']:
+  for property in ['needGun', 'gotEquipment', 'notes', 'wantToBeSecretZombie', 'canInfect']:
     if property in request:
       private_update[property] = request[property]
 
@@ -418,6 +419,28 @@ def AddGun(request, game_state):
     'label': request['label']
   })
   game_state.put('/games/%s/guns' % game_id, gun_id, True)
+
+
+def UpdateGun(request, game_state):
+  """Update details of a mission.
+
+  Firebase entries:
+    /missions/%(missionId)
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'gunId': 'GunId',
+    'label': '|String',
+  })
+
+  gun_id = request['gunId']
+
+  put_data = {}
+  for property in ['label']:
+    if property in request:
+      put_data[property] = request[property]
+
+  game_state.patch('/guns/%s' % gun_id, put_data)
 
 
 def AssignGun(request, game_state):
@@ -675,7 +698,8 @@ def AddQuizQuestion(request, game_state):
     'gameId': 'GameId',
     'quizQuestionId': 'String',
     'text': 'String',
-    'type': 'String'
+    'type': 'String',
+    'number': 'Number',
   })
 
   question = game_state.get(
@@ -694,7 +718,8 @@ def AddQuizQuestion(request, game_state):
     request['quizQuestionId'],
     {
       'text': request['text'],
-      'type': request['type']
+      'type': request['type'],
+      'number': request['number'],
   })
 
 def UpdateQuizQuestion(request, game_state):
@@ -713,7 +738,8 @@ def UpdateQuizQuestion(request, game_state):
     'gameId': 'GameId',
     'quizQuestionId': 'String',
     'text': '|String',
-    'type': '|String'
+    'type': '|String',
+    'number': '|Number',
   })
 
   question = game_state.get(
@@ -733,6 +759,9 @@ def UpdateQuizQuestion(request, game_state):
     if question_type != 'order' and question_type != 'multipleChoice':
       return respondError(400, 'type must be "order" or "multipleChoice"')
     patch_data['type'] = question_type
+
+  if 'number' in request:
+    patch_data['number'] = request['number']
 
   if len(patch_data) > 0:
     return game_state.patch(
@@ -768,6 +797,7 @@ def AddQuizAnswer(request, game_state):
     'quizAnswerId': 'String',
     'quizQuestionId': 'String',
     'text': 'String',
+    'number': 'Number',
   })
 
   question = game_state.get(
@@ -786,6 +816,7 @@ def AddQuizAnswer(request, game_state):
       'isCorrect': request['isCorrect'],
       'order': request['order'],
       'text': request['text'],
+      'number': request['number'],
   })
 
 def UpdateQuizAnswer(request, game_state):
@@ -811,6 +842,7 @@ def UpdateQuizAnswer(request, game_state):
     'quizAnswerId': 'String',
     'quizQuestionId': 'String',
     'text': '|String',
+    'number': '|Number',
   })
 
   question = game_state.get(
@@ -830,6 +862,8 @@ def UpdateQuizAnswer(request, game_state):
     patch_data['isCorrect'] = request['isCorrect']
   if 'order' in request:
     patch_data['order'] = request['order']
+  if 'number' in request:
+    patch_data['number'] = request['number']
 
   if len(patch_data) > 0:
     return game_state.patch(

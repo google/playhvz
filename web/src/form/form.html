@@ -38,6 +38,9 @@
             type: Boolean,
             value: true,
           },
+          typeName: {
+            type: String,
+          },
         },
 
         listeners: {
@@ -107,14 +110,12 @@
       :host {
         display: block;
       }
-      #dialog {
-        overflow-y: auto;
-      }
       form {
         display: flex;
         flex-wrap: wrap;
         margin-top: 0;
         padding-top: 0;
+        overflow-y: auto;
       }
       .button-container {
         display: flex;
@@ -134,6 +135,10 @@
         padding: 16px;
         font-weight: bold;
       }
+      #dialog {
+        display: flex;
+        flex-direction: column;
+      }
     </style>
 
     <paper-dialog
@@ -149,7 +154,7 @@
       <form is="iron-form" id="form">
         <content></content>
       </form>
-      <div class="buttons">
+      <div name$="form-buttons-[[typeName]]" class="buttons">
         <paper-button id="cancel" dialog-dismiss>[[closeLabel]]</paper-button>
         <paper-button id="done" dialog-confirm disabled="[[!doneEnabled]]" autofocus>[[doneLabel]]</paper-button>
       </div>

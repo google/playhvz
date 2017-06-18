@@ -36,7 +36,7 @@ Model.Game = function(id, args) {
   Utils.addEmptyLists(this, GAME_COLLECTIONS);
 }
 
-const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
+const QUIZ_QUESTION_PROPERTIES = ["text", "type", "number"];
 const QUIZ_QUESTION_COLLECTIONS = ["answers"];
 Model.QuizQuestion = function(id, args) {
   this.id = id;
@@ -44,7 +44,7 @@ Model.QuizQuestion = function(id, args) {
   Utils.addEmptyLists(this, QUIZ_QUESTION_COLLECTIONS);
 }
 
-const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order"];
+const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order", "number"];
 const QUIZ_ANSWER_COLLECTIONS = [];
 Model.QuizAnswer = function(id, args) {
   this.id = id;

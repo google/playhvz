@@ -1,4 +1,5 @@
 import sys
+import setup
 import time
 from driver import WholeDriver
 import setup
@@ -85,18 +86,18 @@ try:
 
   driver.ExpectContains(
       [[By.TAG_NAME, 'ghvz-display-game-page'],
-       [By.NAME, 'Leaderboard Allegiance Cell Deckerd the Hesitant']],
+       [By.NAME, 'Leaderboard Allegiance Cell DeckerdTheHesitant']],
       'resistance')
 
   driver.ExpectContains(
       [[By.TAG_NAME, 'ghvz-display-game-page'],
-       [By.NAME, 'Leaderboard Points Cell Deckerd the Hesitant']],
+       [By.NAME, 'Leaderboard Points Cell DeckerdTheHesitant']],
       '0')
 
   driver.ExpectContains(
       [[By.TAG_NAME, 'ghvz-display-game-page'],
-       [By.NAME, 'Leaderboard Name Cell Deckerd the Hesitant']],
-      'Deckerd the Hesitant')
+       [By.NAME, 'Leaderboard Name Cell DeckerdTheHesitant']],
+      'DeckerdTheHesitant')
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 

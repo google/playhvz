@@ -28,6 +28,7 @@ try:
           driver.Click([[By.NAME, chatId]])
 
         # Make sure drawer opens fine
+        # TODO(verdagon): known flake (on remote only?)
         driver.Click([[By.NAME, 'icon-%s' % chatName]])
         driver.FindElement(
           [[By.NAME, 'drawer-%s' % chatName], [By.NAME, playerNames[player]]])

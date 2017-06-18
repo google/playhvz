@@ -33,24 +33,19 @@ try:
   if driver.is_mobile:
     driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
 
-  # Check her profile, see that she's now a zombie
-  driver.Click([[By.NAME, 'drawerMy Profile']])  #TODO - AAA Crash!!!
-  # driver.ExpectContains([[By.NAME, 'status']], "Living Dead")  #TODO - probs here! Re-add this once infect works on mobile
+  # Check her profile, see that she's still a human
+  driver.Click([[By.NAME, 'drawerMy Profile']])
+  driver.ExpectContains([[By.NAME, 'status']], "Alive")
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
+  # Confirm that she can infect people now
+  driver.FindElement([[By.NAME, "infect-box"]], False)
 
-  # Navigate to Jack's profile
-  driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) 
-
-  # Unset Can Infect for Jack
+  # Unset Can Infect for Zella
   driver.Click([[By.ID, 'unset-infect-button']])
   driver.FindElement([[By.ID, 'set-infect-button']])
   driver.ExpectContains([[By.NAME, 'can-infect']], "No")
 
-  # Sign in as Jack, confirm that he can no longer infect people
-  driver.SwitchUser("jack")
+  # Confirm that she can no longer infect people
   driver.FindElement([[By.NAME, "infect-box"]], False)
 
   driver.Quit()
