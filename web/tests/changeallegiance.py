@@ -24,13 +24,6 @@ try:
   driver.Click([[By.ID, 'infect']])
   driver.ExpectContains([[By.NAME, 'infect-box']], "you've infected ZellaTheUltimate!")
 
-  # Confirm that he can no longer infect people
-  driver.FindElement([[By.NAME, "infect-box"]], False)
-
-  # Check his profile, see that he's now a zombie
-  driver.Click([[By.NAME, 'drawerMy Profile']])
-  driver.ExpectContains([[By.NAME, 'status']], "Living Dead")
-
   # Sign back in as Zella (admin)
   driver.SwitchUser("zella")
 
@@ -48,6 +41,8 @@ try:
 
   # Confirm that she can no longer infect people
   driver.FindElement([[By.NAME, "infect-box"]], False)
+
+  driver.Quit()
 
 finally:
   pass

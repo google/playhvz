@@ -152,7 +152,6 @@
               return;
             }
             if (field.value == null || field.value === "") {
-              console.log('disabling because', field, field.value);
               this.doneEnabled = false;
               return;
             }
@@ -220,7 +219,8 @@
       close-label="Cancel"
       done-label="Done"
       done-enabled="[[doneEnabled]]"
-      on-ghvz-form-done="done_">
+      on-ghvz-form-done="done_"
+      type-name="[[typeName]]">
     <template is="dom-repeat" items="{{fields}}" as="field">
       <ghvz-form-section
           section-width$="[[field.width]]"
