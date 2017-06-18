@@ -39,7 +39,7 @@ run_test() {
 	print_and_run "python creategame.py $args"
 	print_and_run "python joingame.py $args"
 	print_and_run "python infect.py $args"
-	# print_and_run "python declare.py $args"
+	print_and_run "python declare.py $args"
 	print_and_run "python chat.py $args"
 	print_and_run "python adminchat.py $args"
 	print_and_run "python modifygame.py $args"
