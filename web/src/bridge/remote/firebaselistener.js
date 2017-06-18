@@ -59,6 +59,10 @@ window.FirebaseListener = (function () {
   const REWARD_CATEGORY_COLLECTIONS = ['rewards'];
   const REWARD_PROPERTIES = ['gameId', 'rewardCategoryId', 'playerId', 'code'];
   const REWARD_COLLECTIONS = [];
+  const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
+  const QUIZ_QUESTION_COLLECTIONS = ["answers"];
+  const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order"];
+  const QUIZ_ANSWER_COLLECTIONS = [];
 
   // Once the outside code constructs FirebaseListener, it should soon afterwards
   // call listenToUser.
@@ -658,6 +662,32 @@ window.FirebaseListener = (function () {
           snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
           (property, value) => {
             this.writer.set(this.reader.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
+          });
+      });
+    }
+
+    listenToQuizQuestion_(gameId, quizQuestionId) {
+      this.listenOnce_(`/games/${gameId}/quizQuestions/${quizQuestionId}`).then((snap) => {
+        let obj = new Model.QuizQuestion(quizQuestionId, snap.val());
+        this.writer.insert(this.reader.getQuizQuestionPath(gameId, null), null, obj);
+        this.listenForPropertyChanges_(
+          snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getQuizQuestionPath(gameId, quizQuestionId).concat([property]), value);
+          });
+        this.firebaseRoot.child(`/games/${gameId}/quizQuestions/${quizQuestionId}/answers`)
+          .on('child_added', (snap) => this.listenToQuizAnswer_(gameId, quizQuestionId, snap.getKey()));
+      });
+    }
+
+    listenToQuizAnswer_(gameId, quizQuestionId, quizAnswerId) {
+      this.listenOnce_(`/games/${gameId}/quizQuestions/${quizQuestionId}/answers/${quizAnswerId}`).then((snap) => {
+        let obj = new Model.QuizAnswer(quizAnswerId, snap.val());
+        this.writer.insert(this.reader.getQuizAnswerPath(gameId, quizQuestionId, null), null, obj);
+        this.listenForPropertyChanges_(
+          snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getQuizAnswerPath(gameId, quizQuestionId, quizAnswerId).concat([property]), value);
           });
       });
     }

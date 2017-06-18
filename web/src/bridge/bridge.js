@@ -551,6 +551,7 @@ class FakeIdGenerator extends IdGenerator {
     serverTime: '|Timestamp',
     text: 'String',
     type: 'String',
+    number: 'Number',
   });
   serverMethods.set('updateQuizQuestion', {
     quizQuestionId: 'QuizQuestionId',
@@ -558,6 +559,7 @@ class FakeIdGenerator extends IdGenerator {
     serverTime: '|Timestamp',
     text: '|String',
     type: '|String',
+    number: '|Number',
   });
 
   serverMethods.set('addQuizAnswer', {
@@ -568,6 +570,7 @@ class FakeIdGenerator extends IdGenerator {
     text: 'String',
     order: 'Number',
     isCorrect: 'Boolean',
+    number: 'Number',
   });
   serverMethods.set('updateQuizAnswer', {
     gameId: 'GameId',
@@ -576,6 +579,7 @@ class FakeIdGenerator extends IdGenerator {
     text: '|String',
     order: '|Number',
     isCorrect: '|Boolean',
+    number: '|Number',
   });
 
   serverMethods.set('markNotificationSeen', {

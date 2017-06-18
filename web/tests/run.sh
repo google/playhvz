@@ -36,15 +36,15 @@ run_test() {
 		args="$args -m"
 	fi
 
-	print_and_run "python creategame.py $args"
-	print_and_run "python joingame.py $args"
-	print_and_run "python infect.py $args"
-	# print_and_run "python declare.py $args"
-	print_and_run "python chat.py $args"
-	print_and_run "python modifygame.py $args"
-	print_and_run "python mission.py $args"
-	print_and_run "python checkin.py $args"
-	print_and_run "python changeallegiance.py $args"
+	# print_and_run "python creategame.py $args"
+	# print_and_run "python joingame.py $args"
+	# print_and_run "python infect.py $args"
+	print_and_run "python declare.py $args"
+	# print_and_run "python chat.py $args"
+	# print_and_run "python modifygame.py $args"
+	# print_and_run "python mission.py $args"
+	# print_and_run "python checkin.py $args"
+	# print_and_run "python changeallegiance.py $args"
 }
 
 desktop_and_mobile_tests() {
