@@ -38,6 +38,9 @@
             type: Boolean,
             value: true,
           },
+          typeName: {
+            type: String,
+          },
         },
 
         listeners: {
@@ -151,7 +154,7 @@
       <form is="iron-form" id="form">
         <content></content>
       </form>
-      <div class="buttons">
+      <div name$="form-buttons-[[typeName]]" class="buttons">
         <paper-button id="cancel" dialog-dismiss>[[closeLabel]]</paper-button>
         <paper-button id="done" dialog-confirm disabled="[[!doneEnabled]]" autofocus>[[doneLabel]]</paper-button>
       </div>
