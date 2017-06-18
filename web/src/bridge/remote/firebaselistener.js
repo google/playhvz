@@ -59,9 +59,9 @@ window.FirebaseListener = (function () {
   const REWARD_CATEGORY_COLLECTIONS = ['rewards'];
   const REWARD_PROPERTIES = ['gameId', 'rewardCategoryId', 'playerId', 'code'];
   const REWARD_COLLECTIONS = [];
-  const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
+  const QUIZ_QUESTION_PROPERTIES = ["text", "type", "number"];
   const QUIZ_QUESTION_COLLECTIONS = ["answers"];
-  const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order"];
+  const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order", "number"];
   const QUIZ_ANSWER_COLLECTIONS = [];
 
   // Once the outside code constructs FirebaseListener, it should soon afterwards
@@ -669,7 +669,14 @@ window.FirebaseListener = (function () {
     listenToQuizQuestion_(gameId, quizQuestionId) {
       this.listenOnce_(`/games/${gameId}/quizQuestions/${quizQuestionId}`).then((snap) => {
         let obj = new Model.QuizQuestion(quizQuestionId, snap.val());
-        this.writer.insert(this.reader.getQuizQuestionPath(gameId, null), null, obj);
+
+        let existingQuizQuestions = this.reader.get(this.reader.getQuizQuestionPath(gameId, null));
+        let insertIndex =
+          existingQuizQuestions.findIndex((existing) => existing.number > obj.number);
+        if (insertIndex < 0)
+          insertIndex = existingQuizQuestions.length;
+        this.writer.insert(this.reader.getQuizQuestionPath(gameId, null), insertIndex, obj);
+
         this.listenForPropertyChanges_(
           snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
           (property, value) => {
@@ -683,7 +690,14 @@ window.FirebaseListener = (function () {
     listenToQuizAnswer_(gameId, quizQuestionId, quizAnswerId) {
       this.listenOnce_(`/games/${gameId}/quizQuestions/${quizQuestionId}/answers/${quizAnswerId}`).then((snap) => {
         let obj = new Model.QuizAnswer(quizAnswerId, snap.val());
-        this.writer.insert(this.reader.getQuizAnswerPath(gameId, quizQuestionId, null), null, obj);
+
+        let existingQuizAnswers = this.reader.get(this.reader.getQuizAnswerPath(gameId, quizQuestionId, null));
+        let insertIndex =
+          existingQuizAnswers.findIndex((existing) => existing.number > obj.number);
+        if (insertIndex < 0)
+          insertIndex = existingQuizAnswers.length;
+        this.writer.insert(this.reader.getQuizAnswerPath(gameId, quizQuestionId, null), insertIndex, obj);
+        
         this.listenForPropertyChanges_(
           snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
           (property, value) => {
