@@ -11,7 +11,7 @@
         bridge: Object,
         isAdmin: Boolean,
         database: Object,
-        currentPlayerId: String,
+        actingPlayerId: String,
         user: String,
         game: String,
         playerId: String,
@@ -56,7 +56,7 @@
             this.fire('ghvz-set-path', {
               inGame: true,
               replace: true,
-              path: ['profile', this.currentPlayerId],
+              path: ['profile', this.actingPlayerId],
             });
           });
         } else if (this.path[this.path.length - 2] == 'profile') {
@@ -121,8 +121,8 @@
           canInfect: true,
         });
       },
-      seePrivateInfo_(isAdmin, currentPlayerId, playerId) {
-        return isAdmin || currentPlayerId == playerId;
+      seePrivateInfo_(isAdmin, actingPlayerId, playerId) {
+        return isAdmin || actingPlayerId == playerId;
       },
     });
   });
@@ -207,7 +207,7 @@
       </div>
     </div>
   </div>
-  <template is="dom-if" if="[[seePrivateInfo_(isAdmin, currentPlayerId, playerId)]]">
+  <template is="dom-if" if="[[seePrivateInfo_(isAdmin, actingPlayerId, playerId)]]">
     <div id="details">
       <div>Notifications should sound: <b>[[computeBooleanText_(player.notificationSettings.sound)]]</b></div>
       <div>Notifications should vibrate: <b>[[computeBooleanText_(player.notificationSettings.vibrate)]]</b></div>

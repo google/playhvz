@@ -40,6 +40,7 @@
                 this.fire('ghvz-set-path', {
                   inGame: true,
                   path: ['chat', chatRoom.id],
+                  replace: false,
                 });
               }
               return;
@@ -54,6 +55,7 @@
             this.fire('ghvz-set-path', {
               inGame: true,
               path: ['chat', chatRoomId],
+              replace: false,
             });
           } else {
             let action = e.target.dataset.action;
