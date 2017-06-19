@@ -464,7 +464,7 @@
       <paper-icon-button icon="menu" class="action-menu-button dropdown-trigger"></paper-icon-button>
       <paper-menu class="dropdown-content">
         <template is="dom-repeat" items="[[actions]]" as="action">
-          <paper-item on-tap="onActionTapped_">[[action.name]]</paper-item>
+          <paper-item name$="menu-item-[[action.name]]" on-tap="onActionTapped_">[[action.name]]</paper-item>
         </template>
       </paper-menu>
     </paper-menu-button>
@@ -493,7 +493,7 @@
           </template>
           <template is="dom-repeat" items="[[columns]]" as="column">
             <th class="property-header">
-              <div class="column-header">
+              <div class="column-header" name$="header-[[column.name]]">
                 <div class="column-header-top">
                   <div class="column-name">
                     [[column.name]]
@@ -508,6 +508,7 @@
                   </template>
                   <template is="dom-if" if="[[column.filterable]]">
                     <paper-icon-button
+                        name="icon-search"
                         class="filter-button"
                         icon="icons:search"
                         data-column-index$="[[column.index]]"

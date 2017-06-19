@@ -35,6 +35,7 @@
       done_() {
         // As the new player comes down from firebase,
         // <ghvz-app> will detect it and auto-choose it.
+        this.newPlayerArgs.profileImageUrl = PlayerUtils.getDefaultProfilePic(this.newPlayerArgs.name || "");
         this.bridge.createPlayer(
             Utils.merge(
                 {
@@ -156,7 +157,7 @@
           {value: "server", text: "Server Dev", subText: "Help create our backend server to make the game as awesome as possible!"},
           {value: "client", text: "Client Dev", subText: "Help create our website so everyone can stay connected!"},
           {value: "android", text: "Android Dev", subText: "Help create our Android app!"},
-          {value: "ios", text: "Android Dev", subText: "Help create our iOS app!"},
+          {value: "ios", text: "iOS Dev", subText: "Help create our iOS app!"},
         ];
       },
 
@@ -168,14 +169,13 @@
 </script>
 <style>
   :host {
-    display: block;
+    display: flex;
     width: 100%;
     height: 100%;
   }
   neon-animated-pages {
     display: block;
-    width: 100%;
-    height: 100%;
+    flex-grow: 1;
   }
   neon-animatable {
     background-color: white;
@@ -253,7 +253,7 @@
 
     <neon-animatable>
       <ghvz-interview-option-page
-          name="joingGameTakePhotos"
+          name="joinGameTakePhotos"
           options="[[makeTakePhotoOptions()]]"
           on-ghvz-interview-page-done="handlePhotosPageDone_">
         <div class="maintext">Are you ok with photos including your face being taken during the game?</div>

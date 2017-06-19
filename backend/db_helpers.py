@@ -1,6 +1,10 @@
 """DB helper methods."""
 
+
+import sys
+import copy
 import constants
+import textwrap
 
 class Optional:
   def __init__(self, expectation):
@@ -44,8 +48,18 @@ def ValidateInputs(request, game_state, expectations_by_param_name):
   expectations_by_param_name['requestingUserToken'] = 'String'
   expectations_by_param_name['requestingUserId'] = '?UserId'
   expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
+  expectations_by_param_name['serverTime'] = '|Timestamp'
 
-  ValidateInputsInner(request, game_state, expectations_by_param_name)
+
+  try:
+    ValidateInputsInner(request, game_state, expectations_by_param_name)
+  except:
+    print "Error while validating:", sys.exc_info()[0]
+    print "Expectations:"
+    print expectations_by_param_name
+    print "Request:"
+    print request
+    raise
 
 def ValidateInputsInner(request, game_state, expectations_by_param_name):
   for param_name in request.keys():
@@ -122,11 +136,19 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
         ExpectExistence(game_state, '/chatRooms/%s' % data, data, 'gameId', should_exist)
       if expectation == "RewardCategoryId":
         ExpectExistence(game_state, '/rewardCategories/%s' % data, data, 'gameId', should_exist)
+      # TODO: Do a deep search to find these IDs to check that they exist or not
       if expectation == "RewardId":
         pass
-      if expectation == "NotificationCategoryId":
-        ExpectExistence(game_state, '/notificationCategories/%s' % data, data, 'gameId', should_exist)
-
+      if expectation == "MessageId":
+        pass
+      if expectation == "MarkerId":
+        pass
+      if expectation == "NotificationId":
+        pass
+      if expectation == "QueuedNotificationId":
+        ExpectExistence(game_state, '/queuedNotifications/%s' % data, data, 'gameId', should_exist)
+      if expectation == "MapId":
+        ExpectExistence(game_state, '/maps/%s' % data, data, 'accessGroupId', should_exist)
 
 def GroupToGame(game_state, group):
   """Map a group to a game."""
@@ -197,24 +219,50 @@ def IsAdmin(game_state, game_id, user_id):
     return False
   return game_state.get('/games/%s/adminUsers' % game_id, user_id) is not None
 
-def GroupToEntity(game_state, group, entity):
-  rooms = GetValueWithPropertyEqualTo(game_state, entity, 'groupId', group)
+
+def GroupToMissions(game_state, group_id):
+  missions = GetValueWithPropertyEqualTo(game_state, 'missions', 'accessGroupId', group_id)
+  if missions:
+    return missions.keys()
+  return []
+
+
+def GroupToChats(game_state, group_id):
+  rooms = GetValueWithPropertyEqualTo(game_state, 'chatRooms', 'accessGroupId', group_id)
   if rooms:
     return rooms.keys()
   return []
 
-
-def GroupToMissions(game_state, group):
-  return GroupToEntity(game_state, group, 'missions')
-
-
-def GroupToChats(game_state, group):
-  return GroupToEntity(game_state, group, 'chatRooms')
-
-
 def PlayerToGame(game_state, player):
   """Map a player to a game."""
   return game_state.get('/playersPrivate/%s' % player, 'gameId')
+
+
+def CopyMerge(a, b):
+  a = copy.deepcopy(a)
+  b = copy.deepcopy(b)
+  MergeInto(a, b)
+  return a
+
+def MergeInto(a, b, path=None):
+    if path is None:
+      path = []
+    for key in b:
+        if key in a:
+            if isinstance(a[key], dict) and isinstance(b[key], dict):
+                MergeInto(a[key], b[key], path + [str(key)])
+            elif a[key] == b[key]:
+                pass # same leaf value
+            else:
+                raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
+        else:
+            a[key] = b[key]
+    return a
+
+def GetWholePlayer(game_state, player_id):
+  return CopyMerge(
+        game_state.get('/playersPublic', player_id),
+        game_state.get('/playersPrivate', player_id))
 
 
 def PlayerAllegiance(game_state, player):
@@ -224,7 +272,7 @@ def PlayerAllegiance(game_state, player):
 
 def ChatToGroup(game_state, chat):
   """Map a chat to a group."""
-  return game_state.get('/chatRooms/%s' % chat, 'groupId')
+  return game_state.get('/chatRooms/%s' % chat, 'accessGroupId')
 
 
 def ChatToGame(game_state, chat):
@@ -241,7 +289,7 @@ def AddPoints(game_state, player_id, points):
   current_points = int(game_state.get(player_path, 'points'))
   new_points = current_points + points
   game_state.put(player_path, 'points', new_points)
-  return 'Player points = %d + %d => %d' % (current_points, points, new_points)
+  print 'Player points = %d + %d => %d' % (current_points, points, new_points)
 
 
 def GetValueWithPropertyEqualTo(game_state, property, key, target):
@@ -253,5 +301,39 @@ def GetValueWithPropertyEqualTo(game_state, property, key, target):
     if v.get(key) == target:
       values[k] = v
   return values
+
+
+def GetPlayerNamesInChatRoom(game_state, chatroom_id):
+  names = {}
+  group_id = game_state.get('/chatRooms/%s' % chatroom_id, 'accessGroupId')
+  if not group_id:
+    return names
+  players = game_state.get('/groups/%s' % group_id, 'players')
+  if not players:
+    return names
+  for player in players.keys():
+    name = game_state.get('/playersPublic/%s' % player, 'name')
+    if not name:
+      continue
+    names[name] = player
+  return names
+
+
+def QueueNotification(game_state, request):
+  put_data = {
+    'sent': False,
+  }
+  properties = ['message', 'site', 'email', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
+                'groupId', 'playerId', 'icon', 'previewMessage', 'gameId']
+
+  for property in properties:
+    if property in request and request[property] is not None:
+      put_data[property] = request[property]
+
+  print 'request were putting:'
+  print put_data
+
+  game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
+
 
 # vim:ts=2:sw=2:expandtab

@@ -379,7 +379,7 @@
           "userId":"user-test-3840579180089170-3"
         }
       ],
-      "notificationCategories":[],
+      "queuedNotifications":[],
       "quizQuestions":[],
       "groups":[
         {
@@ -415,29 +415,7 @@
               "id":"player-test-3840579180089170-5",
               "playerId":"player-test-3840579180089170-5"
             }
-          ],
-          "membershipsByPlayerId":{
-            "player-1220629394777245":{
-              "id":"player-1220629394777245",
-              "playerId":"player-1220629394777245"
-            },
-            "player-test-3840579180089170-1":{
-              "id":"player-test-3840579180089170-1",
-              "playerId":"player-test-3840579180089170-1"
-            },
-            "player-test-3840579180089170-2":{
-              "id":"player-test-3840579180089170-2",
-              "playerId":"player-test-3840579180089170-2"
-            },
-            "player-test-3840579180089170-4":{
-              "id":"player-test-3840579180089170-4",
-              "playerId":"player-test-3840579180089170-4"
-            },
-            "player-test-3840579180089170-5":{
-              "id":"player-test-3840579180089170-5",
-              "playerId":"player-test-3840579180089170-5"
-            }
-          }
+          ]
         }
       ],
       "maps":[],

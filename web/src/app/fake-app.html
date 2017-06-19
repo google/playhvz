@@ -30,12 +30,23 @@
           type: String,
           value: undefined,
         },
+
+        isAttached: Boolean,
+
+        config: {
+          type: Object,
+          value: undefined,
+        },
       },
 
       listeners: {
         'ghvz-replace-url': 'replaceUrl_',
         'ghvz-push-url': 'pushUrl_',
       },
+
+      observers: [
+        'onReady(isAttached, config)',
+      ],
 
       pushUrl_(e) {
         this.setUrl_(false);
@@ -76,19 +87,23 @@
       },
 
       attached() {
+        this.isAttached = true;
+      },
+
+      onReady() {
         window.onpopstate = this.handlePopState_.bind(this);
 
         let idGenerator = new FakeIdGenerator();
 
         this.userOptions = [
-          {loaded: false, focused: false, url: '', name: 'reggie', userId: FAKE_USER_IDS.reggieUserId, description: 'Registered, not admin, not joined'},
-          {loaded: false, focused: false, url: '', name: 'minny', userId: FAKE_USER_IDS.minnyUserId, description: 'Registered, admin, not joined'},
-          {loaded: false, focused: false, url: '', name: 'zella', userId: FAKE_USER_IDS.zellaUserId, description: 'Registered, admin, joined, human'},
-          {loaded: false, focused: false, url: '', name: 'deckerd', userId: FAKE_USER_IDS.deckerdUserId, description: 'Registered, admin, joined, undeclared'},
-          {loaded: false, focused: false, url: '', name: 'moldavi', userId: FAKE_USER_IDS.moldaviUserId, description: 'Registered, admin, joined, human, is keeper of the owls'},
-          {loaded: false, focused: false, url: '', name: 'drake', userId: FAKE_USER_IDS.drakeUserId, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, focused: false, url: '', name: 'zeke', userId: FAKE_USER_IDS.zekeUserId, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, focused: false, url: '', name: 'jack', userId: FAKE_USER_IDS.jackUserId, description: 'Registered, not admin, joined, human'},
+          {loaded: false, focused: false, url: '', name: 'reggie', userId: 'user-' + this.config.fakeUserIds.reggie, description: 'Registered, not admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'minny', userId: 'user-' + this.config.fakeUserIds.minny, description: 'Registered, admin, not joined'},
+          {loaded: false, focused: false, url: '', name: 'zella', userId: 'user-' + this.config.fakeUserIds.zella, description: 'Registered, admin, joined, human'},
+          {loaded: false, focused: false, url: '', name: 'deckerd', userId: 'user-' + this.config.fakeUserIds.deckerd, description: 'Registered, admin, joined, undeclared'},
+          {loaded: false, focused: false, url: '', name: 'moldavi', userId: 'user-' + this.config.fakeUserIds.moldavi, description: 'Registered, admin, joined, human, is keeper of the owls'},
+          {loaded: false, focused: false, url: '', name: 'drake', userId: 'user-' + this.config.fakeUserIds.drake, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'zeke', userId: 'user-' + this.config.fakeUserIds.zeke, description: 'Registered, not admin, joined, zombie'},
+          {loaded: false, focused: false, url: '', name: 'jack', userId: 'user-' + this.config.fakeUserIds.jack, description: 'Registered, not admin, joined, human'},
         ];
 
         this.bridge =
@@ -101,11 +116,11 @@
         let populate = Utils.getParameterByName('populate', 'light');
         assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
         if (populate != 'none') {
-          populateUsers(this.bridge, FAKE_USER_IDS);
+          populateUsers(this.bridge, this.config);
           populateGame(
               this.bridge,
-              this.bridge.idGenerator.newGameId("poptest"),
-              FAKE_USER_IDS,
+              this.bridge.idGenerator.newGameId("poptest"), // Makes "poptest-1"
+              this.config,
               populate == 'heavy');
         }
 
@@ -150,6 +165,7 @@
         if (!option.loaded) {
           let app = document.createElement('ghvz-app');
           app.bridge = this.bridge;
+          app.config = this.config;
           app.path = path;
           app.userId = userId;
           app.id = option.name + "App";
@@ -197,6 +213,7 @@
     padding: 2px;
     position: relative;
     background-color: #add8e6;
+    flex-wrap: wrap;
   }
   .option {
     height: 24px;

@@ -1,0 +1,45 @@
+<dom-module id="ghvz-player-label">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-player-label',
+
+      properties: {
+        game: String,
+        playerId: String,
+        player: Object,
+      },
+
+      observers: [
+        'onPlayerIdChanged_(playerId, game.players)',
+      ],
+
+      onPlayerIdChanged_(playerId) {
+        this.$.selector.select(this.game.playersById[playerId]);
+      },
+
+      goToProfile_(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: ['profile', this.playerId],
+        });
+      },
+    });
+  });
+</script>
+<style>
+</style>
+<template>
+  <array-selector
+      id="selector"
+      items="[[game.players]]"
+      selected="{{player}}">
+  </array-selector>
+  <a href="#" on-tap="goToProfile_">[[player.name]]</a>
+</template>
+</dom-module>

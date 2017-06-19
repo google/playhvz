@@ -7,14 +7,14 @@ class FakeBridge {
     this.teeWriter = new TeeWriter();
     this.teeWriter.addDestination(new SimpleWriter(this.unmappedDatabase));
     var fakeServer = new FakeServer(idGenerator, this.teeWriter, new Date().getTime());
-    var checkedServer = new CheckedServer(idGenerator, fakeServer, Bridge.SERVER_METHODS_MAP);
-    var cloningFakeSerer = new CloningWrapper(checkedServer, Bridge.SERVER_METHODS);
-    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, Bridge.SERVER_METHODS, 100);
+    var checkedServer = new CheckedServer(idGenerator, fakeServer, Bridge.METHODS_MAP);
+    var cloningFakeSerer = new CloningWrapper(checkedServer, Bridge.METHODS);
+    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, Bridge.METHODS, 100);
     this.server = delayingCloningFakeServer;
 
     window.fakeBridge = this;
 
-    for (const funcName of Bridge.SERVER_METHODS) {
+    for (const funcName of Bridge.METHODS) {
       if (!this[funcName])
         this[funcName] = (...args) => this.server[funcName](...args);
     }
@@ -22,12 +22,11 @@ class FakeBridge {
   signIn({userId}) {
     assert(userId);
     this.server.register({userId: userId});
-    return this.server.signIn({userId: userId});
+    return userId;
   }
   getSignedInPromise({userId}) {
     assert(userId);
-    this.server.register({userId: userId});
-    return this.server.signIn({userId: userId});
+    return this.server.register({userId: userId}).then(() => userId);
   }
   listenToDatabase({destination}) {
     var gatedWriter = new GatedWriter(new MappingWriter(destination), false);
@@ -65,7 +64,7 @@ class FakeBridge {
   listenToGameAsAdmin(gameId) {
     // Do nothing. This method is really just an optimization.
   }
-  listenToGameAsNonAdmin(gameId, playerId) {
+  listenToGameAsPlayer(gameId, playerId) {
     // Do nothing. This method is really just an optimization.
   }
   setPlayerId(playerId) {

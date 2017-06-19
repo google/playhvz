@@ -37,7 +37,8 @@
         },
 
         observers: [
-          'onPathChanged_(path, game.chatRooms.*)',
+          'onPathChanged_(path, game.chatRooms.*, player.chatRoomMemberships.*)',
+          'onChatRoomsUpdated_(game, currentChatRoom, player.chatRoomMemberships.length)',
         ],
 
         computeShowChatRoomList_(isMobile, path) {
@@ -84,7 +85,7 @@
             // we want to just pick a chat room and show it.
             if (this.game.chatRooms.length > 0) {
               this.async(() => {
-                chatRoomId = this.game.chatRooms[0].id;
+                chatRoomId = this.player.chatRoomMemberships[0].id;
                 this.fire('ghvz-set-path', {
                   inGame: true,
                   path: ['chat', chatRoomId],
@@ -93,6 +94,17 @@
               });
             }
           }
+        },
+
+        onChatRoomsUpdated_() {
+          if (!this.currentChatRoom || this.player.chatRoomMembershipsById[this.currentChatRoom.id]) {
+            return;
+          }
+            this.fire('ghvz-set-path', {
+                    inGame: true,
+                    path: ['chat'],
+                    replace: true,
+            });
         },
 
         extractChatRoomIdFromUrl_() {
@@ -140,17 +152,15 @@
       </template>
       <template is="dom-if" if="[[showChatRoom]]">
         <div class="vertical-separator"></div>
-        <template is="dom-if" if="true">  
           <ghvz-chat-room
               bridge="[[bridge]]"
               game="[[game]]"
               is-admin="[[isAdmin]]"
               current-player="[[player]]"
-              chat-room="[[currentChatRoom]]"
+              chat-room-id="[[currentChatRoom.id]]"
               is-mobile="[[isMobile]]"
               class="chat-window">
           </ghvz-chat-room>
-        </template>
       </template>
     </div>
   </template>

@@ -59,7 +59,7 @@
         },
 
         observers: [
-          'onGroupIdChanged_(chatRoom.groupId, game.groupsById)',
+          'onGroupIdChanged_(chatRoom.accessGroupId, game.groupsById)',
           'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
@@ -177,14 +177,14 @@
   </style>
   <template>
     <array-selector id="groupsSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
-    <div name$="drawer-[[chatRoom.name]]" on-tap="captureTap_">
+    <div name$="chat-drawer-[[chatRoom.name]]" on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]
       </div>
       <template is="dom-if" if="[[showActionsSection]]">
         <div class="drawer-section">
           <template is="dom-if" if="[[canAdd]]">
-            <a href="javascript:void(0)" data-action="add" class="drawer-item">
+            <a name="chat-drawer-add" href="javascript:void(0)" data-action="add" class="drawer-item">
               <iron-icon icon="icons:add"></iron-icon>
               Add player
             </a>
@@ -194,7 +194,7 @@
             Notifications
           </a> -->
           <template is="dom-if" if="[[canRemove]]">
-            <a href="javascript:void(0)" data-action="leave" class="drawer-item">
+            <a name="chat-drawer-leave" href="javascript:void(0)" data-action="leave" class="drawer-item">
               <iron-icon icon="communication:call-made"></iron-icon>
               Leave
             </a>
