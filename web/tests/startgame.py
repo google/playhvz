@@ -47,11 +47,11 @@ try:
   # Check that the leaderboard has the person show up with 0 points
   driver.Click([[By.NAME, 'drawerLeaderboard']])
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Name Cell ReggieTheRavager']], 'ReggieTheRavager')
+      [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Name Cell ReggieTheRavager']], 'ReggieTheRavager')
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Allegiance Cell ReggieTheRavager']], 'undeclared')
+      [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Allegiance Cell ReggieTheRavager']], 'undeclared')
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Points Cell ReggieTheRavager']], '0')
+      [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell ReggieTheRavager']], '0')
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])

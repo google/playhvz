@@ -55,7 +55,6 @@ try:
   driver.SendKeys(
         [[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']],
         'pan')
-# TODO(olivia): devise a way to check that these rows are visible or not
   driver.FindElement([[By.NAME, 'gun-row-pancake']])
   driver.FindElement([[By.NAME, 'gun-row-3.14']], should_exist=False)
   driver.Backspace([[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']], 3)
@@ -65,7 +64,6 @@ try:
   driver.SendKeys(
         [[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']],
         'Jack')
-  # TODO(olivia): devise a way to check that these rows are visible or not
   driver.FindElement([[By.NAME, 'gun-row-pancake']], should_exist=False)
   driver.FindElement([[By.NAME, 'gun-row-3.14']])
   driver.Backspace([[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']], 4)
@@ -105,15 +103,13 @@ try:
 
   driver.Click([[By.NAME, 'drawerAdmin Players']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']]) # This is Jack (non-admin, human)
-  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Got Equipment']]) # here here here
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Got Equipment']]) # TODO - sometimes creashes here here here
   driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "Yes") # (menu still open here)
 
   # TODO(verdagon): have the webdrivers wait until things are visible / not visible.
   # This sleep is to wait for the menu to become not visible.
-  time.sleep(1)
 
   # Unset Jack's equipment
-  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Unset Got Equipment']])
   driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "No") # TODO - sometimes crashes here
 

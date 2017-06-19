@@ -13,7 +13,7 @@ try:
 
     driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
   else:
-    driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
+    driver.FindElement([[By.NAME, 'chatRoom-resistance-2']])
 
   # Drake infects Jack
   driver.SwitchUser("drake")
@@ -57,11 +57,12 @@ try:
     driver.Click([[By.NAME, 'drawerChat']])
 
     driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
-    # Check for infect widget too
-  else: 
-    driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
+  else:
+    driver.FindElement([[By.NAME, 'chatRoom-horde-3']])
 
-    driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
+
+  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
+
 
   driver.Quit()
 

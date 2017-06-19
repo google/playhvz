@@ -31,22 +31,31 @@ try:
   driver.SwitchUser("zella")
 
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']]) # if this is failing change back to profile-card
 
   # Check her profile, see that she's still a human
   driver.Click([[By.NAME, 'drawerMy Profile']])
   driver.ExpectContains([[By.NAME, 'status']], "Alive")
 
   # Confirm that she can infect people now
-  driver.FindElement([[By.NAME, "infect-box"]], False)
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
+
+  driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.FindElement([[By.NAME, "infect-box"]])
 
   # Unset Can Infect for Zella
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+
+  driver.Click([[By.NAME, 'drawerMy Profile']])
+
   driver.Click([[By.ID, 'unset-infect-button']])
   driver.FindElement([[By.ID, 'set-infect-button']])
   driver.ExpectContains([[By.NAME, 'can-infect']], "No")
 
   # Confirm that she can no longer infect people
-  driver.FindElement([[By.NAME, "infect-box"]], False)
+  driver.FindElement([[By.NAME, "infect-box"]], should_exist=False)
 
   driver.Quit()
 
