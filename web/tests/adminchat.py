@@ -6,19 +6,19 @@ driver.WaitForGameLoaded()
 
 try:
   playerNames = {
-        'zella': 'Zella the Ultimate',
-        'deckerd': 'Deckerd the Hesitant',
-        'moldavi': 'Moldavi the Moldavish',
+        'zella': 'ZellaTheUltimate',
+        'deckerd': 'DeckerdTheHesitant',
+        'moldavi': 'MoldaviTheMoldavish',
         'drake': 'Drackan',
         'zeke': 'Zeke',
-        'jack': 'Jack Slayer the Bean Slasher'
+        'jack': 'JackSlayerTheBeanSlasher'
       }
 
   adminPlayers = ['zella', 'moldavi']
 
-  def getPathToElement(player, tag, name):
-    xpathForPageElement = "//ghvz-app[contains(@id, '%sApp')]//ghvz-card[contains(@class, 'ghvz-display-game-page')]//%s[contains(@name, '%s')]"
-    return xpathForPageElement % (player, tag, name)
+  def getPathToElement(playerName, tag, name):
+    xpathForPageElement = "//*[contains(@id, 'chat-page-%s')]//%s[contains(@name, '%s')]"
+    return xpathForPageElement % (playerName, tag, name)
 
   def changeToPage(driver, drawerOption):
     driver.Click([[By.NAME, 'drawer' + drawerOption]])
@@ -36,7 +36,6 @@ try:
 
       # Create chat with admin
       driver.SwitchUser(actingPlayer)
-      closeNotifications(driver)
 
       changeToPage(driver, 'Chat')
 
@@ -46,8 +45,8 @@ try:
       driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
       # Type a message into the chat
-      xpathTextarea = getPathToElement(actingPlayer, 'textarea', 'input-' + chatName)
-      xpathSend = getPathToElement(actingPlayer, 'paper-button', 'submit-' + chatName)
+      xpathTextarea = getPathToElement(actingPlayerName, 'textarea', 'input-' + chatName)
+      xpathSend = getPathToElement(actingPlayerName, 'paper-button', 'submit-' + chatName)
       
       driver.FindElement([[By.NAME, 'input-%s' % chatName], [By.XPATH, xpathTextarea]]) 
       driver.SendKeys([[By.NAME, 'input-%s' % chatName], [By.XPATH, xpathTextarea]], 
@@ -69,15 +68,15 @@ try:
       driver.SwitchUser(actingPlayer)
       changeToPage(driver, '-' + chatName)
 
-      xpathChatDrawerButton = getPathToElement(actingPlayer, 'paper-icon-button', 'chat-info-' + chatName)
+      xpathChatDrawerButton = getPathToElement(actingPlayerName, 'paper-icon-button', 'chat-info-' + chatName)
       driver.Click([[By.XPATH, xpathChatDrawerButton]])  
-      driver.FindElement([[By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[actingPlayer]]])
+      driver.FindElement([[By.NAME, 'chat-drawer-%s' % chatName]])
       
-      xpathLeaveButton = getPathToElement(actingPlayer, 'a', 'chat-drawer-leave')
+      xpathLeaveButton = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
       driver.FindElement([[By.XPATH, xpathLeaveButton]])
       driver.Click([[By.XPATH, xpathLeaveButton]])
 
-      xpathLeaveDialog = getPathToElement(actingPlayer, '*', 'chat-leave-dialog-' + chatName)
+      xpathLeaveDialog = getPathToElement(actingPlayerName, '*', 'chat-leave-dialog-' + chatName)
       driver.FindElement([[By.XPATH, xpathLeaveDialog]])
       driver.Click([[By.XPATH, xpathLeaveDialog], [By.ID, 'done']])
       driver.DontFindElement([[By.XPATH, xpathLeaveDialog]])
