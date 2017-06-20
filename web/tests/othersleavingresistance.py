@@ -3,6 +3,12 @@ from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="jack")
 
+INFECTABLES = [
+ ('Moldavi the Moldavish', 'zooble flipwoogly'),
+ ('Jack Slayer the Bean Slasher', 'grobble forgbobbly'),
+ ('Zella the Ultimate', 'glarple zerp wobbledob')
+]
+
 try:
   driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
 
@@ -14,15 +20,17 @@ try:
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
-  driver.SendKeys(
-      [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-      'grobble forgbobbly')
+  for target in INFECTABLES:
+    # only zombies have lifeCodeInput
+    driver.SendKeys(
+        [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
+        target[1])
 
-  driver.Click([[By.ID, 'infect']])
+    driver.Click([[By.ID, 'infect']])
 
-  driver.ExpectContains(
-      [[By.NAME, 'victimName']],
-      'Jack Slayer the Bean Slasher')
+    driver.ExpectContains(
+        [[By.NAME, 'victimName']],
+        target[0])
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
