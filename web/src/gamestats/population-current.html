@@ -35,6 +35,10 @@
           numHumans += player.allegiance == 'resistance';
         }
 
+        // update hidden nodes for testing
+        this.$.zombie_count.textContent = numZombies;
+        this.$.humans_count.textContent = numHumans;
+
         var data = google.visualization.arrayToDataTable([
           ['Type', 'Number'],
           ['Human',  numHumans],
@@ -52,7 +56,7 @@
         chart.draw(data, options);
 
         // The following makes Google Charts responsive and will resize the chart
-        // as the page is resized. 
+        // as the page is resized.
         window.addEventListener('resize', () => this.drawCurrentPopulationChart());
       }
     });
@@ -60,5 +64,9 @@
 </script>
 <template>
   <div id="current_population_chart" style="width: 100%, height: 100%"></div>
+  <div id="current_population_meta" class="hidden">
+    <div id="zombie_count"></div>
+    <div id="humans_count"></div>
+  </div>
 </template>
 </dom-module>

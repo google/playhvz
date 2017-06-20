@@ -3,10 +3,10 @@ from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="jack")
 
-INFECTABLES = [
- ('Moldavi the Moldavish', 'zooble flipwoogly'),
- ('Jack Slayer the Bean Slasher', 'grobble forgbobbly'),
- ('Zella the Ultimate', 'glarple zerp wobbledob')
+INFECTABLES = [ # these names seem to have collapsed in the last pull
+ ('MoldaviTheMoldavish', 'zooble flipwoogly', 'Moldavi the Moldavish'),
+ ('JackSlayerTheBeanSlasher', 'grobble forgbobbly', 'Jack Slayer the Bean Slasher'),
+ ('ZellaTheUltimate', 'glarple zerp wobbledob', 'Zella the Ultimate')
 ]
 
 try:
@@ -28,9 +28,7 @@ try:
 
     driver.Click([[By.ID, 'infect']])
 
-    driver.ExpectContains(
-        [[By.NAME, 'victimName']],
-        target[0])
+    driver.ExpectContains([[By.NAME, 'victimName']], target[0])
 
     driver.Click([[By.ID, 'infected'], [By.ID, 'done']])
 
@@ -51,6 +49,11 @@ try:
   # need to find a nice way to query the svgs here
   # By.ID current_population_chart
   # could look at td > tr > Zombies > Count 5
+  # driver.FindElement([[By.ID, 'current_population_chart'], [By.TAG_NAME, 'tbody'],]
+
+  # not sure why this fails....
+  driver.ExpectContains([[By.ID, 'current_population_meta'],
+                          [By.ID, 'zombie_count']], '5')
 
   driver.Quit()
 
