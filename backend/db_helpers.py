@@ -298,7 +298,7 @@ def GetValueWithPropertyEqualTo(game_state, property, key, target):
   if not all_values:
     return values
   for k, v in all_values.iteritems():
-    if v[key] == target:
+    if v.get(key) == target:
       values[k] = v
   return values
 

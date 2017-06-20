@@ -31,7 +31,7 @@ try:
   driver.SwitchUser("zella")
 
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']]) # if this is failing change back to profile-card
+    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']]) # if this is failing change back to profile-card
 
   # Check her profile, see that she's still a human
   driver.Click([[By.NAME, 'drawerMy Profile']])

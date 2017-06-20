@@ -116,7 +116,6 @@ class RetryingDriver:
           time.sleep(sleep_durations[i])
 
 
-
 class RemoteDriver:
   # To get a non-game-subpage, start page with /
   # See creategame.py for an example
@@ -299,7 +298,4 @@ class WholeDriver:
 
   def ExpectContains(self, path, needle, should_exist=True):
     return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
-
-
-  # def FindElement(self, by, locator, wait_long=True):
-  #   return Element(driver, FindElement(self.driver, by, locator, container = self.element, wait_long = wait_long))
+    

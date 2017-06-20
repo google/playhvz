@@ -19,7 +19,7 @@ try:
   driver.SwitchUser("drake")
 
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
@@ -41,7 +41,7 @@ try:
       'JackSlayerTheBeanSlasher')
 
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
 
   # Check that Drake has been given points for the kill
   driver.Click([[By.NAME, 'drawerMy Profile']])
@@ -52,13 +52,14 @@ try:
   driver.SwitchUser("jack")
 
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
-
-    driver.Click([[By.NAME, 'drawerChat']])
-
     driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
   else:
     driver.FindElement([[By.NAME, 'chatRoom-horde-3']])
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
+
+    driver.Click([[By.NAME, 'drawerDashboard']])
 
 
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])

@@ -23,24 +23,32 @@ try:
 
         driver.SwitchUser(player)
 
+        try:
+         driver.Click([[By.NAME, 'close-notification']])
+        except AssertionError:
+          pass # This user didn't have a notification
+
         if driver.is_mobile:
+          driver.FindElement([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
           driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-          driver.Click([[By.NAME, 'drawerChat']])
-          driver.FindElement([[By.NAME, chatId]])
-          driver.Click([[By.NAME, chatId]])
+        driver.Click([[By.NAME, 'drawerChat']]) # Uh oh - crashed here 2x (the drawer didn't open right)
+        driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, chatId]])
+        driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatId]])
 
         # Make sure drawer opens fine
-        # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
-        driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'icon-%s' % chatName]])
-        time.sleep(1)
+        # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
+        driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
         driver.FindElement(
-          [[By.NAME, chatId], [By.NAME, 'drawer-%s' % chatName], [By.NAME, playerNames[player]]], wait_long=True)
-        driver.Click([[By.NAME, chatId], [By.NAME, 'icon-%s' % chatName]])
+          [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
+        driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
 
         # Post a message
-        driver.FindElement([[By.NAME, chatId]], check_visible=False) # Check that the chat exists
-        driver.SendKeys([[By.NAME, chatId], [By.NAME, 'input-%s' % chatName], [By.TAG_NAME, 'textarea']], 'Brains for %s' % player)
-        driver.Click([[By.NAME, chatId], [By.NAME, 'submit-%s' % chatName]])
+        driver.FindElement([[By.NAME, "ChatRoom: %s" % chatName]], check_visible=False) # Check that the chat exists
+        driver.SendKeys([
+          [By.NAME, 'chat-card'], 
+          [By.NAME, 'input-%s' % chatName], 
+          [By.TAG_NAME, 'textarea']], 'Brains for %s' % player)
+        driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'submit-%s' % chatName]])
 
         # Loop through all previous posts
         for i in range(index + 1):
@@ -50,26 +58,30 @@ try:
 
           # Check the message, the poster's name, and their avatar are there
           driver.ExpectContains([
+            [By.NAME, 'chat-card'], 
             [By.NAME, 'message-%s-Brains for %s' % (chatName, currPlayer)], 
             [By.CLASS_NAME, 'message-text']], 
             'Brains for %s' % currPlayer)
           driver.ExpectContains([
+            [By.NAME, 'chat-card'], 
             [By.NAME, 'message-%s-Brains for %s' % (chatName, currPlayer)], 
             [By.CLASS_NAME, 'player-name']], 
             currName)
-          driver.FindElement([[By.NAME, 'avatar-%s-Brains for %s' % (chatName, currPlayer)]])
+          driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'avatar-%s-Brains for %s' % (chatName, currPlayer)]])
           
           # Check the last one shows up as yours, and all others belong to other people
           if i == index:
             driver.FindElement([
+              [By.NAME, 'chat-card'], 
               [By.CLASS_NAME, 'message-from-me']])
           else:
             driver.FindElement([
+              [By.NAME, 'chat-card'], 
               [By.CLASS_NAME, 'message-from-other']])
 
         if driver.is_mobile:
           driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
-          driver.Click([[By.NAME, 'drawerDashboard']]) #TODO - sometimes this doesn't work
+        driver.Click([[By.NAME, 'drawerDashboard']])
 
       # Check that the chat doesn't exist for players not in the chat
       for player in playersNotInChat:
@@ -92,15 +104,15 @@ try:
   nonGlobalPlayers = []
   testChat(globalPlayers, [], 'Global Chat', 'chatRoom-everyone-1')
 
-  # # HORDE CHAT ROOM - only declared zombies should view
-  # zombiePlayers = ['zeke','drake']
-  # nonZombiePlayers = ['zella', 'deckerd', 'moldavi', 'jack']
-  # testChat(zombiePlayers, nonZombiePlayers, 'Horde ZedLink', 'chatRoom-horde-3')
+  # HORDE CHAT ROOM - only declared zombies should view
+  zombiePlayers = ['zeke','drake']
+  nonZombiePlayers = ['zella', 'deckerd', 'moldavi', 'jack']
+  testChat(zombiePlayers, nonZombiePlayers, 'Horde ZedLink', 'chatRoom-horde-3')
 
-  # # HUMAN CHAT ROOM - only declared humans should view
-  # humanPlayers = ['zella', 'moldavi', 'jack']
-  # nonHumanPlayers = ['deckerd', 'drake', 'zeke']
-  # testChat(humanPlayers, nonHumanPlayers, 'Resistance Comms Hub', 'chatRoom-resistance-2')
+  # HUMAN CHAT ROOM - only declared humans should view
+  humanPlayers = ['zella', 'moldavi', 'jack']
+  nonHumanPlayers = ['deckerd', 'drake', 'zeke']
+  testChat(humanPlayers, nonHumanPlayers, 'Resistance Comms Hub', 'chatRoom-resistance-2')
 
   driver.Quit()
 

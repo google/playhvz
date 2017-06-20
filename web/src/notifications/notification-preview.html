@@ -43,6 +43,7 @@
           this.fire('ghvz-set-path', {
             inGame: !destinationString.startsWith('/'),
             path: destinationPath,
+            replace: false,
           });
         }
       },
@@ -93,7 +94,13 @@
   <div id="container" on-tap="handleTap_">
     <iron-icon icon="[[computeIcon_(notification.icon)]]" class="icon"></iron-icon>
     <div class="preview-message">[[notification.previewMessage]]</div>
-    <paper-icon-button name="close-notification" hidden$="[[!withClose]]" class="close" icon="icons:close" on-tap="close_"></paper-icon-button>
+    <paper-icon-button
+      name="close-notification"
+      hidden$="[[!withClose]]"
+      class="close"
+      icon="icons:close"
+      on-tap="close_">
+    </paper-icon-button>
   </div>
 </template>
 </dom-module>
