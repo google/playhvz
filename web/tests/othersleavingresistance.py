@@ -32,9 +32,11 @@ try:
         [[By.NAME, 'victimName']],
         target[0])
 
+    driver.Click([[By.ID, 'infected'], [By.ID, 'done']])
+
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '402')
 
   driver.SwitchUser("jack")
 
