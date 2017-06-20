@@ -22,7 +22,7 @@ try:
   driver.Click([[By.ID, 'add']])
   driver.SendKeys(
         [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        '3.14') # Crashed here once
+        '3.14') # Crashed here a few times (element not visible, although it looks invisible)
  
   driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
 
