@@ -69,5 +69,7 @@ try:
   driver.ExpectContains([[By.NAME, 'status']], 'Alive')
   driver.ExpectContains([[By.NAME, 'lifecode']], 'codefor-life-1')
 
+  driver.Quit()
+
 finally:
   pass

@@ -40,7 +40,9 @@ class SimpleDriver:
     return element
 
   def Click(self, path):
-    self.FindElement(path).click()
+    element = self.FindElement(path)
+    assert element.is_enabled(), "Element %s isn't enabled" % path
+    element.click()
 
   def SendKeys(self, path, keys):
     self.FindElement(path).send_keys(keys)
