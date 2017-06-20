@@ -46,6 +46,12 @@ try:
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
+  driver.Click([[By.NAME, 'drawerGame Stats']])
+
+  # need to find a nice way to query the svgs here
+  # By.ID current_population_chart
+  # could look at td > tr > Zombies > Count 5
+
   driver.Quit()
 
 finally:
