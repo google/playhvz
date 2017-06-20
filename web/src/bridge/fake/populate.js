@@ -266,7 +266,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
 
   var zellaPlayerId = bridge.idGenerator.newPlayerId();
-  bridge.createPlayer(makePlayerProperties(zellaPlayerId, zellaUserId, gameId, 1483257600000, 'Zella the Ultimate'));
+  bridge.createPlayer(makePlayerProperties(zellaPlayerId, zellaUserId, gameId, 1483257600000, 'ZellaTheUltimate'));
   bridge.joinResistance({
     gameId: gameId,
     serverTime: 1483364000000,
@@ -276,7 +276,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
 
   var deckerdPlayerId = bridge.idGenerator.newPlayerId();
-  bridge.createPlayer(makePlayerProperties(deckerdPlayerId, deckerdUserId, gameId, 1483257600000, 'Deckerd the Hesitant'));
+  bridge.createPlayer(makePlayerProperties(deckerdPlayerId, deckerdUserId, gameId, 1483257600000, 'DeckerdTheHesitant'));
 
   bridge.sendChatMessage({
     gameId: gameId,
@@ -319,7 +319,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     serverTime: 1483257600000,
     userId: moldaviUserId
   });
-  bridge.createPlayer(makePlayerProperties(moldaviPlayerId, moldaviUserId, gameId, 1483257600000, 'Moldavi the Moldavish'));
+  bridge.createPlayer(makePlayerProperties(moldaviPlayerId, moldaviUserId, gameId, 1483257600000, 'MoldaviTheMoldavish'));
   bridge.setAdminContact({
     gameId: gameId,
     serverTime: 1483257600000,
@@ -334,7 +334,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
   
   var jackPlayerId = bridge.idGenerator.newPlayerId();
-  bridge.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 1483257600000, 'Jack Slayer the Bean Slasher'));
+  bridge.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 1483257600000, 'JackSlayerTheBeanSlasher'));
   bridge.joinResistance({
     gameId: gameId,
     serverTime: 1483364000000,
@@ -639,12 +639,23 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     bridge.addGun({gameId: gameId, serverTime: 1483257600000, gunId: bridge.idGenerator.newGunId(), label: "" + (1404 + i)});
   }
 
-  // let mission1AlertNotificationCategoryId = bridge.idGenerator.newNotificationCategoryId();
-  // bridge.addNotificationCategory({notificationCategoryId: mission1AlertNotificationCategoryId, gameId: gameId, name: "mission 1 alert", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "oh god theyre everywhere run", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/missions/" + firstMissionId, icon: null});
-  // bridge.addNotification({gameId: gameId, notificationId: bridge.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: mission1AlertNotificationCategoryId, previewMessage: null, message: null, email: true, app: null, vibrate: null, sound: null, destination: null, icon: null});
-  // let chatNotificationCategoryId = bridge.idGenerator.newNotificationCategoryId();
-  // bridge.addNotificationCategory({notificationCategoryId: chatNotificationCategoryId, gameId: gameId, name: "chat notifications", previewMessage: "Mission 1 Details: the zeds have invaded!", message: "blark flibby wopdoodle shorply gogglemog", sendTime: new Date().getTime() + 60 * 60 * 1000, allegianceFilter: "resistance", email: true, app: true, vibrate: true, sound: true, destination: null, icon: null});
-  // bridge.addNotification({gameId: gameId, notificationId: bridge.idGenerator.newNotificationId(), playerId: zellaPlayerId, notificationCategoryId: chatNotificationCategoryId, previewMessage: "Ping from Drackan!", message: "blark flibby wopdoodle shorply gogglemog", email: true, app: true, vibrate: true, sound: true, destination: "/2017m/chat/" + resistanceChatRoomId, icon: null});
+  bridge.sendNotification({
+    gameId: gameId,
+    serverTime: 1483364000000,
+    queuedNotificationId: bridge.idGenerator.newQueuedNotificationId(),
+    previewMessage: "Mission 1 Details: the zeds have invaded!",
+    message: "oh god theyre everywhere run",
+    sendTime: null,
+    groupId: resistanceGroupId,
+    playerId: null,
+    email: true,
+    site: true,
+    mobile: true,
+    vibrate: true,
+    sound: true,
+    destination: "missions/" + firstMissionId,
+    icon: null
+  });
 
   let requestCategoryId = bridge.idGenerator.newRequestCategoryId();
   let requestId = bridge.idGenerator.newRequestId();
@@ -760,30 +771,35 @@ function populateQuiz(bridge, gameId) {
     serverTime: 1483364000000,
     text: "When you're a zombie, and a human shoots you with a nerf dart, what do you do?",
     type: 'order',
+    number: 0,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Crouch/sit down,",
     order: 0,
     isCorrect: true,
+    number: 0,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "For 50 seconds, don't move from your spot (unless safety requires it),",
     order: 1,
     isCorrect: true,
+    number: 1,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
     order: 2,
     isCorrect: true,
+    number: 2,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: stunQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Stand up, return to mauling humans,",
     order: 3,
     isCorrect: true,
+    number: 3,
   });
 
   let infectQuestionId = bridge.idGenerator.newQuizQuestionId();
@@ -791,36 +807,42 @@ function populateQuiz(bridge, gameId) {
     serverTime: 1483364000000,
     text: "When you're a zombie, and you touch a human, what do you do?",
     type: 'order',
+    number: 1,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Crouch/sit down,",
     order: 0,
     isCorrect: true,
+    number: 0,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Ask the human for their life code,",
     order: 1,
     isCorrect: true,
+    number: 1,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "For 50 seconds, don't move from your spot (unless safety requires it),",
     order: 2,
     isCorrect: true,
+    number: 2,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Count aloud \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\",",
     order: 3,
     isCorrect: true,
+    number: 3,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: infectQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Stand up, return to mauling humans,",
     order: 4,
     isCorrect: true,
+    number: 4,
   });
 
   let crossQuestionId = bridge.idGenerator.newQuizQuestionId();
@@ -828,67 +850,79 @@ function populateQuiz(bridge, gameId) {
     serverTime: 1483364000000,
     text: "When you want to cross the street, what do you do?",
     type: 'order',
+    number: 2,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Get within 15 feet of a crosswalk button (now you're out of play),",
     order: 0,
     isCorrect: true,
+    number: 0,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Press the crosswalk button,",
     order: 1,
     isCorrect: true,
+    number: 1,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "When the walk signal appears, walk (not run) across the crosswalk,",
     order: 2,
     isCorrect: true,
+    number: 2,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Wait until there are no more players in the crosswalk,",
     order: 3,
     isCorrect: true,
+    number: 3,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Have a human count \"3 resistance, 2 resistance, 1 resistance, go!\" and the humans are in play,",
     order: 4,
     isCorrect: true,
+    number: 4,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "When the humans go, have a zombie count \"3 zombie horde, 2 zombie horde, 1 zombie horde, go!\" and the zombies are in play,",
     order: 5,
     isCorrect: true,
+    number: 5,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Once you're across, count \"3 resistance, 2 resistance, 1 resistance!\" and go,",
     order: 0,
     isCorrect: false,
+    number: 6,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Count to 15, then take off your armband,",
     order: 0,
     isCorrect: false,
+    number: 7,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Raise your nerf gun in the air so you're visible,",
     order: 0,
     isCorrect: false,
+    number: 8,
   });
   bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: crossQuestionId, gameId: gameId,
     serverTime: 1483364000000,
     text: "Start walking across the street, looking both ways for cars,",
     order: 0,
     isCorrect: false,
+    number: 9,
   });
+  bridge.executeNotifications({});
 }
 
 // const HUMAN_MISSION_HTML = 'mmm human mission';

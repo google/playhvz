@@ -340,6 +340,7 @@ def UpdatePlayer(request, game_state):
     'needGun': '|Boolean',
     'profileImageUrl': '|?String',
     'gotEquipment': '|Boolean',
+    'canInfect': '|Boolean',
     'notes': '|String',
     'wantToBeSecretZombie': '|Boolean',
     'notificationSettings': {
@@ -366,7 +367,7 @@ def UpdatePlayer(request, game_state):
   player_id = request['playerId']
 
   # TODO: Maybe also check for duplicate names in the same game?
-  if ' '  in request['name']:
+  if 'name' in request and ' '  in request['name']:
     raise InvalidInputError('Name cannot contain spaces.')
 
   public_update = {}
@@ -387,7 +388,7 @@ def UpdatePlayer(request, game_state):
         notification_settings_update[property] = request['notificationSettings'][property]
 
   private_update = {}
-  for property in ['needGun', 'gotEquipment', 'notes', 'wantToBeSecretZombie']:
+  for property in ['needGun', 'gotEquipment', 'notes', 'wantToBeSecretZombie', 'canInfect']:
     if property in request:
       private_update[property] = request[property]
 
@@ -418,6 +419,28 @@ def AddGun(request, game_state):
     'label': request['label']
   })
   game_state.put('/games/%s/guns' % game_id, gun_id, True)
+
+
+def UpdateGun(request, game_state):
+  """Update details of a mission.
+
+  Firebase entries:
+    /missions/%(missionId)
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'gunId': 'GunId',
+    'label': '|String',
+  })
+
+  gun_id = request['gunId']
+
+  put_data = {}
+  for property in ['label']:
+    if property in request:
+      put_data[property] = request[property]
+
+  game_state.patch('/guns/%s' % gun_id, put_data)
 
 
 def AssignGun(request, game_state):
@@ -593,6 +616,7 @@ def SendChatMessage(request, game_state):
     'message': request['message'],
     'previewMessage': textwrap.wrap(request['message'], 100)[0],
     'site': True,
+    'email': False,
     'mobile': True,
     'vibrate': True,
     'sound': False,
@@ -674,7 +698,8 @@ def AddQuizQuestion(request, game_state):
     'gameId': 'GameId',
     'quizQuestionId': 'String',
     'text': 'String',
-    'type': 'String'
+    'type': 'String',
+    'number': 'Number',
   })
 
   question = game_state.get(
@@ -693,7 +718,8 @@ def AddQuizQuestion(request, game_state):
     request['quizQuestionId'],
     {
       'text': request['text'],
-      'type': request['type']
+      'type': request['type'],
+      'number': request['number'],
   })
 
 def UpdateQuizQuestion(request, game_state):
@@ -712,7 +738,8 @@ def UpdateQuizQuestion(request, game_state):
     'gameId': 'GameId',
     'quizQuestionId': 'String',
     'text': '|String',
-    'type': '|String'
+    'type': '|String',
+    'number': '|Number',
   })
 
   question = game_state.get(
@@ -732,6 +759,9 @@ def UpdateQuizQuestion(request, game_state):
     if question_type != 'order' and question_type != 'multipleChoice':
       return respondError(400, 'type must be "order" or "multipleChoice"')
     patch_data['type'] = question_type
+
+  if 'number' in request:
+    patch_data['number'] = request['number']
 
   if len(patch_data) > 0:
     return game_state.patch(
@@ -767,6 +797,7 @@ def AddQuizAnswer(request, game_state):
     'quizAnswerId': 'String',
     'quizQuestionId': 'String',
     'text': 'String',
+    'number': 'Number',
   })
 
   question = game_state.get(
@@ -785,6 +816,7 @@ def AddQuizAnswer(request, game_state):
       'isCorrect': request['isCorrect'],
       'order': request['order'],
       'text': request['text'],
+      'number': request['number'],
   })
 
 def UpdateQuizAnswer(request, game_state):
@@ -810,6 +842,7 @@ def UpdateQuizAnswer(request, game_state):
     'quizAnswerId': 'String',
     'quizQuestionId': 'String',
     'text': '|String',
+    'number': '|Number',
   })
 
   question = game_state.get(
@@ -829,6 +862,8 @@ def UpdateQuizAnswer(request, game_state):
     patch_data['isCorrect'] = request['isCorrect']
   if 'order' in request:
     patch_data['order'] = request['order']
+  if 'number' in request:
+    patch_data['number'] = request['number']
 
   if len(patch_data) > 0:
     return game_state.patch(
@@ -1486,6 +1521,7 @@ def SendNotification(request, game_state):
     'message': 'String', # Message to send to client.
     'previewMessage': 'String', # Short preview of the message comments.
     'site': 'Boolean', # Whether to send to the web client.
+    'email': 'Boolean', # Whether to send to the player's email.
     'mobile': 'Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': 'Boolean', # Whether the notification should vibrate on iOS/Android.
     'sound': 'Boolean', # Whether the notification should play a sound on iOS/Android.
@@ -1493,7 +1529,7 @@ def SendNotification(request, game_state):
     'sendTime': '?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '?PlayerId', # Player to send it to. Either this or groupId must be present.
     'groupId': '?GroupId', # Group to send it to. Either this or playerId must be present.
-    'icon': 'String', # An icon code to show.
+    'icon': '?String', # An icon code to show. Null to show the default.
   })
 
   # groupId or playerId must be present.
@@ -1519,6 +1555,7 @@ def UpdateNotification(request, game_state):
     'message': '|String', # Message to send to client.
     'previewMessage': '|String', # Short preview of the message comments.
     'site': '|Boolean', # Whether to send to the web client.
+    'email': '|Boolean', # Whether to send to the player's email.
     'mobile': '|Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': '|Boolean', # Whether the notification should vibrate on iOS/Android.
     'sound': '|Boolean', # Whether the notification should play a sound on iOS/Android.
@@ -1526,7 +1563,7 @@ def UpdateNotification(request, game_state):
     'sendTime': '|?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '|?PlayerId', # Player to send it to. Either this or groupId must be present.
     'groupId': '|?GroupId', # Group to send it to. Either this or playerId must be present.
-    'icon': '|String', # An icon code to show.
+    'icon': '|?String', # An icon code to show. Null to show the default.
   })
 
   current_time = int(time.time() * 1000)
@@ -1541,7 +1578,7 @@ def UpdateNotification(request, game_state):
     raise InvalidInputError('Cannot modify sent notification.')
 
   put_data = {}
-  properties = ['message', 'site', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
+  properties = ['message', 'site', 'email', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
                 'groupId', 'playerId', 'icon', 'previewMessage']
 
   for property in properties:

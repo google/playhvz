@@ -18,13 +18,13 @@ window.FirebaseListener = (function () {
   const USER_PROPERTIES = ['a'];
   const USER_COLLECTIONS = ['players', 'games'];
   const GAME_PROPERTIES = ['active', 'startTime', 'endTime', 'registrationEndTime', 'name', 'number', 'rulesHtml', 'faqHtml', 'stunTimer', 'adminContactPlayerId'];
-  const GAME_COLLECTIONS = ['guns', 'missions', 'rewardCategories', 'chatRooms', 'players', 'admins', 'notificationCategories', 'quizQuestions', 'groups', 'maps'];
+  const GAME_COLLECTIONS = ['guns', 'missions', 'rewardCategories', 'chatRooms', 'players', 'admins', 'queuedNotifications', 'quizQuestions', 'groups', 'maps'];
   const GUN_PROPERTIES = ['gameId', 'playerId', 'label'];
   const GUN_COLLECTIONS = [];
   const PRIVATE_PLAYER_PROPERTIES = ['beInPhotos', 'gameId', 'userId', 'canInfect', 'needGun', 'startAsZombie', 'wantToBeSecretZombie', 'gotEquipment', 'notes'];
   const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ['sound', 'vibrate'];
   const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ['advertising', 'logistics', 'communications', 'moderator', 'cleric', 'sorcerer', 'admin', 'photographer', 'chronicler', 'android', 'ios', 'server', 'client'];
-  const PRIVATE_PLAYER_COLLECTIONS = ['lives', 'accessibleChatRooms', 'accessibleMissions'];
+  const PRIVATE_PLAYER_COLLECTIONS = ['lives', 'accessibleChatRooms', 'accessibleMissions', 'notifications'];
   const USER_PLAYER_PROPERTIES = ['gameId', 'userId'];
   const USER_PLAYER_COLLECTIONS = [];
   const GROUP_PROPERTIES = ['name', 'gameId', 'allegianceFilter', 'autoAdd', 'canAddOthers', 'canRemoveOthers', 'canAddSelf', 'canRemoveSelf', 'autoRemove', 'ownerPlayerId'];
@@ -53,10 +53,16 @@ window.FirebaseListener = (function () {
   const PRIVATE_LIFE_COLLECTIONS = [];
   const INFECTION_PROPERTIES = ['time', 'infectorId'];
   const INFECTION_COLLECTIONS = [];
+  const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "queuedNotificationId", "seenTime", "sound", "vibrate", "site", "mobile", "time", "email", "destination"];
+  const NOTIFICATION_COLLECTIONS = [];
   const REWARD_CATEGORY_PROPERTIES = ['name', 'description', 'shortName', 'points', 'shortName', 'claimed', 'gameId', 'limitPerPlayer', 'badgeImageUrl'];
   const REWARD_CATEGORY_COLLECTIONS = ['rewards'];
   const REWARD_PROPERTIES = ['gameId', 'rewardCategoryId', 'playerId', 'code'];
   const REWARD_COLLECTIONS = [];
+  const QUIZ_QUESTION_PROPERTIES = ["text", "type", "number"];
+  const QUIZ_QUESTION_COLLECTIONS = ["answers"];
+  const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order", "number"];
+  const QUIZ_ANSWER_COLLECTIONS = [];
 
   // Once the outside code constructs FirebaseListener, it should soon afterwards
   // call listenToUser.
@@ -195,7 +201,6 @@ window.FirebaseListener = (function () {
     }
 
     listenOnce_(path) {
-      console.log('Listening to:', path);
       if (this.listenedToPaths[path]) {
         // Never resolves
         return new Promise((resolve, reject) => {});
@@ -208,15 +213,25 @@ window.FirebaseListener = (function () {
       delete this.listenedToPaths[path];
     }
 
-    listenToUser(userId) {
-      return this.listenOnce_(`/users/${userId}`)
+    listenToUser(userId, wait) {
+      assert(wait !== undefined);
+      return this.firebaseRoot.child(`/users/${userId}`).once('value')
         .then((snap) => {
+          // If it doesnt exist yet, it could be because we just registered and
+          // it's not yet in the database.
           if (snap.val() == null) {
-            // Just for curiosity, I don't think this actually ever happens.
-            console.log('value is null?', snap.val());
-            this.unlisten_(`/users/${userId}`);
-            return null;
+            if (wait) {
+              // Return the result of trying again in a second
+              return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  this.listenToUser(userId, wait);
+                }, 1000);
+              });
+            } else {
+              return null;
+            }
           }
+
           let obj = new Model.User(userId, snap.val());
           this.userId = userId;
           this.writer.insert(this.reader.getUserPath(null), null, obj);
@@ -227,10 +242,8 @@ window.FirebaseListener = (function () {
             });
           this.firebaseRoot.child(`/users/${userId}/players`)
             .on('child_added', (snap) => this.listenToUserPlayer_(userId, snap.getKey()));
-          console.log('Trying to listen to /games...')
           this.firebaseRoot.child(`/games`)
             .on("child_added", (snap) => {
-              console.log('Found a game!', snap.getKey());
               this.listenToGameShallow_(snap.getKey())
             });
           return userId;
@@ -270,7 +283,7 @@ window.FirebaseListener = (function () {
         let game = new Model.Game(gameId, props);
         this.writer.insert(this.reader.getGamePath(null), null, game);
         this.listenForPropertyChanges_(
-          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(['accessibleMissions', 'accessibleChatRooms', 'adminUsers', 'notificationCategories', 'groups']),
+          snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(['accessibleMissions', 'accessibleChatRooms', 'adminUsers', 'queuedNotifications', 'groups']),
           (property, value) => {
             this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
           });
@@ -324,8 +337,8 @@ window.FirebaseListener = (function () {
         .on('child_added', (snap) => this.listenToChatRoom_(gameId, snap.getKey()));
       this.firebaseRoot.child(`/games/${gameId}/rewardCategories`)
         .on('child_added', (snap) => this.listenToRewardCategory_(gameId, snap.getKey()));
-      this.firebaseRoot.child(`/games/${gameId}/notificationCategories`)
-        .on('child_added', (snap) => this.listenToNotificationCategory_(gameId, snap.getKey()));
+      this.firebaseRoot.child(`/games/${gameId}/queuedNotifications`)
+        .on('child_added', (snap) => this.listenToQueuedNotification_(gameId, snap.getKey()));
     }
 
     listenToGameAsPlayer({
@@ -387,9 +400,8 @@ window.FirebaseListener = (function () {
           this.firebaseRoot.child(`/playersPrivate/${playerId}/notifications`)
             .on('child_added', (snap) => {
               let notificationId = snap.getKey();
-              let notificationCategoryId = snap.getKey();
+              let queuedNotificationId = snap.getKey();
               this.listenToNotification_(gameId, playerId, notificationId);
-              this.listenToNotificationCategory_(gameId, notificationCategoryId);
             });
           this.firebaseRoot.child(`/playersPrivate/${playerId}/accessibleChatRooms`)
             .on('child_added', (snap) => {
@@ -538,6 +550,18 @@ window.FirebaseListener = (function () {
       });
     }
 
+    listenToNotification_(gameId, playerId, notificationId) {
+      this.listenOnce_(`/playersPrivate/${playerId}/notifications/${notificationId}`).then((snap) => {
+        let obj = new Model.Notification(notificationId, snap.val());
+        this.writer.insert(this.reader.getNotificationPath(gameId, playerId, null), null, obj);
+        this.listenForPropertyChanges_(
+          snap.ref, NOTIFICATION_PROPERTIES, NOTIFICATION_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getNotificationPath(gameId, playerId, notificationId).concat([property]), value);
+          });
+      });
+    }
+
     listenToChatRoom_(gameId, chatRoomId) {
       this.listenOnce_(`/chatRooms/${chatRoomId}`).then((snap) => {
         let obj = new Model.ChatRoom(chatRoomId, snap.val());
@@ -638,6 +662,46 @@ window.FirebaseListener = (function () {
           snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
           (property, value) => {
             this.writer.set(this.reader.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
+          });
+      });
+    }
+
+    listenToQuizQuestion_(gameId, quizQuestionId) {
+      this.listenOnce_(`/games/${gameId}/quizQuestions/${quizQuestionId}`).then((snap) => {
+        let obj = new Model.QuizQuestion(quizQuestionId, snap.val());
+
+        let existingQuizQuestions = this.reader.get(this.reader.getQuizQuestionPath(gameId, null));
+        let insertIndex =
+          existingQuizQuestions.findIndex((existing) => existing.number > obj.number);
+        if (insertIndex < 0)
+          insertIndex = existingQuizQuestions.length;
+        this.writer.insert(this.reader.getQuizQuestionPath(gameId, null), insertIndex, obj);
+
+        this.listenForPropertyChanges_(
+          snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getQuizQuestionPath(gameId, quizQuestionId).concat([property]), value);
+          });
+        this.firebaseRoot.child(`/games/${gameId}/quizQuestions/${quizQuestionId}/answers`)
+          .on('child_added', (snap) => this.listenToQuizAnswer_(gameId, quizQuestionId, snap.getKey()));
+      });
+    }
+
+    listenToQuizAnswer_(gameId, quizQuestionId, quizAnswerId) {
+      this.listenOnce_(`/games/${gameId}/quizQuestions/${quizQuestionId}/answers/${quizAnswerId}`).then((snap) => {
+        let obj = new Model.QuizAnswer(quizAnswerId, snap.val());
+
+        let existingQuizAnswers = this.reader.get(this.reader.getQuizAnswerPath(gameId, quizQuestionId, null));
+        let insertIndex =
+          existingQuizAnswers.findIndex((existing) => existing.number > obj.number);
+        if (insertIndex < 0)
+          insertIndex = existingQuizAnswers.length;
+        this.writer.insert(this.reader.getQuizAnswerPath(gameId, quizQuestionId, null), insertIndex, obj);
+        
+        this.listenForPropertyChanges_(
+          snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
+          (property, value) => {
+            this.writer.set(this.reader.getQuizAnswerPath(gameId, quizQuestionId, quizAnswerId).concat([property]), value);
           });
       });
     }

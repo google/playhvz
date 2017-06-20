@@ -38,6 +38,9 @@
             type: Boolean,
             value: true,
           },
+          typeName: {
+            type: String,
+          },
         },
 
         listeners: {
@@ -61,13 +64,16 @@
             switch (input.tagName.toLowerCase()) {
               case 'input':
               case 'paper-button':
-                  input.focus();
-                  break;
+                input.focus();
+                break;
+              case 'ghvz-timestamp-picker':
+                input.focus();
+                break;
               case 'paper-textarea':
               case 'paper-input':
               default:
-                  input.$.input.focus();
-                  break;
+                input.$.input.focus();
+                break;
             }
           }
         },
@@ -104,14 +110,12 @@
       :host {
         display: block;
       }
-      #dialog {
-        overflow-y: auto;
-      }
       form {
         display: flex;
         flex-wrap: wrap;
         margin-top: 0;
         padding-top: 0;
+        overflow-y: auto;
       }
       .button-container {
         display: flex;
@@ -131,6 +135,10 @@
         padding: 16px;
         font-weight: bold;
       }
+      #dialog {
+        display: flex;
+        flex-direction: column;
+      }
     </style>
 
     <paper-dialog
@@ -146,7 +154,7 @@
       <form is="iron-form" id="form">
         <content></content>
       </form>
-      <div class="buttons">
+      <div name$="form-buttons-[[typeName]]" class="buttons">
         <paper-button id="cancel" dialog-dismiss>[[closeLabel]]</paper-button>
         <paper-button id="done" dialog-confirm disabled="[[!doneEnabled]]" autofocus>[[doneLabel]]</paper-button>
       </div>

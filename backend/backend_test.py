@@ -303,6 +303,7 @@ class EndToEndTest(unittest.TestCase):
       'message': 'hello!',
       'previewMessage': 'hell',
       'site': True,
+      'email': True,
       'mobile': False,
       'vibrate': False,
       'sound': False,
@@ -500,7 +501,8 @@ class EndToEndTest(unittest.TestCase):
       'gameId': self.Id('gameId', 1),
       'quizQuestionId': self.Id('quizQuestionId', 1),
       'text': 'Test question 1',
-      'type': 'a wrong type'
+      'type': 'a wrong type',
+      'number': 0,
     }
     self.AssertFails('addQuizQuestion', create, 400)
 
@@ -516,7 +518,8 @@ class EndToEndTest(unittest.TestCase):
     update = {
       'gameId': self.Id('gameId', 1),
       'quizQuestionId': self.Id('quizQuestionId', 2),
-      'type': 'wrong type in update'
+      'type': 'wrong type in update',
+      'number': 0,
     }
     self.AssertFails('updateQuizQuestion', update, 400)
 
@@ -534,6 +537,7 @@ class EndToEndTest(unittest.TestCase):
       'quizAnswerId': self.Id('quizAnswerId', 1),
       'quizQuestionId': self.Id('quizQuestionId', 1),
       'text': 'Test answer',
+      'number': 0,
     }
 
     update = {

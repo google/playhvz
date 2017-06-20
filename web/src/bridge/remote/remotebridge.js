@@ -27,13 +27,13 @@ class RemoteBridge {
                 if (this.userId == null) {
                   this.userId = "user-" + firebaseUser.uid;
                   this.requester.setRequestingUserTokenAndId(userToken, this.userId);
-                  this.firebaseListener.listenToUser(this.userId)
+                  this.firebaseListener.listenToUser(this.userId, false)
                       .then((exists) => {
                         if (exists) {
                           resolve(this.userId);
                         } else {
                           this.register({userId: this.userId}).then(() => {
-                            this.firebaseListener.listenToUser(this.userId);
+                            this.firebaseListener.listenToUser(this.userId, true);
                             resolve(this.userId);
                           });
                         }

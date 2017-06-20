@@ -104,7 +104,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.chat, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card id$="chat-page-[[player.name]]" expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <ghvz-chat-page
           bridge="[[bridge]]"
           database="[[database]]"
@@ -149,8 +149,6 @@
       <ghvz-notifications-page
           bridge="[[bridge]]"
           game="[[game]]"
-          categories-by-id="[[game.notificationCategoriesById]]"
-          categories="[[game.notificationCategories]]"
           player="[[player]]"
           path="[[path]]">
       </ghvz-notifications-page>
@@ -168,7 +166,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminPlayers, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" name="playerTablePage">
       <div class="header">Players</div>
       <ghvz-player-table
           game="[[game]]"
@@ -221,10 +219,7 @@
       <div class="header">Notifications</div>
       <ghvz-notifications
           bridge="[[bridge]]"
-          game="[[game]]"
-          players-by-id="[[game.playersById]]"
-          notification-categories="[[game.notificationCategories]]"
-          notification-categories-by-id="[[game.notificationCategoriesById]]">
+          game="[[game]]">
       </ghvz-notifications>
     </ghvz-card>
   </template>
@@ -232,7 +227,7 @@
   <template is="dom-if" if="[[computeShowPage_(showPage.rules, mostRecentPage)]]">
     <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Rules</div>
-      <ghvz-rules game="[[game]]"></ghvz-rules>
+      <ghvz-rules bridge="[[bridge]]" game="[[game]]" is-admin="[[isAdmin]]"></ghvz-rules>
     </ghvz-card>
   </template>
 
@@ -259,7 +254,7 @@
     <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Leaderboard</div>
       <ghvz-leaderboard-summary
-          players="[[game.players]]">
+          game="[[game]]">
       </ghvz-leaderboard-summary>
     </ghvz-card>
   </template>
@@ -271,7 +266,7 @@
           bridge="[[bridge]]"
           is-admin="[[isAdmin]]"
           game="[[game]]"
-          current-player-id="[[player.id]]"
+          acting-player-id="[[player.id]]"
           path="[[path]]">
       </ghvz-profile-page>
     </ghvz-card>

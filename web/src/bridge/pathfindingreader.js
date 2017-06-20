@@ -187,12 +187,12 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), rewardId)]);
     return path;
   }
-  getNotificationCategoryPath(gameId, notificationCategoryId) {
+  getQueuedNotificationPath(gameId, queuedNotificationId) {
     assert(gameId);
-    assert(typeof notificationCategoryId == 'string' || notificationCategoryId == null);
-    let path = this.getGamePath(gameId).concat(["notificationCategories"]);
-    if (notificationCategoryId)
-      path = path.concat([Utils.findIndexById(this.get(path), notificationCategoryId)]);
+    assert(typeof queuedNotificationId == 'string' || queuedNotificationId == null);
+    let path = this.getGamePath(gameId).concat(["queuedNotifications"]);
+    if (queuedNotificationId)
+      path = path.concat([Utils.findIndexById(this.get(path), queuedNotificationId)]);
     return path;
   }
   getGroupPath(gameId, groupId, opt_expect) {
@@ -288,8 +288,8 @@ class PathFindingReader {
     let playerId = this.source.get(path.slice(0, 4)).id;
     return [gameId, playerId];
   }
-  getGameIdForNotificationCategoryId(notificationCategoryId) {
-    let path = this.pathForId_(notificationCategoryId);
+  getGameIdForQueuedNotificationId(queuedNotificationId) {
+    let path = this.pathForId_(queuedNotificationId);
     return this.source.get(path.slice(0, 2)).id;
   }
   getGameIdForRewardCategoryId(rewardCategoryId) {

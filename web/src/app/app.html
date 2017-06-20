@@ -125,13 +125,13 @@
       navigateEmptyPathToGamesPath_() {
         // If there's no path, then go to 'game' automatically 
         if (this.path.length == 0) {
-          this.setPath_(['game']);
+          this.setPath_(['game'], true);
         }
       },
 
       navigateGameToDashboard_() {
         if (this.path.length == 2 && this.path[0] == 'game') {
-          this.setPath_(this.path.slice().concat(['main']));
+          this.setPath_(this.path.slice().concat(['main']), true);
         }
       },
 
@@ -140,16 +140,19 @@
       },
 
       setPath_(path, replace) {
+        assert(replace !== undefined);
         // Async because sometimes we set the path in reaction to a path change
         // and polymer doesn't like changing something we're reacting to
         // (it just chooses to not fire observers/listeners for the second set)
         this.async(() => {
           assert(path instanceof Array);
-          this.path = path;
-          if (replace)
-            this.fire('ghvz-replace-url');
-          else
-            this.fire('ghvz-push-url');
+          if (!Utils.arrayShallowEquals(path, this.path)) {
+            this.path = path;
+            if (replace)
+              this.fire('ghvz-replace-url');
+            else
+              this.fire('ghvz-push-url');
+          }
         });
       },
 
@@ -175,9 +178,7 @@
             let trimmedGameId = gameId.slice('game-'.length);
             // Async so we dont accidentally cause calls into firebaselistener
             // while we're already reacting to something from it.
-            this.async(() => {
-              this.setPath_(['game', trimmedGameId]);
-            });
+            this.setPath_(['game', trimmedGameId], true);
           }
         }
       },
@@ -335,13 +336,6 @@
       player="[[player]]"
       active="[[userActive]]">
   </ghvz-inactive-dialog>
-  <ghvz-unseen-notifications
-      id="notifications"
-      bridge="[[bridge]]"
-      categories-by-id="[[game.notificationCategoriesById]]"
-      categories="[[game.notificationCategories]]"
-      player="[[player]]">
-  </ghvz-unseen-notifications>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
     <paper-button

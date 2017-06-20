@@ -398,13 +398,13 @@ Utils.Validator.prototype.validateInner = function(key, object, expectation) {
     }
 
     if (expectation == 'Number') {
-      assert(Utils.isNumber(object));
+      assert(Utils.isNumber(object), 'Expected ' + key + ' to be a number, but it was: ' + object);
     } else if (expectation == 'Boolean') {
-      assert(Utils.isBoolean(object));
+      assert(Utils.isBoolean(object), 'Expected ' + key + ' to be a boolean, but it was: ' + object);
     } else if (expectation == 'String') {
-      assert(Utils.isString(object));
+      assert(Utils.isString(object), 'Expected ' + key + ' to be a string, but it was: ' + object);
     } else if (expectation == 'Timestamp') {
-      assert(Utils.isTimestampMs(object));
+      assert(Utils.isTimestampMs(object), 'Expected ' + key + ' to be a timestamp ms, but it was: ' + object);
     } else {
       // Undefined is fine, typeNameHandler might just do its own asserting
       assert(typeof this.typeNameHandler == 'function');
@@ -449,4 +449,17 @@ Utils.isMobile = function() {
     return true;
   }
   return false;
+}
+
+Utils.arrayShallowEquals = function(a, b) {
+  assert(a);
+  assert(b);
+  if (a.length != b.length)
+    return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+  }
+  return true;
 }

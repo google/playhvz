@@ -14,6 +14,11 @@
           isAdmin: Boolean,
 
           adminChatExists: Boolean,
+          
+          shouldOpenAdminChat: {
+            type: Boolean,
+            value: false,
+          }
         },
 
         observers: [
@@ -30,6 +35,14 @@
             let chatRoom = this.game.chatRoomsById[chatRoomId];
             if (chatRoom.withAdmins) {
               this.adminChatExists = true;
+              if (this.shouldOpenAdminChat) {
+                this.shouldOpenAdminChat = false;
+                this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['chat', chatRoom.id],
+                  replace: false,
+                });
+              }
               return;
             }
           }
@@ -42,6 +55,7 @@
             this.fire('ghvz-set-path', {
               inGame: true,
               path: ['chat', chatRoomId],
+              replace: false,
             });
           } else {
             let action = e.target.dataset.action;
@@ -83,16 +97,15 @@
             gameId: this.game.id,
             groupId: groupId,
             playerToAddId: this.player.id,
+            actingPlayerId: this.player.id,
           });
           this.bridge.addPlayerToGroup({
             gameId: this.game.id,
             groupId: groupId,
             playerToAddId: this.game.adminContactPlayerId,
+            actingPlayerId: this.player.id,
           });
-          this.fire('ghvz-set-path', {
-            inGame: true,
-            path: ['chat', chatRoomId],
-          });
+          this.shouldOpenAdminChat = true;
         },
       });
     });
@@ -172,7 +185,7 @@
     </div>
 
     <template is="dom-if" if="[[!adminChatExists]]">
-      <div class="list-item">
+      <div class="list-item" name="create-admin-chat-button">
         <a href="javascript:void(0)" data-action="admin" class="with-admin">
           <iron-icon icon="communication:chat"></iron-icon>
           HvZ CDC Game Admins
