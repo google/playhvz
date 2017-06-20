@@ -91,6 +91,27 @@ Add this to your ~/.bash_profile: `export PATH=$PATH:[ghvz folder path here]/web
 
 (this doesnt work yet because nobody's checked in linuxdrivers, talk to chewys or verdagon if you want to run on linux)
 
+##### Temporary Workaround
+
+First, create the linuxdrivers folder:
+```bash
+cd web/tests
+mkdir linuxdrivers
+
+```
+
+Download the latest version of chromedriver [here](https://sites.google.com/a/chromium.org/chromedriver/downloads).
+Unzip the contents to
+`web/tests/linuxdrivers`
+
+Make chromedriver executable
+```bash
+# in web/tests/linuxdrivers
+chmod +x chromedriver
+
+```
+
+
 Add this to your ~/.bashrc: `export PATH=$PATH:[ghvz folder path here]/web/tests/linuxdrivers` for example: `export PATH=$PATH:/Users/verdagon/Desktop/ghvz/web/tests/linuxdrivers`
 
 (continue in the common section below)
