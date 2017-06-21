@@ -2,6 +2,7 @@
   "hosting": {
     "public": ".",
     "rewrites": [
+      { "source": "/game", "destination": "/index.html" },
       { "source": "/game/**", "destination": "/index.html" },
       { "source": "/createGame**", "destination": "/index.html" },
       { "source": "/createPopulatedGame**", "destination": "/index.html" },
