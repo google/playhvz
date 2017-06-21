@@ -251,7 +251,7 @@
         blueprint="[[makeCategoriesTableBlueprint_()]]"
         items="[[rewardCategories]]">
       <template is="dom-repeat" id="categoriesRepeater" items="[[rewardCategories]]" as="category" initial-count="1" target-framerate="5">
-        <div class="row">
+        <div class="row" name$="row-[[category.shortName]]">
           <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
           <div class="cell">[[category.name]]</div>
           <div class="cell">[[category.points]]</div>
