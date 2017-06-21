@@ -46,13 +46,15 @@ try:
 
   driver.Click([[By.NAME, 'drawerGame Stats']])
 
-  # need to find a nice way to query the svgs here
-  # By.ID current_population_chart
-  # could look at td > tr > Zombies > Count 5
-  # driver.FindElement([[By.ID, 'current_population_chart'], [By.TAG_NAME, 'tbody'],]
 
-  # not sure why this fails....
-  driver.ExpectContains([[By.ID, 'current_population_meta'],
+  # Weird failure here
+  # it appears the act of running tests creates repeated dom trees.
+  # for example, running the following from the browser console:
+  # document.querySelectorAll('#main #zombie_count')
+  # returns 1 element in the regular browser session
+  # but 3 elements after the test has failed.
+  # not sure why this happens....
+  driver.ExpectContains([[By.ID, 'main'], [By.ID, 'current_population_meta'],
                           [By.ID, 'zombie_count']], '5')
 
   driver.Quit()
