@@ -40,21 +40,29 @@ try:
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'limitPerPlayerInput'], [By.TAG_NAME, 'input']], "900")
   driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'badgeImageUrlInput'], [By.TAG_NAME, 'input']], 10)
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'badgeImageUrlInput'], [By.TAG_NAME, 'input']], "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png")
-  driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], 41)
+  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], 41)
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], "A reward you get for brushing and flossing after eating humans.")
   driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'done']])
 
   # Generate 22 rewards.
   driver.Click([[By.NAME, 'row-Flosser'], [By.ID, 'menu']])
-  driver.Click([[By.ID, 'row-Flosser'], [By.NAME, 'menu-item-Show Rewards']])
-  driver.SendKeys([[By.ID, 'newReward']], "22")
+  driver.Click([[By.NAME, 'row-Flosser'], [By.NAME, 'menu-item-Show Rewards']])
+  driver.SendKeys([[By.ID, 'newReward'], [By.TAG_NAME, 'input']], "22")
+  driver.Click([[By.ID, 'addReward']])
 
-  # Check that at least one shows up #TODO(aliengirl) - is there a better way to do this?
-  driver.ExpectContains([[By.NAME, 'rewardsTable']], '(unclaimed)')
+  # Check that at least some
+  driver.ExpectContains([[By.NAME, 'row-rewardcode 0']], '(unclaimed)')
+  driver.ExpectContains([[By.NAME, 'row-rewardcode 21']], '(unclaimed)')
+
 
   # Export the rewards.
   driver.Click([[By.NAME, 'row-Flosser'], [By.ID, 'menu']])
-  driver.Click([[By.ID, 'row-Flosser'], [By.NAME, 'menu-item-Export Reward']])
+  driver.Click([[By.NAME, 'row-Flosser'], [By.NAME, 'menu-item-Export Rewards']])
+  driver.ExpectContains([[By.ID, 'codesDialogContents']], 'rewardcode 0')
+  driver.ExpectContains([[By.ID, 'codesDialogContents']], 'rewardcode 21')
+  driver.Click([[By.ID, 'codesDialog'],[By.NAME, 'done']])
+
+  driver.Quit()
 
 finally:
   pass

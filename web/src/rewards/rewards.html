@@ -242,7 +242,7 @@
     <paper-dialog modal id="codesDialog">
       <paper-textarea id="codesDialogContents"></paper-textarea>
       <div class="buttons">
-        <paper-button dialog-dismiss>Done</paper-button>
+        <paper-button dialog-dismiss name="done">Done</paper-button>
       </div>
     </paper-dialog>
 
@@ -291,7 +291,7 @@
           blueprint="[[makeRewardsTableBlueprint_()]]"
           items="[[currentRewardCategory.rewards]]">
         <template is="dom-repeat" id="rewardsRepeater" items="[[currentRewardCategory.rewards]]" as="reward" initial-count="1" target-framerate="5">
-          <div class="row">
+          <div class="row" name$="row-[[reward.code]]">
             <ghvz-table-control-cell item="[[reward]]"></ghvz-table-control-cell>
             <div class="cell">[[reward.code]]</div>
             <div class="cell">[[computePlayerName_(reward)]]</div>
