@@ -463,7 +463,7 @@ class FakeServer {
     let {gameId, rewardCategoryId, count} = args;
     for (let i = 0; i < count; i++) {
       let rewardId = this.idGenerator.newRewardId();
-      let code = Math.random() * Math.pow(2, 52);
+      let code = 'rewardcode ' + this.database.gamesById[gameId].rewardCategoriesById[rewardCategoryId].rewards.length;
       this.addReward({
         id: rewardId,
         gameId: gameId,
