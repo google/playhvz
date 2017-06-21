@@ -459,11 +459,17 @@ class FakeServer {
           playerId: null,
         })));
   }
-  addRewards(rewardCategoryId, numToAdd) {
-    for (let i = 0; i < numToAdd; i++) {
+  addRewards(args) {
+    let {gameId, rewardCategoryId, count} = args;
+    for (let i = 0; i < count; i++) {
       let rewardId = this.idGenerator.newRewardId();
       let code = Math.random() * Math.pow(2, 52);
-      this.addReward({id: rewardId, rewardCategoryId: rewardCategoryId, code: code});
+      this.addReward({
+        id: rewardId,
+        gameId: gameId,
+        rewardCategoryId: rewardCategoryId,
+        code: code
+      });
     }
   }
   addGun(args) {
