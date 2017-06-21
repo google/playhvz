@@ -3,9 +3,15 @@ api_version: 1
 threadsafe: true
 service: default
 
+builtins:
+- deferred: on
+
 handlers:
 - url: /.*
   script: main.app
+- url: /_ah/queue/deferred
+  script: google.appengine.ext.deferred.deferred.application
+  login: admin
 
 env_variables:
   # Replace with your Firebase project ID.

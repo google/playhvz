@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="initial-scale=1, maximum-scale=1">
 <title>Google HvZ</title>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -11,11 +12,19 @@
 <script src="https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
 
 <script src="/bower_components/webcomponentsjs/webcomponents.js"></script>
+<!-- <script>
+  /* this script must run before Polymer is imported */
+  window.Polymer = {
+    dom: 'shadow',
+    lazyRegister: true
+  };
+</script> -->
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-icons/image-icons.html">
 <link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/iron-icons/hardware-icons.html">
 <link rel="import" href="/bower_components/iron-icons/device-icons.html">
 <link rel="import" href="/bower_components/iron-icons/editor-icons.html">
 <link rel="import" href="/bower_components/iron-icons/maps-icons.html">
@@ -104,6 +113,7 @@
 <link rel="import" href="/src/admin/mobile-admin.html">
 <link rel="import" href="/src/app/app.html">
 <link rel="import" href="/src/app/desktop-app.html">
+<link rel="import" href="/src/app/game-page.html">
 <link rel="import" href="/src/app/player-selector.html">
 <link rel="import" href="/src/app/display-game-page.html">
 <link rel="import" href="/src/app/display-page.html">
@@ -146,7 +156,7 @@
 <link rel="import" href="/src/lookup/group-field.html">
 <link rel="import" href="/src/lookup/lookup.html">
 <link rel="import" href="/src/lookup/player-field.html">
-<link rel="import" href="/src/lookup/player-label.html">
+<link rel="import" href="/src/ui/player-label.html">
 <link rel="import" href="/src/lookup/player-lookup.html">
 <link rel="import" href="/src/main/desktop-main.html">
 <link rel="import" href="/src/main/main-page.html">
@@ -160,6 +170,7 @@
 <link rel="import" href="/src/notifications/notification-full.html">
 <link rel="import" href="/src/notifications/notification-preview.html">
 <link rel="import" href="/src/notifications/notifications-page.html">
+<link rel="import" href="/src/notifications/expandable-notification.html">
 <link rel="import" href="/src/notifications/notifications.html">
 <link rel="import" href="/src/notifications/unseen-notifications.html">
 <link rel="import" href="/src/playertable/player-row.html">

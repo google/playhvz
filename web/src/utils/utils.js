@@ -126,15 +126,28 @@ Utils.compare = function(aValue, bValue) {
     return 0;
 }
 
+Utils.getKeys = function(...objs) {
+  let keys = [];
+  for (let obj of objs)
+    for (let key in obj)
+      keys.push(key);
+  return keys;
+}
+
 Utils.formatTime = function(timestampInMs) {
   var date = new Date(timestampInMs);
   var result = "";
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
   result += months[date.getMonth()] + ' ';
   result += date.getDate() + ' ';
-  var am = date.getHours() <= 12;
-  result += (am ? date.getHours() : date.getHours() - 12);
-  result += ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (am ? 'am' : 'pm');
+  let hours = date.getHours();
+  var pm = hours >= 12;
+  if (pm)
+    hours -= 12;
+  if (hours == 0)
+    hours += 12;
+  result += hours;
+  result += ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (pm ? 'pm' : 'am');
   return result;
 }
 
@@ -346,39 +359,107 @@ Utils.mapKeys = function(map) {
   return result;
 };
 
-Utils.checkObject = function(object, required, optional, typeNameHandler) {
-  if (typeof required == 'string') {
-    // Undefined is fine, typeNameHandler might just do its own asserting
-    assert(typeof typeNameHandler == 'function');
-    assert(typeNameHandler(required, object) !== false, 'Does not meet expectations!');
-  } else if (typeof required == 'function') {
-    assert(required(object), 'Does not meet expectations!');
-  } else if ((required && typeof required == 'object') || (optional && typeof optional == 'object')) {
-    required = required || {};
-    optional = optional || {};
-    for (let key in required) {
-      assert(key in object, "Property", key, "not present!");
-    }
+Utils.Validator = function(expectation, typeNameHandler) {
+  this.expectation = expectation;
+  this.typeNameHandler = typeNameHandler;
+};
+Utils.Validator.prototype.validate = function(object) {
+  return this.validateInner('(input)', object, this.expectation)
+};
+Utils.Validator.prototype.validateInner = function(key, object, expectation) {
+  if (expectation === undefined) {
+    throwError('No expectation for ' + key);
+  }
+  if (expectation instanceof Utils.Validator.Optional) {
+    if (object === undefined)
+      return;
+    expectation = expectation.expectation;
+  }
+
+  if (typeof expectation == 'object') {
     assert(typeof object == 'object');
-    for (let key in object) {
-      assert(key in required || key in optional, "Extra property", key, "!");
+    for (let innerKey of Utils.getKeys(object, expectation)) {
+      assert(innerKey in expectation, "Extra property", innerKey, "!");
+      this.validateInner(innerKey, object[innerKey], expectation[innerKey]);
     }
-    // Now lets do some hardcore checking
-    for (let key in object) {
-      if (key == null && key in optional)
-        continue;
-      let value = object[key];
-      let expectation = required[key] || optional[key];
-      if (typeof expectation == 'object') {
-        Utils.checkObject(value, required[key], optional[key], typeNameHandler);
-      } else {
-        Utils.checkObject(value, expectation, undefined, typeNameHandler);
-      }
+  } else if (typeof expectation == 'string') {
+    if (expectation[0] == '|') {
+      if (object === undefined)
+        return;
+      expectation = expectation.slice(1);
     }
+
+    assert(object !== undefined, "'" + key + "' not present!");
+
+    if (expectation[0] == '?') {
+      if (object === null)
+        return;
+      expectation = expectation.slice(1);
+    }
+
+    if (expectation == 'Number') {
+      assert(Utils.isNumber(object), 'Expected ' + key + ' to be a number, but it was: ' + object);
+    } else if (expectation == 'Boolean') {
+      assert(Utils.isBoolean(object), 'Expected ' + key + ' to be a boolean, but it was: ' + object);
+    } else if (expectation == 'String') {
+      assert(Utils.isString(object), 'Expected ' + key + ' to be a string, but it was: ' + object);
+    } else if (expectation == 'Timestamp') {
+      assert(Utils.isTimestampMs(object), 'Expected ' + key + ' to be a timestamp ms, but it was: ' + object);
+    } else {
+      // Undefined is fine, typeNameHandler might just do its own asserting
+      assert(typeof this.typeNameHandler == 'function');
+      assert(this.typeNameHandler(expectation, object) !== false, 'Does not meet expectations!');
+    }
+  } else if (typeof expectation == 'function') {
+    assert(expectation(object), 'Does not meet expectations!');
+  } else {
+    throwError('Unknown expectation: ', expectation);
   }
 };
+Utils.Validator.Optional = function(expectation) {
+  this.expectation = expectation;
+};
+Utils.Validator.optional = function(expectation) {
+  return new Utils.Validator.Optional(expectation);
+};
+
 
 Utils.isNumber = (x) => typeof x == 'number';
 Utils.isString = (x) => typeof x == 'string';
 Utils.isBoolean = (x) => typeof x == 'boolean';
-Utils.isTimestampMs = (x) => x > 1490000000000; // March 2017, milliseconds
+Utils.isTimestampMs = (x) => x > 1470000000000;
+
+/**
+ * Determine the mobile operating system.
+ * This function returns one of 'iOS', 'Android', 'Windows Phone', or 'unknown'.
+ *
+ * @returns {String}
+ */
+Utils.isMobile = function() {
+  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  // Windows Phone must come first because its UA also contains "Android"
+  if (/windows phone/i.test(userAgent)) {
+    return true;
+  }
+  if (/android/i.test(userAgent)) {
+    return true;
+  }
+  // iOS detection from: http://stackoverflow.com/a/9039885/177710
+  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+    return true;
+  }
+  return false;
+}
+
+Utils.arrayShallowEquals = function(a, b) {
+  assert(a);
+  assert(b);
+  if (a.length != b.length)
+    return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+  }
+  return true;
+}

@@ -43,7 +43,7 @@
 <template>
   <template is="dom-repeat" items="[[game.missions]]" as="mission">
     <ghvz-card spaced>
-      <div class="header">[[mission.name]]</div>
+      <div class="header" name="mission-card">[[mission.name]]</div>
       <ghvz-mission
           bridge="[[bridge]]"
           player="[[player]]"

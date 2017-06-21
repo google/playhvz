@@ -8,7 +8,7 @@ import random
 import unittest
 
 import constants
-import secrets
+import config
 
 
 class Requester:
@@ -37,18 +37,18 @@ class EndToEndTest(unittest.TestCase):
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
     self.assertTrue(r.ok, msg='Expected to POST 200 [ %s ] but got %d:\n%s\nfor: %s' % (method, r.status_code, r.text, data))
 
-  def AssertFails(self, method, data):
+  def AssertFails(self, method, data, expected_status = 500):
     r = self.requester.Post(method, data)
     data = " ".join(['%s="%s"' % (k, v) for k, v in data.iteritems()])
-    self.assertEqual(500, r.status_code,
+    self.assertEqual(expected_status, r.status_code,
         msg='Expected 500 but got %d for %s\n%r' % (r.status_code, method, data))
 
-  def AssertCreateUpdateSequence(self, create_method, create_data, update_method, update_data):
+  def AssertCreateUpdateSequence(self, create_method, create_data, update_method, update_data, fail_code=500):
     """Update fails before create but passes after. Second create fails, first passes."""
     if update_method:
-      self.AssertFails(update_method, update_data)
+      self.AssertFails(update_method, update_data, fail_code)
     self.AssertOk(create_method, create_data)
-    self.AssertFails(create_method, create_data)
+    self.AssertFails(create_method, create_data, fail_code)
     if update_method:
       self.AssertOk(update_method, update_data)
 
@@ -70,7 +70,7 @@ class EndToEndTest(unittest.TestCase):
     with open('backend_test_data.json') as f:
       expected_raw = f.read() % {'ident': self.identifier}
 
-    r = self.requester.Post('DumpTestData', {'id': secrets.FIREBASE_EMAIL, 'use_local': use_local})
+    r = self.requester.Post('DumpTestData', {'id': config.FIREBASE_EMAIL, 'use_local': use_local})
     expected = json.loads(expected_raw)
     actual = r.json()
     self.CleanTestData(actual)
@@ -78,18 +78,18 @@ class EndToEndTest(unittest.TestCase):
 
   def CleanTestData(self, data):
     for k, v in data.iteritems():
-      if k == 'time':
+      if k in ['time', 'sendTime']:
         data[k] = 0
       elif type(v) == dict:
         self.CleanTestData(v)
 
   def setUp(self):
     self.requester = Requester()
-    self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
+    self.requester.Post('DeleteTestData', {'id': config.FIREBASE_EMAIL})
 
   def tearDown(self):
     pass
-    # self.requester.Post('DeleteTestData', {'id': secrets.FIREBASE_EMAIL})
+    # self.requester.Post('DeleteTestData', {'id': config.FIREBASE_EMAIL})
 
   def testEndToEnd(self):
     self.identifier = 'test-%d' % random.randint(0, 2**52)
@@ -147,7 +147,7 @@ class EndToEndTest(unittest.TestCase):
       'gameId': self.Id('gameId'),
       'userId': self.Id('userId'),
       'playerId': self.Id('playerId'),
-      'name': 'test Bobby',
+      'name': 'testBobby',
       'needGun': True,
       'profileImageUrl': 'http://jpg',
       'gotEquipment': True,
@@ -166,7 +166,7 @@ class EndToEndTest(unittest.TestCase):
     update = {
       'gameId': self.Id('gameId'),
       'playerId': self.Id('playerId'),
-      'name': 'test Charles',
+      'name': 'testCharles',
       'volunteer': {
         'server': True
       }
@@ -175,9 +175,11 @@ class EndToEndTest(unittest.TestCase):
     self.requester.SetRequestingPlayerId(self.Id('playerId'))
     create_player['playerId'] = self.Id('playerId', 2)
     create_player['userId'] = self.Id('userId', 2)
+    create_player['name'] = '%s2' % create_player['name']
     self.AssertOk('createPlayer', create_player)
     create_player['playerId'] = self.Id('playerId', 3)
     create_player['userId'] = self.Id('userId', 3)
+    create_player['name'] = '%s3' % create_player['name'][:-1]
     self.AssertOk('createPlayer', create_player)
 
     # Create groups
@@ -238,7 +240,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
-      'groupId': self.Id('groupId'),
+      'accessGroupId': self.Id('groupId'),
       'name': 'test Chat',
       'withAdmins': False
     }
@@ -254,7 +256,7 @@ class EndToEndTest(unittest.TestCase):
       'chatRoomId': self.Id('chatRoomId'),
       'playerId': self.Id('playerId'),
       'messageId': self.Id('messageId'),
-      'message': 'test Message',
+      'message': '@testCharles @testBobby test single Message',
     }
     self.AssertOk('sendChatMessage', create)
 
@@ -283,11 +285,43 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertOk('sendChatMessage', create)
 
+    create = {
+      'gameId': self.Id('gameId'),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('playerId'),
+      'messageId': self.Id('messageId', 4),
+      'message': '@all test all Message',
+      'image': {
+        'url': 'google.com/image.png',
+      }
+    }
+    self.AssertOk('sendChatMessage', create)
+
+    create = {
+      'gameId': self.Id('gameId'),
+      'queuedNotificationId': self.Id('queuedNotification'),
+      'message': 'hello!',
+      'previewMessage': 'hell',
+      'site': True,
+      'email': True,
+      'mobile': False,
+      'vibrate': False,
+      'sound': False,
+      'destination': 'http://some.url/moo',
+      'sendTime': None,
+      'playerId': None,
+      'groupId': self.Id('groupId'),
+      'icon': 'icons:close'
+    }
+    self.AssertOk('sendNotification', create)
+
+    self.AssertOk('executeNotifications', {})
+
     # Create missions
     create = {
       'gameId': self.Id('gameId'),
       'missionId': self.Id('missionId'),
-      'groupId': self.Id('groupId'),
+      'accessGroupId': self.Id('groupId'),
       'name': 'test Mission',
       'beginTime': 1500000000000,
       'endTime': 1600000000000,
@@ -388,6 +422,138 @@ class EndToEndTest(unittest.TestCase):
       'rewardCode': 'testrew-purple-striker-balloon',
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
+
+    # Create Maps
+    create = {
+      'accessGroupId': self.Id('groupId'),
+      'gameId': self.Id('gameId'),
+      'mapId': self.Id('mapId', 1),
+      'name': "Test map 1" ,
+    }
+    self.AssertOk('createMap', create)
+
+    create = {
+      'accessGroupId': self.Id('groupId', 2),
+      'gameId': self.Id('gameId'),
+      'mapId': self.Id('mapId', 2),
+      'name': "Test map 2" ,
+    }
+    self.AssertOk('createMap', create)
+    self.AssertFails('createMap', create)
+
+    # Create Markers
+    self.requester.SetRequestingPlayerId(self.Id('playerId'))
+
+    create = {
+      'color': '187C09',
+      'latitude': 12.4,
+      'longitude': 14.5,
+      'mapId': self.Id('mapId', 1),
+      'markerId': self.Id('markerId', 1),
+      'name': 'Test marker 1',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    create = {
+      'color': '187C09',
+      'latitude': 12.4,
+      'longitude': 14.5,
+      'mapId': self.Id('mapId', 1),
+      'markerId': self.Id('markerId', 2),
+      'name': 'Test marker 2',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    create = {
+      'color': '187C09',
+      'latitude': 12.4,
+      'longitude': 14.5,
+      'mapId': self.Id('mapId', 2),
+      'markerId': self.Id('markerId', 3),
+      'name': 'Test marker 3',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    create = {
+      'color': '187C09',
+      'latitude': 12.4,
+      'longitude': 14.5,
+      'mapId': self.Id('mapId', 2),
+      'markerId': self.Id('markerId', 4),
+      'name': 'Test marker 4',
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('addMarker', create)
+
+    # Update all points
+    update = {
+      'latitude': 16.0,
+      'longitude': 17.0,
+      'playerId': self.Id('playerId', 1),
+    }
+    self.AssertOk('updatePlayerMarkers', update)
+
+    # Create quiz question
+    create = {
+      'gameId': self.Id('gameId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 1),
+      'text': 'Test question 1',
+      'type': 'a wrong type',
+      'number': 0,
+    }
+    self.AssertFails('addQuizQuestion', create, 400)
+
+    create['type'] = 'order'
+    self.AssertOk('addQuizQuestion', create)
+    self.AssertFails('addQuizQuestion', create, 400)
+
+    create['quizQuestionId'] = self.Id('quizQuestionId', 2)
+    create['text'] = 'Test question 2'
+    self.AssertOk('addQuizQuestion', create)
+
+    # Update quiz questions
+    update = {
+      'gameId': self.Id('gameId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 2),
+      'type': 'wrong type in update',
+      'number': 0,
+    }
+    self.AssertFails('updateQuizQuestion', update, 400)
+
+    update['type'] = 'multipleChoice'
+    self.AssertOk('updateQuizQuestion', update)
+
+    update['quizQuestionId'] = 'non-existent id'
+    self.AssertFails('updateQuizQuestion', update, 400)
+
+    # Quiz answers
+    create = {
+      'gameId': self.Id('gameId', 1),
+      'isCorrect': True,
+      'order': 17,
+      'quizAnswerId': self.Id('quizAnswerId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 1),
+      'text': 'Test answer',
+      'number': 0,
+    }
+
+    update = {
+      'gameId': self.Id('gameId', 1),
+      'quizAnswerId': self.Id('quizAnswerId', 1),
+      'quizQuestionId': self.Id('quizQuestionId', 1),
+      'order': 13,
+    }
+    self.AssertCreateUpdateSequence(
+      'addQuizAnswer',
+      create,
+      'updateQuizAnswer',
+      update,
+      400)
+
+    # Final keep last
     self.AssertDataMatches(True)
     self.AssertDataMatches(False)
 
@@ -400,7 +566,7 @@ if __name__ == '__main__':
 
   # def GetFirebase(self):
   #   auth = firebase.FirebaseAuthentication(
-  #       secrets.FIREBASE_SECRET, secrets.FIREBASE_EMAIL, admin=True)
+  #       config.FIREBASE_SECRET, config.FIREBASE_EMAIL, admin=True)
   #   db = firebase.FirebaseApplication(
   #       'https://trogdors-29fa4.firebaseio.com', authentication=auth)
   #   return db

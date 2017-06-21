@@ -7,6 +7,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 
 class SimpleDriver:
@@ -27,9 +28,9 @@ class SimpleDriver:
       if element is None:
         break
     if should_exist:
-      assert element is not None, "Element %s doesnt exist!" % path
+      assert element is not None, "Element %s doesn't exist!" % path
     else:
-      assert element is None, "Element %s exists!" % path
+      assert element is None or not element.is_displayed(), "Element %s exists!" % path
     return element
 
   def Click(self, path):
@@ -37,6 +38,10 @@ class SimpleDriver:
 
   def SendKeys(self, path, keys):
     self.FindElement(path).send_keys(keys)
+
+  def Backspace(self, path, number):
+    for i in range(number):
+      self.FindElement(path).send_keys(Keys.BACKSPACE)
 
   def ExpectContains(self, path, needle, should_exist=True):
     element = self.FindElement(path)
@@ -53,7 +58,6 @@ class SimpleDriver:
         element.get_attribute('textContent').strip() or
         element.get_attribute('innerText').strip())
     # print 'Checking if "%s" is in "%s"' % (needle, text)
-    print 'Checking if "%s" is present.' % (needle)
     # Leaving innerHTML out because it seems like it can have a lot of false
     # positives, because who knows whats in the html...
     if should_exist:
@@ -78,6 +82,9 @@ class RetryingDriver:
   def SendKeys(self, path, keys):
     return self.Retry(lambda: self.inner_driver.SendKeys(path, keys))
 
+  def Backspace(self, path, number):
+    return self.Retry(lambda: self.inner_driver.Backspace(path, number))
+
   def ExpectContains(self, path, needle, should_exist=True):
     return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist))
 
@@ -98,31 +105,50 @@ class RetryingDriver:
           time.sleep(sleep_durations[i])
 
 
-
-class ProdDriver:
-  def __init__(self, env, password, populate, user, page):
+class RemoteDriver:
+  # To get a non-game-subpage, start page with /
+  # See creategame.py for an example
+  def __init__(self, client_url, is_mobile, password, populate, user, page):
+    self.is_mobile = is_mobile
+    self.client_url = client_url
     self.drivers_by_user = {}
-    self.env = env
     self.password = password
     self.current_user = None
     self.game_id = 'game-webdriver-%d' % random.randint(0, 2**52)
     if populate:
       self.MakeDriver('zella', 'createPopulatedGame')
-      self.Click([[By.ID, 'createGame']])
-      self.SendKeys([[By.NAME, 'idInput']], self.game_id)
+      self.Click([[By.ID, 'createPopulatedGame']])
+      self.SendKeys(
+          [[By.ID, 'idInput'], [By.TAG_NAME, 'input']],
+          self.game_id)
       self.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
-      self.ExpectContains([[By.NAME, 'populateResult']], 'Success!')
     self.SwitchUser(user, page)
 
-  def SwitchUser(self, user, page):
+  def SwitchUser(self, user, page=""):
     if user not in self.drivers_by_user:
-      self.MakeDriver(user, 'game/' + self.game_id[len('game-'):] + '/' + page)
+      if len(page) and page[0] == '/':
+        page = page[1:]
+      else:
+        page = 'game/' + self.game_id[len('game-'):] + '/' + page
+      self.MakeDriver(user, page)
     else:
       self.current_user = user
 
+  def GetGameId(self):
+    return self.game_id
+
   def MakeDriver(self, user, page):
+    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s" % (
+        self.client_url,
+        page,
+        user,
+        user + '@playhvz.com',
+        self.password,
+        'mobile' if self.is_mobile else 'desktop')
+
     selenium_driver = webdriver.Chrome()
-    url = "http://localhost:5000/%s?user=%s&env=%s&signInMethod=email&email=%s&password=%s" % (page, user, self.env, 'hvz' + user + '@gmail.com', self.password)
+    if self.is_mobile:
+      selenium_driver.set_window_size(480, 640);
     selenium_driver.get(url)
 
     simple_driver = SimpleDriver(selenium_driver)
@@ -149,16 +175,29 @@ class ProdDriver:
   def SendKeys(self, path, keys):
     self.drivers_by_user[self.current_user].SendKeys(path, keys)
 
+  def Backspace(self, path, number):
+    self.drivers_by_user[self.current_user].Backspace(path, number)
+
   def Quit(self):
     for driver in self.drivers_by_user.values():
       driver.Quit()
 
 class FakeDriver:
-  def __init__(self, populate, user, page):
+  def __init__(self, client_url, is_mobile, populate, user, page):
     selenium_driver = webdriver.Chrome()
-    url = "http://localhost:5000/%s?user=%s&env=fake" % (page, user)
+
+    if page and len(page) and page[0] == '/':
+      page = page[1:]
+
+    url = "%s/%s?user=%s&bridge=fake&layout=%s" % (
+        client_url,
+        page,
+        user,
+        'mobile' if is_mobile else 'desktop')
     if not populate:
       url = url + '&populate=none'
+    if is_mobile:
+      selenium_driver.set_window_size(480, 640);
     selenium_driver.get(url)
 
     simple_driver = SimpleDriver(selenium_driver)
@@ -168,6 +207,9 @@ class FakeDriver:
     self.FindElement([[By.ID, 'root']], wait_long=True, scoped=False)
 
     self.current_user = user
+
+  def GetGameId(self):
+    return "poptest-1" # This is the ID that fake-app.html makes for its fake game
 
   def SwitchUser(self, user):
     self.current_user = user
@@ -192,6 +234,12 @@ class FakeDriver:
     else:
       self.inner_driver.SendKeys(path, keys)
 
+  def Backspace(self, path, number, scoped=True):
+    if scoped:
+      self.inner_driver.Backspace([[By.ID, self.current_user + "App"]] + path, number)
+    else:
+      self.inner_driver.Backspace(path, number)
+
   def ExpectContains(self, path, needle, scoped=True, should_exist=True):
     if scoped:
       self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist)
@@ -203,15 +251,21 @@ class FakeDriver:
 
 
 class WholeDriver:
-  def __init__(self, user="zella", page="", populate=True, env="fake", password=None):
-    self.env = env
-    self.password = password
-    self.populate = populate
-
-    if env == "localprod" or env == "prod":
-      self.inner_driver = ProdDriver(env, password, populate, user, page)
+  def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
+    self.is_mobile = is_mobile
+    if use_remote:
+      self.inner_driver = RemoteDriver(client_url, is_mobile, password, populate, user, page)
     else:
-      self.inner_driver = FakeDriver(populate, user, page)
+      self.inner_driver = FakeDriver(client_url, is_mobile, populate, user, page)
+
+  def WaitForGameLoaded(self):
+    self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True)
+
+  def WaitForGameLoaded(self):
+    self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True)
+
+  def GetGameId(self):
+    return self.inner_driver.GetGameId()
 
   def Quit(self):
     self.inner_driver.Quit()
@@ -231,9 +285,11 @@ class WholeDriver:
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)
 
+  def Backspace(self, path, number=1):
+    return self.inner_driver.Backspace(path, number)
+
   def ExpectContains(self, path, needle, should_exist=True):
     return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
-
 
   # def FindElement(self, by, locator, wait_long=True):
   #   return Element(driver, FindElement(self.driver, by, locator, container = self.element, wait_long = wait_long))

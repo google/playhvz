@@ -187,12 +187,12 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), rewardId)]);
     return path;
   }
-  getNotificationCategoryPath(gameId, notificationCategoryId) {
+  getQueuedNotificationPath(gameId, queuedNotificationId) {
     assert(gameId);
-    assert(typeof notificationCategoryId == 'string' || notificationCategoryId == null);
-    let path = this.getGamePath(gameId).concat(["notificationCategories"]);
-    if (notificationCategoryId)
-      path = path.concat([Utils.findIndexById(this.get(path), notificationCategoryId)]);
+    assert(typeof queuedNotificationId == 'string' || queuedNotificationId == null);
+    let path = this.getGamePath(gameId).concat(["queuedNotifications"]);
+    if (queuedNotificationId)
+      path = path.concat([Utils.findIndexById(this.get(path), queuedNotificationId)]);
     return path;
   }
   getGroupPath(gameId, groupId, opt_expect) {
@@ -235,13 +235,13 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), mapId)]);
     return path;
   }
-  getPointPath(gameId, mapId, pointId) {
+  getMarkerPath(gameId, mapId, markerId) {
     assert(gameId);
     assert(mapId);
-    assert(typeof pointId == 'string' || pointId == null);
-    let path = this.getMapPath(gameId, mapId).concat(["points"]);
-    if (pointId)
-      path = path.concat([Utils.findIndexById(this.get(path), pointId)]);
+    assert(typeof markerId == 'string' || markerId == null);
+    let path = this.getMapPath(gameId, mapId).concat(["markers"]);
+    if (markerId)
+      path = path.concat([Utils.findIndexById(this.get(path), markerId)]);
     return path;
   }
   // getChatRoomMembershipPath(gameId, chatRoomId, membershipId) {
@@ -288,8 +288,8 @@ class PathFindingReader {
     let playerId = this.source.get(path.slice(0, 4)).id;
     return [gameId, playerId];
   }
-  getGameIdForNotificationCategoryId(notificationCategoryId) {
-    let path = this.pathForId_(notificationCategoryId);
+  getGameIdForQueuedNotificationId(queuedNotificationId) {
+    let path = this.pathForId_(queuedNotificationId);
     return this.source.get(path.slice(0, 2)).id;
   }
   getGameIdForRewardCategoryId(rewardCategoryId) {

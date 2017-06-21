@@ -39,18 +39,21 @@
               width: "third",
             },
             {
+              name:"reg-end-time",
               property: "registrationEndTime",
               label: "End Time",
               type: 'timestamp',
               width: "third",
             },
             {
+              name:"start-time",
               property: "startTime",
               label: "Start Time",
               type: 'timestamp',
               width: "third",
             },
             {
+              name:"end-time",
               property: "endTime",
               label: "End Time",
               type: 'timestamp',
@@ -111,7 +114,7 @@
               this.bridge.createChatRoom({
                 gameId: gameId,
                 chatRoomId: everyoneChatRoomId,
-                groupId: everyoneGroupId,
+                accessGroupId: everyoneGroupId,
                 name: "Global Chat",
                 withAdmins: false
               });
@@ -131,7 +134,7 @@
               this.bridge.createChatRoom({
                 gameId: gameId,
                 chatRoomId: resistanceChatRoomId,
-                groupId: resistanceGroupId,
+                accessGroupId: resistanceGroupId,
                 name: "Resistance Comms Hub",
                 withAdmins: false
               });
@@ -152,13 +155,14 @@
               this.bridge.createChatRoom({
                 gameId: gameId,
                 chatRoomId: hordeChatRoomId,
-                groupId: hordeGroupId,
+                accessGroupId: hordeGroupId,
                 name: "Horde ZedLink",
                 withAdmins: false,
               });
               this.fire('ghvz-set-path', {
                 inGame: false,
-                path: ['game', trimmedGameId, 'adminMain'],
+                path: ['game', trimmedGameId, 'main'],
+                replace: true,
               });
             });
       },

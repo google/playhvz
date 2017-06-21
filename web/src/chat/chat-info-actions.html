@@ -47,6 +47,7 @@
               this.fire('ghvz-set-path', {
                 inGame: true,
                 path: ['profile', playerId],
+                replace: false,
               });
               break;
             case 'ping':
@@ -70,8 +71,8 @@
           this.$.lookup.value = "";
           this.bridge.addPlayerToGroup({
             gameId: this.game.id,
-            groupId: this.chatRoom.groupId,
-            playerId: this.playerId,
+            groupId: this.chatRoom.accessGroupId,
+            actingPlayerId: this.playerId,
             playerToAddId: newPlayer.id
           });
         },
@@ -83,15 +84,10 @@
         onConfirmLeave_: function(e) {
           this.bridge.removePlayerFromGroup({
             gameId: this.game.id,
-            groupId: this.chatRoom.groupId,
-            playerId: this.playerId,
-            playerToAddId: this.playerId,
+            groupId: this.chatRoom.accessGroupId,
+            actingPlayerId: this.playerId,
+            playerToRemoveId: this.playerId,
           });
-        },
-
-        openPlayerProfile_(e) {
-          console.log(e);
-          // add option to kick player from chat
         },
 
         kickFromChat_: function(playerId, game) {
@@ -102,9 +98,9 @@
         onConfirmKick_: function(e) {
           this.bridge.removePlayerFromGroup({
             gameId: this.game.id,
-            groupId: this.chatRoom.groupId,
-            playerId: this.playerId,
-            playerToAddId: this.kickPlayer.id,
+            groupId: this.chatRoom.accessGroupId,
+            actingPlayerId: this.playerId,
+            playerToRemoveId: this.kickPlayer.id,
           });
         },
       });
@@ -121,6 +117,7 @@
   <template>
     <ghvz-form
       id="addForm"
+      name$="chat-add-player-dialog-[[chatRoom.name]]"
       title="Add player"
       close-label="Cancel"
       done-label="Add"
@@ -137,6 +134,7 @@
 
     <ghvz-form
       id="leaveForm"
+      name$="chat-leave-dialog-[[chatRoom.name]]"
       title="Really leave [[chatRoom.name]]?"
       close-label="Cancel"
       done-label="Yep, really leave"
@@ -148,6 +146,7 @@
 
     <ghvz-form
       id="kickForm"
+      name="chat-kick-player-dialog-[[chatRoom.name]]"
       title="Really kick [[kickPlayer.name]] from [[chatRoom.name]]?"
       close-label="Cancel"
       done-label="Yep, really kick"
