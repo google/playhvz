@@ -104,7 +104,7 @@
           this.listeningToDatabase = true;
           this.bridgeListenCanceler =
               this.bridge.listenToDatabase({
-                destination: new BatchedPolymerWriter(this, 'database')
+                destination: new CollectingWriter(new BatchedPolymerWriter(this, 'database'))
               });
         }
 

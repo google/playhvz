@@ -514,11 +514,11 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hi'});
 
-  // if (populateLotsOfPlayers) {
-  //   populatePlayersHeavy(bridge, gameId, 1483344000000);
-  // } else {
-  //   populatePlayersLight(bridge, gameId, 1483344000000);
-  // }
+  if (populateLotsOfPlayers) {
+    populatePlayersHeavy(bridge, gameId, 1483344000000);
+  } else {
+    populatePlayersLight(bridge, gameId, 1483344000000);
+  }
 
   let firstMissionRsvpersGroupId = bridge.idGenerator.newMissionId();
   bridge.createGroup({

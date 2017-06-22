@@ -170,34 +170,39 @@ window.FirebaseListener = (function () {
       assert(this.reader.source.source.games);
     }
 
-    listenForPropertyChanges_(collectionRef, properties, ignored, setCallback) {
-      collectionRef.on('child_added', (change) => {
-        if (properties.includes(change.getKey())) {
-          setCallback(change.getKey(), change.val());
-        } else {
-          assert(
-            ignored.includes(change.getKey()),
-            'Unexpected child_added!', 'Child key:', change.getKey(), 'Child value:', change.val(), arguments);
-        }
-      });
+    listenForPropertyChanges_(collectionRef, properties, ignored, pathCallback) {
+      // collectionRef.on('child_added', (change) => {
+      //   if (properties.includes(change.getKey())) {
+      //     let path = pathCallback().concat([change.getKey()]);
+      //     if (this.reader.get(path) != change.val())
+      //       this.writer.set(path, change.val());
+      //   } else {
+      //     assert(
+      //       ignored.includes(change.getKey()),
+      //       'Unexpected child_added!', 'Child key:', change.getKey(), 'Child value:', change.val(), arguments);
+      //   }
+      // });
       collectionRef.on('child_changed', (change) => {
         if (properties.includes(change.getKey())) {
-          setCallback(change.getKey(), change.val());
+          let existingVal = this.reader.get(path);
+          if (typeof existingVal != 'object' && existingVal != change.val())
+            this.writer.set(path, change.val());
+          // setCallback(change.getKey(), change.val());
         } else {
           assert(
             ignored.includes(change.getKey()),
             'Unexpected child_changed!', 'Child key:', change.getKey(), 'Child value:', change.val(), arguments);
         }
       });
-      collectionRef.on('child_removed', (change) => {
-        if (properties.includes(change.getKey())) {
-          // Do nothing, this means the containing thing is about to disappear too, hopefully
-        } else {
-          assert(
-            ignored.includes(change.getKey()),
-            'Unexpected!', change.val(), change.getKey(), arguments);
-        }
-      });
+      // collectionRef.on('child_removed', (change) => {
+      //   if (properties.includes(change.getKey())) {
+      //     // Do nothing, this means the containing thing is about to disappear too, hopefully
+      //   } else {
+      //     assert(
+      //       ignored.includes(change.getKey()),
+      //       'Unexpected!', change.val(), change.getKey(), arguments);
+      //   }
+      // });
     }
 
     listenOnce_(path) {
@@ -232,16 +237,30 @@ window.FirebaseListener = (function () {
             }
           }
 
-          let obj = new Model.User(userId, snap.val());
           this.userId = userId;
-          this.writer.insert(this.reader.getUserPath(null), null, obj);
+
+          let firebaseUser = snap.val();
+          let user = parseUser(userId, snap.val());
+
+          let usersPath = this.reader.getUserPath(null);
+          let users = this.reader.get(usersPath);
+          this.writer.insert(usersPath, users.length, user);
+
+          for (let playerId in firebaseUser.players) {
+            listenToUserPlayerChanges_(userId, playerId);
+          }
+
           this.listenForPropertyChanges_(
-            snap.ref, USER_PROPERTIES, USER_COLLECTIONS.concat(['games', 'name']),
-            (property, value) => {
-              this.writer.set(this.reader.getUserPath(userId).concat([property]), value);
-            });
+              snap.ref, USER_PROPERTIES, USER_COLLECTIONS.concat(['games', 'name']),
+              () => this.reader.getUserPath(userId));
           this.firebaseRoot.child(`/users/${userId}/players`)
-            .on('child_added', (snap) => this.listenToUserPlayer_(userId, snap.getKey()));
+              .on('child_added', (snap) => {
+                this.writer.insert(
+                    this.reader.getUserPlayerPath(userId, null),
+                    null,
+                    parseUserPlayer(userId, snap.key(), snap.val()));
+                this.listenToUserPlayerChanges_(userId, playerId);
+              });
           this.firebaseRoot.child(`/games`)
             .on("child_added", (snap) => {
               this.listenToGameShallow_(snap.getKey())
@@ -249,21 +268,24 @@ window.FirebaseListener = (function () {
           return userId;
         });
     }
-    listenToUserPlayer_(userId, playerId) {
-      this.listenOnce_(`/users/${userId}/players/${playerId}`).then((snap) => {
-        let obj = new Model.UserPlayer(playerId, {
-          playerId: playerId,
-          gameId: snap.val().gameId,
-          userId: userId,
-        });
-        this.writer.insert(this.reader.getUserPlayerPath(userId, null), null, obj);
-        this.listenForPropertyChanges_(
-          snap.ref, USER_PLAYER_PROPERTIES, USER_PLAYER_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getUserPlayerPath(userId, playerId).concat([property]), value);
-          });
-      });
+
+    parseUser(userId, firebaseUser) {
+      let obj = new Model.User(userId, firebaseUser);
+      for (let playerId in firebaseUser.players) {
+        user.players.push(parseUserPlayer(userId, playerId, firebaseUser.players[playerId]));
+      }
+      return obj;
     }
+
+    parseUserPlayer(userId, playerId, firebaseValue) {
+      let obj = new Model.UserPlayer(playerId, {
+        playerId: playerId,
+        gameId: firebaseValue.gameId,
+        userId: userId,
+      });
+      return obj;
+    }
+
     listenToGun_(gameId, gunId) {
       this.listenOnce_(`/guns/${gunId}`).then((snap) => {
         let gunId = snap.getKey();
@@ -271,9 +293,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getGunPath(gameId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, GUN_PROPERTIES, GUN_COLLECTIONS.concat(['a']),
-          (property, value) => {
-            this.writer.set(this.reader.getGunPath(gameId, gunId).concat([property]), value);
-          });
+          () => this.reader.getGunPath(gameId, gunId));
       });
     }
     listenToGameShallow_(gameId) {
@@ -284,9 +304,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getGamePath(null), null, game);
         this.listenForPropertyChanges_(
           snap.ref, GAME_PROPERTIES, GAME_COLLECTIONS.concat(['accessibleMissions', 'accessibleChatRooms', 'adminUsers', 'queuedNotifications', 'groups']),
-          (property, value) => {
-            this.writer.set(this.reader.getGamePath(gameId).concat([property]), value);
-          });
+          () => this.reader.getGamePath(gameId));
         this.firebaseRoot.child(`/games/${gameId}/adminUsers`)
           .on('child_added', (snap) => this.listenToAdmin_(gameId, snap.getKey()));
         // listen to quiz questions etc
@@ -301,9 +319,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getAdminPath(gameId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, ADMIN_PROPERTIES, ADMIN_COLLECTIONS.concat(['a']),
-          (property, value) => {
-            this.writer.set(this.reader.getAdminPath(gameId, userId).concat([property]), value);
-          });
+          () => this.reader.getAdminPath(gameId, userId));
       });
     }
 
@@ -370,27 +386,19 @@ window.FirebaseListener = (function () {
           this.loadPlayer_(gameId, playerId, properties);
           this.listenForPropertyChanges_(
             publicSnap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS.concat(['canInfect']),
-            (property, value) => {
-              this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
-            });
+            () => this.reader.getPlayerPath(gameId, playerId));
           this.listenForPropertyChanges_(
             privateSnap.ref,
             PRIVATE_PLAYER_PROPERTIES, PRIVATE_PLAYER_COLLECTIONS.concat(['notificationSettings', 'volunteer']),
-            (property, value) => {
-              this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
-            });
+            () => this.reader.getPlayerPath(gameId, playerId));
           this.listenForPropertyChanges_(
             privateSnap.ref.child('volunteer'),
             PRIVATE_PLAYER_VOLUNTEER_PROPERTIES, [],
-            (property, value) => {
-              this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat(['volunteer', property]), value);
-            });
+            () => this.reader.getPlayerPath(gameId, playerId));
           this.listenForPropertyChanges_(
             privateSnap.ref.child('notificationSettings'),
             PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES, [],
-            (property, value) => {
-              this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat(['notificationSettings', property]), value);
-            });
+            () => this.reader.getPlayerPath(gameId, playerId));
           this.firebaseRoot.child(`/playersPublic/${playerId}/claims`)
             .on('child_added', (snap) => this.listenToClaim_(gameId, playerId, snap.getKey()));
           this.firebaseRoot.child(`/playersPublic/${playerId}/infections`)
@@ -431,9 +439,7 @@ window.FirebaseListener = (function () {
         this.loadPlayer_(gameId, playerId, snap.val());
         this.listenForPropertyChanges_(
           snap.ref, PLAYER_PROPERTIES, PLAYER_COLLECTIONS.concat(['canInfect']),
-          (property, value) => {
-            this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
-          });
+          () => this.reader.getPlayerPath(gameId, playerId));
         this.firebaseRoot.child(`/playersPublic/${playerId}/claims`)
           .on('child_added', (snap) => this.listenToClaim_(gameId, playerId, snap.getKey()));
         this.firebaseRoot.child(`/playersPublic/${playerId}/infections`)
@@ -459,14 +465,10 @@ window.FirebaseListener = (function () {
           this.loadLife_(gameId, playerId, lifeId, properties);
           this.listenForPropertyChanges_(
             publicSnap.ref, PUBLIC_LIFE_PROPERTIES, PUBLIC_LIFE_COLLECTIONS,
-            (property, value) => {
-              this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
-            });
+            () => this.reader.getPlayerPath(gameId, playerId));
           this.listenForPropertyChanges_(
             privateSnap.ref, PRIVATE_LIFE_PROPERTIES, PRIVATE_LIFE_COLLECTIONS,
-            (property, value) => {
-              this.writer.set(this.reader.getPlayerPath(gameId, playerId).concat([property]), value);
-            });
+            () => this.reader.getPlayerPath(gameId, playerId));
         });
     }
 
@@ -485,9 +487,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getInfectionPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, INFECTION_PROPERTIES, INFECTION_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getInfectionPath(gameId, playerId, infectionId).concat([property]), value);
-          });
+          () => this.reader.getInfectionPath(gameId, playerId, infectionId));
       });
     }
 
@@ -499,9 +499,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getClaimPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, CLAIM_PROPERTIES, CLAIM_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getClaimPath(gameId, playerId, claimId).concat([property]), value);
-          });
+          () => this.reader.getClaimPath(gameId, playerId, claimId));
       });
     }
 
@@ -512,9 +510,7 @@ window.FirebaseListener = (function () {
         this.listenToGroup_(gameId, obj.accessGroupId);
         this.listenForPropertyChanges_(
           snap.ref, MISSION_PROPERTIES, MISSION_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getMissionPath(gameId, missionId).concat([property]), value);
-          });
+          () => this.reader.getMissionPath(gameId, missionId));
       });
     }
 
@@ -542,9 +538,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getGroupPath(gameId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, GROUP_PROPERTIES, GROUP_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getGroupPath(gameId, groupId).concat([property]), value);
-          });
+          () => this.reader.getGroupPath(gameId, groupId));
         this.firebaseRoot.child(`/groups/${groupId}/players`)
           .on('child_added', (snap) => this.listenToGroupMembership_(gameId, groupId, snap.getKey()));
       });
@@ -556,9 +550,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getNotificationPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, NOTIFICATION_PROPERTIES, NOTIFICATION_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getNotificationPath(gameId, playerId, notificationId).concat([property]), value);
-          });
+          () => this.reader.getNotificationPath(gameId, playerId, notificationId));
       });
     }
 
@@ -569,9 +561,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getChatRoomPath(gameId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, CHAT_ROOM_PROPERTIES, CHAT_ROOM_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getChatRoomPath(gameId, chatRoomId).concat([property]), value);
-          });
+          () => this.reader.getChatRoomPath(gameId, chatRoomId));
         this.firebaseRoot.child(`/chatRooms/${chatRoomId}/messages`)
           .on('child_added', (snap) => this.listenToChatRoomMessage_(gameId, chatRoomId, snap.getKey()));
       });
@@ -591,9 +581,7 @@ window.FirebaseListener = (function () {
           obj);
         this.listenForPropertyChanges_(
           snap.ref, MESSAGE_PROPERTIES, MESSAGE_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getChatRoomMessagePath(gameId, chatRoomId, messageId).concat([property]), value);
-          });
+          () => this.reader.getChatRoomMessagePath(gameId, chatRoomId, messageId));
       });
     }
 
@@ -605,9 +593,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES, PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId).concat([property]), value);
-          });
+          () => this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId));
       });
     }
 
@@ -619,9 +605,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getPlayerMissionMembershipPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, PLAYER_MISSION_MEMBERSHIP_PROPERTIES, PLAYER_MISSION_MEMBERSHIP_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getPlayerMissionMembershipPath(gameId, playerId, missionId).concat([property]), value);
-          });
+          () => this.reader.getPlayerMissionMembershipPath(gameId, playerId, missionId));
       });
     }
 
@@ -633,9 +617,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getGroupMembershipPath(gameId, groupId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, GROUP_MEMBERSHIP_PROPERTIES, GROUP_MEMBERSHIP_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getGroupMembershipPath(gameId, groupId, membershipId).concat([property]), value);
-          });
+          () => this.reader.getGroupMembershipPath(gameId, groupId, membershipId));
       });
     }
 
@@ -646,9 +628,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getRewardCategoryPath(gameId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, REWARD_CATEGORY_PROPERTIES, REWARD_CATEGORY_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getRewardCategoryPath(gameId, rewardCategoryId).concat([property]), value);
-          });
+          () => this.reader.getRewardCategoryPath(gameId, rewardCategoryId));
         this.firebaseRoot.child(`/rewardCategories/${rewardCategoryId}/rewards`)
           .on('child_added', (snap) => this.listenToReward_(gameId, rewardCategoryId, snap.getKey()));
       });
@@ -660,9 +640,7 @@ window.FirebaseListener = (function () {
         this.writer.insert(this.reader.getRewardPath(gameId, rewardCategoryId, null), null, obj);
         this.listenForPropertyChanges_(
           snap.ref, REWARD_PROPERTIES, REWARD_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getRewardPath(gameId, rewardCategoryId, rewardId).concat([property]), value);
-          });
+          () => this.reader.getRewardPath(gameId, rewardCategoryId, rewardId));
       });
     }
 
@@ -679,9 +657,7 @@ window.FirebaseListener = (function () {
 
         this.listenForPropertyChanges_(
           snap.ref, QUIZ_QUESTION_PROPERTIES, QUIZ_QUESTION_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getQuizQuestionPath(gameId, quizQuestionId).concat([property]), value);
-          });
+          () => this.reader.getQuizQuestionPath(gameId, quizQuestionId));
         this.firebaseRoot.child(`/games/${gameId}/quizQuestions/${quizQuestionId}/answers`)
           .on('child_added', (snap) => this.listenToQuizAnswer_(gameId, quizQuestionId, snap.getKey()));
       });
@@ -700,9 +676,7 @@ window.FirebaseListener = (function () {
         
         this.listenForPropertyChanges_(
           snap.ref, QUIZ_ANSWER_PROPERTIES, QUIZ_ANSWER_COLLECTIONS,
-          (property, value) => {
-            this.writer.set(this.reader.getQuizAnswerPath(gameId, quizQuestionId, quizAnswerId).concat([property]), value);
-          });
+          () => this.reader.getQuizAnswerPath(gameId, quizQuestionId, quizAnswerId));
       });
     }
   }
