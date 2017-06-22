@@ -14,11 +14,8 @@
           isAdmin: Boolean,
 
           adminChatExists: Boolean,
-          
-          shouldOpenAdminChat: {
-            type: Boolean,
-            value: false,
-          }
+
+          waitingToOpenChatRoomId: String,
         },
 
         observers: [
@@ -27,22 +24,23 @@
         
         listeners: {
           'tap': 'captureTap_',
+          'ghvz-change-to-new-chat': 'changeToNewChat_',
         },
 
         onChatRoomsUpdated_() {
+          if (this.waitingToOpenChatRoomId && this.game.chatRoomsById[this.waitingToOpenChatRoomId]) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', this.waitingToOpenChatRoomId],
+              replace: false,
+            });
+            this.waitingToOpenChatRoomId = null;
+          }
           for (let chatRoomMembership of this.player.chatRoomMemberships) {
             let chatRoomId = chatRoomMembership.chatRoomId;
             let chatRoom = this.game.chatRoomsById[chatRoomId];
             if (chatRoom.withAdmins) {
               this.adminChatExists = true;
-              if (this.shouldOpenAdminChat) {
-                this.shouldOpenAdminChat = false;
-                this.fire('ghvz-set-path', {
-                  inGame: true,
-                  path: ['chat', chatRoom.id],
-                  replace: false,
-                });
-              }
               return;
             }
           }
@@ -69,6 +67,22 @@
           e.stopPropagation();
         },
 
+        changeToNewChat_(e) {
+          let chatRoomId = e.detail.chatRoomId;
+          if (!chatRoomId) {
+            return;
+          }
+          if (this.game.chatRoomsById[chatRoomId]) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', chatRoomId],
+              replace: false,
+            });
+          } else {
+            this.waitingToOpenChatRoomId = chatRoomId;
+          }
+        },
+
         createAdminChat_() {
           let name =  this.player.name + " & HvZ CDC";
           let groupId = this.bridge.newGroupId('withadmins');
@@ -86,6 +100,7 @@
             canRemoveSelf: true,
           });
           let chatRoomId = this.bridge.newChatRoomId('withadmins');
+          this.waitingToOpenChatRoomId = chatRoomId;
           this.bridge.createChatRoom({
             gameId: this.game.id,
             chatRoomId: chatRoomId,
@@ -105,7 +120,10 @@
             playerToAddId: this.game.adminContactPlayerId,
             actingPlayerId: this.player.id,
           });
-          this.shouldOpenAdminChat = true;
+        },
+
+        getChatRoomName_(chatRoomId) {
+          return this.game.chatRoomsById[chatRoomId].name;
         },
       });
     });
@@ -179,6 +197,7 @@
             class="layout horizontal list-item name-label"
             with-icon
             game="[[game]]"
+            name$="[[getChatRoomName_(membership.chatRoomId)]]"
             chat-room-id="[[membership.chatRoomId]]"
             data-chat-room-id$="[[membership.chatRoomId]]">
         </ghvz-chat-room-name-label>
@@ -195,7 +214,7 @@
     </template>
 
     <div class="list-item">
-      <a href="javascript:void(0)" data-action="new" class="action">
+      <a id="new-chat" href="javascript:void(0)" data-action="new" class="action">
         <iron-icon icon="icons:add"></iron-icon>
         New chat
       </a>
