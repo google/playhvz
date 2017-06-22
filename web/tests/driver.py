@@ -69,7 +69,7 @@ class SimpleDriver:
     # Leaving innerHTML out because it seems like it can have a lot of false
     # positives, because who knows whats in the html...
     if should_exist:
-      assert needle in text, "The text %s was not found" % needle
+      assert needle in text, "The text %s was not found in %s" % (needle, path)
       ## assert element.is_displayed(), "The text %s is not visible"  % needle
     else:
       assert (needle not in text), "The text %s was found when it wasn't supposed be there." % needle

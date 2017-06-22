@@ -3,6 +3,9 @@ from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="zella")
 
+driver.SwitchUser('zeke')
+driver.SwitchUser('zella')
+
 driver.Click([[By.NAME, 'close-notification']])
 
 try:
@@ -30,17 +33,16 @@ try:
   # Edit the category
   driver.Click([[By.NAME, 'row-Gnasher'], [By.ID, 'menu']])
   driver.Click([[By.NAME, 'row-Gnasher'], [By.NAME, 'menu-item-Edit']])
-  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'nameInput'], [By.TAG_NAME, 'input']], 30)
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'nameInput'], [By.TAG_NAME, 'input']], "Good Flosser Badge")
-  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'shortNameInput'], [By.TAG_NAME, 'input']], 7)
+  driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'shortNameInput'], [By.TAG_NAME, 'input']])
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'shortNameInput'], [By.TAG_NAME, 'input']], "Flosser")
-  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'pointsInput'], [By.TAG_NAME, 'input']], 1)
+  driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'pointsInput'], [By.TAG_NAME, 'input']])
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'pointsInput'], [By.TAG_NAME, 'input']], "3")
-  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'limitPerPlayerInput'], [By.TAG_NAME, 'input']], 1)
+  driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'limitPerPlayerInput'], [By.TAG_NAME, 'input']])
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'limitPerPlayerInput'], [By.TAG_NAME, 'input']], "900")
-  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'badgeImageUrlInput'], [By.TAG_NAME, 'input']], 10)
+  driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'badgeImageUrlInput'], [By.TAG_NAME, 'input']])
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'badgeImageUrlInput'], [By.TAG_NAME, 'input']], "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png")
-  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], 41)
+  driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']])
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], "A reward you get for brushing and flossing after eating humans.")
   driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'done']])
 
@@ -62,7 +64,21 @@ try:
   driver.ExpectContains([[By.ID, 'codesDialogContents']], 'rewardcode 21')
   driver.Click([[By.ID, 'codesDialog'],[By.NAME, 'done']])
 
-  driver.Quit()
+  # Zeke was a cool zombie! He ate a bunch of humans, then brushed his teeth. He was awarded a reward.
+
+  driver.SwitchUser('zeke')
+
+  #driver.Click([[By.NAME, 'close-notification']])
+
+  # change to drawer????
+  # driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'row-rewardcode 0')
+  # driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'claim']])
+
+
+
+
+
+  # driver.Quit()
 
 finally:
   pass
