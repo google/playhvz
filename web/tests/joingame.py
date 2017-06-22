@@ -35,7 +35,7 @@ try:
     driver.Click([[By.NAME, 'drawerChat']])
     driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Global Chat')
   else:
-    driver.FindElement([[By.NAME, 'chatRoom-everyone-1']])
+    driver.FindElement([[By.NAME, 'ChatRoom: Global Chat']])
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])

@@ -427,6 +427,7 @@
     .text-request { display: flex; }
     .text-request-label {display: block; flex-grow: 1;}
     .text-request-input {display: block; flex-shrink: 0;}
+    #forWebdriver { height: 1px; }
   </style>
   <template>
   <!-- -->
@@ -441,7 +442,7 @@
     </paper-icon-button>
 
     <!-- For webdrivers -->
-    <div name$="ChatRoom: [[chatRoom.name]]"></div>
+    <div id="forWebdriver" name$="ChatRoom: [[chatRoom.name]]"></div>
 
     <div id="ackContainer" class="ack-container" name$="[[chatRoom.name">
       <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
