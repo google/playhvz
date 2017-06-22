@@ -13,7 +13,7 @@ try:
 
     driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
   else:
-    driver.FindElement([[By.NAME, 'chatRoom-resistance-2']])
+    driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
 
   # Drake infects Jack
   driver.SwitchUser("drake")

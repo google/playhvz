@@ -450,23 +450,27 @@ class FakeServer {
   addReward(args) {
     let {rewardCategoryId, rewardId, code} = args;
     let gameId = this.reader.getGameIdForRewardCategoryId(rewardCategoryId);
+    let rewardCategory = this.database.gamesById[gameId].rewardCategoriesById[rewardCategoryId];
+    code = code || rewardCategory.shortName + ' ' + rewardCategory.rewards.length;
     this.writer.insert(
         this.reader.getRewardPath(gameId, rewardCategoryId, null),
         null,
         new Model.Reward(rewardId, Utils.merge(args, {
-          code: code || "" + Math.random(),
+          code: code,
           rewardCategoryId: rewardCategoryId,
           playerId: null,
         })));
   }
   addRewards(args) {
     let {gameId, rewardCategoryId, count} = args;
+    let rewardCategory = this.database.gamesById[gameId].rewardCategoriesById[rewardCategoryId];
     for (let i = 0; i < count; i++) {
       let rewardId = this.idGenerator.newRewardId();
-      let code = 'rewardcode ' + this.database.gamesById[gameId].rewardCategoriesById[rewardCategoryId].rewards.length;
+      let code = rewardCategory.shortName + ' ' + rewardCategory.rewards.length;
       this.addReward({
         id: rewardId,
         gameId: gameId,
+        rewardId: rewardId,
         rewardCategoryId: rewardCategoryId,
         code: code
       });
@@ -525,7 +529,7 @@ class FakeServer {
                 rewardCategoryId: rewardCategory.id,
                 rewardId: reward.id,
               }));
-          return;
+          return rewardCategory.id;
         }
       }
     }
