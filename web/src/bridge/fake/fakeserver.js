@@ -333,25 +333,30 @@ class FakeServer {
         this.reader.getMissionPath(gameId, null),
         null,
         new Model.Mission(missionId, args));
+    this.addMissionMembershipsForAllGroupMembers_(gameId, missionId, accessGroupId);
+  }
+
+  addMissionMembershipsForAllGroupMembers_(gameId, missionId, accessGroupId) {
     let group = this.database.gamesById[gameId].groupsById[accessGroupId];
     for (let {playerId} of group.memberships) {
       this.addPlayerToMission_(gameId, missionId, playerId);
     }
   }
+
+  removeMissionMembershipsForAllGroupMembers_(gameId, missionId, accessGroupId) {
+    let group = this.database.gamesById[gameId].groupsById[accessGroupId];
+    for (let {playerId} of group.memberships) {
+      this.removePlayerFromMission_(gameId, missionId, playerId);
+    }
+  }
+
   updateMission(args) {
     let {gameId, missionId} = args;
     let missionPath = this.reader.getMissionPath(gameId, missionId);
     let mission = this.database.gamesById[gameId].missionsById[missionId];
     if ('accessGroupId' in args) {
-      let oldGroup = this.database.gamesById[gameId].groupsById[mission.accessGroupId];
-      for (let {playerId} of oldGroup.memberships) {
-        this.removePlayerFromMission_(gameId, missionId, playerId);
-      }
-      let newGroup = this.database.gamesById[gameId].groupsById[accessGroupId];
-      for (let {playerId} of newGroup.memberships) {
-        this.addPlayerToMission_(gameId, missionId, playerId);
-      }
-      delete args.accessGroupId;
+      this.removeMissionMembershipsForAllGroupMembers_(gameId, missionId, mission.accessGroupId);
+      this.addMissionMembershipsForAllGroupMembers_(gameId, missionId, args.accessGroupId);
     }
     for (let argName in args) {
       this.writer.set(missionPath.concat([argName]), args[argName]);
