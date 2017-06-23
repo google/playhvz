@@ -277,6 +277,7 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('updateMission', {
     missionId: 'MissionId',
     gameId: 'GameId',
+    accessGroupId: '|GroupId',
     serverTime: '|Timestamp',
     beginTime: '|Timestamp',
     endTime: '|Timestamp',
