@@ -199,7 +199,7 @@
         </template>
 
         <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
-          <ghvz-card spaced left>
+          <ghvz-card spaced left name$="[[membership.chatRoomId]]">
             <ghvz-chat-room
                 small
                 bridge="[[bridge]]"

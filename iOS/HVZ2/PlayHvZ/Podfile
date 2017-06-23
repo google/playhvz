@@ -9,6 +9,7 @@ target 'PlayHvZ' do
   pod 'Firebase/Core'
   pod 'GoogleSignIn'
   pod 'Firebase/Auth'
+  pod 'Firebase/Messaging'
   target 'PlayHvZTests' do
     inherit! :search_paths
     # Pods for testing

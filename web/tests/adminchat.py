@@ -41,7 +41,7 @@ try:
 
       driver.FindElement([[By.NAME, 'create-admin-chat-button']])
       driver.Click([[By.NAME, 'create-admin-chat-button']]) 
-      driver.FindElement([[By.NAME, 'ChatRoom: %s' % chatName]])  
+      driver.FindElement([[By.NAME, chatName]])  
       driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
       # Type a message into the chat
@@ -60,6 +60,7 @@ try:
         driver.FindElement([[By.NAME, 'drawer-' + chatName]])  
         changeToPage(driver, '-' + chatName)
         driver.ExpectContains([
+            [By.NAME, 'chat-card'], 
             [By.NAME, 'message-%s-Hi im %s, how do i know if im the possessed zombie?' % (chatName, actingPlayerName)], 
             [By.CLASS_NAME, 'message-text']], 
             'Hi im %s, how do i know if im the possessed zombie?' % actingPlayerName)
@@ -70,7 +71,9 @@ try:
 
       xpathChatDrawerButton = getPathToElement(actingPlayerName, 'paper-icon-button', 'chat-info-' + chatName)
       driver.Click([[By.XPATH, xpathChatDrawerButton]])  
-      driver.FindElement([[By.NAME, 'chat-drawer-%s' % chatName]])
+      xpathChatDrawer = getPathToElement(actingPlayerName, 'div', 'chat-drawer-%s' % chatName)
+      driver.FindElement([[By.XPATH, xpathChatDrawer]])  
+      #driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName]])
       
       xpathLeaveButton = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
       driver.FindElement([[By.XPATH, xpathLeaveButton]])

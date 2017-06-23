@@ -15,7 +15,7 @@ window.FirebaseListener = (function () {
   //   for example). In the model, everything (except User) is under a game, in a
   //   hierarchy, because it's easier for polymer to understand.
 
-  const USER_PROPERTIES = ['a'];
+  const USER_PROPERTIES = ['a', 'deviceToken'];
   const USER_COLLECTIONS = ['players', 'games'];
   const GAME_PROPERTIES = ['active', 'startTime', 'endTime', 'registrationEndTime', 'name', 'number', 'rulesHtml', 'faqHtml', 'stunTimer', 'adminContactPlayerId'];
   const GAME_COLLECTIONS = ['guns', 'missions', 'rewardCategories', 'chatRooms', 'players', 'admins', 'queuedNotifications', 'quizQuestions', 'groups', 'maps'];
