@@ -294,7 +294,7 @@
         "sorcerer": false
       },
       "notifications": {
-        "notification-%(ident)s-1-1": {
+        "notification-%(ident)s-1-0": {
           "destination": "http://some.url/moo",
           "icon": "icons:close",
           "message": "hello!",
@@ -395,7 +395,7 @@
           "queuedNotificationId": "queuedNotification-%(ident)s-4testBobby3",
           "time": 0
         },
-        "notification-%(ident)s-1-0": {
+        "notification-%(ident)s-1-1": {
           "destination": "http://some.url/moo",
           "icon": "icons:close",
           "message": "hello!",
