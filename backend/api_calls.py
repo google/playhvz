@@ -1626,7 +1626,7 @@ def RegisterUserDevice(request, game_state):
     'deviceToken': 'String',
   })
   put_data = {'deviceToken': request['deviceToken']}
-  game_state.patch('/users/%s', put_data)
+  game_state.patch('/users/%s' % request['userId'], put_data)
 
 
 def AddLife(request, game_state):
