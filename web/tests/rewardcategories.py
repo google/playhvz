@@ -3,8 +3,8 @@ from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="zella")
 
-driver.SwitchUser('zeke')
-driver.SwitchUser('zella')
+# driver.SwitchUser('zeke')
+# driver.SwitchUser('zella')
 
 driver.Click([[By.NAME, 'close-notification']])
 
@@ -66,13 +66,15 @@ try:
 
   # Zeke was a cool zombie! He ate a bunch of humans, then brushed his teeth. He was awarded a reward.
 
-  driver.SwitchUser('zeke')
+  # driver.SwitchUser('zeke')
 
   #driver.Click([[By.NAME, 'close-notification']])
 
   # change to drawer????
   # driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'row-rewardcode 0')
   # driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'claim']])
+  # driver.ExpectContains([[By.NAME, 'rewards-box']], "Congratulations, you've cliamed the reward")
+  # driver.ExpectContains([[By.NAME, 'rewards-box']], "Flosser")
 
 
 
