@@ -3,6 +3,7 @@ package com.ghvz.ghvzapp;
 import android.accounts.NetworkErrorException;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,10 +49,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private WebView mWebView;
     private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
+    private GoogleSignInAccount account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
 
         registerUIListeners();
@@ -90,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
-                GoogleSignInAccount account = result.getSignInAccount();
+                account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
                 //// TODO: 6/13/17 send failure to webview
@@ -100,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-
-
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Toast.makeText(MainActivity.this, "Authentication success.",
                                     Toast.LENGTH_SHORT).show();
                             // TODO: 6/13/17 send user token to webview
-                            mWebView.loadUrl("http://playhvz.com/?userToken=" + user.getToken(true));
+                            //mWebView.loadUrl("http://playhvz.com/?userToken=" + user.getToken(true));
                         } else {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
@@ -144,6 +146,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void register(){
+        OkHttpClient client = new OkHttpClient();
+
+        try{
+            FirebaseUser user = mAuth.getCurrentUser();
+
+            String json = String.format(
+                    "{" +
+                    " \"requestingUserToken\": \"%s\"," +
+                    " \"requestingUserId\": null," +
+                    " \"requestingPlayerId\": null," +
+                    " \"userId\": \"user-%s\"" +
+                    "}",
+                    account.getIdToken(),
+                    user.getUid()
+            );
+            Log.d("[REQUEST PARAMETER]", "[register]: " + json);
+            RequestBody body = RequestBody.create(APPLICATION_JSON, json);
+            Request request = new Request.Builder()
+                    .url(String.format("%s/register", APP_SERVICE_URL))
+                    .post(body)
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.code() != 200) {
+                Log.e("register", "Invalid response status: " + response.code());
+            }
+        }catch (IOException ex){
+            Log.e("register", ex.getMessage());
+        }
+    }
+
     public void registerUserDevice() {
         OkHttpClient client = new OkHttpClient();
 
@@ -153,16 +186,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String json = String.format(
                     "{" +
                     " \"requestingUserToken\": \"%s\"," +
-                    " \"requestingUserId\": \"%s\"," +
+                    " \"requestingUserId\": \"user-%s\"," +
                     " \"requestingPlayerId\": null," +
-                    " \"userId\": \"%s\"," +
-                    " \"deviceToken\": \"%s\"," +
+                    " \"userId\": \"user-%s\"," +
+                    " \"deviceToken\": \"%s\"" +
                     "}",
                     user.getToken(true),
                     user.getUid(),
                     user.getUid(),
                     FirebaseInstanceId.getInstance().getToken()
                     );
+            Log.d("[REQUEST PARAMETER]", "[registerUserDevice]: " + json);
             RequestBody body = RequestBody.create(APPLICATION_JSON, json);
             Request request = new Request.Builder()
                     .url(String.format("%s/registerUserDevice", APP_SERVICE_URL))
@@ -181,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final Button button = (Button)findViewById(R.id.register_device_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                register();
                 registerUserDevice();
             }
         });
