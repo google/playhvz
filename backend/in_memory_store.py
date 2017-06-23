@@ -1,104 +1,57 @@
 """In memory model datastore"""
 
 import db_helpers as helpers
+import patch
+import path_utils
 
-def follow_path(obj, path, create_missing=False):
-  """Given a dict and a '/' separated path, follow that path and return the
-  value at that location.
+from google.appengine.ext import deferred
+from functools import partial
+import threading
 
-  Examples:
-    obj={ a: { b: { c: { d: 'foo' } } } }
-    path="/a/b"
-    returns obj['a']['b']
+accessor_mutex = threading.Lock()
+patch_mutex = threading.Lock()
+enqueued_patch = patch.Patch()
 
-  Arguments:
-    obj: the object to look in
-    path: the path to follow. Trailing '/' characters are ignored
-    create_missing: If true, create any objects along the way needed to
-        complete the traversal
-
-  Returns: a reference to the value at the given path. If the path is
-  '/' or '', obj is returned.
+def enqueue_patch(firebase, data):
   """
-  if path.endswith('/'):
-    path = path[:-1]
-  path_parts = path.split('/')[1:]
-  for path_part in path_parts:
-    if not path_part in obj:
-      if create_missing and isinstance(obj, dict):
-        obj[path_part] = {}
-      else:
-        return None
-    obj = obj[path_part]
-    if not isinstance(obj, dict):
-      return None
-  return obj
+  Enqueue a patch to be sent to firebase. If a patch to firebase is ongoing,
+  just leave the data in the patch queue and assume that once the ongoing patch
+  completes, this data will be sent in the next patch.
 
-
-def crawl_paths(obj):
-  """Given a tree of strings, return the paths to every leaf.
-  Doesn't include the actual leaf value.
-
-  Example:
-    crawl_paths({'a': {'b': 'foo', 'c': {'d' : 'foo'}}, 'e': 'bar'})
-    => ['a/b', 'a/c/d', 'e']
+  If no request is ongoing, acquire the lock to prevent accessors to firebase
+  before it is up to date with all patches.
   """
-  all_paths = []
-  if isinstance(obj, basestring):
-    return all_paths
-  for key, value in obj.iteritems():
-    sub_paths = crawl_paths(value)
-    for sub_path in sub_paths:
-      all_paths.append(key + '/' + sub_path)
-    if len(sub_paths) is 0:
-      all_paths.append(key)
-  return all_paths
+  patch_mutex.acquire()
+  enqueued_patch.patch('/', data)
+  patch_mutex.release()
+  if accessor_mutex.acquire(False):
+    compact_and_send(firebase)
 
-
-def join_paths(path, suffix):
-  """Joins a path and a suffix into a single path.
-  Resolves leading and trailing '/'. The suffix can be null.
-
-  Examples:
-    join_paths('abc/def/', '/hij') => 'abc/def/hij'
-    join_paths('a', 'b/c/d') => 'a/b/c/d'
-    join_paths('abc/def', None) => 'abc/def'
+def compact_and_send(firebase):
   """
-  if not path.endswith('/'):
-    path = path + '/'
-  if suffix is None:
-    suffix = ''
-  if suffix.startswith('/'):
-    suffix = suffix[1:]
-  full_path = '%s%s' % (path, suffix)
-  if full_path[-1] == '/':
-    full_path = full_path[:-1]
-  return full_path
-
-
-def drop_last(path):
-  """Returns a path with the last "part" dropped.
-
-  Examples:
-    drop_last('abc/def/ghi') => 'abc/def'
-    drop_last('abc') => ''
-    drop_last('') => ''
+  Enqueue a patch to be sent to firebase. Compacts all queued patches into a
+  single patch and sends it to firebase. Clears the patch queue
   """
-  if '/' not in path:
-    return ''
-  return '/'.join(path.split('/')[:-1])
+  patch_mutex.acquire()
+  compacted_batch_mutation = enqueued_patch.batch_mutation()
+  enqueued_patch.clear()
+  patch_mutex.release()
+  print '****************** ACTUALLY SENDING COMPACTED BATCH MUTATION '
+  print compacted_batch_mutation
+  firebase.patch_async('/', compacted_batch_mutation, callback=partial(finished_patch, firebase))
 
-def last(path):
-  """Returns a last "part" of a path.
 
-  Examples:
-    last('abc/def/ghi') => 'ghi'
-    last('abc') => 'abc'
-    last('') => ''
+def finished_patch(firebase, res):
   """
-  if '/' not in path:
-    return path
-  return path.split('/')[-1]
+  Called when firebase completes. If there are outstanding patches left
+  (incoming patches after a firebase request started but before it ended)
+  Send the next patch. If not, clear the lock, allowing accessors to firebase.
+  """
+  if not enqueued_patch.has_mutations():
+    accessor_mutex.release()
+  else:
+    compact_and_send(firebase)
+
 
 class InMemoryStore:
   """An in memory version of the data in firebase. Mutations applied to the
@@ -139,12 +92,15 @@ class InMemoryStore:
           if false, gets the data from the remote copy.
     """
     if not local_instance:
-      return self.firebase.get(path, id)
-    full_path = join_paths(path, id)
-    obj = follow_path(self.instance, drop_last(full_path))
+      accessor_mutex.acquire()
+      data = self.firebase.get(path, id)
+      accessor_mutex.release()
+      return data
+    full_path = path_utils.join_paths(path, id)
+    obj = path_utils.follow_path(self.instance, path_utils.drop_last(full_path))
     if obj is None:
       return None
-    return obj.get(last(full_path))
+    return obj.get(path_utils.last(full_path))
 
   def delete(self, path, id):
     """add a deletion into the transaction"""
@@ -160,7 +116,7 @@ class InMemoryStore:
 
   def start_transaction(self):
     """Open a transaction for this model."""
-    self.transaction = Transaction(self.firebase, self.instance)
+    self.transaction = Transaction(self)
 
   def commit_transaction(self):
     """"""
@@ -224,11 +180,9 @@ class Transaction:
       '/a/b': { 'c': { 'd': 'foo' }, 'e': 'bar' }
     }
   """
-  def __init__(self, firebase, instance):
-    self.instance = instance
-    self.firebase = firebase
-    self.mutation_data = {}
-    self.mutation_paths = {}
+  def __init__(self, in_memory_store):
+    self.firebase = in_memory_store.firebase
+    self.local_patch = patch.Patch(in_memory_store.instance)
     self.has_mutation = False
     self.committed = False
 
@@ -248,15 +202,7 @@ class Transaction:
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
     self.has_mutation = True
-    mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
-    if mutation_data_obj is not None and id in mutation_data_obj:
-      del mutation_data_obj[id]
-    mutation_paths_obj = follow_path(self.mutation_paths, path, create_missing=True)
-    if mutation_paths_obj is not None:
-      mutation_paths_obj[id] = 'delete'
-    local_data_obj = follow_path(self.instance, path)
-    if local_data_obj is not None and id in local_data_obj:
-      del local_data_obj[id]
+    self.local_patch.delete(path, id)
 
 
   def put(self, path, id, data):
@@ -276,15 +222,7 @@ class Transaction:
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
     self.has_mutation = True
-    mutation_data_obj = follow_path(self.mutation_data, path, create_missing=True)
-    if mutation_data_obj is not None:
-      mutation_data_obj[id] = data
-    mutation_paths_obj = follow_path(self.mutation_paths, path, create_missing=True)
-    if mutation_paths_obj is not None:
-      mutation_paths_obj[id] = 'put'
-    local_data_obj = follow_path(self.instance, path, create_missing=True)
-    if local_data_obj is not None:
-      local_data_obj[id] = data
+    self.local_patch.put(path, id, data)
 
 
   def patch(self, path, data):
@@ -304,16 +242,7 @@ class Transaction:
     if self.committed:
       raise ServerError("Tried to apply mutation to closed transaction")
     self.has_mutation = True
-    for key, value in data.iteritems():
-      mutation_data_obj = follow_path(self.mutation_data, join_paths(path, drop_last(key)), create_missing=True)
-      if mutation_data_obj is not None:
-        mutation_data_obj[last(key)] = value
-      mutation_paths_obj = follow_path(self.mutation_paths, join_paths(path, drop_last(key)), create_missing=True)
-      if mutation_paths_obj is not None:
-        mutation_paths_obj[last(key)] = 'patch'
-      local_data_obj = follow_path(self.instance, join_paths(path, drop_last(key)), create_missing=True)
-      if local_data_obj is not None:
-        local_data_obj[last(key)] = value
+    self.local_patch.patch(path, data)
 
 
   def commit(self):
@@ -327,13 +256,10 @@ class Transaction:
     if not self.has_mutation:
       self.committed = True
       return
-    batch_mutation = {}
-    all_paths = crawl_paths(self.mutation_paths)
-    for path in all_paths:
-      leading_slash_path = '/' + path
-      data_obj = follow_path(self.mutation_data, drop_last(leading_slash_path))
-      batch_mutation[leading_slash_path] = data_obj.get(last(leading_slash_path))
-    self.firebase.patch('/', batch_mutation)
+    batch_mutation = self.local_patch.batch_mutation()
+    print 'sending patch!'
+    print batch_mutation
+    enqueue_patch(self.firebase, batch_mutation)
     self.committed = True
 
   def __del__(self):

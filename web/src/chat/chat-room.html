@@ -48,7 +48,6 @@
 
         observers: [
           'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
-          'onChatRoomChange_(chatRoom)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
         ],
@@ -69,11 +68,8 @@
         onChatRoomIdChange_(chatRoomId) {
           assert(this.game.chatRoomsById[chatRoomId]);
           this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
-        },
-
-        onChatRoomChange_: function() {
+          this.hideChatInfo();
           this.previousMessagePlayerId = "";
-          this.chatInfoVisible = false;
         },
 
         onChatRoomNameChange_: function() {
@@ -152,6 +148,7 @@
             this.fire('ghvz-set-path', {
               inGame: true,
               path: ['profile', playerId],
+              replace: false,
             });
           }
         },
@@ -430,6 +427,7 @@
     .text-request { display: flex; }
     .text-request-label {display: block; flex-grow: 1;}
     .text-request-input {display: block; flex-shrink: 0;}
+    #forWebdriver { height: 1px; }
   </style>
   <template>
   <!-- -->
@@ -440,13 +438,13 @@
       id="info" 
       icon="icons:info-outline" 
       on-tap="toggleChatInfo_"
-      name$="icon-[[chatRoom.name]]">
+      name$="chat-info-[[chatRoom.name]]">
     </paper-icon-button>
 
     <!-- For webdrivers -->
-    <div name$="ChatRoom: [[chatRoom.name]]"></div>
+    <div id="forWebdriver" name$="ChatRoom: [[chatRoom.name]]"></div>
 
-    <div id="ackContainer" class="ack-container">
+    <div id="ackContainer" class="ack-container" name$="[[chatRoom.name">
       <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
         <template is="dom-if" if="[[!requestCategory.dismissed]]">
           <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">

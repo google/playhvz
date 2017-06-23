@@ -66,14 +66,14 @@
   <ghvz-unseen-notifications
       id="notifications"
       bridge="[[bridge]]"
-      categories-by-id="[[game.notificationCategoriesById]]"
-      categories="[[game.notificationCategories]]"
+      game="[[game]]"
       player="[[player]]">
   </ghvz-unseen-notifications>
 
   <neon-animated-pages id="pages" class="flex" selected="0">
     <neon-animatable>
       <ghvz-mobile-main-page
+          name="mobile-main-page"
           bridge="[[bridge]]"
           database="[[database]]"
           user="[[user]]"

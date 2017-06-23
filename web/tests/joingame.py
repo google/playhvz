@@ -4,19 +4,19 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="reggie")
 
 try:
-  driver.FindElement([[By.NAME, 'joinGame']])
 
-  driver.Click([[By.NAME, 'joinGame']])
+  if not driver.is_mobile:
+    driver.Click([[By.NAME, 'joinGame']])
 
   driver.SendKeys(
       [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
-      'Reggie the Ravager')
+      'ReggieTheRavager')
 
   driver.Click([[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-button']])
 
   driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option1']])
 
-  driver.Click([[By.NAME, 'joingGameTakePhotos'], [By.NAME, 'option1']])
+  driver.Click([[By.NAME, 'joinGameTakePhotos'], [By.NAME, 'option1']])
 
   driver.Click([[By.NAME, 'joinGameBeVolunteerPage'], [By.NAME, 'option1']])
 
@@ -30,21 +30,32 @@ try:
 
   driver.FindElement([[By.TAG_NAME, 'ghvz-rules']])
 
-  driver.FindElement([[By.NAME, 'ChatRoom: Global Chat']])
-  
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'drawerButton']])
+    driver.Click([[By.NAME, 'drawerChat']])
+    driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Global Chat')
+  else:
+    driver.FindElement([[By.NAME, 'ChatRoom: Global Chat']])
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Name Cell Reggie the Ravager']],
-      'Reggie the Ravager')
+      [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Name Cell ReggieTheRavager']],
+      'ReggieTheRavager')
 
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Allegiance Cell Reggie the Ravager']],
+      [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Allegiance Cell ReggieTheRavager']],
       'undeclared')
 
   driver.ExpectContains(
-      [[By.NAME, 'Leaderboard Points Cell Reggie the Ravager']],
+      [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell ReggieTheRavager']],
       '0')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
@@ -76,7 +87,7 @@ try:
 
   # driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
-  # driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
+  # driver.FindElement([[By.NAME, 'chatRoom-horde-3']])
   
   # driver.Click([[By.NAME, 'drawerMy Profile']])
 

@@ -1,32 +1,52 @@
 
 <dom-module id="ghvz-leaderboard-summary">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-     Polymer({
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
       is: 'ghvz-leaderboard-summary',
 
       properties: {
-        players: {
-          type: Array,
-          value: function() { return []; },
+        game: {
+          type: Object,
         },
-        numToShow: {
+        limit: {
           type: Number,
           value: 0,
         },
-        computedPlayerList: {
+        playerIdsToShow: {
           type: Array,
-          computed: 'computePlayerList_(players.length, numToShow)'
-        }
+          computed: 'computePlayerIdsToShow_(game.players.*)',
+          observer: 'onPlayerIdsToShowChanged_',
+        },
       },
-      computePlayerList_() {
-        // commented out because it changes the model
-        return this.players//.sort((p1, p2) => p2.points - p1.points)
-          .slice(0, this.numToShow || this.players.length);
+
+      onPlayerIdsToShowChanged_() {
+        this.$.repeater.render();
       },
+
+      computePlayerIdsToShow_() {
+        let sortedPlayers =
+            this.game.players.slice().sort((a, b) => this.sort_(a, b));
+        if (this.limit)
+          sortedPlayers = sortedPlayers.slice(0, this.limit);
+        return sortedPlayers.map(player => player.id);
+      },
+
+      sort_(playerA, playerB) {
+        return playerB.points - playerA.points;
+      },
+
+      // filter_(player) {
+      //   return this.playerIdsToShow && this.playerIdsToShow.includes(player.id);
+      // },
+
+      showPlayer_(playerId, playerIdsToShow) {
+        return playerIdsToShow.includes(playerId);
+      },
+
       makeTableBlueprint_: function() {
         return {
           itemsRepeater: this.$.repeater,
@@ -73,9 +93,17 @@
   <ghvz-table
       id="leaderboardTable"
       blueprint="[[makeTableBlueprint_()]]"
-      items="[[computedPlayerList]]">
-    <template is="dom-repeat" id="repeater" items="[[computedPlayerList]]" as="player" initial-count="1" target-framerate="5">
-      <div class="row">
+      items="[[game.players]]">
+    <template
+        is="dom-repeat"
+        id="repeater"
+        items="[[game.players]]"
+        as="player"
+        initial-count="1"
+        target-framerate="5"
+        sort="sort_"
+        observe="points">
+      <div class="row" hidden$="[[!showPlayer_(player.id, playerIdsToShow)]]">
         <ghvz-table-control-cell item="[[player]]"></ghvz-table-control-cell>
         <div
             name$="Leaderboard Name Cell [[player.name]]"

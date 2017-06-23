@@ -11,7 +11,7 @@
         bridge: Object,
         isAdmin: Boolean,
         database: Object,
-        currentPlayerId: String,
+        actingPlayerId: String,
         user: String,
         game: String,
         playerId: String,
@@ -56,7 +56,7 @@
             this.fire('ghvz-set-path', {
               inGame: true,
               replace: true,
-              path: ['profile', this.currentPlayerId],
+              path: ['profile', this.actingPlayerId],
             });
           });
         } else if (this.path[this.path.length - 2] == 'profile') {
@@ -95,30 +95,34 @@
       },
       deactivate_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           active: false,
         });
       },
       activate_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           active: true,
         });
       },
       unsetCanInfect_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           canInfect: false,
         });
       },
       setCanInfect_() {
         this.bridge.updatePlayer({
+          gameId: this.game.id,
           playerId: this.player.id,
           canInfect: true,
         });
       },
-      seePrivateInfo_(isAdmin, currentPlayerId, playerId) {
-        return isAdmin || currentPlayerId == playerId;
+      seePrivateInfo_(isAdmin, actingPlayerId, playerId) {
+        return isAdmin || actingPlayerId == playerId;
       },
     });
   });
@@ -185,7 +189,7 @@
         <div class="name">
           [[player.name]]
         </div>
-        <div class="sub-item">
+        <div name="status" class="sub-item">
           Status: 
           <span class="status">
             [[getAliveStatusLabel_(player.allegiance)]]
@@ -196,14 +200,14 @@
           <span name="profilePoints">[[player.points]]</span>
         </div>
         <template is="dom-if" if="[[lifeCode]]">
-          <div class="sub-item">
+          <div name="lifecode" class="sub-item">
             Life code: [[lifeCode]]
           </div>
         </template>
       </div>
     </div>
   </div>
-  <template is="dom-if" if="[[seePrivateInfo_(isAdmin, currentPlayerId, playerId)]]">
+  <template is="dom-if" if="[[seePrivateInfo_(isAdmin, actingPlayerId, playerId)]]">
     <div id="details">
       <div>Notifications should sound: <b>[[computeBooleanText_(player.notificationSettings.sound)]]</b></div>
       <div>Notifications should vibrate: <b>[[computeBooleanText_(player.notificationSettings.vibrate)]]</b></div>
@@ -226,7 +230,7 @@
           </b>
         </div>
         <div>Active: <b>[[computeBooleanText_(player.active)]]</b></div>
-        <div>Can infect: <b>[[computeBooleanText_(player.canInfect)]]</b></div>
+        <div name="can-infect">Can infect: <b>[[computeBooleanText_(player.canInfect)]]</b></div>
         <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
         <div>Can be starting zombie: <b>[[computeBooleanText_(player.startAsZombie)]]</b></div>
         <div>Wants to be secret zombie: <b>[[computeBooleanText_(player.wantToBeSecretZombie)]]</b></div>
@@ -238,10 +242,10 @@
           <paper-button raised on-tap="activate_">Activate</paper-button>
         </template>
         <template is="dom-if" if="[[player.canInfect]]">
-          <paper-button raised on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
+          <paper-button raised id="unset-infect-button" on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
         </template>
         <template is="dom-if" if="[[!player.canInfect]]">
-          <paper-button raised on-tap="setCanInfect_">Set Can Infect</paper-button>
+          <paper-button raised id="set-infect-button" on-tap="setCanInfect_">Set Can Infect</paper-button>
         </template>
         <div>Notes: [[player.notes]]</div>
       </template>

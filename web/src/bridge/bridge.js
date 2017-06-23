@@ -81,8 +81,8 @@ class IdGenerator {
   verifyMessageId(id) { return this.verify('message', id); }
   newMissionId(note) { return this.generateId('mission', note); }
   verifyMissionId(id) { return this.verify('mission', id); }
-  newNotificationCategoryId(note) { return this.generateId('notification', note); }
-  verifyNotificationCategoryId(id) { return this.verify('notification', id); }
+  newQueuedNotificationId(note) { return this.generateId('queuedNotification', note); }
+  verifyQueuedNotificationId(id) { return this.verify('queuedNotification', id); }
   newNotificationId(note) { return this.generateId('notification', note); }
   verifyNotificationId(id) { return this.verify('notification', id); }
   newPlayerId(note) { return this.generateId('player', note); }
@@ -277,6 +277,7 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('updateMission', {
     missionId: 'MissionId',
     gameId: 'GameId',
+    accessGroupId: '|GroupId',
     serverTime: '|Timestamp',
     beginTime: '|Timestamp',
     endTime: '|Timestamp',
@@ -512,37 +513,36 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('sendNotification', {
     gameId: 'GameId',
     serverTime: '|Timestamp',
-    notificationId: '!NotificationCategoryId',
-    name: 'String',
+    queuedNotificationId: '!QueuedNotificationId',
     message: 'String',
     previewMessage: 'String',
-    sound: 'Boolean',
+    site: 'Boolean',
+    mobile: 'Boolean',
     vibrate: 'Boolean',
-    groupId: '?GroupId',
-    playerId: '?PlayerId',
+    sound: 'Boolean',
     email: 'Boolean',
-    app: 'Boolean',
     destination: '?String',
-    sendTime: 'Timestamp',
-    allegianceFilter: 'String',
+    sendTime: '?Timestamp',
+    playerId: '?PlayerId',
+    groupId: '?GroupId',
     icon: '?String',
   });
+
   serverMethods.set('updateNotification', {
-    gameId: 'GameId',
     serverTime: '|Timestamp',
-    notificationId: 'NotificationCategoryId',
-    name: '|String',
+    gameId: 'GameId',
+    queuedNotificationId: 'QueuedNotificationId',
     message: '|String',
     previewMessage: '|String',
-    sound: '|Boolean',
+    site: '|Boolean',
+    mobile: '|Boolean',
     vibrate: '|Boolean',
-    groupId: '|?GroupId',
-    playerId: '|?PlayerId',
+    sound: '|Boolean',
     email: '|Boolean',
-    app: '|Boolean',
-    destination: '|?String',
-    sendTime: '|Timestamp',
-    allegianceFilter: '|String',
+    destination: '|String',
+    sendTime: '|?Timestamp',
+    playerId: '|?PlayerId',
+    groupId: '|?GroupId',
     icon: '|?String',
   });
 
@@ -552,6 +552,7 @@ class FakeIdGenerator extends IdGenerator {
     serverTime: '|Timestamp',
     text: 'String',
     type: 'String',
+    number: 'Number',
   });
   serverMethods.set('updateQuizQuestion', {
     quizQuestionId: 'QuizQuestionId',
@@ -559,6 +560,7 @@ class FakeIdGenerator extends IdGenerator {
     serverTime: '|Timestamp',
     text: '|String',
     type: '|String',
+    number: '|Number',
   });
 
   serverMethods.set('addQuizAnswer', {
@@ -569,6 +571,7 @@ class FakeIdGenerator extends IdGenerator {
     text: 'String',
     order: 'Number',
     isCorrect: 'Boolean',
+    number: 'Number',
   });
   serverMethods.set('updateQuizAnswer', {
     gameId: 'GameId',
@@ -577,13 +580,18 @@ class FakeIdGenerator extends IdGenerator {
     text: '|String',
     order: '|Number',
     isCorrect: '|Boolean',
+    number: '|Number',
   });
 
   serverMethods.set('markNotificationSeen', {
     gameId: 'GameId',
     serverTime: '|Timestamp',
     playerId: 'PlayerId',
-    notificationId: 'NotificationCategoryId',
+    notificationId: 'NotificationId',
+  });
+
+  serverMethods.set('executeNotifications', {
+    serverTime: '|Timestamp',
   });
 
   Bridge.METHODS_MAP = serverMethods;

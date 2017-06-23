@@ -1,6 +1,8 @@
 import sys
+import setup
 import time
 from driver import WholeDriver
+import setup
 
 from selenium.webdriver.common.by import By
 
@@ -78,24 +80,24 @@ try:
 
   driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
-  driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
+  driver.FindElement([[By.NAME, 'chatRoom-resistance-2']])
 
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-game-page'],
-       [By.NAME, 'Leaderboard Allegiance Cell Deckerd the Hesitant']],
+      [[By.NAME, 'leaderboard-card'],
+       [By.NAME, 'Leaderboard Allegiance Cell DeckerdTheHesitant']],
       'resistance')
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-game-page'],
-       [By.NAME, 'Leaderboard Points Cell Deckerd the Hesitant']],
+      [[By.NAME, 'leaderboard-card'],
+       [By.NAME, 'Leaderboard Points Cell DeckerdTheHesitant']],
       '0')
 
   driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-display-game-page'],
-       [By.NAME, 'Leaderboard Name Cell Deckerd the Hesitant']],
-      'Deckerd the Hesitant')
+      [[By.NAME, 'leaderboard-card'],
+       [By.NAME, 'Leaderboard Name Cell DeckerdTheHesitant']],
+      'DeckerdTheHesitant')
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
@@ -127,7 +129,7 @@ try:
 
   # driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
-  # driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
+  # driver.FindElement([[By.NAME, 'chatRoom-horde-3']])
   
   # driver.Click([[By.NAME, 'drawerMy Profile']])
 
