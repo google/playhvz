@@ -66,16 +66,6 @@
         }
       },
 
-      extractChatRoomIdFromUrl_() {
-        let initialUrl = window.location.pathname;
-        let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
-        if (!match) {
-          return null;
-        }
-        let chatRoomId = match[1];
-        return chatRoomId;
-      },
-
       getAliveStatus_(allegiance) {
         return allegiance == 'horde';
       },
