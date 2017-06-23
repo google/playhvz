@@ -254,7 +254,7 @@ class FakeServer {
   }
 
   sendChatMessage(args) {
-    let {chatRoomId, playerId, messageId} = args;
+    let {chatRoomId, playerId, messageId, message} = args;
 
     let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     let game = this.database.gamesById[gameId];
@@ -309,10 +309,9 @@ class FakeServer {
   }
 
   addResponse(args) {
-    let {requestId, responseId, text} = args;
+    let {gameId, requestId, text} = args;
     let requestCategoryId = this.reader.getRequestCategoryIdForRequestId(requestId);
     let chatRoomId = this.reader.getChatRoomIdForMessageId(requestId);
-    let gameId = this.reader.getGameIdForChatRoomId(chatRoomId);
     let requestCategory = this.reader.get(this.reader.getRequestCategoryPath(gameId, chatRoomId, requestCategoryId));
     let requestPath = this.reader.getRequestPath(gameId, chatRoomId, requestCategoryId, requestId);
     let request = this.reader.get(requestPath);
@@ -342,6 +341,18 @@ class FakeServer {
   updateMission(args) {
     let {gameId, missionId} = args;
     let missionPath = this.reader.getMissionPath(gameId, missionId);
+    let mission = this.database.gamesById[gameId].missionsById[missionId];
+    if ('accessGroupId' in args) {
+      let oldGroup = this.database.gamesById[gameId].groupsById[mission.accessGroupId];
+      for (let {playerId} of oldGroup.memberships) {
+        this.removePlayerFromMission_(gameId, missionId, playerId);
+      }
+      let newGroup = this.database.gamesById[gameId].groupsById[accessGroupId];
+      for (let {playerId} of newGroup.memberships) {
+        this.addPlayerToMission_(gameId, missionId, playerId);
+      }
+      delete args.accessGroupId;
+    }
     for (let argName in args) {
       this.writer.set(missionPath.concat([argName]), args[argName]);
     }
