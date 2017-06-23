@@ -12,7 +12,7 @@ Model.Gun = function(id, args) {
   Utils.addEmptyLists(this, GUN_COLLECTIONS);
 }
 
-const USER_PROPERTIES = [];
+const USER_PROPERTIES = ["deviceToken"];
 const USER_COLLECTIONS = ["players"];
 Model.User = function(id, args) {
   this.id = id;
