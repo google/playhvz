@@ -105,12 +105,12 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.chat, mostRecentPage)]]">
-    <ghvz-card 
-      expand 
+    <ghvz-card
+      expand
       id$="chat-page-[[player.name]]"
-      name="chat-card" 
-      spaced$="[[!isMobile]]" 
-      with-back="[[isMobile]]" 
+      name="chat-card"
+      spaced$="[[!isMobile]]"
+      with-back="[[isMobile]]"
       with-menu="[[isMobile]]">
       <ghvz-chat-page
           bridge="[[bridge]]"
@@ -283,6 +283,7 @@
     <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Game Stats</div>
       <ghvz-stats-page
+          name="stats-card"
           bridge="[[bridge]]"
           database="[[database]]"
           game="[[game]]"

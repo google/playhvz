@@ -47,16 +47,8 @@ try:
   driver.Click([[By.NAME, 'drawerGame Stats']])
 
 
-  # check our charts. Ensure that new zombie counts
-
-  # Weird failure here
-  # it appears the act of running tests creates repeated dom trees.
-  # for example, running the following from the browser console:
-  # document.querySelectorAll('#main #zombie_count')
-  # returns 1 element in the regular browser session
-  # but 3 elements after the test has failed.
-  # not sure why this happens....
-  driver.ExpectContains([[By.ID, 'jackApp'], [By.ID, 'main'],
+  # check our charts. Ensure that new zombie counts are reflected
+  driver.ExpectContains([[By.NAME, 'stats-card'],
                           [By.ID, 'current_population_meta'],
                           [By.ID, 'zombie_count']], '5')
 

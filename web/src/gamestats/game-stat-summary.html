@@ -67,19 +67,19 @@
 <template class="layout vertical" style="height:300px">
   <paper-icon-button
       src="[[buttonIcon]]"
-      id="swap-gamestat-button" 
+      id="swap-gamestat-button"
       on-click="onSwapClicked_">
   </paper-icon-button>
-  <neon-animated-pages 
-      id="game-stat-summary" 
-      class="flex" 
+  <neon-animated-pages
+      id="game-stat-summary"
+      class="flex"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation"
       selected="[[showing]]">
-    <!--<neon-animatable>
+    <neon-animatable>
       <ghvz-population-current game="[[game]]"/>
     </neon-animatable>
-    <neon-animatable>
+    <!--<neon-animatable>
       <ghvz-population-over-time game="[[game]]"/>
     </neon-animatable>-->
   </neon-animated-pages>
