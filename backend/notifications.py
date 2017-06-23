@@ -23,7 +23,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
         queued_notification_id))
     return
 
-  device_tokens = set()
+  tokens = set()
 
   for index, player_id in enumerate(player_ids):
     notification_id = queued_notification_id.replace('queuedNotification-', 'notification-', 1) + '-' + str(index)
