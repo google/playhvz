@@ -48,7 +48,7 @@ def ValidateInputs(request, game_state, expectations_by_param_name):
   expectations_by_param_name['requestingUserIdJwt'] = 'String'
   expectations_by_param_name['requestingUserId'] = '?UserId'
   expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
-  expectations_by_param_name['serverTime'] = '|Timestamp'
+  expectations_by_param_name['requestTimeOffset'] = '|Number'
 
 
   try:
