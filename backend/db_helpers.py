@@ -45,7 +45,7 @@ def ValidateInputs(request, game_state, expectations_by_param_name):
   if request is None:
     request = {}
 
-  expectations_by_param_name['requestingUserToken'] = 'String'
+  expectations_by_param_name['requestingUserIdJwt'] = 'String'
   expectations_by_param_name['requestingUserId'] = '?UserId'
   expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
   expectations_by_param_name['serverTime'] = '|Timestamp'
