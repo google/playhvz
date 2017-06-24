@@ -21,8 +21,10 @@ class FakeServer {
     window.fakeServer = this;
   }
   getTime_(args) {
-    let {serverTime} = args;
-    return serverTime || new Date().getTime();
+    let {requestTimeOffset} = args;
+    if (!requestTimeOffset)
+      requestTimeOffset = 0;
+    return new Date().getTime() + requestTimeOffset;
   }
   register(args) {
     let {userId, name} = args;
@@ -656,8 +658,8 @@ class FakeServer {
       throw 'No player found with life code ' + lifeCode;
     }
   }
-  infect(args) {
-    let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId, gameId} = args;
+  infect(request) {
+    let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId, gameId} = request;
     let victimPlayer = this.findPlayerByIdOrLifeCode_(gameId, victimPlayerId, victimLifeCode);
     let infectorPlayerPath = this.reader.getPlayerPath(gameId, infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
@@ -667,13 +669,7 @@ class FakeServer {
     let victimPlayerPath = this.reader.getPlayerPath(gameId, victimPlayer.id);
     if (infectorPlayer.allegiance == 'resistance') {
       // Add a self-infection
-      this.writer.insert(
-          infectorPlayerPath.concat(["infections"]),
-          null,
-          new Model.Infection(this.idGenerator.newInfectionId(), {
-            infectorId: infectorPlayerId,
-            time: this.getTime_(args),
-          }));
+      this.addInfection_(request, gameId, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
       // Set the infector to zombie
       // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
       if (infectorPlayer.infections.length >= infectorPlayer.lives.length) {
@@ -683,13 +679,7 @@ class FakeServer {
       this.writer.set(victimPlayerPath.concat(["canInfect"]), true);
     } else {
       // Add an infection to the victim
-      this.writer.insert(
-          victimPlayerPath.concat(["infections"]),
-          null,
-          new Model.Infection(this.idGenerator.newInfectionId(), {
-            infectorId: infectorPlayerId,
-            time: this.getTime_(args),
-          }));
+      this.addInfection_(request, gameId, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
       // Set the victim to zombie
       if (victimPlayer.infections.length >= victimPlayer.lives.length) {
         this.setPlayerZombie(victimPlayer.id);
@@ -697,19 +687,51 @@ class FakeServer {
     }
     return victimPlayer.id;
   }
-  addLife(args) {
-    let {lifeId, playerId, lifeCode} = args;
+
+  addInfection_(request, gameId, infectionId, infecteePlayerId, infectorPlayerId) {
+    let infecteePlayerPath = this.reader.getPlayerPath(gameId, infecteePlayerId);
+    let infecteePlayer = this.reader.get(infecteePlayerPath);
+    let time = this.getTime_(request);
+
+    let latestTime = 0;
+    for (let life of infecteePlayer.lives)
+      latestTime = Math.max(latestTime, life.time);
+    for (let infection of infecteePlayer.infections)
+      latestTime = Math.max(latestTime, infection.time);
+    assert(time > latestTime);
+
+    this.writer.insert(
+        infecteePlayerPath.concat(["infections"]),
+        null,
+        new Model.Infection(infectionId, {
+          infectorId: infectorPlayerId,
+          time: time,
+        }));
+  }
+
+  addLife(request) {
+    let {lifeId, playerId, lifeCode} = request;
     let code = lifeCode || "codefor-" + lifeId;
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
+    let player = this.reader.get(playerPath);
+    let time = this.getTime_(request);
+
+    let latestTime = 0;
+    for (let life of player.lives)
+      latestTime = Math.max(latestTime, life.time);
+    for (let infection of player.infections)
+      latestTime = Math.max(latestTime, infection.time);
+    assert(time > latestTime);
+
+    assert(player.lives.length == player.infections.length);
     this.writer.insert(
         this.reader.getLifePath(gameId, playerId, null),
         null,
         new Model.Life(lifeId, {
           code: code,
-          time: this.getTime_(args),
+          time: time,
         }));
-    let player = this.reader.get(playerPath);
     if (player.lives.length > player.infections.length) {
       this.setPlayerHuman(playerId);
     }
