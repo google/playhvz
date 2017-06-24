@@ -19,6 +19,26 @@ class RemoteBridge {
       }
     }
 
+    let signInMethod = Utils.getParameterByName('signInMethod', 'google');
+    assert(signInMethod == 'google' || signInMethod == 'email' || signInMethod == 'token', 'signInMethod must be "google" or "email" or "token"!');
+    if (signInMethod == 'email') {
+      let email = Utils.getParameterByName('email', null);
+      let password = Utils.getParameterByName('password', null);
+      if (!email || !password) {
+        alert('Email and password must be set');
+        return;
+      }
+
+      firebase.auth().signInWithEmailAndPassword(email, password);
+    } else if (signInMethod == 'token') {
+      let token = Utils.getParameterByName('userToken', null);
+      if (!token) {
+        alert('If signInMethod=token, then userToken must be set!');
+        return;
+      }
+      firebase.auth().signInWithToken
+    }
+
     this.signedInPromise =
         new Promise((resolve, reject) => {
           firebase.auth().onAuthStateChanged((firebaseUser) => {
