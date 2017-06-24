@@ -11,6 +11,8 @@
 
 # need a way to have populate simulate players doing things to other players, like sending messages.
 # (i think this was the original reason for having playerId, actingPlayerId, etc. in request)
+# also need a way for populate to do the requestTimeOffset thing. perhaps this would be a perfect use case
+# for ray's site-level admin idea?
 
 # Convos to have:
 #   splitting methods along permission boundaries (especially infect!)
