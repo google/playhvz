@@ -31,6 +31,8 @@ class RemoteBridge {
       console.log('Signing in with email and password...');
       firebase.auth().signInWithEmailAndPassword(email, password);
     } else if (signInMethod == 'accessToken') {
+      console.log("Since signInMethod is 'accessToken', logging out first...");
+      firebase.auth().signOut();
       let accessToken = Utils.getParameterByName('accessToken', null);
       if (!accessToken) {
         alert('If signInMethod=accessToken, then accessToken must be set!');
