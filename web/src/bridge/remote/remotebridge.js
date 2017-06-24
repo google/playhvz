@@ -1,8 +1,6 @@
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig, signInMethod) {
-    this.signInMethod = signInMethod;
-
+  constructor(serverUrl, firebaseConfig) {
     firebase.initializeApp(firebaseConfig);
     this.firebaseListener =
         new FirebaseListener(firebase.app().database().ref());
@@ -19,14 +17,41 @@ class RemoteBridge {
       }
     }
 
+    let signInMethod = Utils.getParameterByName('signInMethod', 'google');
+    assert(signInMethod == 'google' || signInMethod == 'email' || signInMethod == 'accessToken', 'signInMethod must be "google" or "email" or "accessToken"!');
+    if (signInMethod == 'email') {
+      console.log("Since signInMethod is 'email', logging out first...");
+      firebase.auth().signOut();
+      let email = Utils.getParameterByName('email', null);
+      let password = Utils.getParameterByName('password', null);
+      if (!email || !password) {
+        alert('Email and password must be set');
+        return;
+      }
+      console.log('Signing in with email and password...');
+      firebase.auth().signInWithEmailAndPassword(email, password);
+    } else if (signInMethod == 'accessToken') {
+      let accessToken = Utils.getParameterByName('accessToken', null);
+      if (!accessToken) {
+        alert('If signInMethod=accessToken, then accessToken must be set!');
+        return;
+      }
+      console.log('Signing in with credential...');
+      let provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('email');
+      let credential = provider.credential(null, accessToken);
+      firebase.auth().signInWithCredential(credential);
+    }
+
     this.signedInPromise =
         new Promise((resolve, reject) => {
           firebase.auth().onAuthStateChanged((firebaseUser) => {
             if (firebaseUser) {
-              firebase.auth().currentUser.getToken(false).then((userToken) => {
+              console.log('Sign in successful!');
+              firebaseUser.getIdToken(false).then((userIdJwt) => {
                 if (this.userId == null) {
                   this.userId = "user-" + firebaseUser.uid;
-                  this.requester.setRequestingUserTokenAndId(userToken, this.userId);
+                  this.requester.setRequestingUserIdAndJwt(userIdJwt, this.userId);
                   this.firebaseListener.listenToUser(this.userId, false)
                       .then((exists) => {
                         if (exists) {
@@ -52,24 +77,13 @@ class RemoteBridge {
   signIn({}) {
     if (this.userId == null) {
       return new Promise((resolve, reject) => {
-        let signInMethod = Utils.getParameterByName('signInMethod', 'google');
-        assert(signInMethod == 'google' || signInMethod == 'email', 'signInMethod must be "google" or "email"!');
-        if (signInMethod == 'email') {
-          let email = Utils.getParameterByName('email', null);
-          let password = Utils.getParameterByName('password', null);
-          if (!email || !password) {
-            alert('Email and password must be set');
-            return;
-          }
-
-          firebase.auth().signInWithEmailAndPassword(email, password);
-        } else {
-          firebase.auth().getRedirectResult();
-          firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-        }
+        console.log('Signing in with redirect...');
+        let provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('email');
+        firebase.auth().signInWithRedirect(provider);
       });
     } else {
-      throwError("Impossible");
+      throwError("Called signIn when already signed in!");
     }
   }
 

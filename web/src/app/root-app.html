@@ -90,7 +90,7 @@
 </style>
 <template>
   <template is="dom-if" if="[[isRealEnv(bridgeType)]]">
-    <ghvz-real-app config="[[config]]"></ghvz-real-app>
+    <ghvz-real-app id="realApp" config="[[config]]"></ghvz-real-app>
   </template>
   <template is="dom-if" if="[[isFakeEnv(bridgeType)]]">
     <ghvz-fake-app config="[[config]]"></ghvz-fake-app>
