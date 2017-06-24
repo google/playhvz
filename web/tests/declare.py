@@ -80,7 +80,7 @@ try:
 
   driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
-  driver.FindElement([[By.NAME, 'chatRoom-resistance-2']])
+  driver.FindElement([[By.NAME, 'Resistance Comms Hub']])
 
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
