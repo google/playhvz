@@ -1,3 +1,26 @@
+# right now, every request comes with three things:
+#   requestingUserIdJwt
+#   requestingUserId
+#   requestingPlayerId
+#   gameId (except for register and registerUserDevice)
+# instead of receiving it in the request, let's extract requestingUserId from requestingUserIdJwt
+# instead of receiving it in the request, let's infer requestingPlayerId from requestingUserId and gameId
+
+# we gotta check that theyre a player in this game
+# in fact, we gotta check that every ID in the request is under the same game
+
+# need a way to have populate simulate players doing things to other players, like sending messages.
+# (i think this was the original reason for having playerId, actingPlayerId, etc. in request)
+
+# Convos to have:
+#   splitting methods along permission boundaries (especially infect!)
+
+# Convos to have in distant future:
+#   prevent notification spamming
+#   whether we want to pattern the endpoints according to entity
+#   site admins, only they can add a game
+#   “seen” in chat
+
 from api_helpers import AppError, respondError
 
 import copy
@@ -33,10 +56,9 @@ ROOT_ENTRIES = (
 def Register(request, game_state):
   """Register a new user in the DB.
 
-  Validation:
-  Args:
-    userId: Unique userId added to the user list.
-    name: A name to use to reference a player.
+  Security:
+    None
+    (we might want to get rid of userId, and just infer from requestingUserIdJwt)
 
   Firebase entries:
     /users/%(userId)
@@ -55,15 +77,8 @@ def Register(request, game_state):
 def AddGame(request, game_state):
   """Add a new game.
 
-  Validation:
-    gameId must be valid format.
-
-  Args:
-    gameId:
-    adminUserId:
-    name:
-    rulesHtml: static HTML containing the rule doc.
-    stunTimer:
+  Security:
+    Anyone can do this.
 
   Firebase entries:
     /games/%(gameId)
@@ -73,7 +88,7 @@ def AddGame(request, game_state):
     'adminUserId': 'UserId',
     'active': 'Boolean',
     'name': 'String',
-    'rulesHtml': 'String',
+    'rulesHtml': 'String', # static HTML containing the rule doc.
     'faqHtml': 'String',
     'stunTimer': 'Number',
     'startTime': 'Timestamp',
@@ -98,6 +113,9 @@ def AddGame(request, game_state):
 def SetAdminContact(request, game_state):
   """Update a game entry.
 
+  Security:
+    Only admins
+
   Firebase entries:
     /games/%(gameId)/a
   """
@@ -112,6 +130,9 @@ def SetAdminContact(request, game_state):
 
 def UpdateGame(request, game_state):
   """Update a game entry.
+
+  Security:
+    Only admins
 
   Firebase entries:
     /games/%(gameId)
@@ -140,6 +161,9 @@ def UpdateGame(request, game_state):
 def AddGameAdmin(request, game_state):
   """Add an admin to a game.
 
+  Security:
+    Only admins
+
   Validation:
 
   Args:
@@ -166,6 +190,12 @@ def AddGameAdmin(request, game_state):
 
 def AddGroup(request, game_state):
   """Add a new player group.
+
+  Security:
+    Any player can do this
+    autoAdd: true for admins only
+    canRemoveSelf: false for admins only
+    canRemoveOthers: false for admins only
 
   Firebase entries:
     /groups/%(groupId)
@@ -210,6 +240,10 @@ def AddGroup(request, game_state):
 def UpdateGroup(request, game_state):
   """Update a group entry.
 
+  Security:
+    Only owners or admins can call this.
+    Aside from that, same value restrictions as AddGroup
+
   Firebase entries:
     /groups/%(groupId)
   """
@@ -235,6 +269,11 @@ def UpdateGroup(request, game_state):
 
 def AddPlayer(request, game_state):
   """Add a new player for a user and put that player into the game.
+
+  Security:
+    Non-admins can only add a player for their own userId.
+    Admins can add a player for any userId.
+    canInfect, gotEquipment, notes, can only be filled by admins.
 
   Player data gets sharded between /playersPublic/%(playerId)
   and /playersPrivate/%(playerId) for public and private info about players.
@@ -327,9 +366,10 @@ def AddPlayer(request, game_state):
 
 def UpdatePlayer(request, game_state):
   """Update player properties.
-  Firebase entries:
-    /playersPrivate/%(playerId)
-    /playersPublic/%(playerId)
+
+  Security:
+    Only admin or current player can call this.
+    Only admin can update canInfect, gotEquipment, notes.
   """
 
   helpers.ValidateInputs(request, game_state, {
@@ -347,7 +387,7 @@ def UpdatePlayer(request, game_state):
       'sound': '|Boolean',
       'vibrate': '|Boolean',
     },
-   'volunteer': {
+    'volunteer': {
       'advertising': '|Boolean',
       'logistics': '|Boolean',
       'communications': '|Boolean',
@@ -401,6 +441,8 @@ def UpdatePlayer(request, game_state):
 def AddGun(request, game_state):
   """Add a new gun to the DB.
 
+  Security: Admins only.
+
   Firebase entries:
     /guns/%(gunId)/
   """
@@ -424,6 +466,8 @@ def AddGun(request, game_state):
 def UpdateGun(request, game_state):
   """Update details of a mission.
 
+  Security: Admins only
+
   Firebase entries:
     /missions/%(missionId)
   """
@@ -446,6 +490,8 @@ def UpdateGun(request, game_state):
 def AssignGun(request, game_state):
   """Assign a gun to a given player.
 
+  Security: Admins only
+
   Firebase entries:
     /guns/%(gunId)
   """
@@ -466,6 +512,8 @@ def AssignGun(request, game_state):
 
 def AddMission(request, game_state):
   """Add a new mission.
+
+  Security: Admins only
 
   Firebase entries:
     /game/%(gameId)/missions
@@ -489,6 +537,11 @@ def AddMission(request, game_state):
 
 
 def DeleteMission(request, game_state):
+  """Delete a mission.
+
+  Security: Admins only.
+
+  """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
     'missionId': 'MissionId'
@@ -500,6 +553,8 @@ def DeleteMission(request, game_state):
 
 def UpdateMission(request, game_state):
   """Update details of a mission.
+
+  Security: Admins only
 
   Firebase entries:
     /missions/%(missionId)
@@ -525,24 +580,20 @@ def UpdateMission(request, game_state):
 
 def AddChatRoom(request, game_state):
   """Add a new chat room.
-  Use the chatRoomId to make a new chat room.
-  Add the chatRoomId to the game's list of chat rooms.
-  Validation:
-  Args:
-    chatRoomId: Id to use for this chat room.
-    groupId:
-    name: Chat room name, can be updated.
-    withAdmins: bool, used by the client.
+
+  Security:
+    Anyone can call this.
+
   Firebase entries:
     /chatRooms/%(chatRoomId)
     /games/%(gameId)/chatRooms
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'chatRoomId': '!ChatRoomId',
+    'chatRoomId': '!ChatRoomId', # Id to use for this chat room.
     'accessGroupId': 'GroupId',
-    'withAdmins': 'Boolean',
-    'name': 'String'
+    'withAdmins': 'Boolean', # bool, used by the client.
+    'name': 'String', # Chat room name, can be updated.
   })
 
   chat_room_id = request['chatRoomId']
@@ -556,6 +607,9 @@ def AddChatRoom(request, game_state):
 
 def UpdateChatRoom(request, game_state):
   """Update a chat room.
+
+  Security:
+    Admins and group owners only.
 
   Firebase entries:
     /chatRooms/%(chatRoomId)
@@ -573,21 +627,16 @@ def UpdateChatRoom(request, game_state):
 def SendChatMessage(request, game_state):
   """Record a chat message.
 
-  Validation:
-    Player is in the chat room (via the group).
-    The messageId is not used yet in this chat rom.
-
-  Args:
-    chatRoomId: Chat room to send the message to.
-    messageId: Unique ID to use for the message.
-    message: The message to send.
+  Security:
+    Players can call this if they are in the accessGroup
+    Admins can't send a message in another player's name. (so we should remove playerId from request)
 
   Firebase entries:
     /chatRooms/%(chatRoomId)/messages
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'chatRoomId': 'ChatRoomId',
+    'chatRoomId': 'ChatRoomId', # Chat room to send the message to.
     'messageId': '!MessageId',
     'message': 'String',
     'playerId': 'PlayerId',
@@ -664,42 +713,55 @@ def SendChatMessage(request, game_state):
   game_state.put('/chatRooms/%s/messages' % chat, messageId, put_data)
 
 def AddRequestCategory(request, game_state):
+  """
+
+  Security:
+    Any player in the chat room can call this.
+
+  """
+
   pass
 
 def UpdateRequestCategory(request, game_state):
+  """
+  Security:
+    Only the sender can call this.
+  """
+
   pass
 
 def AddRequest(request, game_state):
+  """
+
+  Security:
+    Only the sender of the request category can call this.
+
+  """
   pass
 
 def AddResponse(request, game_state):
+  """
+
+  Security:
+    Only the receiver of the request can call this.
+
+  """
   pass
 
-
-def UpdateRequestCategory(request, game_state):
-  pass
 
 def AddQuizQuestion(request, game_state):
   """Adds a quiz question with the given information
 
-    Validation:
-      gameId must exist
-      quizQuestionId must not exist
-      text must be present
-      type must be present
+    Security:
+      Admins only
 
-    Args:
-      gameId: the quiz question will be associated with
-      quizQuestionId: The id used to identify the question
-      text: Text that represents the question
-      type: The type of the question. Either 'order' or 'multipleChoice'
   """
   helpers.ValidateInputs(request, game_state, {
-    'gameId': 'GameId',
-    'quizQuestionId': 'String',
-    'text': 'String',
-    'type': 'String',
-    'number': 'Number',
+    'gameId': 'GameId', # game that the quiz question will be associated with
+    'quizQuestionId': '!QuizQuestionId', # The id used to identify the question
+    'text': 'String', # Text that represents the question
+    'type': 'String', # The type of the question. Either 'order' or 'multipleChoice'
+    'number': 'Number', # What order this question appears in the quiz
   })
 
   question = game_state.get(
@@ -725,21 +787,15 @@ def AddQuizQuestion(request, game_state):
 def UpdateQuizQuestion(request, game_state):
   """Updates a quiz question with the given information
 
-    Validation:
-      gameId must exist
-      quizQuestionId must exist
-
-    Args:
-      quizQuestionId: The id used to identify the question
-      text: Text that represents the question
-      type: The type of the question. Either 'order' or 'multipleChoice'
+    Security:
+      Admins only
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'quizQuestionId': 'String',
-    'text': '|String',
-    'type': '|String',
-    'number': '|Number',
+    'quizQuestionId': 'QuizQuestionId', # The id used to identify the question
+    'text': '|String', # Text that represents the question
+    'type': '|String', # The type of the question. Either 'order' or 'multipleChoice'
+    'number': '|Number', # What order this question appears in the quiz
   })
 
   question = game_state.get(
@@ -774,30 +830,17 @@ def UpdateQuizQuestion(request, game_state):
 def AddQuizAnswer(request, game_state):
   """Adds a quiz answer with the given information
 
-    Validation:
-      gameId must exist
-      isCorrect must a Boolean
-      order must be a Number
-      quizAnswerId must exist
-      quizQuestionId must not exist
-      text must be a String
-
-    Args:
-      gameId: the quiz question will be associated with
-      isCorrect: Whether or not the answer is the correct one to the question
-      order: The order the answer should be displayed relative to others
-      quizAnswerId: The id used to identify the answer
-      quizQuestionId: The id used to identify the question the answer is to
-      text: Text representing the answer
+    Security:
+      Admins only
   """
   helpers.ValidateInputs(request, game_state, {
-    'gameId': 'GameId',
-    'isCorrect': 'Boolean',
-    'order': 'Number',
-    'quizAnswerId': 'String',
-    'quizQuestionId': 'String',
-    'text': 'String',
-    'number': 'Number',
+    'gameId': 'GameId', # the game the quiz answer will be associated with
+    'isCorrect': 'Boolean', # Whether or not the answer is the correct one to the question
+    'order': 'Number', # in what order this appears in the correct answers list
+    'quizAnswerId': 'String', # The id used to identify the answer
+    'quizQuestionId': 'String', # The id used to identify the question the answer is to
+    'text': 'String', # Text representing the answer
+    'number': 'Number', # The order the answer should be displayed relative to others
   })
 
   question = game_state.get(
@@ -822,27 +865,17 @@ def AddQuizAnswer(request, game_state):
 def UpdateQuizAnswer(request, game_state):
   """Updates a quiz answer with the given information
 
-    Validation:
-      gameId must exist
-      quizAnswerId must exist
-      quizQuestionId must exist
-
-    Args:
-      gameId: the quiz question will be associated with
-      isCorrect: Whether or not the answer is the correct one to the question
-      order: The order the answer should be displayed relative to others
-      quizAnswerId: The id used to identify the answer
-      quizQuestionId: The id used to identify the question the answer is to
-      text: Text representing the answer
+    Security:
+      Admins only
   """
   helpers.ValidateInputs(request, game_state, {
-    'gameId': 'GameId',
-    'isCorrect': '|Boolean',
-    'order': '|Number',
-    'quizAnswerId': 'String',
-    'quizQuestionId': 'String',
-    'text': '|String',
-    'number': '|Number',
+    'gameId': 'GameId', # the game this quiz answer will be associated with
+    'isCorrect': '|Boolean', # Whether or not the answer is the correct one to the question
+    'order': '|Number', # in what order this appears in the correct answers list
+    'quizAnswerId': 'String', # The id used to identify the answer
+    'quizQuestionId': 'String', # The question this answer belongs to
+    'text': '|String', # Text representing the answer
+    'number': '|Number', # The order the answer should be displayed relative to others
   })
 
   question = game_state.get(
@@ -874,63 +907,25 @@ def UpdateQuizAnswer(request, game_state):
   return []
 
 def AddDefaultProfileImage(request, game_state):
-  # gameId: gameId,
-  # defaultProfileImageId: bridge.idGenerator.newGroupId(),
-  # allegianceFilter: 'resistance',
-  # profileImageUrl: 'https://cdn.vectorstock.com/i/thumb-large/03/81/1890381.jpg',
-  pass
-
-
-
-def AckChatMessage(request, game_state):
-  """Ack a chat message which sets the ack to the timestamp of that message.
-
-  Validation:
-    Player is in the chat room (via the group).
-
-  Args:
-    chatRoomId: Chat room to send the message to.
-    playerId: Player sending the message.
-    messageId: Unique ID to use for the message.
-
-  Firebase entries:
-    /chatRooms/%(chatRoomId)/acks
   """
-  valid_args = ['chatRoomId', 'playerId']
-  required_args = list(valid_args)
-  required_args.extend(['messageId'])
-  helpers.ValidateInputs(request, game_state, required_args, valid_args)
+    Security:
+      Admins only
+  """
 
-  chat = request['chatRoomId']
-  messageId = request['messageId']
-  playerId = request['playerId']
-  group = helpers.ChatToGroup(game_state, chat)
-  message = game_state.get('/chatRooms/%s/messages' % chat, messageId)
-
-  if message is None:
-    raise InvalidInputError('That message ID is not valid.')
-  if not game_state.get('/groups/%s/players' % group, playerId):
-    raise InvalidInputError('You are not a member of that chat room.')
-
-  game_state.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
-
+  pass
 
 def AddPlayerToGroup(request, game_state):
   """Add a player to a group.
 
   Either a member of the group adds another player or an admin adds a player.
 
-  Validation:
-    * Player doing the adding is a member of the group AND the group supports adding
-      or
-      The player is the group owner.
-    * playerToAddId is not already in the group.
-    * Both players and the groupId all point to the same game.
+  Security:
+    Add yourself to group only if canAddSelf is true, or youre an owner of the group, or youre an admin
+    Add others to group if (canAddOthers is true and youre in the group), or youre an owner of the group, or youre an admin
+    (overlap with validation above?)
 
-  Args:
-    groupId: The group to add a player to.
-    playerId: The player doing the adding (unless an admin).
-    playerToAddId: The player being added.
+  Validation:
+    Player must not already be in the group
 
   Firebase entries:
     /groups/%(groupId)/players/%(playerId)
@@ -939,9 +934,9 @@ def AddPlayerToGroup(request, game_state):
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'groupId': 'GroupId',
-    'playerToAddId': 'PlayerId',
-    'actingPlayerId': '?PlayerId'
+    'groupId': 'GroupId', # The group to add a player to.
+    'playerToAddId': 'PlayerId', # The player doing the adding (unless an admin).
+    'actingPlayerId': '?PlayerId' # The player doing the adding
   })
 
   game_id = request['gameId']
@@ -1014,15 +1009,14 @@ def RemovePlayerFromGroup(request, game_state):
 
   Either a member of the group or the admin adds a player.
 
-  Validation:
-    * Player doing the removing is a member of the group AND the group supports removing
-      or
-      The player is the group owner.
-    * playerToAddId is in the group.
-    * Both players and the groupId all point to the same game.
+  Security:
+    Can remove yourself if canRemoveSelf is true, or youre a group owner, or youre an admin.
+    Can remove others to group if (youre in the group and canRemoveOthers is true), or youre an owner of the group, or youre an admin
+    Add others to group if canAddOthers is true, or youre an owner of the group, or youre an admin
+    (remove actingPlayerId?)
 
   Args:
-    groupId: The group to remove a player from.
+    groupId: 
     playerId: The player doing the removing (unless an admin).
     playerToAddId: The player being removed.
 
@@ -1032,7 +1026,7 @@ def RemovePlayerFromGroup(request, game_state):
     /playersPrivate/%(playerId)/missions/
   """
   helpers.ValidateInputs(request, game_state, {
-    'groupId': 'GroupId',
+    'groupId': 'GroupId', # The group to remove a player from.
     'gameId': 'GameId',
     'playerToRemoveId': 'PlayerId',
     'actingPlayerId': '?PlayerId'
@@ -1142,13 +1136,11 @@ def Infect(request, game_state):
 
   Infect a human and gets points.
 
-  Args:
-    playerId: The person doing the infecting.
-    lifeCode: The life code being taken/infected, makes to the victom.
-
-
-  Validation:
-    Valid IDs. Infector can infect or is self-infecting. Infectee is human.
+  Security:
+    Only one of victimPlayerId or victimLifeCode can be set
+    victimPlayerId can only be set if admin, or if your player id is victimPlayerId
+    infectorPlayerId must be self if non admin, or anyone if admin
+    (split into two or three endpoints?)
 
   Firebase entries:
     /games/%(gameId)/players/%(playerId)
@@ -1157,9 +1149,9 @@ def Infect(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'infectionId': '!InfectionId',
     'gameId': 'GameId',
-    'infectorPlayerId': 'PlayerId',
-    'victimLifeCode': '?String',
-    'victimPlayerId': '?PlayerId',
+    'infectorPlayerId': 'PlayerId', # The person doing the infecting.
+    'victimLifeCode': '?String', # The victim's life code; life code being taken/infected.
+    'victimPlayerId': '?PlayerId', # The victim's player ID.
   })
 
   game_id = request['gameId']
@@ -1210,10 +1202,19 @@ def Infect(request, game_state):
   # is risky for the client; the client has to be careful about race conditions when reading
   # data returned from the server. In this case, this playerId response will likely reach
   # the client before firebase tells the client that this player was zombified.
+  # TODO: instead, have the infect widget watch for incoming infections with the same id as
+  # given in the request
   return victim_player_id
 
 
 def JoinResistance(request, game_state):
+}}}} start here do security
+  """
+  Security:
+    
+
+  """
+
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
     'playerId': 'PlayerId',
@@ -1590,6 +1591,8 @@ def UpdateNotification(request, game_state):
 
 def MarkNotificationSeen(request, game_state):
   """Updates the notification's seenTime.
+
+  Security: Only the receipient can mark it as seen.
 
   Firebase entries:
     /playersPrivate/%(playerId)/notifications/%(notificationId)
