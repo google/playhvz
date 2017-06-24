@@ -21,7 +21,6 @@ three Ionic secrets. If you mess them up, you can fix them inside either
 * `constants.py`: A small collection of constant values
 * `db_helpers.py`: Helper methods for accessing data in Firebase
 * `deploy`: Shell script to use to deploy the backend
-* `ionic.py`: Code using Ionic to deliver notifications to users
 * `notifications.py`: Code used to handle (cron-based) scheduling and sending notifications
 * `requirements.txt`: GCE - required Python libs
 * `secrets.py`: Auto-generated via the `deploy` script. DO NOT COMMIT TO GIT.

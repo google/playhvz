@@ -2,8 +2,10 @@ import logging
 import random
 import time
 
-import ionic
 import config
+import pyfcm
+
+fcm = pyfcm.FCMNotification(api_key=config.FIREBASE_APIKEY)
 
 def HandleNotification(game_state, queued_notification_id, queued_notification):
   """Helper function to propogate a notification."""
@@ -21,7 +23,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
         queued_notification_id))
     return
 
-  device_tokens = set()
+  tokens = set()
 
   for index, player_id in enumerate(player_ids):
     notification_id = queued_notification_id.replace('queuedNotification-', 'notification-', 1) + '-' + str(index)
@@ -41,9 +43,11 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
       user = game_state.get('/users', user_id)
       if 'deviceToken' in user:
         tokens.add(user['deviceToken'])
-
-  # TODO: Send notification to device_tokens
-
+    if len(tokens) == 0:
+      continue
+    fcm.notify_multiple_devices(registration_ids=tokens,
+                                message_title=notification['previewMessage'],
+                                message_body=notification['message'])
 
 def ExecuteNotifications(request, game_state):
   """INTERNAL ONLY: Send the notifications.
