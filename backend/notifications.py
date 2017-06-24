@@ -17,7 +17,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
     if player_ids is None:
       player_ids = []
     else:
-      player_ids = set(player_ids)
+      player_ids = set(player_ids.keys())
   else:
     logging.error('Queued notification %s does not have a playerId or a groupId!' % (
         queued_notification_id))
@@ -39,15 +39,15 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
                   notification_id, notification)
 
     if queued_notification['mobile']:
-      user_id = game_state.get('/playersPublic/%s' % queued_notification['gameId'], 'userId')
+      user_id = game_state.get('/playersPublic/%s' % player_id, 'userId')
       user = game_state.get('/users', user_id)
       if 'deviceToken' in user:
         tokens.add(user['deviceToken'])
-    if len(tokens) == 0:
-      continue
-    fcm.notify_multiple_devices(registration_ids=tokens,
-                                message_title=notification['previewMessage'],
-                                message_body=notification['message'])
+  if len(tokens) == 0:
+    return
+  fcm.notify_multiple_devices(registration_ids=list(tokens),
+                              message_title=notification['previewMessage'],
+                              message_body=notification['message'])
 
 def ExecuteNotifications(request, game_state):
   """INTERNAL ONLY: Send the notifications.
