@@ -39,17 +39,22 @@
 
           canAdd: {
             type: Boolean,
-            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.canAddOthers)',
+            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.canAddOthers, chatRoom)',
           },
 
-          canRemove: {
+          canRemoveSelf: {
             type: Boolean,
-            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveOthers)',
+            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveSelf, chatRoom)',
+          },
+
+          canRemoveOthers: {
+            type: Boolean,
+            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveOthers, chatRoom)',
           },
 
           showActionsSection: {
             type: Boolean,
-            computed: 'computeShowActionsSection_(canAdd, canRemove)',
+            computed: 'computeShowActionsSection_(canAdd, canRemoveSelf)',
           },
 
           showPlayerDropdown: {
@@ -64,12 +69,14 @@
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
 
-        computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers) {
-          return isAdmin || playerId == ownerPlayerId || canAddOthers;
+        computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers, chatRoom) {
+          return isAdmin || canAddOthers || 
+            (playerId == ownerPlayerId && !chatRoom.withAdmins);
         },
 
-        computeCanRemove_(isAdmin, playerId, ownerPlayerId, canRemoveOthers) {
-          return isAdmin || playerId == ownerPlayerId || canRemoveOthers;
+        computeCanRemove_(isAdmin, playerId, ownerPlayerId, canRemove, chatRoom) {
+          return isAdmin || canRemove ||
+            (playerId == ownerPlayerId && !chatRoom.withAdmins);
         },
 
         computeShowActionsSection_(canAdd, canRemove) {
@@ -193,7 +200,7 @@
             <iron-icon icon="social:notifications"></iron-icon>
             Notifications
           </a> -->
-          <template is="dom-if" if="[[canRemove]]">
+          <template is="dom-if" if="[[canRemoveSelf]]">
             <a name="chat-drawer-leave" href="javascript:void(0)" data-action="leave" class="drawer-item">
               <iron-icon icon="communication:call-made"></iron-icon>
               Leave
@@ -231,7 +238,7 @@
                       data-player-id$="[[item.id]]">
                       ping
                     </paper-item> -->
-                    <template is="dom-if" if="[[canRemove]]">
+                    <template is="dom-if" if="[[canRemoveOthers]]">
                       <paper-item 
                         id$="kick-[[item.name]]"
                         on-tap="captureTap_" 
