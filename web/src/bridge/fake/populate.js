@@ -55,7 +55,7 @@ function makePlayerProperties(id, userId, gameId, time, name) {
   };
 }
 
-function populatePlayers(bridge, gameId, gameStartOffset, numPlayers, numStartingZombies, numRevivesPerDay, numDays, numShuffles) {
+function populatePlayers(bridge, gameId, gameStartOffset, numPlayers, numStartingZombies, numRevivesPerDay, numDays, numShuffles, timeBetweenInfections) {
   let zombiesStartIndex = 0;
   let zombiesEndIndex = numStartingZombies;
   let lifeCodeNumber = 1001;
@@ -104,8 +104,9 @@ function populatePlayers(bridge, gameId, gameStartOffset, numPlayers, numStartin
       let infectorId = playerIds[j];
       let victimId = playerIds[zombiesEndIndex + j];
       let victimLifeCode = lifeCodesByPlayerId[victimId];
-      let infectionTime = dayStartOffset + (j + 1) * 11 * 60 * 1000; // infections are spread by 11 minutes
-      bridge.setRequestTimeOffset(infectionTime);
+      let infectionTimeOffset = dayStartOffset + (j + 1) * timeBetweenInfections; // infections are spread by 11 minutes
+      // console.log('infecting', victimId, 'at', infectionTimeOffset);
+      bridge.setRequestTimeOffset(infectionTimeOffset);
       bridge.infect({
         gameId: gameId,
         infectionId: bridge.idGenerator.newInfectionId(),
@@ -122,8 +123,9 @@ function populatePlayers(bridge, gameId, gameStartOffset, numPlayers, numStartin
       for (let j = zombiesStartIndex; j < zombiesStartIndex + numRevivesPerDay; j++) {
         let lifeCode = "life-" + lifeCodeNumber++;
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
-        let reviveTimeOffset = dayStartOffset + 12 * 60 * 60 * 1000; // 12 hours past day start,
+        let reviveTimeOffset = dayStartOffset + 12 * 60 * 60 * 1000; // 12 hours past day start
         bridge.setRequestTimeOffset(reviveTimeOffset);
+        // console.log('reviving', playerIds[j], 'at', reviveTimeOffset);
         bridge.addLife({
           gameId: gameId,
           lifeId: bridge.idGenerator.newLifeId(),
@@ -138,11 +140,11 @@ function populatePlayers(bridge, gameId, gameStartOffset, numPlayers, numStartin
 }
 
 function populatePlayersLight(bridge, gameId, gameStartOffset) {
-  populatePlayers(bridge, gameId, gameStartOffset, 20, 2, 2, 2, 3);
+  populatePlayers(bridge, gameId, gameStartOffset, 20, 2, 2, 2, 3, 60 * 60 * 1000);
 }
 
 function populatePlayersHeavy(bridge, gameId, gameStartOffset) {
-  populatePlayers(bridge, gameId, gameStartOffset, 300, 7, 6, 5, 3);
+  populatePlayers(bridge, gameId, gameStartOffset, 300, 7, 6, 5, 3, 11 * 60 * 1000);
 }
 
 function populateGame(bridge, gameId, config, populateLotsOfPlayers) {

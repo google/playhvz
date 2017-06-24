@@ -564,11 +564,11 @@ class FakeServer {
     let player = this.reader.get(this.reader.getPlayerPath(gameId, playerId));
     assert(player.allegiance == 'undeclared');
 
-    this.addLife({
+    this.addLife(Utils.merge(args, {
       lifeId: this.idGenerator.newLifeId(),
       playerId: playerId,
       lifeCode: lifeCode
-    });
+    }));
     this.setPlayerHuman(playerId);
   }
   joinHorde(args) {
@@ -661,6 +661,7 @@ class FakeServer {
   infect(request) {
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId, gameId} = request;
     let victimPlayer = this.findPlayerByIdOrLifeCode_(gameId, victimPlayerId, victimLifeCode);
+    victimPlayerId = victimPlayer.id;
     let infectorPlayerPath = this.reader.getPlayerPath(gameId, infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
     this.writer.set(
@@ -694,6 +695,8 @@ class FakeServer {
     let time = this.getTime_(request);
 
     let latestTime = 0;
+    assert(infecteePlayer.lives);
+    assert(infecteePlayer.infections);
     for (let life of infecteePlayer.lives)
       latestTime = Math.max(latestTime, life.time);
     for (let infection of infecteePlayer.infections)
@@ -718,6 +721,8 @@ class FakeServer {
     let time = this.getTime_(request);
 
     let latestTime = 0;
+    assert(player.lives);
+    assert(player.infections);
     for (let life of player.lives)
       latestTime = Math.max(latestTime, life.time);
     for (let infection of player.infections)
