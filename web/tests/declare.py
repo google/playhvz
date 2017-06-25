@@ -47,7 +47,7 @@ try:
   driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']])
   driver.FindElement(
     [[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']])
+  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']]) # Weird flake here
 
   driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']])
   driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']])
@@ -80,8 +80,14 @@ try:
   driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
   # Make sure that Jack is in the human chat and has appeared on the Leaderboard
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+  driver.Click([[By.NAME, 'drawerChat']])
+
   driver.FindElement([[By.NAME, 'Resistance Comms Hub']])
 
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerLeaderboard']])
 
   driver.ExpectContains(
@@ -99,13 +105,23 @@ try:
        [By.NAME, 'Leaderboard Name Cell DeckerdTheHesitant']],
       'DeckerdTheHesitant')
 
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerDashboard']])
 
-  # Have Drake (a zombie infect Jack)
+  # Have Drake (a zombie) infect Jack
   driver.SwitchUser("drake")
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerMy Profile']])
+
   driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerDashboard']])
+
   driver.SendKeys(
       [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
       'grobble forgbobbly')
@@ -115,14 +131,22 @@ try:
       'JackSlayerTheBeanSlasher')
 
   # Check that Drake got points for his infection
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerMy Profile']])
+
   driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
 
   # Check that Jack is now a zombie
   driver.SwitchUser("jack")
+
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+  driver.Click([[By.NAME, 'drawerChat']])
+
   driver.FindElement([[By.NAME, 'Horde ZedLink']])
-  driver.Click([[By.NAME, 'drawerMy Profile']])
 
   driver.Quit()
 
