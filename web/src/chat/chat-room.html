@@ -41,7 +41,15 @@
             value: false,
           },
 
-          
+          locationUploadEnabled: {
+            type: Boolean,
+            value: false,
+          },
+
+          imageUploadEnabled: {
+            type: Boolean,
+            value: false,
+          },
         },
 
         listeners: {
@@ -54,12 +62,8 @@
           'onMessageReceived_(chatRoom.messages.length)',
         ],
 
-        locationEnabled(isMobile) {
-          return isMobile && false;
-        },
-
-        imageUploadEnabled() {
-          return false;
+        locationUploadEnabled_(isMobile, locationUploadEnabled) {
+          return isMobile && locationUploadEnabled;
         },
 
         attached: function() {
@@ -289,6 +293,10 @@
         },
 
         sendCurrentLocation_() {
+          this.$.sendLocationForm.open();
+        },
+
+        onConfirmSendLocation_(e) {
           console.log('not implemented');
         },
       });
@@ -531,7 +539,7 @@
           on-keydown="checkForEnter_">
         </paper-textarea>
       </div>
-      <template is="dom-if" if="[[imageUploadEnabled()]]">
+      <template is="dom-if" if="[[imageUploadEnabled]]">
         <paper-icon-button
           class="icon-button"
           icon="image:photo"
@@ -539,7 +547,7 @@
           on-click="sendImage_">
         </paper-icon-button>
       </template>
-      <template is="dom-if" if="[[locationEnabled(isMobile)]]">
+      <template is="dom-if" if="[[locationUploadEnabled_(isMobile, locationUploadEnabled)]]">
         <paper-icon-button
           class="icon-button"
           icon="maps:my-location"
@@ -580,5 +588,14 @@
       is-admin="[[isAdmin]]"
       chat-room="[[chatRoom]]">
     </ghvz-chat-info-actions>
+
+     <ghvz-form
+      id="sendLocationForm"
+      title="Share location?"
+      close-label="Cancel"
+      done-label="Send"
+      on-ghvz-form-done="onConfirmSendLocation_">
+      <!-- Map thumbnail of current location here -->
+    </ghvz-form>
   </template>
 </dom-module>
