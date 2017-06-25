@@ -132,7 +132,7 @@
 
       <template is="dom-if" if="[[isPlayer]]">
 
-        <template is="dom-if" if="[[player.canInfect]]">
+        <template is="dom-if" if="[[player.private.canInfect]]">
           <ghvz-card name="infect-box" spaced left>
             <div class="header">Infect</div>
             <ghvz-infect
@@ -198,8 +198,8 @@
           </ghvz-card>
         </template>
 
-        <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
-          <template is="dom-if" if="[[membership.visible]]">
+        <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
+          <template is="dom-if" if="[[membership.isVisible]]">
             <ghvz-card spaced left>
               <ghvz-chat-room
                   small

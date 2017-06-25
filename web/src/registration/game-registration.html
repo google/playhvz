@@ -39,10 +39,11 @@
         this.bridge.createPlayer(
             Utils.merge(
                 {
-                  playerId: this.bridge.newPlayerId(),
+                  playerId: this.bridge.newPublicPlayerId(),
+                  privatePlayerId: this.bridge.newPrivatePlayerId(),
                   userId: this.userId,
                   gameId: this.game.id,
-                  active: true,
+                  isActive: true,
                   canInfect: false,
                   profileImageUrl: "",
                   wantToBeSecretZombie: false,
