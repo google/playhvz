@@ -15,11 +15,13 @@
 
           adminChatExists: Boolean,
 
+          adminChatRoomId: String,
+
           waitingToOpenChatRoomId: String,
         },
 
         observers: [
-          'onChatRoomsUpdated_(game, player.chatRoomMemberships.length)',
+          'onChatRoomsUpdated_(game, player.chatRoomMemberships.*)',
         ],
         
         listeners: {
@@ -40,8 +42,11 @@
             let chatRoomId = chatRoomMembership.chatRoomId;
             let chatRoom = this.game.chatRoomsById[chatRoomId];
             if (chatRoom.withAdmins) {
-              this.adminChatExists = true;
-              return;
+              this.adminChatRoomId = chatRoomId;
+              if (chatRoomMembership.visible) {
+                this.adminChatExists = true;
+                return;
+              }
             }
           }
           this.adminChatExists = false;
@@ -84,6 +89,20 @@
         },
 
         createAdminChat_() {
+          if (this.adminChatRoomId) {
+            for (let chatRoomMembership of this.player.chatRoomMemberships) {
+              if (chatRoomMembership.chatRoomId == this.adminChatRoomId) {
+                this.waitingToOpenChatRoomId = chatRoomMembership.chatRoomId;
+                this.bridge.updateChatRoomMembership({
+                  gameId: this.game.id, 
+                  chatRoomId: chatRoomMembership.chatRoomId,
+                  actingPlayerId: this.player.id,
+                  visible: true,
+                });
+                return;
+              }
+            }
+          }
           let name =  this.player.name + " & HvZ CDC";
           let groupId = this.bridge.newGroupId('withadmins');
           this.bridge.createGroup({
@@ -192,15 +211,17 @@
   <template>
     <div class="frame" on-tap="captureTap_">
       <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
-        <ghvz-chat-room-name-label
-            name$="[[membership.chatRoomId]]"
-            class="layout horizontal list-item name-label"
-            with-icon
-            game="[[game]]"
-            name$="[[getChatRoomName_(membership.chatRoomId)]]"
-            chat-room-id="[[membership.chatRoomId]]"
-            data-chat-room-id$="[[membership.chatRoomId]]">
-        </ghvz-chat-room-name-label>
+        <template is="dom-if" if="[[membership.visible]]">
+          <ghvz-chat-room-name-label
+              name$="[[getChatRoomName_(membership.chatRoomId)]]"
+              class="layout horizontal list-item name-label"
+              with-icon
+              game="[[game]]"
+              name$="[[getChatRoomName_(membership.chatRoomId)]]"
+              chat-room-id="[[membership.chatRoomId]]"
+              data-chat-room-id$="[[membership.chatRoomId]]">
+          </ghvz-chat-room-name-label>
+        </template>
       </template>
     </div>
 

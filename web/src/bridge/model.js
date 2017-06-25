@@ -92,7 +92,7 @@ Model.GroupMembership = function(id, args) {
   Utils.addEmptyLists(this, GROUP_MEMBERSHIP_COLLECTIONS);
 }
 
-const PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId"];
+const PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId", "visible"];
 const PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
 Model.PlayerChatRoomMembership = function(id, args) {
   this.id = id;

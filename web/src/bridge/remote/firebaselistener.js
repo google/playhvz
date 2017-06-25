@@ -547,6 +547,14 @@ window.FirebaseListener = (function () {
           });
         this.firebaseRoot.child(`/groups/${groupId}/players`)
           .on('child_added', (snap) => this.listenToGroupMembership_(gameId, groupId, snap.getKey()));
+        this.firebaseRoot.child(`/groups/${groupId}/players`)
+            .on('child_removed', (snap) => {
+              let playerId = snap.getKey();
+              let path = this.reader.getGroupMembershipPath(gameId, groupId, playerId)
+              let index = path[path.length - 1];
+              path = path.slice(0, path.length - 1);
+              this.writer.remove(path, index, playerId);
+            });
       });
     }
 
@@ -599,8 +607,10 @@ window.FirebaseListener = (function () {
 
     listenToPlayerChatRoomMembership_(gameId, playerId, chatRoomId) {
       this.listenOnce_(`/playersPrivate/${playerId}/accessibleChatRooms/${chatRoomId}`).then((snap) => {
+        console.warn('hardcoding visible to true until server support');
         let obj = new Model.PlayerChatRoomMembership(chatRoomId, {
-          chatRoomId: chatRoomId
+          chatRoomId: chatRoomId,
+          visible: true,
         });
         this.writer.insert(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(

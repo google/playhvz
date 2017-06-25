@@ -12,15 +12,15 @@ class NormalRequester {
   constructor(serverUrl) {
     assert(serverUrl);
     this.serverUrl = serverUrl;
-    this.userToken = null;
+    this.userIdJwt = null;
     this.userId = null;
     this.playerId = null;
     this.waitingRequests = [];
     this.openRequestPromise = Promise.resolve(null);
   }
-  setRequestingUserTokenAndId(userToken, userId) {
+  setRequestingUserIdAndJwt(userIdJwt, userId) {
     this.userId = userId;
-    this.userToken = userToken;
+    this.userIdJwt = userIdJwt;
   }
   setRequestingPlayerId(playerId) {
     this.playerId = playerId;
@@ -29,7 +29,7 @@ class NormalRequester {
   sendRequest(method, body) {
     return new Promise((resolve, reject) => {
       body = Utils.copyOf(body);
-      body.requestingUserToken = 'ohgodwhatisthis';//this.userToken;
+      body.requestingUserIdJwt = this.userIdJwt;
       if (!('requestingUserId' in body))
         body.requestingUserId = this.userId;
       if (!('requestingPlayerId' in body))

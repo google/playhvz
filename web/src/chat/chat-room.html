@@ -40,6 +40,8 @@
             type: Boolean,
             value: false,
           },
+
+          
         },
 
         listeners: {
@@ -444,7 +446,7 @@
     <!-- For webdrivers -->
     <div id="forWebdriver" name$="ChatRoom: [[chatRoom.name]]"></div>
 
-    <div id="ackContainer" class="ack-container" name$="[[chatRoom.name">
+    <div id="ackContainer" class="ack-container" name$="[[chatRoom.name]]">
       <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
         <template is="dom-if" if="[[!requestCategory.dismissed]]">
           <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
@@ -575,6 +577,7 @@
       bridge="[[bridge]]"
       game="[[game]]"
       player-id="[[currentPlayer.id]]"
+      is-admin="[[isAdmin]]"
       chat-room="[[chatRoom]]">
     </ghvz-chat-info-actions>
   </template>
