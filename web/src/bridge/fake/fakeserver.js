@@ -496,7 +496,7 @@ class FakeServer {
   }
   markNotificationSeen(args) {
     let {gameId, notificationId} = args;
-    let playerId = this.reader.getPlayerIdForNotificationId(notificationId);
+    let playerId = this.reader.getPlayerIdForNotificationId(gameId, notificationId);
     this.writer.set(
         this.reader.getNotificationPath(gameId, playerId, notificationId).concat(["seenTime"]),
         this.getTime_(args));

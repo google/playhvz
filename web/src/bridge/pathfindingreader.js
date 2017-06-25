@@ -142,6 +142,13 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), groupId, expect)]);
     return path;
   }
+  getPlayerIdForNotificationId(gameId, notificationId, expect) {
+    let path = this.pathForId_(notificationId, expect);
+    if (path)
+      return this.source.get(path.slice(0, 4)).id;
+    else
+      return null;
+  }
   getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId, expect) {
     assert(gameId);
     assert(playerId);

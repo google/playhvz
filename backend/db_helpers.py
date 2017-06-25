@@ -131,9 +131,9 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
       elif expectation == "PrivatePlayerId":
         ExpectExistence(game_state, '/privatePlayers/%s' % data, data, 'gameId', should_exist)
       elif expectation == "PublicLifeId":
-        ExpectExistence(game_state, '/livesPublic/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/publicLives/%s' % data, data, 'gameId', should_exist)
       elif expectation == "PrivateLifeId":
-        ExpectExistence(game_state, '/livesPrivate/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/privateLives/%s' % data, data, 'gameId', should_exist)
       elif expectation == "GunId":
         ExpectExistence(game_state, '/guns/%s' % data, data, 'label', should_exist)
       elif expectation == "MissionId":
@@ -146,6 +146,8 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
       elif expectation == "RewardId":
         pass
       elif expectation == "MessageId":
+        pass
+      elif expectation == "InfectionId":
         pass
       elif expectation == "MarkerId":
         pass
@@ -209,17 +211,26 @@ def GetPrivatePlayerId(game_state, public_player_id):
 
 def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   player_short_name = life_code.split('-')[0]
-  players = GetValueWithPropertyEqualTo(
+  public_players = GetValueWithPropertyEqualTo(
       game_state,
-      'privatePlayers',
+      'publicPlayers',
       'gameId',
       game_id)
-  if players is not None:
-    for player_id, player in players.iteritems():
-      if 'lives' in player:
-        for life_id, life in player['lives'].iteritems():
-          if life['code'] == life_code:
-            return player_id
+  if public_players is not None:
+    print 'lizard'
+    for public_player_id, public_player in public_players.iteritems():
+      private_player_id = public_player['privatePlayerId']
+      private_player = game_state.get('/privatePlayers', private_player_id)
+      print 'ostrich'
+      if 'lives' in private_player:
+        print 'lemur'
+        for public_life_id in private_player['lives'].keys():
+          print 'bizork' + public_life_id
+          public_life = game_state.get('/publicLives', public_life_id)
+          private_life = game_state.get('/privateLives', public_life['privateLifeId'])
+          if private_life['code'] == life_code:
+            print 'shrorp'
+            return public_player_id
   if expect:
     raise InvalidInputError('No player for life code %s' % life_code)
   return None
@@ -277,12 +288,6 @@ def MergeInto(a, b, path=None):
         else:
             a[key] = b[key]
     return a
-
-def GetWholePlayer(game_state, player_id):
-  return CopyMerge(
-        game_state.get('/publicPlayers', player_id),
-        game_state.get('/privatePlayers', player_id))
-
 
 def PlayerAllegiance(game_state, player):
   """Map a player to an allegiance."""

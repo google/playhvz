@@ -236,7 +236,13 @@
       "privatePlayerId": "privatePlayer-%(ident)s-2",
       "active": false,
       "number": 102,
-      "allegiance": "undeclared",
+      "allegiance": "horde",
+      "infections": {
+        "infection-%(ident)s-1": {
+          "infectorId": "publicPlayer-%(ident)s-3",
+          "time": 0
+        }
+      },
       "name": "testBobby2",
       "points": 0,
       "profileImageUrl": "http://jpg",
@@ -245,9 +251,9 @@
     "publicPlayer-%(ident)s-3": {
       "gameId": "game-%(ident)s-1",
       "privatePlayerId": "privatePlayer-%(ident)s-3",
-      "allegiance": "undeclared",
+      "allegiance": "horde",
       "active": false, "number": 103, "name": "testBobby3",
-      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
+      "points": 100, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
     },
     "publicPlayer-%(ident)s-4": {
       "gameId": "game-%(ident)s-1",
@@ -335,12 +341,13 @@
         "sound": true,
         "vibrate": true
       },
-      "canInfect": false,
+      "canInfect": true,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "userId": "user-%(ident)s-2",
       "gotEquipment": true,
       "notes": "",
+      "lives": {"publicLife-%(ident)s-1": true},
       "beInPhotos": true,
       "wantToBeSecretZombie": true,
       "accessibleMissions": {"mission-%(ident)s-1": true},
@@ -363,7 +370,7 @@
     },
     "privatePlayer-%(ident)s-3": {
       "notificationSettings": { "sound": true, "vibrate": true },
-      "canInfect": false,
+      "canInfect": true,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
@@ -498,8 +505,19 @@
       }
     }
   },
-  "livesPrivate": {},
-  "livesPublic": {},
+  "privateLives": {
+    "privateLife-%(ident)s-1": {
+      "gameId": "game-%(ident)s-1",
+      "code": "purple roller patrol"
+    }
+  },
+  "publicLives": {
+    "publicLife-%(ident)s-1": {
+      "gameId": "game-%(ident)s-1",
+      "privateLifeId": "privateLife-%(ident)s-1",
+      "time": 0
+    }
+  },
   "maps": {
     "map-%(ident)s-1": {
       "accessGroupId": "group-%(ident)s-1",

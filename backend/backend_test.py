@@ -554,6 +554,27 @@ class EndToEndTest(unittest.TestCase):
       update,
       400)
 
+    self.AssertOk('joinResistance', {
+      'gameId': self.Id('gameId', 1),
+      'playerId': self.Id('publicPlayerId', 2),
+      'lifeCode': 'purple roller patrol',
+      'lifeId': self.Id('publicLifeId', 1),
+      'privateLifeId': self.Id('privateLifeId', 1),
+    })
+
+    self.AssertOk('joinHorde', {
+      'gameId': self.Id('gameId', 1),
+      'playerId': self.Id('publicPlayerId', 3),
+    })
+
+    self.AssertOk('infect', {
+      'gameId': self.Id('gameId', 1),
+      'infectorPlayerId': self.Id('publicPlayerId', 3),
+      'victimLifeCode': 'purple roller patrol',
+      'victimPlayerId': None,
+      'infectionId': self.Id('infectionId', 1),
+    })
+
     # Final keep last
     self.AssertDataMatches(True)
     self.AssertDataMatches(False)

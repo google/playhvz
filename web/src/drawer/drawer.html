@@ -259,7 +259,7 @@
           </template>
         </template>
         <template is="dom-if" if="[[!isAdmin]]">
-          <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
+          <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
             <template is="dom-if" if="[[membership.visible]]">
               <ghvz-chat-room-name-label
                   class="layout horizontal listing drawer-item"

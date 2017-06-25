@@ -95,7 +95,7 @@
             // we want to just pick a chat room and show it.
             if (this.player.private.chatRoomMemberships.length > 0) {
               this.async(() => {
-                chatRoomId = this.player.chatRoomMemberships[0].id;
+                chatRoomId = this.player.private.chatRoomMemberships[0].id;
                 this.fire('ghvz-set-path', {
                   inGame: true,
                   path: ['chat', chatRoomId],

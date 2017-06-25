@@ -24,8 +24,8 @@ ROOT_ENTRIES = (
     'missions',
     'privatePlayers',
     'publicPlayers',
-    'livesPrivate',
-    'livesPublic',
+    'privateLives',
+    'publicLives',
     'users',
     'rewardCategories',
     'rewards',
@@ -1176,54 +1176,55 @@ def Infect(request, game_state):
   })
 
   game_id = request['gameId']
-  infector_player_id = request['infectorPlayerId']
+  infector_public_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
   victim_life_code = request['victimLifeCode']
-  victim_player_id = helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
+  victim_public_player_id = helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
 
-  infector_player = helpers.GetWholePlayer(game_state, infector_player_id)
-  victim_player = helpers.GetWholePlayer(game_state, victim_player_id)
+  infector_public_player = game_state.get('/publicPlayers', infector_public_player_id)
+  infector_private_player_id = helpers.GetPrivatePlayerId(game_state, infector_public_player_id)
+  infector_private_player = game_state.get('/privatePlayers', infector_private_player_id)
 
-  print "Infector %s is infecting %s" % (infector_player_id, victim_player_id)
-  print "infector:"
-  print infector_player
+  victim_public_player = game_state.get('/publicPlayers', victim_public_player_id)
+  victim_private_player_id = helpers.GetPrivatePlayerId(game_state, victim_public_player_id)
+  victim_private_player = game_state.get('/privatePlayers', victim_private_player_id)
 
   # Both players must be in the same game.
-  if helpers.PlayerToGame(game_state, victim_player_id) != game_id:
+  if helpers.PlayerToGame(game_state, victim_public_player_id) != game_id:
     raise InvalidInputError('Those players are not part of the same game!')
   # The infector must be able to infect or be doing a self-infect
-  if infector_player_id != victim_player_id and not infector_player['canInfect']:
+  if infector_public_player_id != victim_public_player_id and not infector_private_player['canInfect']:
     raise InvalidInputError('You cannot infect another player at the present time.')
   # The victim must be human to be infected
-  if victim_player['allegiance'] != constants.HUMAN:
+  if victim_public_player['allegiance'] != constants.HUMAN:
     raise InvalidInputError('Your victim is not human and cannot be infected.')
 
   # Add points and an infection entry for a successful infection
-  if infector_player_id != victim_player_id:
-    helpers.AddPoints(game_state, infector_player_id, constants.POINTS_INFECT)
-    infect_path = '/publicPlayers/%s/infections' % victim_player_id
+  if infector_public_player_id != victim_public_player_id:
+    helpers.AddPoints(game_state, infector_public_player_id, constants.POINTS_INFECT)
+    infect_path = '/publicPlayers/%s/infections' % victim_public_player_id
     infect_data = {
-      'infectorId': infector_player_id,
+      'infectorId': infector_public_player_id,
       'time': int(time.time()),
     }
     game_state.put(infect_path, infection_id, infect_data)
 
   # If secret zombie, set the victim to secret zombie and the infector to zombie
   # Else set the victom to zombie
-  if infector_player_id != victim_player_id and infector_player['allegiance'] == constants.HUMAN:
+  if infector_public_player_id != victim_public_player_id and infector_public_player['allegiance'] == constants.HUMAN:
     logging.warn('Secret infection')
-    SetPlayerAllegiance(game_state, victim_player_id, allegiance=constants.HUMAN, can_infect=True)
-    SetPlayerAllegiance(game_state, infector_player_id, allegiance=constants.ZOMBIE, can_infect=True)
+    SetPlayerAllegiance(game_state, victim_public_player_id, allegiance=constants.HUMAN, can_infect=True)
+    SetPlayerAllegiance(game_state, infector_public_player_id, allegiance=constants.ZOMBIE, can_infect=True)
   else:
     logging.warn('Normal infection')
-    SetPlayerAllegiance(game_state, victim_player_id, allegiance=constants.ZOMBIE, can_infect=True)
+    SetPlayerAllegiance(game_state, victim_public_player_id, allegiance=constants.ZOMBIE, can_infect=True)
 
   # DO NOT BLINDLY COPY THIS
   # Returning game data from the server (other than an error message or a success boolean)
   # is risky for the client; the client has to be careful about race conditions when reading
   # data returned from the server. In this case, this playerId response will likely reach
   # the client before firebase tells the client that this player was zombified.
-  return victim_player_id
+  return victim_public_player_id
 
 
 def JoinResistance(request, game_state):
@@ -1278,8 +1279,11 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
     /groups/%(groupId) indirectly
   """
   game_id = helpers.PlayerToGame(game_state, player_id)
+  private_player_id = helpers.GetPrivatePlayerId(game_state, player_id)
+  print 'florp'
+  print private_player_id
   game_state.put('/publicPlayers/%s' % player_id, 'allegiance', allegiance)
-  game_state.put('/privatePlayers/%s' % player_id, 'canInfect', can_infect)
+  game_state.put('/privatePlayers/%s' % private_player_id, 'canInfect', can_infect)
   AutoUpdatePlayerGroups(game_state, player_id, new_player=False)
 
 
@@ -1661,31 +1665,34 @@ def AddLife(request, game_state):
     'gameId': 'GameId',
     'playerId': 'PublicPlayerId',
     'lifeCode': '?String',
-    'publicLifeId': '!PublicLifeId',
+    'lifeId': '!PublicLifeId',
     'privateLifeId': '?!PrivateLifeId',
   })
 
-  player_id = request['playerId']
-  game_id = helpers.PlayerToGame(game_state, player_id)
+  public_player_id = request['playerId']
+  private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
+  game_id = request['gameId']
 
-  public_life_id = request['publicLifeId']
+  public_life_id = request['lifeId'] or ('publicLife-%s' % random.randint(0, 2**52))
   private_life_id = request['privateLifeId'] or ('privateLife-' + helpers.GetIdSuffix(public_life_id))
 
   life_code = request['lifeCode'] or RandomWords(3)
+
+  private_life = {
+    'gameId': game_id,
+    'code': life_code,
+  }
+  game_state.put('/privateLives', private_life_id, private_life)
 
   public_life = {
     'gameId': game_id,
     'time': int(time.time()),
     'privateLifeId': private_life_id,
   }
+  game_state.put('/publicLives', public_life_id, public_life),
 
-  private_life = {
-    'gameId': game_id,
-    'code': life_code,
-  }
-
-  game_state.put('/livesPublic', public_life_id, public_life),
-  game_state.put('/livesPrivate', private_life_id, private_life)
+  print 'doing a thing!'
+  game_state.patch('/privatePlayers/%s/lives' % private_player_id, {public_life_id: True})
 
 
 def DeleteTestData(request, game_state):
@@ -1786,6 +1793,7 @@ def AddMarker(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'color': 'String',
     'latitude': 'Number',
+    'gameId': 'GameId',
     'longitude': 'Number',
     'mapId': 'MapId',
     'name': 'String',
