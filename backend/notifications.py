@@ -9,20 +9,19 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
   """Helper function to propogate a notification."""
 
   if 'playerId' in queued_notification and queued_notification['playerId'] is not None:
-    player_ids = set([queued_notification['playerId']])
+    player_ids = [queued_notification['playerId']]
   elif 'groupId' in queued_notification:
     player_ids = game_state.get('/groups/%s' % queued_notification['groupId'], 'players')
     if player_ids is None:
       player_ids = []
     else:
-      player_ids = set(player_ids)
+      player_ids = sorted(player_ids)
   else:
     logging.error('Queued notification %s does not have a playerId or a groupId!' % (
         queued_notification_id))
     return
 
-  device_tokens = set()
-
+  device_tokens = []
   for index, player_id in enumerate(player_ids):
     notification_id = queued_notification_id.replace('queuedNotification-', 'notification-', 1) + '-' + str(index)
     notification = {
