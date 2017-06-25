@@ -1,5 +1,6 @@
 import setup
 from selenium.webdriver.common.by import By
+import time
 
 
 def insertAndVerifyMissionInfo(
@@ -55,7 +56,6 @@ try:
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-
   driver.Click([[By.NAME, 'drawerAdmin Missions']])
 
   driver.Click([[By.NAME, 'close-notification']])
@@ -65,14 +65,26 @@ try:
   driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.ID, 'menu']])
   driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.NAME, 'menu-item-Delete']])
   
-  driver.Click([[By.NAME, "mission-row-first human mission!"], [By.ID, 'menu']])
+  time.sleep(0.5)
+  driver.Click([[By.NAME, "mission-row-first human mission!"], [By.ID, 'menu']]) # TODO(aliengirl): figure out why menu doesn't always open here
   driver.Click([[By.NAME, "mission-row-first human mission!"], [By.NAME, 'menu-item-Delete']])
 
 
-  # Make sure both humans and zombies get a default message when no missions are posted. #TODO(aliengirl): Do this!!!
+  # Make sure both humans and zombies get a default message when no missions are posted.
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+  driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
 
+  driver.SwitchUser('zeke') # He's a zombie
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
 
   # Log back in as an admin.
+  driver.SwitchUser('zella')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+  driver.Click([[By.NAME, 'drawerAdmin Missions']])
 
   # Create a human mission
   driver.Click([[By.ID, 'add']])
@@ -109,24 +121,57 @@ try:
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'drawerButton']])
+  driver.Click([[By.NAME, 'drawerDashboard']])
 
-  driver.Click([[By.NAME, 'drawerMissions']])
-  driver.ExpectContains([[By.NAME, 'mission-card']], 'insert witty and entertaining name here')
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'insert witty and entertaining name here')
   
   # Log in as a zombie (Zeke), make sure he can see the zombie mission
   driver.SwitchUser('zeke')
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'drawerButton']])
-    
-  driver.Click([[By.NAME, 'drawerMissions']])
-  #driver.ExpectContains([[By.NAME, 'mission-card']], 'zed mission') #TODO - this can't get this to work yet
+  driver.Click([[By.NAME, 'drawerDashboard']])
+
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'zed mission')
 
   # TODO - ONCE IMPLEMENTED... 
   # As an admin, create a mission for humans who RSVP'd to the mission
+  insertAndVerifyMissionInfo(
+    name='Defeat the dread zombie boss Gnashable the Zeebweeble',
+    startYear='2017',
+    startMonth='9',
+    startDay='20',
+    startTime='3:00am',
+    endYear='2038',
+    endMonth='4',
+    endDay='2',
+    endTime='10:15pm',
+    details='<div>Basically, we just run around in circles trying not to die.</div>',
+    groupName='Resistance')
+
+  # As far as I can tell, the only way to 
+
+  driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.ID, 'menu']])
+  driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.ID, 'menu-item-Edit']])
+
+  insertAndVerifyMissionInfo(
+    name='Defeat the dread zombie boss Gnashable the Zeebweeble',
+    startYear='2017',
+    startMonth='9',
+    startDay='20',
+    startTime='3:00am',
+    endYear='2038',
+    endMonth='4',
+    endDay='2',
+    endTime='10:15pm',
+    details='<div>Basically, we just run around in circles trying not to die.</div>',
+    groupName='rsvpers for Defeat the dread zombie boss Gnashable the Zeebweeble')
+
   # Have Jack RSVP, see that the mission only appears after he RSVPs
   # As an admin, change the mission end date to later than the other human mission
   #Log in as a human (Jack). Show that the new mission doesn't show up anymore
+
+
   
   driver.Quit()
 

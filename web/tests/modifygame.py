@@ -81,5 +81,4 @@ try:
   driver.Quit()
 
 finally:
-  # driver.Quit()
   pass

@@ -9,6 +9,9 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="deckerd")
 
 try:
+  # Make sure that an undeclared person can see rules, global chat, no missions: TODO(aliengirl): add this
+
+
   # Time for Decker to choose a side
   driver.Click([[By.NAME, 'declareAllegiance']])
 
