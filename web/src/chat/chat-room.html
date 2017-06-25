@@ -548,12 +548,12 @@
         </paper-icon-button>
       </template>
       <template is="dom-if" if="[[locationUploadEnabled_(isMobile, locationUploadEnabled)]]">
-        <paper-icon-button
-          class="icon-button"
-          icon="maps:my-location"
-          title="Send current location"
-          on-click="sendCurrentLocation_">
-        </paper-icon-button>
+        <ghvz-chat-location
+          bridge="[[bridge]]"
+          game="[[game]]"
+          player="[[currentPlayer]]"
+          chat-room-id="[[chatRoomId]]">
+        </ghvz-chat-location>
       </template>
       <paper-button 
         class="send"
@@ -588,14 +588,5 @@
       is-admin="[[isAdmin]]"
       chat-room="[[chatRoom]]">
     </ghvz-chat-info-actions>
-
-     <ghvz-form
-      id="sendLocationForm"
-      title="Share location?"
-      close-label="Cancel"
-      done-label="Send"
-      on-ghvz-form-done="onConfirmSendLocation_">
-      <!-- Map thumbnail of current location here -->
-    </ghvz-form>
   </template>
 </dom-module>

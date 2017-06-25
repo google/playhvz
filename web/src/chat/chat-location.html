@@ -1,0 +1,83 @@
+<dom-module id="ghvz-chat-location">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-location',
+
+        properties: {
+          bridge: Object,
+          game: Object,
+          player: Object,
+          chatRoomId: String,
+        },
+
+        observers: [
+        ],
+
+        sendCurrentLocation_() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(this.setPosition_);
+          } else { 
+            x.innerHTML = "Geolocation is not supported by this browser.";
+          }
+          this.$.sendLocationForm.open();
+        },
+
+        setPosition_(position) {
+          var latlon = position.coords.latitude + "," + position.coords.longitude;
+
+          var img_url = "https://maps.googleapis.com/maps/api/staticmap" 
+            + "?center=" + latlon 
+            + "&size=200x200&" 
+            + "markers=|" + latlon 
+            + "&key=AIzaSyBLcysHAt2T64FEilpUEUlrJ34hrEY19cQ";
+
+          document.getElementById("mapContainer").src = img_url;
+        },
+
+        onConfirmSendLocation_(e) {
+          /*this.bridge.sendChatMessage({
+            gameId: this.game.id,
+            messageId: this.bridge.newMessageId(), 
+            chatRoomId: this.chatRoomId, 
+            playerId: this.player.id, 
+            message: "",
+            location: {}
+          });*/
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    .icon-button {
+      color: dodgerblue;
+    }
+    .map-container {
+      padding: 8px;
+      width: 200px;
+      height: 200px;
+    }
+  </style>
+  <template>
+    <paper-icon-button
+      class="icon-button"
+      icon="maps:my-location"
+      title="Send current location"
+      on-click="sendCurrentLocation_">
+    </paper-icon-button>
+    <ghvz-form
+        id="sendLocationForm"
+        title="Send location?"
+        close-label="Cancel"
+        done-label="Send"
+        on-ghvz-form-done="onConfirmSendLocation_">
+      <img id="mapContainer" class="map-container" src="https://goo.gl/SkVFXW"></img>
+    </ghvz-form>
+  </template>
+</dom-module>
