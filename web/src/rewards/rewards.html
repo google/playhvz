@@ -101,7 +101,7 @@
               {
                 property: "badgeImageUrl",
                 label: "Badge",
-                description: "A word to prefix codes with. Must be unique. Also used as a random seed for generating the codes. Example: derp.",
+                description: "Url of the reward image.",
               },
               {
                 property: "description",
@@ -242,7 +242,7 @@
     <paper-dialog modal id="codesDialog">
       <paper-textarea id="codesDialogContents"></paper-textarea>
       <div class="buttons">
-        <paper-button dialog-dismiss>Done</paper-button>
+        <paper-button dialog-dismiss name="done">Done</paper-button>
       </div>
     </paper-dialog>
 
@@ -251,7 +251,7 @@
         blueprint="[[makeCategoriesTableBlueprint_()]]"
         items="[[rewardCategories]]">
       <template is="dom-repeat" id="categoriesRepeater" items="[[rewardCategories]]" as="category" initial-count="1" target-framerate="5">
-        <div class="row">
+        <div class="row" name$="row-[[category.shortName]]">
           <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
           <div class="cell">[[category.name]]</div>
           <div class="cell">[[category.points]]</div>
@@ -272,6 +272,7 @@
       <div id="newReward">
         <paper-input
             id="rewardCodeInput"
+            type="number"
             label="Num rewards to generate"
             value="{{numNewRewards}}">
         </paper-input>
@@ -291,7 +292,7 @@
           blueprint="[[makeRewardsTableBlueprint_()]]"
           items="[[currentRewardCategory.rewards]]">
         <template is="dom-repeat" id="rewardsRepeater" items="[[currentRewardCategory.rewards]]" as="reward" initial-count="1" target-framerate="5">
-          <div class="row">
+          <div class="row" name$="row-[[reward.code]]">
             <ghvz-table-control-cell item="[[reward]]"></ghvz-table-control-cell>
             <div class="cell">[[reward.code]]</div>
             <div class="cell">[[computePlayerName_(reward)]]</div>

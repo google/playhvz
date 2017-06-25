@@ -68,7 +68,7 @@
     <div id="number">
       [[player.number]]
     </div>
-    <a id="name" href="[[computePlayerProfileLink_(game, player.id)]]" on-tap="handleProfileLink_" inactive$="[[!player.active]]">
+    <a id="name" href="[[computePlayerProfileLink_(game, player.id)]]" on-tap="handleProfileLink_" inactive$="[[!player.isActive]]">
       [[player.name]]
     </a>
     <div id="allegiance">

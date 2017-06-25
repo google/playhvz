@@ -92,7 +92,7 @@ class IdGenerator {
   verifyInfectionId(id) { return this.verify('infection', id); }
   newPublicLifeId(note) { return this.generateId('publicLife', note); }
   verifyPublicLifeId(id) { return this.verify('publicLife', id); }
-  newPrivateLifeId(note) { return this.generateId('life', note); }
+  newPrivateLifeId(note) { return this.generateId('privateLife', note); }
   verifyPrivateLifeId(id) { return this.verify('privateLife', id); }
   newMapId(note) { return this.generateId('map', note); }
   verifyMapId(id) { return this.verify('map', id); }
@@ -182,7 +182,7 @@ class FakeIdGenerator extends IdGenerator {
     rulesHtml: 'String',
     faqHtml: 'String',
     stunTimer: 'Number',
-    active: 'Boolean',
+    isActive: 'Boolean',
     startTime: 'Timestamp',
     endTime: 'Timestamp',
     registrationEndTime: 'Timestamp',
@@ -193,7 +193,7 @@ class FakeIdGenerator extends IdGenerator {
     rulesHtml: '|String',
     faqHtml: '|String',
     stunTimer: '|Number',
-    active: '|Boolean',
+    isActive: '|Boolean',
     startTime: '|Timestamp',
     endTime: '|Timestamp',
     registrationEndTime: '|Timestamp',
@@ -240,7 +240,7 @@ class FakeIdGenerator extends IdGenerator {
       vibrate: 'Boolean',
       sound: 'Boolean',
     },
-    active: 'Boolean',
+    isActive: 'Boolean',
     gotEquipment: 'Boolean',
     notes: 'String',
   });
@@ -272,7 +272,7 @@ class FakeIdGenerator extends IdGenerator {
       vibrate: '|Boolean',
       sound: '|Boolean',
     }),
-    active: '|Boolean',
+    isActive: '|Boolean',
     gotEquipment: '|Boolean',
     notes: '|String',
   });
@@ -300,6 +300,7 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('deleteMission', {
     gameId: 'GameId',
     missionId: 'MissionId',
+    accessGroupId: 'GroupId',
   });
 
   serverMethods.set('selfInfect', {required: {playerId: 'PublicPlayerId'}});
@@ -396,7 +397,7 @@ class FakeIdGenerator extends IdGenerator {
     serverTime: '|Timestamp',
     chatRoomId: 'ChatRoomId',
     actingPlayerId: 'PublicPlayerId',
-    visible: '|Boolean',
+    isVisible: '|Boolean',
   });
 
   serverMethods.set('createMap', {

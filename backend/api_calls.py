@@ -73,7 +73,7 @@ def AddGame(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'gameId': '!GameId',
     'adminUserId': 'UserId',
-    'active': 'Boolean',
+    'isActive': 'Boolean',
     'name': 'String',
     'rulesHtml': 'String',
     'faqHtml': 'String',
@@ -85,7 +85,7 @@ def AddGame(request, game_state):
 
   put_data = {
     'name': request['name'],
-    'active': request['active'],
+    'isActive': request['isActive'],
     'rulesHtml': request['rulesHtml'],
     'faqHtml': request['faqHtml'],
     'stunTimer': request['stunTimer'],
@@ -132,7 +132,7 @@ def UpdateGame(request, game_state):
   })
 
   put_data = {}
-  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'active', 'startTime', 'endTime', 'registrationEndTime']:
+  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime']:
     if property in request:
       put_data[property] = request[property]
 
@@ -253,7 +253,7 @@ def AddPlayer(request, game_state):
     'userId': 'UserId',
     'playerId': '!PublicPlayerId',
     'privatePlayerId': '?!PrivatePlayerId',
-    'active': 'Boolean',
+    'isActive': 'Boolean',
     'name': 'String',
     'needGun': 'Boolean',
     'canInfect': 'Boolean',
@@ -321,7 +321,7 @@ def AddPlayer(request, game_state):
     'userId' : user_id,
     'name': request['name'],
     'profileImageUrl' : request['profileImageUrl'],
-    'active': request['active'],
+    'isActive': request['isActive'],
     'points': 0,
     'allegiance': constants.UNDECLARED,
   }
@@ -342,7 +342,7 @@ def UpdatePlayer(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
     'playerId': 'PublicPlayerId',
-    'active': '|Boolean',
+    'isActive': '|Boolean',
     'name': '|String',
     'needGun': '|Boolean',
     'profileImageUrl': '|?String',
@@ -378,7 +378,7 @@ def UpdatePlayer(request, game_state):
     raise InvalidInputError('Name cannot contain spaces.')
 
   public_update = {}
-  for property in ['active', 'name', 'profileImageUrl']:
+  for property in ['isActive', 'name', 'profileImageUrl']:
     if property in request:
       public_update[property] = request[property]
 
@@ -659,7 +659,7 @@ def SendChatMessage(request, game_state):
   put_data = {
     'playerId': request['playerId'],
     'message': request['message'],
-    'time': int(time.time())
+    'time': int(time.time() * 1000)
   }
   if 'image' in request:
     put_data['image'] = {
@@ -1014,11 +1014,13 @@ def AddPlayerToGroupInner(game_state, group_id, public_player_to_add_id):
 
   chats = helpers.GroupToChats(game_state, group_id)
   for chat in chats:
-    game_state.put('/privatePlayers/%s/accessibleChatRooms' % private_player_to_add_id, chat, True)
+    game_state.put('/privatePlayers/%s/chatRoomMemberships' % private_player_to_add_id, chat, {
+      'isVisible': True,
+    })
 
   missions = helpers.GroupToMissions(game_state, group_id)
   for mission in missions:
-    game_state.put('/privatePlayers/%s/accessibleMissions' % private_player_to_add_id, mission, True)
+    game_state.put('/privatePlayers/%s/missionMemberships' % private_player_to_add_id, mission, True)
 
 def RemovePlayerFromGroup(request, game_state):
   """Remove a player from a group.
@@ -1111,11 +1113,11 @@ def RemovePlayerFromGroupInner(game_state, group_id, public_player_id):
 
   chats = helpers.GroupToChats(game_state, group_id)
   for chat in chats:
-    game_state.delete('/privatePlayers/%s/accessibleChatRooms' % private_player_id, chat)
+    game_state.delete('/privatePlayers/%s/chatRoomMemberships' % private_player_id, chat)
 
   missions = helpers.GroupToMissions(game_state, group_id)
   for mission in missions:
-    game_state.delete('/privatePlayers/%s/accessibleMissions' % private_player_id, mission)
+    game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission)
 
 
 def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
@@ -1205,7 +1207,7 @@ def Infect(request, game_state):
     infect_path = '/publicPlayers/%s/infections' % victim_public_player_id
     infect_data = {
       'infectorId': infector_public_player_id,
-      'time': int(time.time()),
+      'time': int(time.time() * 1000),
     }
     game_state.put(infect_path, infection_id, infect_data)
 
@@ -1511,7 +1513,7 @@ def ClaimReward(request, game_state):
   helpers.AddPoints(game_state, player_id, reward_points)
   game_state.patch(reward_category_path, {'claimed': rewards_claimed + 1})
   game_state.patch(reward_path, {'playerId': player_id})
-  claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time())}
+  claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time() * 1000)}
   game_state.put('%s/claims' % player_path, reward_id, claim_data)
 
   return reward_category_id
@@ -1686,13 +1688,12 @@ def AddLife(request, game_state):
 
   public_life = {
     'gameId': game_id,
-    'time': int(time.time()),
+    'time': int(time.time() * 1000),
     'privateLifeId': private_life_id,
   }
   game_state.put('/publicLives', public_life_id, public_life),
 
-  print 'doing a thing!'
-  game_state.patch('/privatePlayers/%s/lives' % private_player_id, {public_life_id: True})
+  game_state.patch('/publicPlayers/%s/lives' % public_player_id, {public_life_id: True})
 
 
 def DeleteTestData(request, game_state):
@@ -1867,6 +1868,7 @@ def UpdatePlayerMarkers(request, game_state):
   """
   helpers.ValidateInputs(request, game_state, {
     'latitude': 'Number',
+    'gameId': 'GameId',
     'longitude': 'Number',
     'playerId': 'PublicPlayerId',
   })

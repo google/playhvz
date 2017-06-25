@@ -12,7 +12,7 @@ Model.Gun = function(id, args) {
   Utils.addEmptyLists(this, Model.GUN_COLLECTIONS);
 }
 
-Model.USER_PROPERTIES = ["deviceToken"];
+Model.USER_PROPERTIES = ["deviceToken", "a"];
 Model.USER_COLLECTIONS = ["publicPlayers"];
 Model.User = function(id, args) {
   this.id = id;
@@ -28,7 +28,7 @@ Model.UserPublicPlayer = function(id, args) {
   Utils.addEmptyLists(this, Model.USER_PUBLIC_PLAYER_COLLECTIONS);
 }
 
-Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
+Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId", "startTime", "endTime", "registrationEndTime"];
 Model.GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "queuedNotifications", "quizQuestions", "groups", "maps", "defaultProfileImages"];
 Model.Game = function(id, args) {
   this.id = id;
@@ -53,7 +53,7 @@ Model.QuizAnswer = function(id, args) {
 }
 
 Model.GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "canAddOthers", "canRemoveOthers", "canAddSelf", "canRemoveSelf", "autoRemove", "ownerPlayerId"];
-Model.GROUP_COLLECTIONS = ["memberships"];
+Model.GROUP_COLLECTIONS = ["players"];
 Model.Group = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, Model.GROUP_PROPERTIES);
@@ -84,20 +84,21 @@ Model.Marker = function(id, args) {
   Utils.addEmptyLists(this, Model.MARKER_COLLECTIONS);
 }
 
-Model.GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
-Model.GROUP_MEMBERSHIP_COLLECTIONS = [];
-Model.GroupMembership = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.GROUP_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, Model.GROUP_MEMBERSHIP_COLLECTIONS);
-}
+// Model.GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
+// Model.GROUP_MEMBERSHIP_COLLECTIONS = [];
+// Model.GroupMembership = function(id, args) {
+//   this.id = id;
+//   Utils.copyProperties(this, args, Model.GROUP_MEMBERSHIP_PROPERTIES);
+//   Utils.addEmptyLists(this, Model.GROUP_MEMBERSHIP_COLLECTIONS);
+// }
 
-Model.PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId", "visible"];
+Model.PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId", "isVisible"];
 Model.PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
 Model.PlayerChatRoomMembership = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, Model.PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES);
   Utils.addEmptyLists(this, Model.PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
+  assert(this.chatRoomId);
 }
 
 Model.PLAYER_MISSION_MEMBERSHIP_PROPERTIES = ["missionId"];
@@ -182,7 +183,7 @@ Model.PublicPlayer = function(id, args) {
     this.private = null;
 }
 
-Model.PRIVATE_PLAYER_PROPERTIES = ["isActive", "userId", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
+Model.PRIVATE_PLAYER_PROPERTIES = ["isActive", "beInPhotos", "userId", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
 Model.PRIVATE_PLAYER_COLLECTIONS = ["notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships", "mapMemberships"];
 Model.PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
 Model.PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
@@ -204,7 +205,7 @@ Model.Claim = function(id, args) {
   Utils.addEmptyLists(this, Model.CLAIM_COLLECTIONS);
 }
 
-Model.PUBLIC_LIFE_PROPERTIES = ["time", "private"];
+Model.PUBLIC_LIFE_PROPERTIES = ["time", "private", "privateLifeId", "gameId"];
 Model.PUBLIC_LIFE_COLLECTIONS = [];
 Model.PublicLife = function(id, args) {
   this.id = id;
@@ -212,7 +213,7 @@ Model.PublicLife = function(id, args) {
   Utils.addEmptyLists(this, Model.PUBLIC_LIFE_COLLECTIONS);
 }
 
-Model.PRIVATE_LIFE_PROPERTIES = ["code"];
+Model.PRIVATE_LIFE_PROPERTIES = ["code", "gameId"];
 Model.PRIVATE_LIFE_COLLECTIONS = [];
 Model.PrivateLife = function(id, args) {
   this.id = id;
@@ -236,7 +237,7 @@ Model.Notification = function(id, args) {
   Utils.addEmptyLists(this, Model.NOTIFICATION_COLLECTIONS);
 }
 
-Model.REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl"];
+Model.REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl", "gameId"];
 Model.REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 Model.RewardCategory = function(id, args) {
   this.id = id;
@@ -244,7 +245,7 @@ Model.RewardCategory = function(id, args) {
   Utils.addEmptyLists(this, Model.REWARD_CATEGORY_COLLECTIONS);
 }
 
-Model.REWARD_PROPERTIES = ["playerId", "code"];
+Model.REWARD_PROPERTIES = ["playerId", "code", "rewardCategoryId", "gameId"];
 Model.REWARD_COLLECTIONS = [];
 Model.Reward = function(id, args) {
   this.id = id;

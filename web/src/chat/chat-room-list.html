@@ -43,7 +43,7 @@
             let chatRoom = this.game.chatRoomsById[chatRoomId];
             if (chatRoom.withAdmins) {
               this.adminChatRoomId = chatRoomId;
-              if (chatRoomMembership.visible) {
+              if (chatRoomMembership.isVisible) {
                 this.adminChatExists = true;
                 return;
               }
@@ -97,7 +97,7 @@
                   gameId: this.game.id, 
                   chatRoomId: chatRoomMembership.chatRoomId,
                   actingPlayerId: this.player.id,
-                  visible: true,
+                  isVisible: true,
                 });
                 return;
               }
@@ -211,9 +211,9 @@
   <template>
     <div class="frame" on-tap="captureTap_">
       <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
-        <template is="dom-if" if="[[membership.visible]]">
+        <template is="dom-if" if="[[membership.isVisible]]">
           <ghvz-chat-room-name-label
-              name$="[[membership.chatRoomId]]"
+              name$="[[getChatRoomName_(membership.chatRoomId)]]"
               class="layout horizontal list-item name-label"
               with-icon
               game="[[game]]"

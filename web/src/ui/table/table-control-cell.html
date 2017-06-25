@@ -33,24 +33,50 @@
           }
         },
 
+        summonMenu_() {
+          this.fire('ghvz-table-summon-menu', {
+            container: this.$.menu,
+          });
+          return this.$.menu.firstElementChild;
+        },
+
         onPlaceholderMenuHover_: function(e) {
-          // This condition so we don't get the event from the menu itself once
-          // it's summoned.
+          // This condition so we don't get the event from the menu itself once it's summoned.
           if (e.target == this.$.menu) {
-            this.fire('ghvz-table-summon-menu', {
-              container: this.$.menu,
-            });
+            this.summonMenu_();
           }
         },
 
+        onPlaceholderMenuClick_: function(e) {
+          // This event should be impossible, except webdrivers like to directly click on
+          // things without mouseovering first.
+          // This condition so we don't get the event from the menu itself once it's summoned.
+          if (e.target == this.$.menu) {
+            let menu = this.summonMenu_().open();
+          }
+        },
+
+        summonCheckbox_() {
+          this.fire('ghvz-table-summon-checkbox', {
+            cell: this,
+            container: this.$.checkbox,
+          });
+          return this.$.checkbox.firstElementChild;
+        },
+
         onPlaceholderCheckboxHover_: function(e) {
-          // This condition so we don't get the event from the menu itself once
-          // it's summoned.
+          // This event should be impossible, except webdrivers like to directly click on
+          // things without mouseovering first.
+          // This condition so we don't get the event from the menu itself once it's summoned.
           if (e.target == this.$.checkbox) {
-            this.fire('ghvz-table-summon-checkbox', {
-              cell: this,
-              container: this.$.checkbox,
-            });
+            this.summonCheckbox_();
+          }
+        },
+
+        onPlaceholderCheckboxClick_: function(e) {
+          // This condition so we don't get the event from the menu itself once it's summoned.
+          if (e.target == this.$.checkbox) {
+            this.summonCheckbox_();
           }
         },
       });
@@ -94,7 +120,8 @@
     <div
         hidden$="[[!table.actions.length]]"
         id="menu"
-        on-mouseover="onPlaceholderMenuHover_">
+        on-mouseover="onPlaceholderMenuHover_"
+        on-click="onPlaceholderMenuClick_">
     </div>
   </template>
 </dom-module>

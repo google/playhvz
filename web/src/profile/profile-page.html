@@ -87,14 +87,14 @@
         this.bridge.updatePlayer({
           gameId: this.game.id,
           playerId: this.player.id,
-          active: false,
+          isActive: false,
         });
       },
       activate_() {
         this.bridge.updatePlayer({
           gameId: this.game.id,
           playerId: this.player.id,
-          active: true,
+          isActive: true,
         });
       },
       unsetCanInfect_() {
@@ -219,16 +219,16 @@
             <template is="dom-if if="[[player.volunteer.client]]">Client</template>
           </b>
         </div>
-        <div>Active: <b>[[computeBooleanText_(player.active)]]</b></div>
+        <div>Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>
         <div name="can-infect">Can infect: <b>[[computeBooleanText_(player.private.canInfect)]]</b></div>
         <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
         <div>Can be starting zombie: <b>[[computeBooleanText_(player.private.startAsZombie)]]</b></div>
         <div>Wants to be secret zombie: <b>[[computeBooleanText_(player.private.wantToBeSecretZombie)]]</b></div>
         <div name="got-equipment">Got equipment: <b>[[computeBooleanText_(player.private.gotEquipment)]]</b></div>
-        <template is="dom-if" if="[[player.active]]">
+        <template is="dom-if" if="[[player.isActive]]">
           <paper-button raised on-tap="deactivate_">Deactivate</paper-button>
         </template>
-        <template is="dom-if" if="[[!player.active]]">
+        <template is="dom-if" if="[[!player.isActive]]">
           <paper-button raised on-tap="activate_">Activate</paper-button>
         </template>
         <template is="dom-if" if="[[player.private.canInfect]]">

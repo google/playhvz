@@ -114,7 +114,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'adminUserId': self.Id('userId'),
-      'active': True,
+      'isActive': True,
       'name': 'test Game',
       'rulesHtml': 'test rules',
       'faqHtml': 'test faq',
@@ -157,7 +157,7 @@ class EndToEndTest(unittest.TestCase):
       'notes': "",
       'beInPhotos': True,
       'canInfect': False,
-      'active': False,
+      'isActive': False,
       'notificationSettings': {
         'sound': True,
         'vibrate': True
@@ -451,6 +451,7 @@ class EndToEndTest(unittest.TestCase):
       'longitude': 14.5,
       'mapId': self.Id('mapId', 1),
       'markerId': self.Id('markerId', 1),
+      'gameId': self.Id('gameId', 1),
       'name': 'Test marker 1',
       'playerId': self.Id('publicPlayerId', 1),
     }
@@ -460,6 +461,7 @@ class EndToEndTest(unittest.TestCase):
       'color': '187C09',
       'latitude': 12.4,
       'longitude': 14.5,
+      'gameId': self.Id('gameId', 1),
       'mapId': self.Id('mapId', 1),
       'markerId': self.Id('markerId', 2),
       'name': 'Test marker 2',
@@ -472,6 +474,7 @@ class EndToEndTest(unittest.TestCase):
       'latitude': 12.4,
       'longitude': 14.5,
       'mapId': self.Id('mapId', 2),
+      'gameId': self.Id('gameId', 1),
       'markerId': self.Id('markerId', 3),
       'name': 'Test marker 3',
       'playerId': self.Id('publicPlayerId', 1),
@@ -482,6 +485,7 @@ class EndToEndTest(unittest.TestCase):
       'color': '187C09',
       'latitude': 12.4,
       'longitude': 14.5,
+      'gameId': self.Id('gameId', 1),
       'mapId': self.Id('mapId', 2),
       'markerId': self.Id('markerId', 4),
       'name': 'Test marker 4',
@@ -492,6 +496,7 @@ class EndToEndTest(unittest.TestCase):
     # Update all points
     update = {
       'latitude': 16.0,
+      'gameId': self.Id('gameId', 1),
       'longitude': 17.0,
       'playerId': self.Id('publicPlayerId', 1),
     }

@@ -15,6 +15,8 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
     public_player_ids = game_state.get('/groups/%s' % queued_notification['groupId'], 'players')
     if public_player_ids is None:
       public_player_ids = []
+    else:
+      public_player_ids = sorted(public_player_ids)
   else:
     logging.error('Queued notification %s does not have a playerId or a groupId!' % (
         queued_notification_id))

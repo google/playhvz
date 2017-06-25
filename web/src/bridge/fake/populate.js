@@ -23,7 +23,7 @@ function makePlayerProperties(id, userId, gameId, time, name) {
   return {
     playerId: id,
     privatePlayerId: null,
-    active: true,
+    isActive: true,
     userId: userId,
     gameId: gameId,
     name: name,
@@ -170,7 +170,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     rulesHtml: RULES_HTML,
     faqHtml: FAQ_HTML,
     stunTimer: 60,
-    active: true,
+    isActive: true,
     registrationEndTime: 1483286400000,
     startTime: 1483344000000,
     endTime: 1483689600000,
@@ -845,6 +845,7 @@ function populateQuiz(bridge, gameId) {
     isCorrect: false,
     number: 9,
   });
+  bridge.setRequestTimeOffset(0);
   bridge.executeNotifications({});
 }
 

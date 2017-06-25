@@ -151,7 +151,7 @@ class FakeServer {
         null,
         new Model.ChatRoom(chatRoomId, args));
     let group = this.database.gamesById[gameId].groupsById[accessGroupId];
-    for (let {playerId} of group.memberships) {
+    for (let playerId of group.players) {
       this.addPlayerToChatRoom_(gameId, chatRoomId, playerId);
     }
   }
@@ -182,7 +182,7 @@ class FakeServer {
     let player = game.playersById[playerToAddId];
     let group = game.groupsById[groupId];
 
-    let existingMembership = group.membershipsByPlayerId[playerToAddId];
+    let existingMembership = group.playersById[playerToAddId];
     if (existingMembership)
       return;
 
@@ -190,9 +190,9 @@ class FakeServer {
       throw InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
 
     this.writer.insert(
-        this.reader.getMembershipPath(gameId, groupId, null),
+        this.reader.getGroupPlayerPath(gameId, groupId, null),
         null,
-        new Model.GroupMembership(playerToAddId, {playerId: playerToAddId}));
+        playerToAddId);
     this.writer.insert(
         this.reader.getPlayerGroupMembershipPath(gameId, playerToAddId, null),
         null,
@@ -217,7 +217,7 @@ class FakeServer {
     let player = game.playersById[playerId];
     let group = game.groupsById[groupId];
 
-    let existingMembership = group.membershipsByPlayerId[playerId];
+    let existingMembership = group.playersById[playerId];
     if (!existingMembership)
       return;
 
@@ -233,7 +233,7 @@ class FakeServer {
       }
     }
 
-    let membershipPath = this.reader.getMembershipPath(gameId, groupId, playerId);
+    let membershipPath = this.reader.getGroupPlayerPath(gameId, groupId, playerId);
     this.writer.remove(
         membershipPath.slice(0, membershipPath.length - 1),
         membershipPath.slice(-1)[0], // index
@@ -251,7 +251,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null),
         null,
-        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId, visible: true}));
+        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId, isVisible: true}));
   }
 
   addPlayerToMission_(gameId, missionId, playerId) {
@@ -287,7 +287,7 @@ class FakeServer {
     let player = game.playersById[playerId];
     let chatRoom = game.chatRoomsById[chatRoomId];
     let group = game.groupsById[chatRoom.accessGroupId];
-    if (group.membershipsByPlayerId[player.id]) {
+    if (group.playersById[player.id]) {
       this.writer.insert(
           this.reader.getChatRoomPath(gameId, chatRoomId).concat(["messages"]),
           null,
@@ -377,14 +377,14 @@ class FakeServer {
 
   addMissionMembershipsForAllGroupMembers_(gameId, missionId, accessGroupId) {
     let group = this.database.gamesById[gameId].groupsById[accessGroupId];
-    for (let {playerId} of group.memberships) {
+    for (let playerId of group.players) {
       this.addPlayerToMission_(gameId, missionId, playerId);
     }
   }
 
   removeMissionMembershipsForAllGroupMembers_(gameId, missionId, accessGroupId) {
     let group = this.database.gamesById[gameId].groupsById[accessGroupId];
-    for (let {playerId} of group.memberships) {
+    for (let playerId of group.players) {
       this.removePlayerFromMission_(gameId, missionId, playerId);
     }
   }
@@ -404,6 +404,10 @@ class FakeServer {
   deleteMission(args) {
     let {gameId, missionId} = args;
     let missionPath = this.reader.getMissionPath(gameId, missionId);
+    let mission = this.database.gamesById[gameId].missionsById[missionId];
+    if ('accessGroupId' in args) {
+      this.removeMissionMembershipsForAllGroupMembers_(gameId, missionId, mission.accessGroupId);
+    }
     this.writer.remove(
         missionPath.slice(0, missionPath.length - 1),
         missionPath.slice(-1)[0], // index
@@ -449,7 +453,7 @@ class FakeServer {
           } else {
             assert(queuedNotification.groupId);
             let group = game.groupsById[queuedNotification.groupId];
-            playerIds = new Set(group.memberships.map(membership => membership.playerId));
+            playerIds = new Set(group.players);
           }
           for (let playerId of playerIds) {
             this.addNotification({
@@ -638,7 +642,7 @@ class FakeServer {
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoRemove) {
         if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
-          if (group.memberships.find(m => m.playerId == playerId)) {
+          if (group.players.find(m => m.playerId == playerId)) {
             this.removePlayerFromGroup({gameId, gameId, groupId: group.id, playerToRemoveId: playerId});
           }
         }

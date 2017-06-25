@@ -219,12 +219,10 @@ def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   if public_players is not None:
     print 'lizard'
     for public_player_id, public_player in public_players.iteritems():
-      private_player_id = public_player['privatePlayerId']
-      private_player = game_state.get('/privatePlayers', private_player_id)
       print 'ostrich'
-      if 'lives' in private_player:
+      if 'lives' in public_player:
         print 'lemur'
-        for public_life_id in private_player['lives'].keys():
+        for public_life_id in public_player['lives'].keys():
           print 'bizork' + public_life_id
           public_life = game_state.get('/publicLives', public_life_id)
           private_life = game_state.get('/privateLives', public_life['privateLifeId'])
