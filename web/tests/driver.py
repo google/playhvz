@@ -57,8 +57,8 @@ class SimpleDriver:
     attribute_value = element.get_attribute(attribute_name)
     assert(attribute_value == value)
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    element = self.FindElement(path)
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    element = self.FindElement(path, should_exist=should_exist, check_visible=check_visible)
     # There's four ways to get the contents of an element:
     # print 'el text is "%s" "%s" "%s" "%s"' % (
     #     element.text.strip(),
@@ -240,9 +240,9 @@ class FakeDriver:
 
   def FindElement(self, path, wait_long=False, scoped=True, should_exist=True, check_visible=True):
     if scoped:
-      self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist, check_visible)
+      return self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist, check_visible)
     else:
-      self.inner_driver.FindElement(path, wait_long, should_exist, check_visible)
+      return self.inner_driver.FindElement(path, wait_long, should_exist, check_visible)
 
   def Click(self, path, scoped=True):
     if scoped:

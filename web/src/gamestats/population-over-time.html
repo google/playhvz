@@ -296,6 +296,16 @@
           ['7',  0,      200]
           ]);
       */
+        //console.log("### data: ", newData);
+        var humanStart = newData[1][1];
+        var humanEnd = newData[newData.length - 1][1];
+        var zombieStart = newData[1][2];
+        var zombieEnd = newData[newData.length - 1][2];
+        
+        this.$.human_start_count.textContent = zombieStart;
+        this.$.human_end_count.textContent = zombieEnd;
+        this.$.zombie_start_count.textContent = zombieStart;
+        this.$.zombie_end_count.textContent = zombieEnd;
 
         var data = google.visualization.arrayToDataTable(newData);
 
@@ -320,11 +330,19 @@
   });
 </script>
 <style>
-.hidden {
-    display: none;
+  .hidden {
+    width: 0;
+    height: 0;
+    overflow: hidden;
   }
 </style>
 <template>
   <div id="population_over_time_chart"></div>
+  <div id="population_over_time_meta" class="hidden">
+    <div id="zombie_start_count"></div>
+    <div id="zombie_end_count"></div>
+    <div id="human_start_count"></div>
+    <div id="human_end_count"></div>
+  </div>
 </template>
 </dom-module>

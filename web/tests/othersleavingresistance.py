@@ -20,6 +20,13 @@ try:
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
+  driver.Click([[By.NAME, 'drawerGame Stats']])
+  zombie_start_count = int(driver.FindElement([[By.NAME, 'stats-card'],
+                            [By.ID, 'current_population_meta'],
+                            [By.ID, 'zombie_count']]).text)
+
+  driver.Click([[By.NAME, 'drawerDashboard']])
+
   for target in INFECTABLES:
     # only zombies have lifeCodeInput
     driver.SendKeys(
@@ -47,10 +54,23 @@ try:
   driver.Click([[By.NAME, 'drawerGame Stats']])
 
 
+  zombie_end_count = zombie_start_count + len(INFECTABLES)
   # check our charts. Ensure that new zombie counts are reflected
   driver.ExpectContains([[By.NAME, 'stats-card'],
                           [By.ID, 'current_population_meta'],
-                          [By.ID, 'zombie_count']], '5')
+                          [By.ID, 'zombie_count']], str(zombie_end_count),
+                          check_visible=False)
+
+  driver.ExpectContains([[By.NAME, 'stats-card'],
+                          [By.ID, 'population_over_time_meta'],
+                          [By.ID, 'zombie_start_count']], str(zombie_start_count),
+                          check_visible=False)
+
+  driver.ExpectContains([[By.NAME, 'stats-card'],
+                          [By.ID, 'population_over_time_meta'],
+                          [By.ID, 'zombie_end_count']], str(zombie_end_count),
+                          check_visible=False)
+
 
   driver.Quit()
 
