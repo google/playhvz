@@ -11,7 +11,7 @@ try:
     driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
 
   # Go to the Rules page, change the rules
-  driver.Click([[By.NAME, 'drawerRules']])
+  driver.Click([[By.NAME, 'drawerRules']]) #Crashed here (drawer wasn't open)
   driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'rules-icon']])
   driver.SendKeys(
       [[By.NAME, 'rules-card'], [By.TAG_NAME, 'textarea']], 'rules are cools')

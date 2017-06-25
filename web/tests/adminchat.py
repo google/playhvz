@@ -17,7 +17,10 @@ def getPathToElement(playerName, tag, name):
   xpathForPageElement = "//*[contains(@id, 'chat-page-%s')]//%s[contains(@name, '%s')]"
   return xpathForPageElement % (playerName, tag, name)
 
-def changeToPage(driver, drawerOption):
+def changeToPage(driver, drawerOption, currPage='mobile-main-page'):
+  if driver.is_mobile:
+    driver.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawer' + drawerOption]])
 
 def closeNotifications(driver):
@@ -40,7 +43,7 @@ changeToPage(driver, 'Chat')
 # Create chat with admin
 driver.FindElement([[By.NAME, 'create-admin-chat-button']])
 driver.Click([[By.NAME, 'create-admin-chat-button']]) 
-driver.FindElement([[By.NAME, chatName]])  
+driver.FindElement([[By.NAME, "chat-room-%s" % chatName]])  
 driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
 # Type a message into the chat
@@ -56,7 +59,6 @@ driver.Click([[By.NAME, 'submit-%s' % chatName], [By.XPATH, xpathSend]])
 for admin in adminPlayers:
   driver.SwitchUser(admin)
   closeNotifications(driver)
-  driver.FindElement([[By.NAME, 'drawer-' + chatName]])  
   changeToPage(driver, '-' + chatName)
   driver.ExpectContains([
       [By.NAME, 'chat-card'], 
@@ -78,11 +80,12 @@ xpathLeaveButton = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
 driver.FindElement([[By.XPATH, xpathLeaveButton]])
 driver.Click([[By.XPATH, xpathLeaveButton]])
 
-# Chat should be hidden, verify chat with admin button is available after leaving admin chat
-driver.FindElement([[By.NAME, 'create-admin-chat-button']])
+if not driver.is_mobile: # TODO: make leave button work the same way on mobile as it does on web
+  # Chat should be hidden, verify chat with admin button is available after leaving admin chat
+  driver.FindElement([[By.NAME, 'create-admin-chat-button']])
 
-# Reopen admin chat
-driver.Click([[By.NAME, 'create-admin-chat-button']]) 
+  # Reopen admin chat
+  driver.Click([[By.NAME, 'create-admin-chat-button']]) 
 
 # Verify original message is still in chat room
 driver.ExpectContains([
