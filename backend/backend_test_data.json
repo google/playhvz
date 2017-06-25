@@ -8,12 +8,12 @@
       "messages": {
         "message-%(ident)s-1": {
           "message": "@testCharles @testBobby test single Message",
-          "playerId": "player-%(ident)s-1",
+          "playerId": "publicPlayer-%(ident)s-1",
           "time": 0
         },
         "message-%(ident)s-2": {
           "message": "test Message",
-          "playerId": "player-%(ident)s-1",
+          "playerId": "publicPlayer-%(ident)s-1",
           "time": 0,
           "image": {
             "url": "google.com/image.png"
@@ -21,7 +21,7 @@
         },
         "message-%(ident)s-3": {
           "message": "test Message",
-          "playerId": "player-%(ident)s-1",
+          "playerId": "publicPlayer-%(ident)s-1",
           "time": 0,
           "location": {
             "latitude": 34.5645654,
@@ -30,7 +30,7 @@
         },
         "message-%(ident)s-4": {
           "message": "@all test all Message",
-          "playerId": "player-%(ident)s-1",
+          "playerId": "publicPlayer-%(ident)s-1",
           "time": 0,
           "image": {
             "url": "google.com/image.png"
@@ -63,12 +63,12 @@
         "map-%(ident)s-2": true
       },
       "name": "test Game",
-      "players": {
-        "player-%(ident)s-1": true,
-        "player-%(ident)s-2": true,
-        "player-%(ident)s-3": true,
-        "player-%(ident)s-4": true,
-        "player-%(ident)s-5": true
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-1": true,
+        "publicPlayer-%(ident)s-2": true,
+        "publicPlayer-%(ident)s-3": true,
+        "publicPlayer-%(ident)s-4": true,
+        "publicPlayer-%(ident)s-5": true
       },
       "quizQuestions": {
         "quizQuestion-%(ident)s-1": {
@@ -108,13 +108,13 @@
       "canRemoveOthers": false,
       "canAddSelf": false,
       "canRemoveSelf": false,
-      "ownerPlayerId": "player-%(ident)s-1",
+      "ownerPlayerId": "publicPlayer-%(ident)s-1",
       "name": "group Foo",
-      "players": {
-        "player-%(ident)s-1": true,
-        "player-%(ident)s-2": true,
-        "player-%(ident)s-4": true,
-        "player-%(ident)s-5": true
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-1": true,
+        "publicPlayer-%(ident)s-2": true,
+        "publicPlayer-%(ident)s-4": true,
+        "publicPlayer-%(ident)s-5": true
       }
     },
     "group-%(ident)s-2": {
@@ -126,18 +126,18 @@
       "canRemoveOthers": true,
       "canAddSelf": true,
       "canRemoveSelf": true,
-      "ownerPlayerId": "player-%(ident)s-1",
+      "ownerPlayerId": "publicPlayer-%(ident)s-1",
       "name": "group Bar",
-      "players": {
-        "player-%(ident)s-1": true,
-        "player-%(ident)s-2": true
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-1": true,
+        "publicPlayer-%(ident)s-2": true
       }
     }
   },
   "guns": {
     "gun-%(ident)s-1": {
       "gameId": "game-%(ident)s-1",
-      "playerId": "player-%(ident)s-1",
+      "playerId": "publicPlayer-%(ident)s-1",
       "label": "1404"
     }
   },
@@ -173,7 +173,7 @@
       "destination": "TODO",
       "icon": "TODO",
       "message": "@testCharles @testBobby test single Message",
-      "playerId": "player-%(ident)s-1",
+      "playerId": "publicPlayer-%(ident)s-1",
       "previewMessage": "@testCharles @testBobby test single Message",
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
@@ -186,7 +186,7 @@
       "destination": "TODO",
       "icon": "TODO",
       "message": "@all test all Message",
-      "playerId": "player-%(ident)s-4",
+      "playerId": "publicPlayer-%(ident)s-4",
       "previewMessage": "@all test all Message",
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
@@ -201,7 +201,7 @@
       "destination": "TODO",
       "icon": "TODO",
       "message": "@all test all Message",
-      "playerId": "player-%(ident)s-1",
+      "playerId": "publicPlayer-%(ident)s-1",
       "previewMessage": "@all test all Message",
       "sendTime": 0,
       "mobile": true,
@@ -214,7 +214,9 @@
     }
   },
   "playersPublic": {
-    "player-%(ident)s-1": {
+    "publicPlayer-%(ident)s-1": {
+      "gameId": "game-%(ident)s-1",
+      "privatePlayerId": "privatePlayer-%(ident)s-1",
       "active": false,
       "number": 101,
       "allegiance": "undeclared",
@@ -229,7 +231,9 @@
       "profileImageUrl": "http://jpg",
       "userId": "user-%(ident)s-1"
     },
-    "player-%(ident)s-2": {
+    "publicPlayer-%(ident)s-2": {
+      "gameId": "game-%(ident)s-1",
+      "privatePlayerId": "privatePlayer-%(ident)s-2",
       "active": false,
       "number": 102,
       "allegiance": "undeclared",
@@ -238,24 +242,30 @@
       "profileImageUrl": "http://jpg",
       "userId": "user-%(ident)s-2"
     },
-    "player-%(ident)s-3": {
+    "publicPlayer-%(ident)s-3": {
+      "gameId": "game-%(ident)s-1",
+      "privatePlayerId": "privatePlayer-%(ident)s-3",
       "allegiance": "undeclared",
       "active": false, "number": 103, "name": "testBobby3",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
     },
-    "player-%(ident)s-4": {
+    "publicPlayer-%(ident)s-4": {
+      "gameId": "game-%(ident)s-1",
+      "privatePlayerId": "privatePlayer-%(ident)s-4",
       "allegiance": "undeclared",
       "active": false, "number": 104, "name": "testBobby3",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-4"
     },
-    "player-%(ident)s-5": {
+    "publicPlayer-%(ident)s-5": {
+      "gameId": "game-%(ident)s-1",
+      "privatePlayerId": "privatePlayer-%(ident)s-5",
       "allegiance": "undeclared",
       "active": false, "number": 105, "name": "testBobby3",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-5"
     }
   },
   "playersPrivate": {
-    "player-%(ident)s-1": {
+    "privatePlayer-%(ident)s-1": {
       "associatedMaps": {
         "map-%(ident)s-1": {
           "marker-%(ident)s-1": true,
@@ -320,7 +330,7 @@
         }
       }
     },
-    "player-%(ident)s-2": {
+    "privatePlayer-%(ident)s-2": {
       "notificationSettings": {
         "sound": true,
         "vibrate": true
@@ -351,7 +361,7 @@
         "ios": false
       }
     },
-    "player-%(ident)s-3": {
+    "privatePlayer-%(ident)s-3": {
       "notificationSettings": { "sound": true, "vibrate": true },
       "canInfect": false,
       "gameId": "game-%(ident)s-1",
@@ -369,7 +379,7 @@
         "ios": false
       }
     },
-    "player-%(ident)s-4": {
+    "privatePlayer-%(ident)s-4": {
       "notificationSettings": { "sound": true, "vibrate": true },
       "canInfect": false,
       "gameId": "game-%(ident)s-1",
@@ -405,7 +415,7 @@
         }
       }
     },
-    "player-%(ident)s-5": {
+    "privatePlayer-%(ident)s-5": {
       "notificationSettings": { "sound": true, "vibrate": true },
       "canInfect": false,
       "gameId": "game-%(ident)s-1",
@@ -429,47 +439,47 @@
   "users": {
     "user-%(ident)s-1": {
       "a": true,
-      "players": {
-        "player-%(ident)s-1": { "gameId": "game-%(ident)s-1" }
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-1": { "gameId": "game-%(ident)s-1" }
       },
       "games": {
-        "game-%(ident)s-1": { "playerId": "player-%(ident)s-1" }
+        "game-%(ident)s-1": { "playerId": "publicPlayer-%(ident)s-1" }
       }
     },
     "user-%(ident)s-2": {
       "a": true,
-      "players": {
-        "player-%(ident)s-2": { "gameId": "game-%(ident)s-1" }
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-2": { "gameId": "game-%(ident)s-1" }
       },
       "games": {
-        "game-%(ident)s-1": { "playerId": "player-%(ident)s-2" }
+        "game-%(ident)s-1": { "playerId": "publicPlayer-%(ident)s-2" }
       }
     },
     "user-%(ident)s-3": {
       "a": true,
-      "players": {
-        "player-%(ident)s-3": { "gameId": "game-%(ident)s-1" }
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-3": { "gameId": "game-%(ident)s-1" }
       },
       "games": {
-        "game-%(ident)s-1": { "playerId": "player-%(ident)s-3" }
+        "game-%(ident)s-1": { "playerId": "publicPlayer-%(ident)s-3" }
       }
     },
     "user-%(ident)s-4": {
       "a": true,
-      "players": {
-        "player-%(ident)s-4": { "gameId": "game-%(ident)s-1" }
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-4": { "gameId": "game-%(ident)s-1" }
       },
       "games": {
-        "game-%(ident)s-1": { "playerId": "player-%(ident)s-4" }
+        "game-%(ident)s-1": { "playerId": "publicPlayer-%(ident)s-4" }
       }
     },
     "user-%(ident)s-5": {
       "a": true,
-      "players": {
-        "player-%(ident)s-5": { "gameId": "game-%(ident)s-1" }
+      "publicPlayers": {
+        "publicPlayer-%(ident)s-5": { "gameId": "game-%(ident)s-1" }
       },
       "games": {
-        "game-%(ident)s-1": { "playerId": "player-%(ident)s-5" }
+        "game-%(ident)s-1": { "playerId": "publicPlayer-%(ident)s-5" }
       }
     }
   },
@@ -499,14 +509,14 @@
           "latitude": 16.0,
           "longitude": 17.0,
           "name": "Test marker 1",
-          "playerId": "player-%(ident)s-1"
+          "playerId": "publicPlayer-%(ident)s-1"
         },
         "marker-%(ident)s-2": {
           "color": "187c09",
           "latitude": 16.0,
           "longitude": 17.0,
           "name": "Test marker 2",
-          "playerId": "player-%(ident)s-1"
+          "playerId": "publicPlayer-%(ident)s-1"
         }
       }
     },
@@ -520,14 +530,14 @@
           "latitude": 16.0,
           "longitude": 17.0,
           "name": "Test marker 3",
-          "playerId": "player-%(ident)s-1"
+          "playerId": "publicPlayer-%(ident)s-1"
         },
         "marker-%(ident)s-4": {
           "color": "187c09",
           "latitude": 16.0,
           "longitude": 17.0,
           "name": "Test marker 4",
-          "playerId": "player-%(ident)s-1"
+          "playerId": "publicPlayer-%(ident)s-1"
         }
       }
     }
@@ -535,7 +545,7 @@
   "rewards": {
     "reward-%(ident)s-1": {
       "code": "testrew-purple-striker-balloon",
-      "playerId": "player-%(ident)s-1",
+      "playerId": "publicPlayer-%(ident)s-1",
       "rewardCategoryId": "rewardCategory-%(ident)s-1"
     }
   }

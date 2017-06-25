@@ -47,7 +47,7 @@ def ValidateInputs(request, game_state, expectations_by_param_name):
 
   expectations_by_param_name['requestingUserIdJwt'] = 'String'
   expectations_by_param_name['requestingUserId'] = '?UserId'
-  expectations_by_param_name['requestingPlayerId'] = '?PlayerId'
+  expectations_by_param_name['requestingPlayerId'] = '?PublicPlayerId'
   expectations_by_param_name['requestTimeOffset'] = '|Number'
 
 
@@ -122,33 +122,41 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
 
       if expectation == "GameId":
         ExpectExistence(game_state, '/games/%s' % data, data, 'name', should_exist)
-      if expectation == "UserId":
+      elif expectation == "UserId":
         ExpectExistence(game_state, '/users/%s' % data, data, 'a', should_exist)
-      if expectation == "GroupId":
+      elif expectation == "GroupId":
         ExpectExistence(game_state, '/groups/%s' % data, data, 'gameId', should_exist)
-      if expectation == "PlayerId":
+      elif expectation == "PublicPlayerId":
+        ExpectExistence(game_state, '/playersPublic/%s' % data, data, 'gameId', should_exist)
+      elif expectation == "PrivatePlayerId":
         ExpectExistence(game_state, '/playersPrivate/%s' % data, data, 'gameId', should_exist)
-      if expectation == "GunId":
+      elif expectation == "PublicLifeId":
+        ExpectExistence(game_state, '/livesPublic/%s' % data, data, 'gameId', should_exist)
+      elif expectation == "PrivateLifeId":
+        ExpectExistence(game_state, '/livesPrivate/%s' % data, data, 'gameId', should_exist)
+      elif expectation == "GunId":
         ExpectExistence(game_state, '/guns/%s' % data, data, 'label', should_exist)
-      if expectation == "MissionId":
+      elif expectation == "MissionId":
         ExpectExistence(game_state, '/missions/%s' % data, data, 'gameId', should_exist)
-      if expectation == "ChatRoomId":
+      elif expectation == "ChatRoomId":
         ExpectExistence(game_state, '/chatRooms/%s' % data, data, 'gameId', should_exist)
-      if expectation == "RewardCategoryId":
+      elif expectation == "RewardCategoryId":
         ExpectExistence(game_state, '/rewardCategories/%s' % data, data, 'gameId', should_exist)
       # TODO: Do a deep search to find these IDs to check that they exist or not
-      if expectation == "RewardId":
+      elif expectation == "RewardId":
         pass
-      if expectation == "MessageId":
+      elif expectation == "MessageId":
         pass
-      if expectation == "MarkerId":
+      elif expectation == "MarkerId":
         pass
-      if expectation == "NotificationId":
+      elif expectation == "NotificationId":
         pass
-      if expectation == "QueuedNotificationId":
+      elif expectation == "QueuedNotificationId":
         ExpectExistence(game_state, '/queuedNotifications/%s' % data, data, 'gameId', should_exist)
-      if expectation == "MapId":
+      elif expectation == "MapId":
         ExpectExistence(game_state, '/maps/%s' % data, data, 'accessGroupId', should_exist)
+      else:
+        raise ServerError('Unknown expectation for %s: %s' % (param_name, expectation))
 
 def GroupToGame(game_state, group):
   """Map a group to a game."""
@@ -196,6 +204,9 @@ def GetNextPlayerNumber(game_state, game_id):
       game_id)
   return 101 + len(players)
 
+def GetPrivatePlayerId(game_state, public_player_id):
+  return game_state.get('/publicPlayers/%s' % public_player_id, 'privatePlayerId')
+
 def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   player_short_name = life_code.split('-')[0]
   players = GetValueWithPropertyEqualTo(
@@ -212,6 +223,14 @@ def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   if expect:
     raise InvalidInputError('No player for life code %s' % life_code)
   return None
+
+
+def GetIdSuffix(id):
+  index = id.find('-')
+  if index == -1:
+    return None
+  else:
+    return id[(index + 1):]
 
 
 def IsAdmin(game_state, game_id, user_id):
@@ -235,7 +254,7 @@ def GroupToChats(game_state, group_id):
 
 def PlayerToGame(game_state, player):
   """Map a player to a game."""
-  return game_state.get('/playersPrivate/%s' % player, 'gameId')
+  return game_state.get('/playersPublic/%s' % player, 'gameId')
 
 
 def CopyMerge(a, b):
