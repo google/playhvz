@@ -450,7 +450,6 @@ window.FirebaseListener = (function () {
 
     listenToLife_(gameId, playerId, publicLifeId, listenToPrivate) {
       this.listenOnce_(`/publicLives/${publicLifeId}`).then((publicSnap) => {
-        console.log('listening to life!');
         let publicLife = new Model.PublicLife(publicLifeId, publicSnap.val());
         this.writer.insert(this.reader.getPublicLifePath(gameId, playerId, null), null, publicLife);
         this.listenForPropertyChanges_(

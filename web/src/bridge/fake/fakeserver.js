@@ -217,12 +217,14 @@ class FakeServer {
     let player = game.playersById[playerId];
     let group = game.groupsById[groupId];
 
+    console.log("checking membership of", group.playersById);
     let existingMembership = group.playersById[playerId];
     if (!existingMembership)
       return;
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
+        console.log("removing", player.name, "from", group.name);
         this.removePlayerFromChatRoom_(game.id, chatRoom.id, player.id);
       }
     }
@@ -642,7 +644,7 @@ class FakeServer {
     for (let group of this.database.gamesById[gameId].groups) {
       if (group.autoRemove) {
         if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
-          if (group.players.find(m => m.playerId == playerId)) {
+          if (group.playersById[playerId]) {
             this.removePlayerFromGroup({gameId, gameId, groupId: group.id, playerToRemoveId: playerId});
           }
         }
