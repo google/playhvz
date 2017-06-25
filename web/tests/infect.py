@@ -9,11 +9,9 @@ try:
   if driver.is_mobile:
     driver.Click([[By.NAME, 'drawerButton']])
 
-    driver.Click([[By.NAME, 'drawerChat']])
+  driver.Click([[By.NAME, 'drawerChat']])
 
-    driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
-  else:
-    driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
 
   # Drake infects Jack
   driver.SwitchUser("drake")
@@ -51,15 +49,12 @@ try:
   # See that Jack is now a zombie
   driver.SwitchUser("jack")
 
-  if driver.is_mobile:
-    driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
-  else:
-    driver.FindElement([[By.NAME, 'chatRoom-horde-3']])
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
 
-    driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.Click([[By.NAME, 'drawerDashboard']])
 
 
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])

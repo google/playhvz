@@ -383,6 +383,10 @@ class FakeServer {
   deleteMission(args) {
     let {gameId, missionId} = args;
     let missionPath = this.reader.getMissionPath(gameId, missionId);
+    let mission = this.database.gamesById[gameId].missionsById[missionId];
+    if ('accessGroupId' in args) {
+      this.removeMissionMembershipsForAllGroupMembers_(gameId, missionId, mission.accessGroupId);
+    }
     this.writer.remove(
         missionPath.slice(0, missionPath.length - 1),
         missionPath.slice(-1)[0], // index

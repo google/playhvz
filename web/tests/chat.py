@@ -15,7 +15,7 @@ try:
         'jack': 'JackSlayerTheBeanSlasher'
       }
 
-  def testChat(playersInChat, playersNotInChat, chatName, chatId):
+  def testChat(playersInChat, playersNotInChat, chatName):
     try: 
 
       # Make sure all the players in the chat can post a message
@@ -31,9 +31,9 @@ try:
         if driver.is_mobile:
           driver.FindElement([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
           driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-        driver.Click([[By.NAME, 'drawerChat']]) # Uh oh - crashed here 2x (the drawer didn't open right)
-        driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, chatId]]) # another uh oh - it crashed here (the drawer opened, but never clicked on chat)
-        driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatId]]) # aaah, crashed here too
+        driver.Click([[By.NAME, 'drawerChat']]) # Uh oh - crashed here on mobile (the drawer didn't open right)
+        driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # another uh oh - it crashed here (the drawer opened, but never clicked on chat)
+        driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # aaah, crashed here too on mobile
 
         # Make sure drawer opens fine
         # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
@@ -102,17 +102,17 @@ try:
   # GLOBAL CHAT ROOM - all types of joined players + admins should view.
   globalPlayers = ['zella', 'deckerd', 'moldavi', 'drake', 'zeke', 'jack']
   nonGlobalPlayers = []
-  testChat(globalPlayers, [], 'Global Chat', 'chatRoom-everyone-1')
+  testChat(globalPlayers, [], 'Global Chat')
 
-  # # HORDE CHAT ROOM - only declared zombies should view
-  # zombiePlayers = ['zeke','drake']
-  # nonZombiePlayers = ['zella', 'deckerd', 'moldavi', 'jack']
-  # testChat(zombiePlayers, nonZombiePlayers, 'Horde ZedLink', 'chatRoom-horde-3')
+  # HORDE CHAT ROOM - only declared zombies should view
+  zombiePlayers = ['zeke','drake']
+  nonZombiePlayers = ['zella', 'deckerd', 'moldavi', 'jack']
+  testChat(zombiePlayers, nonZombiePlayers, 'Horde ZedLink')
 
-  # # HUMAN CHAT ROOM - only declared humans should view
-  # humanPlayers = ['zella', 'moldavi', 'jack']
-  # nonHumanPlayers = ['deckerd', 'drake', 'zeke']
-  # testChat(humanPlayers, nonHumanPlayers, 'Resistance Comms Hub', 'chatRoom-resistance-2')
+  # HUMAN CHAT ROOM - only declared humans should view
+  humanPlayers = ['zella', 'moldavi', 'jack']
+  nonHumanPlayers = ['deckerd', 'drake', 'zeke']
+  testChat(humanPlayers, nonHumanPlayers, 'Resistance Comms Hub')
 
   driver.Quit()
 

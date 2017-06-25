@@ -98,11 +98,13 @@
 
   <div id="claiming" hidden$="[[claimedRewardCategory]]">
     <paper-input
+        name="claimRewardInput"
         label="Reward code"
         value="{{rewardCode}}">
     </paper-input>
     <div id="claimContainer">
       <paper-button
+          name="claimRewardButton"
           id="claim"
           raised
           disabled="[[!computeButtonEnabled_(rewardCode, requesting)]]"
