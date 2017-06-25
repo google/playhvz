@@ -2,7 +2,11 @@ package com.ghvz.ghvzapp;
 
 import android.accounts.NetworkErrorException;
 import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -43,30 +47,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "Activity";
     private static final int RC_SIGN_IN = 9001;
     private static final String APP_SERVICE_URL = "http://humansvszombies-24348.appspot.com/api";
+    private static final String TOKEN_KEY = "GOOGLE_SING_IN_IDTOKEN";
     private static final MediaType APPLICATION_JSON
             = MediaType.parse("application/json; charset=utf-8");
-
+    private static final int REGISTER_SUCCESS = 0;
+    private static final int REGISTER_USER_DEVICE_SUCCESS = 1;
+    private static final int REGISTER_FAIL = 2;
+    private static final int REGISTER_USER_DEVICE_FAIL = 3;
     private WebView mWebView;
     private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
-    private GoogleSignInAccount account;
+    private Handler mHandler;
+    private Button registerButton;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
+        sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
 
-        registerUIListeners();
-
+        registerButton = (Button) findViewById(R.id.register_device_button);
+        registerButton.setOnClickListener(this);
         mWebView = (WebView) findViewById(R.id.content_webview);
+        mHandler = new Handler(new Handler.Callback(){
+            @Override
+            public boolean handleMessage(Message msg){
+                switch(msg.what){
+                    case REGISTER_SUCCESS:
+                        RegisterUserDeviceThread regUsrDevThread = new RegisterUserDeviceThread();
+                        regUsrDevThread.start();
+                        break;
+                    case REGISTER_USER_DEVICE_SUCCESS:
+                        break;
+                }
+                return false;
+            }
+        });
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -74,14 +96,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        signIn();
-        if(currentUser != null) {
+        if(sharedPreferences.getString(TOKEN_KEY, null) == null || currentUser == null) {
             signIn();
         }
         else{
             try {
-                mWebView.loadUrl("http://playhvz.com/?userToken=" + currentUser.getToken(true));
+                //mWebView.loadUrl("http://playhvz.com/?userToken=" + currentUser.getToken(true));
             }catch(NullPointerException e){
+
             }
         }
     }
@@ -94,7 +116,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
-                account = result.getSignInAccount();
+                GoogleSignInAccount account = result.getSignInAccount();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(TOKEN_KEY, account.getIdToken());
+                editor.apply();
                 firebaseAuthWithGoogle(account);
             } else {
                 //// TODO: 6/13/17 send failure to webview
@@ -137,8 +162,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        int i = view.getId();
-
+        switch(view.getId()){
+            case R.id.register_device_button:
+                startRegister();
+                break;
+        }
     }
 
     @Override
@@ -146,78 +174,94 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public void register(){
-        OkHttpClient client = new OkHttpClient();
+    private void startRegister(){
+        RegisterThread registerThread = new RegisterThread();
+        registerThread.start();
+    }
 
-        try{
-            FirebaseUser user = mAuth.getCurrentUser();
+    private class RegisterThread extends Thread {
+        private OkHttpClient client = new OkHttpClient();
+        private static final String ThreadTAG = "Register";
 
-            String json = String.format(
-                    "{" +
-                    " \"requestingUserToken\": \"%s\"," +
-                    " \"requestingUserId\": null," +
-                    " \"requestingPlayerId\": null," +
-                    " \"userId\": \"user-%s\"" +
-                    "}",
-                    account.getIdToken(),
-                    user.getUid()
-            );
-            Log.d("[REQUEST PARAMETER]", "[register]: " + json);
-            RequestBody body = RequestBody.create(APPLICATION_JSON, json);
-            Request request = new Request.Builder()
-                    .url(String.format("%s/register", APP_SERVICE_URL))
-                    .post(body)
-                    .build();
-            Response response = client.newCall(request).execute();
-            if (response.code() != 200) {
-                Log.e("register", "Invalid response status: " + response.code());
+        @Override
+        public void run() {
+            client = new OkHttpClient();
+            try{
+                FirebaseUser user = mAuth.getCurrentUser();
+
+                String json = String.format(
+                        "{" +
+                                " \"requestingUserToken\": \"%s\"," +
+                                " \"requestingUserId\": null," +
+                                " \"requestingPlayerId\": null," +
+                                " \"userId\": \"user-%s\"" +
+                                "}",
+                        sharedPreferences.getString(TOKEN_KEY, ""),
+                        user.getUid()
+                );
+                Log.d(ThreadTAG, "[SENT JSON]: " + json);
+                RequestBody body = RequestBody.create(APPLICATION_JSON, json);
+                Request request = new Request.Builder()
+                        .url(String.format("%s/register", APP_SERVICE_URL))
+                        .post(body)
+                        .build();
+                Response response = client.newCall(request).execute();
+                if (response.code() != 200) {
+                    Log.e(ThreadTAG, "Invalid response status: " + response.code());
+                    mHandler.sendEmptyMessage(REGISTER_FAIL);
+                }else{
+                    Log.d(ThreadTAG, "Valid response status: " + response.code());
+                    mHandler.sendEmptyMessage(REGISTER_SUCCESS);
+                }
+            }catch (IOException ex){
+                mHandler.sendEmptyMessage(REGISTER_FAIL);
+                Log.e(ThreadTAG, ex.getMessage());
             }
-        }catch (IOException ex){
-            Log.e("register", ex.getMessage());
         }
     }
 
-    public void registerUserDevice() {
-        OkHttpClient client = new OkHttpClient();
+    private class RegisterUserDeviceThread extends Thread {
+        private OkHttpClient client = new OkHttpClient();
+        private static final String ThreadTAG = "RegisterUserDevice";
 
-        try {
-            FirebaseUser user = mAuth.getCurrentUser();
+        @Override
+        public void run() {
+            client = new OkHttpClient();
+            try {
+                FirebaseUser user = mAuth.getCurrentUser();
 
-            String json = String.format(
-                    "{" +
-                    " \"requestingUserToken\": \"%s\"," +
-                    " \"requestingUserId\": \"user-%s\"," +
-                    " \"requestingPlayerId\": null," +
-                    " \"userId\": \"user-%s\"," +
-                    " \"deviceToken\": \"%s\"" +
-                    "}",
-                    user.getToken(true),
-                    user.getUid(),
-                    user.getUid(),
-                    FirebaseInstanceId.getInstance().getToken()
-                    );
-            Log.d("[REQUEST PARAMETER]", "[registerUserDevice]: " + json);
-            RequestBody body = RequestBody.create(APPLICATION_JSON, json);
-            Request request = new Request.Builder()
-                    .url(String.format("%s/registerUserDevice", APP_SERVICE_URL))
-                    .post(body)
-                    .build();
-            Response response = client.newCall(request).execute();
-            if (response.code() != 200) {
-                Log.e("registerUserDevice", "Invalid response status: " + response.code());
+                String json = String.format(
+                        "{" +
+                                " \"requestingUserToken\": \"%s\"," +
+                                " \"requestingUserId\": \"user-%s\"," +
+                                " \"requestingPlayerId\": null," +
+                                " \"userId\": \"user-%s\"," +
+                                " \"deviceToken\": \"%s\"" +
+                                "}",
+                        user.getToken(true),
+                        user.getUid(),
+                        user.getUid(),
+                        FirebaseInstanceId.getInstance().getToken()
+                );
+                Log.d(ThreadTAG, "[SENT JSON]: " + json);
+                RequestBody body = RequestBody.create(APPLICATION_JSON, json);
+                Request request = new Request.Builder()
+                        .url(String.format("%s/registerUserDevice", APP_SERVICE_URL))
+                        .post(body)
+                        .build();
+                Response response = client.newCall(request).execute();
+                if (response.code() != 200) {
+                    mHandler.sendEmptyMessage(REGISTER_USER_DEVICE_FAIL);
+                    Log.e(ThreadTAG, "Invalid response status: " + response.code());
+                }else{
+                    mHandler.sendEmptyMessage(REGISTER_USER_DEVICE_SUCCESS);
+                    Log.d(ThreadTAG, "Valid response status : " + response.code());
+                }
+            } catch (IOException ex) {
+                mHandler.sendEmptyMessage(REGISTER_USER_DEVICE_FAIL);
+                Log.e(ThreadTAG, ex.getMessage());
             }
-        } catch (IOException ex) {
-            Log.e("registerUserDevice", ex.getMessage());
         }
-    }
 
-    private void registerUIListeners() {
-        final Button button = (Button)findViewById(R.id.register_device_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                register();
-                registerUserDevice();
-            }
-        });
     }
 }

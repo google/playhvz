@@ -96,4 +96,15 @@ driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.ID, 'kickForm'], [By
 # Confirm player was kicked
 driver.DontFindElement([[By.TAG_NAME, 'ghvz-chat-page'], [By.NAME, playerNames['drake']]])
 
+# Leave the chat
+xpathLeaveButton = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
+driver.FindElement([[By.XPATH, xpathLeaveButton]])
+driver.Click([[By.XPATH, xpathLeaveButton]])
+
+xpathLeaveDialog = getPathToElement(actingPlayerName, '*', 'chat-leave-dialog-' + newChatName)
+driver.FindElement([[By.XPATH, xpathLeaveDialog]])
+driver.Click([[By.XPATH, xpathLeaveDialog], [By.ID, 'done']])
+driver.DontFindElement([[By.XPATH, xpathLeaveDialog]])
+driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, newChatName]])
+      
 driver.Quit()
