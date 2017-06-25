@@ -34,10 +34,10 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), userId)]);
     return path;
   }
-  getUserPlayerPath(userId, userPlayerId) {
+  getUserPublicPlayerPath(userId, userPlayerId) {
     assert(userId);
     assert(typeof userPlayerId == 'string' || userPlayerId == null);
-    let path = this.getUserPath(userId).concat(["players"]);
+    let path = this.getUserPath(userId).concat(["publicPlayers"]);
     if (userPlayerId)
       path = path.concat([Utils.findIndexById(this.get(path), userPlayerId)]);
     return path;
@@ -67,7 +67,7 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), quizAnswerId)]);
     return path;
   }
-  getPlayerPath(gameId, playerId) {
+  getPublicPlayerPath(gameId, playerId) {
     assert(gameId);
     assert(typeof playerId == 'string' || playerId == null);
     let path = this.getGamePath(gameId).concat(["players"]);
@@ -75,29 +75,35 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), playerId)]);
     return path;
   }
+  getPrivatePlayerPath(gameId, playerId) {
+    return this.getPublicPlayerPath(gameId, playerId).concat(["private"]);
+  }
   getClaimPath(gameId, playerId, rewardId) {
     assert(gameId);
     assert(playerId);
     assert(typeof rewardId == 'string' || rewardId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["claims"]);
+    let path = this.getPublicPlayerPath(gameId, playerId).concat(["claims"]);
     if (rewardId)
       path = path.concat([Utils.findIndexById(this.get(path), rewardId)]);
     return path;
   }
-  getLifePath(gameId, playerId, lifeId) {
+  getPublicLifePath(gameId, playerId, lifeId) {
     assert(gameId);
     assert(playerId);
     assert(typeof lifeId == 'string' || lifeId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["lives"]);
+    let path = this.getPublicPlayerPath(gameId, playerId).concat(["lives"]);
     if (lifeId)
       path = path.concat([Utils.findIndexById(this.get(path), lifeId)]);
     return path;
+  }
+  getPrivateLifePath(gameId, playerId, lifeId) {
+    return this.getPublicLifePath(gameId, playerId, lifeId).concat(["private"]);
   }
   getInfectionPath(gameId, playerId, infectionId) {
     assert(gameId);
     assert(playerId);
     assert(typeof infectionId == 'string' || infectionId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["infections"]);
+    let path = this.getPublicPlayerPath(gameId, playerId).concat(["infections"]);
     if (infectionId)
       path = path.concat([Utils.findIndexById(this.get(path), infectionId)]);
     return path;
@@ -106,22 +112,22 @@ class PathFindingReader {
     assert(gameId);
     assert(playerId);
     assert(typeof notificationId == 'string' || notificationId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["notifications"]);
+    let path = this.getPrivatePlayerPath(gameId, playerId).concat(["notifications"]);
     if (notificationId)
       path = path.concat([Utils.findIndexById(this.get(path), notificationId)]);
     return path;
   }
-  getMembershipPath(gameId, groupId, playerId, opt_expect) {
+  getGroupPlayerPath(gameId, groupId, playerId, opt_expect) {
     opt_expect = opt_expect !== false;
     assert(gameId);
     assert(groupId);
     assert(typeof playerId == 'string' || playerId == null);
-    let path = this.getGroupPath(gameId, groupId, opt_expect).concat(["memberships"]);
+    let path = this.getGroupPath(gameId, groupId, opt_expect).concat(["players"]);
     if (!path && !opt_expect)
       return null;
     if (playerId) {
-      let index = Utils.findIndexById(this.get(path), playerId, opt_expect);
-      if (index == null)
+      let index = this.get(path).indexOf(playerId);
+      if (index < 0)
         return null;
       path = path.concat([index]);
     }
@@ -131,16 +137,23 @@ class PathFindingReader {
     assert(gameId);
     assert(playerId);
     assert(typeof groupId == 'string' || groupId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["groupMemberships"]);
+    let path = this.getPrivatePlayerPath(gameId, playerId).concat(["groupMemberships"]);
     if (groupId)
       path = path.concat([Utils.findIndexById(this.get(path), groupId, expect)]);
     return path;
+  }
+  getPlayerIdForNotificationId(gameId, notificationId, expect) {
+    let path = this.pathForId_(notificationId, expect);
+    if (path)
+      return this.source.get(path.slice(0, 4)).id;
+    else
+      return null;
   }
   getPlayerChatRoomMembershipPath(gameId, playerId, chatRoomId, expect) {
     assert(gameId);
     assert(playerId);
     assert(typeof chatRoomId == 'string' || chatRoomId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["chatRoomMemberships"]);
+    let path = this.getPrivatePlayerPath(gameId, playerId).concat(["chatRoomMemberships"]);
     if (chatRoomId)
       path = path.concat([Utils.findIndexById(this.get(path), chatRoomId, expect)]);
     return path;
@@ -149,7 +162,7 @@ class PathFindingReader {
     assert(gameId);
     assert(playerId);
     assert(typeof missionId == 'string' || missionId == null);
-    let path = this.getPlayerPath(gameId, playerId).concat(["missionMemberships"]);
+    let path = this.getPrivatePlayerPath(gameId, playerId).concat(["missionMemberships"]);
     if (missionId)
       path = path.concat([Utils.findIndexById(this.get(path), missionId, expect)]);
     return path;
@@ -208,15 +221,6 @@ class PathFindingReader {
         return null;
       path = path.concat([index]);
     }
-    return path;
-  }
-  getGroupMembershipPath(gameId, groupId, membershipId) {
-    assert(gameId);
-    assert(groupId);
-    assert(typeof membershipId == 'string' || membershipId == null);
-    let path = this.getGroupPath(gameId, groupId).concat(["memberships"]);
-    if (membershipId)
-      path = path.concat([Utils.findIndexById(this.get(path), membershipId)]);
     return path;
   }
   getChatRoomPath(gameId, chatRoomId) {
@@ -281,28 +285,6 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), requestId)]);
     return path;
   }
-  getGameIdAndPlayerIdForNotificationId(notificationId) {
-    let path = this.pathForId_(notificationId);
-    assert(path);
-    let gameId = this.source.get(path.slice(0, 2)).id;
-    let playerId = this.source.get(path.slice(0, 4)).id;
-    return [gameId, playerId];
-  }
-  getGameIdForQueuedNotificationId(queuedNotificationId) {
-    let path = this.pathForId_(queuedNotificationId);
-    return this.source.get(path.slice(0, 2)).id;
-  }
-  getGameIdForRewardCategoryId(rewardCategoryId) {
-    let path = this.pathForId_(rewardCategoryId);
-    return this.source.get(path.slice(0, 2)).id;
-  }
-  getGameIdForPlayerId(playerId, expect) {
-    let path = this.pathForId_(playerId, expect, ["games"]);
-    if (path)
-      return this.source.get(path.slice(0, 2)).id;
-    else
-      return null;
-  }
   getUserIdForPlayerId(playerId, expect) {
     let path = this.pathForId_(playerId, expect, ["users"]);
     if (path)
@@ -322,23 +304,6 @@ class PathFindingReader {
     let path = this.pathForId_(requestId);
     return this.source.get(path.slice(0, 6)).id;
   }
-  getGameIdForQuizQuestionId(quizQuestionId, expect) {
-    let path = this.pathForId_(quizQuestionId);
-    return this.source.get(path.slice(0, 2)).id;
-  }
-  getGameIdForChatRoomId(chatRoomId) {
-    let path = this.pathForId_(chatRoomId);
-    return this.source.get(path.slice(0, 2)).id;
-  }
-  getGameIdForMapId(mapId) {
-    let path = this.pathForId_(mapId);
-    return this.source.get(path.slice(0, 2)).id;
-  }
-  getGameIdForGroupId(groupId) {
-    let path = this.pathForId_(groupId);
-    return this.source.get(path.slice(0, 2)).id;
-  }
-
 
   idExists(id, expect) {
     expect = expect === undefined ? true : false; // Default to expecting

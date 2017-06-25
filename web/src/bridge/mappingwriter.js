@@ -27,22 +27,22 @@ let MAPPINGS = [
   {pattern: ["games", null, "players", null, "claims"], newMap: "claimsById", keyBy: "id"},
   {pattern: ["games", null, "players", null, "infections"], newMap: "infectionsById", keyBy: "id"},
   {pattern: ["games", null, "players", null, "lives"], newMap: "livesById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "notifications"], newMap: "notificationsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "chatRoomMemberships"], newMap: "chatRoomMembershipsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "missionMemberships"], newMap: "missionMembershipsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "groupMemberships"], newMap: "groupMembershipsById", keyBy: "groupId"},
+  {pattern: ["games", null, "players", null, "private", "notifications"], newMap: "notificationsById", keyBy: "id"},
+  {pattern: ["games", null, "players", null, "private", "chatRoomMemberships"], newMap: "chatRoomMembershipsById", keyBy: "id"},
+  {pattern: ["games", null, "players", null, "private", "missionMemberships"], newMap: "missionMembershipsById", keyBy: "id"},
+  {pattern: ["games", null, "players", null, "private", "groupMemberships"], newMap: "groupMembershipsById", keyBy: "groupId"},
   {pattern: ["games", null, "rewardCategories"], newMap: "rewardCategoriesById", keyBy: "id"},
   {pattern: ["games", null, "rewardCategories", null, "rewards"], newMap: "rewardsById", keyBy: "id"},
   {pattern: ["games", null, "chatRooms"], newMap: "chatRoomsById", keyBy: "id"},
   {pattern: ["games", null, "chatRooms", null, "messages"], newMap: "messagesById", keyBy: "id"},
   {pattern: ["games", null, "admins"], newMap: "adminsByUserId", keyBy: "userId"},
   {pattern: ["games", null, "groups"], newMap: "groupsById", keyBy: "id"},
-  {pattern: ["games", null, "groups", null, "memberships"], newMap: "membershipsByPlayerId", keyBy: "id"},
+  {pattern: ["games", null, "groups", null, "players"], newMap: "playersById", keyBy: null}, // null means key by the value itself, make a map of that->true
   {pattern: ["games", null, "queuedNotifications"], newMap: "queuedNotificationsById", keyBy: "id"},
   {pattern: ["games", null, "missions"], newMap: "missionsById", keyBy: "id"},
   {pattern: ["games", null, "guns"], newMap: "gunsById", keyBy: "id"},
   {pattern: ["users"], newMap: "usersById", keyBy: "id"},
-  {pattern: ["users", null, "players"], newMap: "playersById", keyBy: "id"},
+  {pattern: ["users", null, "publicPlayers"], newMap: "publicPlayersById", keyBy: "id"},
 ];
 // Helper function to find which mapping a given path matches.
 // For example, given ["games", 5, "players", 3, "claims"], it would
@@ -78,7 +78,6 @@ class MappingWriter {
           break;
         case 'insert':
           assert(path instanceof Array);
-          assert(typeof value == 'object');
           assert(path);
           assert(value);
           assert(index == null || typeof index == 'number');
@@ -89,7 +88,12 @@ class MappingWriter {
           // then set the element in that map.
           let mapPath = this.mapifyPath_(path);
           if (mapPath) {
-            newBatch.push({type: 'insert', path: mapPath, index: value.id, value: value});
+            let mapping = findMapping(path);
+            if (mapping.keyBy === null) {
+              newBatch.push({type: 'insert', path: mapPath, index: value, value: true});
+            } else {
+              newBatch.push({type: 'insert', path: mapPath, index: value.id, value: value});
+            }
           }
           // And finally, add to the array.
           newBatch.push(operation);
@@ -133,9 +137,14 @@ class MappingWriter {
     let map = {};
     for (let i = 0; i < array.length; i++) {
       let element = array[i];
-      assert(element[keyName]);
-      let key = element[keyName];
-      map[key] = element;
+      if (keyName === null) {
+        let key = element;
+        map[key] = true;
+      } else {
+        assert(element[keyName]);
+        let key = element[keyName];
+        map[key] = element;
+      }
     }
     return map;
   }

@@ -65,7 +65,6 @@ try:
   driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.ID, 'menu']])
   driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.NAME, 'menu-item-Delete']])
   
-  time.sleep(0.5)
   driver.Click([[By.NAME, "mission-row-first human mission!"], [By.ID, 'menu']]) # TODO(aliengirl): figure out why menu doesn't always open here
   driver.Click([[By.NAME, "mission-row-first human mission!"], [By.NAME, 'menu-item-Delete']])
 
@@ -85,6 +84,10 @@ try:
   if driver.is_mobile:
     driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerAdmin Missions']])
+
+  # Make sure both humans and zombies get a default message when no missions are posted. #TODO(aliengirl): Do this!!!
+
+  # Log back in as an admin.
 
   # Create a human mission
   driver.Click([[By.ID, 'add']])

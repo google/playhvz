@@ -209,6 +209,8 @@ def HandleBatchRequest(requests):
       method = request['method']
       body = request['body']
       print "Handling request %d: %s" % (i, method)
+      print "Body:"
+      print body
       results.append(CallApiMethod(method, body))
   except:
     print "Unexpected error:", sys.exc_info()[0]

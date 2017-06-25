@@ -11,7 +11,6 @@ driver = setup.MakeDriver(user="deckerd")
 try:
   # Make sure that an undeclared person can see rules, global chat, no missions: TODO(aliengirl): add this
 
-
   # Time for Decker to choose a side
   driver.Click([[By.NAME, 'declareAllegiance']])
 
@@ -50,7 +49,7 @@ try:
   driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']])
   driver.FindElement(
     [[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']]) # Weird flake here
+  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']])
 
   driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']])
   driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']])

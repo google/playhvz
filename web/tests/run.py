@@ -27,7 +27,6 @@ def runTest(clientUrl, password, useRemote, useMobile):
 	printAndRun("python startgame.py %s" % args)
 	printAndRun("python chat.py %s" % args) # In theory works on mobile, but annoyingly flaky
 
-
 def desktopAndMobileTests(clientUrl, password, useRemote):
 	runTest(clientUrl, password, useRemote, useMobile=True)
 	runTest(clientUrl, password, useRemote, useMobile=False)
