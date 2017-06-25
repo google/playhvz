@@ -94,6 +94,9 @@
             new Bridge(
                 new IdGenerator(),
                 new RemoteBridge(this.config.backendUrl, this.config.firebaseConfig));
+        this.bridge.getSignedInPromise().then(() => {
+          this.setAttribute('signed-in', true);
+        });
       },
     });
   });
