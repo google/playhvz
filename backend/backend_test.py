@@ -13,7 +13,7 @@ import config
 
 class Requester:
   def __init__(self):
-    self.requestingUserToken = 'meh'
+    self.requestingUserIdJwt = 'meh'
     self.requestingUserId = None
     self.requestingPlayerId = None
 
@@ -24,7 +24,7 @@ class Requester:
     self.requestingPlayerId = player_id
 
   def Post(self, method, data):
-    data['requestingUserToken'] = self.requestingUserToken
+    data['requestingUserIdJwt'] = self.requestingUserIdJwt
     data['requestingUserId'] = self.requestingUserId
     data['requestingPlayerId'] = self.requestingPlayerId
     return requests.post('%s/api/%s' % (constants.TEST_ENDPOINT, method), json=data)

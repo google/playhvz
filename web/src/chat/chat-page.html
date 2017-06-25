@@ -70,7 +70,17 @@
           var chatRoomId = this.path[1];
           if (chatRoomId) {
             this.$.chatRoomSelector.select(
-                this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
+                this.game.chatRooms.find(chatRoom => {
+                  let visible;
+                  let memberSetting = this.player.chatRoomMembershipsById[chatRoomId];
+                  if (memberSetting) {
+                    visible = memberSetting.visible;
+                  }
+                  if (this.isAdmin) {
+                    visible = true;
+                  }
+                  return chatRoom.id == chatRoomId && visible;
+                }));
             if (this.$.chatRoomSelector.selected != null) {
               return;
             }
@@ -83,7 +93,7 @@
           } else {
             // If we get here, that means we're at /chat and on desktop. In this case
             // we want to just pick a chat room and show it.
-            if (this.game.chatRooms.length > 0) {
+            if (this.player.chatRoomMemberships.length > 0) {
               this.async(() => {
                 chatRoomId = this.player.chatRoomMemberships[0].id;
                 this.fire('ghvz-set-path', {
@@ -97,24 +107,17 @@
         },
 
         onChatRoomsUpdated_() {
-          if (!this.currentChatRoom || this.player.chatRoomMembershipsById[this.currentChatRoom.id]) {
+          if (!this.currentChatRoom || this.isAdmin ||
+             this.player.chatRoomMembershipsById[this.currentChatRoom.id]) {
+            // We are viewing a chat room we still have access to, do nothing
             return;
           }
-            this.fire('ghvz-set-path', {
-                    inGame: true,
-                    path: ['chat'],
-                    replace: true,
-            });
-        },
-
-        extractChatRoomIdFromUrl_() {
-          let initialUrl = window.location.pathname;
-          let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
-          if (!match) {
-            return null;
-          }
-          let chatRoomId = match[1];
-          return chatRoomId;
+          // Change to chat/ which will redirect us to a chat room we have access to
+          this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['chat'],
+                  replace: true,
+          });
         },
       });
     });
@@ -153,6 +156,7 @@
       <template is="dom-if" if="[[showChatRoom]]">
         <div class="vertical-separator"></div>
           <ghvz-chat-room
+              name$="[[currentChatRoom.name]]"
               bridge="[[bridge]]"
               game="[[game]]"
               is-admin="[[isAdmin]]"

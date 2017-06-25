@@ -47,6 +47,7 @@
               this.fire('ghvz-set-path', {
                 inGame: true,
                 path: ['profile', playerId],
+                replace: false,
               });
               break;
             case 'ping':
@@ -77,7 +78,11 @@
         },
 
         leaveChat_: function() {
-          this.$.leaveForm.open();
+          if (this.chatRoom.withAdmins) {
+            this.hideChat_();
+          } else {
+            this.$.leaveForm.open();
+          }
         },
 
         onConfirmLeave_: function(e) {
@@ -87,6 +92,24 @@
             actingPlayerId: this.playerId,
             playerToRemoveId: this.playerId,
           });
+        },
+
+        hideChat_: function() {
+          this.bridge.updateChatRoomMembership({
+            gameId: this.game.id, 
+            chatRoomId: this.chatRoom.id,
+            actingPlayerId: this.playerId,
+            visible: false,
+          });
+          // We don't acutally hide the admin chat since admins might want access to it later.
+          // Instead just navigate to the main chat page to make it appear like we hide the chat
+          if (this.isAdmin) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat'],
+              replace: true,
+            });
+          }
         },
 
         kickFromChat_: function(playerId, game) {

@@ -30,6 +30,23 @@ PlayerUtils.getDefaultProfilePic = function(name) {
 		'https://goo.gl/HcmpLi',
 		'https://goo.gl/pEjp5M',
 		'https://goo.gl/kNH2ov',
+		'https://goo.gl/gBQ1Kx',
+		'https://goo.gl/ExqDyF',
+		'https://goo.gl/Aj3pPs',
+		'https://goo.gl/TjCmuh',
+		'https://goo.gl/zxDxMU',
+		'https://goo.gl/tGCRrj',
+		'https://goo.gl/ogxpAV',
+		'https://goo.gl/QNwVag',
+		'https://goo.gl/4rC7x6',
+		'https://goo.gl/WpYtzt',
+		'https://goo.gl/eNMPd1',
+		'https://goo.gl/dEDG56',
+		'https://goo.gl/o12QaU',
+		'https://goo.gl/T3HFne',
+		'https://goo.gl/8aRqJ4',
+		'https://goo.gl/dqPjE2',
+		'https://goo.gl/cHqQwU',
 	];
 
 	let hash = Math.abs(PlayerUtils.hashName(name));

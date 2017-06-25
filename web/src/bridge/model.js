@@ -12,7 +12,7 @@ Model.Gun = function(id, args) {
   Utils.addEmptyLists(this, GUN_COLLECTIONS);
 }
 
-const USER_PROPERTIES = [];
+const USER_PROPERTIES = ["deviceToken"];
 const USER_COLLECTIONS = ["players"];
 Model.User = function(id, args) {
   this.id = id;
@@ -92,7 +92,7 @@ Model.GroupMembership = function(id, args) {
   Utils.addEmptyLists(this, GROUP_MEMBERSHIP_COLLECTIONS);
 }
 
-const PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId"];
+const PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId", "visible"];
 const PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
 Model.PlayerChatRoomMembership = function(id, args) {
   this.id = id;

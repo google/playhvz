@@ -38,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		039521FB1EFC6E1800A882C9 /* PlayHvZ.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlayHvZ.entitlements; sourceTree = "<group>"; };
 		191B5D20EC0E6E0D3913FA83 /* Pods-PlayHvZTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PlayHvZTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PlayHvZTests/Pods-PlayHvZTests.release.xcconfig"; sourceTree = "<group>"; };
 		5554F4BAC37AEC7C27BC8705 /* Pods-PlayHvZUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PlayHvZUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PlayHvZUITests/Pods-PlayHvZUITests.release.xcconfig"; sourceTree = "<group>"; };
 		791FB7F42081986183DFBFCC /* Pods_PlayHvZ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PlayHvZ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -139,6 +140,7 @@
 		DE12A8121EEF65BA0092FB86 /* PlayHvZ */ = {
 			isa = PBXGroup;
 			children = (
+				039521FB1EFC6E1800A882C9 /* PlayHvZ.entitlements */,
 				DE12A8131EEF65BA0092FB86 /* AppDelegate.swift */,
 				DE12A8151EEF65BA0092FB86 /* ViewController.swift */,
 				DE12A8171EEF65BA0092FB86 /* Main.storyboard */,
@@ -245,7 +247,13 @@
 				TargetAttributes = {
 					DE12A80F1EEF65BA0092FB86 = {
 						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = 7ST7W956NA;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 					DE12A8231EEF65BA0092FB86 = {
 						CreatedOnToolsVersion = 8.3.2;
@@ -606,7 +614,10 @@
 			baseConfigurationReference = 9E0668DC64045A314277E4D3 /* Pods-PlayHvZ.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PlayHvZ/PlayHvZ.entitlements;
+				DEVELOPMENT_TEAM = 7ST7W956NA;
 				INFOPLIST_FILE = PlayHvZ/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Google.PlayHvZ;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -619,7 +630,10 @@
 			baseConfigurationReference = A5A3ABE7DCA9C5EE9470F4F8 /* Pods-PlayHvZ.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PlayHvZ/PlayHvZ.entitlements;
+				DEVELOPMENT_TEAM = 7ST7W956NA;
 				INFOPLIST_FILE = PlayHvZ/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Google.PlayHvZ;
 				PRODUCT_NAME = "$(TARGET_NAME)";

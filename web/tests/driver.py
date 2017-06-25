@@ -3,18 +3,19 @@ import time
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import ElementNotVisibleException
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-
+from selenium.webdriver.remote.webelement import WebElement
 
 class SimpleDriver:
   def __init__(self, selenium_driver):
     self.selenium_driver = selenium_driver
 
-  def FindElement(self, path, should_exist=True):
+  def FindElement(self, path, should_exist=True, check_visible=True):
     element = None
     for step in path:
       by, locator = step
@@ -29,12 +30,19 @@ class SimpleDriver:
         break
     if should_exist:
       assert element is not None, "Element %s doesn't exist!" % path
+      if check_visible:
+        assert element.is_displayed(), "Element %s isn't visible" % path
     else:
-      assert element is None or not element.is_displayed(), "Element %s exists!" % path
+      if check_visible:
+        assert (element is None or not element.is_displayed()), "Element %s exists!" % path
+      else:
+        assert element is None, "Element %s exists!" % path
     return element
 
   def Click(self, path):
-    self.FindElement(path).click()
+    element = self.FindElement(path)
+    assert element.is_enabled(), "Element %s isn't enabled" % path
+    element.click()
 
   def SendKeys(self, path, keys):
     self.FindElement(path).send_keys(keys)
@@ -42,6 +50,12 @@ class SimpleDriver:
   def Backspace(self, path, number):
     for i in range(number):
       self.FindElement(path).send_keys(Keys.BACKSPACE)
+
+  def ExpectAttributeEqual(self, path, attribute_name, value):
+    element = self.FindElement(path)
+    assert(element is not None)
+    attribute_value = element.get_attribute(attribute_name)
+    assert(attribute_value == value)
 
   def ExpectContains(self, path, needle, should_exist=True):
     element = self.FindElement(path)
@@ -61,9 +75,10 @@ class SimpleDriver:
     # Leaving innerHTML out because it seems like it can have a lot of false
     # positives, because who knows whats in the html...
     if should_exist:
-      assert needle in text
+      assert needle in text, "The text %s was not found" % needle
+      ## assert element.is_displayed(), "The text %s is not visible"  % needle
     else:
-      assert needle not in text
+      assert (needle not in text), "The text %s was found when it wasn't supposed be there." % needle
 
   def Quit(self):
     self.selenium_driver.quit()
@@ -73,8 +88,12 @@ class RetryingDriver:
   def __init__(self, inner_driver):
     self.inner_driver = inner_driver
 
-  def FindElement(self, path, wait_long=False, should_exist=True):
-    return self.Retry(lambda: self.inner_driver.FindElement(path, should_exist=should_exist), wait_long=wait_long)
+  def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
+    return self.Retry(lambda: self.inner_driver.FindElement(
+      path, 
+      should_exist=should_exist, 
+      check_visible=check_visible), 
+      wait_long=wait_long)
 
   def Click(self, path):
     return self.Retry(lambda: self.inner_driver.Click(path))
@@ -88,6 +107,9 @@ class RetryingDriver:
   def ExpectContains(self, path, needle, should_exist=True):
     return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist))
 
+  def ExpectAttributeEqual(self, path, attribute_name, value):
+    return self.Retry(lambda: self.inner_driver.ExpectAttributeEqual(path, attribute_name, value))
+
   def Quit(self):
     self.inner_driver.Quit()
 
@@ -98,7 +120,7 @@ class RetryingDriver:
     for i in range(0, len(sleep_durations) + 1):
       try:
         return callback()
-      except (NoSuchElementException, AssertionError, WebDriverException) as e:
+      except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:
         if i == len(sleep_durations):
           raise e
         else:
@@ -158,13 +180,10 @@ class RemoteDriver:
     self.drivers_by_user[user] = retrying_driver
 
     self.FindElement([[By.ID, 'root']], wait_long=True)
+    self.ExpectAttributeEqual([[By.ID, 'realApp']], 'signed-in', 'true')
 
-    self.Click([[By.NAME, 'signIn']])
-
-    self.FindElement([[By.ID, 'root']], wait_long=True)
-
-  def FindElement(self, path, wait_long=False, should_exist=True):
-    self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist)
+  def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
+    self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
 
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
@@ -174,6 +193,9 @@ class RemoteDriver:
 
   def SendKeys(self, path, keys):
     self.drivers_by_user[self.current_user].SendKeys(path, keys)
+
+  def ExpectAttributeEqual(self, path, attribute_name, value):
+    self.drivers_by_user[self.current_user].ExpectAttributeEqual(path, attribute_name, value)
 
   def Backspace(self, path, number):
     self.drivers_by_user[self.current_user].Backspace(path, number)
@@ -185,6 +207,8 @@ class RemoteDriver:
 class FakeDriver:
   def __init__(self, client_url, is_mobile, populate, user, page):
     selenium_driver = webdriver.Chrome()
+    if is_mobile:
+      selenium_driver.set_window_size(480, 640);
 
     if page and len(page) and page[0] == '/':
       page = page[1:]
@@ -196,8 +220,6 @@ class FakeDriver:
         'mobile' if is_mobile else 'desktop')
     if not populate:
       url = url + '&populate=none'
-    if is_mobile:
-      selenium_driver.set_window_size(480, 640);
     selenium_driver.get(url)
 
     simple_driver = SimpleDriver(selenium_driver)
@@ -216,11 +238,11 @@ class FakeDriver:
     self.Click([[By.ID, user + 'Button']], scoped=False)
     self.FindElement([[By.ID, user + 'App']], scoped=False)
 
-  def FindElement(self, path, wait_long=False, scoped=True, should_exist=True):
+  def FindElement(self, path, wait_long=False, scoped=True, should_exist=True, check_visible=True):
     if scoped:
-      self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist)
+      self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist, check_visible)
     else:
-      self.inner_driver.FindElement(path, wait_long, should_exist)
+      self.inner_driver.FindElement(path, wait_long, should_exist, check_visible)
 
   def Click(self, path, scoped=True):
     if scoped:
@@ -246,6 +268,12 @@ class FakeDriver:
     else:
       self.inner_driver.ExpectContains(path, needle, should_exist)
 
+  def ExpectAttributeEqual(self, path, attribute_name, value):
+    if scoped:
+      self.inner_driver.ExpectAttributeEqual([[By.ID, self.current_user + "App"]] + path, attribute_name, value)
+    else:
+      self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)
+
   def Quit(self):
     self.inner_driver.Quit()
 
@@ -259,10 +287,7 @@ class WholeDriver:
       self.inner_driver = FakeDriver(client_url, is_mobile, populate, user, page)
 
   def WaitForGameLoaded(self):
-    self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True)
-
-  def WaitForGameLoaded(self):
-    self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True)
+    self.FindElement([[By.NAME, "gameLoaded"]], wait_long=True, check_visible=False)
 
   def GetGameId(self):
     return self.inner_driver.GetGameId()
@@ -273,10 +298,10 @@ class WholeDriver:
   def SwitchUser(self, user):
     return self.inner_driver.SwitchUser(user)
 
-  def FindElement(self, path, wait_long=False, should_exist=True):
-    return self.inner_driver.FindElement(path, wait_long, should_exist=should_exist)
+  def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
+    return self.inner_driver.FindElement(path, wait_long, should_exist=should_exist, check_visible=check_visible)
 
-  def DontFindElement(self, path, wait_long=False):
+  def DontFindElement(self, path, wait_long=False, check_visible=True):
     return self.FindElement(path, wait_long=wait_long, should_exist=False)
 
   def Click(self, path):
@@ -291,5 +316,5 @@ class WholeDriver:
   def ExpectContains(self, path, needle, should_exist=True):
     return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
 
-  # def FindElement(self, by, locator, wait_long=True):
-  #   return Element(driver, FindElement(self.driver, by, locator, container = self.element, wait_long = wait_long))
+  def ExpectAttributeEqual(self, path, attribute_name, value):
+    return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)

@@ -32,17 +32,20 @@
           this.fire('ghvz-set-path', {
             inGame: true,
             path: this.notification.destination.split('/'),
+            replace: false,
           });
         } else {
           if (this.expanded) {
             this.fire('ghvz-set-path', {
               inGame: true,
               path: ["notifications"],
+              replace: false,
             });
           } else {
             this.fire('ghvz-set-path', {
               inGame: true,
               path: ["notifications", this.notification.id],
+              replace: false,
             });
           }
         }

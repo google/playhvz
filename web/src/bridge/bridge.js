@@ -6,17 +6,36 @@ class Bridge {
 
     this.idGenerator = idGenerator;
 
+    this.requestTimeOffset = null;
+
     for (let [method, expectations] of Bridge.METHODS_MAP) {
       this[method] =
-          (...args) => {
-            new Utils.Validator(expectations, this.check_.bind(this)).validate(args[0]);
+          (args) => {
+            args = Utils.copyOf(args);
+            if (this.requestTimeOffset != null)
+              args.requestTimeOffset = this.requestTimeOffset;
+            new Utils.Validator(expectations, this.check_.bind(this)).validate(args);
             assert(this.inner[method]);
-            return this.inner[method](...args);
+            return this.inner[method](args);
           };
     }
 
     for (let methodName of Utils.getAllFuncNames(idGenerator)) {
       this[methodName] = (...args) => this.idGenerator[methodName](...args);
+    }
+  }
+
+  setRequestTimeOffset(requestTimeOffset) {
+    // Must be in the past
+    assert(requestTimeOffset <= 0);
+
+    if (this.requestTimeOffset == null) {
+      this.requestTimeOffset = requestTimeOffset;
+    } else {
+      // Must always be coming closer to the present
+      assert(this.requestTimeOffset <= requestTimeOffset);
+
+      this.requestTimeOffset = requestTimeOffset;
     }
   }
 
@@ -137,19 +156,16 @@ class FakeIdGenerator extends IdGenerator {
   // Guns
   serverMethods.set('addGun', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     gunId: '!GunId',
     label: 'String',
   });
   serverMethods.set('updateGun', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     gunId: 'GunId',
     label: '|String',
   });
   serverMethods.set('assignGun', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     gunId: 'GunId',
     playerId: '?PlayerId',
   });
@@ -157,7 +173,6 @@ class FakeIdGenerator extends IdGenerator {
   // Games
   serverMethods.set('createGame', {
     gameId: '!GameId',
-    serverTime: '|Timestamp',
     adminUserId: 'UserId',
     name: 'String',
     rulesHtml: 'String',
@@ -170,7 +185,6 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('updateGame', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: '|String',
     rulesHtml: '|String',
     faqHtml: '|String',
@@ -182,12 +196,10 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('setAdminContact', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     playerId: 'PlayerId',
   });
   serverMethods.set('addDefaultProfileImage', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     defaultProfileImageId: '!DefaultProfileImageId',
     allegianceFilter: 'String',
     profileImageUrl: 'String',
@@ -198,7 +210,6 @@ class FakeIdGenerator extends IdGenerator {
     playerId: '!PlayerId',
     userId: 'UserId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: 'String',
     needGun: 'Boolean',
     canInfect: 'Boolean',
@@ -231,7 +242,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('updatePlayer', {
     playerId: 'PlayerId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: '|String',
     needGun: '|Boolean',
     canInfect: '|Boolean',
@@ -268,7 +278,6 @@ class FakeIdGenerator extends IdGenerator {
     accessGroupId: 'GroupId',
     rsvpersGroupId: 'GroupId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     beginTime: 'Timestamp',
     endTime: 'Timestamp',
     name: 'String',
@@ -277,7 +286,7 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('updateMission', {
     missionId: 'MissionId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
+    accessGroupId: '|GroupId',
     beginTime: '|Timestamp',
     endTime: '|Timestamp',
     name: '|String',
@@ -285,7 +294,6 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('deleteMission', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     missionId: 'MissionId',
   });
 
@@ -294,7 +302,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('createGroup', {
     groupId: '!GroupId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: 'String',
     allegianceFilter: 'String',
     ownerPlayerId: '?PlayerId',
@@ -309,7 +316,6 @@ class FakeIdGenerator extends IdGenerator {
     gameId: 'GameId',
     groupId: 'GroupId',
     name: '|String',
-    serverTime: '|Timestamp',
     allegianceFilter: '|String',
     ownerPlayerId: '|?PlayerId',
     autoAdd: '|Boolean',
@@ -323,7 +329,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('addRewardCategory', {
     rewardCategoryId: '!RewardCategoryId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: 'String',
     points: 'Number',
     badgeImageUrl: '?String',
@@ -334,7 +339,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('updateRewardCategory', {
     rewardCategoryId: 'RewardCategoryId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: '|String',
     points: '|Number',
     badgeImageUrl: '|?String',
@@ -345,7 +349,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addReward', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     rewardId: '!RewardId',
     rewardCategoryId: 'RewardCategoryId',
     code: '?String',
@@ -353,14 +356,12 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addRewards', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     rewardCategoryId: 'RewardCategoryId',
     count: 'Number',
   });
 
   serverMethods.set('claimReward', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     playerId: 'PlayerId',
     rewardCode: 'String',
   });
@@ -370,35 +371,37 @@ class FakeIdGenerator extends IdGenerator {
     chatRoomId: '!ChatRoomId',
     accessGroupId: 'GroupId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: 'String',
     withAdmins: 'Boolean',
   });
   serverMethods.set('updateChatRoom', {
     chatRoomId: 'ChatRoomId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     name: '|String',
     withAdmins: '|Boolean',
   });
   serverMethods.set('setLastSeenChatTime', {
     gameId: 'GameId',
     chatRoomId: 'ChatRoomId',
-    serverTime: '|Timestamp',
     playerId: 'PlayerId',
     timestamp: 'Timestamp',
+  });
+  serverMethods.set('updateChatRoomMembership', {
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    chatRoomId: 'ChatRoomId',
+    actingPlayerId: 'PlayerId',
+    visible: '|Boolean',
   });
 
   serverMethods.set('createMap', {
     gameId: 'GameId',
     mapId: '!MapId',
-    serverTime: '|Timestamp',
     accessGroupId: 'GroupId',
     name: 'String',
   });
   serverMethods.set('updateMap', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     mapId: 'MapId',
     name: 'String',
   });
@@ -406,7 +409,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('addMarker', {
     markerId: '!MarkerId',
     mapId: 'MapId',
-    serverTime: '|Timestamp',
     name: 'String',
     playerId: '?PlayerId',
     color: 'String',
@@ -416,7 +418,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addPlayerToGroup', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     groupId: 'GroupId',
     playerToAddId: 'PlayerId',
     actingPlayerId: '?PlayerId',
@@ -424,7 +425,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('removePlayerFromGroup', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     groupId: 'GroupId',
     playerToRemoveId: 'PlayerId',
     actingPlayerId: '?PlayerId',
@@ -432,26 +432,22 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addAdmin', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     userId: 'UserId',
   });
 
   serverMethods.set('joinHorde', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     playerId: 'PlayerId'
   });
   serverMethods.set('joinResistance', {
     gameId: 'GameId',
     playerId: 'PlayerId',
-    serverTime: '|Timestamp',
     lifeCode: '?String',
     lifeId: '?!LifeId',
   });
 
   serverMethods.set('sendChatMessage', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     messageId: '!MessageId',
     chatRoomId: 'ChatRoomId',
     playerId: 'PlayerId',
@@ -460,7 +456,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addRequestCategory', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     requestCategoryId: '!RequestCategoryId',
     chatRoomId: 'ChatRoomId',
     playerId: 'PlayerId',
@@ -471,7 +466,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('updateRequestCategory', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     requestCategoryId: 'RequestCategoryId',
     text: '|String',
     dismissed: '|Boolean',
@@ -479,7 +473,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addRequest', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     requestCategoryId: 'RequestCategoryId',
     requestId: '!RequestId',
     playerId: 'PlayerId',
@@ -487,7 +480,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addResponse', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     requestId: 'RequestId',
     text: '?String',
   });
@@ -495,14 +487,12 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('addLife', {
     gameId: 'GameId',
     playerId: 'PlayerId',
-    serverTime: '|Timestamp',
     lifeId: '!LifeId',
     lifeCode: '?String',
   });
 
   serverMethods.set('infect', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     infectionId: '!InfectionId',
     infectorPlayerId: '?PlayerId',
     victimLifeCode: '?String',
@@ -511,7 +501,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('sendNotification', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     queuedNotificationId: '!QueuedNotificationId',
     message: 'String',
     previewMessage: 'String',
@@ -528,7 +517,6 @@ class FakeIdGenerator extends IdGenerator {
   });
 
   serverMethods.set('updateNotification', {
-    serverTime: '|Timestamp',
     gameId: 'GameId',
     queuedNotificationId: 'QueuedNotificationId',
     message: '|String',
@@ -548,7 +536,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('addQuizQuestion', {
     quizQuestionId: '!QuizQuestionId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     text: 'String',
     type: 'String',
     number: 'Number',
@@ -556,7 +543,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('updateQuizQuestion', {
     quizQuestionId: 'QuizQuestionId',
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     text: '|String',
     type: '|String',
     number: '|Number',
@@ -564,7 +550,6 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addQuizAnswer', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     quizAnswerId: '!QuizAnswerId',
     quizQuestionId: 'QuizQuestionId',
     text: 'String',
@@ -574,7 +559,6 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('updateQuizAnswer', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     quizAnswerId: 'QuizAnswerId',
     text: '|String',
     order: '|Number',
@@ -584,14 +568,18 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('markNotificationSeen', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     playerId: 'PlayerId',
     notificationId: 'NotificationId',
   });
 
   serverMethods.set('executeNotifications', {
-    serverTime: '|Timestamp',
   });
+
+  for (let [name, expectations] of serverMethods) {
+    serverMethods.set(name, Utils.merge(expectations, {
+      requestTimeOffset: '|Number',
+    }));
+  }
 
   Bridge.METHODS_MAP = serverMethods;
   Bridge.METHODS = Array.from(serverMethods.keys());

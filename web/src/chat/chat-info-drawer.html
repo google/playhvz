@@ -39,22 +39,27 @@
 
           canAdd: {
             type: Boolean,
-            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.canAddOthers)',
+            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.canAddOthers, chatRoom)',
           },
 
-          canRemove: {
+          canRemoveSelf: {
             type: Boolean,
-            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveOthers)',
+            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveSelf, chatRoom)',
+          },
+
+          canRemoveOthers: {
+            type: Boolean,
+            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveOthers, chatRoom)',
           },
 
           showActionsSection: {
             type: Boolean,
-            computed: 'computeShowActionsSection_(canAdd, canRemove)',
+            computed: 'computeShowActionsSection_(canAdd, canRemoveSelf)',
           },
 
           showPlayerDropdown: {
             type: Boolean,
-            computed: 'computeShowPlayerDropdown_(canRemove)',
+            computed: 'computeShowPlayerDropdown_(canRemoveOthers)',
           },
         },
 
@@ -64,12 +69,14 @@
           'onChatMembershipsChanged_(game, group.memberships.length)',
         ],
 
-        computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers) {
-          return isAdmin || playerId == ownerPlayerId || canAddOthers;
+        computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers, chatRoom) {
+          return isAdmin || canAddOthers || 
+            (playerId == ownerPlayerId && !chatRoom.withAdmins);
         },
 
-        computeCanRemove_(isAdmin, playerId, ownerPlayerId, canRemoveOthers) {
-          return isAdmin || playerId == ownerPlayerId || canRemoveOthers;
+        computeCanRemove_(isAdmin, playerId, ownerPlayerId, canRemove, chatRoom) {
+          return isAdmin || canRemove ||
+            (playerId == ownerPlayerId && !chatRoom.withAdmins);
         },
 
         computeShowActionsSection_(canAdd, canRemove) {
@@ -193,7 +200,7 @@
             <iron-icon icon="social:notifications"></iron-icon>
             Notifications
           </a> -->
-          <template is="dom-if" if="[[canRemove]]">
+          <template is="dom-if" if="[[canRemoveSelf]]">
             <a name="chat-drawer-leave" href="javascript:void(0)" data-action="leave" class="drawer-item">
               <iron-icon icon="communication:call-made"></iron-icon>
               Leave
@@ -205,43 +212,45 @@
       <div id="players-list" class="drawer-section">
         <div class="info-label">[[group.memberships.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
-          <div name$='[[item.name]]'</div>
-          <div class="layout horizontal player-entry">
-            <div class="layout horizontal player-info"
-                on-tap="captureTap_"
-                data-action="profile"
-                data-player-id$="[[item.id]]">
-              <ghvz-player-avatar medium game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
-              <div class='player-name'>
-                [[item.name]]
+          <div name$='[[item.name]]'>
+            <div class="layout horizontal player-entry">
+              <div class="layout horizontal player-info"
+                  on-tap="captureTap_"
+                  data-action="profile"
+                  data-player-id$="[[item.id]]">
+                <ghvz-player-avatar medium game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
+                <div class='player-name'>
+                  [[item.name]]
+                </div>
               </div>
-            </div>
-            <template is="dom-if" if="[[showPlayerDropdown]]">
-              <paper-menu-button restore-focus-on-close="[[booleanFalse]]">
-                <paper-icon-button
-                  class="dropdown-trigger" 
-                  icon="icons:more-vert">
-                </paper-icon-button>
-                <paper-menu 
-                  class="dropdown-content" 
-                  selected="{{selectedMenuItem}}">
-                  <!-- <paper-item 
-                    on-tap="captureTap_" 
-                    data-action="ping" 
-                    data-player-id$="[[item.id]]">
-                    ping
-                  </paper-item> -->
-                  <template is="dom-if" if="[[canRemove]]">
-                    <paper-item 
+              <template is="dom-if" if="[[showPlayerDropdown]]">
+                <paper-menu-button restore-focus-on-close="[[booleanFalse]]">
+                  <paper-icon-button
+                    class="dropdown-trigger" 
+                    icon="icons:more-vert">
+                  </paper-icon-button>
+                  <paper-menu 
+                    class="dropdown-content" 
+                    selected="{{selectedMenuItem}}">
+                    <!-- <paper-item 
                       on-tap="captureTap_" 
-                      data-action="kick" 
+                      data-action="ping" 
                       data-player-id$="[[item.id]]">
-                      Kick
-                    </paper-item>
-                  </template>
-                </paper-menu>
-              </paper-menu-button>
-            </template>
+                      ping
+                    </paper-item> -->
+                    <template is="dom-if" if="[[canRemoveOthers]]">
+                      <paper-item 
+                        id$="kick-[[item.name]]"
+                        on-tap="captureTap_" 
+                        data-action="kick" 
+                        data-player-id$="[[item.id]]">
+                        Kick
+                      </paper-item>
+                    </template>
+                  </paper-menu>
+                </paper-menu-button>
+              </template>
+            </div>
           </div>
         </template>
       </div> 
