@@ -599,8 +599,10 @@ window.FirebaseListener = (function () {
 
     listenToPlayerChatRoomMembership_(gameId, playerId, chatRoomId) {
       this.listenOnce_(`/playersPrivate/${playerId}/accessibleChatRooms/${chatRoomId}`).then((snap) => {
+        console.warn('hardcoding visible to true until server support');
         let obj = new Model.PlayerChatRoomMembership(chatRoomId, {
-          chatRoomId: chatRoomId
+          chatRoomId: chatRoomId,
+          visible: true,
         });
         this.writer.insert(this.reader.getPlayerChatRoomMembershipPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
