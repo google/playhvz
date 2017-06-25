@@ -87,7 +87,7 @@ try:
 
   # driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
-  # driver.FindElement([[By.NAME, 'chatRoom-horde-3']])
+  # driver.FindElement([[By.NAME, 'Horde ZedLink']])
   
   # driver.Click([[By.NAME, 'drawerMy Profile']])
 

@@ -213,7 +213,7 @@
       <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
         <template is="dom-if" if="[[membership.visible]]">
           <ghvz-chat-room-name-label
-              name$="[[membership.chatRoomId]]"
+              name$="[[getChatRoomName_(membership.chatRoomId)]]"
               class="layout horizontal list-item name-label"
               with-icon
               game="[[game]]"

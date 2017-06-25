@@ -295,6 +295,7 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('deleteMission', {
     gameId: 'GameId',
     missionId: 'MissionId',
+    accessGroupId: 'GroupId',
   });
 
   serverMethods.set('selfInfect', {required: {playerId: 'PlayerId'}});
