@@ -104,8 +104,8 @@ class RetryingDriver:
   def Backspace(self, path, number):
     return self.Retry(lambda: self.inner_driver.Backspace(path, number))
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist))
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible))
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.Retry(lambda: self.inner_driver.ExpectAttributeEqual(path, attribute_name, value))
@@ -188,8 +188,8 @@ class RemoteDriver:
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist)
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def SendKeys(self, path, keys):
     self.drivers_by_user[self.current_user].SendKeys(path, keys)
@@ -262,11 +262,11 @@ class FakeDriver:
     else:
       self.inner_driver.Backspace(path, number)
 
-  def ExpectContains(self, path, needle, scoped=True, should_exist=True):
+  def ExpectContains(self, path, needle, scoped=True, should_exist=True, check_visible=True):
     if scoped:
-      self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist)
+      self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist=should_exist, check_visible=check_visible)
     else:
-      self.inner_driver.ExpectContains(path, needle, should_exist)
+      self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     if scoped:
@@ -313,8 +313,8 @@ class WholeDriver:
   def Backspace(self, path, number=1):
     return self.inner_driver.Backspace(path, number)
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)

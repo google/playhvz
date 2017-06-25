@@ -20,13 +20,26 @@ try:
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
+  # get initial counts of zombies from our stats pages
   driver.Click([[By.NAME, 'drawerGame Stats']])
-  zombie_start_count = int(driver.FindElement([[By.NAME, 'stats-card'],
+  
+  initial_zombie_count = driver.FindElement([[By.NAME, 'stats-card'],
                             [By.ID, 'current_population_meta'],
-                            [By.ID, 'zombie_count']]).text)
+                            [By.ID, 'zombie_count']], 
+                            check_visible=False)
+
+  initial_zombie_count = int(initial_zombie_count.get_attribute('textContent'))
+
+  # ensure our zombies over time current value reflects the current population
+  driver.ExpectContains([[By.NAME, 'stats-card'],
+                          [By.ID, 'population_over_time_meta'],
+                          [By.ID, 'zombie_end_count']], 
+                          str(initial_zombie_count),
+                          check_visible=False)
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
+  # start infecting humans
   for target in INFECTABLES:
     # only zombies have lifeCodeInput
     driver.SendKeys(
@@ -39,36 +52,41 @@ try:
 
     driver.Click([[By.ID, 'infected'], [By.ID, 'done']])
 
+  # make sure drake's profile has updated points
   driver.Click([[By.NAME, 'drawerMy Profile']])
-
+  
   driver.ExpectContains([[By.NAME, 'profilePoints']], '402')
 
+  # ensure jack is a zombie now
   driver.SwitchUser("jack")
-
+  
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
-
+  
   driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
 
-  driver.Click([[By.NAME, 'drawerMy Profile']])
-
+  # double check our stats
   driver.Click([[By.NAME, 'drawerGame Stats']])
 
+  current_zombie_count = initial_zombie_count + len(INFECTABLES)
 
-  zombie_end_count = zombie_start_count + len(INFECTABLES)
   # check our charts. Ensure that new zombie counts are reflected
   driver.ExpectContains([[By.NAME, 'stats-card'],
                           [By.ID, 'current_population_meta'],
-                          [By.ID, 'zombie_count']], str(zombie_end_count),
+                          [By.ID, 'zombie_count']], 
+                          str(current_zombie_count),
                           check_visible=False)
+  """
+  driver.ExpectContains([[By.NAME, 'stats-card'],
+                          [By.ID, 'population_over_time_meta'],
+                          [By.ID, 'zombie_start_count']], 
+                          str(zombie_start_count),
+                          check_visible=False)
+  """
 
   driver.ExpectContains([[By.NAME, 'stats-card'],
                           [By.ID, 'population_over_time_meta'],
-                          [By.ID, 'zombie_start_count']], str(zombie_start_count),
-                          check_visible=False)
-
-  driver.ExpectContains([[By.NAME, 'stats-card'],
-                          [By.ID, 'population_over_time_meta'],
-                          [By.ID, 'zombie_end_count']], str(zombie_end_count),
+                          [By.ID, 'zombie_end_count']], 
+                          str(current_zombie_count),
                           check_visible=False)
 
 
