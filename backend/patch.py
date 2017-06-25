@@ -40,7 +40,7 @@ class Patch:
     mutation_paths_obj = path_utils.follow_path(self.path_tree, path, create_missing=True)
     if mutation_paths_obj is not None:
       mutation_paths_obj[id] = 'delete'
-    if not self.additional:
+    if self.additional is None:
       return
     local_data_obj = path_utils.follow_path(self.additional, path)
     if local_data_obj is not None and id in local_data_obj:
@@ -66,7 +66,7 @@ class Patch:
     mutation_paths_obj = path_utils.follow_path(self.path_tree, path, create_missing=True)
     if mutation_paths_obj is not None:
       mutation_paths_obj[id] = 'put'
-    if not self.additional:
+    if self.additional is None:
       return
     local_data_obj = path_utils.follow_path(self.additional, path, create_missing=True)
     if local_data_obj is not None:
@@ -94,7 +94,7 @@ class Patch:
       mutation_paths_obj = path_utils.follow_path(self.path_tree, path_utils.join_paths(path, path_utils.drop_last(key)), create_missing=True)
       if mutation_paths_obj is not None:
         mutation_paths_obj[path_utils.last(key)] = 'patch'
-      if not self.additional:
+      if self.additional is None:
         continue
       local_data_obj = path_utils.follow_path(self.additional, path_utils.join_paths(path, path_utils.drop_last(key)), create_missing=True)
       if local_data_obj is not None:
