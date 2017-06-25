@@ -70,7 +70,17 @@
           var chatRoomId = this.path[1];
           if (chatRoomId) {
             this.$.chatRoomSelector.select(
-                this.game.chatRooms.find(chatRoom => chatRoom.id == chatRoomId));
+                this.game.chatRooms.find(chatRoom => {
+                  let visible;
+                  let memberSetting = this.player.chatRoomMembershipsById[chatRoomId];
+                  if (memberSetting) {
+                    visible = memberSetting.visible;
+                  }
+                  if (this.isAdmin) {
+                    visible = true;
+                  }
+                  return chatRoom.id == chatRoomId && visible;
+                }));
             if (this.$.chatRoomSelector.selected != null) {
               return;
             }

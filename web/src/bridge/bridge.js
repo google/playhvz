@@ -386,6 +386,13 @@ class FakeIdGenerator extends IdGenerator {
     playerId: 'PlayerId',
     timestamp: 'Timestamp',
   });
+  serverMethods.set('updateChatRoomMembership', {
+    gameId: 'GameId',
+    serverTime: '|Timestamp',
+    chatRoomId: 'ChatRoomId',
+    actingPlayerId: 'PlayerId',
+    visible: '|Boolean',
+  });
 
   serverMethods.set('createMap', {
     gameId: 'GameId',
