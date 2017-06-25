@@ -1210,10 +1210,9 @@ def Infect(request, game_state):
 
 
 def JoinResistance(request, game_state):
-}}}} start here do security
   """
   Security:
-    
+    Unless youre an admin, you must be playerId.
 
   """
 
@@ -1237,6 +1236,11 @@ def JoinResistance(request, game_state):
 
 
 def JoinHorde(request, game_state):
+  """
+  Security:
+    Unless youre an admin, you must be playerId.
+
+  """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
     'playerId': 'PlayerId',
@@ -1274,6 +1278,9 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
 
 def AddRewardCategory(request, game_state):
   """Add a new reward group.
+
+  Security:
+    Admins only
 
   Validation:
     rewardCategoryId is of valid form.
@@ -1322,6 +1329,9 @@ def AddRewardCategory(request, game_state):
 def UpdateRewardCategory(request, game_state):
   """Update an existing reward group.
 
+  Security:
+    Admins only
+
   Firebase entries:
     /rewardCategories/%(rewardCategoryId)
   """
@@ -1348,6 +1358,9 @@ def UpdateRewardCategory(request, game_state):
 
 def AddReward(request, game_state):
   """Add a new reward to an existing category.
+
+  Security:
+    Admins only
 
   Validation:
 
@@ -1396,6 +1409,9 @@ def AddReward(request, game_state):
 def AddRewards(request, game_state):
   """Add a set of rewards.
 
+  Security:
+    Admins only
+
   Firebase entries:
     /rewards/%(rewardId)
     /rewardCategories/%(rcID)/rewards/%(rewardId)
@@ -1435,6 +1451,9 @@ def AddRewardToDb(game_state, reward_category_id, reward_id, reward):
 
 def ClaimReward(request, game_state):
   """Claim a reward for a player.
+
+  Security:
+    Unless youre an admin, you must be playerId.
 
   Validation:
     Reward is valid.
@@ -1515,9 +1534,12 @@ def RandomWords(n):
 def SendNotification(request, game_state):
   """Queue a notification to be sent.
 
+  Security:
+    Only admins can call this method.
+
   Firebase entries:
     /notifications/%(notificationId)
-"""
+  """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId', # Game ID
     'queuedNotificationId': '!QueuedNotificationId', # QueuedNotificationId to create.
@@ -1548,6 +1570,9 @@ def SendNotification(request, game_state):
 
 def UpdateNotification(request, game_state):
   """Update a queued notification.
+
+  Security:
+    Only admins can call this method.
 
   Firebase entries:
     /notifications/%(notificationId)
@@ -1619,6 +1644,10 @@ def RegisterUserDevice(request, game_state):
   Validation:
     userId must exist.
 
+  Security:
+    You must be userId.
+    (take out userId)
+
   Args:
     userId: User id to associate with.
     deviceToken: Ionic device token.
@@ -1636,6 +1665,9 @@ def RegisterUserDevice(request, game_state):
 
 def AddLife(request, game_state):
   """Add a new player life.
+
+  Security:
+    Only admins can call this.
 
   Validation:
 
@@ -1702,6 +1734,9 @@ def CreateMap(request, game_state):
       mapId must not exist
       name must be present
 
+    Security:
+      Admins only.
+
     Args:
       gameID: Id uniquely identifying the game the map will be associated with.
       groupId: Id uniquely identifying the group the map will be associated
@@ -1743,6 +1778,9 @@ hex_range = map(lambda x: unicode(str(x), "utf-8"), list(hex_range))
 
 def AddMarker(request, game_state):
   """Adds the marker (location) of a player to a map with a set color and name.
+
+    Security:
+      Admins only.
 
     Validation:
       color must exist
@@ -1828,6 +1866,9 @@ def AddMarker(request, game_state):
 def UpdatePlayerMarkers(request, game_state):
   """Updates all markers belonging to this player to the given [latitude] and
   [longitude].
+
+    Security:
+      Unless youre an admin, you must be playerId.
 
     Validation:
       latitude must be present
