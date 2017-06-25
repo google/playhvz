@@ -61,10 +61,13 @@ try:
   driver.Click([[By.NAME, 'declareAllegiance']])
   driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']])
   driver.Click([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option1']])
-  driver.Click([[By.NAME, 'startQuizPage'], [By.NAME, 'offWeGo']]) # TODO - at some point we might need ot put the quiz in here
-  driver.Click([[By.NAME, 'submitJoinGame']])
+  driver.Click([[By.NAME, 'startQuizPage'], [By.NAME, 'offWeGo']])
+
+  driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
   # Player sees their lifecode and allegiance
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerMy Profile']])
   driver.ExpectContains([[By.NAME, 'status']], 'Alive')
   driver.ExpectContains([[By.NAME, 'lifecode']], 'codefor-life-1')
