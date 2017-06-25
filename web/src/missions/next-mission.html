@@ -26,7 +26,6 @@
           // Of all the missions that end in the future, get the one that ends the soonest.
           for (const missionMembership of this.player.missionMemberships) {
             let missionId = missionMembership.missionId;
-            console.log("Mission ID: ", mission)
             let mission = this.game.missionsById[missionId];
             if (new Date().getTime() < mission.endTime) {
               if (!nextMission || mission.endTime < nextMission.endTime) {
