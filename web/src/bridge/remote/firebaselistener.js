@@ -79,13 +79,13 @@ window.FirebaseListener = (function () {
   // look at /games/[gameId], see /games/[gameId]/missions,
   // /games/[gameId]/chatRooms, /games/[gameId]/players, etc. which are lists of
   // IDS, and use those IDs to start listening to /missions/[missionId],
-  // /chatRooms/[chatRoomId], /playersPublic/[playerId],
-  // /playersPrivate/[playerId], etc.
+  // /chatRooms/[chatRoomId], /publicPlayers/[playerId],
+  // /privatePlayers/[playerId], etc.
 
   // listenToGameAsPlayer can't take that approach, because since we're not an
   // admin, we can't just blindly listen to everything. To know what we have
-  // access to, we look at /playersPrivate/[playerId]/chatRooms,
-  // /playersPrivate/[playerId]/missions, etc. which are lists of IDs, and
+  // access to, we look at /privatePlayers/[playerId]/chatRooms,
+  // /privatePlayers/[playerId]/missions, etc. which are lists of IDs, and
   // use those IDs to start listening to /missions/[missionId],
   // /chatRooms/[chatRoomId], etc.
 
@@ -360,8 +360,8 @@ window.FirebaseListener = (function () {
         });
     }
 
-    listenToPlayer_(gameId, publicPlayerId, private) {
-      this.listenOnce_(`/playersPublic/${publicPlayerId}`).then((publicSnap) => {
+    listenToPlayer_(gameId, publicPlayerId, listenToPrivate) {
+      this.listenOnce_(`/publicPlayers/${publicPlayerId}`).then((publicSnap) => {
         let publicPlayer = new Model.PublicPlayer(publicPlayerId, properties);
         this.writer.insert(this.reader.getPublicPlayerPath(gameId, null), null, publicPlayer);
 
@@ -370,16 +370,16 @@ window.FirebaseListener = (function () {
           (property, value) => {
             this.writer.set(this.reader.getPublicPlayerPath(gameId, publicPlayerId).concat([property]), value);
           });
-        this.firebaseRoot.child(`/playersPublic/${publicPlayerId}/claims`)
+        this.firebaseRoot.child(`/publicPlayers/${publicPlayerId}/claims`)
           .on('child_added', (publicSnap) => this.listenToClaim_(gameId, publicPlayerId, publicSnap.getKey()));
-        this.firebaseRoot.child(`/playersPublic/${publicPlayerId}/infections`)
+        this.firebaseRoot.child(`/publicPlayers/${publicPlayerId}/infections`)
           .on('child_added', (publicSnap) => this.listenToInfection_(gameId, publicPlayerId, publicSnap.getKey()));
-        this.firebaseRoot.child(`/playersPublic/${publicPlayerId}/lives`)
-          .on('child_added', (publicSnap) => this.listenToLife_(gameId, publicPlayerId, publicSnap.getKey()), private);
+        this.firebaseRoot.child(`/publicPlayers/${publicPlayerId}/lives`)
+          .on('child_added', (publicSnap) => this.listenToLife_(gameId, publicPlayerId, publicSnap.getKey()), listenToPrivate);
 
-        if (private) {
+        if (listenToPrivate) {
           let privatePlayerId = publicPlayer.privatePlayerId;
-          this.listenOnce_(`/playersPrivate/${privatePlayerId}`).then((privateSnap) => {
+          this.listenOnce_(`/privatePlayers/${privatePlayerId}`).then((privateSnap) => {
               let privatePlayer = new Model.PrivatePlayer(privatePlayerId, properties);
               this.writer.insert(this.reader.getPrivatePlayerPath(gameId, publicPlayerId, null), null, privatePlayer);
 
@@ -400,19 +400,19 @@ window.FirebaseListener = (function () {
                 (property, value) => {
                   this.writer.set(this.reader.getPrivatePlayerPath(gameId, publicPlayerId).concat(['notificationSettings', property]), value);
                 });
-              this.firebaseRoot.child(`/playersPrivate/${privatePlayerId}/notifications`)
+              this.firebaseRoot.child(`/privatePlayers/${privatePlayerId}/notifications`)
                 .on('child_added', (snap) => {
                   let notificationId = snap.getKey();
                   let queuedNotificationId = snap.getKey();
                   this.listenToNotification_(gameId, playerId, notificationId);
                 });
-              this.firebaseRoot.child(`/playersPrivate/${privatePlayerId}/chatRoomMemberships`)
+              this.firebaseRoot.child(`/privatePlayers/${privatePlayerId}/chatRoomMemberships`)
                 .on('child_added', (snap) => {
                   let chatRoomId = snap.getKey();
                   this.listenToPlayerChatRoomMembership_(gameId, publicPlayerId, chatRoomId);
                   this.listenToChatRoom_(gameId, chatRoomId);
                 });
-              this.firebaseRoot.child(`/playersPrivate/${privatePlayerId}/chatRoomMemberships`)
+              this.firebaseRoot.child(`/privatePlayers/${privatePlayerId}/chatRoomMemberships`)
                 .on('child_removed', (snap) => {
                   let chatRoomId = snap.getKey();
                   let path = this.reader.getPlayerChatRoomMembershipPath(gameId, publicPlayerId, chatRoomId);
@@ -420,13 +420,13 @@ window.FirebaseListener = (function () {
                   path = path.slice(0, path.length - 1);
                   this.writer.remove(path, index, chatRoomId);
                 });
-              this.firebaseRoot.child(`/playersPrivate/${privatePlayerId}/missionMemberships`)
+              this.firebaseRoot.child(`/privatePlayers/${privatePlayerId}/missionMemberships`)
                 .on('child_added', (snap) => {
                   let missionId = snap.getKey();
                   this.listenToPlayerMissionMembership_(gameId, playerId, missionId);
                   this.listenToMission_(gameId, missionId);
                 });
-              this.firebaseRoot.child(`/playersPrivate/${privatePlayerId}/missionMemberships`)
+              this.firebaseRoot.child(`/privatePlayers/${privatePlayerId}/missionMemberships`)
                 .on('child_removed', (snap) => {
                   let missionId = snap.getKey();
                   let path = this.reader.getPlayerChatRoomMembershipPath(gameId, publicPlayerId, missionId);
@@ -439,7 +439,7 @@ window.FirebaseListener = (function () {
       });
     }
 
-    listenToLife_(gameId, playerId, publicLifeId, private) {
+    listenToLife_(gameId, playerId, publicLifeId, listenToPrivate) {
       this.listenOnce_(`/livesPublic/${publicLifeId}`).then((publicSnap) => {
         let publicProperties = publicSnap.val();
         this.writer.insert(
@@ -451,7 +451,7 @@ window.FirebaseListener = (function () {
             (property, value) => {
               this.writer.set(this.reader.getPublicLifePath(gameId, playerId, publicLifeId).concat([property]), value);
             });
-        if (private) {
+        if (listenToPrivate) {
           let privateLifeId = publicProperties.privateLifeId;
           this.listenOnce_(`/livesPrivate/${privateLifeId}`).then((privateSnap) => {
               let privateProperties = Utils.merge(publicSnap.val(), privateSnap.val());
@@ -470,7 +470,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToInfection_(gameId, playerId, infectionId) {
-      this.listenOnce_(`/playersPublic/${playerId}/infections/${infectionId}`).then((snap) => {
+      this.listenOnce_(`/publicPlayers/${playerId}/infections/${infectionId}`).then((snap) => {
         let infectionId = snap.getKey();
         let obj = new Model.Infection(infectionId, snap.val());
         this.writer.insert(this.reader.getInfectionPath(gameId, playerId, null), null, obj);
@@ -483,7 +483,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToClaim_(gameId, playerId, claimId) {
-      this.listenOnce_(`/playersPublic/${playerId}/claims/${claimId}`).then((snap) => {
+      this.listenOnce_(`/publicPlayers/${playerId}/claims/${claimId}`).then((snap) => {
         let claimId = snap.getKey();
         let obj = new Model.Claim(claimId, snap.val());
         this.writer.insert(this.reader.getClaimPath(gameId, playerId, null), null, obj);
@@ -523,7 +523,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToNotification_(gameId, playerId, notificationId) {
-      this.listenOnce_(`/playersPrivate/${playerId}/notifications/${notificationId}`).then((snap) => {
+      this.listenOnce_(`/privatePlayers/${playerId}/notifications/${notificationId}`).then((snap) => {
         let obj = new Model.Notification(notificationId, snap.val());
         this.writer.insert(this.reader.getNotificationPath(gameId, playerId, null), null, obj);
         this.listenForPropertyChanges_(
@@ -570,7 +570,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToPlayerChatRoomMembership_(gameId, playerId, chatRoomId) {
-      this.listenOnce_(`/playersPrivate/${playerId}/accessibleChatRooms/${chatRoomId}`).then((snap) => {
+      this.listenOnce_(`/privatePlayers/${playerId}/accessibleChatRooms/${chatRoomId}`).then((snap) => {
         let obj = new Model.PlayerChatRoomMembership(chatRoomId, {
           chatRoomId: chatRoomId
         });
@@ -584,7 +584,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToPlayerMissionMembership_(gameId, playerId, missionId) {
-      this.listenOnce_(`/playersPrivate/${playerId}/accessibleMissions/${missionId}`).then((snap) => {
+      this.listenOnce_(`/privatePlayers/${playerId}/accessibleMissions/${missionId}`).then((snap) => {
         let obj = new Model.PlayerMissionMembership(missionId, {
           missionId: missionId
         });

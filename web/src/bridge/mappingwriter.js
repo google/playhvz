@@ -27,10 +27,10 @@ let MAPPINGS = [
   {pattern: ["games", null, "players", null, "claims"], newMap: "claimsById", keyBy: "id"},
   {pattern: ["games", null, "players", null, "infections"], newMap: "infectionsById", keyBy: "id"},
   {pattern: ["games", null, "players", null, "lives"], newMap: "livesById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "notifications"], newMap: "notificationsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "chatRoomMemberships"], newMap: "chatRoomMembershipsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "missionMemberships"], newMap: "missionMembershipsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "groupMemberships"], newMap: "groupMembershipsById", keyBy: "groupId"},
+  {pattern: ["games", null, "players", null, "private", "notifications"], newMap: "notificationsById", keyBy: "id"},
+  {pattern: ["games", null, "players", null, "private", "chatRoomMemberships"], newMap: "chatRoomMembershipsById", keyBy: "id"},
+  {pattern: ["games", null, "players", null, "private", "missionMemberships"], newMap: "missionMembershipsById", keyBy: "id"},
+  {pattern: ["games", null, "players", null, "private", "groupMemberships"], newMap: "groupMembershipsById", keyBy: "groupId"},
   {pattern: ["games", null, "rewardCategories"], newMap: "rewardCategoriesById", keyBy: "id"},
   {pattern: ["games", null, "rewardCategories", null, "rewards"], newMap: "rewardsById", keyBy: "id"},
   {pattern: ["games", null, "chatRooms"], newMap: "chatRoomsById", keyBy: "id"},
@@ -42,7 +42,7 @@ let MAPPINGS = [
   {pattern: ["games", null, "missions"], newMap: "missionsById", keyBy: "id"},
   {pattern: ["games", null, "guns"], newMap: "gunsById", keyBy: "id"},
   {pattern: ["users"], newMap: "usersById", keyBy: "id"},
-  {pattern: ["users", null, "players"], newMap: "playersById", keyBy: "id"},
+  {pattern: ["users", null, "publicPlayers"], newMap: "publicPlayersById", keyBy: "id"},
 ];
 // Helper function to find which mapping a given path matches.
 // For example, given ["games", 5, "players", 3, "claims"], it would

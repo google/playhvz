@@ -124,7 +124,7 @@
       "rsvpersGroupId":"group-test-3840579180089170-1"
     }
   },
-  "playersPrivate":{
+  "privatePlayers":{
     "player-test-3840579180089170-1":{
       "beInPhotos":true,
       "canInfect":false,
@@ -283,7 +283,7 @@
       "wantToBeSecretZombie":true
     }
   },
-  "playersPublic":{
+  "publicPlayers":{
     "player-test-3840579180089170-1":{
       "active":false,
       "allegiance":"undeclared",

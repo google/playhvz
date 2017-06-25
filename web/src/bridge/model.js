@@ -13,19 +13,19 @@ Model.Gun = function(id, args) {
 }
 
 const USER_PROPERTIES = ["deviceToken"];
-const USER_COLLECTIONS = ["players"];
+const USER_COLLECTIONS = ["publicPlayers"];
 Model.User = function(id, args) {
   this.id = id;
   Utils.copyProperties(this, args, USER_PROPERTIES);
   Utils.addEmptyLists(this, USER_COLLECTIONS);
 }
 
-const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
-const USER_PLAYER_COLLECTIONS = [];
-Model.UserPlayer = function(id, args) {
+const USER_PUBLIC_PLAYER_PROPERTIES = ["gameId", "userId"];
+const USER_PUBLIC_PLAYER_COLLECTIONS = [];
+Model.UserPublicPlayer = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, USER_PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, USER_PLAYER_COLLECTIONS);
+  Utils.copyProperties(this, args, USER_PUBLIC_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(this, USER_PUBLIC_PLAYER_COLLECTIONS);
 }
 
 const GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
@@ -172,26 +172,28 @@ Model.QueuedNotification = function(id, args) {
   Utils.addEmptyLists(this, QUEUED_NOTIFICATION_COLLECTIONS);
 }
 
-const PUBLIC_PLAYER_PROPERTIES = ["isActive", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId"];
-const PUBLIC_PLAYER_COLLECTIONS = ["infections", "lives", "claims"];
-Model.Player = function(id, args) {
+Model.PUBLIC_PLAYER_PROPERTIES = ["isActive", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "privatePlayerId", "private"];
+Model.PUBLIC_PLAYER_COLLECTIONS = ["infections", "lives", "claims"];
+Model.PublicPlayer = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, PUBLIC_PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, PUBLIC_PLAYER_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.PUBLIC_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PUBLIC_PLAYER_COLLECTIONS);
+  if (!this.private)
+    this.private = null;
 }
 
-const PRIVATE_PLAYER_PROPERTIES = ["isActive", "userId", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
-const PRIVATE_PLAYER_COLLECTIONS = ["notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships", "mapMemberships"];
-const PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
-const PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
+Model.PRIVATE_PLAYER_PROPERTIES = ["isActive", "userId", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
+Model.PRIVATE_PLAYER_COLLECTIONS = ["notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships", "mapMemberships"];
+Model.PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
+Model.PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
 Model.PrivatePlayer = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, PRIVATE_PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, PRIVATE_PLAYER_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.PRIVATE_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PRIVATE_PLAYER_COLLECTIONS);
   this.volunteer = {};
-  Utils.copyProperties(this.volunteer, args.volunteer, PLAYER_VOLUNTEER_PROPERTIES);
+  Utils.copyProperties(this.volunteer, args.volunteer, Model.PRIVATE_PLAYER_VOLUNTEER_PROPERTIES);
   this.notificationSettings = {};
-  Utils.copyProperties(this.notificationSettings, args.notificationSettings, PLAYER_NOTIFICATION_SETTINGS_PROPERTIES);
+  Utils.copyProperties(this.notificationSettings, args.notificationSettings, Model.PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES);
 }
 
 const CLAIM_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
@@ -202,7 +204,7 @@ Model.Claim = function(id, args) {
   Utils.addEmptyLists(this, CLAIM_COLLECTIONS);
 }
 
-const PUBLIC_LIFE_PROPERTIES = ["time"];
+const PUBLIC_LIFE_PROPERTIES = ["time", "private"];
 const PUBLIC_LIFE_COLLECTIONS = [];
 Model.PublicLife = function(id, args) {
   this.id = id;

@@ -63,7 +63,7 @@
         "map-%(ident)s-2": true
       },
       "name": "test Game",
-      "publicPlayers": {
+      "players": {
         "publicPlayer-%(ident)s-1": true,
         "publicPlayer-%(ident)s-2": true,
         "publicPlayer-%(ident)s-3": true,
@@ -110,7 +110,7 @@
       "canRemoveSelf": false,
       "ownerPlayerId": "publicPlayer-%(ident)s-1",
       "name": "group Foo",
-      "publicPlayers": {
+      "players": {
         "publicPlayer-%(ident)s-1": true,
         "publicPlayer-%(ident)s-2": true,
         "publicPlayer-%(ident)s-4": true,
@@ -128,7 +128,7 @@
       "canRemoveSelf": true,
       "ownerPlayerId": "publicPlayer-%(ident)s-1",
       "name": "group Bar",
-      "publicPlayers": {
+      "players": {
         "publicPlayer-%(ident)s-1": true,
         "publicPlayer-%(ident)s-2": true
       }
@@ -213,7 +213,7 @@
       "vibrate": true
     }
   },
-  "playersPublic": {
+  "publicPlayers": {
     "publicPlayer-%(ident)s-1": {
       "gameId": "game-%(ident)s-1",
       "privatePlayerId": "privatePlayer-%(ident)s-1",
@@ -264,7 +264,7 @@
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-5"
     }
   },
-  "playersPrivate": {
+  "privatePlayers": {
     "privatePlayer-%(ident)s-1": {
       "associatedMaps": {
         "map-%(ident)s-1": {
@@ -498,6 +498,8 @@
       }
     }
   },
+  "livesPrivate": {},
+  "livesPublic": {},
   "maps": {
     "map-%(ident)s-1": {
       "accessGroupId": "group-%(ident)s-1",

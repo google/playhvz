@@ -90,8 +90,10 @@ class IdGenerator {
   verifyGunId(id) { return this.verify('gun', id); }
   newInfectionId(note) { return this.generateId('infection', note); }
   verifyInfectionId(id) { return this.verify('infection', id); }
-  newLifeId(note) { return this.generateId('life', note); }
-  verifyLifeId(id) { return this.verify('life', id); }
+  newPublicLifeId(note) { return this.generateId('publicLife', note); }
+  verifyPublicLifeId(id) { return this.verify('publicLife', id); }
+  newPrivateLifeId(note) { return this.generateId('life', note); }
+  verifyPrivateLifeId(id) { return this.verify('privateLife', id); }
   newMapId(note) { return this.generateId('map', note); }
   verifyMapId(id) { return this.verify('map', id); }
   newMembershipId(note) { return this.generateId('membership', note); }
@@ -104,8 +106,10 @@ class IdGenerator {
   verifyQueuedNotificationId(id) { return this.verify('queuedNotification', id); }
   newNotificationId(note) { return this.generateId('notification', note); }
   verifyNotificationId(id) { return this.verify('notification', id); }
-  newPlayerId(note) { return this.generateId('player', note); }
-  verifyPlayerId(id) { return this.verify('player', id); }
+  newPublicPlayerId(note) { return this.generateId('publicPlayer', note); }
+  verifyPublicPlayerId(id) { return this.verify('publicPlayer', id); }
+  newPrivatePlayerId(note) { return this.generateId('privatePlayer', note); }
+  verifyPrivatePlayerId(id) { return this.verify('privatePlayer', id); }
   newMarkerId(note) { return this.generateId('marker', note); }
   verifyMarkerId(id) { return this.verify('marker', id); }
   newQuizAnswerId(note) { return this.generateId('quizAnswer', note); }
@@ -167,7 +171,7 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('assignGun', {
     gameId: 'GameId',
     gunId: 'GunId',
-    playerId: '?PlayerId',
+    playerId: '?PublicPlayerId',
   });
 
   // Games
@@ -196,7 +200,7 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('setAdminContact', {
     gameId: 'GameId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
   });
   serverMethods.set('addDefaultProfileImage', {
     gameId: 'GameId',
@@ -207,7 +211,8 @@ class FakeIdGenerator extends IdGenerator {
 
   // Players
   serverMethods.set('createPlayer', {
-    playerId: '!PlayerId',
+    playerId: '!PublicPlayerId',
+    privatePlayerId: '?!PrivatePlayerId',
     userId: 'UserId',
     gameId: 'GameId',
     name: 'String',
@@ -240,7 +245,7 @@ class FakeIdGenerator extends IdGenerator {
     notes: 'String',
   });
   serverMethods.set('updatePlayer', {
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
     gameId: 'GameId',
     name: '|String',
     needGun: '|Boolean',
@@ -297,14 +302,14 @@ class FakeIdGenerator extends IdGenerator {
     missionId: 'MissionId',
   });
 
-  serverMethods.set('selfInfect', {required: {playerId: 'PlayerId'}});
+  serverMethods.set('selfInfect', {required: {playerId: 'PublicPlayerId'}});
 
   serverMethods.set('createGroup', {
     groupId: '!GroupId',
     gameId: 'GameId',
     name: 'String',
     allegianceFilter: 'String',
-    ownerPlayerId: '?PlayerId',
+    ownerPlayerId: '?PublicPlayerId',
     autoAdd: 'Boolean',
     autoRemove: 'Boolean',
     canAddOthers: 'Boolean',
@@ -317,7 +322,7 @@ class FakeIdGenerator extends IdGenerator {
     groupId: 'GroupId',
     name: '|String',
     allegianceFilter: '|String',
-    ownerPlayerId: '|?PlayerId',
+    ownerPlayerId: '|?PublicPlayerId',
     autoAdd: '|Boolean',
     autoRemove: '|Boolean',
     canAddOthers: '|Boolean',
@@ -362,7 +367,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('claimReward', {
     gameId: 'GameId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
     rewardCode: 'String',
   });
 
@@ -383,14 +388,14 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('setLastSeenChatTime', {
     gameId: 'GameId',
     chatRoomId: 'ChatRoomId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
     timestamp: 'Timestamp',
   });
   serverMethods.set('updateChatRoomMembership', {
     gameId: 'GameId',
     serverTime: '|Timestamp',
     chatRoomId: 'ChatRoomId',
-    actingPlayerId: 'PlayerId',
+    actingPlayerId: 'PublicPlayerId',
     visible: '|Boolean',
   });
 
@@ -409,8 +414,9 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('addMarker', {
     markerId: '!MarkerId',
     mapId: 'MapId',
+    gameId: 'GameId',
     name: 'String',
-    playerId: '?PlayerId',
+    playerId: '?PublicPlayerId',
     color: 'String',
     latitude: 'Number',
     longitude: 'Number',
@@ -419,15 +425,15 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('addPlayerToGroup', {
     gameId: 'GameId',
     groupId: 'GroupId',
-    playerToAddId: 'PlayerId',
-    actingPlayerId: '?PlayerId',
+    playerToAddId: 'PublicPlayerId',
+    actingPlayerId: '?PublicPlayerId',
   });
 
   serverMethods.set('removePlayerFromGroup', {
     gameId: 'GameId',
     groupId: 'GroupId',
-    playerToRemoveId: 'PlayerId',
-    actingPlayerId: '?PlayerId',
+    playerToRemoveId: 'PublicPlayerId',
+    actingPlayerId: '?PublicPlayerId',
   });
 
   serverMethods.set('addAdmin', {
@@ -437,20 +443,21 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('joinHorde', {
     gameId: 'GameId',
-    playerId: 'PlayerId'
+    playerId: 'PublicPlayerId'
   });
   serverMethods.set('joinResistance', {
     gameId: 'GameId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
     lifeCode: '?String',
-    lifeId: '?!LifeId',
+    lifeId: '?!PublicLifeId',
+    privateLifeId: '?!PrivateLifeId',
   });
 
   serverMethods.set('sendChatMessage', {
     gameId: 'GameId',
     messageId: '!MessageId',
     chatRoomId: 'ChatRoomId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
     message: 'String',
   });
 
@@ -458,7 +465,7 @@ class FakeIdGenerator extends IdGenerator {
     gameId: 'GameId',
     requestCategoryId: '!RequestCategoryId',
     chatRoomId: 'ChatRoomId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
     text: 'String',
     type: 'String',
     dismissed: 'Boolean',
@@ -475,7 +482,7 @@ class FakeIdGenerator extends IdGenerator {
     gameId: 'GameId',
     requestCategoryId: 'RequestCategoryId',
     requestId: '!RequestId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
   });
 
   serverMethods.set('addResponse', {
@@ -486,17 +493,18 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addLife', {
     gameId: 'GameId',
-    playerId: 'PlayerId',
-    lifeId: '!LifeId',
+    playerId: 'PublicPlayerId',
+    lifeId: '!PublicLifeId',
+    privateLifeId: '?!PrivateLifeId',
     lifeCode: '?String',
   });
 
   serverMethods.set('infect', {
     gameId: 'GameId',
     infectionId: '!InfectionId',
-    infectorPlayerId: '?PlayerId',
+    infectorPlayerId: '?PublicPlayerId',
     victimLifeCode: '?String',
-    victimPlayerId: '?PlayerId',
+    victimPlayerId: '?PublicPlayerId',
   });
 
   serverMethods.set('sendNotification', {
@@ -511,7 +519,7 @@ class FakeIdGenerator extends IdGenerator {
     email: 'Boolean',
     destination: '?String',
     sendTime: '?Timestamp',
-    playerId: '?PlayerId',
+    playerId: '?PublicPlayerId',
     groupId: '?GroupId',
     icon: '?String',
   });
@@ -528,7 +536,7 @@ class FakeIdGenerator extends IdGenerator {
     email: '|Boolean',
     destination: '|String',
     sendTime: '|?Timestamp',
-    playerId: '|?PlayerId',
+    playerId: '|?PublicPlayerId',
     groupId: '|?GroupId',
     icon: '|?String',
   });
@@ -568,7 +576,7 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('markNotificationSeen', {
     gameId: 'GameId',
-    playerId: 'PlayerId',
+    playerId: 'PublicPlayerId',
     notificationId: 'NotificationId',
   });
 

@@ -127,9 +127,9 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
       elif expectation == "GroupId":
         ExpectExistence(game_state, '/groups/%s' % data, data, 'gameId', should_exist)
       elif expectation == "PublicPlayerId":
-        ExpectExistence(game_state, '/playersPublic/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/publicPlayers/%s' % data, data, 'gameId', should_exist)
       elif expectation == "PrivatePlayerId":
-        ExpectExistence(game_state, '/playersPrivate/%s' % data, data, 'gameId', should_exist)
+        ExpectExistence(game_state, '/privatePlayers/%s' % data, data, 'gameId', should_exist)
       elif expectation == "PublicLifeId":
         ExpectExistence(game_state, '/livesPublic/%s' % data, data, 'gameId', should_exist)
       elif expectation == "PrivateLifeId":
@@ -199,7 +199,7 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
 def GetNextPlayerNumber(game_state, game_id):
   players = GetValueWithPropertyEqualTo(
       game_state,
-      'playersPrivate',
+      'privatePlayers',
       'gameId',
       game_id)
   return 101 + len(players)
@@ -211,7 +211,7 @@ def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
   player_short_name = life_code.split('-')[0]
   players = GetValueWithPropertyEqualTo(
       game_state,
-      'playersPrivate',
+      'privatePlayers',
       'gameId',
       game_id)
   if players is not None:
@@ -254,7 +254,7 @@ def GroupToChats(game_state, group_id):
 
 def PlayerToGame(game_state, player):
   """Map a player to a game."""
-  return game_state.get('/playersPublic/%s' % player, 'gameId')
+  return game_state.get('/publicPlayers/%s' % player, 'gameId')
 
 
 def CopyMerge(a, b):
@@ -280,13 +280,13 @@ def MergeInto(a, b, path=None):
 
 def GetWholePlayer(game_state, player_id):
   return CopyMerge(
-        game_state.get('/playersPublic', player_id),
-        game_state.get('/playersPrivate', player_id))
+        game_state.get('/publicPlayers', player_id),
+        game_state.get('/privatePlayers', player_id))
 
 
 def PlayerAllegiance(game_state, player):
   """Map a player to an allegiance."""
-  return game_state.get('/playersPublic/%s' % player, 'allegiance')
+  return game_state.get('/publicPlayers/%s' % player, 'allegiance')
 
 
 def ChatToGroup(game_state, chat):
@@ -304,7 +304,7 @@ def ChatToGame(game_state, chat):
 
 def AddPoints(game_state, player_id, points):
   """Add points to a player."""
-  player_path = '/playersPublic/%s' % player_id
+  player_path = '/publicPlayers/%s' % player_id
   current_points = int(game_state.get(player_path, 'points'))
   new_points = current_points + points
   game_state.put(player_path, 'points', new_points)
@@ -331,7 +331,7 @@ def GetPlayerNamesInChatRoom(game_state, chatroom_id):
   if not players:
     return names
   for player in players.keys():
-    name = game_state.get('/playersPublic/%s' % player, 'name')
+    name = game_state.get('/publicPlayers/%s' % player, 'name')
     if not name:
       continue
     names[name] = player
