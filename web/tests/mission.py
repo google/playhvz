@@ -111,7 +111,7 @@ try:
     driver.Click([[By.NAME, 'drawerButton']])
 
   driver.Click([[By.NAME, 'drawerMissions']])
-  driver.ExpectContains([[By.NAME, 'mission-card']], 'insert witty and entertaining name here')
+  driver.FindElement([[By.NAME, 'mission-insert witty and entertaining name here']])
   
   # Log in as a zombie (Zeke), make sure he can see the zombie mission
   driver.SwitchUser('zeke')

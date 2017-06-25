@@ -87,7 +87,7 @@
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
-      <template is="dom-if" if="[[player.canInfect]]">
+      <template is="dom-if" if="[[player.private.canInfect]]">
         <ghvz-card name="infect-box" spaced>
           <div class="header">Infect</div>
           <ghvz-infect

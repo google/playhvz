@@ -76,10 +76,10 @@
         'hideSignInButton_(userId)',
         'hideSignInButton_(user)',
         'navigateEmptyPathToGamesPath_(path)',
-        'autoChooseGameToPutIntoPath_(path, database.games.length, user.players.length)',
-        'loadGameInPath_(path, userId, gameId, database.games.length, user.players.length)',
+        'autoChooseGameToPutIntoPath_(path, database.games.length, user.publicPlayers.length)',
+        'loadGameInPath_(path, userId, gameId, database.games.length, user.publicPlayers.length)',
         'listenToGame_(game, game.admins.length, playerId)',
-        'selectPlayer_(user, game, user.players.length)',
+        'selectPlayer_(user, game, user.publicPlayers.length)',
         'navigateGameToDashboard_(path)',
       ],
 
@@ -160,7 +160,7 @@
         // If there's no game, auto choose one and put it in the path
         if (this.path[0] == 'game' && this.path.length == 1) {
           // They specified no game in the url. Auto choose one.
-          let userPlayer = this.user && this.user.players.slice(-1)[0];
+          let userPlayer = this.user && this.user.publicPlayers.slice(-1)[0];
           let gameId;
           if (userPlayer) {
             gameId = userPlayer.gameId;
@@ -222,7 +222,7 @@
       selectPlayer_() {
         if (this.user && this.gameId && !this.playerId) {
           // Try to figure out their player, if they have one.
-          let userPlayer = this.user.players.find(player => player.gameId == this.gameId);
+          let userPlayer = this.user.publicPlayers.find(player => player.gameId == this.gameId);
           if (userPlayer) {
             // Async so we dont accidentally cause calls into firebaselistener
             // while we're already reacting to something from it.

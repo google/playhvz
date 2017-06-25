@@ -52,12 +52,14 @@
                 sortable: true,
                 filterable: true,
                 property: "gotEquipment",
+                getModel: (player) => player.private.gotEquipment,
               },
               {
                 name: "Notes",
                 sortable: true,
                 filterable: true,
                 property: "notes",
+                getModel: (player) => player.private.notes,
               },
             ],
             actions: [
