@@ -12,8 +12,8 @@
         isAdmin: Boolean,
         database: Object,
         actingPlayerId: String,
-        user: String,
-        game: String,
+        user: Object,
+        game: Object,
         playerId: String,
         player: Object,
         path: Array,
@@ -175,7 +175,7 @@
   }
 </style>
 <template>
-  <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
+  <array-selector id="playerSelector" items="[[game.playergs]]" selected="{{player}}"></array-selector>
   <div id="flexThing">
     <div class$="[[getAliveStatusClass_(player.allegiance)]]">
       <div class="display-avatar">
@@ -207,6 +207,18 @@
       </div>
     </div>
   </div>
+
+
+  <template is="dom-repeat" items="[[player.claims]]" as="claim">
+    <ghvz-reward-category
+        bridge="[[bridge]]"
+        game="[[game]]"
+        reward-category-id="[[claim.rewardCategoryId]]">
+    </ghvz-reward-category>
+  </template>
+
+
+
   <template is="dom-if" if="[[seePrivateInfo_(isAdmin, actingPlayerId, playerId)]]">
     <div id="details">
       <div>Notifications should sound: <b>[[computeBooleanText_(player.notificationSettings.sound)]]</b></div>
@@ -267,6 +279,7 @@
           </ghvz-player-label>
         </div>
       </template>
+      
     </div>
   </template>
 </template>
