@@ -1014,6 +1014,11 @@ def AddPlayerToGroupInner(game_state, group_id, public_player_to_add_id):
     /privatePlayers/%(playerId)/missions/
   """
 
+  group = game_state.get('/groups', group_id)
+  public_player = game_state.get('/publicPlayers', public_player_to_add_id)
+  if group['allegianceFilter'] != 'none' and group['allegianceFilter'] != public_player['allegiance']:
+    raise InvalidInputError('Player does not match group\'s allegiance filter!')
+
   private_player_to_add_id = helpers.GetPrivatePlayerId(game_state, public_player_to_add_id)
 
   game_state.put('/groups/%s/players' % group_id, public_player_to_add_id, True)

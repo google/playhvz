@@ -51,6 +51,9 @@ class SimpleDriver:
     for i in range(number):
       self.FindElement(path).send_keys(Keys.BACKSPACE)
 
+  def DismissAlert(self):
+    self.selenium_driver.switch_to_alert().accept();
+
   def ExpectAttributeEqual(self, path, attribute_name, value):
     element = self.FindElement(path)
     assert(element is not None)
@@ -97,6 +100,9 @@ class RetryingDriver:
 
   def Click(self, path):
     return self.Retry(lambda: self.inner_driver.Click(path))
+  
+  def DismissAlert(self):
+    return self.Retry(lambda: self.inner_driver.DismissAlert())
 
   def SendKeys(self, path, keys):
     return self.Retry(lambda: self.inner_driver.SendKeys(path, keys))
@@ -116,7 +122,7 @@ class RetryingDriver:
   def Retry(self, callback, wait_long=False):
     sleep_durations = [.5, .5, .5, .5, 1, 1]
     if wait_long:
-      sleep_durations = [1, 1, 1, 1, 1, 1, 2, 4, 8]
+      sleep_durations = [1, 1, 1, 1, 1, 1, 2, 4, 8, 16]
     for i in range(0, len(sleep_durations) + 1):
       try:
         return callback()
@@ -188,6 +194,9 @@ class RemoteDriver:
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
 
+  def DismissAlert(self):
+    self.drivers_by_user[self.current_user].DismissAlert()
+
   def ExpectContains(self, path, needle, should_exist=True):
     self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist)
 
@@ -250,6 +259,9 @@ class FakeDriver:
     else:
       self.inner_driver.Click(path)
 
+  def DismissAlert(self):
+    self.inner_driver.DismissAlert()
+
   def SendKeys(self, path, keys, scoped=True):
     if scoped:
       self.inner_driver.SendKeys([[By.ID, self.current_user + "App"]] + path, keys)
@@ -306,6 +318,9 @@ class WholeDriver:
 
   def Click(self, path):
     return self.inner_driver.Click(path)
+
+  def DismissAlert(self):
+    return self.inner_driver.DismissAlert()
 
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)

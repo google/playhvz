@@ -54,21 +54,20 @@
         },
 
         addPlayer_: function() {
-          this.$.lookup.value = null;
-          this.$.addForm.open();
-        },
-
-        onSetPlayer_: function(e) {
-          var newPlayerIdOrNull = this.$.lookup.value;
-          this.$.lookup.value = null;
-          if (newPlayerIdOrNull) {
-            this.bridge.addPlayerToGroup({
-              gameId: this.game.id,
-              groupId: this.chatRoom.accessGroupId,
-              actingPlayerId: this.playerId,
-              playerToAddId: newPlayerIdOrNull
-            });
-          }
+          this.$.addDialog.open().then((playerId) => {
+            if (playerId) {
+              this.bridge.addPlayerToGroup({
+                gameId: this.game.id,
+                groupId: this.chatRoom.accessGroupId,
+                actingPlayerId: this.playerId,
+                playerToAddId: playerId,
+              }).catch((e) => {
+                console.error(e);
+                if (e.message)
+                  alert(e.message);
+              });
+            }
+          });
         },
 
         leaveChat_: function() {
@@ -134,19 +133,7 @@
     }
   </style>
   <template>
-    <ghvz-form
-      id="addForm"
-      name$="chat-add-player-dialog-[[chatRoom.name]]"
-      title="Add player"
-      close-label="Cancel"
-      done-label="Add"
-      on-ghvz-form-done="onSetPlayer_">
-      <ghvz-player-field
-          id="lookup"
-          class="form-contents"
-          game="[[game]]">
-      </ghvz-player-field>
-    </ghvz-form>
+    <ghvz-player-dialog id="addDialog" game="[[game]]"></ghvz-player-dialog>
 
     <ghvz-form
       id="leaveForm"

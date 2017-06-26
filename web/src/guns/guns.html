@@ -93,27 +93,15 @@
           return playerIdOrNull && this.game.playersById[playerIdOrNull].name || "(none)";
         },
 
-        onSetGunPlayer_: function(e) {
-          if (this.editingGunIdOrNull) {
-            let playerIdOrNull = e.detail.value;
+        changePlayer_: function(e) {
+          let gunId = e.target.dataset.gunId;
+          this.$.playerDialog.open().then((playerIdOrNull) => {
             this.bridge.assignGun({
               gameId: this.game.id,
-              gunId: this.editingGunIdOrNull,
+              gunId: gunId,
               playerId: playerIdOrNull && playerIdOrNull || null,
             });
-            this.appendChild(this.$.travelingPlayerField);
-          }
-          this.editingGunIdOrNull = null;
-          this.$.travelingPlayerField.value = null;
-        },
-
-        summonTravelingPlayerField_: function(e) {
-          this.editingGunIdOrNull = null;
-          let gunId = e.target.dataset.gunId;
-          this.$.travelingPlayerField.value = this.game.gunsById[gunId].playerId;
-          this.editingGunIdOrNull = gunId;
-          let cell = e.target.closest('.cell');
-          cell.insertBefore(this.$.travelingPlayerField, cell.childNodes[0]);
+          });
         },
       });
     });
@@ -150,12 +138,7 @@
     <paper-icon-button id="add" icon="icons:add" on-tap="addGun_">
     </paper-icon-button>
 
-    <ghvz-player-field 
-        id="travelingPlayerField"
-        game="[[game]]"
-        on-value-changed="onSetGunPlayer_"
-        label="Player">
-    </ghvz-player-field>
+    <ghvz-player-dialog id="playerDialog" game="[[game]]"></ghvz-player-dialog>
 
     <ghvz-table
         id="table"
@@ -169,7 +152,7 @@
           <div class="cell">
             <div class="player-label">
               <div 
-                class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>
+                class="pencil" data-gun-id$="[[gun.id]]" on-tap="changePlayer_"></div>
               [[computePlayerName_(gun.playerId)]]
             </div>
           </div>

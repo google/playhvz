@@ -1,90 +1,68 @@
-<dom-module id="ghvz-player-field">
+<dom-module id="ghvz-player-dialog">
 <script>
   // Not sure why this HTMLImports.whenReady is really needed.
   // Something about polymer initialization order.
   // I think we're not supposed to need this.
   HTMLImports.whenReady(() => {
     Polymer({
-      is: 'ghvz-player-field',
+      is: 'ghvz-player-dialog',
 
       properties: {
         game: Object,
 
-        // A player ID or null
-        value: {
-          type: String,
-          notify: true,
-        },
-
-        player: {
+        donePromise: {
           type: Object,
-          computed: 'computePlayer_(game, value)',
-        },
-
-        playerName: {
-          type: String,
-        },
-
-        text: {
-          type: String,
-          value: "",
-        },
-
-        showMenu: {
-          type: Boolean,
-          value: false,
+          value: null,
         },
       },
 
-      observers: [
-        'updatePlayerName_(value)',
-        'updatePlayerName_(player)',
-        'updatePlayerName_(player.name)',
-        'textChanged_(text)',
-      ],
-
-      computePlayer_(game, playerId) {
-        return this.game.playersById[playerId];
-      },
-
-      updatePlayerName_() {
-        this.playerName = this.player ? this.player.name : "(none)";
-      },
-
-      filter_(player) {
-        return player.name.toLowerCase().includes(this.text.toLowerCase());
+      open() {
+        return new Promise((resolve, reject) => {
+          this.donePromiseResolve = resolve;
+          this.$.input.value = "";
+          this.$.repeater.filter = null;
+          this.$.dialog.open();
+        });
       },
 
       sort_(playerA, playerB) {
         return playerA.name.localeCompare(playerB.name);
       },
 
-      computePlayerText_(player, playerId, playerName) {
-        return player ? player.name : "(none)";
-      },
-
-      onItemClicked_(e) {
-        let player = e.model.player;
-        this.text = player.name;
-        this.value = player.id;
-        this.$.dialog.close();
-      },
-
-      onNullItemClicked_() {
-        this.text = "";
-        this.value = null;
-        this.$.dialog.close();
-      },
-
-      textChanged_() {
+      onTextChanged_() {
         this.$.repeater.filter = this.filter_.bind(this);
         this.$.repeater.render();
       },
 
-      open_() {
-        this.$.repeater.filter = null;
-        this.$.dialog.open();
+      filter_(player) {
+        return player.name.toLowerCase().includes(this.$.input.value.toLowerCase());
       },
+
+      computePlayerText_(player, playerId, playerName) {
+        return player ? player.name : "(none)";
+      },
+
+      onKeyUp_(e) {
+        if (e.keyCode == 13) {
+          let matches = this.game.players.filter(player => player.name.toLowerCase().includes(this.$.input.value.toLowerCase()));
+          if (matches.length == 1) {
+            this.$.dialog.close();
+            this.donePromiseResolve(matches[0].id);
+          }
+        }
+      },
+
+      onItemClicked_(e) {
+        let player = e.model.player;
+        this.$.dialog.close();
+        this.donePromiseResolve(player.id);
+      },
+
+      onNullItemClicked_() {
+        this.$.dialog.close();
+        this.donePromiseResolve(null);
+      },
+
     });
   });
 </script>
@@ -137,15 +115,14 @@
     <paper-input
         id="input"
         tabindex="0"
-        value="{{text}}"
         no-label-float
-        on-keyup="textChanged_">
+        on-value-changed="onTextChanged_"
+        on-keyup="onKeyUp_">
     </paper-input>
 
     <paper-listbox
         id="list"
-        tabindex="0"
-        visible$="[[showMenu]]">
+        tabindex="0">
       <paper-item
           tabindex="0"
           class="player"
