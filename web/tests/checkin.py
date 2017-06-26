@@ -157,9 +157,9 @@ try:
   driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
 
   # Search by notes
-  driver.Click([[By.NAME, 'header-Notes'], [By.NAME, 'icon-search']])
+  driver.Click([[By.NAME, 'header-Extra'], [By.NAME, 'icon-search']])
   driver.SendKeys(
-        [[By.NAME, 'header-Notes'], [By.TAG_NAME, 'input']],
+        [[By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
         'zap')
   # TODO(olivia): devise a way to check that these rows are visible or not
   # driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
