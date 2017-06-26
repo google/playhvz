@@ -186,6 +186,8 @@ class FakeIdGenerator extends IdGenerator {
     startTime: 'Timestamp',
     endTime: 'Timestamp',
     registrationEndTime: 'Timestamp',
+    declareResistanceEndTime: 'Timestamp',
+    declareHordeEndTime: 'Timestamp',
   });
   serverMethods.set('updateGame', {
     gameId: 'GameId',
@@ -197,6 +199,8 @@ class FakeIdGenerator extends IdGenerator {
     startTime: '|Timestamp',
     endTime: '|Timestamp',
     registrationEndTime: '|Timestamp',
+    declareResistanceEndTime: '|Timestamp',
+    declareHordeEndTime: '|Timestamp',
   });
   serverMethods.set('setAdminContact', {
     gameId: 'GameId',

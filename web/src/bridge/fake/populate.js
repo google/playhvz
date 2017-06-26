@@ -174,6 +174,8 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     registrationEndTime: 1483286400000,
     startTime: 1483344000000,
     endTime: 1483689600000,
+    declareHordeEndTime: 1583286400000,
+    declareResistanceEndTime: 1583286400000,
   });
   bridge.addDefaultProfileImage({
     gameId: gameId,

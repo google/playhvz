@@ -81,6 +81,8 @@ def AddGame(request, game_state):
     'startTime': 'Timestamp',
     'endTime': 'Timestamp',
     'registrationEndTime': 'Timestamp',
+    'declareResistanceEndTime': 'Timestamp',
+    'declareHordeEndTime': 'Timestamp',
   })
 
   put_data = {
@@ -92,6 +94,8 @@ def AddGame(request, game_state):
     'startTime': request['startTime'],
     'endTime': request['endTime'],
     'registrationEndTime': request['registrationEndTime'],
+    'declareResistanceEndTime': request['declareResistanceEndTime'],
+    'declareHordeEndTime': request['declareHordeEndTime'],
   }
   game_state.put('/games', request['gameId'], put_data)
   game_state.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True)
@@ -129,10 +133,12 @@ def UpdateGame(request, game_state):
     'startTime': '|Timestamp',
     'endTime': '|Timestamp',
     'registrationEndTime': '|Timestamp',
+    'declareResistanceEndTime': '|Timestamp',
+    'declareHordeEndTime': '|Timestamp',
   })
 
   put_data = {}
-  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime']:
+  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
     if property in request:
       put_data[property] = request[property]
 

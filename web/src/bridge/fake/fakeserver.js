@@ -217,14 +217,12 @@ class FakeServer {
     let player = game.playersById[playerId];
     let group = game.groupsById[groupId];
 
-    console.log("checking membership of", group.playersById);
     let existingMembership = group.playersById[playerId];
     if (!existingMembership)
       return;
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
-        console.log("removing", player.name, "from", group.name);
         this.removePlayerFromChatRoom_(game.id, chatRoom.id, player.id);
       }
     }
