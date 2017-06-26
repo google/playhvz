@@ -54,18 +54,17 @@ driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, newCha
 toggleChatDrawer(driver, actingPlayerName, newChatName)
 xpathAdd = getPathToElement(actingPlayerName, 'a', 'chat-drawer-add')
 driver.Click([[By.XPATH, xpathAdd]])
-driver.FindElement([[By.TAG_NAME, 'ghvz-chat-page'], [By.ID, 'lookup']])
-driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.ID, 'lookup'], [By.TAG_NAME, 'input']], playerNames['drake'])
-driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.ID, 'lookup'], [By.TAG_NAME, 'input']], Keys.RETURN)
+driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], playerNames['drake'])
+driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
 
 # Check drawer to see that zombie was added
 driver.FindElement([[By.TAG_NAME, 'ghvz-chat-page'], [By.NAME, playerNames['drake']]])
 
 # Make sure human can't be added to chat
 driver.Click([[By.XPATH, xpathAdd]])
-driver.FindElement([[By.TAG_NAME, 'ghvz-chat-page'], [By.ID, 'lookup']])
-driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.ID, 'lookup'], [By.TAG_NAME, 'input']], playerNames['jack'])
-driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.ID, 'lookup'], [By.TAG_NAME, 'input']], Keys.RETURN)
+driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], playerNames['jack'])
+driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
+driver.DismissAlert()
 driver.DontFindElement([[By.TAG_NAME, 'ghvz-chat-page'], [By.NAME, playerNames['jack']]])
 
 # Close chat drawer before typing a message

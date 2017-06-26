@@ -23,8 +23,53 @@
           computed: 'computeProgressPercent_(pageNumber)',
         },
 
+        startingAllegianceOptions: {
+          type: Array,
+          value: () => [
+            {value: 'resistance', buttonLabel: "Resistance!", text: "Join the resistance, vive la humanoids!"},
+            {value: 'horde', buttonLabel: "Horde!", text: "Graahhh braiiinnnnsss! Glory to the horde!"},
+          ],
+        },
+
+        possessedHumanOptions: {
+          type: Array,
+          value: () => [
+            {value: true, buttonLabel: "Possess me!", text: "I want to lurk in the depths! I want to strike from the shadows!"},
+            // {value: "interested", buttonLabel: "What?", text: "I'm interested, tell me more, this idea intrigues me..."},
+            {value: false, buttonLabel: "No!", text: "Nope, make me a regular player!"},
+          ],
+        },
+
         declaringAllegiance: String,
+
         wantToBeSecretZombie: Boolean,
+      },
+
+      attached() {
+        let timeUntilResistanceCutoff =
+            this.game.declareResistanceEndTime - new Date().getTime();
+        if (timeUntilResistanceCutoff < 24 * 60 * 60 * 1000) {
+          setTimeout(
+              () => {
+                this.set('startingAllegianceOptions.0.enabled', false);
+                this.set(
+                    'startingAllegianceOptions.0.text',
+                    'This option has been disabled by the admins. Please contact them via the chat page with any questions.');
+              },
+              Math.max(timeUntilResistanceCutoff, 0));
+        }
+        let timeUntilHordeCutoff =
+            this.game.declareHordeEndTime - new Date().getTime();
+        if (timeUntilHordeCutoff < 24 * 60 * 60 * 1000) {
+          setTimeout(
+              () => {
+                this.set('startingAllegianceOptions.1.enabled', false);
+                this.set(
+                    'startingAllegianceOptions.1.text',
+                    'This option has expired because the limit of starting zombies has been reached. Please contact the admins via the chat page with any questions.');
+              },
+              Math.max(timeUntilHordeCutoff, 0));
+        }
       },
 
       computeProgressPercent_(pageNumber) {
@@ -85,21 +130,6 @@
 
       nextPage_(e) {
         this.pageNumber++;
-      },
-
-      makeStartingZombieOptions() {
-        return [
-          {value: 'resistance', buttonLabel: "Resistance!", text: "Join the resistance, vive la humanoids!"},
-          {value: 'horde', buttonLabel: "Horde!", text: "Graahhh braiiinnnnsss! Glory to the horde!"},
-        ];
-      },
-
-      makeSecretZombieOptions() {
-        return [
-          {value: true, buttonLabel: "Possess me!", text: "I want to lurk in the depths! I want to strike from the shadows!"},
-          // {value: "interested", buttonLabel: "What?", text: "I'm interested, tell me more, this idea intrigues me..."},
-          {value: false, buttonLabel: "No!", text: "Nope, make me a regular player!"},
-        ];
       },
 
       computeQuestionNumber_(question) {
@@ -182,7 +212,7 @@
     <neon-animatable>
       <ghvz-interview-option-page
           name="joinGameStartingZombiePage"
-          options="[[makeStartingZombieOptions()]]"
+          options="[[startingAllegianceOptions]]"
           on-ghvz-interview-page-done="handleStartingZombiePageDone_">
         <div class="maintext">Which path will you follow?</div>
         <p>
@@ -211,7 +241,7 @@
     <neon-animatable>
       <ghvz-interview-option-page
           name="joinGameSecretZombiePage"
-          options="[[makeSecretZombieOptions()]]"
+          options="[[possessedHumanOptions]]"
           on-ghvz-interview-page-done="handleSecretZombiePageDone_">
         <div class="maintext">Lurk in the depths, and strike from the shadows!</div>
         <p>
