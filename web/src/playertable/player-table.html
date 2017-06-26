@@ -55,11 +55,25 @@
                 getModel: (player) => player.private.gotEquipment,
               },
               {
-                name: "Notes",
+                name: "Extra",
                 sortable: true,
                 filterable: true,
-                property: "notes",
-                getModel: (player) => player.private.notes,
+                getModel: (player) => {
+                  // Keep this code in sync with player-table.html
+                  // TODO: Find a place to combine these
+                  let sections = [];
+                  if (player.private) {
+                    if (player.private.notes)
+                      sections.push('"' + player.private.notes + '"');
+                    if (!player.private.beInPhotos)
+                      sections.push('!Photos');
+                    if (player.private.wantToBeSecretZombie)
+                      sections.push('WP');
+                  }
+                  if (!player.isActive)
+                    sections.push('!Active');
+                  return sections.join(' ');
+                }
               },
             ],
             actions: [

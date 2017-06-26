@@ -31,7 +31,7 @@ function makePlayerProperties(id, userId, gameId, time, name) {
     needGun: false,
     beInPhotos: true,
     profileImageUrl: PlayerUtils.getDefaultProfilePic(name),
-    wantToBeSecretZombie: true,
+    wantToBeSecretZombie: false,
     volunteer: {
       advertising: false,
       logistics: false,
@@ -306,6 +306,12 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     playerId: moldaviPlayerId
   });
+  bridge.updatePlayer({
+    gameId: gameId,
+    playerId: moldaviPlayerId,
+    gotEquipment: true,
+    notes: 'captain of stradivarius',
+  });
   bridge.joinResistance({
     gameId: gameId,
     playerId: moldaviPlayerId,
@@ -315,7 +321,9 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
   
   var jackPlayerId = bridge.idGenerator.newPublicPlayerId();
-  bridge.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 1483257600000, 'JackSlayerTheBeanSlasher'));
+  let jackProperties = makePlayerProperties(jackPlayerId, jackUserId, gameId, 1483257600000, 'JackSlayerTheBeanSlasher');
+  jackProperties.wantToBeSecretZombie = true;
+  bridge.createPlayer(jackProperties);
   bridge.joinResistance({
     gameId: gameId,
     playerId: jackPlayerId,
