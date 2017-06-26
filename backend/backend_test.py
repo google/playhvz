@@ -122,6 +122,8 @@ class EndToEndTest(unittest.TestCase):
       'registrationEndTime': 1506884521000,
       'startTime': 1606884521000,
       'endTime': 1706884521000,
+      'declareHordeEndTime': 1506884521000,
+      'declareResistanceEndTime': 1506884521000,
     }
     update = {
       'gameId': self.Id('gameId'),

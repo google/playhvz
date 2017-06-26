@@ -28,7 +28,7 @@ Model.UserPublicPlayer = function(id, args) {
   Utils.addEmptyLists(this, Model.USER_PUBLIC_PLAYER_COLLECTIONS);
 }
 
-Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId", "startTime", "endTime", "registrationEndTime"];
+Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId", "startTime", "endTime", "registrationEndTime", "declareHordeEndTime", "declareResistanceEndTime"];
 Model.GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "queuedNotifications", "quizQuestions", "groups", "maps", "defaultProfileImages"];
 Model.Game = function(id, args) {
   this.id = id;

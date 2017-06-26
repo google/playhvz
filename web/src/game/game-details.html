@@ -27,7 +27,7 @@
               property: "id",
               name: "game-id",
               label: "Id",
-              description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
+              description: "Will appear in the url, keep it short.",
               width: "third",
             },
             {
@@ -45,6 +45,46 @@
               type: 'number',
               width: "third",
             },
+            {
+              name:"reg-end-time",
+              property: "registrationEndTime",
+              label: "End Time",
+              type: 'timestamp',
+              width: "third",
+              description: "Registration cut-off time.",
+            },
+            {
+              name:"start-time",
+              property: "startTime",
+              label: "Start Time",
+              type: 'timestamp',
+              width: "third",
+              description: "Time the game starts.",
+            },
+            {
+              name:"end-time",
+              property: "endTime",
+              label: "End Time",
+              type: 'timestamp',
+              width: "third",
+              description: "Time the game ends.",
+            },
+            {
+              name:"declare-resistance-end-time",
+              property: "declareResistanceEndTime",
+              label: "Declare Resistance End Time",
+              type: 'timestamp',
+              width: "half",
+              description: "Cut-off time for declaring as a human.",
+            },
+            {
+              name:"declare-horde-end-time",
+              property: "declareHordeEndTime",
+              label: "Declare Horde End Time",
+              type: 'timestamp',
+              width: "half",
+              description: "Cut-off time for declaring as a zombie.",
+            },
           ],
         };
       },
@@ -56,6 +96,10 @@
               delete properties.id;
               this.bridge.updateGame(properties);
             });
+      },
+
+      formatTime_: function(time) {
+        return Utils.formatTime(time);
       },
     });
   });
@@ -85,6 +129,21 @@
     <div name="game-id" id="number">ID: <b>[[game.id]]</b></div>
     <div name="game-name" id="name">Name: <b>[[game.name]]</b></div>
     <div name="game-stunTimer" id="stunTimer">Stun Timer: <b>[[game.stunTimer]]</b></div>
+    <div name="game-registrationEndTime" id="registrationEndTime">
+      Registration End Time: <b>[[formatTime_(game.registrationEndTime)]]</b>
+    </div>
+    <div name="game-declareResistanceEndTime" id="declareResistanceEndTime">
+      Declaring Resistance End Time: <b>[[formatTime_(game.declareResistanceEndTime)]]</b>
+    </div>
+    <div name="game-declareHordeEndTime" id="declareHordeEndTime">
+      Declaring Horde End Time: <b>[[formatTime_(game.declareHordeEndTime)]]</b>
+    </div>
+    <div name="game-startTime" id="startTime">
+      Game Start Time: <b>[[formatTime_(game.startTime)]]</b>
+    </div>
+    <div name="game-endTime" id="endTime">
+      Game End Time: <b>[[formatTime_(game.endTime)]]</b>
+    </div>
   </div>
 </template>
 </dom-module>
