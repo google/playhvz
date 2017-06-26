@@ -33,7 +33,7 @@
   },
   "games":{
     "game-test-3840579180089170-1":{
-      "active":true,
+      "isActive":true,
       "adminUsers":{
         "user-test-3840579180089170-1":true,
         "user-test-3840579180089170-3":true
@@ -124,7 +124,7 @@
       "rsvpersGroupId":"group-test-3840579180089170-1"
     }
   },
-  "playersPrivate":{
+  "privatePlayers":{
     "player-test-3840579180089170-1":{
       "beInPhotos":true,
       "canInfect":false,
@@ -157,12 +157,12 @@
     "player-test-3840579180089170-2":{
       "beInPhotos":true,
       "canInfect":false,
-      "accessibleChatRooms":{
+      "chatRoomMemberships":{
         "chatRoom-test-3840579180089170-1":true
       },
       "gameId":"game-test-3840579180089170-1",
       "gotEquipment":true,
-      "accessibleMissions":{
+      "missionMemberships":{
         "mission-test-3840579180089170-1":true
       },
       "needGun":true,
@@ -250,12 +250,12 @@
     "player-test-3840579180089170-5":{
       "beInPhotos":true,
       "canInfect":false,
-      "accessibleChatRooms":{
+      "chatRoomMemberships":{
         "chatRoom-test-3840579180089170-1":true
       },
       "gameId":"game-test-3840579180089170-1",
       "gotEquipment":true,
-      "accessibleMissions":{
+      "missionMemberships":{
         "mission-test-3840579180089170-1":true
       },
       "needGun":true,
@@ -283,9 +283,9 @@
       "wantToBeSecretZombie":true
     }
   },
-  "playersPublic":{
+  "publicPlayers":{
     "player-test-3840579180089170-1":{
-      "active":false,
+      "isActive":false,
       "allegiance":"undeclared",
       "claims":{
         "reward-test-3840579180089170-1":{
@@ -300,7 +300,7 @@
       "userId":"user-test-3840579180089170-1"
     },
     "player-test-3840579180089170-2":{
-      "active":false,
+      "isActive":false,
       "allegiance":"undeclared",
       "name":"test Bobby",
       "number":102,
@@ -309,7 +309,7 @@
       "userId":"user-test-3840579180089170-2"
     },
     "player-test-3840579180089170-3":{
-      "active":false,
+      "isActive":false,
       "allegiance":"undeclared",
       "name":"test Bobby",
       "number":103,
@@ -318,7 +318,7 @@
       "userId":"user-test-3840579180089170-3"
     },
     "player-test-3840579180089170-4":{
-      "active":false,
+      "isActive":false,
       "allegiance":"undeclared",
       "name":"test Bobby",
       "number":104,
@@ -327,7 +327,7 @@
       "userId":"user-test-3840579180089170-4"
     },
     "player-test-3840579180089170-5":{
-      "active":false,
+      "isActive":false,
       "allegiance":"undeclared",
       "name":"test Bobby",
       "number":105,

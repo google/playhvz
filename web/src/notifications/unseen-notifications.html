@@ -26,7 +26,7 @@
   }
 </style>
 <template>
-  <template is="dom-repeat" items="[[player.notifications]]" as="notification">
+  <template is="dom-repeat" items="[[player.private.notifications]]" as="notification">
     <template is="dom-if" if="[[!notification.seenTime]]">
       <paper-material class="notification" elevation="5">
         <ghvz-notification-preview

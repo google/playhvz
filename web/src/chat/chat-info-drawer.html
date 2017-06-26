@@ -65,8 +65,8 @@
 
         observers: [
           'onGroupIdChanged_(chatRoom.accessGroupId, game.groupsById)',
-          'onChatRoomChanged_(game, chatRoom, chatRoom.memberships)',
-          'onChatMembershipsChanged_(game, group.memberships.length)',
+          'onChatRoomChanged_(game, chatRoom, chatRoom.players)',
+          'onChatMembershipsChanged_(game, group.players.length)',
         ],
 
         computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers, chatRoom) {
@@ -98,8 +98,8 @@
 
         onChatMembershipsChanged_() {
           var updatedPlayers = [];
-          for (let membership of this.group.memberships) {
-            updatedPlayers.push(this.game.playersById[membership.playerId]);
+          for (let playerId of this.group.players) {
+            updatedPlayers.push(this.game.playersById[playerId]);
           }
           this.playersInChatRoom = [];
           this.playersInChatRoom = updatedPlayers;
@@ -210,7 +210,7 @@
       </template>
 
       <div id="players-list" class="drawer-section">
-        <div class="info-label">[[group.memberships.length]] members</div>
+        <div class="info-label">[[group.players.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
           <div name$='[[item.name]]'>
             <div class="layout horizontal player-entry">

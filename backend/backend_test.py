@@ -62,13 +62,13 @@ class EndToEndTest(unittest.TestCase):
   def Id(self, key, num=1):
     if key.endswith('Id'):
       key = key[:-2]
-    ident = '%s-%s-%d' % (key, self.identifier, num)
+    ident = '%s-%s-%d' % (key, self.Identifier, num)
     return ident
 
   def AssertDataMatches(self, use_local):
     # Compare a dump of the DB to the JSON string below.
     with open('backend_test_data.json') as f:
-      expected_raw = f.read() % {'ident': self.identifier}
+      expected_raw = f.read() % {'ident': self.Identifier}
 
     r = self.requester.Post('DumpTestData', {'id': config.FIREBASE_EMAIL, 'use_local': use_local})
     expected = json.loads(expected_raw)
@@ -92,7 +92,7 @@ class EndToEndTest(unittest.TestCase):
     # self.requester.Post('DeleteTestData', {'id': config.FIREBASE_EMAIL})
 
   def testEndToEnd(self):
-    self.identifier = 'test-%d' % random.randint(0, 2**52)
+    self.Identifier = 'test-%d' % random.randint(0, 2**52)
 
     # Register users.
     create = {'userId': self.Id('userId')}
@@ -114,7 +114,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'adminUserId': self.Id('userId'),
-      'active': True,
+      'isActive': True,
       'name': 'test Game',
       'rulesHtml': 'test rules',
       'faqHtml': 'test faq',
@@ -122,6 +122,8 @@ class EndToEndTest(unittest.TestCase):
       'registrationEndTime': 1506884521000,
       'startTime': 1606884521000,
       'endTime': 1706884521000,
+      'declareHordeEndTime': 1506884521000,
+      'declareResistanceEndTime': 1506884521000,
     }
     update = {
       'gameId': self.Id('gameId'),
@@ -146,7 +148,8 @@ class EndToEndTest(unittest.TestCase):
     create_player = {
       'gameId': self.Id('gameId'),
       'userId': self.Id('userId'),
-      'playerId': self.Id('playerId'),
+      'playerId': self.Id('publicPlayerId'),
+      'privatePlayerId': None,
       'name': 'testBobby',
       'needGun': True,
       'profileImageUrl': 'http://jpg',
@@ -156,7 +159,7 @@ class EndToEndTest(unittest.TestCase):
       'notes': "",
       'beInPhotos': True,
       'canInfect': False,
-      'active': False,
+      'isActive': False,
       'notificationSettings': {
         'sound': True,
         'vibrate': True
@@ -165,19 +168,19 @@ class EndToEndTest(unittest.TestCase):
     }
     update = {
       'gameId': self.Id('gameId'),
-      'playerId': self.Id('playerId'),
+      'playerId': self.Id('publicPlayerId'),
       'name': 'testCharles',
       'volunteer': {
         'server': True
       }
     }
     self.AssertCreateUpdateSequence('createPlayer', create_player, 'updatePlayer', update)
-    self.requester.SetRequestingPlayerId(self.Id('playerId'))
-    create_player['playerId'] = self.Id('playerId', 2)
+    self.requester.SetRequestingPlayerId(self.Id('publicPlayerId'))
+    create_player['playerId'] = self.Id('publicPlayerId', 2)
     create_player['userId'] = self.Id('userId', 2)
     create_player['name'] = '%s2' % create_player['name']
     self.AssertOk('createPlayer', create_player)
-    create_player['playerId'] = self.Id('playerId', 3)
+    create_player['playerId'] = self.Id('publicPlayerId', 3)
     create_player['userId'] = self.Id('userId', 3)
     create_player['name'] = '%s3' % create_player['name'][:-1]
     self.AssertOk('createPlayer', create_player)
@@ -194,7 +197,7 @@ class EndToEndTest(unittest.TestCase):
       'canRemoveOthers': False,
       'canAddSelf': False,
       'canRemoveSelf': False,
-      'ownerPlayerId': self.Id('playerId'),
+      'ownerPlayerId': self.Id('publicPlayerId'),
     }
     update = {
       'gameId': self.Id('gameId'),
@@ -205,9 +208,9 @@ class EndToEndTest(unittest.TestCase):
 
     update = {
       'gameId': self.Id('gameId'),
-      'playerToAddId': self.Id('playerId'),
+      'playerToAddId': self.Id('publicPlayerId'),
       'groupId': self.Id('groupId'),
-      'actingPlayerId': self.Id('playerId'),
+      'actingPlayerId': self.Id('publicPlayerId'),
     }
     self.AssertOk('addPlayerToGroup', update)
 
@@ -225,14 +228,14 @@ class EndToEndTest(unittest.TestCase):
 
     update = {
       'gameId': self.Id('gameId'),
-      'playerToAddId': self.Id('playerId'),
+      'playerToAddId': self.Id('publicPlayerId'),
       'groupId': self.Id('groupId', 2),
-      'actingPlayerId': self.Id('playerId'),
+      'actingPlayerId': self.Id('publicPlayerId'),
     }
     self.AssertOk('addPlayerToGroup', update)
 
 
-    create_player['playerId'] = self.Id('playerId', 4)
+    create_player['playerId'] = self.Id('publicPlayerId', 4)
     create_player['userId'] = self.Id('userId', 4)
     self.AssertOk('createPlayer', create_player)
 
@@ -254,7 +257,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('playerId'),
+      'playerId': self.Id('publicPlayerId'),
       'messageId': self.Id('messageId'),
       'message': '@testCharles @testBobby test single Message',
     }
@@ -263,7 +266,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('playerId'),
+      'playerId': self.Id('publicPlayerId'),
       'messageId': self.Id('messageId', 2),
       'message': 'test Message',
       'image': {
@@ -275,7 +278,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('playerId'),
+      'playerId': self.Id('publicPlayerId'),
       'messageId': self.Id('messageId', 3),
       'message': 'test Message',
       'location': {
@@ -288,7 +291,7 @@ class EndToEndTest(unittest.TestCase):
     create = {
       'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('playerId'),
+      'playerId': self.Id('publicPlayerId'),
       'messageId': self.Id('messageId', 4),
       'message': '@all test all Message',
       'image': {
@@ -335,16 +338,16 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertCreateUpdateSequence('addMission', create, 'updateMission', update)
 
-    create_player['playerId'] = self.Id('playerId', 5)
+    create_player['playerId'] = self.Id('publicPlayerId', 5)
     create_player['userId'] = self.Id('userId', 5)
     self.AssertOk('createPlayer', create_player)
 
     # Add players to groups.
     update = {
       'gameId': self.Id('gameId'),
-      'playerToAddId': self.Id('playerId', 2),
+      'playerToAddId': self.Id('publicPlayerId', 2),
       'groupId': self.Id('groupId'),
-      'actingPlayerId': self.Id('playerId'),
+      'actingPlayerId': self.Id('publicPlayerId'),
     }
     # Owner adds player-2 to both groups
     self.AssertOk('addPlayerToGroup', update)
@@ -353,39 +356,39 @@ class EndToEndTest(unittest.TestCase):
     self.AssertOk('addPlayerToGroup', update)
 
     self.requester.SetRequestingUserId(self.Id('userId', 2))
-    self.requester.SetRequestingPlayerId(self.Id('playerId', 2))
+    self.requester.SetRequestingPlayerId(self.Id('publicPlayerId', 2))
 
     # Player-2 cant add player-3 to group 1, because canAddOthers is false
     update = {
       'gameId': self.Id('gameId'),
-      'playerToAddId': self.Id('playerId', 3),
+      'playerToAddId': self.Id('publicPlayerId', 3),
       'groupId': self.Id('groupId'),
-      'actingPlayerId': self.Id('playerId', 2),
+      'actingPlayerId': self.Id('publicPlayerId', 2),
     }
     self.AssertFails('addPlayerToGroup', update)
 
     # Player-2 CAN add player-3 to group 2, because canAddOthers is true
     update = {
       'gameId': self.Id('gameId'),
-      'playerToAddId': self.Id('playerId', 3),
+      'playerToAddId': self.Id('publicPlayerId', 3),
       'groupId': self.Id('groupId', 2),
-      'actingPlayerId': self.Id('playerId', 2),
+      'actingPlayerId': self.Id('publicPlayerId', 2),
     }
     self.AssertOk('addPlayerToGroup', update)
     self.AssertFails('addPlayerToGroup', update)
 
     update = {
       'gameId': self.Id('gameId'),
-      'playerToRemoveId': self.Id('playerId', 3),
+      'playerToRemoveId': self.Id('publicPlayerId', 3),
       'groupId': self.Id('groupId', 2),
-      'actingPlayerId': self.Id('playerId', 2),
+      'actingPlayerId': self.Id('publicPlayerId', 2),
     }
     self.AssertOk('removePlayerFromGroup', update)
     self.AssertFails('removePlayerFromGroup', update)
 
     # Create and assign guns
     create = {'gameId': self.Id('gameId'), 'gunId': self.Id('gunId'), 'label': "1404"}
-    update = {'gameId': self.Id('gameId'), 'gunId': self.Id('gunId'), 'playerId': self.Id('playerId')}
+    update = {'gameId': self.Id('gameId'), 'gunId': self.Id('gunId'), 'playerId': self.Id('publicPlayerId')}
     self.AssertCreateUpdateSequence('addGun', create, 'assignGun', update)
 
     create = {
@@ -418,7 +421,7 @@ class EndToEndTest(unittest.TestCase):
 
     claim = {
       'gameId': self.Id('gameId'),
-      'playerId': self.Id('playerId'),
+      'playerId': self.Id('publicPlayerId'),
       'rewardCode': 'testrew-purple-striker-balloon',
     }
     self.AssertCreateUpdateSequence('claimReward', claim, None, None)
@@ -442,7 +445,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertFails('createMap', create)
 
     # Create Markers
-    self.requester.SetRequestingPlayerId(self.Id('playerId'))
+    self.requester.SetRequestingPlayerId(self.Id('publicPlayerId'))
 
     create = {
       'color': '187C09',
@@ -450,8 +453,9 @@ class EndToEndTest(unittest.TestCase):
       'longitude': 14.5,
       'mapId': self.Id('mapId', 1),
       'markerId': self.Id('markerId', 1),
+      'gameId': self.Id('gameId', 1),
       'name': 'Test marker 1',
-      'playerId': self.Id('playerId', 1),
+      'playerId': self.Id('publicPlayerId', 1),
     }
     self.AssertOk('addMarker', create)
 
@@ -459,10 +463,11 @@ class EndToEndTest(unittest.TestCase):
       'color': '187C09',
       'latitude': 12.4,
       'longitude': 14.5,
+      'gameId': self.Id('gameId', 1),
       'mapId': self.Id('mapId', 1),
       'markerId': self.Id('markerId', 2),
       'name': 'Test marker 2',
-      'playerId': self.Id('playerId', 1),
+      'playerId': self.Id('publicPlayerId', 1),
     }
     self.AssertOk('addMarker', create)
 
@@ -471,9 +476,10 @@ class EndToEndTest(unittest.TestCase):
       'latitude': 12.4,
       'longitude': 14.5,
       'mapId': self.Id('mapId', 2),
+      'gameId': self.Id('gameId', 1),
       'markerId': self.Id('markerId', 3),
       'name': 'Test marker 3',
-      'playerId': self.Id('playerId', 1),
+      'playerId': self.Id('publicPlayerId', 1),
     }
     self.AssertOk('addMarker', create)
 
@@ -481,18 +487,20 @@ class EndToEndTest(unittest.TestCase):
       'color': '187C09',
       'latitude': 12.4,
       'longitude': 14.5,
+      'gameId': self.Id('gameId', 1),
       'mapId': self.Id('mapId', 2),
       'markerId': self.Id('markerId', 4),
       'name': 'Test marker 4',
-      'playerId': self.Id('playerId', 1),
+      'playerId': self.Id('publicPlayerId', 1),
     }
     self.AssertOk('addMarker', create)
 
     # Update all points
     update = {
       'latitude': 16.0,
+      'gameId': self.Id('gameId', 1),
       'longitude': 17.0,
-      'playerId': self.Id('playerId', 1),
+      'playerId': self.Id('publicPlayerId', 1),
     }
     self.AssertOk('updatePlayerMarkers', update)
 
@@ -552,6 +560,27 @@ class EndToEndTest(unittest.TestCase):
       'updateQuizAnswer',
       update,
       400)
+
+    self.AssertOk('joinResistance', {
+      'gameId': self.Id('gameId', 1),
+      'playerId': self.Id('publicPlayerId', 2),
+      'lifeCode': 'purple roller patrol',
+      'lifeId': self.Id('publicLifeId', 1),
+      'privateLifeId': self.Id('privateLifeId', 1),
+    })
+
+    self.AssertOk('joinHorde', {
+      'gameId': self.Id('gameId', 1),
+      'playerId': self.Id('publicPlayerId', 3),
+    })
+
+    self.AssertOk('infect', {
+      'gameId': self.Id('gameId', 1),
+      'infectorPlayerId': self.Id('publicPlayerId', 3),
+      'victimLifeCode': 'purple roller patrol',
+      'victimPlayerId': None,
+      'infectionId': self.Id('infectionId', 1),
+    })
 
     # Final keep last
     self.AssertDataMatches(True)
