@@ -94,21 +94,24 @@
         },
 
         onSetGunPlayer_: function(e) {
-          let playerOrNull = e.detail.playerOrNull;
-          this.bridge.assignGun({
-            gameId: this.game.id,
-            gunId: this.editingGunIdOrNull,
-            playerId: playerOrNull && playerOrNull.id || null,
-          });
-          this.appendChild(this.$.travelingPlayerField);
+          if (this.editingGunIdOrNull) {
+            let playerIdOrNull = e.detail.value;
+            this.bridge.assignGun({
+              gameId: this.game.id,
+              gunId: this.editingGunIdOrNull,
+              playerId: playerIdOrNull && playerIdOrNull || null,
+            });
+            this.appendChild(this.$.travelingPlayerField);
+          }
+          this.editingGunIdOrNull = null;
+          this.$.travelingPlayerField.value = null;
         },
 
         summonTravelingPlayerField_: function(e) {
+          this.editingGunIdOrNull = null;
           let gunId = e.target.dataset.gunId;
+          this.$.travelingPlayerField.value = this.game.gunsById[gunId].playerId;
           this.editingGunIdOrNull = gunId;
-          this.$.travelingPlayerField.playerInputValue = '';
-          this.$.travelingPlayerField.matchingPlayerOrNull = null;
-          this.$.travelingPlayerField.playerIdOrNull = this.game.gunsById[gunId].playerId;
           let cell = e.target.closest('.cell');
           cell.insertBefore(this.$.travelingPlayerField, cell.childNodes[0]);
         },
@@ -149,9 +152,8 @@
 
     <ghvz-player-field 
         id="travelingPlayerField"
-        players="[[game.players]]"
-        players-by-id="[[game.playersById]]"
-        on-set-player="onSetGunPlayer_"
+        game="[[game]]"
+        on-value-changed="onSetGunPlayer_"
         label="Player">
     </ghvz-player-field>
 

@@ -187,7 +187,7 @@ class FakeServer {
       return;
 
     if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance)
-      throw InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
+      throw new InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
 
     this.writer.insert(
         this.reader.getGroupPlayerPath(gameId, groupId, null),
@@ -296,7 +296,7 @@ class FakeServer {
             playerId: playerId,
           })));
     } else {
-      throw InvalidRequestError('Can\'t send message to chat room without membership');
+      throw new InvalidRequestError('Can\'t send message to chat room without membership');
     }
   }
 

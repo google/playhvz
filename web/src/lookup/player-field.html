@@ -1,87 +1,197 @@
 <dom-module id="ghvz-player-field">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-player-field',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-player-field',
 
-        properties: {
-          players: Array,
-          playersById: {
-            type: Object,
-          },
-          label: {
-            type: String,
-          },
-          value: {
-            type: String,
-            notify: true,
-          },
-          playerIdOrNull: {
-            type: String,
-          },
-          playerOrNull: {
-            type: Object,
-            computed: 'computePlayerOrNull(playerIdOrNull, playersById)',
-          },
-          playerInputValue: {
-            type: String,
-          },
-          matchingPlayerOrNull: {
-            type: Object,
-            notify: true,
-          },
+      properties: {
+        game: Object,
+
+        // A player ID or null
+        value: {
+          type: String,
+          notify: true,
         },
 
-        computePlayerOrNull(playerIdOrNull, playersById) {
-          return playerIdOrNull && this.playersById[playerIdOrNull];
+        player: {
+          type: Object,
+          computed: 'computePlayer_(game, value)',
         },
 
-        computeSetButtonEnabled_(playerInputValue, matchingPlayerOrNull) {
-          return !playerInputValue || !!matchingPlayerOrNull;
+        playerName: {
+          type: String,
         },
 
-        setPlayer_() {
-          this.fire('set-player', {
-            playerOrNull: this.matchingPlayerOrNull
-          });
+        text: {
+          type: String,
+          value: "",
         },
-      });
+
+        showMenu: {
+          type: Boolean,
+          value: false,
+        },
+      },
+
+      observers: [
+        'updatePlayerName_(value)',
+        'updatePlayerName_(player)',
+        'updatePlayerName_(player.name)',
+        'textChanged_(text)',
+      ],
+
+      computePlayer_(game, playerId) {
+        return this.game.playersById[playerId];
+      },
+
+      updatePlayerName_() {
+        this.playerName = this.player ? this.player.name : "(none)";
+      },
+
+      filter_(player) {
+        return player.name.toLowerCase().includes(this.text.toLowerCase());
+      },
+
+      sort_(playerA, playerB) {
+        return playerA.name.localeCompare(playerB.name);
+      },
+
+      computePlayerText_(player, playerId, playerName) {
+        return player ? player.name : "(none)";
+      },
+
+      onItemClicked_(e) {
+        let player = e.model.player;
+        this.text = player.name;
+        this.value = player.id;
+        this.$.dialog.close();
+      },
+
+      onNullItemClicked_() {
+        this.text = "";
+        this.value = null;
+        this.$.dialog.close();
+      },
+
+      textChanged_() {
+        this.$.repeater.filter = this.filter_.bind(this);
+        this.$.repeater.render();
+      },
+
+      open_() {
+        this.$.repeater.filter = null;
+        this.$.dialog.open();
+      },
     });
-  </script>
+  });
+</script>
+<style>
+  :host {
+    display: block;
+  }
+  #name {
+    padding: 8px 0;
+  }
+  #name:hover {
+    background-color: #F0F0F0;
+    cursor: pointer;
+  }
+  #dialog {
+    display: flex;
+    flex-direction: column;
+    width: 320px;
+  }
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .button-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    margin: 8px;
+  }
+  paper-button {
+    background-color: #9C27B0;
+    color: white;
+  }
+  #title {
+    margin-top: 0;
+    color: white;
+    background-color: #9C27B0;
+    font-size: 13pt;
+    padding: 16px;
+    font-weight: bold;
+  }
 
-  <template class="layout vertical" style="height:300px">
-    <style include="iron-flex iron-flex-alignment">
-      :host {
-        display: block;
-      }
-      #setButton {
-        color: white;
-        background-color: #03A9F4;
-        padding: 4px 16px;
-        min-width: auto;
-        height: 24px;
-      }
-      #setButton[disabled] {
-        background-color: #C0C0C0;
-        opacity: .5;
-      }
-    </style>
-    <ghvz-player-lookup
-        players="[[players]]"
-        players-by-id="[[playersById]]"
-        matching-player-or-null="{{matchingPlayerOrNull}}"
-        value="{{playerInputValue}}">
-      <paper-button
-          id="setButton"
-          icon="icons:check"
-          disabled="[[!computeSetButtonEnabled_(playerInputValue, matchingPlayerOrNull)]]"
-          on-tap="setPlayer_"
-          suffix>
-        Set
-      </paper-button>
-    </ghvz-player-lookup>
-  </template>
+  #contents {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+
+  #list {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+
+</style>
+<template>
+  <div id="name" on-tap="open_">
+    [[playerName]]
+  </div>
+
+  <paper-dialog id="dialog" with-backdrop>
+    <div id="title">Choose Player</div>
+
+    <paper-input
+        id="input"
+        tabindex="0"
+        value="{{text}}"
+        no-label-float
+        on-keyup="textChanged_">
+    </paper-input>
+
+    <paper-listbox
+        id="list"
+        tabindex="0"
+        visible$="[[showMenu]]">
+      <paper-item
+          tabindex="0"
+          class="player"
+          name="null-player"
+          on-tap="onNullItemClicked_">
+        (none)
+      </paper-item>
+      <template
+          is="dom-repeat"
+          id="repeater"
+          items="[[game.players]]"
+          sort="sort_"
+          filter="filter_"
+          as="player">
+        <paper-item
+            tabindex="0"
+            class="player"
+            name$="player-name-[[computePlayerText_(player, player.id, player.name)]]"
+            on-tap="onItemClicked_">
+          [[computePlayerText_(player, player.id, player.name)]]
+        </paper-item>
+      </template>
+    </paper-listbox>
+
+    <div class="buttons">
+      <paper-button id="cancel" dialog-dismiss>Cancel</paper-button>
+      <paper-button id="done">Set</paper-button>
+    </div>
+  </paper-dialog>
+
+
+</template>
 </dom-module>
+
+

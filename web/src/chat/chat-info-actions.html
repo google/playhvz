@@ -15,15 +15,6 @@
 
           playerId: String,
 
-          playerInputValue: {
-            type: String,
-          },
-          
-          matchingPlayerOrNull: {
-            type: Object,
-            notify: true,
-          },
-
           kickPlayer: {
             type: Object,
             value: function() { return []; },
@@ -63,18 +54,21 @@
         },
 
         addPlayer_: function() {
+          this.$.lookup.value = null;
           this.$.addForm.open();
         },
 
         onSetPlayer_: function(e) {
-          var newPlayer = this.matchingPlayerOrNull;
-          this.$.lookup.value = "";
-          this.bridge.addPlayerToGroup({
-            gameId: this.game.id,
-            groupId: this.chatRoom.accessGroupId,
-            actingPlayerId: this.playerId,
-            playerToAddId: newPlayer.id
-          });
+          var newPlayerIdOrNull = this.$.lookup.value;
+          this.$.lookup.value = null;
+          if (newPlayerIdOrNull) {
+            this.bridge.addPlayerToGroup({
+              gameId: this.game.id,
+              groupId: this.chatRoom.accessGroupId,
+              actingPlayerId: this.playerId,
+              playerToAddId: newPlayerIdOrNull
+            });
+          }
         },
 
         leaveChat_: function() {
@@ -135,6 +129,9 @@
     .form-contents {
       padding: 8px;
     }
+    #lookup {
+      width: 100%;
+    }
   </style>
   <template>
     <ghvz-form
@@ -144,14 +141,11 @@
       close-label="Cancel"
       done-label="Add"
       on-ghvz-form-done="onSetPlayer_">
-      <ghvz-player-lookup
-        id="lookup"
-        class="form-contents"
-        players="[[game.players]]"
-        players-by-id="[[game.playersById]]"
-        matching-player-or-null="{{matchingPlayerOrNull}}"
-        value="{{playerInputValue}}">
-      </ghvz-player-lookup>
+      <ghvz-player-field
+          id="lookup"
+          class="form-contents"
+          game="[[game]]">
+      </ghvz-player-field>
     </ghvz-form>
 
     <ghvz-form
