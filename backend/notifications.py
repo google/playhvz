@@ -44,10 +44,10 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
       user_id = game_state.get('/publicPlayers/%s' % public_player_id, 'userId')
       user = game_state.get('/users', user_id)
       if 'deviceToken' in user:
-        tokens.add(user['deviceToken'])
-  if len(tokens) == 0:
+        device_tokens.add(user['deviceToken'])
+  if len(device_tokens) == 0:
     return
-  fcm.notify_multiple_devices(registration_ids=list(tokens),
+  fcm.notify_multiple_devices(registration_ids=list(device_tokens),
                               message_title=notification['previewMessage'],
                               message_body=notification['message'])
 
