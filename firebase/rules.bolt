@@ -92,20 +92,20 @@ getUserId() {
   ('user-' + auth.uid)
 }
 
-getPrivateLifeId() {
-  ('privateLife-' + auth.uid)  
-}
-
 getCurrentUser() {
   root.users[getUserId()]
 }
 
-getCurrentPlayerId(gameId) {
+getCurrentPublicPlayerId(gameId) {
   getCurrentUser().games[gameId].playerId
 }
 
+getCurrentPrivatePlayerId(gameId) {
+  root.publicPlayers[getCurrentPublicPlayerId(gameId)].privatePlayerId
+}
+
 isGroupMember(groupId, gameId) {  
-  root.groups[groupId].players[getCurrentPlayerId(gameId)]
+  root.groups[groupId].players[getCurrentPublicPlayerId(gameId)]
 }
 
 isAdmin(gameId) {
@@ -286,7 +286,7 @@ type NotificationSettings {
   vibrate: Boolean;
 }
 
-type ChatRoomLookup {
+type ChatRoomMembership {
   isVisible: Boolean;
 }
 
@@ -312,7 +312,7 @@ type PrivatePlayer {
   userId: UserId;
   volunteer: Volunteer;
   wantToBeSecretZombie: Boolean;
-  chatRoomMemberships: Map<ChatRoomId, ChatRoomLookup>;
+  chatRoomMemberships: Map<ChatRoomId, ChatRoomMembership>;
   missionMemberships: Map<MissionId, Boolean>;
   associatedMaps: Map<MapId, Map<MarkerId, Boolean>>;
 
@@ -359,6 +359,7 @@ type PublicPlayer {
   profileImageUrl: HtmlUrl;
   userId: UserId;
   privatePlayerId: PrivatePlayerId;
+  lives: Map<PublicLifeId, Boolean>
 
   // Public players can be seen by all
   read() {
@@ -479,7 +480,8 @@ type PrivateLife {
   gameId: GameId;
   read() {
     isServer() ||
-    key() == getPrivateLifeId()
+    key() == getCurrentPrivatePlayerId(this.gameId) ||
+    isAdmin(this.gameId)
   }
 
   write() {     isServer()   }
@@ -519,16 +521,16 @@ type PublicLife {
 /games is PublicEntity;
 /games/GameId/adminUsers/{UserId} is User;
 /groups/{GroupId} is Group;
-/groups/GroupId/players/{PlayerId} is PrivatePlayer;
+/groups/GroupId/players/{PublicPlayerId} is PublicPlayer;
 /guns/{GunId} is Gun;
 /queuedNotification/{QueuedNotificationId} is QueuedNotification;
 /maps/{MapId} is MapType;
 /missions/{MissionId} is Mission;
-/playersPrivate/{PlayerId} is PrivatePlayer;
+/playersPrivate/{PrivatePlayerId} is PrivatePlayer;
 /privateLives/{PrivateLifeId} is PrivateLife;
-/playersPublic/{PlayerId} is PublicPlayer;
+/playersPublic/{PublicPlayerId} is PublicPlayer;
 /publicLives/{PublicLifeId} is PublicLife;
 /rewardCategories/{RewardCategoryId} is RewardCategory;
 /rewards/{RewardId} is RewardCategory;
 /users/{UserId} is User;
-/users/UserId/players/{PlayerId} is PrivatePlayer;
+/users/UserId/players/{PrivatePlayerId} is PrivatePlayer;
