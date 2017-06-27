@@ -36,7 +36,7 @@ try:
   
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  driver.Quit()
+  #driver.Quit()
 
 finally:
   # driver.Quit()

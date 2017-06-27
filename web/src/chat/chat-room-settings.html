@@ -87,19 +87,21 @@
           var chatRoomId = this.bridge.newChatRoomId();
           this.bridge.createGroup({
             name: "Group for " + player.id + "'s chat room",
-            groupId: groupId,
             gameId: this.gameId,
+            groupId: groupId,
             ownerPlayerId: this.player.id,
             allegianceFilter: allegianceFilter,
             autoAdd: autoAdd,
             autoRemove: autoRemove,
             canAddOthers: canAddOthers,
+            canAddSelf: true,
+            canRemoveSelf: true,
             canRemoveOthers: canRemoveOthers,
           }).then(() => {
             return this.bridge.createChatRoom({
               gameId: this.gameId,
               chatRoomId: chatRoomId,
-              groupId: groupId,
+              accessGroupId: groupId,
               name: name,
               withAdmins: false,
             });
@@ -108,7 +110,6 @@
               gameId: this.gameId,
               groupId: groupId,
               playerToAddId: this.player.id,
-              playerId: this.player.id,
             });
           }).then(() => {
             this.fire('ghvz-set-path', {

@@ -541,6 +541,10 @@ class FakeServer {
       if (group.autoRemove) {
         if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
           if (group.memberships.find(m => m.playerId == playerId)) {
+            // If the owner is bumped from the group, switch ownership
+            if (playerId == group.ownerPlayerId) {
+              this. switchGroupOwnershipWhenBumped(playerId, group, game)
+            }
             this.removePlayerFromGroup({groupId: group.id, playerToAddId: playerId});
           }
         }
@@ -554,6 +558,38 @@ class FakeServer {
       }
     }
   }
+//kangaroo
+  switchGroupOwnershipWhenBumped(ownerId, group, game) {
+    console.log("IN THE FUNCTION!", group.allegianceFilter)
+    var highestPointCount = -1;
+    var highestPlayer = null;
+    for (let {playerId} of group.memberships) {
+      let player = game.playersById[playerId];
+      // Find othe player in group with most points. Ties go to the player with lower player #
+      if (player.playerId != ownerId && (player.points > highestPointCount || 
+        (player.points == highestPointCount && player.number < highestPlayer.number))) {
+        highestPlayer = player;
+        highestPointCount = player.points;
+      }
+    }    
+    // IS THIS THE BEST OPTION? We could alternatively just kill the group? Or make the group zeds only.
+    let groupPath = this.reader.getGroupPath(gameId, group.groupId, null);
+    if (highestPlayer == null) {
+      // If there aren't any other people in the group, then change the group to be open to anyone
+      this.writer.set(groupPath.concat(['allegianceFilter']), 'none')
+    } else {
+      // Otherwise, switch ownership to the highest player
+      this.writer.set(groupPath.concat(['ownerPlayerId']), highestPlayer.playerId)
+    }
+  }
+
+
+
+
+// If the person is the owner of a group they're getting kicked from, 
+            // switch ownership to the player in the group with the highest point score
+
+
   setPlayerZombie(playerId) {
     let gameId = this.reader.getGameIdForPlayerId(playerId);
     let playerPath = this.reader.getPlayerPath(gameId, playerId);
