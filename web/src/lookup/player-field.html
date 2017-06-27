@@ -1,87 +1,71 @@
 <dom-module id="ghvz-player-field">
-  <script>
-    // Not sure why this HTMLImports.whenReady is really needed.
-    // Something about polymer initialization order.
-    // I think we're not supposed to need this.
-    HTMLImports.whenReady(() => {
-      Polymer({
-        is: 'ghvz-player-field',
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-player-field',
 
-        properties: {
-          players: Array,
-          playersById: {
-            type: Object,
-          },
-          label: {
-            type: String,
-          },
-          value: {
-            type: String,
-            notify: true,
-          },
-          playerIdOrNull: {
-            type: String,
-          },
-          playerOrNull: {
-            type: Object,
-            computed: 'computePlayerOrNull(playerIdOrNull, playersById)',
-          },
-          playerInputValue: {
-            type: String,
-          },
-          matchingPlayerOrNull: {
-            type: Object,
-            notify: true,
-          },
+      properties: {
+        game: Object,
+
+        // A player ID or null
+        value: {
+          type: String,
+          notify: true,
         },
 
-        computePlayerOrNull(playerIdOrNull, playersById) {
-          return playerIdOrNull && this.playersById[playerIdOrNull];
+        player: {
+          type: Object,
+          computed: 'computePlayer_(game, value)',
         },
 
-        computeSetButtonEnabled_(playerInputValue, matchingPlayerOrNull) {
-          return !playerInputValue || !!matchingPlayerOrNull;
+        playerName: {
+          type: String,
         },
+      },
 
-        setPlayer_() {
-          this.fire('set-player', {
-            playerOrNull: this.matchingPlayerOrNull
-          });
-        },
-      });
+      observers: [
+        'updatePlayerName_(value)',
+        'updatePlayerName_(player)',
+        'updatePlayerName_(player.name)',
+      ],
+
+      computePlayer_(game, playerId) {
+        return playerId && this.game.playersById[playerId];
+      },
+
+      updatePlayerName_() {
+        this.playerName = this.player ? this.player.name : "(none)";
+      },
+
+      open_() {
+        this.$.dialog.open().then((playerId) => {
+          this.value = playerId;
+        });
+      },
     });
-  </script>
-
-  <template class="layout vertical" style="height:300px">
-    <style include="iron-flex iron-flex-alignment">
-      :host {
-        display: block;
-      }
-      #setButton {
-        color: white;
-        background-color: #03A9F4;
-        padding: 4px 16px;
-        min-width: auto;
-        height: 24px;
-      }
-      #setButton[disabled] {
-        background-color: #C0C0C0;
-        opacity: .5;
-      }
-    </style>
-    <ghvz-player-lookup
-        players="[[players]]"
-        players-by-id="[[playersById]]"
-        matching-player-or-null="{{matchingPlayerOrNull}}"
-        value="{{playerInputValue}}">
-      <paper-button
-          id="setButton"
-          icon="icons:check"
-          disabled="[[!computeSetButtonEnabled_(playerInputValue, matchingPlayerOrNull)]]"
-          on-tap="setPlayer_"
-          suffix>
-        Set
-      </paper-button>
-    </ghvz-player-lookup>
-  </template>
+  });
+</script>
+<style>
+  :host {
+    display: block;
+  }
+  #name {
+    padding: 8px 0;
+  }
+  #name:hover {
+    background-color: #F0F0F0;
+    cursor: pointer;
+  }
+</style>
+<template>
+  <div id="name" on-tap="open_">
+    [[playerName]]
+  </div>
+  <ghvz-player-dialog id="dialog" game="[[game]]"></ghvz-player-dialog>
+</template>
 </dom-module>
+
+

@@ -16,15 +16,22 @@ type ChatRoomId extends String { validate() { this.startsWith("chatRoom-") } }
 type GameId extends String { validate() { this.startsWith("game-") } }
 type OptionalGameId extends String { validate() { this == "" || this.startsWith("game-") } }
 type MessageId extends String { validate() { this.startsWith("message-") } }
-type PlayerId extends String { validate() { this.startsWith("player-") } }
-type OptionalPlayerId extends String { validate() { this == "" || this.startsWith("player-") } }
+type PublicPlayerId extends String { validate() { this.startsWith("publicPlayer-") } }
+type PrivatePlayerId extends String { validate() { this.startsWith("privatePlayer-") } }
+type OptionalPlayerId extends String { validate() { this == "" || this.startsWith("publicPlayer-") } }
 type GroupId extends String { validate() { this.startsWith("group-") } }
 type UserId extends String { validate() { !this.includes("-") } }
 type MissionId extends String { validate() { this.startsWith("mission-") } }
 type RewardCategoryId extends String { validate() { this.startsWith("rewardCategory-") } }
 type GunId extends String { validate() { this.startsWith("gun-") } }
 type RewardId extends String { validate() { this.startsWith("reward-") } }
-type LifeId extends String { }
+type PrivateLifeId extends String { validate() { this.startsWith("privateLife-") } }
+type PublicLifeId extends String { validate() { this.startsWith("publicLife-") } }
+type MapId extends String { validate() { this.startsWith("map-") } }
+type MarkerId extends String { validate() { this.startsWith("marker-") } }
+type QueuedNotificationId extends String { validate() { this.startsWith("queuedNotification-") } }
+type NotificationId extends String { validate() { this.startsWith("notification-") } }
+
 
 /******************************************************************************
  Simple Types That Need Validation
@@ -89,12 +96,16 @@ getCurrentUser() {
   root.users[getUserId()]
 }
 
-getCurrentPlayerId(gameId) {
+getCurrentPublicPlayerId(gameId) {
   getCurrentUser().games[gameId].playerId
 }
 
+getCurrentPrivatePlayerId(gameId) {
+  root.publicPlayers[getCurrentPublicPlayerId(gameId)].privatePlayerId
+}
+
 isGroupMember(groupId, gameId) {  
-  root.groups[groupId].players[getCurrentPlayerId(gameId)]
+  root.groups[groupId].players[getCurrentPublicPlayerId(gameId)]
 }
 
 isAdmin(gameId) {
@@ -144,7 +155,7 @@ type ChatRoom {
 type Message {
   MessageId: MessageId; // #1
   message: String;
-  playerId: PlayerId;
+  playerId: PublicPlayerId;
   time: Timestamp;
   image: ImageUrl;
   location: Location;
@@ -175,7 +186,7 @@ type Game {
   chatRooms: Map<ChatRoomId, Boolean>;
   missions: Map<MissionId, Boolean>;
   guns: Map<GunId, Boolean>;
-  players: Map<PlayerId, Boolean>;
+  players: Map<PublicPlayerId, Boolean>;
   rewardCategories: Map<RewardCategoryId, Boolean>;
 
   // Everyone can read a game so they can add themselves
@@ -201,8 +212,8 @@ type Group {
   canRemoveSelf: Boolean;
   gameId: GameId;
   name: String;
-  ownerPlayerId: PlayerId;
-  players: Map<PlayerId, Boolean>;
+  ownerPlayerId: PublicPlayerId;
+  players: Map<PublicPlayerId, Boolean>;
 
   read() {
     isAuthenticatedMember(key(), this.gameId)
@@ -275,7 +286,21 @@ type NotificationSettings {
   vibrate: Boolean;
 }
 
-type PrivatePlayer extends PlayerBase {
+type ChatRoomMembership {
+  isVisible: Boolean;
+}
+
+type Notification {
+  destination: HtmlUrl;
+  icon: String;
+  message: String;
+  previewMessage: String;
+  queuedNotificationId: QueuedNotificationId;
+  time: OptionalTimestamp
+}
+
+type PrivatePlayer {
+  PrivatePlayerId: PrivatePlayerId; // #1
   beInPhotos: Boolean;
   canInfect: Boolean;
   gameId: GameId;
@@ -283,12 +308,13 @@ type PrivatePlayer extends PlayerBase {
   needGun: Boolean;
   notes: String;
   notificationSettings: NotificationSettings;
+  notifications: Map<NotificationId, Notification>;
   userId: UserId;
   volunteer: Volunteer;
   wantToBeSecretZombie: Boolean;
-  chatRooms: Map<ChatRoomId, Boolean>;
-  missions: Map<MissionId, Boolean>;
-  lives: Map<LifeId, PrivateLife>
+  chatRoomMemberships: Map<ChatRoomId, ChatRoomMembership>;
+  missionMemberships: Map<MissionId, Boolean>;
+  associatedMaps: Map<MapId, Map<MarkerId, Boolean>>;
 
   read() {
     isAuthenticated() && (isServer() ||
@@ -322,8 +348,9 @@ type Reward {
   }
 }
 
-type PublicPlayer extends PlayerBase {
-  active: Boolean;
+type PublicPlayer {
+  PublicPlayerId: PublicPlayerId; // #1
+  isActive: Boolean;
   allegiance: Allegiance;
   claims: Map<RewardId, Reward>;
   name: String;
@@ -331,7 +358,8 @@ type PublicPlayer extends PlayerBase {
   points: Number;
   profileImageUrl: HtmlUrl;
   userId: UserId;
-  lives: Map<LifeId, PublicLife>
+  privatePlayerId: PrivatePlayerId;
+  lives: Map<PublicLifeId, Boolean>
 
   // Public players can be seen by all
   read() {
@@ -373,22 +401,14 @@ type Player {
   gameId: GameId;
 }
 
-type PlayerBase {
-  PlayerId: PlayerId; // #1
-}
-
-type LifeBase {
-  LifeId: LifeId; // #1
-}
-
 type GamePlayerLookup {
-  playerId: PlayerId;
+  playerId: PublicPlayerId;
 }
 
 type User {
   UserId: UserId; // #1
   a: Boolean;
-  players: Map<PlayerId, Player>;
+  publicPlayers: Map<PublicPlayerId, Player>;
   games: Map<GameId, GamePlayerLookup>;
 
   read() {
@@ -403,13 +423,90 @@ type User {
   }
 }
 
-type PrivateLife extends LifeBase {
-  code: String;
+type Marker {
+  color: String;
+  latitude: Number;
+  longitude: Number;
+  name: String;
+  playerId: PublicPlayerId 
 }
 
-type PublicLife extends LifeBase {
-  time: OptionalTimestamp;
+type MapType {
+  MapId: MapId; // #1
+  accessGroupId: GroupId;
+  gameId: GameId;
+  markers: Map<MarkerId, Marker>;
+  name: String; 
+
+  read() {
+    isAuthenticated()
+  }
+
+  write() {     isServer()   }
+
+  validate() {
+    true;
+  }
 }
+
+type QueuedNotification {
+  QueuedNotificationId: QueuedNotificationId; // #1
+  destintation: HtmlUrl;
+  email: Boolean;
+  gameId: GameId;
+  groupId: GroupId;
+  message: String;
+  mobile: Boolean;
+  previewMessage: String;
+  sent: Boolean;
+  size: Boolean;
+  sound: Boolean;
+  vibrate: Boolean;
+  
+  read() {
+    isAuthenticatedMember(this.groupId, this.gameId)
+  }
+
+  write() {     isServer()   }
+
+  validate() {
+    true;
+  }
+}
+
+type PrivateLife {
+  PrivateLifeId: PrivateLifeId; // #1
+  code: String;
+  gameId: GameId;
+  read() {
+    isServer() ||
+    key() == getCurrentPrivatePlayerId(this.gameId) ||
+    isAdmin(this.gameId)
+  }
+
+  write() {     isServer()   }
+
+  validate() {
+    true;
+  }
+}
+
+type PublicLife {
+  PublicLifeId: PublicLifeId; // #1
+  privateLifeId: PrivateLifeId;
+  gameId: GameId;
+  time: OptionalTimestamp;
+  read() {
+    isAuthenticated()
+  }
+
+  write() {     isServer()   }
+
+  validate() {
+    true;
+  }
+}
+
 
 /******************************************************************************
  Possible Paths
@@ -424,14 +521,16 @@ type PublicLife extends LifeBase {
 /games is PublicEntity;
 /games/GameId/adminUsers/{UserId} is User;
 /groups/{GroupId} is Group;
-/groups/GroupId/players/{PlayerId} is PrivatePlayer;
+/groups/GroupId/players/{PublicPlayerId} is PublicPlayer;
 /guns/{GunId} is Gun;
+/queuedNotification/{QueuedNotificationId} is QueuedNotification;
+/maps/{MapId} is MapType;
 /missions/{MissionId} is Mission;
-/playersPrivate/{PlayerId} is PrivatePlayer;
-/playersPrivate/PlayerId/lives/{LifeId} is PrivateLife;
-/playersPublic/{PlayerId} is PublicPlayer;
-/playersPublic/PlayerId/lives/{LifeId} is PublicLife;
+/playersPrivate/{PrivatePlayerId} is PrivatePlayer;
+/privateLives/{PrivateLifeId} is PrivateLife;
+/playersPublic/{PublicPlayerId} is PublicPlayer;
+/publicLives/{PublicLifeId} is PublicLife;
 /rewardCategories/{RewardCategoryId} is RewardCategory;
 /rewards/{RewardId} is RewardCategory;
 /users/{UserId} is User;
-/users/UserId/players/{PlayerId} is PrivatePlayer;
+/users/UserId/players/{PrivatePlayerId} is PrivatePlayer;

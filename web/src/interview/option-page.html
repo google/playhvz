@@ -8,7 +8,18 @@
       is: 'ghvz-interview-option-page',
 
       properties: {
-        options: Array,
+        options: {
+          type: Array,
+          observer: 'onOptionsChanged_',
+        }
+      },
+
+      onOptionsChanged_(newOptions) {
+        for (let option of newOptions) {
+          if (!('enabled' in newOptions)) {
+            option.enabled = true;
+          }
+        }
       },
 
       choose_(e) {
@@ -72,6 +83,7 @@
               raised
               data-option-index$="[[computeOptionIndex_(option)]]"
               name$="option[[computeOptionIndex_(option)]]"
+              disabled="[[!option.enabled]]"
               on-tap="choose_">
             [[option.buttonLabel]]
           </paper-button>
