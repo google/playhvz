@@ -1,6 +1,8 @@
 import setup
 import time
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+import time #bad bad bad
 
 try:
 
@@ -9,20 +11,19 @@ try:
 
   ######################  Testing Admin Guns Page  ######################
 
-  # If the user has a notification, close it
-  try: 
-    driver.Click([[By.NAME, 'close-notification']])
-  finally:
-    pass
+  # Close the notification
+  driver.Click([[By.NAME, 'close-notification']])
 
   # Admin adds gun
-  driver.Click([[By.TAG_NAME, 'ghvz-unseen-notifications'], [By.CLASS_NAME, 'close']])
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
 
-  driver.Click([[By.NAME, 'drawerAdmin Guns']])
+  driver.Click([[By.NAME, 'drawerAdmin Guns']]) # SOMETIMES CRASHES HERE
+
   driver.Click([[By.ID, 'add']])
   driver.SendKeys(
         [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        '3.14')
+        '3.14') # Crashed here a few times (element not visible, although it looks invisible)
  
   driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
 
@@ -31,10 +32,9 @@ try:
 
   # Assign player a gun
   driver.Click([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'pencil']])
-  driver.SendKeys(
-        [[By.NAME, 'gun-row-3.14'], [By.TAG_NAME, 'input']],
-        'JackSlayerTheBeanSlasher')
-  driver.Click([[By.NAME, 'gun-row-3.14'], [By.ID, 'setButton']])
+
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'JackSlayerTheBeanSlasher')
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
 
   # Show that player shows up as having the gun
   driver.ExpectContains([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'player-label']], "JackSlayerTheBeanSlasher")
@@ -46,18 +46,16 @@ try:
         'pancake')
   driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
   driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.TAG_NAME, 'input']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.NAME, '103: MoldaviTheMoldavish']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.ID, 'setButton']])
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'MoldaviTheMoldavish')
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
 
   # Search by label
   driver.Click([[By.NAME, 'header-Label'], [By.NAME, 'icon-search']])
   driver.SendKeys(
         [[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']],
         'pan')
-  # TODO(olivia): devise a way to check that these rows are visible or not
-  # driver.ExpectContains([[By.ID, 'table']], "Moldavi")
-  # driver.ExpectContains([[By.ID, 'table']], "Jack", False)
+  driver.FindElement([[By.NAME, 'gun-row-pancake']])
+  driver.FindElement([[By.NAME, 'gun-row-3.14']], should_exist=False)
   driver.Backspace([[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']], 3)
 
   # Search by player
@@ -65,9 +63,8 @@ try:
   driver.SendKeys(
         [[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']],
         'Jack')
-  # TODO(olivia): devise a way to check that these rows are visible or not
-  # driver.ExpectContains([[By.ID, 'table']], "Jack")
-  # driver.ExpectContains([[By.ID, 'table']], "Moldavi", False)
+  driver.FindElement([[By.NAME, 'gun-row-pancake']], should_exist=False)
+  driver.FindElement([[By.NAME, 'gun-row-3.14']])
   driver.Backspace([[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']], 4)
 
   # Change the weapon ID, and show that it shows up
@@ -87,6 +84,9 @@ try:
 
 
   # Admin - set got equipment for Jack
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'guns-card'], [By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawerAdmin Players']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']]) # This is Jack (non-admin, human)
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Got Equipment']]) # Doesn't update like it's supposed to - remote server
@@ -97,25 +97,29 @@ try:
   driver.ExpectContains([[By.NAME, 'got-equipment']], "Yes")
 
   # If you set the equipment of someone who already has it, nothing should happen
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawerAdmin Players']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']]) # This is Jack (non-admin, human)
-  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Got Equipment']])
-  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "Yes")
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Got Equipment']]) # TODO - sometimes creashes here here here
+  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "Yes") # (menu still open here)
 
   # TODO(verdagon): have the webdrivers wait until things are visible / not visible.
   # This sleep is to wait for the menu to become not visible.
-  time.sleep(1)
 
   # Unset Jack's equipment
-  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Unset Got Equipment']])
-  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "No")
+  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "No") # TODO - sometimes crashes here
 
   # Check Jack's profile, make sure the change showed up
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])
   driver.ExpectContains([[By.NAME, 'got-equipment']], "No")
 
-  # Go back to the Admin Guns page
+  # Go back to the Admin Players page
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawerAdmin Players']])
 
   # Search by number
@@ -129,29 +133,32 @@ try:
   driver.Backspace([[By.NAME, 'header-#'], [By.TAG_NAME, 'input']])
 
   # # Search by name
-  driver.Click([[By.NAME, 'playerTablePage'], [By.NAME, 'header-Name'], [By.NAME, 'icon-search']])
+  driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Name'], [By.NAME, 'icon-search']])
   driver.SendKeys(
-        [[By.NAME, 'playerTablePage'], [By.NAME, 'header-Name'], [By.TAG_NAME, 'input']],
+        [[By.NAME, 'players-card'], [By.NAME, 'header-Name'], [By.TAG_NAME, 'input']],
         'Deckerd')
   # TODO(olivia): devise a way to check that these rows are visible or not
-  # driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd") # Deckerd should show up
-  # driver.ExpectContains([[By.NAME, 'player-table']], "Jack", False) # Jack shouldn't show up
-  driver.Backspace([[By.NAME, 'playerTablePage'], [By.NAME, 'header-Name'], [By.TAG_NAME, 'input']], 7)
+  driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd") # Deckerd should show up
+  driver.ExpectContains([[By.NAME, 'player-table']], "Jack", False) # Jack shouldn't show up
+  driver.Backspace([[By.NAME, 'players-card'], [By.NAME, 'header-Name'], [By.TAG_NAME, 'input']], 7)
 
   # TODO - search by equipment once this works
 
   # Add a note
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'players-card'], [By.NAME, 'drawerButton']])
+
   driver.Click([[By.NAME, 'drawerAdmin Players']])
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'menu']])
+  time.sleep(.1)
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Set Notes']])
-
-  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']], 'zapfinkle skaddleblaster')
+  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster') # TODO - sometimes fails here
   driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
 
   # Search by notes
-  driver.Click([[By.NAME, 'header-Notes'], [By.NAME, 'icon-search']])
+  driver.Click([[By.NAME, 'header-Extra'], [By.NAME, 'icon-search']])
   driver.SendKeys(
-        [[By.NAME, 'header-Notes'], [By.TAG_NAME, 'input']],
+        [[By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
         'zap')
   # TODO(olivia): devise a way to check that these rows are visible or not
   # driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up

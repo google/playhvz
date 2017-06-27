@@ -34,6 +34,7 @@
 <template>
   <template is="dom-if" if="[[!isMobile]]">
     <ghvz-desktop-main-page
+        name="main-page-div"
         bridge="[[bridge]]"
         database="[[database]]"
         game="[[game]]"
@@ -43,6 +44,7 @@
   </template>
   <template is="dom-if" if="[[isMobile]]">
     <ghvz-mobile-main-page
+        name="main-page-div"
         bridge="[[bridge]]"
         database="[[database]]"
         game="[[game]]"

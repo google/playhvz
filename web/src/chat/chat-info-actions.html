@@ -15,15 +15,6 @@
 
           playerId: String,
 
-          playerInputValue: {
-            type: String,
-          },
-          
-          matchingPlayerOrNull: {
-            type: Object,
-            notify: true,
-          },
-
           kickPlayer: {
             type: Object,
             value: function() { return []; },
@@ -63,22 +54,28 @@
         },
 
         addPlayer_: function() {
-          this.$.addForm.open();
-        },
-
-        onSetPlayer_: function(e) {
-          var newPlayer = this.matchingPlayerOrNull;
-          this.$.lookup.value = "";
-          this.bridge.addPlayerToGroup({
-            gameId: this.game.id,
-            groupId: this.chatRoom.accessGroupId,
-            actingPlayerId: this.playerId,
-            playerToAddId: newPlayer.id
+          this.$.addDialog.open().then((playerId) => {
+            if (playerId) {
+              this.bridge.addPlayerToGroup({
+                gameId: this.game.id,
+                groupId: this.chatRoom.accessGroupId,
+                actingPlayerId: this.playerId,
+                playerToAddId: playerId,
+              }).catch((e) => {
+                console.error(e);
+                if (e.message)
+                  alert(e.message);
+              });
+            }
           });
         },
 
         leaveChat_: function() {
-          this.$.leaveForm.open();
+          if (this.chatRoom.withAdmins) {
+            this.hideChat_();
+          } else {
+            this.$.leaveForm.open();
+          }
         },
 
         onConfirmLeave_: function(e) {
@@ -88,6 +85,24 @@
             actingPlayerId: this.playerId,
             playerToRemoveId: this.playerId,
           });
+        },
+
+        hideChat_: function() {
+          this.bridge.updateChatRoomMembership({
+            gameId: this.game.id, 
+            chatRoomId: this.chatRoom.id,
+            actingPlayerId: this.playerId,
+            isVisible: false,
+          });
+          // We don't acutally hide the admin chat since admins might want access to it later.
+          // Instead just navigate to the main chat page to make it appear like we hide the chat
+          if (this.isAdmin) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat'],
+              replace: true,
+            });
+          }
         },
 
         kickFromChat_: function(playerId, game) {
@@ -113,24 +128,12 @@
     .form-contents {
       padding: 8px;
     }
+    #lookup {
+      width: 100%;
+    }
   </style>
   <template>
-    <ghvz-form
-      id="addForm"
-      name$="chat-add-player-dialog-[[chatRoom.name]]"
-      title="Add player"
-      close-label="Cancel"
-      done-label="Add"
-      on-ghvz-form-done="onSetPlayer_">
-      <ghvz-player-lookup
-        id="lookup"
-        class="form-contents"
-        players="[[game.players]]"
-        players-by-id="[[game.playersById]]"
-        matching-player-or-null="{{matchingPlayerOrNull}}"
-        value="{{playerInputValue}}">
-      </ghvz-player-lookup>
-    </ghvz-form>
+    <ghvz-player-dialog id="addDialog" game="[[game]]"></ghvz-player-dialog>
 
     <ghvz-form
       id="leaveForm"

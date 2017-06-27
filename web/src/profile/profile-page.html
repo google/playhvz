@@ -66,16 +66,6 @@
         }
       },
 
-      extractChatRoomIdFromUrl_() {
-        let initialUrl = window.location.pathname;
-        let match = /(?:\w+\/\w+\/)([\w/-]+)?/.exec(initialUrl);
-        if (!match) {
-          return null;
-        }
-        let chatRoomId = match[1];
-        return chatRoomId;
-      },
-
       getAliveStatus_(allegiance) {
         return allegiance == 'horde';
       },
@@ -97,14 +87,14 @@
         this.bridge.updatePlayer({
           gameId: this.game.id,
           playerId: this.player.id,
-          active: false,
+          isActive: false,
         });
       },
       activate_() {
         this.bridge.updatePlayer({
           gameId: this.game.id,
           playerId: this.player.id,
-          active: true,
+          isActive: true,
         });
       },
       unsetCanInfect_() {
@@ -200,7 +190,7 @@
           <span name="profilePoints">[[player.points]]</span>
         </div>
         <template is="dom-if" if="[[lifeCode]]">
-          <div class="sub-item">
+          <div name="lifecode" class="sub-item">
             Life code: [[lifeCode]]
           </div>
         </template>
@@ -221,8 +211,8 @@
 
   <template is="dom-if" if="[[seePrivateInfo_(isAdmin, actingPlayerId, playerId)]]">
     <div id="details">
-      <div>Notifications should sound: <b>[[computeBooleanText_(player.notificationSettings.sound)]]</b></div>
-      <div>Notifications should vibrate: <b>[[computeBooleanText_(player.notificationSettings.vibrate)]]</b></div>
+      <div>Notifications should sound: <b>[[computeBooleanText_(player.private.notificationSettings.sound)]]</b></div>
+      <div>Notifications should vibrate: <b>[[computeBooleanText_(player.private.notificationSettings.vibrate)]]</b></div>
 
       <template is="dom-if" if="[[isAdmin]]">
         <div>
@@ -241,25 +231,25 @@
             <template is="dom-if if="[[player.volunteer.client]]">Client</template>
           </b>
         </div>
-        <div>Active: <b>[[computeBooleanText_(player.active)]]</b></div>
-        <div name="can-infect">Can infect: <b>[[computeBooleanText_(player.canInfect)]]</b></div>
+        <div>Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>
+        <div name="can-infect">Can infect: <b>[[computeBooleanText_(player.private.canInfect)]]</b></div>
         <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
-        <div>Can be starting zombie: <b>[[computeBooleanText_(player.startAsZombie)]]</b></div>
-        <div>Wants to be secret zombie: <b>[[computeBooleanText_(player.wantToBeSecretZombie)]]</b></div>
-        <div name="got-equipment">Got equipment: <b>[[computeBooleanText_(player.gotEquipment)]]</b></div>
-        <template is="dom-if" if="[[player.active]]">
+        <div>Can be starting zombie: <b>[[computeBooleanText_(player.private.startAsZombie)]]</b></div>
+        <div>Wants to be secret zombie: <b>[[computeBooleanText_(player.private.wantToBeSecretZombie)]]</b></div>
+        <div name="got-equipment">Got equipment: <b>[[computeBooleanText_(player.private.gotEquipment)]]</b></div>
+        <template is="dom-if" if="[[player.isActive]]">
           <paper-button raised on-tap="deactivate_">Deactivate</paper-button>
         </template>
-        <template is="dom-if" if="[[!player.active]]">
+        <template is="dom-if" if="[[!player.isActive]]">
           <paper-button raised on-tap="activate_">Activate</paper-button>
         </template>
-        <template is="dom-if" if="[[player.canInfect]]">
+        <template is="dom-if" if="[[player.private.canInfect]]">
           <paper-button raised id="unset-infect-button" on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
         </template>
-        <template is="dom-if" if="[[!player.canInfect]]">
+        <template is="dom-if" if="[[!player.private.canInfect]]">
           <paper-button raised id="set-infect-button" on-tap="setCanInfect_">Set Can Infect</paper-button>
         </template>
-        <div>Notes: [[player.notes]]</div>
+        <div>Notes: [[player.private.notes]]</div>
       </template>
       
       <template is="dom-repeat" items="[[player.lives]]" as="life">

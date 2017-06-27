@@ -25,7 +25,7 @@
   }
 </style>
 <template>
-  <template is="dom-repeat" items="[[player.notifications]]" as="notification">
+  <template is="dom-repeat" items="[[player.private.notifications]]" as="notification">
     <ghvz-expandable-notification
         bridge="[[bridge]]"
         player="[[player]]"

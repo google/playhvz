@@ -259,16 +259,18 @@
           </template>
         </template>
         <template is="dom-if" if="[[!isAdmin]]">
-          <template is="dom-repeat" items="[[player.chatRoomMemberships]]" as="membership">
-            <ghvz-chat-room-name-label
-                class="layout horizontal listing drawer-item"
-                with-icon
-                name$="drawer-[[getChatName_(membership.chatRoomId)]]"
-                game="[[game]]"
-                chat-room-id="[[membership.chatRoomId]]"
-                data-page="chat"
-                data-chat-room-id$="[[membership.chatRoomId]]">
-            </ghvz-chat-room-name-label>
+          <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
+            <template is="dom-if" if="[[membership.isVisible]]">
+              <ghvz-chat-room-name-label
+                  class="layout horizontal listing drawer-item"
+                  with-icon
+                  name$="drawer-[[getChatName_(membership.chatRoomId)]]"
+                  game="[[game]]"
+                  chat-room-id="[[membership.chatRoomId]]"
+                  data-page="chat"
+                  data-chat-room-id$="[[membership.chatRoomId]]">
+              </ghvz-chat-room-name-label>
+            </template>
           </template>
         </template>
       </div>
