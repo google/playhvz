@@ -50,8 +50,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
     return
   if config.FIREBASE_APIKEY:
     fcm.notify_multiple_devices(registration_ids=list(device_tokens),
-                                message_title=notification['previewMessage'],
-                                message_body=notification['message'])
+                                data_message=notification)
 
 def ExecuteNotifications(request, game_state):
   """INTERNAL ONLY: Send the notifications.
