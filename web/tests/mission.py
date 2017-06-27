@@ -44,7 +44,7 @@ def insertAndVerifyMissionInfo(
 
   # Verify the mission shows up in the admin's list of missions
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionName']], name)
-  ##driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionGroup']], groupName)
+  driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionGroup']], groupName)
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionStart']], startTime)
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionEnd']], endTime)
   driver.ExpectContains([[By.NAME, 'mission-row-%s' % name], [By.NAME, 'missionDetails']], details[0:10])
@@ -126,7 +126,7 @@ try:
     driver.Click([[By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerDashboard']])
 
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'insert witty and entertaining name here')
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
   
   # Log in as a zombie (Zeke), make sure he can see the zombie mission
   driver.SwitchUser('zeke')
@@ -135,27 +135,63 @@ try:
     driver.Click([[By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerDashboard']])
 
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'zed mission')
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans')
 
   # TODO - ONCE IMPLEMENTED... 
   # As an admin, create a mission for humans who RSVP'd to the mission
+  driver.SwitchUser('zella')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'drawerButton']])
+  driver.Click([[By.NAME, 'drawerAdmin Missions']])
+
+  driver.Click([[By.ID, 'add']])
+
   insertAndVerifyMissionInfo(
     name='Defeat the dread zombie boss Gnashable the Zeebweeble',
     startYear='2017',
     startMonth='9',
     startDay='20',
     startTime='3:00am',
-    endYear='2038',
+    endYear='2037',
     endMonth='4',
     endDay='2',
     endTime='10:15pm',
     details='<div>Basically, we just run around in circles trying not to die.</div>',
-    groupName='Resistance')
+    groupName='Everyone')
 
-  # As far as I can tell, the only way to 
+  # As far as I can tell, the only way to assign a mission to the rsvpers for it is to edit it.
+
+  # driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.ID, 'menu']])
+  # driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.NAME, 'menu-item-Edit']])
+
+  # insertAndVerifyMissionInfo(
+  #   name='Defeat the dread zombie boss Gnashable the Zeebweeble',
+  #   startYear='2017',
+  #   startMonth='9',
+  #   startDay='20',
+  #   startTime='3:00am',
+  #   endYear='2038',
+  #   endMonth='4',
+  #   endDay='2',
+  #   endTime='10:15pm',
+  #   details='<div>Basically, we just run around in circles trying not to die.</div>',
+  #   groupName='Rsvpers for Defeat the dread zombie boss Gnashable the Zeebweeble')
+
+  # (WHEN IMPLEMENTED... )
+  # Have Jack RSVP, see that the mission only appears after he RSVPs
+  driver.SwitchUser('jack')
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'Basically, we just run around in circles trying not to die.')
+
+  # As an admin, change the mission end date to later than the other human mission
+  driver.SwitchUser('zella')
+
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'drawerButton']])
+  driver.Click([[By.NAME, 'drawerAdmin Missions']])
 
   driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.ID, 'menu']])
-  driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.ID, 'menu-item-Edit']])
+  driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.NAME, 'menu-item-Edit']])
 
   insertAndVerifyMissionInfo(
     name='Defeat the dread zombie boss Gnashable the Zeebweeble',
@@ -163,16 +199,16 @@ try:
     startMonth='9',
     startDay='20',
     startTime='3:00am',
-    endYear='2038',
+    endYear='2039',
     endMonth='4',
     endDay='2',
     endTime='10:15pm',
     details='<div>Basically, we just run around in circles trying not to die.</div>',
-    groupName='rsvpers for Defeat the dread zombie boss Gnashable the Zeebweeble')
+    groupName='Everyone')
 
-  # Have Jack RSVP, see that the mission only appears after he RSVPs
-  # As an admin, change the mission end date to later than the other human mission
-  #Log in as a human (Jack). Show that the new mission doesn't show up anymore
+  # Log in as a human (Jack). Show that the new mission doesn't show up anymore
+  driver.SwitchUser('jack')
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
 
 
   
