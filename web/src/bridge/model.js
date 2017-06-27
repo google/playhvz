@@ -116,7 +116,7 @@ Model.PlayerGroupMembership = function(id, args) {
   Utils.addEmptyLists(this, PLAYER_GROUP_MEMBERSHIP_COLLECTIONS);
 }
 
-const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
+const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time", "location"];
 const MESSAGE_COLLECTIONS = [];
 Model.Message = function(id, args) {
   this.id = id;

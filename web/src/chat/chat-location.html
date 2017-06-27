@@ -12,6 +12,9 @@
           game: Object,
           player: Object,
           chatRoomId: String,
+
+          latitude: Number,
+          longitude: Number,
         },
 
         observers: [
@@ -27,6 +30,8 @@
         },
 
         setPosition_(position) {
+          this.latitude = position.coords.latitude;
+          this.longitude = position.coords.longitude;
           var latlon = position.coords.latitude + "," + position.coords.longitude;
 
           var img_url = "https://maps.googleapis.com/maps/api/staticmap" 
@@ -39,14 +44,14 @@
         },
 
         onConfirmSendLocation_(e) {
-          /*this.bridge.sendChatMessage({
+          this.bridge.sendChatMessage({
             gameId: this.game.id,
             messageId: this.bridge.newMessageId(), 
             chatRoomId: this.chatRoomId, 
             playerId: this.player.id, 
             message: "",
-            location: {}
-          });*/
+            location: {latitude: this.latitude, longitude: this.longitude},
+          });
         },
       });
     });
@@ -77,7 +82,7 @@
         close-label="Cancel"
         done-label="Send"
         on-ghvz-form-done="onConfirmSendLocation_">
-      <img id="mapContainer" class="map-container" src="https://goo.gl/SkVFXW"></img>
+      <img id="mapContainer" class="map-container" src="https://goo.gl/ZwdrjW"></img>
     </ghvz-form>
   </template>
 </dom-module>
