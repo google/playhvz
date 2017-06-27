@@ -1753,6 +1753,7 @@ def CreateMap(request, game_state):
     'gameId': 'GameId',
     'accessGroupId': 'GroupId',
     'mapId': '!MapId',
+    'requestTrackingUntil': 'Timestamp',
     'name': 'String',
   })
 
@@ -1769,6 +1770,31 @@ def CreateMap(request, game_state):
       request['mapId'],
       True)
   ]
+
+
+def UpdateMap(request, game_state):
+  """Update an existing reward group.
+
+  Firebase entries:
+    /rewardCategories/%(rewardCategoryId)
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'mapId': 'MapId',
+    'name': '|String',
+    'requestTrackingUntil': '|Timestamp',
+  })
+
+  map_id = request['mapId']
+
+  map_data = {}
+  for k in ('name', 'requestTrackingUntil'):
+    if k in request:
+      map_data[k] = request[k]
+
+  game_state.patch('/maps/%s' % map_id, map_data)
+
+
 
 # For lack of any organization in this project and my devious inclusion to
 # entropy I placed this here, right before I used it.
