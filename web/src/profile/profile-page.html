@@ -175,7 +175,7 @@
   }
 </style>
 <template>
-  <array-selector id="playerSelector" items="[[game.playergs]]" selected="{{player}}"></array-selector>
+  <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
   <div id="flexThing">
     <div class$="[[getAliveStatusClass_(player.allegiance)]]">
       <div class="display-avatar">
@@ -208,7 +208,7 @@
     </div>
   </div>
 
-
+  <!-- TODO: Put this in appropriate location -->
   <template is="dom-repeat" items="[[player.claims]]" as="claim">
     <ghvz-reward-category
         bridge="[[bridge]]"

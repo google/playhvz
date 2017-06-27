@@ -13,10 +13,6 @@
           game: Object,
           rewardCategoryId: String,
           rewardCategory: Object,
-          // badgeOnly: {
-          //   type: Boolean,
-          //   value: false,
-          // },
         },
 
         observers: ['computeRewardCategory_(game, rewardCategoryId)'],
@@ -48,6 +44,20 @@
     img {
       max-width: 40px;
     }
+
+    :host([badgeOnly]) #container {
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    :host([badgeOnly]) #name,
+    :host([badgeOnly]) #description {
+      display: none;
+    }
+
+    :host([badgeOnly]) img {
+      max-width: 24px;
+    }
   </style>
   <template>
     <array-selector id="rewardCategorySelector" items="[[game.rewardCategories]]" selected="{{rewardCategory}}"></array-selector>
@@ -55,10 +65,8 @@
       <div>
         <img src$="[[rewardCategory.badgeImageUrl]]"/>
       </div>
-      <!-- <template is="dom-if" if="[[badgeOnly]]"> -->
-        <div id="name">[[rewardCategory.name]]</ddiv>
-        <div id="description">[[rewardCategory.description]]</div>
-      <!-- </template> -->
+      <div id="name">[[rewardCategory.name]]</div>
+      <div id="description">[[rewardCategory.description]]</div>
     </div>
   </template>
 </dom-module>
