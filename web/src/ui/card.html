@@ -42,14 +42,12 @@
         this.fire('ghvz-set-path', {
           inGame: true,
           path: this.fullscreenPage.split('/'),
+          replace: false,
         });
       },
 
       back_() {
-        this.fire('ghvz-set-path', {
-          inGame: true,
-          path: ['main'],
-        });
+        window.history.back();
       },
 
       openDrawer_(e) {

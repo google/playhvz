@@ -18,13 +18,15 @@
         },
 
         observers: [
-          "updateNextMissionId_(game.missions.length)",
+          "updateNextMissionId_(game.missions.length, player.private.missionMemberships.*)",
         ],
 
         updateNextMissionId_: function() {
           let nextMission = null;
           // Of all the missions that end in the future, get the one that ends the soonest.
-          for (const mission of this.game.missions) {
+          for (const missionMembership of this.player.private.missionMemberships) {
+            let missionId = missionMembership.missionId;
+            let mission = this.game.missionsById[missionId];
             if (new Date().getTime() < mission.endTime) {
               if (!nextMission || mission.endTime < nextMission.endTime) {
                 nextMission = mission;

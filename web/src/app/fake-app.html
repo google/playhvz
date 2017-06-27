@@ -74,9 +74,9 @@
         newUrl += queryString;
 
         if (replace)
-          window.history.pushState({}, "", newUrl);
-        else
           window.history.replaceState({}, "", newUrl);
+        else
+          window.history.pushState({}, "", newUrl);
       },
 
       getQueryString_() {
@@ -153,7 +153,7 @@
         let option = this.userOptions[optionIndex];
 
         if (option.focused) {
-          this.appsByUserId[this.focusedUserId].setPath_(path);
+          this.appsByUserId[this.focusedUserId].setPath_(path, true);
           return;
         }
 
@@ -175,13 +175,13 @@
         this.appsByUserId[userId].style.display = 'block';
 
         if (option.loaded) {        
-          this.appsByUserId[this.focusedUserId].setPath_(path);
+          this.appsByUserId[this.focusedUserId].setPath_(path, true);
         }
         this.set('userOptions.' + optionIndex + '.loaded', true);
         this.set('userOptions.' + optionIndex + '.focused', true);
         this.focusedUserId = userId;
 
-        this.setUrl_(false);
+        this.setUrl_(true);
       },
 
       unloadUserTapped_(e) {

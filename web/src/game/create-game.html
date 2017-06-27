@@ -39,22 +39,39 @@
               width: "third",
             },
             {
+              name:"reg-end-time",
               property: "registrationEndTime",
               label: "End Time",
               type: 'timestamp',
               width: "third",
             },
             {
+              name:"start-time",
               property: "startTime",
               label: "Start Time",
               type: 'timestamp',
               width: "third",
             },
             {
+              name:"end-time",
               property: "endTime",
               label: "End Time",
               type: 'timestamp',
               width: "third",
+            },
+            {
+              name:"declare-resistance-end-time",
+              property: "declareResistanceEndTime",
+              label: "Declare Resistance End Time",
+              type: 'timestamp',
+              width: "half",
+            },
+            {
+              name:"declare-horde-end-time",
+              property: "declareHordeEndTime",
+              label: "Declare Horde End Time",
+              type: 'timestamp',
+              width: "half",
             },
           ],
         };
@@ -80,7 +97,7 @@
                 gameId: gameId,
                 stunTimer: +properties.stunTimer,
                 adminUserId: this.userId,
-                active: true,
+                isActive: true,
                 rulesHtml: '',
                 faqHtml: '',
                 name: properties.name,
@@ -88,6 +105,8 @@
                 registrationEndTime: properties.registrationEndTime,
                 startTime: properties.startTime,
                 endTime: properties.endTime,
+                declareResistanceEndTime: properties.declareResistanceEndTime,
+                declareHordeEndTime: properties.declareHordeEndTime,
               });
               this.bridge.addDefaultProfileImage({
                 gameId: gameId,
@@ -159,6 +178,7 @@
               this.fire('ghvz-set-path', {
                 inGame: false,
                 path: ['game', trimmedGameId, 'main'],
+                replace: true,
               });
             });
       },

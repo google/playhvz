@@ -10,30 +10,32 @@
 
       properties: {
         bridge: Object,
-        categoriesById: Object,
-        categories: Array,
+        game: Object,
         player: Object,
       },
     });
   });
 </script>
 <style>
+  :host {
+    display: block;
+  }
   .notification {
     margin: 8px;
     background-color: white;
   }
 </style>
 <template>
-  <template is="dom-repeat" items="[[player.notifications]]" as="notification">
+  <template is="dom-repeat" items="[[player.private.notifications]]" as="notification">
     <template is="dom-if" if="[[!notification.seenTime]]">
       <paper-material class="notification" elevation="5">
         <ghvz-notification-preview
             bridge="[[bridge]]"
-            player-id="[[player.id]]"
-            categories-by-id="[[categoriesById]]"
-            categories="[[categories]]"
+            player="[[player]]"
+            game="[[game]]"
             notification="[[notification]]"
-            with-close>
+            with-close
+            navigate-on-tap>
         </ghvz-notification-preview>
       </paper-material>
     </template>

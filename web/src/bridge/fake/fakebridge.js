@@ -9,7 +9,7 @@ class FakeBridge {
     var fakeServer = new FakeServer(idGenerator, this.teeWriter, new Date().getTime());
     var checkedServer = new CheckedServer(idGenerator, fakeServer, Bridge.METHODS_MAP);
     var cloningFakeSerer = new CloningWrapper(checkedServer, Bridge.METHODS);
-    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, Bridge.METHODS, 100);
+    var delayingCloningFakeServer = new DelayingWrapper(cloningFakeSerer, Bridge.METHODS);
     this.server = delayingCloningFakeServer;
 
     window.fakeBridge = this;
@@ -81,23 +81,39 @@ function CloningWrapper(inner, funcNames) {
   }
 }
 
-function DelayingWrapper(inner, funcNames, delay) {
-  delay = delay || 100;
+function DelayingWrapper(inner, funcNames) {
+  let delay = Utils.getParameterByName('fakeServerDelay', 100);
+  let synchronous = delay == 'synchronous';
+
   for (const funcName of funcNames) {
     this[funcName] = function(...args) {
       // console.log('Making request', funcName, ...args);
       return new Promise((resolve, reject) => {
-        setTimeout(() => {
+        let execute = () => {
           try {
             // console.log('Recipient received request', funcName, ...args);
             const result = inner[funcName](...args);
             // console.log('Recipient responding with', result);
-            setTimeout(() => resolve(result), delay);
+            if (synchronous)
+              resolve(result);
+            else
+              setTimeout(() => resolve(result), delay);
+
           } catch (error) {
+
             console.error(error);
-            setTimeout(() => reject(error), delay);
+
+            if (synchronous)
+              reject(error);
+            else
+              setTimeout(() => reject(error), delay);
           }
-        }, delay);
+        };
+
+        if (synchronous)
+          execute();
+        else
+          setTimeout(execute, delay);
       });
     };
   }

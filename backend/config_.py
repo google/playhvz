@@ -2,8 +2,6 @@
 # Then follow the instructions in README to fill in these values.
 FIREBASE_SECRET = ''
 FIREBASE_EMAIL = ''
-IONIC_TOKEN = ''
-IONIC_APPID = ''
-IONIC_SECURITY_TAG = ''
 FIREBASE_CONFIG = { ... }
+FIREBASE_APIKEY = ''
 # FAKE_USER_IDS = { ... } coming soon!

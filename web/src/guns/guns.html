@@ -82,6 +82,7 @@
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
                 this.bridge.updateGun({
+                  gameId: this.game.id,
                   gunId: gun.id,
                   label: properties.label,
                 });
@@ -92,24 +93,15 @@
           return playerIdOrNull && this.game.playersById[playerIdOrNull].name || "(none)";
         },
 
-        onSetGunPlayer_: function(e) {
-          let playerOrNull = e.detail.playerOrNull;
-          this.bridge.assignGun({
-            gameId: this.game.id,
-            gunId: this.editingGunIdOrNull,
-            playerId: playerOrNull && playerOrNull.id || null,
-          });
-          this.appendChild(this.$.travelingPlayerField);
-        },
-
-        summonTravelingPlayerField_: function(e) {
+        changePlayer_: function(e) {
           let gunId = e.target.dataset.gunId;
-          this.editingGunIdOrNull = gunId;
-          this.$.travelingPlayerField.playerInputValue = '';
-          this.$.travelingPlayerField.matchingPlayerOrNull = null;
-          this.$.travelingPlayerField.playerIdOrNull = this.game.gunsById[gunId].playerId;
-          let cell = e.target.closest('.cell');
-          cell.insertBefore(this.$.travelingPlayerField, cell.childNodes[0]);
+          this.$.playerDialog.open().then((playerIdOrNull) => {
+            this.bridge.assignGun({
+              gameId: this.game.id,
+              gunId: gunId,
+              playerId: playerIdOrNull && playerIdOrNull || null,
+            });
+          });
         },
       });
     });
@@ -146,16 +138,11 @@
     <paper-icon-button id="add" icon="icons:add" on-tap="addGun_">
     </paper-icon-button>
 
-    <ghvz-player-field 
-        id="travelingPlayerField"
-        players="[[game.players]]"
-        players-by-id="[[game.playersById]]"
-        on-set-player="onSetGunPlayer_"
-        label="Player">
-    </ghvz-player-field>
+    <ghvz-player-dialog id="playerDialog" game="[[game]]"></ghvz-player-dialog>
 
     <ghvz-table
         id="table"
+        name="gun-table"
         blueprint="[[makeTableBlueprint_()]]"
         items="[[game.guns]]">
       <template is="dom-repeat" id="repeater" items="[[game.guns]]" as="gun" initial-count="1" target-framerate="5">
@@ -165,7 +152,7 @@
           <div class="cell">
             <div class="player-label">
               <div 
-                class="pencil" data-gun-id$="[[gun.id]]" on-tap="summonTravelingPlayerField_"></div>
+                class="pencil" data-gun-id$="[[gun.id]]" on-tap="changePlayer_"></div>
               [[computePlayerName_(gun.playerId)]]
             </div>
           </div>

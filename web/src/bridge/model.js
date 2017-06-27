@@ -4,242 +4,261 @@ window.Model = (function() {
 
 var Model = {};
 
-const GUN_PROPERTIES = ["gameId", "playerId", "label"];
-const GUN_COLLECTIONS = [];
+Model.GUN_PROPERTIES = ["gameId", "playerId", "label"];
+Model.GUN_COLLECTIONS = [];
 Model.Gun = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, GUN_PROPERTIES);
-  Utils.addEmptyLists(this, GUN_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.GUN_PROPERTIES);
+  Utils.addEmptyLists(this, Model.GUN_COLLECTIONS);
 }
 
-const USER_PROPERTIES = [];
-const USER_COLLECTIONS = ["players"];
+Model.USER_PROPERTIES = ["deviceToken", "a"];
+Model.USER_COLLECTIONS = ["publicPlayers"];
 Model.User = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, USER_PROPERTIES);
-  Utils.addEmptyLists(this, USER_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.USER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.USER_COLLECTIONS);
 }
 
-const USER_PLAYER_PROPERTIES = ["gameId", "userId"];
-const USER_PLAYER_COLLECTIONS = [];
-Model.UserPlayer = function(id, args) {
+Model.USER_PUBLIC_PLAYER_PROPERTIES = ["gameId", "userId"];
+Model.USER_PUBLIC_PLAYER_COLLECTIONS = [];
+Model.UserPublicPlayer = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, USER_PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, USER_PLAYER_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.USER_PUBLIC_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.USER_PUBLIC_PLAYER_COLLECTIONS);
 }
 
-const GAME_PROPERTIES = ["active", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId"];
-const GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "notificationCategories", "quizQuestions", "groups", "maps", "defaultProfileImages"];
+Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId", "startTime", "endTime", "registrationEndTime", "declareHordeEndTime", "declareResistanceEndTime"];
+Model.GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "queuedNotifications", "quizQuestions", "groups", "maps", "defaultProfileImages"];
 Model.Game = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, GAME_PROPERTIES);
-  Utils.addEmptyLists(this, GAME_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.GAME_PROPERTIES);
+  Utils.addEmptyLists(this, Model.GAME_COLLECTIONS);
 }
 
-const QUIZ_QUESTION_PROPERTIES = ["text", "type"];
-const QUIZ_QUESTION_COLLECTIONS = ["answers"];
+Model.QUIZ_QUESTION_PROPERTIES = ["text", "type", "number"];
+Model.QUIZ_QUESTION_COLLECTIONS = ["answers"];
 Model.QuizQuestion = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, QUIZ_QUESTION_PROPERTIES);
-  Utils.addEmptyLists(this, QUIZ_QUESTION_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.QUIZ_QUESTION_PROPERTIES);
+  Utils.addEmptyLists(this, Model.QUIZ_QUESTION_COLLECTIONS);
 }
 
-const QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order"];
-const QUIZ_ANSWER_COLLECTIONS = [];
+Model.QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order", "number"];
+Model.QUIZ_ANSWER_COLLECTIONS = [];
 Model.QuizAnswer = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, QUIZ_ANSWER_PROPERTIES);
-  Utils.addEmptyLists(this, QUIZ_ANSWER_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.QUIZ_ANSWER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.QUIZ_ANSWER_COLLECTIONS);
 }
 
-const GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "canAddOthers", "canRemoveOthers", "canAddSelf", "canRemoveSelf", "autoRemove", "ownerPlayerId"];
-const GROUP_COLLECTIONS = ["memberships"];
+Model.GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "canAddOthers", "canRemoveOthers", "canAddSelf", "canRemoveSelf", "autoRemove", "ownerPlayerId"];
+Model.GROUP_COLLECTIONS = ["players"];
 Model.Group = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, GROUP_PROPERTIES);
-  Utils.addEmptyLists(this, GROUP_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.GROUP_PROPERTIES);
+  Utils.addEmptyLists(this, Model.GROUP_COLLECTIONS);
 }
 
-const CHAT_ROOM_PROPERTIES = ["gameId", "name", "accessGroupId", "withAdmins"];
-const CHAT_ROOM_COLLECTIONS = ["messages", "requestCategories"];
+Model.CHAT_ROOM_PROPERTIES = ["gameId", "name", "accessGroupId", "withAdmins"];
+Model.CHAT_ROOM_COLLECTIONS = ["messages", "requestCategories"];
 Model.ChatRoom = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, CHAT_ROOM_PROPERTIES);
-  Utils.addEmptyLists(this, CHAT_ROOM_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.CHAT_ROOM_PROPERTIES);
+  Utils.addEmptyLists(this, Model.CHAT_ROOM_COLLECTIONS);
 }
 
-const MAP_PROPERTIES = ["gameId", "name", "groupId"];
-const MAP_COLLECTIONS = ["points"];
+Model.MAP_PROPERTIES = ["gameId", "name", "groupId"];
+Model.MAP_COLLECTIONS = ["markers"];
 Model.Map = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, MAP_PROPERTIES);
-  Utils.addEmptyLists(this, MAP_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.MAP_PROPERTIES);
+  Utils.addEmptyLists(this, Model.MAP_COLLECTIONS);
 }
 
-const POINT_PROPERTIES = ["name", "color", "playerId", "latitude", "longitude"];
-const POINT_COLLECTIONS = [];
-Model.Point = function(id, args) {
+Model.MARKER_PROPERTIES = ["name", "color", "playerId", "latitude", "longitude"];
+Model.MARKER_COLLECTIONS = [];
+Model.Marker = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, POINT_PROPERTIES);
-  Utils.addEmptyLists(this, POINT_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.MARKER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.MARKER_COLLECTIONS);
 }
 
-const GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
-const GROUP_MEMBERSHIP_COLLECTIONS = [];
-Model.GroupMembership = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, GROUP_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, GROUP_MEMBERSHIP_COLLECTIONS);
-}
+// Model.GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
+// Model.GROUP_MEMBERSHIP_COLLECTIONS = [];
+// Model.GroupMembership = function(id, args) {
+//   this.id = id;
+//   Utils.copyProperties(this, args, Model.GROUP_MEMBERSHIP_PROPERTIES);
+//   Utils.addEmptyLists(this, Model.GROUP_MEMBERSHIP_COLLECTIONS);
+// }
 
-const PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId"];
-const PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
+Model.PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId", "isVisible"];
+Model.PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
 Model.PlayerChatRoomMembership = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
+  assert(this.chatRoomId);
 }
 
-const PLAYER_MISSION_MEMBERSHIP_PROPERTIES = ["missionId"];
-const PLAYER_MISSION_MEMBERSHIP_COLLECTIONS = [];
+Model.PLAYER_MISSION_MEMBERSHIP_PROPERTIES = ["missionId"];
+Model.PLAYER_MISSION_MEMBERSHIP_COLLECTIONS = [];
 Model.PlayerMissionMembership = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, PLAYER_MISSION_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, PLAYER_MISSION_MEMBERSHIP_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.PLAYER_MISSION_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PLAYER_MISSION_MEMBERSHIP_COLLECTIONS);
 }
 
-const PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
-const PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
+Model.PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
+Model.PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
 Model.PlayerGroupMembership = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, PLAYER_GROUP_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, PLAYER_GROUP_MEMBERSHIP_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.PLAYER_GROUP_MEMBERSHIP_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PLAYER_GROUP_MEMBERSHIP_COLLECTIONS);
 }
 
-const MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
-const MESSAGE_COLLECTIONS = [];
+Model.MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
+Model.MESSAGE_COLLECTIONS = [];
 Model.Message = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, MESSAGE_PROPERTIES);
-  Utils.addEmptyLists(this, MESSAGE_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.MESSAGE_PROPERTIES);
+  Utils.addEmptyLists(this, Model.MESSAGE_COLLECTIONS);
 }
 
-const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
-const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
+Model.REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
+Model.REQUEST_CATEGORY_COLLECTIONS = ["requests"];
 Model.RequestCategory = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, REQUEST_CATEGORY_PROPERTIES);
-  Utils.addEmptyLists(this, REQUEST_CATEGORY_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.REQUEST_CATEGORY_PROPERTIES);
+  Utils.addEmptyLists(this, Model.REQUEST_CATEGORY_COLLECTIONS);
 }
 
-const REQUEST_PROPERTIES = ["playerId", "response"];
-const REQUEST_COLLECTIONS = [];
+Model.REQUEST_PROPERTIES = ["playerId", "response"];
+Model.REQUEST_COLLECTIONS = [];
 Model.Request = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, REQUEST_PROPERTIES);
-  Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.REQUEST_PROPERTIES);
+  Utils.addEmptyLists(this, Model.REQUEST_COLLECTIONS);
 }
 
-const RESPONSE_PROPERTIES = ["time", "text"];
-const RESPONSE_COLLECTIONS = [];
+Model.RESPONSE_PROPERTIES = ["time", "text"];
+Model.RESPONSE_COLLECTIONS = [];
 Model.Response = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, RESPONSE_PROPERTIES);
-  Utils.addEmptyLists(this, RESPONSE_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.RESPONSE_PROPERTIES);
+  Utils.addEmptyLists(this, Model.RESPONSE_COLLECTIONS);
 }
 
-const MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "accessGroupId", "rsvpersGroupId"];
-const MISSION_COLLECTIONS = [];
+Model.MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "accessGroupId", "rsvpersGroupId"];
+Model.MISSION_COLLECTIONS = [];
 Model.Mission = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, MISSION_PROPERTIES);
-  Utils.addEmptyLists(this, MISSION_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.MISSION_PROPERTIES);
+  Utils.addEmptyLists(this, Model.MISSION_COLLECTIONS);
 }
 
-const ADMIN_PROPERTIES = ["userId"];
-const ADMIN_COLLECTIONS = [];
+Model.ADMIN_PROPERTIES = ["userId"];
+Model.ADMIN_COLLECTIONS = [];
 Model.Admin = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, ADMIN_PROPERTIES);
-  Utils.addEmptyLists(this, ADMIN_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.ADMIN_PROPERTIES);
+  Utils.addEmptyLists(this, Model.ADMIN_COLLECTIONS);
 }
 
-const NOTIFICATION_CATEGORY_PROPERTIES = ["gameId", "name", "message", "previewMessage", "sendTime", "allegianceFilter", "email", "app", "sound", "vibrate", "destination", "icon"];
-const NOTIFICATION_CATEGORY_COLLECTIONS = [];
-Model.NotificationCategory = function(id, args) {
+Model.QUEUED_NOTIFICATION_PROPERTIES = ["gameId", "message", "site", "mobile", "previewMessage", "sendTime", "sent", "groupId", "email", "sound", "vibrate", "destination", "icon"];
+Model.QUEUED_NOTIFICATION_COLLECTIONS = [];
+Model.QueuedNotification = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, NOTIFICATION_CATEGORY_PROPERTIES);
-  Utils.addEmptyLists(this, NOTIFICATION_CATEGORY_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.QUEUED_NOTIFICATION_PROPERTIES);
+  Utils.addEmptyLists(this, Model.QUEUED_NOTIFICATION_COLLECTIONS);
 }
 
-const PLAYER_PROPERTIES = ["active", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
-const PLAYER_COLLECTIONS = ["infections", "lives", "claims", "notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships"];
-const PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
-const PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
-Model.Player = function(id, args) {
+Model.PUBLIC_PLAYER_PROPERTIES = ["isActive", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "privatePlayerId", "private"];
+Model.PUBLIC_PLAYER_COLLECTIONS = ["infections", "lives", "claims"];
+Model.PublicPlayer = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, PLAYER_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.PUBLIC_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PUBLIC_PLAYER_COLLECTIONS);
+  if (!this.private)
+    this.private = null;
+}
+
+Model.PRIVATE_PLAYER_PROPERTIES = ["isActive", "beInPhotos", "userId", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
+Model.PRIVATE_PLAYER_COLLECTIONS = ["notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships", "mapMemberships"];
+Model.PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
+Model.PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
+Model.PrivatePlayer = function(id, args) {
+  this.id = id;
+  Utils.copyProperties(this, args, Model.PRIVATE_PLAYER_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PRIVATE_PLAYER_COLLECTIONS);
   this.volunteer = {};
-  Utils.copyProperties(this.volunteer, args.volunteer, PLAYER_VOLUNTEER_PROPERTIES);
+  Utils.copyProperties(this.volunteer, args.volunteer, Model.PRIVATE_PLAYER_VOLUNTEER_PROPERTIES);
   this.notificationSettings = {};
-  Utils.copyProperties(this.notificationSettings, args.notificationSettings, PLAYER_NOTIFICATION_SETTINGS_PROPERTIES);
+  Utils.copyProperties(this.notificationSettings, args.notificationSettings, Model.PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES);
 }
 
-const CLAIM_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
-const CLAIM_COLLECTIONS = [];
+Model.CLAIM_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
+Model.CLAIM_COLLECTIONS = [];
 Model.Claim = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, CLAIM_PROPERTIES);
-  Utils.addEmptyLists(this, CLAIM_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.CLAIM_PROPERTIES);
+  Utils.addEmptyLists(this, Model.CLAIM_COLLECTIONS);
 }
 
-const LIFE_PROPERTIES = ["time", "code"];
-const LIFE_COLLECTIONS = [];
-Model.Life = function(id, args) {
+Model.PUBLIC_LIFE_PROPERTIES = ["time", "private", "privateLifeId", "gameId"];
+Model.PUBLIC_LIFE_COLLECTIONS = [];
+Model.PublicLife = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, LIFE_PROPERTIES);
-  Utils.addEmptyLists(this, LIFE_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.PUBLIC_LIFE_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PUBLIC_LIFE_COLLECTIONS);
 }
 
-const INFECTION_PROPERTIES = ["time", "infectorId"];
-const INFECTION_COLLECTIONS = [];
+Model.PRIVATE_LIFE_PROPERTIES = ["code", "gameId"];
+Model.PRIVATE_LIFE_COLLECTIONS = [];
+Model.PrivateLife = function(id, args) {
+  this.id = id;
+  Utils.copyProperties(this, args, Model.PRIVATE_LIFE_PROPERTIES);
+  Utils.addEmptyLists(this, Model.PRIVATE_LIFE_COLLECTIONS);
+}
+
+Model.INFECTION_PROPERTIES = ["time", "infectorId"];
+Model.INFECTION_COLLECTIONS = [];
 Model.Infection = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, INFECTION_PROPERTIES);
-  Utils.addEmptyLists(this, INFECTION_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.INFECTION_PROPERTIES);
+  Utils.addEmptyLists(this, Model.INFECTION_COLLECTIONS);
 }
 
-const NOTIFICATION_PROPERTIES = ["message", "previewMessage", "notificationCategoryId", "seenTime", "sound", "vibrate", "app", "email", "destination"];
-const NOTIFICATION_COLLECTIONS = [];
+Model.NOTIFICATION_PROPERTIES = ["message", "previewMessage", "queuedNotificationId", "seenTime", "sound", "vibrate", "site", "mobile", "time", "email", "destination"];
+Model.NOTIFICATION_COLLECTIONS = [];
 Model.Notification = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, NOTIFICATION_PROPERTIES);
-  Utils.addEmptyLists(this, NOTIFICATION_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.NOTIFICATION_PROPERTIES);
+  Utils.addEmptyLists(this, Model.NOTIFICATION_COLLECTIONS);
 }
 
-const REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl"];
-const REWARD_CATEGORY_COLLECTIONS = ["rewards"];
+Model.REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl", "gameId", "description"];
+Model.REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 Model.RewardCategory = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, REWARD_CATEGORY_PROPERTIES);
-  Utils.addEmptyLists(this, REWARD_CATEGORY_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.REWARD_CATEGORY_PROPERTIES);
+  Utils.addEmptyLists(this, Model.REWARD_CATEGORY_COLLECTIONS);
 }
 
-const REWARD_PROPERTIES = ["playerId", "code"];
-const REWARD_COLLECTIONS = [];
+Model.REWARD_PROPERTIES = ["playerId", "code", "rewardCategoryId", "gameId"];
+Model.REWARD_COLLECTIONS = [];
 Model.Reward = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, REWARD_PROPERTIES);
-  Utils.addEmptyLists(this, REWARD_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.REWARD_PROPERTIES);
+  Utils.addEmptyLists(this, Model.REWARD_COLLECTIONS);
 }
 
-const DEFAULT_PROFILE_IMAGE_PROPERTIES = ["gameId", "defaultProfileImageId", "allegianceFilter", "profileImageUrl"];
-const DEFAULT_PROFILE_IMAGE_COLLECTIONS = [];
+Model.DEFAULT_PROFILE_IMAGE_PROPERTIES = ["gameId", "defaultProfileImageId", "allegianceFilter", "profileImageUrl"];
+Model.DEFAULT_PROFILE_IMAGE_COLLECTIONS = [];
 Model.DefaultProfileImage = function(id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, DEFAULT_PROFILE_IMAGE_PROPERTIES);
-  Utils.addEmptyLists(this, DEFAULT_PROFILE_IMAGE_COLLECTIONS);
+  Utils.copyProperties(this, args, Model.DEFAULT_PROFILE_IMAGE_PROPERTIES);
+  Utils.addEmptyLists(this, Model.DEFAULT_PROFILE_IMAGE_COLLECTIONS);
 }
 
 

@@ -22,14 +22,19 @@
 
       observers: [
         'onMissionIdChanged_(game, missionId)',
-        'onMissionHtmlChanged(mission.detailsHtml)',
+        'onMissionHtmlChanged_(mission.detailsHtml)',
+        'onMissionNameChanged_(mission.name)',
       ],
+
+      onMissionNameChanged_() {
+        this.fire('ghvz-set-card-header-text', { headerText: this.mission.name });
+      },
 
       onMissionIdChanged_() {
         this.$.selector.select(this.game.missionsById[this.missionId]);
       },
 
-      onMissionHtmlChanged(detailsHtml) {
+      onMissionHtmlChanged_(detailsHtml) {
         this.$.mission.innerHTML = detailsHtml;
       }
     });
@@ -43,11 +48,16 @@
 </style>
 <template>
   <array-selector id="selector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
+
+  <!-- for webdrivers -->
+  <div style="height: 1px" name$="mission-[[mission.name]]"></div>
+  
   <div id="mission"></div>
   <ghvz-rsvp
       bridge="[[bridge]]"
       game="[[game]]"
       player="[[player]]"
-  mission-id="[[missionId]]"></ghvz-rsvp>
+      mission-id="[[missionId]]">
+  </ghvz-rsvp>
 </template>
 </dom-module>

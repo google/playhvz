@@ -41,15 +41,14 @@
   }
 </style>
 <template>
-  <template is="dom-repeat" items="[[game.missions]]" as="mission">
+  <template is="dom-repeat" items="[[player.private.missionMemberships]]" as="missionMembership">
     <ghvz-card spaced>
-      <div class="header">[[mission.name]]</div>
       <ghvz-mission
           bridge="[[bridge]]"
           player="[[player]]"
-          game-id="[[game.id]]"
+          game="[[game]]"
           player-id="[[playerId]]"
-          mission="[[mission]]">
+          mission-id="[[missionMembership.missionId]]">
       </ghvz-mission>
     </ghvz-card>
   </template>

@@ -39,10 +39,11 @@
         this.bridge.createPlayer(
             Utils.merge(
                 {
-                  playerId: this.bridge.newPlayerId(),
+                  playerId: this.bridge.newPublicPlayerId(),
+                  privatePlayerId: this.bridge.newPrivatePlayerId(),
                   userId: this.userId,
                   gameId: this.game.id,
-                  active: true,
+                  isActive: true,
                   canInfect: false,
                   profileImageUrl: "",
                   wantToBeSecretZombie: false,
@@ -57,6 +58,7 @@
         this.fire('ghvz-set-path', {
           inGame: true,
           path: ['main'],
+          replace: true,
         });
       },
 
@@ -157,7 +159,7 @@
           {value: "server", text: "Server Dev", subText: "Help create our backend server to make the game as awesome as possible!"},
           {value: "client", text: "Client Dev", subText: "Help create our website so everyone can stay connected!"},
           {value: "android", text: "Android Dev", subText: "Help create our Android app!"},
-          {value: "ios", text: "Android Dev", subText: "Help create our iOS app!"},
+          {value: "ios", text: "iOS Dev", subText: "Help create our iOS app!"},
         ];
       },
 
@@ -253,7 +255,7 @@
 
     <neon-animatable>
       <ghvz-interview-option-page
-          name="joingGameTakePhotos"
+          name="joinGameTakePhotos"
           options="[[makeTakePhotoOptions()]]"
           on-ghvz-interview-page-done="handlePhotosPageDone_">
         <div class="maintext">Are you ok with photos including your face being taken during the game?</div>

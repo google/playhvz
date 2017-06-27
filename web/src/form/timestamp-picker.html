@@ -41,12 +41,21 @@
             if (newTimestamp) {
               var date = new Date(newTimestamp);
               this.$.year.value = date.getYear() + 1900;
-              this.$.month.value = date.getMonth();
+              this.$.month.value = date.getMonth() + 1;
               this.$.day.value = date.getDate();
 
+              let pm = false;
               let time = "";
-              let pm = date.getHours() > 12;
-              time += date.getHours() - (pm ? 12 : 0);
+              let hours = date.getHours();
+              if (hours >= 12) {
+                hours -= 12;
+                pm = true;
+              }
+              if (hours == 0) {
+                hours = 12;
+              }
+
+              time += hours;
               time += ":";
               time += (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
               time += (pm ? "pm" : "am");
@@ -76,19 +85,22 @@
             let hour = +timeMatch[1];
             let minute = +timeMatch[2];
             let pm = timeMatch[3] == "pm";
+            if (hour == 12)
+              hour = 0;
             hour += (pm ? 12 : 0);
-            let date = new Date(year, month, day, hour, minute);
-            assert(date.getYear() + 1900 == year);
-            assert(date.getMonth() == month);
-            assert(date.getDate() == day);
-            assert(date.getHours() == hour);
-            assert(date.getMinutes() == minute);
-            this.timestamp = date.getTime();
-            this.removeAttribute("invalid");
-          } else {
-            console.error('invalid date');
-            this.setAttribute("invalid", "");
+            let date = new Date(year, month - 1, day, hour, minute);
+            if (date.getYear() + 1900 == year &&
+                (date.getMonth() + 1) == month &&
+                date.getDate() == day &&
+                date.getHours() == hour &&
+                date.getMinutes() == minute) {
+              this.timestamp = date.getTime();
+              this.removeAttribute("invalid");
+              return;
+            }
           }
+          console.error('invalid date');
+          this.setAttribute("invalid", "");
         },
 
         onYearChange_: function(newYear, oldYear) {
@@ -105,6 +117,10 @@
 
         onTimeChange_: function(newTime, oldTime) {
           this.updateTimestamp_();
+        },
+
+        focus() {
+          this.$.year.focus();
         },
       });
     });
