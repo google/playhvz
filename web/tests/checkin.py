@@ -1,5 +1,6 @@
 import setup
 import time
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time #bad bad bad
 
@@ -22,7 +23,7 @@ try:
   driver.Click([[By.ID, 'add']])
   driver.SendKeys(
         [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        '3.14') # Crashed here once
+        '3.14') # Crashed here a few times (element not visible, although it looks invisible)
  
   driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
 
@@ -31,10 +32,9 @@ try:
 
   # Assign player a gun
   driver.Click([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'pencil']])
-  driver.SendKeys(
-        [[By.NAME, 'gun-row-3.14'], [By.TAG_NAME, 'input']],
-        'JackSlayerTheBeanSlasher')
-  driver.Click([[By.NAME, 'gun-row-3.14'], [By.ID, 'setButton']])
+
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'JackSlayerTheBeanSlasher')
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
 
   # Show that player shows up as having the gun
   driver.ExpectContains([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'player-label']], "JackSlayerTheBeanSlasher")
@@ -46,9 +46,8 @@ try:
         'pancake')
   driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
   driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.TAG_NAME, 'input']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.NAME, '103: MoldaviTheMoldavish']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.ID, 'setButton']])
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'MoldaviTheMoldavish')
+  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
 
   # Search by label
   driver.Click([[By.NAME, 'header-Label'], [By.NAME, 'icon-search']])
@@ -157,9 +156,9 @@ try:
   driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
 
   # Search by notes
-  driver.Click([[By.NAME, 'header-Notes'], [By.NAME, 'icon-search']])
+  driver.Click([[By.NAME, 'header-Extra'], [By.NAME, 'icon-search']])
   driver.SendKeys(
-        [[By.NAME, 'header-Notes'], [By.TAG_NAME, 'input']],
+        [[By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
         'zap')
   # TODO(olivia): devise a way to check that these rows are visible or not
   # driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up

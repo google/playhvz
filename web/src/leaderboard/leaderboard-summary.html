@@ -109,6 +109,13 @@
             name$="Leaderboard Name Cell [[player.name]]"
             class="cell">
           [[player.name]]
+          <template is="dom-repeat" items="[[player.claims]]" as="claim">
+            <ghvz-reward-category
+                bridge="[[bridge]]"
+                game="[[game]]"
+                reward-category-id="[[claim.rewardCategoryId]]" badgeOnly>
+            </ghvz-reward-category>
+          </template>
         </div>
         <div
             name$="Leaderboard Allegiance Cell [[player.name]]"

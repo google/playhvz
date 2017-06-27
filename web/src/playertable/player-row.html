@@ -45,6 +45,20 @@
         computeGotEquipmentString_(gotEquipment) {
           return gotEquipment ? "Yes" : "No";
         },
+        computeExtra_(notes, beInPhotos, wantToBeSecretZombie, isActive) {
+          // Keep this code in sync with player-table.html
+          // TODO: Find a place to combine these
+          let sections = [];
+          if (notes)
+            sections.push('"' + notes + '"');
+          if (!beInPhotos)
+            sections.push('!Photos');
+          if (wantToBeSecretZombie)
+            sections.push('WP');
+          if (!isActive)
+            sections.push('!Active');
+          return sections.join(' ');
+        },
       });
     });
   </script>
@@ -68,17 +82,17 @@
     <div id="number">
       [[player.number]]
     </div>
-    <a id="name" href="[[computePlayerProfileLink_(game, player.id)]]" on-tap="handleProfileLink_" inactive$="[[!player.active]]">
+    <a id="name" href="[[computePlayerProfileLink_(game, player.id)]]" on-tap="handleProfileLink_" inactive$="[[!player.isActive]]">
       [[player.name]]
     </a>
     <div id="allegiance">
       [[computeAllegiance_(player.allegiance)]]
     </div>
     <div id="gotEquipment">
-      [[computeGotEquipmentString_(player.gotEquipment)]]
+      [[computeGotEquipmentString_(player.private.gotEquipment)]]
     </div>
-    <div id="notes">
-      [[player.notes]]
+    <div id="extra">
+      [[computeExtra_(player.private.notes, player.private.beInPhotos, player.private.wantToBeSecretZombie, player.isActive)]]
     </div>
   </template>
 </dom-module>

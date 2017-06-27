@@ -186,11 +186,11 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminRewards, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="admin-rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Rewards</div>
       <ghvz-rewards
           bridge="[[bridge]]"
-          game-id="[[game.id]]"
+          game="[[game]]"
           players-by-id="[[game.playersById]]"
           reward-categories="[[game.rewardCategories]]"
           reward-categories-by-id="[[game.rewardCategoriesById]]">
@@ -232,7 +232,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.rules, mostRecentPage)]]">
-    <ghvz-card expand name="rules-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="rules-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">Rules</div>
       <ghvz-rules bridge="[[bridge]]" game="[[game]]" is-admin="[[isAdmin]]"></ghvz-rules>
     </ghvz-card>
@@ -267,7 +267,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.profile, mostRecentPage)]]">
-    <ghvz-card expand name="profile-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand padded name="profile-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <ghvz-profile-page
           class="content"
           bridge="[[bridge]]"

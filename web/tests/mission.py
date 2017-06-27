@@ -54,18 +54,25 @@ driver = setup.MakeDriver(user="zella")
 try:
 
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
 
   driver.Click([[By.NAME, 'drawerAdmin Missions']])
 
   driver.Click([[By.NAME, 'close-notification']])
 
 
-  # try: # If the user has a notification, close it
-  #   driver.Click([[By.NAME, 'close-notification']])
-  # finally:
-  #   pass
+  # Delete the two missions which start out there 
+  driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.ID, 'menu']])
+  driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.NAME, 'menu-item-Delete']])
+  
+  driver.Click([[By.NAME, "mission-row-first human mission!"], [By.ID, 'menu']])
+  driver.Click([[By.NAME, "mission-row-first human mission!"], [By.NAME, 'menu-item-Delete']])
 
+
+  # Make sure both humans and zombies get a default message when no missions are posted. #TODO(aliengirl): Do this!!!
+
+
+  # Log back in as an admin.
 
   # Create a human mission
   driver.Click([[By.ID, 'add']])
@@ -104,16 +111,16 @@ try:
     driver.Click([[By.NAME, 'drawerButton']])
 
   driver.Click([[By.NAME, 'drawerMissions']])
-  #driver.ExpectContains([[By.NAME, 'mission-card']], 'insert witty and entertaining name here') TODO - can't get this to work yet
-
-  # Log in as a zombie (Deckerd), make sure he can see the zombie mission
-  driver.SwitchUser('deckerd')
+  driver.FindElement([[By.NAME, 'mission-insert witty and entertaining name here']])
+  
+  # Log in as a zombie (Zeke), make sure he can see the zombie mission
+  driver.SwitchUser('zeke')
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'drawerButton']])
     
   driver.Click([[By.NAME, 'drawerMissions']])
-  # driver.ExpectContains([[By.NAME, 'mission-card']], 'zed mission') TODO - this can't get this to work yet
+  #driver.ExpectContains([[By.NAME, 'mission-card']], 'zed mission') #TODO - this can't get this to work yet
 
   # TODO - ONCE IMPLEMENTED... 
   # As an admin, create a mission for humans who RSVP'd to the mission

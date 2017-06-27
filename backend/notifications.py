@@ -1,29 +1,33 @@
 import logging
 import random
+import db_helpers as helpers
 import time
 
-import ionic
 import config
+import pyfcm
+
+if config.FIREBASE_APIKEY:
+  fcm = pyfcm.FCMNotification(api_key=config.FIREBASE_APIKEY)
 
 def HandleNotification(game_state, queued_notification_id, queued_notification):
   """Helper function to propogate a notification."""
 
   if 'playerId' in queued_notification and queued_notification['playerId'] is not None:
-    player_ids = set([queued_notification['playerId']])
+    public_player_ids = [queued_notification['playerId']]
   elif 'groupId' in queued_notification:
-    player_ids = game_state.get('/groups/%s' % queued_notification['groupId'], 'players')
-    if player_ids is None:
-      player_ids = []
+    public_player_ids = game_state.get('/groups/%s' % queued_notification['groupId'], 'players')
+    if public_player_ids is None:
+      public_player_ids = []
     else:
-      player_ids = set(player_ids)
+      public_player_ids = sorted(public_player_ids)
   else:
     logging.error('Queued notification %s does not have a playerId or a groupId!' % (
         queued_notification_id))
     return
 
-  device_tokens = set()
+  device_tokens = []
 
-  for index, player_id in enumerate(player_ids):
+  for index, public_player_id in enumerate(public_player_ids):
     notification_id = queued_notification_id.replace('queuedNotification-', 'notification-', 1) + '-' + str(index)
     notification = {
       'queuedNotificationId': queued_notification_id,
@@ -33,17 +37,20 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
       'time': int(time.time() * 1000),
       'icon': queued_notification['icon'] if 'icon' in queued_notification else None,
     }
-    game_state.put('/playersPrivate/%s/notifications' % player_id,
+    private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
+    game_state.put('/privatePlayers/%s/notifications' % private_player_id,
                   notification_id, notification)
 
     if queued_notification['mobile']:
-      user_id = game_state.get('/playersPublic/%s' % queued_notification['gameId'], 'userId')
+      user_id = game_state.get('/publicPlayers/%s' % public_player_id, 'userId')
       user = game_state.get('/users', user_id)
       if 'deviceToken' in user:
-        tokens.add(user['deviceToken'])
-
-  # TODO: Send notification to device_tokens
-
+        device_tokens.add(user['deviceToken'])
+  if len(device_tokens) == 0:
+    return
+  if config.FIREBASE_APIKEY:
+    fcm.notify_multiple_devices(registration_ids=list(device_tokens),
+                                data_message=notification)
 
 def ExecuteNotifications(request, game_state):
   """INTERNAL ONLY: Send the notifications.

@@ -204,7 +204,7 @@
     </div>
     <div id="ordered">
       <template id="repeater" is="dom-repeat" items="[[question.answers]]" as="answer">
-        <iron-collapse class="answer" data-answer-id$="[[answer.id]]">
+        <iron-collapse class="answer" name$="selected[[computeAnswerIndex_(answer)]]" data-answer-id$="[[answer.id]]">
           <paper-material>
             [[answer.text]]
           </paper-material>

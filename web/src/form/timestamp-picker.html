@@ -41,7 +41,7 @@
             if (newTimestamp) {
               var date = new Date(newTimestamp);
               this.$.year.value = date.getYear() + 1900;
-              this.$.month.value = date.getMonth();
+              this.$.month.value = date.getMonth() + 1;
               this.$.day.value = date.getDate();
 
               let pm = false;
@@ -88,9 +88,9 @@
             if (hour == 12)
               hour = 0;
             hour += (pm ? 12 : 0);
-            let date = new Date(year, month, day, hour, minute);
+            let date = new Date(year, month - 1, day, hour, minute);
             if (date.getYear() + 1900 == year &&
-                date.getMonth() == month &&
+                (date.getMonth() + 1) == month &&
                 date.getDate() == day &&
                 date.getHours() == hour &&
                 date.getMinutes() == minute) {
