@@ -707,7 +707,6 @@ class FakeServer {
       }
     }
   }
-//kangaroo
   switchGroupOwnershipWhenBumped(ownerId, group, game) {
     console.log("IN THE FUNCTION!", group.allegianceFilter)
     var highestPointCount = -1;
@@ -731,14 +730,6 @@ class FakeServer {
       this.writer.set(groupPath.concat(['ownerPlayerId']), highestPlayer.playerId)
     }
   }
-
-
-
-
-// If the person is the owner of a group they're getting kicked from, 
-            // switch ownership to the player in the group with the highest point score
-
-
   setPlayerZombie(gameId, playerId) {
     let publicPlayerPath = this.reader.getPublicPlayerPath(gameId, playerId);
     this.writer.set(publicPlayerPath.concat(["allegiance"]), "horde");
