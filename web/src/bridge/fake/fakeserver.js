@@ -281,7 +281,7 @@ class FakeServer {
   }
 
   sendChatMessage(args) {
-    let {gameId, chatRoomId, playerId, messageId, message} = args;
+    let {gameId, chatRoomId, playerId, messageId} = args;
 
     let game = this.database.gamesById[gameId];
     let player = game.playersById[playerId];

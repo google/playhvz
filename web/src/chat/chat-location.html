@@ -20,10 +20,16 @@
             type: Boolean,
             value: false,
           },
+
+          onSuccess: Object,
         },
 
         listeners: {
           'ghvz-update-location': 'updateLocation_',
+        },
+
+        attached() {
+          this.onSuccess = this.setPosition_.bind(this);
         },
 
         updateLocation_(e) {
@@ -32,13 +38,11 @@
           this.doneEnabled = true;
         }, 
 
-        sendCurrentLocation_() {
-          var success = this.setPosition_.bind(this);
-
-          if (navigator.geolocation) {
-            this.latitude = null;
-            this.longitude = null;
-            navigator.geolocation.getCurrentPosition(success);
+        openSendLocationDialog_() {
+          this.latitude = null;
+          this.longitude = null;
+          if (navigator.geolocation) {   
+            navigator.geolocation.getCurrentPosition(this.onSuccess);
           } else { 
             x.innerHTML = "Geolocation is not supported by this browser.";
           }
@@ -46,16 +50,6 @@
         },
 
         setPosition_(position) {
-          /*var latlon = position.coords.latitude + "," + position.coords.longitude;
-
-          var img_url = "https://maps.googleapis.com/maps/api/staticmap" 
-            + "?center=" + latlon 
-            + "&size=200x200&" 
-            + "markers=|" + latlon 
-            + "&key=AIzaSyBLcysHAt2T64FEilpUEUlrJ34hrEY19cQ";
-
-          document.getElementById("mapContainer").src = img_url;*/
-
           this.fire('ghvz-update-location', {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -70,8 +64,7 @@
             messageId: this.bridge.newMessageId(), 
             chatRoomId: this.chatRoomId, 
             playerId: this.player.id, 
-            message: "hi",
- //           location: {latitude: latitude, longitude: longitude},
+            location: {latitude: latitude, longitude: longitude},
           });
           this.latitude = null;
           this.longitude = null;
@@ -97,7 +90,7 @@
       class="icon-button"
       icon="maps:my-location"
       title="Send current location"
-      on-click="sendCurrentLocation_">
+      on-click="openSendLocationDialog_">
     </paper-icon-button>
     <ghvz-form
         id="sendLocationForm"
@@ -106,7 +99,6 @@
         done-label="Send"
         done-enabled="{{doneEnabled}}"
         on-ghvz-form-done="onConfirmSendLocation_">
-      <!--<img id="mapContainer" class="map-container" src="https://goo.gl/EJ3MGp"></img>-->
       <ghvz-static-map latitude="[[latitude]]" longitude="[[longitude]]"></ghvz-static-map>
     </ghvz-form>
   </template>

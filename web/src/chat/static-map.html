@@ -8,26 +8,32 @@
         is: 'ghvz-static-map',
 
         properties: {
-          messageId: String,
           latitude: Number,
           longitude: Number,
+
+          messageId: {
+            type: String,
+            value: 'dialog', // The only map without a message id is the send location dialog map
+          }, 
 
           mapContainerName: String,
         },
 
         observers: [
+          'onMessageIdSet_(messageId)',
           'onLatLongChange_(latitude, longitude)',
         ],
 
-        attached: function() {
+        onMessageIdSet_() {
           if (this.messageId) {
-            this.mapContainerName = "static-map-" + messageId;
+            this.mapContainerName = "static-map-" + this.messageId;
           } else {
             this.mapContainerName = "static-map-dialog";
           }
         },
 
         onLatLongChange_() {
+          let displayedImage = this.$$("#" + this.mapContainerName).src;
           if (this.latitude && this.longitude) {
             var latlon = this.latitude + "," + this.longitude;
 
@@ -39,6 +45,9 @@
 
             // Update the image element to show the map
             this.$$("#" + this.mapContainerName).src = mapImageUrl;
+          } else if (displayedImage != 'https://goo.gl/EJ3MGp') {
+            // Update the image element to show the nerf loading screen
+            this.$$("#" + this.mapContainerName).src = 'https://goo.gl/EJ3MGp';
           }
         },
       });
@@ -48,11 +57,7 @@
     :host {
       display: block;
     }
-    .icon-button {
-      color: dodgerblue;
-    }
     .map-container {
-      padding: 8px;
       width: 200px;
       height: 200px;
     }

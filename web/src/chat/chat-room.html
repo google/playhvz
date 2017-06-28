@@ -43,7 +43,7 @@
 
           locationUploadEnabled: {
             type: Boolean,
-            value: true,
+            value: false,
           },
 
           imageUploadEnabled: {
@@ -290,6 +290,11 @@
         sendImage_() {
           console.log('not implemented');
         },
+
+        displayContent_(messageObject) {
+          console.log(message);
+
+        },
       });
     });
   </script>
@@ -382,7 +387,7 @@
       background-position: center center;
       border: 2px solid green;
     }
-    .message-text {
+    .message-bubble {
       border-radius: 16px;
       margin-bottom: 4px;
       overflow-wrap: break-word;
@@ -403,11 +408,11 @@
     .message-from-other .message-text-container {
       flex-direction: row-reverse;
     }
-    .message-from-me .message-text {
+    .message-from-me .message-bubble {
       align-self: flex-end;
       background-color: rgba(135, 206, 250, .4);
     }
-    .message-from-other .message-text {
+    .message-from-other .message-bubble {
       align-self: flex-start;
       background-color: lightgrey;
     }
@@ -501,8 +506,18 @@
               [[getName_(item.playerId, game.players.length)]]
             </div>
             <div class="message-text-container">
-              <div 
-                class="message-text">[[item.message]]</div>
+              <template is="dom-if" if="[[item.message]]">
+                <div class="message-bubble">[[item.message]]</div>
+              </template>
+              <!--<div class="message-text">[[displayContent_(item)]]</div>-->
+              <template is="dom-if" if="[[item.location]]">
+                <ghvz-static-map 
+                  class="message-bubble"
+                  message-id="[[item.id]]"
+                  latitude="[[item.location.latitude]]"
+                  longitude="[[item.location.longitude]]">
+                </ghvz-static-map>
+              </template>
               <paper-tooltip position="top" animation-delay="0">
                 [[getTime_(item.time)]]
               </paper-tooltip>
