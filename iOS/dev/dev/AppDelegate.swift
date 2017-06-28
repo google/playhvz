@@ -40,10 +40,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         FirebaseApp.configure()
         
-        
         return true
     }
     
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        
+        // cgA-VuI8YJY:APA91bFVmC7UhchyqE0YlcoBX024HlazN7t5RsXVRwtqVjBKY7JhiEmWRDq0uYFEBQtSz365I2MK0neSjLrq6hZYxfnZjVAqbF20y2YgPqgOBeYowQ77Z-jMyJwN1O68vmHF5wINSIFf
+        
+        // c527293c464a86cebf4de7017bf746c49a0373732ed4f1431f215e096b5d4b00
+        
+        let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print(token)
+        /*
+        print("Got token data! (deviceToken)")
+        var characterSet: NSCharacterSet = NSCharacterSet( charactersInString: "<>" )
+        
+        var deviceTokenString: String = ( deviceToken.description as NSString )
+            .stringByTrimmingCharactersInSet( characterSet )
+            .stringByReplacingOccurrencesOfString( " ", withString: "" ) as String
+        
+        print( deviceTokenString )*/
+    }
+
     /// This method will be called whenever FCM receives a new, default FCM token for your
     /// Firebase project's Sender ID.
     /// You can send this token to your application server to send notifications to this device.
