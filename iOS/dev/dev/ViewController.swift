@@ -1,9 +1,9 @@
 //
 //  ViewController.swift
-//  PlayHvZ
+//  dev
 //
 //  Created by Evan Ovadia on 6/27/17.
-//  Copyright © 2017 PlayHvZ. All rights reserved.
+//
 //
 
 import UIKit

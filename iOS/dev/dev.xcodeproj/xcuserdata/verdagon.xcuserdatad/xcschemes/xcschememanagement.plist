@@ -4,7 +4,7 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>PlayHvZ.xcscheme</key>
+		<key>dev.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
@@ -12,7 +12,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>B7C1328A1F0345F2004F41DC</key>
+		<key>B7A6C21C1F034AF40019D105</key>
 		<dict>
 			<key>primary</key>
 			<true/>

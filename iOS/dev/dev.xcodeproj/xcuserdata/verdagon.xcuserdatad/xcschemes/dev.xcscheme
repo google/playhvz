@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B7C1328A1F0345F2004F41DC"
-               BuildableName = "PlayHvZ.app"
-               BlueprintName = "PlayHvZ"
-               ReferencedContainer = "container:PlayHvZ.xcodeproj">
+               BlueprintIdentifier = "B7A6C21C1F034AF40019D105"
+               BuildableName = "dev.app"
+               BlueprintName = "dev"
+               ReferencedContainer = "container:dev.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B7C1328A1F0345F2004F41DC"
-            BuildableName = "PlayHvZ.app"
-            BlueprintName = "PlayHvZ"
-            ReferencedContainer = "container:PlayHvZ.xcodeproj">
+            BlueprintIdentifier = "B7A6C21C1F034AF40019D105"
+            BuildableName = "dev.app"
+            BlueprintName = "dev"
+            ReferencedContainer = "container:dev.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -55,10 +55,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B7C1328A1F0345F2004F41DC"
-            BuildableName = "PlayHvZ.app"
-            BlueprintName = "PlayHvZ"
-            ReferencedContainer = "container:PlayHvZ.xcodeproj">
+            BlueprintIdentifier = "B7A6C21C1F034AF40019D105"
+            BuildableName = "dev.app"
+            BlueprintName = "dev"
+            ReferencedContainer = "container:dev.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -74,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B7C1328A1F0345F2004F41DC"
-            BuildableName = "PlayHvZ.app"
-            BlueprintName = "PlayHvZ"
-            ReferencedContainer = "container:PlayHvZ.xcodeproj">
+            BlueprintIdentifier = "B7A6C21C1F034AF40019D105"
+            BuildableName = "dev.app"
+            BlueprintName = "dev"
+            ReferencedContainer = "container:dev.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
