@@ -11,6 +11,11 @@
           latitude: Number,
           longitude: Number,
 
+          error: {
+            type: Boolean,
+            value: false,
+          },
+
           messageId: {
             type: String,
             value: 'dialog', // The only map without a message id is the send location dialog map
@@ -22,6 +27,7 @@
         observers: [
           'onMessageIdSet_(messageId)',
           'onLatLongChange_(latitude, longitude)',
+          'onError_(error)',
         ],
 
         onMessageIdSet_() {
@@ -50,6 +56,12 @@
             this.$$("#" + this.mapContainerName).src = 'https://goo.gl/EJ3MGp';
           }
         },
+
+        onError_() {
+          if (this.error) {
+            this.$$('#' + this.mapContainerName).src = 'https://goo.gl/S1y6tt';
+          }
+        },
       });
     });
   </script>
@@ -60,6 +72,7 @@
     .map-container {
       width: 200px;
       height: 200px;
+      border: 1px solid darkgrey;
     }
   </style>
   <template>

@@ -22,6 +22,9 @@
           },
 
           onSuccess: Object,
+          onError: Object,
+
+          geolocationError: Boolean,
         },
 
         listeners: {
@@ -30,9 +33,14 @@
 
         attached() {
           this.onSuccess = this.setPosition_.bind(this);
+          this.onError = this.setError_.bind(this);
         },
 
         updateLocation_(e) {
+          if (e.detail.error) {
+            this.geolocationError = true;
+            return;
+          }
           this.latitude = e.detail.latitude;
           this.longitude = e.detail.longitude;
           this.doneEnabled = true;
@@ -42,9 +50,10 @@
           this.latitude = null;
           this.longitude = null;
           if (navigator.geolocation) {   
-            navigator.geolocation.getCurrentPosition(this.onSuccess);
+            navigator.geolocation.getCurrentPosition(this.onSuccess, this.onError);
           } else { 
-            x.innerHTML = "Geolocation is not supported by this browser.";
+            this.geolocationError = true;
+            console.log("Geolocation is not supported by this browser.");
           }
           this.$.sendLocationForm.open();
         },
@@ -53,6 +62,12 @@
           this.fire('ghvz-update-location', {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
+          });
+        },
+
+        setError_(e) {
+          this.fire('ghvz-update-location', {
+            error: true,
           });
         },
 
@@ -68,6 +83,7 @@
           });
           this.latitude = null;
           this.longitude = null;
+          this.geolocationError = false;
         },
       });
     });
@@ -99,7 +115,12 @@
         done-label="Send"
         done-enabled="{{doneEnabled}}"
         on-ghvz-form-done="onConfirmSendLocation_">
-      <ghvz-static-map latitude="[[latitude]]" longitude="[[longitude]]"></ghvz-static-map>
+      <ghvz-static-map 
+        latitude="[[latitude]]" 
+        longitude="[[longitude]]" 
+        error="[[geolocationError]]"
+        class="map-container">
+      </ghvz-static-map>
     </ghvz-form>
   </template>
 </dom-module>
