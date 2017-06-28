@@ -409,11 +409,13 @@ class FakeIdGenerator extends IdGenerator {
     mapId: '!MapId',
     accessGroupId: 'GroupId',
     name: 'String',
+    requestTrackingUntil: 'Timestamp',
   });
   serverMethods.set('updateMap', {
     gameId: 'GameId',
     mapId: 'MapId',
-    name: 'String',
+    name: '|String',
+    requestTrackingUntil: '|Timestamp',
   });
 
   serverMethods.set('addMarker', {
