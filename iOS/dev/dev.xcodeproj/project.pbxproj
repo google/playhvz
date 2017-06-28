@@ -27,7 +27,7 @@
 		B7A6C22A1F034AF50019D105 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B7A6C22C1F034AF50019D105 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B7A6C2321F034BBB0019D105 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		B7B60B781F03551D00641B00 /* transmission.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = transmission.caf; path = dev/transmission.caf; sourceTree = "<group>"; };
+		B7B60B781F03551D00641B00 /* transmission.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = transmission.caf; sourceTree = "<group>"; };
 		B7E33A3A1F034D8C00ED5600 /* dev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = dev.entitlements; sourceTree = "<group>"; };
 		D453CC345F38A2767AF986E1 /* Pods-dev.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-dev.release.xcconfig"; path = "Pods/Target Support Files/Pods-dev/Pods-dev.release.xcconfig"; sourceTree = "<group>"; };
 		F6D7DFEEF5257B9E59A00A21 /* Pods_dev.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_dev.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -48,7 +48,6 @@
 		B7A6C2141F034AF40019D105 = {
 			isa = PBXGroup;
 			children = (
-				B7B60B781F03551D00641B00 /* transmission.caf */,
 				B7A6C21F1F034AF50019D105 /* dev */,
 				B7A6C21E1F034AF50019D105 /* Products */,
 				FC4004546C81800DB8E2EC9E /* Pods */,
@@ -67,6 +66,7 @@
 		B7A6C21F1F034AF50019D105 /* dev */ = {
 			isa = PBXGroup;
 			children = (
+				B7B60B781F03551D00641B00 /* transmission.caf */,
 				B7E33A3A1F034D8C00ED5600 /* dev.entitlements */,
 				B7A6C2321F034BBB0019D105 /* GoogleService-Info.plist */,
 				B7A6C2201F034AF50019D105 /* AppDelegate.swift */,
