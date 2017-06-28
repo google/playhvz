@@ -1,0 +1,72 @@
+<dom-module id="ghvz-reward-category">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    // hey dudes, game.rewardCategories.0.name just changed
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-reward-category',
+
+        properties: {
+          bridge: Object,
+          game: Object,
+          rewardCategoryId: String,
+          rewardCategory: Object,
+        },
+
+        observers: ['computeRewardCategory_(game, rewardCategoryId)'],
+
+        computeRewardCategory_() {
+          this.$.rewardCategorySelector.select(this.game.rewardCategoriesById[this.rewardCategoryId]);
+        },
+      });
+    });
+  </script>
+  <style>
+    #container {
+      display: flex;
+      align-items: center;
+    }
+
+    #name {
+      margin-left: 8px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    #description {
+      margin-left: 8px;
+      font-size: 18px;
+      opacity: .75;
+    }
+
+    img {
+      max-width: 40px;
+    }
+
+    :host([badgeOnly]) #container {
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    :host([badgeOnly]) #name,
+    :host([badgeOnly]) #description {
+      display: none;
+    }
+
+    :host([badgeOnly]) img {
+      max-width: 24px;
+    }
+  </style>
+  <template>
+    <array-selector id="rewardCategorySelector" items="[[game.rewardCategories]]" selected="{{rewardCategory}}"></array-selector>
+    <div id="container">
+      <div>
+        <img src$="[[rewardCategory.badgeImageUrl]]"/>
+      </div>
+      <div id="name">[[rewardCategory.name]]</div>
+      <div id="description">[[rewardCategory.description]]</div>
+    </div>
+  </template>
+</dom-module>

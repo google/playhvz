@@ -546,6 +546,7 @@
       "accessGroupId": "group-%(ident)s-2",
       "gameId": "game-%(ident)s-1",
       "name": "Test map 2",
+      "requestTrackingUntil": 1600000000000,
       "markers": {
         "marker-%(ident)s-3": {
           "color": "187c09",

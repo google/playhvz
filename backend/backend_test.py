@@ -431,18 +431,24 @@ class EndToEndTest(unittest.TestCase):
       'accessGroupId': self.Id('groupId'),
       'gameId': self.Id('gameId'),
       'mapId': self.Id('mapId', 1),
+      'requestTrackingUntil': 1500000000000,
       'name': "Test map 1" ,
     }
     self.AssertOk('createMap', create)
 
     create = {
       'accessGroupId': self.Id('groupId', 2),
-      'gameId': self.Id('gameId'),
+      'gameId': self.Id('gameId', 1),
       'mapId': self.Id('mapId', 2),
+      'requestTrackingUntil': 1500000000000,
       'name': "Test map 2" ,
     }
-    self.AssertOk('createMap', create)
-    self.AssertFails('createMap', create)
+    update = {
+      'gameId': self.Id('gameId', 1),
+      'mapId': self.Id('mapId', 2),
+      'requestTrackingUntil': 1600000000000,
+    }
+    self.AssertCreateUpdateSequence('createMap', create, 'updateMap', update)
 
     # Create Markers
     self.requester.SetRequestingPlayerId(self.Id('publicPlayerId'))
