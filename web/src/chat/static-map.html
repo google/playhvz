@@ -15,31 +15,15 @@
             type: Boolean,
             value: false,
           },
-
-          messageId: {
-            type: String,
-            value: 'dialog', // The only map without a message id is the send location dialog map
-          }, 
-
-          mapContainerName: String,
         },
 
         observers: [
-          'onMessageIdSet_(messageId)',
           'onLatLongChange_(latitude, longitude)',
           'onError_(error)',
         ],
 
-        onMessageIdSet_() {
-          if (this.messageId) {
-            this.mapContainerName = "static-map-" + this.messageId;
-          } else {
-            this.mapContainerName = "static-map-dialog";
-          }
-        },
-
         onLatLongChange_() {
-          let displayedImage = this.$$("#" + this.mapContainerName).src;
+          let displayedImage = this.$.mapContainer.src;
           if (this.latitude && this.longitude) {
             var latlon = this.latitude + "," + this.longitude;
 
@@ -50,16 +34,16 @@
               + "&key=AIzaSyBLcysHAt2T64FEilpUEUlrJ34hrEY19cQ";
 
             // Update the image element to show the map
-            this.$$("#" + this.mapContainerName).src = mapImageUrl;
+            this.$.mapContainer.src = mapImageUrl;
           } else if (displayedImage != 'https://goo.gl/EJ3MGp') {
             // Update the image element to show the nerf loading screen
-            this.$$("#" + this.mapContainerName).src = 'https://goo.gl/EJ3MGp';
+            this.$.mapContainer.src = 'https://goo.gl/EJ3MGp';
           }
         },
 
         onError_() {
           if (this.error) {
-            this.$$('#' + this.mapContainerName).src = 'https://goo.gl/S1y6tt';
+            this.$.mapContainer.src = 'https://goo.gl/S1y6tt';
           }
         },
       });
@@ -76,6 +60,6 @@
     }
   </style>
   <template>
-    <img id$="[[mapContainerName]]" class="map-container" src="https://goo.gl/EJ3MGp"></img>
+    <img id="mapContainer" class="map-container" src="https://goo.gl/EJ3MGp"></img>
   </template>
 </dom-module>

@@ -43,7 +43,7 @@
 
           locationUploadEnabled: {
             type: Boolean,
-            value: false,
+            value: true,
           },
 
           imageUploadEnabled: {
@@ -501,8 +501,7 @@
         <div name$="message-[[chatRoom.name]]-[[item.message]]"
           class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
           <div class="display-message">
-            <div 
-              class="player-name">
+            <div class="player-name">
               [[getName_(item.playerId, game.players.length)]]
             </div>
             <div class="message-text-container">
@@ -512,7 +511,6 @@
               <template is="dom-if" if="[[item.location]]">
                 <ghvz-static-map 
                   class="message-bubble"
-                  message-id="[[item.id]]"
                   latitude="[[item.location.latitude]]"
                   longitude="[[item.location.longitude]]">
                 </ghvz-static-map>
