@@ -17,7 +17,7 @@ window.FirebaseListener = (function () {
 
   // const Model.USER_PROPERTIES = ['a', 'deviceToken'];
   // const Model.USER_COLLECTIONS = ['players', 'games'];
-  // const Model.GAME_PROPERTIES = ['active', 'startTime', 'endTime', 'registrationEndTime', 'name', 'number', 'rulesHtml', 'faqHtml', 'stunTimer', 'adminContactPlayerId'];
+  // const Model.GAME_PROPERTIES = ['active', 'startTime', 'endTime', 'registrationEndTime', 'name', 'number', 'rulesHtml', 'faqHtml', 'summaryHtml', 'stunTimer', 'adminContactPlayerId'];
   // const Model.GAME_COLLECTIONS = ['guns', 'missions', 'rewardCategories', 'chatRooms', 'players', 'admins', 'queuedNotifications', 'quizQuestions', 'groups', 'maps'];
   // const Model.GUN_PROPERTIES = ['gameId', 'playerId', 'label'];
   // const Model.GUN_COLLECTIONS = [];

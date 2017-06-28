@@ -8,6 +8,7 @@
       "number":null,
       "rulesHtml":"test rule 2",
       "faqHtml":"test faq 2",
+      "summaryHtml":"test summary 2",
       "stunTimer":5,
       "adminContactPlayerId":null,
       "guns":[

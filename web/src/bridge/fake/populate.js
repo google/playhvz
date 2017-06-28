@@ -169,6 +169,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     name: "Test game",
     rulesHtml: RULES_HTML,
     faqHtml: FAQ_HTML,
+    summaryHtml: SUMMARY_HTML,
     stunTimer: 60,
     isActive: true,
     registrationEndTime: 1483286400000,
@@ -908,6 +909,10 @@ arbs
 
 const FAQ_HTML = `
 <b>I am a FAQ!</b>
+`;
+
+const SUMMARY_HTML = `
+<b>I am a SUMMARY!</b>
 `;
 
 const RULES_HTML = `

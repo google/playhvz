@@ -3,13 +3,33 @@
   HTMLImports.whenReady(() => {
     Polymer({
       is: 'ghvz-game-summary',
+
       properties: {
         game: {
           type: Object,
           value: null,
-        }
+        },
+        isAdmin: {
+          type: Boolean,
+          value: false,
+        },
       },
-	});
+
+      observers: ['summaryChanged_(game.summaryHtml)'],
+
+      attached() {
+        this.fire('ghvz-add-toolbar-button', { button: this.$.update });
+      },
+
+      summaryChanged_(summaryHtml) {
+        this.$.summary.innerHTML = summaryHtml;
+        this.scopeSubtree(this.$.summary);
+      },
+
+      updateSummary_: function() {
+        alert('hi');
+      },
+  	});
   });
 </script>
 <style>
@@ -19,6 +39,9 @@
 }
 </style>
 <template>
+<paper-icon-button name="rules-icon" hidden$="[[!isAdmin]]" id="update" icon="icons:create" on-tap="updateSummary_">
+</paper-icon-button>
+<div id="summary"></div>
 <p name="game-summary-box"><strong>Stun Timer:</strong> [[game.stunTimer]]</p>
 </template>
 </dom-module>
