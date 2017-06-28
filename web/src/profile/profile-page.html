@@ -32,7 +32,7 @@
       computeLifeCode_() {
         if (this.player.allegiance == 'resistance') {
           if (this.player.lives.length) {
-            return this.player.lives[this.player.lives.length - 1].code;
+            return this.player.lives[this.player.lives.length - 1].private.code;
           }
         }
         return null;
@@ -218,17 +218,17 @@
         <div>
           Volunteered for:
           <b>
-            <template is="dom-if if="[[player.volunteer.advertising]]">Advertising</template>
-            <template is="dom-if if="[[player.volunteer.logistics]]">Logistics</template>
-            <template is="dom-if if="[[player.volunteer.communications]]">Communications</template>
-            <template is="dom-if if="[[player.volunteer.moderator]]">Moderator</template>
-            <template is="dom-if if="[[player.volunteer.cleric]]">Cleric</template>
-            <template is="dom-if if="[[player.volunteer.sorcerer]]">Sorcerer</template>
-            <template is="dom-if if="[[player.volunteer.admin]]">Admin</template>
-            <template is="dom-if if="[[player.volunteer.photographer]]">Photographer</template>
-            <template is="dom-if if="[[player.volunteer.chronicler]]">Chronicler</template>
-            <template is="dom-if if="[[player.volunteer.server]]">Server</template>
-            <template is="dom-if if="[[player.volunteer.client]]">Client</template>
+            <template is="dom-if" if="[[player.volunteer.advertising]]">Advertising</template>
+            <template is="dom-if" if="[[player.volunteer.logistics]]">Logistics</template>
+            <template is="dom-if" if="[[player.volunteer.communications]]">Communications</template>
+            <template is="dom-if" if="[[player.volunteer.moderator]]">Moderator</template>
+            <template is="dom-if" if="[[player.volunteer.cleric]]">Cleric</template>
+            <template is="dom-if" if="[[player.volunteer.sorcerer]]">Sorcerer</template>
+            <template is="dom-if" if="[[player.volunteer.admin]]">Admin</template>
+            <template is="dom-if" if="[[player.volunteer.photographer]]">Photographer</template>
+            <template is="dom-if" if="[[player.volunteer.chronicler]]">Chronicler</template>
+            <template is="dom-if" if="[[player.volunteer.server]]">Server</template>
+            <template is="dom-if" if="[[player.volunteer.client]]">Client</template>
           </b>
         </div>
         <div>Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>
@@ -255,8 +255,8 @@
       <template is="dom-repeat" items="[[player.lives]]" as="life">
         <div>
           Life, at [[computeDateText_(life.time)]],
-          <template is="dom-if" if="[[life.code]]">
-            life code "[[life.code]]"
+          <template is="dom-if" if="[[life.private.code]]">
+            life code "[[life.private.code]]"
           </template>
         </div>
       </template>
