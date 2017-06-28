@@ -486,7 +486,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
 
   var resistanceMapId = bridge.idGenerator.newMapId();
-  bridge.createMap({gameId: gameId, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
+  bridge.createMap({gameId: gameId, requestTrackingUntil: new Date().getTime() + gameStartOffset, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});

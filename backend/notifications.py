@@ -6,7 +6,8 @@ import time
 import config
 import pyfcm
 
-fcm = pyfcm.FCMNotification(api_key=config.FIREBASE_APIKEY)
+if config.FIREBASE_APIKEY:
+  fcm = pyfcm.FCMNotification(api_key=config.FIREBASE_APIKEY)
 
 def HandleNotification(game_state, queued_notification_id, queued_notification):
   """Helper function to propogate a notification."""
@@ -47,9 +48,9 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
         device_tokens.add(user['deviceToken'])
   if len(device_tokens) == 0:
     return
-  fcm.notify_multiple_devices(registration_ids=list(device_tokens),
-                              message_title=notification['previewMessage'],
-                              message_body=notification['message'])
+  if config.FIREBASE_APIKEY:
+    fcm.notify_multiple_devices(registration_ids=list(device_tokens),
+                                data_message=notification)
 
 def ExecuteNotifications(request, game_state):
   """INTERNAL ONLY: Send the notifications.
