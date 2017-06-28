@@ -15,14 +15,30 @@
 
           latitude: Number,
           longitude: Number,
+
+           doneEnabled: {
+            type: Boolean,
+            value: false,
+          },
         },
 
-        observers: [
-        ],
+        listeners: {
+          'ghvz-update-location': 'updateLocation_',
+        },
+
+        updateLocation_(e) {
+          this.latitude = e.detail.latitude;
+          this.longitude = e.detail.longitude;
+          this.doneEnabled = true;
+        }, 
 
         sendCurrentLocation_() {
+          var success = this.setPosition_.bind(this);
+
           if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(this.setPosition_);
+            this.latitude = null;
+            this.longitude = null;
+            navigator.geolocation.getCurrentPosition(success);
           } else { 
             x.innerHTML = "Geolocation is not supported by this browser.";
           }
@@ -30,9 +46,7 @@
         },
 
         setPosition_(position) {
-          this.latitude = position.coords.latitude;
-          this.longitude = position.coords.longitude;
-          var latlon = position.coords.latitude + "," + position.coords.longitude;
+          /*var latlon = position.coords.latitude + "," + position.coords.longitude;
 
           var img_url = "https://maps.googleapis.com/maps/api/staticmap" 
             + "?center=" + latlon 
@@ -40,18 +54,27 @@
             + "markers=|" + latlon 
             + "&key=AIzaSyBLcysHAt2T64FEilpUEUlrJ34hrEY19cQ";
 
-          document.getElementById("mapContainer").src = img_url;
+          document.getElementById("mapContainer").src = img_url;*/
+
+          this.fire('ghvz-update-location', {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
         },
 
         onConfirmSendLocation_(e) {
+          let latitude = this.latitude;
+          let longitude = this.longitude;
           this.bridge.sendChatMessage({
             gameId: this.game.id,
             messageId: this.bridge.newMessageId(), 
             chatRoomId: this.chatRoomId, 
             playerId: this.player.id, 
-            message: "",
-            location: {latitude: this.latitude, longitude: this.longitude},
+            message: "hi",
+ //           location: {latitude: latitude, longitude: longitude},
           });
+          this.latitude = null;
+          this.longitude = null;
         },
       });
     });
@@ -81,8 +104,10 @@
         title="Send location?"
         close-label="Cancel"
         done-label="Send"
+        done-enabled="{{doneEnabled}}"
         on-ghvz-form-done="onConfirmSendLocation_">
-      <img id="mapContainer" class="map-container" src="https://goo.gl/ZwdrjW"></img>
+      <!--<img id="mapContainer" class="map-container" src="https://goo.gl/EJ3MGp"></img>-->
+      <ghvz-static-map latitude="[[latitude]]" longitude="[[longitude]]"></ghvz-static-map>
     </ghvz-form>
   </template>
 </dom-module>

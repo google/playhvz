@@ -1,0 +1,63 @@
+<dom-module id="ghvz-static-map">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-static-map',
+
+        properties: {
+          messageId: String,
+          latitude: Number,
+          longitude: Number,
+
+          mapContainerName: String,
+        },
+
+        observers: [
+          'onLatLongChange_(latitude, longitude)',
+        ],
+
+        attached: function() {
+          if (this.messageId) {
+            this.mapContainerName = "static-map-" + messageId;
+          } else {
+            this.mapContainerName = "static-map-dialog";
+          }
+        },
+
+        onLatLongChange_() {
+          if (this.latitude && this.longitude) {
+            var latlon = this.latitude + "," + this.longitude;
+
+            var mapImageUrl = "https://maps.googleapis.com/maps/api/staticmap" 
+              + "?center=" + latlon 
+              + "&size=200x200&" 
+              + "markers=|" + latlon 
+              + "&key=AIzaSyBLcysHAt2T64FEilpUEUlrJ34hrEY19cQ";
+
+            // Update the image element to show the map
+            this.$$("#" + this.mapContainerName).src = mapImageUrl;
+          }
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    .icon-button {
+      color: dodgerblue;
+    }
+    .map-container {
+      padding: 8px;
+      width: 200px;
+      height: 200px;
+    }
+  </style>
+  <template>
+    <img id$="[[mapContainerName]]" class="map-container" src="https://goo.gl/EJ3MGp"></img>
+  </template>
+</dom-module>

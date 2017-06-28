@@ -125,7 +125,6 @@
           }
         },
 
-
         displaySenderInfo(playerId) {
           if (playerId != this.previousMessagePlayerId) {
             this.previousMessagePlayerId = playerId;
@@ -291,14 +290,6 @@
         sendImage_() {
           console.log('not implemented');
         },
-
-        sendCurrentLocation_() {
-          this.$.sendLocationForm.open();
-        },
-
-        onConfirmSendLocation_(e) {
-          console.log('not implemented');
-        },
       });
     });
   </script>
@@ -420,8 +411,9 @@
       align-self: flex-start;
       background-color: lightgrey;
     }
-    .icon-button {
+    .multimedia-option {
       color: dodgerblue;
+      flex-grow: 0;
     }
     .text-input {
       display: flex;
@@ -541,7 +533,7 @@
       </div>
       <template is="dom-if" if="[[imageUploadEnabled]]">
         <paper-icon-button
-          class="icon-button"
+          class="multimedia-option"
           icon="image:photo"
           title="Send image"
           on-click="sendImage_">
@@ -549,6 +541,7 @@
       </template>
       <template is="dom-if" if="[[locationUploadEnabled_(isMobile, locationUploadEnabled)]]">
         <ghvz-chat-location
+          class="multimedia-option"
           bridge="[[bridge]]"
           game="[[game]]"
           player="[[currentPlayer]]"
