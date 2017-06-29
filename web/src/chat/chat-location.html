@@ -1,0 +1,126 @@
+<dom-module id="ghvz-chat-location">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-chat-location',
+
+        properties: {
+          bridge: Object,
+          game: Object,
+          player: Object,
+          chatRoomId: String,
+
+          latitude: Number,
+          longitude: Number,
+
+           doneEnabled: {
+            type: Boolean,
+            value: false,
+          },
+
+          onSuccess: Object,
+          onError: Object,
+
+          geolocationError: Boolean,
+        },
+
+        listeners: {
+          'ghvz-update-location': 'updateLocation_',
+        },
+
+        attached() {
+          this.onSuccess = this.setPosition_.bind(this);
+          this.onError = this.setError_.bind(this);
+        },
+
+        updateLocation_(e) {
+          if (e.detail.error) {
+            this.geolocationError = true;
+            return;
+          }
+          this.latitude = e.detail.latitude;
+          this.longitude = e.detail.longitude;
+          this.doneEnabled = true;
+        }, 
+
+        openSendLocationDialog_() {
+          this.latitude = null;
+          this.longitude = null;
+          if (navigator.geolocation) {   
+            navigator.geolocation.getCurrentPosition(this.onSuccess, this.onError);
+          } else { 
+            this.geolocationError = true;
+            console.log("Geolocation is not supported by this browser.");
+          }
+          this.$.sendLocationForm.open();
+        },
+
+        setPosition_(position) {
+          this.fire('ghvz-update-location', {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+
+        setError_(e) {
+          this.fire('ghvz-update-location', {
+            error: true,
+          });
+        },
+
+        onConfirmSendLocation_(e) {
+          let latitude = this.latitude;
+          let longitude = this.longitude;
+          this.bridge.sendChatMessage({
+            gameId: this.game.id,
+            messageId: this.bridge.newMessageId(), 
+            chatRoomId: this.chatRoomId, 
+            playerId: this.player.id, 
+            location: {latitude: latitude, longitude: longitude},
+          });
+          this.latitude = null;
+          this.longitude = null;
+          this.geolocationError = false;
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    .icon-button {
+      color: dodgerblue;
+    }
+    .map-container {
+      padding: 8px;
+      width: 200px;
+      height: 200px;
+    }
+  </style>
+  <template>
+    <paper-icon-button
+      class="icon-button"
+      icon="maps:my-location"
+      title="Send current location"
+      on-click="openSendLocationDialog_">
+    </paper-icon-button>
+    <ghvz-form
+        id="sendLocationForm"
+        title="Send location?"
+        close-label="Cancel"
+        done-label="Send"
+        done-enabled="{{doneEnabled}}"
+        on-ghvz-form-done="onConfirmSendLocation_">
+      <ghvz-static-map 
+        latitude="[[latitude]]" 
+        longitude="[[longitude]]" 
+        error="[[geolocationError]]"
+        class="map-container">
+      </ghvz-static-map>
+    </ghvz-form>
+  </template>
+</dom-module>

@@ -409,11 +409,13 @@ class FakeIdGenerator extends IdGenerator {
     mapId: '!MapId',
     accessGroupId: 'GroupId',
     name: 'String',
+    requestTrackingUntil: 'Timestamp',
   });
   serverMethods.set('updateMap', {
     gameId: 'GameId',
     mapId: 'MapId',
-    name: 'String',
+    name: '|String',
+    requestTrackingUntil: '|Timestamp',
   });
 
   serverMethods.set('addMarker', {
@@ -463,7 +465,11 @@ class FakeIdGenerator extends IdGenerator {
     messageId: '!MessageId',
     chatRoomId: 'ChatRoomId',
     playerId: 'PublicPlayerId',
-    message: 'String',
+    message: '|String',
+    location: optional({
+      latitude: 'Number',
+      longitude: 'Number',
+    }),
   });
 
   serverMethods.set('addRequestCategory', {

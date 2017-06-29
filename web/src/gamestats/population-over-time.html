@@ -22,6 +22,18 @@
 
       attached() {
         google.charts.setOnLoadCallback(() => this.setChartLoaded());
+        // The following makes Google Charts responsive and will resize the chart
+        // as the page is resized.
+        var lastResize; // closure property for debouncing
+        window.addEventListener('resize', () => { 
+          if (lastResize) {
+            window.clearTimeout(this.lastResize);
+          }
+
+          lastResize = window.setTimeout(() => {
+            this.drawPopulationOverTimeChart();
+          }, 200)
+        });
       },
 
       setChartLoaded() {
@@ -317,14 +329,11 @@
           }
         };
 
+        this.@.population_over_time_chart.textContent = '';
         var chart = new google.visualization.LineChart(
           this.$.population_over_time_chart);
 
         chart.draw(data, options);
-
-        // The following makes Google Charts responsive and will resize the chart
-        // as the page is resized.
-        window.addEventListener('resize', () => this.drawPopulationOverTimeChart());
       },
     });
   });
