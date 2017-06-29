@@ -199,7 +199,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminMissions, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="admin-missions-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Missions</div>
       <ghvz-missions
           bridge="[[bridge]]"
@@ -241,7 +241,7 @@
   <template is="dom-if" if="[[computeShowPage_(showPage.faq, mostRecentPage)]]">
     <ghvz-card expand name="faq-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">FAQ</div>
-      <ghvz-faq-page game="[[game]]" is-admin="[[isAdmin]]"></ghvz-faq-page>
+      <ghvz-faq-page bridge="[[bridge]]" game="[[game]]" is-admin="[[isAdmin]]"></ghvz-faq-page>
     </ghvz-card>
   </template>
 

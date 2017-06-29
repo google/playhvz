@@ -15,13 +15,15 @@ try:
     [[By.ID, 'stunTimerInput'], [By.TAG_NAME, 'input']], '60')
   # Set game start time to sometime in the past
   driver.Backspace([[By.ID, 'form-section-start-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
-  driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2017")
-  driver.Backspace([[By.ID, 'form-section-start-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']])
-  driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']], "1")
-  driver.Backspace([[By.ID, 'form-section-start-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']], 2)
-  driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']], "1")
-  driver.Backspace([[By.ID, 'form-section-start-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']], 6)
-  driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']], "1:23am")
+  driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2016")
+
+  # Set the declare resistance and declare horde end times to sometime in the future
+  # driver.Backspace([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
+  # driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2018")
+
+  # driver.Backspace([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
+  # driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2018")
+
   driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
   
   driver.WaitForGameLoaded()
@@ -61,10 +63,13 @@ try:
   driver.Click([[By.NAME, 'declareAllegiance']])
   driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']])
   driver.Click([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option1']])
-  driver.Click([[By.NAME, 'startQuizPage'], [By.NAME, 'offWeGo']]) # TODO - at some point we might need ot put the quiz in here
-  driver.Click([[By.NAME, 'submitJoinGame']])
+  driver.Click([[By.NAME, 'startQuizPage'], [By.NAME, 'offWeGo']])
+
+  driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
   # Player sees their lifecode and allegiance
+  if driver.is_mobile:
+    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerMy Profile']])
   driver.ExpectContains([[By.NAME, 'status']], 'Alive')
   driver.ExpectContains([[By.NAME, 'lifecode']], 'codefor-life-1')
