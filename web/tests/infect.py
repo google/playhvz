@@ -60,7 +60,7 @@ try:
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
 
-  driver.Quit()
+  #driver.Quit()
 
 finally:
   # driver.Quit()

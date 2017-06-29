@@ -464,7 +464,11 @@ class FakeIdGenerator extends IdGenerator {
     messageId: '!MessageId',
     chatRoomId: 'ChatRoomId',
     playerId: 'PublicPlayerId',
-    message: 'String',
+    message: '|String',
+    location: optional({
+      latitude: 'Number',
+      longitude: 'Number',
+    }),
   });
 
   serverMethods.set('addRequestCategory', {

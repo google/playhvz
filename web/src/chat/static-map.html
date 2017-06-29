@@ -1,0 +1,65 @@
+<dom-module id="ghvz-static-map">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-static-map',
+
+        properties: {
+          latitude: Number,
+          longitude: Number,
+
+          error: {
+            type: Boolean,
+            value: false,
+          },
+        },
+
+        observers: [
+          'onLatLongChange_(latitude, longitude)',
+          'onError_(error)',
+        ],
+
+        onLatLongChange_() {
+          let displayedImage = this.$.mapContainer.src;
+          if (this.latitude && this.longitude) {
+            var latlon = this.latitude + "," + this.longitude;
+
+            var mapImageUrl = "https://maps.googleapis.com/maps/api/staticmap" 
+              + "?center=" + latlon 
+              + "&size=200x200&" 
+              + "markers=|" + latlon 
+              + "&key=AIzaSyBLcysHAt2T64FEilpUEUlrJ34hrEY19cQ";
+
+            // Update the image element to show the map
+            this.$.mapContainer.src = mapImageUrl;
+          } else if (displayedImage != 'https://goo.gl/EJ3MGp') {
+            // Update the image element to show the nerf loading screen
+            this.$.mapContainer.src = 'https://goo.gl/EJ3MGp';
+          }
+        },
+
+        onError_() {
+          if (this.error) {
+            this.$.mapContainer.src = 'https://goo.gl/S1y6tt';
+          }
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    .map-container {
+      width: 200px;
+      height: 200px;
+      border: 1px solid darkgrey;
+    }
+  </style>
+  <template>
+    <img id="mapContainer" class="map-container" src="https://goo.gl/EJ3MGp"></img>
+  </template>
+</dom-module>

@@ -63,7 +63,7 @@ for admin in adminPlayers:
   driver.ExpectContains([
       [By.NAME, 'chat-card'], 
       [By.NAME, 'message-%s-Hi im %s, how do i know if im the possessed zombie?' % (chatName, actingPlayerName)], 
-      [By.CLASS_NAME, 'message-text']], 
+      [By.CLASS_NAME, 'message-bubble']], 
       'Hi im %s, how do i know if im the possessed zombie?' % actingPlayerName)
 
 # Non-Admin should leave admin chat
@@ -91,7 +91,7 @@ if not driver.is_mobile: # TODO: make leave button work the same way on mobile a
 driver.ExpectContains([
   [By.NAME, 'chat-card'], 
   [By.NAME, 'message-%s-Hi im %s, how do i know if im the possessed zombie?' % (chatName, actingPlayerName)], 
-  [By.CLASS_NAME, 'message-text']], 
+  [By.CLASS_NAME, 'message-bubble']], 
   'Hi im %s, how do i know if im the possessed zombie?' % actingPlayerName)
 
 driver.Quit()
