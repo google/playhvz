@@ -221,6 +221,10 @@ class FakeServer {
     if (!existingMembership)
       return;
 
+    if (playerId == group.ownerPlayerId) {
+      this. switchGroupOwnership(playerId, group, game, gameId)
+    }
+
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
         this.removePlayerFromChatRoom_(game.id, chatRoom.id, player.id);
@@ -702,6 +706,29 @@ class FakeServer {
           this.addPlayerToGroup({gameId: gameId, groupId: group.id, playerToAddId: playerId});
         }
       }
+    }
+  }
+  switchGroupOwnership(ownerId, group, game, gameId) {
+    var highestPointCount = -1;
+    var highestPlayer = null;
+    for (let playerId of group.players) {
+      console.log(playerId);
+      let player = game.playersById[playerId];
+      console.log(player);
+      // Find other player in group with most points. Ties go to the player with lower player #
+      if (player.userId != ownerId && (player.points > highestPointCount || 
+        (player.points == highestPointCount && player.number < highestPlayer.number))) {
+        highestPlayer = player;
+        highestPointCount = player.points;
+      }
+    }
+    let groupPath = this.reader.getGroupPath(gameId, group.groupId, null);
+    if (highestPlayer == null) {
+      // If there aren't any other people in the group, then make the owner null
+      this.writer.set(groupPath.concat(['ownerPlayerId']), null)
+    } else {
+      // Otherwise, switch ownership to the highest player
+      this.writer.set(groupPath.concat(['ownerPlayerId']), highestPlayer.userId)
     }
   }
   setPlayerZombie(gameId, playerId) {
