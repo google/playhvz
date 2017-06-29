@@ -28,6 +28,8 @@ try:
         except AssertionError:
           pass # This user didn't have a notification
 
+        driver.FindElement([[By.NAME, 'close-notification']], should_exist=False)
+
         if driver.is_mobile:
           driver.FindElement([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
           driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
@@ -37,6 +39,7 @@ try:
 
         # Make sure drawer opens fine
         # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
+        # This is probably because clicking the X on the notification didn't make it go away.
         driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
         driver.FindElement(
           [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])

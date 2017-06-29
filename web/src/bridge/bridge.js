@@ -398,7 +398,6 @@ class FakeIdGenerator extends IdGenerator {
   });
   serverMethods.set('updateChatRoomMembership', {
     gameId: 'GameId',
-    serverTime: '|Timestamp',
     chatRoomId: 'ChatRoomId',
     actingPlayerId: 'PublicPlayerId',
     isVisible: '|Boolean',
