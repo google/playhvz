@@ -58,7 +58,7 @@ class SimpleDriver:
     assert(attribute_value == value)
 
   def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
-    element = self.FindElement(path, should_exist=should_exist, check_visible=check_visible)
+    element = self.FindElement(path, check_visible=check_visible)
     # There's four ways to get the contents of an element:
     # print 'el text is "%s" "%s" "%s" "%s"' % (
     #     element.text.strip(),

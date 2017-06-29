@@ -4,14 +4,14 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="jack")
 
 INFECTABLES = [ # these names seem to have collapsed in the last pull
- ('MoldaviTheMoldavish', 'zooble flipwoogly', 'Moldavi the Moldavish'),
+ ('Moldavi', 'zooble flipwoogly', 'Moldavi the Moldavish'), # TheMoldavish
  ('JackSlayerTheBeanSlasher', 'grobble forgbobbly', 'Jack Slayer the Bean Slasher'),
  ('ZellaTheUltimate', 'glarple zerp wobbledob', 'Zella the Ultimate')
 ]
 
 try:
-  driver.FindElement([[By.NAME, 'ChatRoom: Resistance Comms Hub']])
-
+  # Jack is a human here. 
+  # switch to drake. We'll come back to jack in a bit
   driver.SwitchUser("drake")
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
