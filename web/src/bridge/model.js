@@ -117,7 +117,7 @@ Model.PlayerGroupMembership = function(id, args) {
   Utils.addEmptyLists(this, Model.PLAYER_GROUP_MEMBERSHIP_COLLECTIONS);
 }
 
-Model.MESSAGE_PROPERTIES = ["index", "message", "playerId", "time"];
+Model.MESSAGE_PROPERTIES = ["index", "message", "playerId", "time", "location"];
 Model.MESSAGE_COLLECTIONS = [];
 Model.Message = function(id, args) {
   this.id = id;

@@ -60,7 +60,7 @@ try:
           driver.ExpectContains([
             [By.NAME, 'chat-card'], 
             [By.NAME, 'message-%s-Brains for %s' % (chatName, currPlayer)], 
-            [By.CLASS_NAME, 'message-text']], 
+            [By.CLASS_NAME, 'message-bubble']], 
             'Brains for %s' % currPlayer)
           driver.ExpectContains([
             [By.NAME, 'chat-card'], 

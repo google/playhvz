@@ -41,7 +41,15 @@
             value: false,
           },
 
-          
+          locationUploadEnabled: {
+            type: Boolean,
+            value: true,
+          },
+
+          imageUploadEnabled: {
+            type: Boolean,
+            value: false,
+          },
         },
 
         listeners: {
@@ -54,12 +62,8 @@
           'onMessageReceived_(chatRoom.messages.length)',
         ],
 
-        locationEnabled(isMobile) {
-          return isMobile && false;
-        },
-
-        imageUploadEnabled() {
-          return false;
+        locationUploadEnabled_(isMobile, locationUploadEnabled) {
+          return isMobile && locationUploadEnabled;
         },
 
         attached: function() {
@@ -120,7 +124,6 @@
             this.$.messageSend.click();
           }
         },
-
 
         displaySenderInfo(playerId) {
           if (playerId != this.previousMessagePlayerId) {
@@ -288,8 +291,9 @@
           console.log('not implemented');
         },
 
-        sendCurrentLocation_() {
-          console.log('not implemented');
+        displayContent_(messageObject) {
+          console.log(message);
+
         },
       });
     });
@@ -383,7 +387,7 @@
       background-position: center center;
       border: 2px solid green;
     }
-    .message-text {
+    .message-bubble {
       border-radius: 16px;
       margin-bottom: 4px;
       overflow-wrap: break-word;
@@ -404,16 +408,17 @@
     .message-from-other .message-text-container {
       flex-direction: row-reverse;
     }
-    .message-from-me .message-text {
+    .message-from-me .message-bubble {
       align-self: flex-end;
       background-color: rgba(135, 206, 250, .4);
     }
-    .message-from-other .message-text {
+    .message-from-other .message-bubble {
       align-self: flex-start;
       background-color: lightgrey;
     }
-    .icon-button {
+    .multimedia-option {
       color: dodgerblue;
+      flex-grow: 0;
     }
     .text-input {
       display: flex;
@@ -496,13 +501,20 @@
         <div name$="message-[[chatRoom.name]]-[[item.message]]"
           class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
           <div class="display-message">
-            <div 
-              class="player-name">
+            <div class="player-name">
               [[getName_(item.playerId, game.players.length)]]
             </div>
             <div class="message-text-container">
-              <div 
-                class="message-text">[[item.message]]</div>
+              <template is="dom-if" if="[[item.message]]">
+                <div class="message-bubble">[[item.message]]</div>
+              </template>
+              <template is="dom-if" if="[[item.location]]">
+                <ghvz-static-map 
+                  class="message-bubble"
+                  latitude="[[item.location.latitude]]"
+                  longitude="[[item.location.longitude]]">
+                </ghvz-static-map>
+              </template>
               <paper-tooltip position="top" animation-delay="0">
                 [[getTime_(item.time)]]
               </paper-tooltip>
@@ -531,21 +543,22 @@
           on-keydown="checkForEnter_">
         </paper-textarea>
       </div>
-      <template is="dom-if" if="[[imageUploadEnabled()]]">
+      <template is="dom-if" if="[[imageUploadEnabled]]">
         <paper-icon-button
-          class="icon-button"
+          class="multimedia-option"
           icon="image:photo"
           title="Send image"
           on-click="sendImage_">
         </paper-icon-button>
       </template>
-      <template is="dom-if" if="[[locationEnabled(isMobile)]]">
-        <paper-icon-button
-          class="icon-button"
-          icon="maps:my-location"
-          title="Send current location"
-          on-click="sendCurrentLocation_">
-        </paper-icon-button>
+      <template is="dom-if" if="[[locationUploadEnabled_(isMobile, locationUploadEnabled)]]">
+        <ghvz-chat-location
+          class="multimedia-option"
+          bridge="[[bridge]]"
+          game="[[game]]"
+          player="[[currentPlayer]]"
+          chat-room-id="[[chatRoomId]]">
+        </ghvz-chat-location>
       </template>
       <paper-button 
         class="send"
