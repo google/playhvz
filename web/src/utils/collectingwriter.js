@@ -5,8 +5,9 @@ class CollectingWriter {
     this.waitingOperations_ = [];
   }
   batchedWrite(operations) {
-    this.waitingOperations_ = this.waitingOperations_.concat(operations);
-    setTimeout(() => this.flush(), 0);
+    this.destination.batchedWrite(operations);
+    // this.waitingOperations_ = this.waitingOperations_.concat(operations);
+    // setTimeout(() => this.flush(), 0);
   }
   flush() {
     if (this.waitingOperations_.length) {
