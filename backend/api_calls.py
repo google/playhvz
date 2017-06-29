@@ -81,6 +81,8 @@ def AddGame(request, game_state):
     'startTime': 'Timestamp',
     'endTime': 'Timestamp',
     'registrationEndTime': 'Timestamp',
+    'declareResistanceEndTime': 'Timestamp',
+    'declareHordeEndTime': 'Timestamp',
   })
 
   put_data = {
@@ -92,6 +94,8 @@ def AddGame(request, game_state):
     'startTime': request['startTime'],
     'endTime': request['endTime'],
     'registrationEndTime': request['registrationEndTime'],
+    'declareResistanceEndTime': request['declareResistanceEndTime'],
+    'declareHordeEndTime': request['declareHordeEndTime'],
   }
   game_state.put('/games', request['gameId'], put_data)
   game_state.put('/games/%s/adminUsers' % request['gameId'], request['adminUserId'], True)
@@ -129,10 +133,12 @@ def UpdateGame(request, game_state):
     'startTime': '|Timestamp',
     'endTime': '|Timestamp',
     'registrationEndTime': '|Timestamp',
+    'declareResistanceEndTime': '|Timestamp',
+    'declareHordeEndTime': '|Timestamp',
   })
 
   put_data = {}
-  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime']:
+  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
     if property in request:
       put_data[property] = request[property]
 
@@ -1008,6 +1014,11 @@ def AddPlayerToGroupInner(game_state, group_id, public_player_to_add_id):
     /privatePlayers/%(playerId)/missions/
   """
 
+  group = game_state.get('/groups', group_id)
+  public_player = game_state.get('/publicPlayers', public_player_to_add_id)
+  if group['allegianceFilter'] != 'none' and group['allegianceFilter'] != public_player['allegiance']:
+    raise InvalidInputError('Player does not match group\'s allegiance filter!')
+
   private_player_to_add_id = helpers.GetPrivatePlayerId(game_state, public_player_to_add_id)
 
   game_state.put('/groups/%s/players' % group_id, public_player_to_add_id, True)
@@ -1742,6 +1753,7 @@ def CreateMap(request, game_state):
     'gameId': 'GameId',
     'accessGroupId': 'GroupId',
     'mapId': '!MapId',
+    'requestTrackingUntil': 'Timestamp',
     'name': 'String',
   })
 
@@ -1758,6 +1770,31 @@ def CreateMap(request, game_state):
       request['mapId'],
       True)
   ]
+
+
+def UpdateMap(request, game_state):
+  """Update an existing reward group.
+
+  Firebase entries:
+    /rewardCategories/%(rewardCategoryId)
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'mapId': 'MapId',
+    'name': '|String',
+    'requestTrackingUntil': '|Timestamp',
+  })
+
+  map_id = request['mapId']
+
+  map_data = {}
+  for k in ('name', 'requestTrackingUntil'):
+    if k in request:
+      map_data[k] = request[k]
+
+  game_state.patch('/maps/%s' % map_id, map_data)
+
+
 
 # For lack of any organization in this project and my devious inclusion to
 # entropy I placed this here, right before I used it.

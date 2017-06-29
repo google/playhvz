@@ -12,8 +12,8 @@
         isAdmin: Boolean,
         database: Object,
         actingPlayerId: String,
-        user: String,
-        game: String,
+        user: Object,
+        game: Object,
         playerId: String,
         player: Object,
         path: Array,
@@ -197,6 +197,18 @@
       </div>
     </div>
   </div>
+
+  <!-- TODO: Put this in appropriate location -->
+  <template is="dom-repeat" items="[[player.claims]]" as="claim">
+    <ghvz-reward-category
+        bridge="[[bridge]]"
+        game="[[game]]"
+        reward-category-id="[[claim.rewardCategoryId]]">
+    </ghvz-reward-category>
+  </template>
+
+
+
   <template is="dom-if" if="[[seePrivateInfo_(isAdmin, actingPlayerId, playerId)]]">
     <div id="details">
       <div>Notifications should sound: <b>[[computeBooleanText_(player.private.notificationSettings.sound)]]</b></div>
@@ -257,6 +269,7 @@
           </ghvz-player-label>
         </div>
       </template>
+      
     </div>
   </template>
 </template>

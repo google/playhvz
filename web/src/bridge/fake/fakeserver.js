@@ -187,7 +187,7 @@ class FakeServer {
       return;
 
     if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance)
-      throw InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
+      throw new InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
 
     this.writer.insert(
         this.reader.getGroupPlayerPath(gameId, groupId, null),
@@ -217,14 +217,12 @@ class FakeServer {
     let player = game.playersById[playerId];
     let group = game.groupsById[groupId];
 
-    console.log("checking membership of", group.playersById);
     let existingMembership = group.playersById[playerId];
     if (!existingMembership)
       return;
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
-        console.log("removing", player.name, "from", group.name);
         this.removePlayerFromChatRoom_(game.id, chatRoom.id, player.id);
       }
     }
@@ -298,7 +296,7 @@ class FakeServer {
             playerId: playerId,
           })));
     } else {
-      throw InvalidRequestError('Can\'t send message to chat room without membership');
+      throw new InvalidRequestError('Can\'t send message to chat room without membership');
     }
   }
 
@@ -314,6 +312,54 @@ class FakeServer {
       this.writer.set(
           playerChatRoomMembershipPath.concat([argName]),
           args[argName]);
+    }
+
+    if( message.indexOf("@!")!=-1 && message.indexOf("@?")!= -1)
+      throw 'Only one type of request category at one time!'
+
+    if( message.indexOf("@!")!=-1 || message.indexOf("@?")!=1){
+      let space = 0;
+      while(space< message.length){
+        space = message.indexOf(" ", space);
+        if (message.charAt(space+1) != '@')
+          break;
+      }
+      let text = message.substring(space+1);
+
+      let type;
+      let mark;
+      if(message.indexOf("@!")!=-1){
+        type = "ack";
+        mark = "@!"
+      }
+      else{
+        type = "text";
+        mark = "@?"
+      }
+
+      let requestCategoryID = this.idGenerator.newRequestCategoryId();
+      this.addRequestCategory({
+        gameId: gameId,
+        requestCategoryId: requestCategoryID,
+        chatRoomId:chatRoomId,
+        playerId: playerId,
+        text: text,
+        type: type,
+        dismissed: false,
+      });
+
+      let firstHalf = message.substring(0, space);
+      let array = firstHalf.split(" ");
+      for(let i=0; i<array.length; i++){
+          let index = array[i].indexOf(mark);
+          let receivePlayerId = array[i].substring(index+2);
+          this.addRequest({
+            gameId: 'GameId',
+            requestCategoryId: requestCategoryID,
+            requestId: this.idGenerator.newRequestId(),
+            playerId: receivePlayerId,
+          });
+      }
     }
   }
 
