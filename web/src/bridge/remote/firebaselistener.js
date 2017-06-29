@@ -540,11 +540,9 @@ window.FirebaseListener = (function () {
       this.listenOnce_(`/privatePlayers/${privatePlayerId}/notifications/${notificationId}`).then((snap) => {
         let obj = new Model.Notification(notificationId, snap.val());
         this.writer.insert(this.reader.getNotificationPath(gameId, publicPlayerId, null), null, obj);
-        console.log('listened to notification!');
         this.listenForPropertyChanges_(
           snap.ref, Model.NOTIFICATION_PROPERTIES, Model.NOTIFICATION_COLLECTIONS,
           (property, value) => {
-            console.log('updating', property, 'to', value);
             this.writer.set(this.reader.getNotificationPath(gameId, publicPlayerId, notificationId).concat([property]), value);
           });
       });
@@ -560,8 +558,31 @@ window.FirebaseListener = (function () {
           (property, value) => {
             this.writer.set(this.reader.getChatRoomPath(gameId, chatRoomId).concat([property]), value);
           });
+
+        // Only listen to anything more recent than the last 100 messages
+        // Temporary, until some day when we split /messages into its own root or something
+        let startMessageTimestamp = 0;
+        let originalMessages = snap.val().messages || [];
+        let messagesMap = snap.val().messages;
+        let messages = [];
+        for (let messageId in messagesMap) {
+          let message = messagesMap[messageId];
+          message.id = messageId;
+          messages.push(message);
+        }
+        messages.sort((a, b) => a.time - b.time);
+        if (messages.length > 100) {
+          let hundredthMostRecentMessage = messages[messages.length - 100];
+          startMessageTimestamp = hundredthMostRecentMessage.time;
+        }
+
         this.firebaseRoot.child(`/chatRooms/${chatRoomId}/messages`)
-          .on('child_added', (snap) => this.listenToChatRoomMessage_(gameId, chatRoomId, snap.getKey()));
+          .on('child_added', (snap) => {
+            console.log('comparing', snap.val().time, ' to ', startMessageTimestamp);
+            if (snap.val().time >= startMessageTimestamp) {
+              this.listenToChatRoomMessage_(gameId, chatRoomId, snap.getKey());
+            }
+          });
       });
     }
 
