@@ -74,12 +74,11 @@ try:
   # If you click Save, the new words should show up.
   driver.Click([[By.NAME, 'faq-card'],[By.ID, 'done']])
 
-  # driver.ExpectContains(
-  #     [[By.NAME, 'faq-card'], [By.ID, 'contents']],
-  #     'Here is how you find a possessed human.')
+  driver.ExpectContains(
+      [[By.NAME, 'faq-card'], [By.ID, 'contents']],
+      'Here is how you find a possessed human.')
 
   driver.Quit()
 
 finally:
-  # driver.Quit()
   pass
