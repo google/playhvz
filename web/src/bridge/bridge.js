@@ -186,6 +186,8 @@ class FakeIdGenerator extends IdGenerator {
     startTime: 'Timestamp',
     endTime: 'Timestamp',
     registrationEndTime: 'Timestamp',
+    declareResistanceEndTime: 'Timestamp',
+    declareHordeEndTime: 'Timestamp',
   });
   serverMethods.set('updateGame', {
     gameId: 'GameId',
@@ -197,6 +199,8 @@ class FakeIdGenerator extends IdGenerator {
     startTime: '|Timestamp',
     endTime: '|Timestamp',
     registrationEndTime: '|Timestamp',
+    declareResistanceEndTime: '|Timestamp',
+    declareHordeEndTime: '|Timestamp',
   });
   serverMethods.set('setAdminContact', {
     gameId: 'GameId',
@@ -405,11 +409,13 @@ class FakeIdGenerator extends IdGenerator {
     mapId: '!MapId',
     accessGroupId: 'GroupId',
     name: 'String',
+    requestTrackingUntil: 'Timestamp',
   });
   serverMethods.set('updateMap', {
     gameId: 'GameId',
     mapId: 'MapId',
-    name: 'String',
+    name: '|String',
+    requestTrackingUntil: '|Timestamp',
   });
 
   serverMethods.set('addMarker', {

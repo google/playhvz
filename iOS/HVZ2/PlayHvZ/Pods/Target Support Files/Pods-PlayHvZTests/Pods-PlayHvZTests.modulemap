@@ -1,6 +1,0 @@
-framework module Pods_PlayHvZTests {
-  umbrella header "Pods-PlayHvZTests-umbrella.h"
-
-  export *
-  module * { export * }
-}

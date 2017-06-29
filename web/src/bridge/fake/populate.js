@@ -31,7 +31,7 @@ function makePlayerProperties(id, userId, gameId, time, name) {
     needGun: false,
     beInPhotos: true,
     profileImageUrl: PlayerUtils.getDefaultProfilePic(name),
-    wantToBeSecretZombie: true,
+    wantToBeSecretZombie: false,
     volunteer: {
       advertising: false,
       logistics: false,
@@ -174,6 +174,8 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     registrationEndTime: 1483286400000,
     startTime: 1483344000000,
     endTime: 1483689600000,
+    declareHordeEndTime: 1583286400000,
+    declareResistanceEndTime: 1583286400000,
   });
   bridge.addDefaultProfileImage({
     gameId: gameId,
@@ -306,6 +308,12 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     playerId: moldaviPlayerId
   });
+  bridge.updatePlayer({
+    gameId: gameId,
+    playerId: moldaviPlayerId,
+    gotEquipment: true,
+    notes: 'captain of stradivarius',
+  });
   bridge.joinResistance({
     gameId: gameId,
     playerId: moldaviPlayerId,
@@ -315,7 +323,9 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
   
   var jackPlayerId = bridge.idGenerator.newPublicPlayerId();
-  bridge.createPlayer(makePlayerProperties(jackPlayerId, jackUserId, gameId, 1483257600000, 'JackSlayerTheBeanSlasher'));
+  let jackProperties = makePlayerProperties(jackPlayerId, jackUserId, gameId, 1483257600000, 'JackSlayerTheBeanSlasher');
+  jackProperties.wantToBeSecretZombie = true;
+  bridge.createPlayer(jackProperties);
   bridge.joinResistance({
     gameId: gameId,
     playerId: jackPlayerId,
@@ -476,7 +486,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   });
 
   var resistanceMapId = bridge.idGenerator.newMapId();
-  bridge.createMap({gameId: gameId, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
+  bridge.createMap({gameId: gameId, requestTrackingUntil: new Date().getTime() + gameStartOffset, mapId: resistanceMapId, accessGroupId: resistanceGroupId, name: "Resistance Players"});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "First Tower", color: "FF00FF", playerId: null, mapId: resistanceMapId, latitude: 37.423734, longitude: -122.092054});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
@@ -901,13 +911,17 @@ const FAQ_HTML = `
 `;
 
 const RULES_HTML = `
-Admins may change rules as the game goes on. Keep an eye on notifications for updates!
- 
+<div>Additional rules and clarifications might be added before game, send any questions to hvz-cdc@</div>
+<div>Admins may change rules as the game goes on. Keep an eye out for updates!</div>
+<div>So long as you follow the rules, you’re free to play however you like, including playing deceptively or lying.</div>
+<div><b>If any rules conflict with safety, do the safe thing!</b></div>
+
 <ghvz-rules-section title="Game Identification, Life Code">
 <ul>
-<li>Each player will be given a strip of cloth to identify them as a player, and each human will be given a life code.</li>
+<li>Each player will be given a strip of pink cloth to identify them as a player, each human will be given a life code.</li>
 <li>Humans wear their band visibly on their arm, zombies wear them visibly around their head.</li>
 <li>Upon being infected by a zombie, the human gives the zombie their life code.</li>
+<li>Moderators will have orange armbands.</li>
 </ul>
 </ghvz-rules-section>
  
@@ -916,7 +930,8 @@ Admins may change rules as the game goes on. Keep an eye on notifications for up
 <div>When infected:</div>
 <ul>
 <li>Both players are now zombies, and are stunned for 1 minute.</li>
-<li>The zombie must collect the victim's life code, and report the infection on go/hvz as soon as they can.</li>
+<li>The zombie must collect the victim's life code, and report the infection on the site as soon as they can.</li>
+<li>The victim must move their armband to their head.</li>
 <li>The zombies must count the last 10 seconds aloud.</li>
 <li>After the minute is up, both players return to the game as zombies.</li>
 </ul>
@@ -924,32 +939,33 @@ Admins may change rules as the game goes on. Keep an eye on notifications for up
 <ul>
 <li>Zombies may be given pool noodles that act as an extension of their arm, at the discretion of moderators only.</li>
 <li>If there is any confusion or dispute, contact the moderator.</li>
+<li>There will be 1 mission a day. Miss two consecutive missions and you will automatically become infected. Humans that complete the Friday mission survive the game.</li>
 </ul>
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
  
 <ghvz-rules-section title="Stunning">
-<div>Humans can stun ANY player (humans or zombie) for 1 minute by shooting them with a nerf dart, throwing a sock at them, or hitting them with an admin given pool noodle.</div>
+<div>Humans can stun ANY player (humans or zombie) for 1 minute by shooting them with a nerf dart, hitting them with a sock they threw, or tagging them with an admin given pool noodle. When stunned, the player must:</div>
 <div>When stunned:</div>
 <ul>
-<li>Crouch/sit down, and not move from their spot for 1 minute.</li>
-<li>The zombie must count the last 10 seconds aloud.</li>
-<li>When the minute is up, the zombie can stand up and return to mauling humans.</li>
+<li>Crouch/sit down, and not move from their spot for 1 minute, or sooner (for humans) if unstunned.</li>
+<li>Count the last 10 seconds aloud.</li>
+<li>When the minute is up, stand up and return to the game.</li>
 </ul>
 <ghvz-rules-collapsible title="Details">
 <ul>
-<li>Humans that were stunned by other humans are vulnerable to zombies while waiting to become unstunned.</li>
+<li>Humans that were stunned by other humans are vulnerable to zombies while waiting to become unstunned (but they can still shoot).</li>
+<li>If you have a functionally modded blaster, email hvz-cdc@ to get it approved. Let a moderator know if someone’s blaster is painful.</li>
 <li>Don’t stuff things in the socks, just roll them up.</li>
-<li>Modded guns are fine, as long as they aren't too powerful: when shot horizontally from 5 feet above the ground, the dart shouldn't go further than 45 feet. Let a moderator know if someone’s gun is painful.</li>
 <li>Admins may add more methods of stunning as the game goes on.</li>
 <li>Zombies cannot sit down near a human unless the zombie is stunned.</li>
-<li>If a stunned player is in an unsafe situation or is inconveniencing non-players, they may walk to the nearest safe location, then sit down and begin their counter from the start.</li>
+<li>If a stunned player is in an unsafe situation or is inconveniencing non-players, they must walk to the nearest safe location, then sit down and begin their counter from the start.</li>
 <li>A stunned player may not be stunned again to restart their timer.</li>
-<li>Zombies can block a stun with an admin-given shield.</li>
-<li>Admins might change the stun timer during the game.</li>
-<li>Once a dart leaves the gun, any player can pick it up and use it.</li>
-<li>Players are encouraged to pick up darts when they can so we don’t leave a mess on campus, and players who turn in darts to the moderators will be rewarded. Please pick up your darts if possible.</li>
-<li>No player may take another player’s nerf gun without permission from the owner. Any humans borrowing a gun can only give it to a moderator, NOT another player to return for them.</li>
+<li>Players can block a stun with an admin-given shield or noodle.</li>
+<li>Admins might change the stun timer during the game or add areas players can go to respawn.</li>
+<li>Once a dart hits the ground, any player can pick it up and use it.</li>
+<li>Please pick up any darts you find (even if they’re not yours)</li>
+<li>No player may take another player’s nerf blaster without permission from the owner. Any humans borrowing a loaner blaster can only give it to a moderator, NOT another player to return for them.</li>
 </ul>
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
@@ -962,9 +978,9 @@ Any human can “unstun” any stunned human by touching them.
 Secret zombies are human in every way, except when a secret zombie touches a human:
 <ul>
 <li>Both players crouch/sit down are stunned for 1 minute.</li>
-<li>The secret zombie gets the victim's life code, and report the infection on the site as soon as they can.</li>
-<li>The secret zombie becomes a regular zombie and so must move the bandanna to their head.</li>
-<li>The victim becomes the new secret zombie and so keeps the bandanna on their arm.</li>
+<li>The possessed human gets the victim's life code, and report the infection on the site as soon as they can.</li>
+<li>The possessed human becomes a regular zombie and so must move the bandanna to their head.</li>
+<li>The victim becomes the new possessed human and so keeps the bandanna on their arm.</li>
 <li>They must count the last 10 seconds of their stun aloud.</li>
 <li>When the minute is up, they both stand up and resume playing.</li>
 </ul>
@@ -975,28 +991,35 @@ There are many streets in the playable area for the game so please play away fro
 <ul>
 <li>Once you get within 15 feet of the crosswalk button, you’re out of play (can’t be infected/stunned, can’t infect/stun).</li>
 <li>Press the button.</li>
-<li>Once the walk sign appears, <b>everyone</b> (humans and zombies) must <b>walk</b> (not run) across the crosswalk.</li>
+<li>Once walk sign appears, everyone (humans and zombies) must walk (not run) across the crosswalk.</li>
 <li>Once there are no players still in the crosswalk, the humans say “3 resistance, 2 resistance, 1 resistance, go!” then they are in play and can run.</li>
 <li>Once the humans say “go!”, the zombies, still out of play, will say “3 zombie horde, 2 zombie horde, 1 zombie horde, go!” and then they are in play and can chase the humans.</li>
 </ul>
+<div>No looking at cell phones in cross walks!</div>
 </ghvz-rules-section>
  
 <ghvz-rules-section title="Time Out">
-For any reason, if a player is in an unsafe situation:
+For any reason, if a player is in an unsafe situation, that player and all players near them are out of play. The player should call “Time Out!” to tell anyone near them. No infections/stuns count.
 <ul>
-<li>That player and all players near them are out of play.</li>
-<li>The player should call “Time Out!” to tell anyone near them.</li>
-<li>No infections/stuns count.</li>
-<li>Once there are no players in danger, the humans say “3 resistance, 2 resistance, 1 resistance, go!” then they are in play and can run.</li>
+<li>If you hear someone yell “Time out!”, or see anyone with their first on head, put your fist on your head.</li>
+<li>If it’s time out, and you see someone without their fist on their head, yell “Time out!”</li>
+</ul>
+Once there are no players in danger:
+<ul>
+<li>Humans say “3 resistance, 2 resistance, 1 resistance, go!” then they are in play and can run.</li>
 <li>Once the humans say “go!”, the zombies, still out of play, will say “3 zombie horde, 2 zombie horde, 1 zombie horde, go!” and then they are in play and can chase the humans.</li>
 </ul>
 If this rule is not being respected, contact a moderator.
 </ghvz-rules-section>
  
 <ghvz-rules-section title="Out of Play">
+<ul>
+<li>A player is playing the game (“in play”) whenever they have their armband/headband on, otherwise, they are not playing at the time (“out of play”).</li>
+<li>A player can only put the armband/headband on, or take it off, at a door. Combined with the rule above, this means that one can only enter/leave the game at any Google door.</li>
+</ul>
 If you find yourself in one of these areas, you are temporarily out of play until you leave the area. Please do not abuse these areas to escape zombies:
 <ul>
-<li>Inside, and 10 feet around any door leading outside</li>
+<li>Inside, and 10 feet around any door</li>
 <li>Any unsafe area, such as parking lots. Going into streets will get you banned.</li>
 <li>Any crowded area, or anywhere that will bother working people</li>
 <li>Outdoor dining and seating when non-players are present</li>
@@ -1004,25 +1027,14 @@ If you find yourself in one of these areas, you are temporarily out of play unti
 <li>When riding a bike</li>
 </ul>
 <ghvz-rules-collapsible title="Details">
-Any player going inside or to a door during a mission BEFORE they have accomplished the objective has forfeited the mission.
+<div>Any player going inside or to a door during a mission BEFORE they have accomplished the objective has forfeited the mission.</div>
+<div>No player can be infected or stunned before 9am or after 8:00pm.</div>
+<div>Tags/Stuns made because of unsafe situations do not count.</div>
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
  
-<ghvz-rules-section title="Moderators">
-Moderators look like this and this is how you find them
-</ghvz-rules-section>
- 
 <ghvz-rules-section title="Safe Zones">
-<ul>
-<li>Any circle of caution tape / cones set up by a moderator or a helper is a safe zone.</li>
-<li>Zombies cannot stun or infect players from inside safe zones.</li>
-<li>Humans can stun players from inside safe zones.</li>
-</ul>
-<ghvz-rules-collapsible title="Details">
-<ul>
-<li>Any player that has at least one foot inside the safe zone is considered to be in it.</li>
-<li>Tags/Stuns made because of unsafe situations do not count.</li>
-</ul>
+Any circle of cones set up by a moderator or a helper is a safe zone. Zombies cannot stun or infect players from inside safe zones. Humans can stun players from inside safe zones. Any player that has at least one foot inside the safe zone is considered to be in it.
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
  

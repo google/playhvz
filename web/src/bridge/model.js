@@ -28,7 +28,7 @@ Model.UserPublicPlayer = function(id, args) {
   Utils.addEmptyLists(this, Model.USER_PUBLIC_PLAYER_COLLECTIONS);
 }
 
-Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId", "startTime", "endTime", "registrationEndTime"];
+Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId", "startTime", "endTime", "registrationEndTime", "declareHordeEndTime", "declareResistanceEndTime"];
 Model.GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "queuedNotifications", "quizQuestions", "groups", "maps", "defaultProfileImages"];
 Model.Game = function(id, args) {
   this.id = id;
@@ -237,7 +237,7 @@ Model.Notification = function(id, args) {
   Utils.addEmptyLists(this, Model.NOTIFICATION_COLLECTIONS);
 }
 
-Model.REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl", "gameId"];
+Model.REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl", "gameId", "description"];
 Model.REWARD_CATEGORY_COLLECTIONS = ["rewards"];
 Model.RewardCategory = function(id, args) {
   this.id = id;

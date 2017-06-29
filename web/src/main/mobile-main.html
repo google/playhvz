@@ -31,9 +31,9 @@
         },
 
         canDeclare: {
-            type: Boolean,
-            computed: 'computeCanDeclare_(player.allegiance)',
-          },
+          type: Boolean,
+          computed: 'computeCanDeclare_(player.allegiance)',
+        },
 
         canSelfInfect: {
           type: Boolean,
@@ -44,6 +44,10 @@
       computeIsAdmin_: function(user, game) {
         let admin = game.admins.find((admin) => admin.userId == user.id);
         return !!admin;
+      },
+
+      computeCanDeclare_(allegiance) {
+        return allegiance == 'undeclared';
       },
 
       computeCanRegister_(game, player) {
