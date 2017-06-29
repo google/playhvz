@@ -86,7 +86,7 @@ try:
     driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerChat']])
 
-  driver.FindElement([[By.NAME, 'Resistance Comms Hub']])
+  driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Resistance Comms Hub']])
 
   if driver.is_mobile:
     driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
@@ -148,7 +148,7 @@ try:
     driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerChat']])
 
-  driver.FindElement([[By.NAME, 'Horde ZedLink']])
+  driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Horde ZedLink']])
 
   driver.Quit()
 

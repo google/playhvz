@@ -16,7 +16,7 @@ def insertAndVerifyMissionInfo(
   details,
   groupName):
 
-  driver.SendKeys([[By.ID, 'form-section-mission-name'],[By.TAG_NAME, 'input']], name)
+  driver.SendKeys([[By.ID, 'form-section-mission-name'],[By.TAG_NAME, 'input']], name) #TODO(aliengirl): Figure out why occasionally it says this element doesn't exist
 
   driver.Backspace([[By.ID, 'form-section-mission-begin'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
   driver.SendKeys([[By.ID, 'form-section-mission-begin'],[By.ID, 'year'],[By.TAG_NAME, 'input']], startYear)
@@ -62,7 +62,7 @@ try:
 
 
   # Delete the two missions which start out there 
-  driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.ID, 'menu']])
+  driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.ID, 'menu']]) # TODO(aliengirl): figure out why menu doesn't always open here
   driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.NAME, 'menu-item-Delete']])
   
   driver.Click([[By.NAME, "mission-row-first human mission!"], [By.ID, 'menu']]) # TODO(aliengirl): figure out why menu doesn't always open here
@@ -71,7 +71,7 @@ try:
 
   # Make sure both humans and zombies get a default message when no missions are posted.
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+    driver.Click([[By.NAME, 'admin-missions-card'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerDashboard']])
   driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
 
@@ -119,7 +119,7 @@ try:
     details='<div>eat humans</div>',
     groupName='Horde')
 
-  # Log in as a human (Jack), make sure he can see the human mission
+  # Log in as a human (Jack), make sure he can see the human mission but not the zombie mission
   driver.SwitchUser('jack')
 
   if driver.is_mobile:
@@ -127,8 +127,9 @@ try:
   driver.Click([[By.NAME, 'drawerDashboard']])
 
   driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans', should_exist=False)
   
-  # Log in as a zombie (Zeke), make sure he can see the zombie mission
+  # Log in as a zombie (Zeke), make sure he can see the zombie mission but not the human mission
   driver.SwitchUser('zeke')
 
   if driver.is_mobile:
@@ -136,13 +137,13 @@ try:
   driver.Click([[By.NAME, 'drawerDashboard']])
 
   driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans')
+  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world', should_exist=False)
 
-  # TODO - ONCE IMPLEMENTED... 
-  # As an admin, create a mission for humans who RSVP'd to the mission
+  # As an admin, create another human mission
   driver.SwitchUser('zella')
 
   if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
+    driver.Click([[By.NAME, 'admin-missions-card'], [By.NAME, 'drawerButton']])
   driver.Click([[By.NAME, 'drawerAdmin Missions']])
 
   driver.Click([[By.ID, 'add']])
@@ -162,24 +163,7 @@ try:
 
   # As far as I can tell, the only way to assign a mission to the rsvpers for it is to edit it.
 
-  # driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.ID, 'menu']])
-  # driver.Click([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble'], [By.NAME, 'menu-item-Edit']])
-
-  # insertAndVerifyMissionInfo(
-  #   name='Defeat the dread zombie boss Gnashable the Zeebweeble',
-  #   startYear='2017',
-  #   startMonth='9',
-  #   startDay='20',
-  #   startTime='3:00am',
-  #   endYear='2038',
-  #   endMonth='4',
-  #   endDay='2',
-  #   endTime='10:15pm',
-  #   details='<div>Basically, we just run around in circles trying not to die.</div>',
-  #   groupName='Rsvpers for Defeat the dread zombie boss Gnashable the Zeebweeble')
-
-  # (WHEN IMPLEMENTED... )
-  # Have Jack RSVP, see that the mission only appears after he RSVPs
+  # This mission shows up (since the end date is sooner than the other one)
   driver.SwitchUser('jack')
   driver.ExpectContains([[By.NAME, 'next-mission-box']], 'Basically, we just run around in circles trying not to die.')
 
@@ -209,8 +193,6 @@ try:
   # Log in as a human (Jack). Show that the new mission doesn't show up anymore
   driver.SwitchUser('jack')
   driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
-
-
   
   driver.Quit()
 
