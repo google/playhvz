@@ -29,7 +29,7 @@ def runTest(clientUrl, password, useRemote, useMobile):
 
 def desktopAndMobileTests(clientUrl, password, useRemote):
 	runTest(clientUrl, password, useRemote, useMobile=True)
-	#runTest(clientUrl, password, useRemote, useMobile=False)
+	runTest(clientUrl, password, useRemote, useMobile=False)
 
 def fakeAndRemoteTests(clientUrl, password):
 	#desktopAndMobileTests(clientUrl, password, useRemote=True)
