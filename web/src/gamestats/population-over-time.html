@@ -329,7 +329,8 @@
           }
         };
 
-        this.@.population_over_time_chart.textContent = '';
+        // ensure old dom is cleared out
+        this.$.population_over_time_chart.textContent = '';
         var chart = new google.visualization.LineChart(
           this.$.population_over_time_chart);
 

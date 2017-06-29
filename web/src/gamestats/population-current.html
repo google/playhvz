@@ -65,6 +65,7 @@
           legend: { position: 'right' }
         };
 
+        // ensure old dom is cleared out
         this.$.current_population_chart.textContent = '';
         var chart = new google.visualization.PieChart(
           this.$.current_population_chart);
