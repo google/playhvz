@@ -87,8 +87,8 @@
           var chatRoomId = this.bridge.newChatRoomId();
           this.bridge.createGroup({
             name: "Group for " + player.id + "'s chat room",
-            groupId: groupId,
             gameId: this.gameId,
+            groupId: groupId,
             ownerPlayerId: this.player.id,
             allegianceFilter: allegianceFilter,
             autoAdd: autoAdd,
