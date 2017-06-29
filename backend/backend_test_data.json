@@ -293,6 +293,7 @@
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
+      "missionMemberships": {"mission-%(ident)s-1": true},
       "beInPhotos": true,
       "userId": "user-%(ident)s-1",
       "gotEquipment": true,
@@ -397,6 +398,7 @@
       "beInPhotos": true,
       "userId": "user-%(ident)s-4",
       "gotEquipment": true,
+      "missionMemberships": {"mission-%(ident)s-1": true},
       "wantToBeSecretZombie": true,
       "volunteer": {
         "advertising": false, "logistics": false, "communications": false, "moderator": false,

@@ -12,7 +12,7 @@ try:
 
   # Go to the Rules page, change the rules
   driver.Click([[By.NAME, 'drawerRules']]) #Crashed here (drawer wasn't open)
-  driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'rules-icon']])
+  driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'rules-icon']]) # Flaked once on remote, another icon would have received click -verdagon
   driver.SendKeys(
       [[By.NAME, 'rules-card'], [By.TAG_NAME, 'textarea']], 'rules are cools')
 

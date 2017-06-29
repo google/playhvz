@@ -108,6 +108,7 @@ methods = {
   'updateQuizQuestion': api_calls.UpdateQuizQuestion,
   'updateMap': api_calls.UpdateMap,
   'addQuizAnswer': api_calls.AddQuizAnswer,
+  'updateChatRoomMembership': api_calls.UpdateChatRoomMembership,
   'updateQuizAnswer': api_calls.UpdateQuizAnswer,
   'addDefaultProfileImage': api_calls.AddDefaultProfileImage,
   'DeleteTestData': api_calls.DeleteTestData,

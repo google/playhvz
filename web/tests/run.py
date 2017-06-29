@@ -31,12 +31,12 @@ def runTest(clientUrl, password, useRemote, useMobile):
 		printAndRun("python startgame.py %s" % args) # problem - declare isn't visible on mobile (don't run it on mobile)
 
 def desktopAndMobileTests(clientUrl, password, useRemote):
-	runTest(clientUrl, password, useRemote, useMobile=True)
+	# runTest(clientUrl, password, useRemote, useMobile=True)
 	runTest(clientUrl, password, useRemote, useMobile=False)
 
 def fakeAndRemoteTests(clientUrl, password):
-	#desktopAndMobileTests(clientUrl, password, useRemote=True)
-	desktopAndMobileTests(clientUrl, password, useRemote=False)
+	desktopAndMobileTests(clientUrl, password, useRemote=True)
+	# desktopAndMobileTests(clientUrl, password, useRemote=False)
 
 def main():
 	# Default args

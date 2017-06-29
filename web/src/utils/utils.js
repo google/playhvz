@@ -9,7 +9,7 @@ Utils.generateId = function(type, note) {
   let result = type + "-";
   if (note)
     result += note + "-";
-	return result + Math.random() * Math.pow(2, 52);
+	return result + new Date().getTime() + "-" + Math.floor(Math.random() * Math.pow(2, 32));
 }
 
 /*
