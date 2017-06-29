@@ -146,7 +146,6 @@ class FakeServer {
   }
   createChatRoom(args) {
     let {gameId, chatRoomId, accessGroupId} = args;
-    args.numMessages = 0;
     this.writer.insert(
         this.reader.getChatRoomPath(gameId, null),
         null,

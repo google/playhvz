@@ -578,7 +578,6 @@ window.FirebaseListener = (function () {
 
         this.firebaseRoot.child(`/chatRooms/${chatRoomId}/messages`)
           .on('child_added', (snap) => {
-            console.log('comparing', snap.val().time, ' to ', startMessageTimestamp);
             if (snap.val().time >= startMessageTimestamp) {
               this.listenToChatRoomMessage_(gameId, chatRoomId, snap.getKey());
             }
