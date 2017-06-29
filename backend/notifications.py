@@ -80,7 +80,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
                                 data_message=notification)
 
 def ExecuteNotifications(request, game_state):
-  """INTERNAL ONLY: Send the notifications.
+  """Send the notifications.
 
   This method will execute queued notifications and send them to apps and add
   them to the player specific notification database URLs.
