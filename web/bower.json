@@ -1,0 +1,39 @@
+{
+  "name": "PlayHvZ",
+  "description": "Humans vs Zombies Site",
+  "main": "index.html",
+  "authors": [
+    "Evan Ovadia",
+    "Chewy Shaw"
+  ],
+  "license": "",
+  "homepage": "https://github.com/google/playhvz",
+  "dependencies": {
+    "iron-a11y-keys": "^1.0.7",
+    "iron-flex-layout": "^1.3.2",
+    "iron-form": "^1.1.4",
+    "iron-icons": "^1.2.0",
+    "iron-image": "^1.2.5",
+    "neon-animation": "^1.2.5",
+    "paper-button": "^1.0.14",
+    "paper-checkbox": "^1.4.2",
+    "paper-dialog": "^1.1.0",
+    "paper-drawer-panel": "^1.0.11",
+    "paper-dropdown-input": "^2.4.1",
+    "paper-dropdown-menu": "^1.5.0",
+    "paper-fab": "^1.2.1",
+    "paper-icon-button": "^1.1.4",
+    "paper-item": "^1.2.1",
+    "paper-input": "^1.1.23",
+    "paper-listbox": "^1.1.2",
+    "paper-menu-button": "^1.5.2",
+    "paper-material": "^1.0.6",
+    "paper-menu": "^1.2.2",
+    "paper-progress": "^1.0.12",
+    "paper-radio-group": "^1.2.1",
+    "paper-spinner": "^1.2.1",
+    "paper-toggle-button": "^1.3.0",
+    "paper-tooltip": "^1.1.3",
+    "polymerfire": "^0.10.3"
+  }
+}
