@@ -16,15 +16,6 @@
 
 """TODO: High-level file comment."""
 
-import sys
-
-
-def main(argv):
-    pass
-
-
-if __name__ == '__main__':
-    main(sys.argv)
 import setup
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -45,9 +36,7 @@ try:
   driver.SwitchUser('jack')
 
   driver.Click([[By.NAME, 'close-notification']])
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
   # Jack creates his own personal chatroom with no other players
   driver.Click([[By.NAME, 'drawerChat']])
@@ -65,7 +54,7 @@ try:
   driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
-  driver.FindElement([[By.NAME, "drawer-Humanity's Last Hope"]]) #MOBILE?
+  driver.FindElement([[By.NAME, "drawer-Humanity's Last Hope"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-drawer-add"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "player-name-MoldaviTheMoldavish"]])
@@ -87,10 +76,7 @@ try:
 
   # Sign in as Zella, make sure she's the owner
   driver.SwitchUser('zella')
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerChat']])
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
   # Open the drawer of each to check that Zella can add/bump people (i.e. is the owner)
   driver.Click([[By.TAG_NAME, 'ghvz-chat-room-list'], [By.NAME, "Humanity's Last Hope"]])
@@ -98,25 +84,20 @@ try:
 
   # Bump Moldavi
   driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], 
-  	[By.NAME, "chat-drawer-Humanity's Last Hope"], 
-  	[By.NAME, 'MoldaviTheMoldavish'], 
-  	[By.TAG_NAME, 'paper-icon-button']])
+    [By.NAME, "chat-drawer-Humanity's Last Hope"], 
+    [By.NAME, 'MoldaviTheMoldavish'], 
+    [By.TAG_NAME, 'paper-icon-button']])
   driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], 
-  	[By.NAME, "chat-drawer-Humanity's Last Hope"], 
-  	[By.NAME, 'MoldaviTheMoldavish'], 
-  	[By.ID, 'kick-MoldaviTheMoldavish']])
+    [By.NAME, "chat-drawer-Humanity's Last Hope"], 
+    [By.NAME, 'MoldaviTheMoldavish'], 
+    [By.ID, 'kick-MoldaviTheMoldavish']])
   driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.ID, 'kickForm'], [By.ID, 'done']])
 
   # Add Moldavi back in
   driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-add"]])
   driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "player-name-MoldaviTheMoldavish"]])
 
-
-
-
-
-
-
+  driver.Quit()
 
 finally:
-	pass
+  pass

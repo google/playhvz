@@ -27,7 +27,6 @@ if __name__ == '__main__':
     main(sys.argv)
 import setup
 from selenium.webdriver.common.by import By
-import time
 
 driver = setup.MakeDriver()
 driver.WaitForGameLoaded()
@@ -42,29 +41,19 @@ try:
         'jack': 'JackSlayerTheBeanSlasher'
       }
 
-  def testChat(playersInChat, playersNotInChat, chatName):
+  def testChat(player, chatName, shouldBeMember):
     try: 
+      driver.SwitchUser(player)
 
-      # Make sure all the players in the chat can post a message
-      for index, player in enumerate(playersInChat):
+      try:
+       driver.Click([[By.NAME, 'close-notification']])
+      except AssertionError:
+        pass # This user didn't have a notification
 
-        driver.SwitchUser(player)
-
-        try:
-         driver.Click([[By.NAME, 'close-notification']])
-        except AssertionError:
-          pass # This user didn't have a notification
-
-        driver.FindElement([[By.NAME, 'close-notification']], should_exist=False)
-
-        if driver.is_mobile:
-          driver.FindElement([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-          driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-        driver.Click([[By.NAME, 'drawerChat']]) # Uh oh - crashed here on mobile (the drawer didn't open right)
-        driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # another uh oh - it crashed here (the drawer opened, but never clicked on chat)
+      if shouldBeMember:
+        driver.DrawerMenuClick('mobile-main-page', 'Chat')
         driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # aaah, crashed here too on mobile
 
-        # Make sure drawer opens fine
         # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
         # This is probably because clicking the X on the notification didn't make it go away.
         driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
@@ -80,69 +69,34 @@ try:
           [By.TAG_NAME, 'textarea']], 'Brains for %s' % player)
         driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'submit-%s' % chatName]])
 
-        # Loop through all previous posts
-        for i in range(index + 1):
+        # Make sure the element shows up
+        driver.FindElement([[By.NAME, 'chat-card'], [By.CLASS_NAME, 'message-from-me']])
+        driver.ExpectContains([[By.NAME, 'chat-card']], 'Brains for %s' % player)
+        driver.DrawerMenuClick('chat-card', 'Dashboard')
 
-          currPlayer= playersInChat[i]
-          currName = playerNames[currPlayer]
-
-          # Check the message, the poster's name, and their avatar are there
-          driver.ExpectContains([
-            [By.NAME, 'chat-card'], 
-            [By.NAME, 'message-%s-Brains for %s' % (chatName, currPlayer)], 
-            [By.CLASS_NAME, 'message-bubble']], 
-            'Brains for %s' % currPlayer)
-          driver.ExpectContains([
-            [By.NAME, 'chat-card'], 
-            [By.NAME, 'message-%s-Brains for %s' % (chatName, currPlayer)], 
-            [By.CLASS_NAME, 'player-name']], 
-            currName)
-          driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'avatar-%s-Brains for %s' % (chatName, currPlayer)]])
-          
-          # Check the last one shows up as yours, and all others belong to other people
-          if i == index:
-            driver.FindElement([
-              [By.NAME, 'chat-card'], 
-              [By.CLASS_NAME, 'message-from-me']])
-          else:
-            driver.FindElement([
-              [By.NAME, 'chat-card'], 
-              [By.CLASS_NAME, 'message-from-other']])
-
-        if driver.is_mobile:
-          driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
-        driver.Click([[By.NAME, 'drawerDashboard']])
-
-      # Check that the chat doesn't exist for players not in the chat
-      for player in playersNotInChat:
-        driver.SwitchUser(player)
-
-        if driver.is_mobile:
-          driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-          driver.Click([[By.NAME, 'drawerChat']]) # Crashed here :(
-          driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], chatName, False)
-          driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
-          driver.Click([[By.NAME, 'drawerDashboard']])
-        else:
-          driver.DontFindElement([[By.NAME, 'ChatRoom: %s' % chatName]]) 
+      else:
+        driver.DrawerMenuClick('mobile-main-page', 'Chat')
+        driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], chatName, should_exist=False)
+        driver.DrawerMenuClick('chat-card', 'Dashboard')
 
     finally:
       pass
 
   # GLOBAL CHAT ROOM - all types of joined players + admins should view.
-  globalPlayers = ['zella', 'deckerd', 'moldavi', 'drake', 'zeke', 'jack']
-  nonGlobalPlayers = []
-  testChat(globalPlayers, [], 'Global Chat')
+  testChat('jack', 'Global Chat', True) # Human
+  testChat('zeke', 'Global Chat', True) # Zombie
+  testChat('deckerd', 'Global Chat', True) # Undeclared
+
 
   # HORDE CHAT ROOM - only declared zombies should view
-  zombiePlayers = ['zeke','drake']
-  nonZombiePlayers = ['zella', 'deckerd', 'moldavi', 'jack']
-  testChat(zombiePlayers, nonZombiePlayers, 'Horde ZedLink')
+  testChat('jack', 'Horde ZedLink', False) # Human
+  testChat('zeke', 'Horde ZedLink', True) # Zombie
+  testChat('deckerd', 'Horde ZedLink', False) # Undeclared
 
   # HUMAN CHAT ROOM - only declared humans should view
-  humanPlayers = ['zella', 'moldavi', 'jack']
-  nonHumanPlayers = ['deckerd', 'drake', 'zeke']
-  testChat(humanPlayers, nonHumanPlayers, 'Resistance Comms Hub')
+  testChat('jack', 'Resistance Comms Hub', True) # Human
+  testChat('zeke', 'Resistance Comms Hub', False) # Zombie
+  testChat('deckerd', 'Resistance Comms Hub', False) # Undeclared
 
   driver.Quit()
 

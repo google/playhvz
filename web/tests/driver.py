@@ -360,3 +360,29 @@ class WholeDriver:
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)
+
+  def RetryUntil(self, action, result, num_times=5):
+    for i in range(num_times):
+      action()
+      try:
+        return result()
+      except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:
+        if i == num_times:
+          raise e
+        else:
+          time.sleep(0.5)
+          print("A retry action failed %d times" % (i + 1))
+
+  def DrawerMenuClick(self, currPage, destinationPage):
+    if self.is_mobile:
+      self.RetryUntil(
+        lambda: self.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']]),
+        lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
+    self.Click([[By.NAME, 'drawer%s' % destinationPage]])
+      
+  def TableMenuClick(self, pathToRow, buttonName):
+    self.RetryUntil(
+      lambda: self.Click(pathToRow + [[By.ID, 'menu']]),
+      lambda: self.FindElement(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]]))
+    self.Click(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]])
+          

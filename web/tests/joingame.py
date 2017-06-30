@@ -41,6 +41,7 @@ try:
 
   driver.Click([[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-button']])
 
+  # TODO(aliengirl): crashed here - maybe add RetryUntil?
   driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option1']])
 
   driver.Click([[By.NAME, 'joinGameTakePhotos'], [By.NAME, 'option1']])
@@ -57,34 +58,21 @@ try:
 
   driver.FindElement([[By.TAG_NAME, 'ghvz-rules']])
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
-    driver.Click([[By.NAME, 'drawerChat']])
-    driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Global Chat')
-  else:
-    driver.FindElement([[By.NAME, 'ChatRoom: Global Chat']])
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Global Chat')
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerLeaderboard']])
-
+  driver.DrawerMenuClick('chat-card', 'Leaderboard')
   driver.ExpectContains(
       [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Name Cell ReggieTheRavager']],
       'ReggieTheRavager')
-
   driver.ExpectContains(
       [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Allegiance Cell ReggieTheRavager']],
       'undeclared')
-
   driver.ExpectContains(
       [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell ReggieTheRavager']],
       '0')
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
 
   driver.SwitchUser('zella')
 
