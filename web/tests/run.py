@@ -52,15 +52,21 @@ def runTest(clientUrl, password, useRemote, useMobile):
 	printAndRun("python globalchat.py %s" % args)
 	printAndRun("python declare.py %s" % args)
 	# printAndRun("python startgame.py %s" % args)
-	printAndRun("python chat.py %s" % args) # In theory works on mobile, but annoyingly flaky
+	printAndRun("python chat.py %s" % args)
+	printAndRun("python chatpage.py %s" % args)
+
+	if not useMobile:
+		printAndRun("python rewardcategories.py %s" % args)
+		printAndRun("python chatEdgeCases.py %s" % args)
+
 
 def desktopAndMobileTests(clientUrl, password, useRemote):
-	# runTest(clientUrl, password, useRemote, useMobile=True)
+	#runTest(clientUrl, password, useRemote, useMobile=True)
 	runTest(clientUrl, password, useRemote, useMobile=False)
 
 def fakeAndRemoteTests(clientUrl, password):
-	desktopAndMobileTests(clientUrl, password, useRemote=True)
-	# desktopAndMobileTests(clientUrl, password, useRemote=False)
+	# desktopAndMobileTests(clientUrl, password, useRemote=True)
+	desktopAndMobileTests(clientUrl, password, useRemote=False)
 
 def main():
 	# Default args

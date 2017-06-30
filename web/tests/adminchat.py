@@ -44,12 +44,6 @@ def getPathToElement(playerName, tag, name):
   xpathForPageElement = "//*[contains(@id, 'chat-page-%s')]//%s[contains(@name, '%s')]"
   return xpathForPageElement % (playerName, tag, name)
 
-def changeToPage(driver, drawerOption, currPage='mobile-main-page'):
-  if driver.is_mobile:
-    driver.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawer' + drawerOption]])
-
 def closeNotifications(driver):
     driver.Click([[By.NAME, 'close-notification']])
 
@@ -65,7 +59,7 @@ chatName = actingPlayerName + ' & HvZ CDC'
 
 # Switch to right user and open chat page
 driver.SwitchUser(actingPlayer)
-changeToPage(driver, 'Chat')
+driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
 # Create chat with admin
 driver.FindElement([[By.NAME, 'create-admin-chat-button']])
@@ -86,7 +80,7 @@ driver.Click([[By.NAME, 'submit-%s' % chatName], [By.XPATH, xpathSend]])
 for admin in adminPlayers:
   driver.SwitchUser(admin)
   closeNotifications(driver)
-  changeToPage(driver, '-' + chatName)
+  driver.DrawerMenuClick('mobile-main-page', '-' + chatName)
   driver.ExpectContains([
       [By.NAME, 'chat-card'], 
       [By.NAME, 'message-%s-Hi im %s, how do i know if im the possessed zombie?' % (chatName, actingPlayerName)], 
@@ -95,13 +89,12 @@ for admin in adminPlayers:
 
 # Non-Admin should leave admin chat
 driver.SwitchUser(actingPlayer)
-changeToPage(driver, '-' + chatName)
+driver.DrawerMenuClick('mobile-main-page', '-' + chatName)
 
 xpathChatDrawerButton = getPathToElement(actingPlayerName, 'paper-icon-button', 'chat-info-' + chatName)
 driver.Click([[By.XPATH, xpathChatDrawerButton]])  
 xpathChatDrawer = getPathToElement(actingPlayerName, 'div', 'chat-drawer-%s' % chatName)
 driver.FindElement([[By.XPATH, xpathChatDrawer]])  
-#driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName]])
 
 xpathLeaveButton = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
 driver.FindElement([[By.XPATH, xpathLeaveButton]])
