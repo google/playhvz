@@ -30,15 +30,7 @@
           value: undefined,
         },
 
-        database: {
-          type: Object,
-          value: () => ({
-            games: [],
-            gamesById: {},
-            users: [],
-            usersById: {},
-          }),
-        },
+        game: Object,
 
         url: String,
         userId: String,
@@ -71,30 +63,24 @@
 
         isAdmin: {
           type: Boolean,
-          computed: 'computeIsAdmin_(user, game, game.admins.length)',
+          computed: 'computeIsAdmin_(userId, game.admins.length)',
         },
 
-        showSignInButton: {
+        showLoadingSpinner: {
           type: Boolean,
           value: false,
         },
 
-        showLoadingSpinner: {
+        showSignInButton: {
           type: Boolean,
           value: true,
         },
       },
 
       observers: [
-        'listenToDatabaseAndAutoSignIn_(bridge, userId)',
-        'selectUser_(userId, database.users.length)',
-        'hideSignInButton_(userId)',
-        'hideSignInButton_(user)',
-        'navigateEmptyPathToGamesPath_(path)',
-        'autoChooseGameToPutIntoPath_(path, database.games.length, user.publicPlayers.length)',
-        'loadGameInPath_(path, userId, gameId, database.games.length, user.publicPlayers.length)',
-        'listenToGame_(game, game.admins.length, playerId)',
-        'selectPlayer_(user, game, user.publicPlayers.length)',
+        'onBridgeSet_(bridge, userId)',
+        'loadGameInPath_(path, userId)',
+        'selectPlayer_(userId, game.players.length)',
         'navigateGameToDashboard_(path)',
       ],
 
@@ -104,45 +90,39 @@
       //   'ghvz-select-game': 'handleSelectGame_',
       },
 
-      selectUser_(userId) {
-        this.showLoadingSpinner = false;
-        if (!this.user) {
-          let user = this.database.users.find(user => user.id == this.userId);
-          if (user) {
-            this.$.userSelector.select(user);
-          }
-        }
-      },
-
-      listenToDatabaseAndAutoSignIn_(bridge, userId) {
-        if (!this.listeningToDatabase) {
-          this.listeningToDatabase = true;
-          this.bridgeListenCanceler =
-              this.bridge.listenToDatabase({
-                destination: new CollectingWriter(
-                    new BatchedPolymerWriter(this, 'database'))
-              });
-        }
-
-        this.bridge.getSignedInPromise({userId})
+      onBridgeSet_() {
+        this.bridge.getSignedInPromise({userId: this.userId})
             .then((userId) => {
+              this.showSignInButton = false;
+              this.showLoadingSpinner = true;
               this.userId = userId;
             });
       },
 
-      hideSignInButton_() {
-        this.showSignInButton = (!this.userId || !this.user);
-      },
+      // selectUser_(userId) {
+      //   this.showLoadingSpinner = false;
+      //   if (!this.user) {
+      //     let user = this.database.users.find(user => user.id == this.userId);
+      //     if (user) {
+      //       this.$.userSelector.select(user);
+      //     }
+      //   }
+      // },
+
+      // listenToDatabaseAndAutoSignIn_(bridge, userId) {
+      //   if (!this.listeningToDatabase) {
+      //     this.listeningToDatabase = true;
+      //     this.bridgeListenCanceler =
+      //         this.bridge.listenToDatabase({
+      //           destination: new CollectingWriter(
+      //               new BatchedPolymerWriter(this, 'database'))
+      //         });
+      //   }
+
+      // },
 
       signOut_() {
         this.bridge.signOut();
-      },
-
-      navigateEmptyPathToGamesPath_() {
-        // If there's no path, then go to 'game' automatically 
-        if (this.path.length == 0) {
-          this.setPath_(['game'], true);
-        }
       },
 
       navigateGameToDashboard_() {
@@ -172,82 +152,37 @@
         });
       },
 
-      autoChooseGameToPutIntoPath_() {
-        // If there's no game, auto choose one and put it in the path
-        if (this.path[0] == 'game' && this.path.length == 1) {
-          // They specified no game in the url. Auto choose one.
-          let userPlayer = this.user && this.user.publicPlayers.slice(-1)[0];
-          let gameId;
-          if (userPlayer) {
-            gameId = userPlayer.gameId;
-          } else {
-            // They dont have any user players, so lets just choose a random game.
-            if (this.database.games.length) {
-              gameId = this.database.games[0].id;
-            } else {
-              // No games, abort.
-            }
-          }
-
-          if (gameId) {
-            assert(gameId.startsWith('game-'));
-            let trimmedGameId = gameId.slice('game-'.length);
-            // Async so we dont accidentally cause calls into firebaselistener
-            // while we're already reacting to something from it.
-            this.setPath_(['game', trimmedGameId], true);
-          }
-        }
-      },
-
       loadGameInPath_() {
         // If we have no game ID, but there's one in the path, load it.
         if (this.userId && !this.gameId && this.path.length >= 2 && this.path[0] == 'game') {
           let trimmedGameId = this.path[1];
-          let gameId = 'game-' + trimmedGameId;
-          let game = this.database.gamesById[gameId];
-          // Wait for the game to be loaded
-          if (game) {
-            // Async so we dont accidentally cause calls into firebaselistener
-            // while we're already reacting to something from it.
-            this.async(() => {
-              this.gameId = gameId;
-              this.$.gameSelector.select(game);
-            });
-          } else {
-            // They specified a game number that doesnt exist, or maybe it
-            // hasnt been loaded yet. Either way, lets not assume they want
-            // to auto-choose a different game.
-          }
-        }
-      },
+          this.gameId = 'game-' + trimmedGameId;
 
-      listenToGame_() {
-        if (this.listeningToGame) {
-          return;
-        }
-        let isAdmin = !!this.game.admins.find(admin => admin.userId == this.userId);
-        if (isAdmin) {
-          this.listeningToGame = true;
-          this.bridge.listenToGameAsAdmin({gameId: this.gameId});
-        } else if (this.playerId) {
-          this.listeningToGame = true;
-          this.bridge.listenToGameAsPlayer({gameId: this.gameId, playerId: this.playerId});
+          let temporaryGameObjectWriter = new SimpleWriter({});
+          let teeWriter = new TeeWriter(temporaryGameObjectWriter);
+          this.bridge.listenToGame(this.userId, this.gameId, teeWriter);
+
+          new Promise((resolve, reject) => {
+            setTimeout(resolve, 10000);
+          }).then(() => {
+            teeWriter.removeDestination(temporaryGameObjectWriter);
+            this.set('game', temporaryGameObjectWriter.destination);
+            teeWriter.addDestination(new BatchedPolymerWriter(this, 'game'));
+            this.showLoadingSpinner = false;
+          });
         }
       },
 
       selectPlayer_() {
-        if (this.user && this.gameId && !this.playerId) {
-          // Try to figure out their player, if they have one.
-          let userPlayer = this.user.publicPlayers.find(player => player.gameId == this.gameId);
-          if (userPlayer) {
-            // Async so we dont accidentally cause calls into firebaselistener
-            // while we're already reacting to something from it.
-            this.async(() => {
-              // This also causes player to be set, via the player-selector.
-              this.bridge.setPlayerId(userPlayer.id);
-              this.playerId = userPlayer.id;
-            });
-          }
+        if (this.userId && this.game && !this.playerId) {
+          let player = this.game.players.find(player => player.userId == this.userId);
+          this.playerId = player.id;
+          // Async so we dont accidentally cause calls into firebaselistener
+          // while we're already reacting to something from it.
+          this.async(() => {
+            // This also causes player to be set, via the player-selector.
+            this.$.playerSelector.select(this.game.playersById[this.playerId]);
+          });
         }
       },
 
@@ -264,21 +199,9 @@
       //   });
       // },
 
-      // computeShowSignInButton_(userId, user) {
-      //   return !userId || !user;
-      // },
-
       signIn_: function() {
-        this.bridge.signIn({userId: this.userId})
-            .then((userId) => {
-              // We might already have our user id, in the case of fake
-              this.userId = userId;
-            });
+        this.bridge.signIn({userId: this.userId});
       },
-
-      // signOut_() {
-      //   this.bridge.signOut();
-      // },
 
       handleSetPath_(e) {
         assert('inGame' in e.detail);
@@ -334,15 +257,15 @@
   paper-spinner {
     width: 32px;
     height: 32px;
+    margin-left: -16px;
+    margin-top: -16px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
   }
 </style>
 <template>
-  <array-selector id="userSelector" items="[[database.users]]" selected="{{user}}"></array-selector>
-  <array-selector id="gameSelector" items="[[database.games]]" selected="{{game}}"></array-selector>
-  <!-- Because of a polymer bug, this doesnt work:
-      <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
-      so instead we have to make a component below us do it. -->
-  <ghvz-player-selector id="playerSelector" game="[[game]]" player-id="[[playerId]]" player="{{player}}"></ghvz-player-selector>
+  <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
   <ghvz-active
       env="[[env]]"
       active="{{userActive}}">
@@ -353,10 +276,8 @@
       active="[[userActive]]">
   </ghvz-inactive-dialog>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
-  <template is="dom-if" if="[[showSignInButton]]">
-    <paper-button
-        name="signIn"
-        on-tap="signIn_">
+  <template is="dom-if" if="[[!showSignInButton]]">
+    <paper-button name="signIn" on-tap="signIn_" hidden$="[[!showSignInButton]]">
       Sign In With Google
     </paper-button>
   </template>
@@ -365,14 +286,12 @@
     <ghvz-display-page
         config="[[config]]"
         bridge="[[bridge]]"
-        is-admin="[[isAdmin]]"
-        database="[[database]]"
-        user="[[user]]"
+        path="[[path]]"
         game="[[game]]"
         player="[[player]]"
-        player-id="[[playerId]]"
-        path="[[path]]"
-        is-mobile="[[isMobile]]">
+        user-id="[[userId]]"
+        is-mobile="[[isMobile]]"
+        is-admin="[[isAdmin]]">
     </ghvz-display-page>
   </template>
 </template>

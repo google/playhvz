@@ -20,9 +20,6 @@ class CheckedServer {
     this.idGenerator = idGenerator;
 
     this.inner = inner;
-    assert(this.inner.reader);
-
-    this.reader = this.inner.reader;
 
     for (let [methodName, expectations] of methods) {
       let expectation = methods.get(methodName);
@@ -36,6 +33,9 @@ class CheckedServer {
   }
 
   check_(typeName, value) {
+    if (typeName == 'GameId' || typeName == 'UserId')
+      return;
+
     let shouldExist = true;
     if (typeName.startsWith("!")) {
       shouldExist = false;
@@ -47,11 +47,13 @@ class CheckedServer {
     // Such as Bridge.UserId.verify
     this.idGenerator['verify' + typeName](value);
 
-    let found = this.reader.idExists(value, true);
-    if (shouldExist) {
-      assert(found, 'Couldnt find id:', value);
-    } else {
-      assert(!found, 'ID is not supposed to exist:', value);
+    if (this.inner.reader !== null) {
+      let found = this.inner.reader.idExists(value, true);
+      if (shouldExist) {
+        assert(found, 'Couldnt find id:', value);
+      } else {
+        assert(!found, 'ID is not supposed to exist:', value);
+      }
     }
   }
   
