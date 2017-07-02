@@ -361,13 +361,13 @@ class WholeDriver:
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)
 
-  def RetryUntil(self, action, result, num_times=5):
+  def RetryUntil(self, action, result, num_times=4):
     for i in range(num_times):
       action()
       try:
         return result()
       except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:
-        if i == num_times:
+        if i == num_times - 1:
           raise e
         else:
           time.sleep(0.5)

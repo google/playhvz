@@ -88,11 +88,13 @@
               property: "sendTime",
               type: "timestamp",
               label: "Points",
+              name: 'send-time',
               width: "half",
               description: "When to send this notification. Enter now or a past time to send immediately.",
             },
             {
               property: "groupId",
+              name: "recievers-group",
               width: "half",
               type: "group",
               description: "Who to send this message to.",
@@ -100,6 +102,7 @@
             {
               property: "site",
               label: "Site",
+              name: "send-web",
               width: "fourth",
               type: 'boolean',
               description: "Whether to send to all website windows.",
@@ -107,13 +110,15 @@
             {
               property: "mobile",
               label: "Mobile",
+              name: 'send-mobile',
               width: "fourth",
               type: 'boolean',
-              description: "Whether to send to all android and ios devices.",
+              description: "Whether to send to all Android and iOS devices.",
             },
             {
               property: "sound",
               label: "Sound",
+              name: "play-sound",
               width: "fourth",
               type: 'boolean',
               description: "Android/iOS only: whether to play a sound.",
@@ -121,6 +126,7 @@
             {
               property: "vibrate",
               label: "Vibrate",
+              name: "vibrate",
               width: "fourth",
               type: 'boolean',
               description: "Android/iOS only: whether to vibrate.",
@@ -128,6 +134,7 @@
             {
               property: "destination",
               label: "Destination",
+              name: "destination",
               description: "When clicked, will go to this url. Leave blank to open this notification fullscreen.",
               width: "half",
               required: false,
@@ -135,6 +142,7 @@
             {
               property: "icon",
               label: "Icon",
+              name: "icon",
               description: "Polymer icon code of icon to show. Leave blank for default icon.",
               width: "half",
               required: false,
@@ -142,11 +150,13 @@
             {
               property: "previewMessage",
               label: "Preview Message",
+              name: "preview-message",
               description: "The small message that will appear in the notification box.",
             },
             {
               property: "message",
               label: "Full Message",
+              name: "detailed-message",
               type: 'text',
               description: "The full message text that the user sees when they click on the notification.",
               required: false,
@@ -231,7 +241,7 @@
       blueprint="[[makeTableBlueprint_()]]"
       items="[[game.queuedNotifications]]">
     <template is="dom-repeat" id="repeater" items="[[game.queuedNotifications]]" as="category" initial-count="1" target-framerate="5">
-      <div class="row">
+      <div class="row" name$="row-[[category.previewMessage]]">
         <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
         <div class="cell">[[category.previewMessage]]</div>
         <div class="cell">[[formatTime_(category.sendTime)]]</div>

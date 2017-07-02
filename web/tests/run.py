@@ -54,6 +54,8 @@ def runTest(clientUrl, password, useRemote, useMobile):
 	# printAndRun("python startgame.py %s" % args)
 	printAndRun("python chat.py %s" % args)
 	printAndRun("python chatpage.py %s" % args)
+	printAndRun("python notifications1.py %s" % args)
+
 
 	if not useMobile:
 		printAndRun("python rewardcategories.py %s" % args)

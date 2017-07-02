@@ -69,6 +69,7 @@ run_test() {
 	# print_and_run "python startgame.py $args"
 	print_and_run "python rewardcategories.py $args"
 	print_and_run "python chatEdgeCases.py $args"
+	print_and_run "python notifications1.py $args"
 }
 
 desktop_and_mobile_tests() {

@@ -166,7 +166,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.notifications, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications-page
           bridge="[[bridge]]"
@@ -237,7 +237,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminNotifications, mostRecentPage)]]">
-    <ghvz-card expand spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card expand name="admin-notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications
           bridge="[[bridge]]"
