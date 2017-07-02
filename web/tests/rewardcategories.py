@@ -34,9 +34,7 @@ driver.Click([[By.NAME, 'close-notification']])
 
 try:
   # Go to the admin rewards section
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerAdmin Rewards']])
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
   driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'add']])
 
   # Make reward category.
@@ -52,11 +50,9 @@ try:
   driver.ExpectContains([[By.NAME, 'row-Gnasher']], 'Lord Gnasher the Hungry Reward')
   driver.ExpectContains([[By.NAME, 'row-Gnasher']], 'Gnasher')
   driver.ExpectContains([[By.NAME, 'row-Gnasher']], '2')
-  driver.ExpectContains([[By.NAME, 'row-Gnasher']], 'google.com')
 
   # Edit the category
-  driver.Click([[By.NAME, 'row-Gnasher'], [By.ID, 'menu']])
-  driver.Click([[By.NAME, 'row-Gnasher'], [By.NAME, 'menu-item-Edit']])
+  driver.TableMenuClick([[By.NAME, 'row-Gnasher']], 'Edit')
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'nameInput'], [By.TAG_NAME, 'input']], "Good Flosser Badge")
   driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'shortNameInput'], [By.TAG_NAME, 'input']])
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'shortNameInput'], [By.TAG_NAME, 'input']], "Flosser")
@@ -71,8 +67,7 @@ try:
   driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'done']])
 
   # Generate 22 rewards.
-  driver.Click([[By.NAME, 'row-Flosser'], [By.ID, 'menu']])
-  driver.Click([[By.NAME, 'row-Flosser'], [By.NAME, 'menu-item-Show Rewards']])
+  driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Show Rewards')
   driver.SendKeys([[By.ID, 'newReward'], [By.TAG_NAME, 'input']], "22")
   driver.Click([[By.ID, 'addReward']])
 
@@ -81,8 +76,7 @@ try:
   driver.ExpectContains([[By.NAME, 'row-Flosser 21']], '(unclaimed)')
 
   # Export the rewards.
-  driver.Click([[By.NAME, 'row-Flosser'], [By.ID, 'menu']])
-  driver.Click([[By.NAME, 'row-Flosser'], [By.NAME, 'menu-item-Export Rewards']])
+  driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Export Rewards')
   driver.ExpectContains([[By.ID, 'codesDialogContents']], 'Flosser 0')
   driver.ExpectContains([[By.ID, 'codesDialogContents']], 'Flosser 21')
   driver.Click([[By.ID, 'codesDialog'],[By.NAME, 'done']])
@@ -91,18 +85,12 @@ try:
 
   driver.SwitchUser('zeke')
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerLeaderboard']])
-
   # Before claiming the reward, Zeke has 0 points
+  driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
   driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell Zeke']], "0")
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerDashboard']])
-
   # Zeke claims the reward
+  driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
   driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'Flosser 0')
   driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'claim']])
   driver.ExpectContains([[By.NAME, 'rewards-box']], "Congratulations, you've claimed the reward")
@@ -110,16 +98,12 @@ try:
   driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'done']])
   driver.FindElement([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']])
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerLeaderboard']])
+  driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
 
   # After claiming the reward, Zeke has 3 points
   driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell Zeke']], "3")
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
 
   # # Zeke tries to claim another reward in the same category - it works! #TODO(someone who's not me): it doesn't work :(
   # driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'Flosser 1')
