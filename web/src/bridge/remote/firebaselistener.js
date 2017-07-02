@@ -218,6 +218,21 @@ window.FirebaseListener = (function () {
         return new Promise((resolve, reject) => {});
       }
       this.listenedToPaths[path] = true;
+
+
+      return new Promise((resolve, reject) => {
+        let attempt = () => {
+          this.firebaseRoot.child(path).once('value').then((snap) => {
+            if (snap.val()) {
+              resolve(snap);
+            } else {
+              setTimeout(attempt, 250);
+            }
+          });
+        }
+        attempt();
+      });
+        
       return this.firebaseRoot.child(path).once('value');
     }
 
@@ -225,8 +240,8 @@ window.FirebaseListener = (function () {
       delete this.listenedToPaths[path];
     }
 
-    listenToGame(userId, gameId, destination) {
-      console.log('listening to a game!', userId, gameId);
+    listenToGame(listeningUserId, gameId, destination) {
+      console.log('listening to a game!', listeningUserId, gameId);
       this.destination.addDestination(destination);
       this.listenOnce_(`/games/${gameId}`).then((snap) => {
         let firebaseGame = snap.val();
@@ -244,12 +259,12 @@ window.FirebaseListener = (function () {
           .on('child_added', (snap) => this.listenToGun_(snap.getKey()));
         this.firebaseRoot.child(`/games/${gameId}/quizQuestions`)
           .on('child_added', (snap) => this.listenToQuizQuestion_(gameId, snap.getKey()));
-          this.firebaseRoot.child(`/games/${gameId}/rewardCategories`)
+        this.firebaseRoot.child(`/games/${gameId}/rewardCategories`)
             .on('child_added', (snap) => this.listenToRewardCategory_(snap.getKey()));
 
-        if (userId in firebaseGame.adminUsers) {
+        if (listeningUserId in firebaseGame.adminUsers) {
           this.firebaseRoot.child(`/games/${gameId}/players`)
-            .on('child_added', (snap) => this.listenToPlayer_(snap.getKey(), true));
+            .on('child_added', (snap) => this.listenToPlayer_(snap.getKey(), listeningUserId, true));
           this.firebaseRoot.child(`/games/${gameId}/groups`)
             .on('child_added', (snap) => this.listenToGroup_(snap.getKey()));
           this.firebaseRoot.child(`/games/${gameId}/missions`)
@@ -268,15 +283,7 @@ window.FirebaseListener = (function () {
             .on('child_added', (snap) => this.listenToQueuedNotification_(snap.getKey()));
         } else {
           this.firebaseRoot.child(`/games/${gameId}/players`)
-            .on('child_added', (snap) => {
-              let playerId = snap.getKey();
-              let firebasePlayer = snap.val();
-              if (firebasePlayer.userId == userId) {
-                this.listenToPlayer_(playerId, true);
-              } else {
-                this.listenToPlayer_(playerId, false);
-              }
-            });
+            .on('child_added', (snap) => this.listenToPlayer_(snap.getKey(), listeningUserId, false));
         }
       });
     }
@@ -308,10 +315,12 @@ window.FirebaseListener = (function () {
       });
     }
 
-    listenToPlayer_(publicPlayerId, listenToPrivate) {
+    listenToPlayer_(publicPlayerId, listeningUserId, listeningAsAdmin) {
       this.listenOnce_(`/publicPlayers/${publicPlayerId}`).then((publicSnap) => {
         let publicPlayer = new Model.PublicPlayer(publicPlayerId, publicSnap.val());
         this.writer.insert(this.reader.getPublicPlayerPath(null), null, publicPlayer);
+
+        let listenToPrivate = listeningAsAdmin || (publicPlayer.userId == listeningUserId)
 
         this.listenForPropertyChanges_(
           publicSnap.ref, Model.PUBLIC_PLAYER_PROPERTIES, Model.PUBLIC_PLAYER_COLLECTIONS,
