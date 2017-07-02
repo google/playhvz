@@ -33,81 +33,10 @@ import time #bad bad bad
 
 try:
 
-  # Sign in as an admin
   driver = setup.MakeDriver(user="zella")
-
-  ######################  Testing Admin Guns Page  ######################
-
-  # Close the notification
-  driver.Click([[By.NAME, 'close-notification']])
-
-  # Admin adds gun
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Guns')
-
-  driver.Click([[By.ID, 'add']])
-  driver.SendKeys(
-        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        '3.14') # Crashed here a few times (element not visible, although it looks invisible)
- 
-  driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
-
-  # View added gun
-  driver.ExpectContains([[By.NAME, 'gun-row-3.14']], "3.14")
-
-  # Assign player a gun
-  driver.Click([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'pencil']])
-
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'JackSlayerTheBeanSlasher')
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
-
-  # Show that player shows up as having the gun
-  driver.ExpectContains([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'player-label']], "JackSlayerTheBeanSlasher")
-
-  #Add another gun, assign to another player
-  driver.Click([[By.ID, 'add']])
-  driver.SendKeys(
-        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        'pancake')
-  driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'MoldaviTheMoldavish')
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
-
-  # Search by label
-  driver.Click([[By.NAME, 'header-Label'], [By.NAME, 'icon-search']])
-  driver.SendKeys(
-        [[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']],
-        'pan')
-  driver.FindElement([[By.NAME, 'gun-row-pancake']])
-  driver.FindElement([[By.NAME, 'gun-row-3.14']], should_exist=False)
-  driver.Backspace([[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']], 3)
-
-  # Search by player
-  driver.Click([[By.NAME, 'header-Player'], [By.NAME, 'icon-search']])
-  driver.SendKeys(
-        [[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']],
-        'Jack')
-  driver.FindElement([[By.NAME, 'gun-row-pancake']], should_exist=False)
-  driver.FindElement([[By.NAME, 'gun-row-3.14']])
-  driver.Backspace([[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']], 4)
-
-  # Change the weapon ID, and show that it shows up
-  driver.TableMenuClick([[By.NAME, 'gun-row-3.14']], 'Edit')
-  driver.SendKeys(
-        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        '42')
-  driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
-  driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
-   
-  # TODO - when implemented, have a player see that they've been assigned a gun
-   
-
-
-  ####################  Testing Admin Players Page  ######################
-
-
-  # Admin - set got equipment for Jack
-  driver.DrawerMenuClick('guns-card', 'Admin Players')
+  
+  # Set got equipment for Jack
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
   driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Set Got Equipment') # Doesn't update like it's supposed to - remote server
   
   # Check Jack's profile, make sure the change showed up
@@ -121,7 +50,7 @@ try:
 
   # Unset Jack's equipment
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Unset Got Equipment']]) 
-  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "No") # TODO - sometimes crashes here
+  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "No")
 
   # Check Jack's profile, make sure the change showed up
   driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])
@@ -152,18 +81,62 @@ try:
   # TODO - search by equipment once this works
 
   # Add a note
-  driver.DrawerMenuClick('players-card', 'Admin Players')  # TODO(aliengirl): once failed here -m
+  driver.DrawerMenuClick('players-card', 'Admin Players')
   driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Set Notes')
-  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster')
+  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster') #TODO(aliengirl): failed once here
   driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
 
   # Search by notes
-  driver.Click([[By.NAME, 'header-Extra'], [By.NAME, 'icon-search']])
+  # Click this button just b/c otherwise the Extra icon is hidden under the scrollbar
+  driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Name'], [By.NAME, 'icon-search']]) #TODO(aliengirl): figure out a less weird way to make this work
+  driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.NAME, 'icon-search']]) #TODO(aliengirl): keeps failing here -m
   driver.SendKeys(
-    [[By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
+    [[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
     'zap')
   driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
   driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
+  driver.Backspace([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']], 3)
+
+  # Infect Jack
+  driver.DrawerMenuClick('players-card', 'Admin Players')
+  driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Infect')
+  driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'allegiance']], "Horde")
+
+  # Revive Zeke
+  driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
+  driver.ExpectContains([[By.NAME, 'player-row-Zeke'], [By.ID, 'allegiance']], "Resistance")
+
+  # Revive Deckerd
+  driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Add Life')
+  driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
+
+  # Add Life to Zella (already a human, so shouldn't change anything)
+  driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
+  driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
+
+  # Make sure the infections/revivals are reflected on the players' pages
+  driver.DrawerMenuClick('players-card', 'Dashboard')
+  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
+
+  # Check that Deckerd is a human (sees human chat and no infect widget)
+  driver.SwitchUser('deckerd')
+  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
+
+  # Check that Zeke is a human (sees human chat and no infect widget)
+  driver.SwitchUser('zeke')
+  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
+
+  # Check that Jack is a zombie (sees human chat and no infect widget)
+  driver.SwitchUser('jack')
+  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=True)
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
 
   driver.Quit()
 
