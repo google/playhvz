@@ -39,26 +39,24 @@ let MAPPINGS = [
   // For example, the below will find any sourceObject.games[anyGameId].players
   // and make the corresponding sourceObject.games[thatSameGameId].playerById
   // map, indexed by the "id" key.
-  {pattern: ["games", null, "players"], newMap: "playersById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "claims"], newMap: "claimsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "infections"], newMap: "infectionsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "lives"], newMap: "livesById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "private", "notifications"], newMap: "notificationsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "private", "chatRoomMemberships"], newMap: "chatRoomMembershipsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "private", "missionMemberships"], newMap: "missionMembershipsById", keyBy: "id"},
-  {pattern: ["games", null, "players", null, "private", "groupMemberships"], newMap: "groupMembershipsById", keyBy: "groupId"},
-  {pattern: ["games", null, "rewardCategories"], newMap: "rewardCategoriesById", keyBy: "id"},
-  {pattern: ["games", null, "rewardCategories", null, "rewards"], newMap: "rewardsById", keyBy: "id"},
-  {pattern: ["games", null, "chatRooms"], newMap: "chatRoomsById", keyBy: "id"},
-  {pattern: ["games", null, "chatRooms", null, "messages"], newMap: "messagesById", keyBy: "id"},
-  {pattern: ["games", null, "admins"], newMap: "adminsByUserId", keyBy: "userId"},
-  {pattern: ["games", null, "groups"], newMap: "groupsById", keyBy: "id"},
-  {pattern: ["games", null, "groups", null, "players"], newMap: "playersById", keyBy: null}, // null means key by the value itself, make a map of that->true
-  {pattern: ["games", null, "queuedNotifications"], newMap: "queuedNotificationsById", keyBy: "id"},
-  {pattern: ["games", null, "missions"], newMap: "missionsById", keyBy: "id"},
-  {pattern: ["games", null, "guns"], newMap: "gunsById", keyBy: "id"},
-  {pattern: ["users"], newMap: "usersById", keyBy: "id"},
-  {pattern: ["users", null, "publicPlayers"], newMap: "publicPlayersById", keyBy: "id"},
+  {pattern: ["players"], newMap: "playersById", keyBy: "id"},
+  {pattern: ["players", null, "claims"], newMap: "claimsById", keyBy: "id"},
+  {pattern: ["players", null, "infections"], newMap: "infectionsById", keyBy: "id"},
+  {pattern: ["players", null, "lives"], newMap: "livesById", keyBy: "id"},
+  {pattern: ["players", null, "private", "notifications"], newMap: "notificationsById", keyBy: "id"},
+  {pattern: ["players", null, "private", "chatRoomMemberships"], newMap: "chatRoomMembershipsById", keyBy: "id"},
+  {pattern: ["players", null, "private", "missionMemberships"], newMap: "missionMembershipsById", keyBy: "id"},
+  {pattern: ["players", null, "private", "groupMemberships"], newMap: "groupMembershipsById", keyBy: "groupId"},
+  {pattern: ["rewardCategories"], newMap: "rewardCategoriesById", keyBy: "id"},
+  {pattern: ["rewardCategories", null, "rewards"], newMap: "rewardsById", keyBy: "id"},
+  {pattern: ["chatRooms"], newMap: "chatRoomsById", keyBy: "id"},
+  {pattern: ["chatRooms", null, "messages"], newMap: "messagesById", keyBy: "id"},
+  {pattern: ["admins"], newMap: "adminsByUserId", keyBy: "userId"},
+  {pattern: ["groups"], newMap: "groupsById", keyBy: "id"},
+  {pattern: ["groups", null, "players"], newMap: "playersById", keyBy: null}, // null means key by the value itself, make a map of that->true
+  {pattern: ["queuedNotifications"], newMap: "queuedNotificationsById", keyBy: "id"},
+  {pattern: ["missions"], newMap: "missionsById", keyBy: "id"},
+  {pattern: ["guns"], newMap: "gunsById", keyBy: "id"},
 ];
 // Helper function to find which mapping a given path matches.
 // For example, given ["games", 5, "players", 3, "claims"], it would

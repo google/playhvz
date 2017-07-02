@@ -19,9 +19,8 @@
 class FakeBridge {
   constructor(idGenerator) {
     this.databaseOperations = [];
-    this.unmappedDatabase = {};
-    this.teeWriter = new TeeWriter();
-    this.teeWriter.addDestination(new SimpleWriter(this.unmappedDatabase));
+    this.simpleWriter = new SimpleWriter(null)
+    this.teeWriter = new TeeWriter(this.simpleWriter);
     var fakeServer = new FakeServer(idGenerator, this.teeWriter, new Date().getTime());
     var checkedServer = new CheckedServer(idGenerator, fakeServer, Bridge.METHODS_MAP);
     var cloningFakeSerer = new CloningWrapper(checkedServer, Bridge.METHODS);
@@ -44,25 +43,15 @@ class FakeBridge {
     assert(userId);
     return this.server.register({userId: userId}).then(() => userId);
   }
-  listenToDatabase({destination}) {
+  listenToGame(userId, gameId, destination) {
     var gatedWriter = new GatedWriter(new MappingWriter(destination), false);
     var cloningWriter = new CloningWriter(gatedWriter);
     cloningWriter.batchedWrite([
       {
         type: 'set',
-        path: ['games'],
-        value: Utils.copyOf(this.unmappedDatabase.games),
+        path: [],
+        value: Utils.copyOf(this.simpleWriter.destination),
       },
-      {
-        type: 'set',
-        path: ['guns'],
-        value: Utils.copyOf(this.unmappedDatabase.guns),
-      },
-      {
-        type: 'set',
-        path: ['users'],
-        value: Utils.copyOf(this.unmappedDatabase.users),
-      }
     ]);
     this.teeWriter.addDestination(cloningWriter);
 
@@ -76,15 +65,6 @@ class FakeBridge {
       clearInterval(interval);
       this.teeWriter.removeDestination(cloningWriter);
     };
-  }
-  listenToGameAsAdmin(gameId) {
-    // Do nothing. This method is really just an optimization.
-  }
-  listenToGameAsPlayer(gameId, playerId) {
-    // Do nothing. This method is really just an optimization.
-  }
-  setPlayerId(playerId) {
-    // Do nothing. This method was just for security.
   }
 }
 

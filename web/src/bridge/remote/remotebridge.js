@@ -70,17 +70,9 @@ class RemoteBridge {
                 if (this.userId == null) {
                   this.userId = "user-" + firebaseUser.uid;
                   this.requester.setRequestingUserIdAndJwt(userIdJwt, this.userId);
-                  this.firebaseListener.listenToUser(this.userId, false)
-                      .then((exists) => {
-                        if (exists) {
-                          resolve(this.userId);
-                        } else {
-                          this.register({userId: this.userId}).then(() => {
-                            this.firebaseListener.listenToUser(this.userId, true);
-                            resolve(this.userId);
-                          });
-                        }
-                      });
+                  this.register({userId: this.userId}).then(() => {
+                    resolve(this.userId);
+                  });
                 } else {
                   // Sometimes we get spurious auth changes.
                   // As long as we stick with the same user, its fine.
@@ -119,16 +111,8 @@ class RemoteBridge {
         });
   }
 
-  listenToDatabase({destination}) {
-    this.firebaseListener.listenToDatabase(destination);
-  }
-
-  listenToGameAsAdmin(gameId) {
-    this.firebaseListener.listenToGameAsAdmin(gameId);
-  }
-
-  listenToGameAsPlayer(gameId, playerId) {
-    this.firebaseListener.listenToGameAsPlayer(gameId, playerId);
+  listenToGame(userId, gameId, destination) {
+    this.firebaseListener.listenToGame(userId, gameId, destination);
   }
 
   register(args) {

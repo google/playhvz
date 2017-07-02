@@ -246,6 +246,8 @@ class FakeDriver:
     if is_mobile:
       selenium_driver.set_window_size(480, 640);
 
+    if len(page) == 0:
+      page = '/game/poptest-1'
     if page and len(page) and page[0] == '/':
       page = page[1:]
 

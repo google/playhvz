@@ -27,7 +27,7 @@
         bridge: Object,
         isAdmin: Boolean,
         database: Object,
-        user: Object,
+        userId: String,
         game: Object,
         player: Object,
         path: {
@@ -100,7 +100,7 @@
         bridge="[[bridge]]"
         database="[[database]]"
         game="[[game]]"
-        user="[[user]]"
+        user-id="[[userId]]"
         is-mobile="[[isMobile]]"
         is-admin="[[isAdmin]]"
         player="[[player]]">
@@ -113,7 +113,7 @@
         bridge="[[bridge]]"
         database="[[database]]"
         game="[[game]]"
-        user="[[user]]"
+        user-id="[[userId]]"
         is-mobile="[[isMobile]]"
         player="[[player]]">
     </ghvz-main-page>
@@ -131,7 +131,7 @@
           bridge="[[bridge]]"
           database="[[database]]"
           game="[[game]]"
-          user="[[user]]"
+          user-id="[[userId]]"
           player="[[player]]"
           path="[[path]]"
           is-mobile="[[isMobile]]"
@@ -148,7 +148,7 @@
             bridge="[[bridge]]"
             game="[[game]]"
             player="[[player]]"
-            user-id="[[user.id]]">
+            user-id="[[userId]]">
       </ghvz-declare-page>
     </ghvz-card>
   </template>
@@ -160,7 +160,7 @@
             class="content"
             bridge="[[bridge]]"
             game="[[game]]"
-            user-id="[[user.id]]">
+            user-id="[[userId]]">
       </ghvz-game-registration>
     </ghvz-card>
   </template>
