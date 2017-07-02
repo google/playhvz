@@ -24,7 +24,11 @@ class SimpleWriter {
       let {type, path, index, id, value} = operation;
       switch (type) {
         case 'set':
-          Utils.set(this.destination, path, value);
+          if (path.length == 0) {
+            this.destination = value;
+          } else {
+            Utils.set(this.destination, path, value);
+          }
           break;
         case 'insert':
           assert(path);

@@ -64,14 +64,8 @@ class Bridge {
   getSignedInPromise(...args) {
     return this.inner.getSignedInPromise(...args);
   }
-  listenToDatabase(...args) {
-    return this.inner.listenToDatabase(...args);
-  }
-  listenToGameAsAdmin(...args) {
-    return this.inner.listenToGameAsAdmin(...args);
-  }
-  listenToGameAsPlayer(...args) {
-    return this.inner.listenToGameAsPlayer(...args);
+  listenToGame(...args) {
+    return this.inner.listenToGame(...args);
   }
   setPlayerId(playerId) {
     return this.inner.setPlayerId(playerId);
