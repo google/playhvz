@@ -51,7 +51,7 @@ let MAPPINGS = [
   {pattern: ["rewardCategories", null, "rewards"], newMap: "rewardsById", keyBy: "id"},
   {pattern: ["chatRooms"], newMap: "chatRoomsById", keyBy: "id"},
   {pattern: ["chatRooms", null, "messages"], newMap: "messagesById", keyBy: "id"},
-  {pattern: ["admins"], newMap: "adminsByUserId", keyBy: "userId"},
+  {pattern: ["adminUsers"], newMap: "adminsByUserId", keyBy: "userId"},
   {pattern: ["groups"], newMap: "groupsById", keyBy: "id"},
   {pattern: ["groups", null, "players"], newMap: "playersById", keyBy: null}, // null means key by the value itself, make a map of that->true
   {pattern: ["queuedNotifications"], newMap: "queuedNotificationsById", keyBy: "id"},
