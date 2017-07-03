@@ -492,11 +492,6 @@ Model.PlayerMissionMembership = class extends Model {
     super(id, args, models.playerMissionMembership);
   }
 };
-Model.PlayerGroupMembership = class extends Model {
-  constructor(id, args) {
-    super(id, args, models.playerGroupMembership);
-  }
-};
 Model.Infection = class extends Model {
   constructor(id, args) {
     super(id, args, models.infection);
@@ -571,3 +566,6 @@ Model.Request = function (id, args) {
   Utils.copyProperties(this, args, REQUEST_PROPERTIES);
   Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
 };
+
+Model.PUBLIC_PLAYER_PROPERTIES = ["isActive", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "privatePlayerId", "private"];
+Model.PRIVATE_PLAYER_PROPERTIES = ["isActive", "beInPhotos", "userId", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
