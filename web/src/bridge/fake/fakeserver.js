@@ -118,10 +118,7 @@ class FakeServer {
   }
   createGroup(args) {
     let {groupId} = args;
-    this.writer.insert(
-        this.reader.getGroupPath(null),
-        null,
-        new Model.Group(groupId, args));
+    new Model.Group(groupId, args).initialize({}, this.game, this.writer);
   }
   updateGroup(args) {
     throwError('Implement!');
