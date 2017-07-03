@@ -1,19 +1,3 @@
-// Copyright 2017 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// TODO: High-level file comment.
-
 //
 //  AppDelegate.swift
 //  dev
@@ -27,14 +11,16 @@ import UserNotifications
 import Firebase
 import FirebaseInstanceID
 import FirebaseMessaging
+import FirebaseAuthUI
+import FirebaseGoogleAuthUI
+import Alamofire
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
 
     var window: UIWindow?
 
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
         // Override point for customization after application launch.
         
         if #available(iOS 10.0, *) {
@@ -56,6 +42,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         FirebaseApp.configure()
         
+        
+        
+        Auth.auth().addStateDidChangeListener { auth, user in
+            if let user = user {
+                self.onSignedIn(user)
+                // User is signed in. Show home screen
+            } else {
+                print("Not signed in!")
+                // No User is signed in. Show user the login screen
+            }
+        }
+        
+
         return true
     }
     
@@ -63,7 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         // cgA-VuI8YJY:APA91bFVmC7UhchyqE0YlcoBX024HlazN7t5RsXVRwtqVjBKY7JhiEmWRDq0uYFEBQtSz365I2MK0neSjLrq6hZYxfnZjVAqbF20y2YgPqgOBeYowQ77Z-jMyJwN1O68vmHF5wINSIFf
         
-        // c527293c464a86cebf4de7017bf746c49a0373732ed4f1431f215e096b5d4b00
+        // c527293c464a86cebf4de7017bf746c49a0373732ed4f1431f215e096b5d4b00my-
         
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         print(token)
@@ -112,7 +111,129 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+    
+    @available(iOS 9.0, *)
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
+        let sourceApplication = options[UIApplicationOpenURLOptionsKey.sourceApplication] as! String?
+        return self.handleOpenUrl(url, sourceApplication: sourceApplication)
+    }
+    
+    @available(iOS 8.0, *)
+    func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
+        return self.handleOpenUrl(url, sourceApplication: sourceApplication)
+    }
+    
+    
+    // let credential = FIRFacebookAuthProvider.credential(withAccessToken;FBSDKAccessToken.current().tokenString)
 
+    
+    // fileprivate func showAlert(_ message: String) {
+        // let alertController = UIAlertController(title: "iOScreator", message:
+            //message, preferredStyle: UIAlertControllerStyle.alert)
+        // alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
+    //     self.presentViewController(alertController, animated: true, completion: nil)
+    // }
+    
+    
+    
+    
+    func onSignedIn(_ firebaseUser: User?) {
+        let firebaseUid: String = firebaseUser!.uid
+        firebaseUser?.getIDTokenForcingRefresh(true) {firebaseUserIdToken, error in
+            if let error = error {
+                print(error)
+                // Handle error
+                return;
+            }
+            
+            if let firebaseUserIdToken = firebaseUserIdToken {
+                let body: String = "{" +
+                    "\"requestingUserToken\": \"\(firebaseUserIdToken)\", " +
+                    "\"requestingUserId\": null, " +
+                    "\"requestingPlayerId\": null, " +
+                    "\"userId\": \"user-\(firebaseUid)\" " +
+                    "}"
+                
+                print("Sending request!", body)
+                
+                // let url: String = "http://playhvz-170604.appspot.com/api/register"
+                let url: String = "http://localhost:8080/api/register"
+                
+                Alamofire.request(url, method: .post, parameters: [:], encoding: body, headers: [:])
+                    .response { response in
+                        debugPrint(response)
+                        }
+                    
+                    //.responseJSON { response in
+                    //debugPrint(response)
+                //}
+                
+                
+                /*public func request(
+                    _ url: URLConvertible,
+                    method: HTTPMethod = .get,
+                    parameters: Parameters? = nil,
+                    encoding: ParameterEncoding = URLEncoding.default,
+                    headers: HTTPHeaders? = nil)*/
+                
+                /*Alamofire.request(url: "http://playhvz-170604.appspot.com/api/register")
+                // Alamofire.request("http://playhvz-170604.appspot.com/api/register", method: .post, parameters: [:], encoding: body, headers: [:])
+                { response in
+                    if response.result.isSuccess {
+                        print("stuff")
+                    }
+                    else {
+                        print("other stuff")
+                        // do other stuff 
+                    }
+                }*/
+                    
+                    /*
+                    .responseJSON { response in
+                        guard response.result.error == nil else {
+                            // got an error in getting the data, need to handle it
+                            print("error calling POST on /todos/1")
+                            print(response.result.error!)
+                            return
+                        }
+                        // make sure we got some JSON since that's what we expect
+                        guard let json = response.result.value as? [String: Any] else {
+                            print("didn't get todo object as JSON from API")
+                            print("Error: \(response.result.error)")
+                            return
+                        }
+                        // get and print the title
+                        guard let todoTitle = json["title"] as? String else {
+                            print("Could not get todo title from JSON")
+                            return
+                        }
+                        print("The title is: " + todoTitle)*/
+                
+            }
+        }
+        
+
+    }
+    
+    func handleOpenUrl(_ url: URL, sourceApplication: String?) -> Bool {
+        if FUIAuth.defaultAuthUI()?.handleOpen(url, sourceApplication: sourceApplication) ?? false {
+            return true
+        }
+        
+        // other URL handling goes here.
+        return false
+    }
 
 }
 
+
+extension String: ParameterEncoding {
+    
+    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+        var request = try urlRequest.asURLRequest()
+        request.httpBody = data(using: .utf8, allowLossyConversion: false)
+        return request
+    }
+    
+}
+    

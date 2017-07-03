@@ -1,19 +1,3 @@
-// Copyright 2017 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// TODO: High-level file comment.
-
 //
 //  ViewController.swift
 //  dev
@@ -23,8 +7,14 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseAuthUI
+import FirebaseGoogleAuthUI
+import Alamofire
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, FUIAuthDelegate {
+    @IBOutlet weak var loginButton: UIButton!
+    @IBOutlet weak var logoutButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,7 +25,60 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
+    
+    /** @fn authUI:didSignInWithUser:error:
+     @brief Message sent after the sign in process has completed to report the signed in user or
+     error encountered.
+     @param authUI The @c FUIAuth instance sending the message.
+     @param user The signed in user if the sign in attempt was successful.
+     @param error The error that occurred during sign in, if any.
+     */
+    func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
+        
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        Auth.auth().addStateDidChangeListener() { (auth, user) in
+            if let user = user {
+                print("User is signed in with uid:", user.uid)
+                self.presentLogout(user: user)
+            } else {
+                print("No user is signed in.")
+                self.presentLoginScreen()
+            }
+        }
+    }
+    
+    fileprivate func presentLoginScreen() {
+        loginButton.isHidden = false
+        logoutButton.isHidden = true
+    }
+    
+    fileprivate func presentLogout(user: User) {
+        loginButton.isHidden = true
+        logoutButton.isHidden = false
+    }
+    
+    @IBAction func doLogin(_ sender: Any) {
+        login(sender: sender)
+    }
+    
+    @IBAction func logout(_ sender: Any) {
+        logout(sender: sender)
+    }
+    
+    fileprivate func login(sender: Any) {
+        let authUI = FUIAuth.defaultAuthUI()
+        authUI?.delegate = self
+        
+        let googleAuthUI = FUIGoogleAuth.init(scopes: [kGoogleUserInfoEmailScope])
+        authUI?.providers = [googleAuthUI];
+        
+        let authViewController = authUI?.authViewController();
+        self.present(authViewController!, animated: true, completion: nil)
+    }
 }
 
