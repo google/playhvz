@@ -30,17 +30,13 @@
           value: undefined,
         },
 
-        url: String,
-
-        database: {
-          type: Object,
-          value: () => ({}),
-        },
-
+        // Exists to supply a null to app
         userId: {
           type: String,
           value: null,
         },
+
+        url: String,
 
         config: {
           type: Object,
@@ -84,11 +80,6 @@
       },
 
       attached() {
-        // this.bridge.attemptAutoSignIn()
-        //     .then((userId) => this.userId = userId)
-        //     .catch((e) => {
-        //       this.userId = null
-        //     });
         window.onpopstate = this.handlePopState_.bind(this);
       },
 
@@ -128,10 +119,9 @@
       id="app"
       config="[[config]]"
       bridge="[[bridge]]"
-      database="[[database]]"
+      user-id="[[userId]]"
       url="[[url]]"
-      path="[[makePathFromUrl_()]]"
-      user-id="[[userId]]">
+      path="[[makePathFromUrl_()]]">
   </ghvz-app>
 </template>
 </dom-module>
