@@ -17,66 +17,81 @@
 """TODO: High-level file comment."""
 
 import sys
-
+import os
+import argparse
 
 def main(argv):
     pass
 
-
 if __name__ == '__main__':
     main(sys.argv)
-import sys
-import os
-
 
 def printAndRun(command):
 	print("Running %s" % command)
 	os.system(command)
 
-def runTest(clientUrl, password, useRemote, useMobile):
-	args = "--url %s --password %s" % (clientUrl, password)
+def runTest(url, password, files, useRemote, useMobile):
+	args = "--url %s --password %s" % (url, password)
 
 	if useRemote:
 		args += " -r"
 	if useMobile:
 		args += " -m"
 
-	printAndRun("python creategame.py %s" % args)
-	printAndRun("python joingame.py %s" % args)
-	printAndRun("python infect.py %s" % args)
-	printAndRun("python modifygame.py %s" % args)
-	printAndRun("python mission.py %s" % args)
-	printAndRun("python adminplayers.py %s" % args)
-	printAndRun("python adminguns.py %s" % args)
-	printAndRun("python changeallegiance.py %s" % args)
-	printAndRun("python adminchat.py %s" % args)
-	printAndRun("python globalchat.py %s" % args)
-	printAndRun("python declare.py %s" % args)
-	# printAndRun("python startgame.py %s" % args)
-	printAndRun("python chat.py %s" % args)
-	printAndRun("python chatpage.py %s" % args)
-	printAndRun("python notifications1.py %s" % args)
-	printAndRun("python rewardcategories.py %s" % args)
-	printAndRun("python chatEdgeCases.py %s" % args)
+	if len(files) > 0:
+		for file in files:
+			printAndRun("python %s.py %s" % (file, args))
+	else:
+		printAndRun("python creategame.py %s" % args)
+		printAndRun("python joingame.py %s" % args)
+		printAndRun("python infect.py %s" % args)
+		printAndRun("python modifygame.py %s" % args)
+		printAndRun("python mission.py %s" % args)
+		printAndRun("python adminplayers.py %s" % args)
+		printAndRun("python adminguns.py %s" % args)
+		printAndRun("python changeallegiance.py %s" % args)
+		printAndRun("python adminchat.py %s" % args)
+		printAndRun("python globalchat.py %s" % args)
+		printAndRun("python declare.py %s" % args)
+		# printAndRun("python startgame.py %s" % args)
+		printAndRun("python chat.py %s" % args)
+		printAndRun("python chatpage.py %s" % args)
+		printAndRun("python notifications1.py %s" % args)
+		printAndRun("python rewardcategories.py %s" % args)
+		printAndRun("python chatEdgeCases.py %s" % args)
 
 
-def desktopAndMobileTests(clientUrl, password, useRemote):
-	runTest(clientUrl, password, useRemote, useMobile=True)
-	runTest(clientUrl, password, useRemote, useMobile=False)
+def desktopAndMobileTests(url, password, mobile, desktop, files, useRemote):
+	if mobile:
+		runTest(url, password, files, useRemote, useMobile=True)
+	if desktop:
+		runTest(url, password, files, useRemote, useMobile=False)
+	if not mobile and not desktop:
+		runTest(url, password, files, useRemote, useMobile=True)
+		runTest(url, password, files, useRemote, useMobile=False)
 
-def fakeAndRemoteTests(clientUrl, password):
-	# desktopAndMobileTests(clientUrl, password, useRemote=True)
-	desktopAndMobileTests(clientUrl, password, useRemote=False)
+def fakeAndRemoteTests(url, password, mobile, desktop, local, remote, files):
+	if local:
+		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=False)
+	if remote:
+		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=True)
+	if not local and not remote:
+		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=False)
+		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=True)
+
 
 def main():
-	# Default args
-	clientUrl = 'http://localhost:5000'
-	password = "whatever"
-	if len(sys.argv) >= 2:
-		clientUrl = sys.argv[1]
-	if len(sys.argv) >= 3:
-		password = sys.argv[2]
-	fakeAndRemoteTests(clientUrl, password)
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-u", "--url", help="Client URL", default="http://localhost:5000")
+	parser.add_argument("-p", "--password", help="Password (only really relevant for remote)", default="whatever")
+	parser.add_argument("-m", "--mobile", help="Only run mobile tests", action="store_true")
+	parser.add_argument("-d", "--desktop", help="Only run desktop tests", action="store_true")
+	parser.add_argument("-l", "--local", help="Only run local tests", action="store_true")
+	parser.add_argument("-r", "--remote", help="Only run remote tests", action="store_true")
+	parser.add_argument("files", nargs="*", help="Specific tests to run")
+	args = parser.parse_args()
+
+	fakeAndRemoteTests(args.url, args.password, args.mobile, args.desktop, args.local, args.remote, args.files)
 
 if __name__ == "__main__":
     main()
