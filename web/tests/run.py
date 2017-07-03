@@ -56,15 +56,12 @@ def runTest(clientUrl, password, useRemote, useMobile):
 	printAndRun("python chat.py %s" % args)
 	printAndRun("python chatpage.py %s" % args)
 	printAndRun("python notifications1.py %s" % args)
-
-
-	if not useMobile:
-		printAndRun("python rewardcategories.py %s" % args)
-		printAndRun("python chatEdgeCases.py %s" % args)
+	printAndRun("python rewardcategories.py %s" % args)
+	printAndRun("python chatEdgeCases.py %s" % args)
 
 
 def desktopAndMobileTests(clientUrl, password, useRemote):
-	#runTest(clientUrl, password, useRemote, useMobile=True)
+	runTest(clientUrl, password, useRemote, useMobile=True)
 	runTest(clientUrl, password, useRemote, useMobile=False)
 
 def fakeAndRemoteTests(clientUrl, password):

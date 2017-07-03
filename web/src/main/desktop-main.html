@@ -132,14 +132,14 @@
     <ghvz-dashboard>
 
       <template is="dom-if" if="[[canJoinGame]]">
-        <ghvz-card spaced full padded>
+        <ghvz-card spaced full padded name="join-box">
           <div class="header">Join Game!</div>
           <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
         </ghvz-card>
       </template>
 
       <template is="dom-if" if="[[canDeclare]]">
-        <ghvz-card spaced left padded>
+        <ghvz-card spaced left padded name="declare-box">
           <div class="header">Declare Allegiance!</div>
           <ghvz-declare-dashlet></ghvz-declare-dashlet>
         </ghvz-card>
@@ -158,17 +158,17 @@
           </ghvz-card>
         </template>
 
-        <ghvz-card spaced right padded>
+        <ghvz-card spaced right padded name="rules-box">
           <div class="header" name="Rules">Rules</div>
           <ghvz-rules game="[[game]]"></ghvz-rules>
         </ghvz-card>
 
-        <ghvz-card spaced right padded>
+        <ghvz-card spaced right padded name="faq-box">
           <div class="header">FAQ</div>
           <ghvz-game-faq game="[[game]]"></ghvz-game-faq>
         </ghvz-card>
 
-        <ghvz-card spaced left>
+        <ghvz-card spaced left name="summary-box">
             <div class="header">Game Summary</div>
             <ghvz-game-summary
                 game="[[game]]">
@@ -186,7 +186,7 @@
           </ghvz-card>
         </template>
 
-        <ghvz-card spaced scrolling right>
+        <ghvz-card spaced scrolling right name="leaderboard-box">
           <div class="header">Leaderboard</div>
           <ghvz-leaderboard-summary
               game="[[game]]"
@@ -195,7 +195,7 @@
         </ghvz-card>
 
         <template is="dom-if" if="[[isDeclared]]">
-          <ghvz-card spaced right fullscreen-page="stats">
+          <ghvz-card spaced right fullscreen-page="stats" name="stats-box">
             <div class="header">Game Stats</div>
             <ghvz-game-stat-summary game="[[game]]">
             </ghvz-game-stat-summary>

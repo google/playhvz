@@ -28,8 +28,9 @@ try:
   driver.Click([[By.NAME, 'close-notification']])
 
   # Give Zella a reward (just so that she has moe points than Moldavi)
-  driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'signed 1')
-  driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'claim']])
+  driver.DrawerMenuClick('mobile-main-page', 'Rewards')
+  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'signed 1')
+  driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 
   # Switch to a normal human (Jack)
 
@@ -38,23 +39,25 @@ try:
   driver.Click([[By.NAME, 'close-notification']])
   driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
-  # Jack creates his own personal chatroom with no other players
-  driver.Click([[By.NAME, 'drawerChat']])
+  # Jack creates his own personal chatroom with no other player
   driver.Click([[By.ID, 'new-chat']])
   driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], 'Secret Stuff')
   driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
-  driver.FindElement([[By.NAME, 'drawer-Secret Stuff']])
+  driver.DrawerMenuClick('chat-card', '-Secret Stuff')
 
   # Jack creates a chatroom with other players
-  driver.Click([[By.NAME, 'drawerChat']])
+  driver.DrawerMenuClick('chat-card', 'Chat')
   driver.Click([[By.ID, 'new-chat']])
   driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], "Humanity's Last Hope")
   driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
-  driver.FindElement([[By.NAME, "drawer-Humanity's Last Hope"]])
+  if driver.is_mobile:
+    driver.FindElement([[By.NAME, "chat-info-Humanity's Last Hope"]])
+  else:
+    driver.FindElement([[By.NAME, "drawer-Humanity's Last Hope"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-drawer-add"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "player-name-MoldaviTheMoldavish"]])
@@ -76,7 +79,7 @@ try:
 
   # Sign in as Zella, make sure she's the owner
   driver.SwitchUser('zella')
-  driver.DrawerMenuClick('mobile-main-page', 'Chat')
+  driver.DrawerMenuClick('rewards-card', 'Chat')
 
   # Open the drawer of each to check that Zella can add/bump people (i.e. is the owner)
   driver.Click([[By.TAG_NAME, 'ghvz-chat-room-list'], [By.NAME, "Humanity's Last Hope"]])

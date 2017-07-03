@@ -365,8 +365,8 @@ class WholeDriver:
 
   def RetryUntil(self, action, result, num_times=4):
     for i in range(num_times):
-      action()
       try:
+        action()
         return result()
       except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:
         if i == num_times - 1:

@@ -90,20 +90,20 @@ try:
   driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell Zeke']], "0")
 
   # Zeke claims the reward
-  driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
-  driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'Flosser 0')
-  driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'claim']])
-  driver.ExpectContains([[By.NAME, 'rewards-box']], "Congratulations, you've claimed the reward")
-  driver.ExpectContains([[By.NAME, 'rewards-box']], "Flosser")
-  driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'done']])
-  driver.FindElement([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']])
+  driver.DrawerMenuClick('leaderboard-card', 'Rewards')
+  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 0')
+  driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
+  driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
+  driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
+  driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'done']])
+  driver.FindElement([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']])
 
-  driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
+  driver.DrawerMenuClick('rewards-card', 'Leaderboard')
 
   # After claiming the reward, Zeke has 3 points
   driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell Zeke']], "3")
 
-  driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
+  driver.DrawerMenuClick('leaderboard-card', 'Rewards')
 
   # # Zeke tries to claim another reward in the same category - it works! #TODO(someone who's not me): it doesn't work :(
   # driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'Flosser 1')
@@ -112,9 +112,9 @@ try:
   # driver.ExpectContains([[By.NAME, 'rewards-box']], "Flosser")
 
   # Zeke tries to claim another reward in the same category - no luck (his max is 2)
-  driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'Flosser 2')
-  driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'claim']])
-  driver.ExpectContains([[By.NAME, 'rewards-box']], "Congratulations, you've claimed the reward", should_exist=False)
+  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 2')
+  driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
+  driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward", should_exist=False)
 
 
   driver.Quit()
