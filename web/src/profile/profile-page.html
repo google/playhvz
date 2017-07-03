@@ -226,11 +226,11 @@
 
   <template is="dom-if" if="[[seePrivateInfo_(isAdmin, actingPlayerId, playerId)]]">
     <div id="details">
-      <div>Notifications should sound: <b>[[computeBooleanText_(player.private.notificationSettings.sound)]]</b></div>
-      <div>Notifications should vibrate: <b>[[computeBooleanText_(player.private.notificationSettings.vibrate)]]</b></div>
+      <div name="notifications-sound">Notifications should sound: <b>[[computeBooleanText_(player.private.notificationSettings.sound)]]</b></div>
+      <div name="notifications-vibration">Notifications should vibrate: <b>[[computeBooleanText_(player.private.notificationSettings.vibrate)]]</b></div>
 
       <template is="dom-if" if="[[isAdmin]]">
-        <div>
+        <div name="volunteered-for">
           Volunteered for:
           <b>
             <template is="dom-if" if="[[player.volunteer.advertising]]">Advertising</template>
@@ -246,11 +246,11 @@
             <template is="dom-if" if="[[player.volunteer.client]]">Client</template>
           </b>
         </div>
-        <div>Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>
+        <div name="active">Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>
         <div name="can-infect">Can infect: <b>[[computeBooleanText_(player.private.canInfect)]]</b></div>
-        <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
-        <div>Can be starting zombie: <b>[[computeBooleanText_(player.private.startAsZombie)]]</b></div>
-        <div>Wants to be secret zombie: <b>[[computeBooleanText_(player.private.wantToBeSecretZombie)]]</b></div>
+        <div name="need-gun">Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
+        <div name="starting-zombie">Can be starting zombie: <b>[[computeBooleanText_(player.private.startAsZombie)]]</b></div>
+        <div name="possessed-human">Wants to be possessed human: <b>[[computeBooleanText_(player.private.wantToBeSecretZombie)]]</b></div>
         <div name="got-equipment">Got equipment: <b>[[computeBooleanText_(player.private.gotEquipment)]]</b></div>
         <template is="dom-if" if="[[player.isActive]]">
           <paper-button raised on-tap="deactivate_">Deactivate</paper-button>
@@ -264,7 +264,7 @@
         <template is="dom-if" if="[[!player.private.canInfect]]">
           <paper-button raised id="set-infect-button" on-tap="setCanInfect_">Set Can Infect</paper-button>
         </template>
-        <div>Notes: [[player.private.notes]]</div>
+        <div name="notes-box">Notes: [[player.private.notes]]</div>
       </template>
       
       <template is="dom-repeat" items="[[player.lives]]" as="life">
