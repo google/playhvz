@@ -195,10 +195,6 @@ class FakeServer {
         this.reader.getGroupPlayerPath(groupId, null),
         null,
         playerToAddId);
-    this.writer.insert(
-        this.reader.getPlayerGroupMembershipPath(playerToAddId, null),
-        null,
-        new Model.PlayerGroupMembership(groupId, {groupId: groupId}));
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
@@ -244,12 +240,6 @@ class FakeServer {
         membershipPath.slice(0, membershipPath.length - 1),
         membershipPath.slice(-1)[0], // index
         playerId);
-
-    let playerGroupMembershipPath = this.reader.getPlayerGroupMembershipPath(playerId, groupId);
-    this.writer.remove(
-        playerGroupMembershipPath.slice(0, playerGroupMembershipPath.length - 1),
-        playerGroupMembershipPath.slice(-1)[0],
-        groupId);
   }
 
   addPlayerToChatRoom_(chatRoomId, playerId) {

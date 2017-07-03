@@ -111,14 +111,6 @@ class PathFindingReader {
     }
     return path;
   }
-  getPlayerGroupMembershipPath(playerId, groupId, expect) {
-    assert(playerId);
-    assert(typeof groupId == 'string' || groupId == null);
-    let path = this.getPrivatePlayerPath(playerId).concat(["groupMemberships"]);
-    if (groupId)
-      path = path.concat([Utils.findIndexById(this.get(path), groupId, expect)]);
-    return path;
-  }
   getPlayerIdForNotificationId(notificationId, expect) {
     let path = this.pathForId_(notificationId, expect);
     if (path)
@@ -144,7 +136,7 @@ class PathFindingReader {
   }
   getAdminPath(userId) {
     assert(typeof userId == 'string' || userId == null);
-    let path = ["admins"];
+    let path = ["adminUsers"];
     if (userId)
       path = path.concat([Utils.findIndexById(this.get(path), userId)]);
     return path;
