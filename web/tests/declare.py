@@ -35,8 +35,12 @@ driver = setup.MakeDriver(user="deckerd")
 
 try:
   # Make sure that an undeclared person can see rules, global chat, no missions: TODO(aliengirl): add this
+  driver.DrawerMenuClick('mobile-main-page', 'Rules')
+  driver.FindElement([[By.NAME, 'rules-card']])
+  driver.DrawerMenuClick('rules-card', '-Global Chat')
+  driver.DrawerMenuClick('chat-card', 'Dashboard')
 
-  # Time for Decker to choose a side
+  # Time for Deckerd to choose a side
   driver.Click([[By.NAME, 'declareAllegiance']])
 
   # Choose human!
@@ -123,10 +127,21 @@ try:
 
   driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
-  # Make sure that Jack is in the human chat and has appeared on the Leaderboard
+  # Make sure that Jack is in the human chat and sees all the correct widgets
+
+  driver.FindElement([[By.NAME, 'rules-box']])
+  driver.FindElement([[By.NAME, 'next-mission-box']])
+
+  if not driver.is_mobile:
+    driver.FindElement([[By.NAME, 'stats-box']])
+    driver.FindElement([[By.NAME, 'rewards-box']])
+
+
+
   driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
   driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Resistance Comms Hub']])
+  driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Global Chat']])
   driver.DrawerMenuClick('chat-card', 'Leaderboard')
   driver.ExpectContains(
       [[By.NAME, 'leaderboard-card'],
@@ -142,30 +157,10 @@ try:
       'DeckerdTheHesitant')
   driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
 
-  # Have Drake (a zombie) infect Jack
-  driver.SwitchUser("drake")
+  driver.SwitchUser('zella')
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+  driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
 
-  driver.DrawerMenuClick('mobile-main-page', 'My Profile')
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
-  
-  driver.DrawerMenuClick('profile-card', 'Dashboard')
-  driver.SendKeys(
-      [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-      'grobble forgbobbly')
-  driver.Click([[By.ID, 'infect']])
-  driver.ExpectContains(
-      [[By.NAME, 'victimName']],
-      'JackSlayerTheBeanSlasher')
-
-  # Check that Drake got points for his infection
-  driver.DrawerMenuClick('mobile-main-page', 'My Profile')
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
-
-  # Check that Jack is now a zombie
-  driver.SwitchUser("jack")
-  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
-  driver.DrawerMenuClick('mobile-main-page', 'Chat')
-  driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Horde ZedLink']])
 
   driver.Quit()
 

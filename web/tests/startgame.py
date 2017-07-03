@@ -45,11 +45,11 @@ try:
   driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2016")
 
   # Set the declare resistance and declare horde end times to sometime in the future
-  # driver.Backspace([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
-  # driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2018")
+  driver.Backspace([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
+  driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2018")
 
-  # driver.Backspace([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
-  # driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2018")
+  driver.Backspace([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], 4)
+  driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2018")
 
   driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
   
