@@ -2,10 +2,10 @@
 
 var models = {
   gun: {
-    link: ['guns', 'gunId'], // How to find this object
-    path: ['guns'], // To whom this object belongs
-    gameId: '', // Properties of this object (and potential parent linkages)
-    playerId: '',
+    link: ['guns', 'gunId'], // How to find this object in firebase
+    path: ['guns'], // How to find this object in the browser copy
+    gameId: '', 
+    playerId: '', // Properties of this object (and potential parent linkages)
     label: '',
     a: []
   },
@@ -44,7 +44,6 @@ var models = {
     adminContactPlayerId: '',
 
     // for fake server
-    loaded: false,
     defaultProfileImages: [],
     queuedNotifications: []
   },
@@ -165,7 +164,9 @@ var models = {
     isCorrect: false,
     order: 0,
     text: '',
-    number: 0
+    number: 0,
+    gameId: '', // linkage
+    quizQuestionId: '' // linkage
   },
   rewardCategory: {
     link: ['rewardCategories', 'rewardCategoryId'],
@@ -248,6 +249,7 @@ var models = {
     time: 0,
     private: '',
     privateLifeId: '',
+    playerId: '',
     gameId: ''
   },
   privateLife: {
@@ -330,9 +332,13 @@ var models = {
 };
 
 class Model {
-  constructor(args, model, sortOn) {
-    assert(args.id !== undefined);
-    model.id = args.id;
+  constructor(id, args, model, sortOn) {
+    assert(id !== undefined);
+    this.id = id;
+    // To fill in link, which always ends in the id
+    if(args === undefined)
+      args = {};
+    args[model.link[model.link.length - 1]] = id;
     var newLink = [];
     model.link.forEach(function (item) {
       if (args.hasOwnProperty(item))
@@ -392,133 +398,133 @@ class Model {
   }
 }
 Model.Gun = class extends Model {
-  constructor(args) {
-    super(args, models.gun);
+  constructor(id, args) {
+    super(id, args, models.gun);
   }
 };
 Model.User = class extends Model {
-  constructor(args) {
-    super(args, models.user);
+  constructor(id, args) {
+    super(id, args, models.user);
   }
 };
 Model.UserPlayer = class extends Model {
-  constructor(args) {
-    super(args, models.userPlayer);
+  constructor(id, args) {
+    super(id, args, models.userPlayer);
   }
 };
 Model.Game = class extends Model {
-  constructor(args) {
-    super(args, models.game);
+  constructor(id, args) {
+    super(id, args, models.game);
   }
 };
 Model.QuizQuestion = class extends Model {
-  constructor(args) {
-    super(args, models.quizQuestion, 'number');
+  constructor(id, args) {
+    super(id, args, models.quizQuestion, 'number');
   }
 };
 Model.QuizAnswer = class extends Model {
-  constructor(args) {
-    super(args, models.quizAnswer, 'number');
+  constructor(id, args) {
+    super(id, args, models.quizAnswer, 'number');
   }
 };
 Model.Group = class extends Model {
-  constructor(args) {
-    super(args, models.group);
+  constructor(id, args) {
+    super(id, args, models.group);
   }
 };
 Model.ChatRoom = class extends Model {
-  constructor(args) {
-    super(args, models.chatRoom);
+  constructor(id, args) {
+    super(id, args, models.chatRoom);
   }
 };
 Model.Map = class extends Model {
-  constructor(args) {
-    super(args, models.map);
+  constructor(id, args) {
+    super(id, args, models.map);
   }
 };
 Model.Marker = class extends Model {
-  constructor(args) {
-    super(args, models.marker);
+  constructor(id, args) {
+    super(id, args, models.marker);
   }
 };
 Model.Message = class extends Model {
-  constructor(args) {
-    super(args, models.message, 'time');
+  constructor(id, args) {
+    super(id, args, models.message, 'time');
   }
 };
 Model.RewardCategory = class extends Model {
-  constructor(args) {
-    super(args, models.rewardCategory);
+  constructor(id, args) {
+    super(id, args, models.rewardCategory);
   }
 };
 Model.Reward = class extends Model {
-  constructor(args) {
-    super(args, models.reward);
+  constructor(id, args) {
+    super(id, args, models.reward);
   }
 };
 Model.Mission = class extends Model {
-  constructor(args) {
-    super(args, models.mission);
+  constructor(id, args) {
+    super(id, args, models.mission);
   }
 };
 Model.QueuedNotification = class extends Model {
-  constructor(args) {
-    super(args, models.queuedNotification);
+  constructor(id, args) {
+    super(id, args, models.queuedNotification);
   }
 };
 Model.Admin = class extends Model {
-  constructor(args) {
-    super(args, models.admin);
+  constructor(id, args) {
+    super(id, args, models.admin);
   }
 };
 Model.Claim = class extends Model {
-  constructor(args) {
-    super(args, models.claim);
+  constructor(id, args) {
+    super(id, args, models.claim);
   }
 };
 Model.PlayerChatRoomMembership = class extends Model {
-  constructor(args) {
-    super(args, models.playerChatRoomMembership);
+  constructor(id, args) {
+    super(id, args, models.playerChatRoomMembership);
   }
 };
 Model.PlayerMissionMembership = class extends Model {
-  constructor(args) {
-    super(args, models.playerMissionMembership);
+  constructor(id, args) {
+    super(id, args, models.playerMissionMembership);
   }
 };
 Model.PlayerGroupMembership = class extends Model {
-  constructor(args) {
-    super(args, models.playerGroupMembership);
+  constructor(id, args) {
+    super(id, args, models.playerGroupMembership);
   }
 };
 Model.Infection = class extends Model {
-  constructor(args) {
-    super(args, models.infection);
+  constructor(id, args) {
+    super(id, args, models.infection);
   }
 };
 Model.PublicLife = class extends Model {
-  constructor(args) {
-    super(args, models.publicLife);
+  constructor(id, args) {
+    super(id, args, models.publicLife);
   }
 };
 Model.PrivateLife = class extends Model {
-  constructor(args) {
-    super(args, models.privateLife);
+  constructor(id, args) {
+    super(id, args, models.privateLife);
   }
 };
 Model.PublicPlayer = class extends Model {
-  constructor(args) {
-    super(args, models.publicPlayer);
+  constructor(id, args) {
+    super(id, args, models.publicPlayer);
   }
 };
 Model.PrivatePlayer = class extends Model {
-  constructor(args) {
-    super(args, models.privatePlayer);
+  constructor(id, args) {
+    super(id, args, models.privatePlayer);
   }
 };
 Model.Notification = class extends Model {
-  constructor(args) {
-    super(args, models.notification);
+  constructor(id, args) {
+    super(id, args, models.notification);
   }
 };
 
