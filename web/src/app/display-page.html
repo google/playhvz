@@ -27,6 +27,7 @@
         config: Object,
         bridge: Object,
         user: Object,
+        userId: String,
 
         path: {
           type: String,
@@ -83,7 +84,7 @@
       <ghvz-create-game
           class="content"
           bridge="[[bridge]]"
-          user-id="[[user.id]]">
+          user-id="[[userId]]">
       </ghvz-create-game>
     </ghvz-card>
   </template>
@@ -95,7 +96,7 @@
           class="content"
           config="[[config]]"
           bridge="[[bridge]]"
-          user-id="[[user.id]]">
+          user-id="[[userId]]">
       </ghvz-create-populated-game>
     </ghvz-card>
   </template>
@@ -107,7 +108,7 @@
           class="content"
           config="[[config]]"
           bridge="[[bridge]]"
-          user-id="[[user.id]]">
+          user-id="[[userId]]">
       </ghvz-dev-tools>
     </ghvz-card>
   </template>
@@ -119,6 +120,7 @@
         is-admin="[[isAdmin]]"
         database="[[database]]"
         user="[[user]]"
+        user-id="[[userId]]"
         game="[[game]]"
         player="[[player]]"
         player-id="[[playerId]]"

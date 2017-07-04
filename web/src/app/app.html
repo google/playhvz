@@ -46,10 +46,6 @@
           // observer: 'onPlayerIdChanged_',
         },
 
-        user: Object,
-
-        game: Object,
-
         player: Object,
 
         path: {
@@ -79,9 +75,9 @@
 
       observers: [
         'onBridgeSet_(bridge, userId)',
-        'loadGameInPath_(path, userId)',
-        'selectPlayer_(userId, game.players.length)',
-        'navigateGameToDashboard_(path)',
+        'loadGameInPath_(bridge, path, userId)',
+        'selectPlayer_(bridge, userId, game.players.length)',
+        'navigateGameToDashboard_(bridge, path)',
       ],
 
       listeners: {
@@ -158,12 +154,12 @@
           let trimmedGameId = this.path[1];
           this.gameId = 'game-' + trimmedGameId;
 
-          let temporaryGameObjectWriter = new SimpleWriter({});
+          let temporaryGameObjectWriter = new SimpleWriter(null);
           let teeWriter = new TeeWriter(temporaryGameObjectWriter);
           this.bridge.listenToGame(this.userId, this.gameId, teeWriter);
 
           new Promise((resolve, reject) => {
-            setTimeout(resolve, 10000);
+            setTimeout(resolve, 2000);
           }).then(() => {
             teeWriter.removeDestination(temporaryGameObjectWriter);
             this.set('game', temporaryGameObjectWriter.destination);
@@ -176,18 +172,20 @@
       selectPlayer_() {
         if (this.userId && this.game && !this.playerId) {
           let player = this.game.players.find(player => player.userId == this.userId);
-          this.playerId = player.id;
-          // Async so we dont accidentally cause calls into firebaselistener
-          // while we're already reacting to something from it.
-          this.async(() => {
-            // This also causes player to be set, via the player-selector.
-            this.$.playerSelector.select(this.game.playersById[this.playerId]);
-          });
+          if (player) {
+            this.playerId = player.id;
+            // Async so we dont accidentally cause calls into firebaselistener
+            // while we're already reacting to something from it.
+            this.async(() => {
+              // This also causes player to be set, via the player-selector.
+              this.$.playerSelector.select(this.game.playersById[this.playerId]);
+            });
+          }
         }
       },
 
-      computeIsAdmin_: function(user) {
-        let admin = this.game.admins.find((admin) => admin.userId == user.id);
+      computeIsAdmin_: function() {
+        let admin = this.game.admins.find((admin) => admin.userId == this.userId);
         return !!admin;
       },
 

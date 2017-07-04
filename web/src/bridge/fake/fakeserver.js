@@ -42,7 +42,7 @@ class FakeServer {
 
   setupPrivateModelAndReaderAndWriter(game) {
     this.game = game;
-    var writer = new SimpleWriter(this.database);
+    var writer = new SimpleWriter(this.game);
     var mappingWriter = new MappingWriter(writer);
     var teeWriter = new TeeWriter(
         mappingWriter,
@@ -64,8 +64,8 @@ class FakeServer {
     return userId;
   }
   createGame(args) {
-    let {adminUserId} = args;
-    let modelGame = new Model.Game(null, args);
+    let {gameId, adminUserId} = args;
+    let modelGame = new Model.Game(gameId, args);
     this.setupPrivateModelAndReaderAndWriter(modelGame);
     this.writer.set([], modelGame);
     this.addAdmin({userId: adminUserId});
@@ -229,13 +229,13 @@ class FakeServer {
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
-        this.removePlayerFromChatRoom_(game.id, chatRoom.id, player.id);
+        this.removePlayerFromChatRoom_(chatRoom.id, player.id);
       }
     }
 
     for (let mission of game.missions) {
       if (mission.accessGroupId == groupId) {
-        this.removePlayerFromMission_(game.id, mission.id, player.id);
+        this.removePlayerFromMission_(mission.id, player.id);
       }
     }
 
@@ -495,31 +495,30 @@ class FakeServer {
     }
   }
   executeNotifications(args) {
-    for (let game of this.database.games) {
-      for (let queuedNotification of game.queuedNotifications) {
-        if (!queuedNotification.sent && (queuedNotification.sendTime == null || queuedNotification.sendTime <= this.getTime_(args))) {
-          this.writer.set(this.reader.getQueuedNotificationPath(game.id, queuedNotification.id).concat(['sent']), true);
+    let game = this.game;
+    for (let queuedNotification of game.queuedNotifications) {
+      if (!queuedNotification.sent && (queuedNotification.sendTime == null || queuedNotification.sendTime <= this.getTime_(args))) {
+        this.writer.set(this.reader.getQueuedNotificationPath(queuedNotification.id).concat(['sent']), true);
 
-          let playerIds = new Set();
-          if (queuedNotification.playerId) {
-            playerIds.add(queuedNotification.playerId);
-          } else {
-            assert(queuedNotification.groupId);
-            let group = game.groupsById[queuedNotification.groupId];
-            playerIds = new Set(group.players);
-          }
-          for (let playerId of playerIds) {
-            this.addNotification({
-              playerId: playerId,
-              notificationId: this.idGenerator.newNotificationId(),
-              queuedNotificationId: queuedNotification.id,
-              message: queuedNotification.message,
-              previewMessage: queuedNotification.previewMessage,
-              destination: queuedNotification.destination,
-              time: this.getTime_(args),
-              icon: queuedNotification.icon,
-            });
-          }
+        let playerIds = new Set();
+        if (queuedNotification.playerId) {
+          playerIds.add(queuedNotification.playerId);
+        } else {
+          assert(queuedNotification.groupId);
+          let group = game.groupsById[queuedNotification.groupId];
+          playerIds = new Set(group.players);
+        }
+        for (let playerId of playerIds) {
+          this.addNotification({
+            playerId: playerId,
+            notificationId: this.idGenerator.newNotificationId(),
+            queuedNotificationId: queuedNotification.id,
+            message: queuedNotification.message,
+            previewMessage: queuedNotification.previewMessage,
+            destination: queuedNotification.destination,
+            time: this.getTime_(args),
+            icon: queuedNotification.icon,
+          });
         }
       }
     }
@@ -551,8 +550,7 @@ class FakeServer {
     }
   }
   markNotificationSeen(args) {
-    let {notificationId} = args;
-    let playerId = this.reader.getPlayerIdForNotificationId(notificationId);
+    let {playerId, notificationId} = args;
     this.writer.set(
         this.reader.getNotificationPath(playerId, notificationId).concat(["seenTime"]),
         this.getTime_(args));
