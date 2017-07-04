@@ -327,7 +327,8 @@ var models = {
     mobile: false,
     time: 0,
     email: '',
-    destination: ''
+    destination: '',
+    playerId: ''
   }
 };
 
