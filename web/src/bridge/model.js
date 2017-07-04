@@ -247,7 +247,7 @@ var models = {
     link: ['publicLives', 'publicLifeId'],
     path: ['players', 'playerId', 'lives'],
     time: 0,
-    private: '',
+    private: [],
     privateLifeId: '',
     playerId: '',
     gameId: ''
@@ -257,6 +257,8 @@ var models = {
     path: ['players', 'playerId', 'lives', 'lifeId', 'private'],
     code: '',
     gameId: '',
+    playerId: '',
+    lifeId: ''
   },
   publicPlayer: {
     link: ['publicPlayers', 'publicPlayerId'],
@@ -316,7 +318,7 @@ var models = {
   },
   notification: {
     link: ['privatePlayers', 'privatePlayerId', 'notifications', 'notificationId'],
-    path: ['players', 'playerId', 'private'],
+    path: ['players', 'playerId', 'private', 'notifications'],
     message: '',
     previewMessage: '',
     queuedNotificationId: '',

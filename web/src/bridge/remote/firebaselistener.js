@@ -343,10 +343,19 @@ window.FirebaseListener = (function () {
         gameId: this.gameIdObj.gameId
       }), (obj) => {
         if (listenToPrivate) {
-          this.listenToModel(new Model.PrivateLife(obj.privateLifeId, {
+          let privateLife = new Model.PrivateLife(obj.privateLifeId, {
             gameId: this.gameIdObj.gameId,
-            playerId: publicLifeId
-          }));
+            playerId: playerId,
+            lifeId: publicLifeId
+          });
+          this.listenOnce_(privateLife.link).then((snap) => {
+            privateLife.initialize(snap.val(), this.game, this.writer, true);
+            this.listenForPropertyChanges_(
+              snap.ref, privateLife._properties, privateLife._collections,
+              (property, value) => {
+                this.writer.set(privateLife.path.concat([property]), value);
+              });
+          });
         }
       });
     }
@@ -393,7 +402,7 @@ window.FirebaseListener = (function () {
     listenToNotification_(publicPlayerId, privatePlayerId, notificationId) {
       this.listenToModel(new Model.Notification(notificationId, {
         privatePlayerId: privatePlayerId,
-        publicPlayerId: publicPlayerId,
+        playerId: publicPlayerId,
         gameId: this.gameIdObj.gameId
       }));
     }
