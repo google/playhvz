@@ -391,9 +391,7 @@ window.FirebaseListener = (function () {
           .on('child_removed', (snap) => {
             let playerId = snap.getKey();
             let path = obj.path.concat(['players']);
-            path.push(Utils.findIndexById(Utils.get(this.game, path), playerId));
-            let index = path[path.length - 1];
-            path = path.slice(0, path.length - 1);
+            let index = Utils.get(this.game, path).indexOf(playerId);
             this.writer.remove(path, index, playerId);
           });
       });
