@@ -183,7 +183,7 @@
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
   <div id="flexThing">
     <div class$="[[getAliveStatusClass_(player.allegiance)]]">
-      <div class="display-avatar">
+      <div name="avatar" class="display-avatar">
         <ghvz-player-avatar 
             large
             game="[[game]]" 
@@ -191,7 +191,7 @@
           </ghvz-player-avatar>
       </div>
       <div class="info">
-        <div class="name">
+        <div name="player-name" class="name">
           [[player.name]]
         </div>
         <div name="status" class="sub-item">
@@ -268,7 +268,7 @@
       </template>
       
       <template is="dom-repeat" items="[[player.lives]]" as="life">
-        <div>
+        <div name="life-line">
           Life, at [[computeDateText_(life.time)]],
           <template is="dom-if" if="[[life.private.code]]">
             life code "[[life.private.code]]"
@@ -276,7 +276,7 @@
         </div>
       </template>
       <template is="dom-repeat" items="[[player.infections]]" as="infection">
-        <div>
+        <div name="infection-line">
           Infection, at [[computeDateText_(infection.time)]], infector
           <ghvz-player-label
               players-by-id="[[game.playersById]]"
