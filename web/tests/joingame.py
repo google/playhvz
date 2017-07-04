@@ -74,11 +74,19 @@ try:
       '0')
 
   driver.DrawerMenuClick('leaderboard-card', 'My Profile')
+  driver.ExpectContains([[By.NAME, 'player-name']], 'ReggieTheRavager')
+  driver.ExpectContains([[By.NAME, 'status']], 'Alive')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '0')
+  driver.ExpectContains([[By.NAME, 'notifications-sound']], "Yes")
+  driver.ExpectContains([[By.NAME, 'notifications-vibration']], "Yes")
 
 
   driver.SwitchUser('zella')
   driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
   driver.Click([[By.NAME, 'player-row-ReggieTheRavager'], [By.ID, 'name']])
+  driver.ExpectContains([[By.NAME, 'player-name']], "ReggieTheRavager")
+  driver.ExpectContains([[By.NAME, 'status']], 'Alive')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '0')
   driver.ExpectContains([[By.NAME, 'notifications-sound']], "Yes")
   driver.ExpectContains([[By.NAME, 'notifications-vibration']], "Yes")
   driver.ExpectContains([[By.NAME, 'volunteered-for']], "Communications")

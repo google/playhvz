@@ -98,6 +98,11 @@ try:
         '42')
   driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
   driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
+
+  # Remove a player from a gun
+  driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
+  driver.Click([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'paper-item']])
+  driver.ExpectContains([[By.NAME, 'gun-row-pancake']], "(none)")
    
   # TODO - when implemented, have a player see that they've been assigned a gun
 

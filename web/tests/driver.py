@@ -216,7 +216,7 @@ class RemoteDriver:
     self.ExpectAttributeEqual([[By.ID, 'realApp']], 'signed-in', 'true')
 
   def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
-    self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
+    return self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
 
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
@@ -278,9 +278,9 @@ class FakeDriver:
 
   def FindElement(self, path, wait_long=False, scoped=True, should_exist=True, check_visible=True):
     if scoped:
-      self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist, check_visible)
+      return self.inner_driver.FindElement([[By.ID, self.current_user + "App"]] + path, wait_long, should_exist, check_visible)
     else:
-      self.inner_driver.FindElement(path, wait_long, should_exist, check_visible)
+      return self.inner_driver.FindElement(path, wait_long, should_exist, check_visible)
 
   def Click(self, path, scoped=True):
     if scoped:

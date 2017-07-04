@@ -59,15 +59,14 @@ try:
   # Go back to the Admin Players page
   driver.DrawerMenuClick('profile-card', 'Admin Players')
 
-  # TODO(aliengirl): figure out why this isn't working
   # Search by number
-  # driver.Click([[By.NAME, 'header-#'], [By.NAME, 'icon-search']])
-  # driver.SendKeys(
-  #       [[By.NAME, 'header-#'], [By.TAG_NAME, 'input']],
-  #       '3')
-  # driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
-  # driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
-  # driver.Backspace([[By.NAME, 'header-#'], [By.TAG_NAME, 'input']])
+  driver.Click([[By.NAME, 'header-#'], [By.NAME, 'icon-search']])
+  driver.SendKeys(
+        [[By.NAME, 'header-#'], [By.TAG_NAME, 'input']],
+        '4')
+  driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
+  driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
+  driver.Backspace([[By.NAME, 'header-#'], [By.TAG_NAME, 'input']])
 
   # # Search by name
   driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Name'], [By.NAME, 'icon-search']])
@@ -78,7 +77,14 @@ try:
   driver.ExpectContains([[By.NAME, 'player-table']], "Jack", False) # Jack shouldn't show up
   driver.Backspace([[By.NAME, 'players-card'], [By.NAME, 'header-Name'], [By.TAG_NAME, 'input']], 7)
 
-  # TODO - search by equipment once this works
+  # Search by Equipment
+  driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Equipment'], [By.NAME, 'icon-search']])
+  driver.SendKeys(
+        [[By.NAME, 'players-card'], [By.NAME, 'header-Equipment'], [By.TAG_NAME, 'input']],
+        'Yes')
+  driver.ExpectContains([[By.NAME, 'player-table']], "Moldavi") # Moldavi should show up
+  driver.ExpectContains([[By.NAME, 'player-table']], "Jack", False) # Jack shouldn't show up
+  driver.Backspace([[By.NAME, 'players-card'], [By.NAME, 'header-Equipment'], [By.TAG_NAME, 'input']], 3)
 
   # Add a note
   driver.DrawerMenuClick('players-card', 'Admin Players')
@@ -89,7 +95,7 @@ try:
   # Search by notes
   # Click this button just b/c otherwise the Extra icon is hidden under the scrollbar
   driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Name'], [By.NAME, 'icon-search']]) #TODO(aliengirl): figure out a less weird way to make this work
-  driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.NAME, 'icon-search']]) #TODO(aliengirl): keeps failing here -m
+  driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.NAME, 'icon-search']])
   driver.SendKeys(
     [[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
     'zap')

@@ -225,7 +225,7 @@
       </template>
 
       <div id="players-list" class="drawer-section">
-        <div class="info-label">[[group.players.length]] members</div>
+        <div class="info-label" name="num-players">[[group.players.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
           <div name$='[[item.name]]'>
             <div class="layout horizontal player-entry">

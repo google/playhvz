@@ -57,8 +57,18 @@ try:
         # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
         # This is probably because clicking the X on the notification didn't make it go away.
         driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
+        driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, 'num-players']])
         driver.FindElement(
           [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
+
+        # Check the profile pic shows up
+        pic = driver.FindElement(
+          [[By.NAME, 'chat-card'], 
+          [By.NAME, 'chat-drawer-%s' % chatName], 
+          [By.NAME, playerNames[player]],
+          [By.CLASS_NAME, 'profile-pic']])
+        assert(pic.get_attribute('style') != u'background-image: url("");')
+
         driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
 
         # Post a message
