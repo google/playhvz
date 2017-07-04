@@ -62,7 +62,7 @@ try:
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'limitPerPlayerInput'], [By.TAG_NAME, 'input']], "2")
   driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'badgeImageUrlInput'], [By.TAG_NAME, 'input']])
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'badgeImageUrlInput'], [By.TAG_NAME, 'input']], "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png")
-  driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']])
+  driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], 63)
   driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], "A reward you get for brushing and flossing after eating humans.")
   driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'done']])
 
@@ -100,16 +100,33 @@ try:
 
   driver.DrawerMenuClick('rewards-card', 'Leaderboard')
 
-  # After claiming the reward, Zeke has 3 points
+  # After claiming the reward, Zeke has 3 points, and the badge shows up in the Leaderboard
   driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell Zeke']], "3")
+  pic = driver.FindElement([
+      [By.NAME, 'leaderboard-card'], 
+      [By.NAME, 'Leaderboard Name Cell Zeke'], 
+      [By.NAME, 'reward-Good Flosser Badge'],
+      [By.TAG_NAME, 'img']])
+  assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png"
 
-  driver.DrawerMenuClick('leaderboard-card', 'Rewards')
+  # Badge also shows up on his profile
+  driver.DrawerMenuClick('leaderboard-card', 'My Profile')
+  driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flosser Badge']], 'Good Flosser Badge')
+  driver.ExpectContains(
+    [[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flosser Badge']], 
+    'A reward you get for brushing and flossing after eating humans.')
+  pic = driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flosser Badge'], [By.TAG_NAME, 'img']])
+  assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png"
 
-  # # Zeke tries to claim another reward in the same category - it works! #TODO(someone who's not me): it doesn't work :(
-  # driver.SendKeys([[By.NAME, 'rewards-box'], [By.TAG_NAME, 'input']], 'Flosser 1')
-  # driver.Click([[By.NAME, 'rewards-box'], [By.ID, 'claim']])
-  # driver.ExpectContains([[By.NAME, 'rewards-box']], "Congratulations, you've claimed the reward")
-  # driver.ExpectContains([[By.NAME, 'rewards-box']], "Flosser")
+
+  driver.DrawerMenuClick('profile-card', 'Rewards')
+
+  # TODO(aliengirl): once the site deals with multiple rewards better, have Zeke claim a second one
+  # Zeke tries to claim another reward in the same category - it works!
+  # driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 1')
+  # driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
+  # driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
+  # driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
 
   # Zeke tries to claim another reward in the same category - no luck (his max is 2)
   driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 2')

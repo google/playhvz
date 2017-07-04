@@ -253,10 +253,10 @@
         <div name="possessed-human">Wants to be possessed human: <b>[[computeBooleanText_(player.private.wantToBeSecretZombie)]]</b></div>
         <div name="got-equipment">Got equipment: <b>[[computeBooleanText_(player.private.gotEquipment)]]</b></div>
         <template is="dom-if" if="[[player.isActive]]">
-          <paper-button raised on-tap="deactivate_">Deactivate</paper-button>
+          <paper-button raised name="deactivate-button" on-tap="deactivate_">Deactivate</paper-button>
         </template>
         <template is="dom-if" if="[[!player.isActive]]">
-          <paper-button raised on-tap="activate_">Activate</paper-button>
+          <paper-button raised name="activate-button" on-tap="activate_">Activate</paper-button>
         </template>
         <template is="dom-if" if="[[player.private.canInfect]]">
           <paper-button raised id="unset-infect-button" on-tap="unsetCanInfect_">Unset Can Infect</paper-button>

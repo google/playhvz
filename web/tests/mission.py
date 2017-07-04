@@ -165,16 +165,16 @@ try:
   
   driver.TableMenuClick([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble']], 'Edit')
   insertAndVerifyMissionInfo(
-    name='Defeat the dread zombie boss Gnashable the Zeebweeble',
-    startYear='2017',
-    startMonth='9',
-    startDay='20',
-    startTime='3:00am',
+    name='Defeat the super scary awful zombie boss Gnashable the Zeebweeble',
+    startYear='2018',
+    startMonth='10',
+    startDay='21',
+    startTime='12:34pm',
     endYear='2039',
-    endMonth='4',
-    endDay='2',
-    endTime='10:15pm',
-    details='<div>Basically, we just run around in circles trying not to die.</div>',
+    endMonth='5',
+    endDay='3',
+    endTime='11:16pm',
+    details='<div>Basically, we just run around in ellipses trying not to die.</div>',
     groupName='Everyone')
 
   # Log in as a human (Jack). Show that the new mission doesn't show up anymore
