@@ -19,7 +19,7 @@
 class FakeBridge {
   constructor(idGenerator) {
     this.databaseOperations = [];
-    this.simpleWriter = new SimpleWriter({})
+    this.simpleWriter = new SimpleWriter(null)
     this.teeWriter = new TeeWriter(this.simpleWriter);
     var fakeServer = new FakeServer(idGenerator, this.teeWriter, new Date().getTime());
     var checkedServer = new CheckedServer(idGenerator, fakeServer, Bridge.METHODS_MAP);
@@ -43,7 +43,7 @@ class FakeBridge {
     assert(userId);
     return this.server.register({userId: userId}).then(() => userId);
   }
-  listenToGame({destination}) {
+  listenToGame(userId, gameId, destination) {
     var gatedWriter = new GatedWriter(new MappingWriter(destination), false);
     var cloningWriter = new CloningWriter(gatedWriter);
     cloningWriter.batchedWrite([
@@ -65,15 +65,6 @@ class FakeBridge {
       clearInterval(interval);
       this.teeWriter.removeDestination(cloningWriter);
     };
-  }
-  listenToGameAsAdmin(gameId) {
-    // Do nothing. This method is really just an optimization.
-  }
-  listenToGameAsPlayer(gameId, playerId) {
-    // Do nothing. This method is really just an optimization.
-  }
-  setPlayerId(playerId) {
-    // Do nothing. This method was just for security.
   }
 }
 

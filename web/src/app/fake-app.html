@@ -124,9 +124,7 @@
         this.bridge =
             new Bridge(
                 idGenerator,
-                new FakeBridge(
-                    idGenerator,
-                    new BatchedPolymerWriter(this, 'database')));
+                new FakeBridge(idGenerator, new TeeWriter()));
 
         let populate = Utils.getParameterByName('populate', 'light');
         assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
@@ -160,7 +158,7 @@
       },
 
       loadUserTapped_(e) {
-        this.loadUser_(e.model.option.userId, []);
+        this.loadUser_(e.model.option.userId, ['game', 'poptest-1']);
       },
 
       loadUser_(userId, path) {
@@ -179,10 +177,10 @@
         }
         if (!option.loaded) {
           let app = document.createElement('ghvz-app');
-          app.bridge = this.bridge;
           app.config = this.config;
           app.path = path;
           app.userId = userId;
+          app.bridge = this.bridge;
           app.id = option.name + "App";
           this.appsByUserId[userId] = app;
           this.$.apps.appendChild(app);

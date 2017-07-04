@@ -26,7 +26,7 @@
         bridge: Object,
         isAdmin: Boolean,
         database: Object,
-        user: Object,
+        userId: String,
         game: Object,
         player: Object,
         path: Array,
@@ -92,7 +92,7 @@
             bridge="[[bridge]]"
             is-admin="[[isAdmin]]"
             database="[[database]]"
-            user="[[user]]"
+            user-id="[[userId]]"
             game="[[game]]"
             player="[[player]]">
         </ghvz-drawer>
@@ -103,6 +103,7 @@
               bridge="[[bridge]]"
               is-admin="[[isAdmin]]"
               database="[[database]]"
+              user-id="[[userId]]"
               user="[[user]]"
               game="[[game]]"
               player="[[player]]"
@@ -115,7 +116,7 @@
               bridge="[[bridge]]"
               is-admin="[[isAdmin]]"
               database="[[database]]"
-              user="[[user]]"
+              user-id="[[userId]]"
               game="[[game]]"
               player="[[player]]"
               path="[[innerPath]]">

@@ -40,6 +40,8 @@ class GatedWriter {
     assert(this.gateOpen);
     let operations = this.waitingOperations;
     this.waitingOperations = [];
-    this.destinationBatchedWriter.batchedWrite(operations);
+    if (operations.length) {
+      this.destinationBatchedWriter.batchedWrite(operations);
+    }
   }
 }

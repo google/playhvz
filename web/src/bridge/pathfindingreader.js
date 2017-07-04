@@ -247,24 +247,17 @@ class PathFindingReader {
       path = path.concat([Utils.findIndexById(this.get(path), requestId)]);
     return path;
   }
-  getUserIdForPlayerId(playerId, expect) {
-    let path = this.pathForId_(playerId, expect, ["users"]);
-    if (path)
-      return this.source.get(path.slice(0, 2)).id;
-    else
-      return null;
-  }
   getChatRoomIdForMessageId(messageId, expect) {
     let path = this.pathForId_(messageId);
-    return this.source.get(path.slice(0, 4)).id;
+    return this.source.get(path.slice(0, 2)).id;
   }
   getChatRoomIdForRequestCategoryId(requestCategoryId, expect) {
     let path = this.pathForId_(requestCategoryId);
-    return this.source.get(path.slice(0, 4)).id;
+    return this.source.get(path.slice(0, 2)).id;
   }
   getRequestCategoryIdForRequestId(requestId, expect) {
     let path = this.pathForId_(requestId);
-    return this.source.get(path.slice(0, 6)).id;
+    return this.source.get(path.slice(0, 4)).id;
   }
 
   idExists(id, expect) {
