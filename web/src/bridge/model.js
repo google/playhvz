@@ -328,7 +328,8 @@ var models = {
     time: 0,
     email: '',
     destination: '',
-    playerId: ''
+    playerId: '',
+    privatePlayerId: ''
   }
 };
 
