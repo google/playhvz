@@ -53,12 +53,14 @@ def runTest(url, password, files, useRemote, useMobile):
 		printAndRun("python adminchat.py %s" % args)
 		printAndRun("python globalchat.py %s" % args)
 		printAndRun("python declare.py %s" % args)
-		# printAndRun("python startgame.py %s" % args)
+		printAndRun("python startgame.py %s" % args)
 		printAndRun("python chat.py %s" % args)
 		printAndRun("python chatpage.py %s" % args)
 		printAndRun("python notifications1.py %s" % args)
 		printAndRun("python rewardcategories.py %s" % args)
 		printAndRun("python chatEdgeCases.py %s" % args)
+		printAndRun("python deactivate.py %s" % args)
+		printAndRun("python chatlocation.py %s" % args)
 
 
 def desktopAndMobileTests(url, password, mobile, desktop, files, useRemote):
