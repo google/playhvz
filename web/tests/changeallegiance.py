@@ -44,7 +44,7 @@ try:
   driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
 
   # Go to Jack's profile (currently can't infect)
-  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) 
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) #TODO(aliengirl): crashed here once -m ... maybe make this RetryUntil
 
   # Click the Set Can Infect button (basically, make Jack a Possessed human)
   driver.Click([[By.ID, 'set-infect-button']])

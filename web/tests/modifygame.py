@@ -28,9 +28,9 @@ if __name__ == '__main__':
 import setup
 from selenium.webdriver.common.by import By
 
-driver = setup.MakeDriver(user="zella")
-
 try:
+
+  driver = setup.MakeDriver(user="zella")
 
   driver.Click([[By.NAME, 'close-notification']])
 

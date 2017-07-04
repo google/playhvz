@@ -41,28 +41,39 @@ try:
   driver.DrawerMenuClick('chat-card', 'Dashboard')
 
   # Time for Deckerd to choose a side
-  driver.Click([[By.NAME, 'declareAllegiance']])
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'declareAllegiance']]),
+    lambda: driver.FindElement([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']]))
 
   # Choose human!
-  driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']])
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']]),
+    lambda: driver.FindElement([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option0']]))
 
-  # Choose possessed human.
-  # TODO(aliengirl): crashed here - maybe add RetryUntil?
-  driver.Click([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option0']])
+  # Choose possessed human
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option0']]),
+    lambda: driver.FindElement([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'offWeGo']]))
 
   # Click next to start the quiz
-  driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'offWeGo']])
+  driver.RetryUntil(
+    lambda: driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'offWeGo']]),
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']]))
 
 
   ####### Quiz ######
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected0']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer2']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected2']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer3']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer1']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected1']])
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer2']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected2']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer3']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer1']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected1']]))
   driver.ExpectContains(
       [[By.NAME, 'interviewQuestion0Page'], [By.ID, 'prompt']],
       'incorrect')
