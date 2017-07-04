@@ -67,7 +67,11 @@ class ViewController: UIViewController, FUIAuthDelegate {
     }
     
     @IBAction func logout(_ sender: Any) {
-        logout(sender: sender)
+        do {
+            try Auth.auth().signOut()
+        } catch is NSError {
+            debugPrint("error!")
+        }
     }
     
     fileprivate func login(sender: Any) {

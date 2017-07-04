@@ -32,3 +32,7 @@ handlers:
 env_variables:
   # Replace with your Firebase project ID.
   FIREBASE_PROJECT_ID: 'trogdors-29fa4'
+
+libraries:
+- name: ssl
+  version: latest

@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         
         
-        Auth.auth().addStateDidChangeListener { auth, user in
+        Auth.auth().addStateDidChangeListener { (auth, user) in
             if let user = user {
                 self.onSignedIn(user)
                 // User is signed in. Show home screen
@@ -138,8 +138,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     
     func onSignedIn(_ firebaseUser: User?) {
+        
         let firebaseUid: String = firebaseUser!.uid
-        firebaseUser?.getIDTokenForcingRefresh(true) {firebaseUserIdToken, error in
+        print("onSignedIn!", firebaseUid)
+        firebaseUser?.getIDTokenForcingRefresh(true) { (firebaseUserIdToken, error) in
+            print("got id token!", firebaseUserIdToken)
+            
             if let error = error {
                 print(error)
                 // Handle error
@@ -147,68 +151,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
             
             if let firebaseUserIdToken = firebaseUserIdToken {
-                let body: String = "{" +
-                    "\"requestingUserToken\": \"\(firebaseUserIdToken)\", " +
-                    "\"requestingUserId\": null, " +
-                    "\"requestingPlayerId\": null, " +
-                    "\"userId\": \"user-\(firebaseUid)\" " +
-                    "}"
+                print("in the thing, about to send!")
                 
-                print("Sending request!", body)
+                let parameters: Parameters = [
+                    "requestingUserIdJwt": firebaseUserIdToken,
+                    "requestingUserId": NSNull(),
+                    "requestingPlayerId": NSNull(),
+                    "userId": "user-" + firebaseUid,
+                ]
                 
-                // let url: String = "http://playhvz-170604.appspot.com/api/register"
-                let url: String = "http://localhost:8080/api/register"
+                let url: String = "https://playhvz-170604.appspot.com/api/register"
+                // let url: String = "http://localhost:8080/api/register" doesnt work
                 
-                Alamofire.request(url, method: .post, parameters: [:], encoding: body, headers: [:])
-                    .response { response in
-                        debugPrint(response)
-                        }
+                // Both calls are equivalent
+                Alamofire.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON { response in
                     
-                    //.responseJSON { response in
-                    //debugPrint(response)
-                //}
-                
-                
-                /*public func request(
-                    _ url: URLConvertible,
-                    method: HTTPMethod = .get,
-                    parameters: Parameters? = nil,
-                    encoding: ParameterEncoding = URLEncoding.default,
-                    headers: HTTPHeaders? = nil)*/
-                
-                /*Alamofire.request(url: "http://playhvz-170604.appspot.com/api/register")
-                // Alamofire.request("http://playhvz-170604.appspot.com/api/register", method: .post, parameters: [:], encoding: body, headers: [:])
-                { response in
-                    if response.result.isSuccess {
-                        print("stuff")
-                    }
-                    else {
-                        print("other stuff")
-                        // do other stuff 
-                    }
-                }*/
+                    print("got response!")
+                    debugPrint(response)
                     
-                    /*
-                    .responseJSON { response in
-                        guard response.result.error == nil else {
-                            // got an error in getting the data, need to handle it
-                            print("error calling POST on /todos/1")
-                            print(response.result.error!)
-                            return
-                        }
-                        // make sure we got some JSON since that's what we expect
-                        guard let json = response.result.value as? [String: Any] else {
-                            print("didn't get todo object as JSON from API")
-                            print("Error: \(response.result.error)")
-                            return
-                        }
-                        // get and print the title
-                        guard let todoTitle = json["title"] as? String else {
-                            print("Could not get todo title from JSON")
-                            return
-                        }
-                        print("The title is: " + todoTitle)*/
-                
+                }
             }
         }
         
@@ -225,15 +186,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
 }
-
-
-extension String: ParameterEncoding {
-    
-    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
-        var request = try urlRequest.asURLRequest()
-        request.httpBody = data(using: .utf8, allowLossyConversion: false)
-        return request
-    }
-    
-}
-    
