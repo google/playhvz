@@ -160,8 +160,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     "userId": "user-" + firebaseUid,
                 ]
                 
-                let url: String = "https://playhvz-170604.appspot.com/api/register"
-                // let url: String = "http://localhost:8080/api/register" doesnt work
+                // let url: String = "https://playhvz-170604.appspot.com/api/register"
+                let url: String = "http://localhost:8080/api/register"
                 
                 // Both calls are equivalent
                 Alamofire.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON { response in
