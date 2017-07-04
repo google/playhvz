@@ -47,6 +47,7 @@ npm install
 ./node_modules/firebase-tools/bin/firebase login
 ./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4
 ```
+If the last line fails with an "Invalid project selection" error, then run ./node_modules/firebase-tools/bin/firebase login to make sure you are logged in using the right account.
 
 Copy the first relevant part of web/config_.json to web/config.json (i.e., remove the underscore)
 
@@ -81,6 +82,9 @@ These are one time firebase setup instructions along with backend configuration
 1. In Firebase, open the web config and have these values ready to copy into the config.json file
 1. In your project make a new web/config.json file, similar to the examples in web/config_.json and copy over the values
 1. Run `./node_modules/firebase-tools/bin/firebase use --add ` ...your project...
+
+(If this command fails with an "Invalid project selection" error, then run ./node_modules/firebase-tools/bin/firebase login to make sure you are logged in using the right account.)
+
 1. Restart your development environment and visit [`localhost:5000/?bridge=remote`](localhost:5000/?bridge=remote)
 
 |Fake Users|
