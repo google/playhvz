@@ -44,6 +44,7 @@ def runTest(clientUrl, password, useRemote, useMobile):
 	printAndRun("python creategame.py %s" % args)
 	printAndRun("python joingame.py %s" % args)
 	printAndRun("python infect.py %s" % args)
+	printAndRun("python othersleavingresistance.py %s" % args)
 	printAndRun("python modifygame.py %s" % args)
 	printAndRun("python mission.py %s" % args)
 	printAndRun("python checkin.py %s" % args)

@@ -40,9 +40,9 @@
         // The following makes Google Charts responsive and will resize the chart
         // as the page is resized.
         var lastResize; // closure property for debouncing
-        window.addEventListener('resize', () => { 
+        window.addEventListener('resize', () => {
           if (lastResize) {
-            window.clearTimeout(this.lastResize);
+            window.clearTimeout(lastResize);
           }
 
           lastResize = window.setTimeout(() => {
@@ -328,7 +328,7 @@
         var humanEnd = newData[newData.length - 1][1];
         var zombieStart = newData[1][2];
         var zombieEnd = newData[newData.length - 1][2];
-        
+
         this.$.human_start_count.textContent = zombieStart;
         this.$.human_end_count.textContent = zombieEnd;
         this.$.zombie_start_count.textContent = zombieStart;
