@@ -29,15 +29,22 @@
         player: Object,
         missionId: String,
         mission: Object,
+        rsvpersGroup: Object,
         inGroup: {
           type: Boolean,
-          computed: "computeInGroup_(mission.groupId, player.groupMemberships.length)",
+          notify: true,
+          computed: "computeInGroup_(mission.rsvpersGroupId, player, rsvpersGroup.players.*)",
         }
       },
 
       observers: [
         "onMissionIdChanged_(game, missionId)",
+        "onRsvpersGroupIdChanged_(mission.rsvpersGroupId)",
       ],
+
+      onRsvpersGroupIdChanged_(rsvpersGroupId) {
+        this.$.rsvpersGroupSelector.select(this.game.groupsById[rsvpersGroupId]);
+      },
 
       onMissionIdChanged_: function() {
         let mission = this.game.missionsById[this.missionId];
@@ -47,7 +54,7 @@
       computeInGroup_() {
         if (!this.mission)
           return false;
-        return !!this.player.groupMemberships.find(m => m.groupId == this.mission.rsvpersGroupId);
+        return this.rsvpersGroup.players.includes(this.player.id);
       },
 
       rsvp_() {
@@ -55,6 +62,7 @@
           gameId: this.game.id,
           groupId: this.mission.rsvpersGroupId,
           playerToAddId: this.player.id,
+          actingPlayerId: this.player.id,
         });
       },
 
@@ -63,6 +71,7 @@
           gameId: this.game.id,
           groupId: this.mission.rsvpersGroupId,
           playerToRemoveId: this.player.id,
+          actingPlayerId: this.player.id,
         });
       },
     });
@@ -82,7 +91,7 @@
 </style>
 <template>
   <array-selector id="missionSelector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
-  <array-selector id="groupSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
+  <array-selector id="rsvpersGroupSelector" items="[[game.groups]]" selected="{{rsvpersGroup}}"></array-selector>
   <template is="dom-if" if="[[!inGroup]]">
     <paper-button
         raised
