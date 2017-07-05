@@ -274,7 +274,7 @@
       active="[[userActive]]">
   </ghvz-inactive-dialog>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
-  <template is="dom-if" if="[[!showSignInButton]]">
+  <template is="dom-if" if="[[showSignInButton]]">
     <paper-button name="signIn" on-tap="signIn_" hidden$="[[!showSignInButton]]">
       Sign In With Google
     </paper-button>
