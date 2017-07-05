@@ -42,6 +42,7 @@
           for (const missionMembership of this.player.private.missionMemberships) {
             let missionId = missionMembership.missionId;
             let mission = this.game.missionsById[missionId];
+            assert(mission);
             if (new Date().getTime() < mission.endTime) {
               if (!nextMission || mission.endTime < nextMission.endTime) {
                 nextMission = mission;

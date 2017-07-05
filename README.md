@@ -43,6 +43,7 @@ Clone this project and follow the setup section if you are missing any dependenc
 
 ```bash
 cd web
+bower install
 npm install
 ./node_modules/firebase-tools/bin/firebase login
 ./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4

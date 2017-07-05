@@ -125,6 +125,8 @@
             chatRoomId: this.chatRoom.id, 
             playerId: this.currentPlayer.id, 
             message: this.$.messageInput.value
+          }).catch((e) => {
+            alert(e);
           });
           this.$.messageInput.value = "";
         },
@@ -232,30 +234,18 @@
         },
 
         countRespondPlayer_(requests){
-          let count=0;
-          for(let i=0; i<requests.length; i++){
-            if(requests[i].response != null)
-              count++;
-          }
-          return count;
+          return requests.filter(request => request.response != null).length;
         },
 
-        notEveryPlayerRespond_(requests){
-           let count=0;
-          for(let i=0; i<requests.length; i++){
-            if(requests[i].response != null)
-              count++;
-          }
-          return count<requests.length;
+        notEveryPlayerRespond_(requests) {
+          return this.countRespondPlayer_(requests) < requests.length;
         },
 
         getNoRespondPlayer_(requests){
-          let players="";
-          for(let i=0; i<requests.length; i++){
-            if(requests[i].response == null)
-              players += requests[i].playerId+",";
-          }
-          return players.substring(0,players.length-1);
+          return requests
+              .filter(request => request.response == null)
+              .map(request => this.game.playersById[request.playerId].name)
+              .join(", ");
         },
 
         isRequestAck_(requestCategoryType){
@@ -278,7 +268,7 @@
           this.bridge.addResponse({
             gameId: this.game.id,
             requestId: e.model.request.id,
-            text: e.target.previousSibling.value,
+            text: e.target.previousElementSibling.value,
           });
         },
 
@@ -297,8 +287,7 @@
         checkForEnterTextRequest_: function(e) {
          if (e.keyCode === 13 && !e.shiftKey) {
             e.preventDefault();
-            debugger;
-            e.target.parentNode.parentNode.parentNode.parentNode.nextSibling.click();
+            e.target.parentNode.parentNode.parentNode.parentNode.nextElementSibling.click();
           }
         },
 
@@ -317,6 +306,7 @@
     :host {
       display: flex;
       flex-direction: column;
+      flex-grow: 1;
     }
     :host[small] {
       height: 400px;
@@ -334,13 +324,17 @@
     }
     .ack-container {
       flex-grow: 0;
-      overflow-y: scroll;
-      padding: 8px;
     }
     .message-from-other {
       display: flex;
       justify-content: flex-start;
       position: relative;
+    }
+    paper-button.request {
+      background-color: #03A9F4;
+      color: white;
+      padding: 2px;
+      height: 22px;
     }
     .message-from-me {
       display: flex;
@@ -435,6 +429,11 @@
       color: dodgerblue;
       flex-grow: 0;
     }
+    .request-category {
+      padding: 8px;
+      margin: 8px 8px 0 8px;
+      background-color: #e3f2fd;
+    }
     .text-input {
       display: flex;
       flex-shrink: 0;
@@ -446,10 +445,26 @@
       padding-right: 16px;
       word-break: break-all;
     }
-    .text-request { display: flex; }
-    .text-request-label {display: block; flex-grow: 1;}
-    .text-request-input {display: block; flex-shrink: 0;}
     #forWebdriver { height: 1px; }
+    .request-input {
+      flex-shrink: 0;
+    }
+    .request-message {
+      flex-grow: 1;
+      display: inline-block;
+    }
+    .request-container {
+      display: flex;
+    }
+    .request-input-container {
+      display: flex;
+    }
+    .request-input {
+      flex-grow: 1;
+    }
+    .request-button {
+      flex-shrink: 0;
+    }
   </style>
   <template>
   <!-- -->
@@ -470,38 +485,75 @@
       <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
         <template is="dom-if" if="[[!requestCategory.dismissed]]">
           <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
-              <div class="view">
-                <label>"[[requestCategory.text]]" has been responsed by <b>[[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]]</b></label>
-                <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.requests, requestCategory.requests.*)]]">
-                  <label>, the no responde player(s) are <b>[[getNoRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]</b></label>
-                 </template>
-                <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                  <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
-                    <template is="dom-if" if="[[!isResponseNull_(request.response)]]">
-                      <label><p><b>[[request.playerId]]</b> responds <b>"[[request.response.text]]"</b></p></label>
-                    </template>
+            <paper-material class="request-category">
+              <div class="request-message">
+                [[requestCategory.text]]
+                ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]])
+              </div>
+              <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
+                waiting on: <b>[[getNoRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]</b>
+               </template>
+              <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
+                <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
+                  <template is="dom-if" if="[[request.response]]">
+                    <div class="request-container">
+                      <ghvz-player-label
+                          game="[[game]]"
+                          player-id="[[request.playerId]]">
+                      </ghvz-player-label>:&#160;
+                      [[request.response.text]]
+                    </div>
                   </template>
                 </template>
-
-                <paper-button on-click="deleteAck">Delete</paper-button>
-              </div>
+              </template>
+              <paper-button raised class="request" on-click="deleteAck">Dismiss</paper-button>
+            </paper-material>
           </template>
           <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
             <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
               <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
                   <template is="dom-if" if="[[isRequestAck_(requestCategory.type)]]">
-                    <div class="view">
-                      <label>[[requestCategory.playerId]] sends you an ACK: <b>"[[requestCategory.text]]"</b></label>
-                      <b hidden>[[request.time]]</b>
-                      <paper-button on-click="acknowledge">ACK</paper-button>
-                    </div>
+                    <paper-material class="request-category request-container">
+                      <ghvz-player-label
+                          game="[[game]]"
+                          player-id="[[requestCategory.playerId]]">
+                      </ghvz-player-label>:&#160;
+                      <div class="request-message">
+                        [[requestCategory.text]]
+                      </div>
+                      <span hidden>[[request.time]]</span>
+                      <paper-button raised class="request request-button" on-click="acknowledge">
+                        Ack
+                      </paper-button>
+                    </paper-material>
                   </template>
                   <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                    <div class="text-request">
+                    <paper-material class="request-category">
                       <p hidden>[[request.time]]</p>
-                      <label class="text-request-label">[[requestCategory.playerId]] sends you a question: <b>"[[requestCategory.text]]"</b></label>
-                      <paper-input class="text-request-input" on-keydown="checkForEnterTextRequest_" type="string" label="Answer"></paper-input><paper-button id="textRequestSend" raised on-click="sendAckText">Done</paper-button>
-                    </div>
+                      <ghvz-player-label
+                          game="[[game]]"
+                          player-id="[[requestCategory.playerId]]">
+                      </ghvz-player-label>:&#160;
+                      <div class="request-message">
+                        [[requestCategory.text]]
+                      </div>
+                      <div class="request-input-container">
+                        <paper-input
+                            no-label-float
+                            class="request-input"
+                            on-keydown="checkForEnterTextRequest_"
+                            type="string"
+                            label="Answer">
+                        </paper-input>
+                        <paper-button
+                            raised
+                            class="request"
+                            id="textRequestSend"
+                            on-click="sendAckText">
+                          Send
+                        </paper-button>
+                      </div>
+                    </paper-material>
                   </template>
                 </div>
               </template>

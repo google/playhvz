@@ -12,9 +12,51 @@ import FirebaseAuthUI
 import FirebaseGoogleAuthUI
 import Alamofire
 
-class ViewController: UIViewController, FUIAuthDelegate {
+class MainViewController: UIViewController, FUIAuthDelegate {
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
+    
+    @IBOutlet weak var signingInLabel: UILabel!
+    @IBOutlet weak var userIdLabel: UILabel!
+    @IBOutlet weak var subscribingToNotificationsLabel: UILabel!
+    @IBOutlet weak var registeringUserLabel: UILabel!
+    @IBOutlet weak var registeringDeviceLabel: UILabel!
+    @IBOutlet weak var doneTextView: UITextView!
+    
+    public var resultText: String? {
+        didSet {
+            doneTextView.text = resultText
+        }
+    }
+    
+    public var userId: String? {
+        didSet {
+            userIdLabel.text = "User ID: " + (userId ?? "(none)")
+        }
+    }
+    
+    public var stage: Int = 0 {
+        didSet {
+            print("SETTING STAGE TO ", stage)
+            signingInLabel.isHidden = (stage <= 0)
+            signingInLabel.text =
+                (stage == 1 ? "Signing in..." : "Signed in!")
+            
+            subscribingToNotificationsLabel.isHidden = (stage <= 1)
+            subscribingToNotificationsLabel.text =
+                (stage == 2 ? "Subscribing to notifications..." : "Subscribed to notifications!")
+            
+            registeringUserLabel.isHidden = (stage <= 2)
+            registeringUserLabel.text =
+                (stage == 3 ? "Handshaking with server..." : "Handshaked with server!")
+            
+            registeringDeviceLabel.isHidden = (stage <= 3)
+            registeringDeviceLabel.text =
+                (stage == 4 ? "Registering device with server..." : "Registered device with server!")
+            
+            doneTextView.isHidden = (stage <= 4)
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,10 +109,17 @@ class ViewController: UIViewController, FUIAuthDelegate {
     }
     
     @IBAction func logout(_ sender: Any) {
-        logout(sender: sender)
+        do {
+            try Auth.auth().signOut()
+            stage = 0
+        } catch is NSError {
+            resultText = "Error signing out!"
+        }
     }
     
     fileprivate func login(sender: Any) {
+        stage = 1
+        
         let authUI = FUIAuth.defaultAuthUI()
         authUI?.delegate = self
         
