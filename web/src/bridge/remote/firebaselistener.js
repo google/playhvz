@@ -203,7 +203,7 @@ window.FirebaseListener = (function () {
         this.firebaseRoot.child(this.game.link + '/rewardCategories')
           .on('child_added', (snap) => this.listenToRewardCategory_(snap.getKey()));
 
-        if (listeningUserId in this.game.adminUsers) {
+        if (listeningUserId in gameSnap.val().adminUsers) { // this.game.adminUsers not populated by this point
           this.firebaseRoot.child(this.game.link + '/players')
             .on('child_added', (snap) => this.listenToPlayer_(snap.getKey(), listeningUserId, true));
           this.firebaseRoot.child(this.game.link + '/groups')
