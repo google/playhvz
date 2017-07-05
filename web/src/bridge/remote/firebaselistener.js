@@ -193,6 +193,11 @@ window.FirebaseListener = (function () {
         this.game.initialize(gameSnap.val(), this.game, null, true);
         this.setupPrivateModelAndReaderAndWriter(this.game);
         this.writer.set([], this.game);
+        this.listenForPropertyChanges_(
+          gameSnap.ref, this.game._properties, this.game._collections,
+          (property, value) => {
+            this.writer.set([property], value);
+          });
 
         this.firebaseRoot.child(this.game.link + '/adminUsers')
           .on('child_added', (snap) => this.listenToAdmin_(snap.getKey()));
