@@ -105,6 +105,9 @@
           let scrollBuffer = 60;
           if (currentPosition >= scrollHeight - scrollBuffer) {
             this.async(() => {
+              // Call render() so that the newly received message is displayed before scrollHeight
+              // is calculated so we scroll to the bottom of the new message.
+              this.$.renderedMessages.render();
               this.$.conversationContainer.scrollTop =
                   this.$.conversationContainer.scrollHeight;
             });
@@ -443,7 +446,7 @@
       flex-grow: 1;
       position: relative;
       padding-right: 16px;
-      word-break: break-all;
+      word-break: break-word;
     }
     #forWebdriver { height: 1px; }
     .request-input {
@@ -564,7 +567,7 @@
     </div>
 
     <div id="conversationContainer" class="conversation-container">
-      <template is="dom-repeat" items="[[chatRoom.messages]]">
+      <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
         <div name$="message-[[chatRoom.name]]-[[item.message]]"
           class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
           <div class="display-message">
