@@ -71,14 +71,30 @@
 </script>
 <style>
   :host {
-    display: block;
+    display: flex;
+    flex-direction: column;
     position: relative;
-    height: 100%;
     width: 100%;
     box-sizing: border-box;
   }
   div[main] {
     overflow-y: auto;
+  }
+  div[main],
+  div[drawer] {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  paper-material[drawer] {
+    overflow-y: auto;
+  }
+
+  ghvz-drawer,
+  ghvz-desktop-app,
+  ghvz-mobile-app {
+    flex-grow: 1;
   }
 </style>
 <template>

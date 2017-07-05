@@ -279,6 +279,7 @@ class FakeServer {
 
   removePlayerFromMission_(missionId, playerId) {
     // Assumes still in the group, and will be removed after this call
+    console.log("removing", playerId, "from", missionId);
     let playerMissionMembershipPath = this.reader.getPlayerMissionMembershipPath(playerId, missionId);
     this.writer.remove(
         playerMissionMembershipPath.slice(0, playerMissionMembershipPath.length - 1),
@@ -472,6 +473,7 @@ class FakeServer {
 
   removeMissionMembershipsForAllGroupMembers_(missionId, accessGroupId) {
     let group = this.game.groupsById[accessGroupId];
+    console.log("removing all players from", missionId, accessGroupId, group);
     for (let playerId of group.players) {
       this.removePlayerFromMission_(missionId, playerId);
     }
@@ -493,9 +495,7 @@ class FakeServer {
     let {missionId} = args;
     let missionPath = this.reader.getMissionPath(missionId);
     let mission = this.game.missionsById[missionId];
-    if ('accessGroupId' in args) {
-      this.removeMissionMembershipsForAllGroupMembers_(missionId, mission.accessGroupId);
-    }
+    this.removeMissionMembershipsForAllGroupMembers_(missionId, mission.accessGroupId);
     this.writer.remove(
         missionPath.slice(0, missionPath.length - 1),
         missionPath.slice(-1)[0], // index

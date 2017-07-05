@@ -84,7 +84,6 @@
     display: block;
     position: relative;
     width: 100%;
-    height: 100%;
   }
   .paper-header {
     background-color: #03a9f4;
@@ -95,11 +94,11 @@
   }
 </style>
 <template>
-  <ghvz-card full expand with-menu>
+  <ghvz-card full with-menu>
     <div class="header">Humans vs Zombies</div>
     
     <template is="dom-if" if="[[canRegister]]">
-      <ghvz-card expand spaced name="join-box">
+      <ghvz-card spaced name="join-box">
         <div class="header">Join Game</div>
         <ghvz-game-registration
             class="content"
