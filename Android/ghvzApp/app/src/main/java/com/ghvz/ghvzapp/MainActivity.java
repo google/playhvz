@@ -44,7 +44,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -70,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "Activity";
     private static final int RC_SIGN_IN = 9001;
-    private static final String APP_SERVICE_URL = "http://humansvszombies-24348.appspot.com/api";
-    private static final String TOKEN_KEY = "GOOGLE_SING_IN_IDTOKEN";
+    private static final String APP_SERVICE_URL = "http://playhvz-170604.appspot.com/api";
+    private static final String TOKEN_KEY = "GOOGLE_SIGN_IN_IDTOKEN";
     private static final MediaType APPLICATION_JSON
             = MediaType.parse("application/json; charset=utf-8");
     private static final int REGISTER_SUCCESS = 0;
@@ -84,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Handler mHandler;
     private Button registerButton;
     private SharedPreferences sharedPreferences;
-    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,22 +129,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         }
-
-        // Init Location service
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
-            checkPermission();
-        }
-
-        // Register Button event
-        // final Button button = (Button)findViewById(R.id.location_button);
-        // button.setOnClickListener(new View.OnClickListener() {
-                                      @Override
-                                      public void onClick(View v) {
-        //                                   sendCurrentDeviceLocation();
-        //                               }
-                                  }
-        // );
     }
 
     @Override
@@ -306,30 +288,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void sendCurrentDeviceLocation() {
-
-        try {
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                double longitude, latitude;
-                                longitude = location.getLongitude();
-                                latitude = location.getLatitude();
-
-                                Log.i("sendCurrentLocation",
-                                        "longitude: " + longitude + "  latitude: " + latitude);
-
-                                sendUserDeviceLocation(longitude, latitude);
-                            }
-                        }
-                    });
-        } catch (SecurityException ex) {
-            Log.e("sendCurrentLocation", "Permission for location was not granted by user!");
-        }
-    }
-
     private void sendUserDeviceLocation(double longitude, double latitude) {
         UpdateLocationThread updateLocationThread = new UpdateLocationThread(longitude, latitude);
         updateLocationThread.start();
@@ -403,16 +361,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStart() {
         super.onStart();
 
-    }
-
-    public void checkPermission(){
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                ){//Can add more as per requirement
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},
-                    123);
-        }
     }
 }
