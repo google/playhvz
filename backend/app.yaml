@@ -29,6 +29,6 @@ handlers:
   script: google.appengine.ext.deferred.deferred.application
   login: admin
 
-env_variables:
-  # Replace with your Firebase project ID.
-  FIREBASE_PROJECT_ID: 'trogdors-29fa4'
+instance_class: B1
+manual_scaling:
+  instances: 1
