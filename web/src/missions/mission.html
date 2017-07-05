@@ -33,6 +33,8 @@
         missionId: String,
 
         mission: Object,
+
+        inGroup: Boolean,
       },
 
       observers: [
@@ -42,7 +44,9 @@
       ],
 
       onMissionNameChanged_() {
-        this.fire('ghvz-set-card-header-text', { headerText: this.mission.name });
+        if (this.mission) {
+          this.fire('ghvz-set-card-header-text', { headerText: this.mission.name });
+        }
       },
 
       onMissionIdChanged_() {
@@ -51,7 +55,11 @@
 
       onMissionHtmlChanged_(detailsHtml) {
         this.$.mission.innerHTML = detailsHtml;
-      }
+      },
+
+      formatTime_(time) {
+        return Utils.formatTime(time);
+      },
     });
   });
 </script>
@@ -60,19 +68,38 @@
     display: block;
     margin: 16px;
   }
+  #missionControls {
+    display: flex;
+    align-items: center;
+  }
+  #time {
+    flex-grow: 1;
+  }
+  ghvz-rsvp {
+    flex-shrink: 0;
+  }
 </style>
 <template>
   <array-selector id="selector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
 
   <!-- for webdrivers -->
   <div style="height: 1px" name$="mission-[[mission.name]]"></div>
-  
+  <div id="missionControls">
+    <div id="time">
+      Mission time:
+      <b>[[formatTime_(mission.beginTime)]]</b>
+      to
+      <b> [[formatTime_(mission.beginTime)]]</b>
+    </div>
+    <!--ghvz-rsvp
+        id="rsvp"
+        bridge="[[bridge]]"
+        game="[[game]]"
+        player="[[player]]"
+        mission-id="[[missionId]]"
+        in-group="{{inGroup}}">
+    </ghvz-rsvp-->
+  </div>
   <div id="mission"></div>
-  <ghvz-rsvp
-      bridge="[[bridge]]"
-      game="[[game]]"
-      player="[[player]]"
-      mission-id="[[missionId]]">
-  </ghvz-rsvp>
 </template>
 </dom-module>
