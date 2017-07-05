@@ -82,34 +82,6 @@ var models = {
     name: '',
     rsvpersGroupId: ''
   },
-  playerPrivate: {
-    link: ['playersPrivate', 'playerId'],
-    path: ['players'],
-    associatedMaps: [],
-    beInPhotos: false,
-    canInfect: false,
-    gameId: '',
-    gotEquipment: false,
-    needGun: false,
-    notes: '',
-    notificationSettings: [],
-    notifications: [],
-    userId: '',
-    volunteer: [],
-    wantToBeSecretZombie: false
-  },
-  playerPublic: {
-    link: ['playersPublic', 'playerId'],
-    path: ['players'],
-    active: false,
-    allegiance: '',
-    claims: [],
-    name: '',
-    number: 0,
-    points: 0,
-    profileImageUrl: '',
-    userId: ''
-  },
   marker: {
     link: ['markers', 'markerId'],
     path: ['maps', 'mapId', 'markers'],
