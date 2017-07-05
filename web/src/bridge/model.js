@@ -219,7 +219,7 @@ var models = {
     link: ['publicLives', 'publicLifeId'],
     path: ['players', 'playerId', 'lives'],
     time: 0,
-    private: [],
+    private: '',
     privateLifeId: '',
     playerId: '',
     gameId: ''

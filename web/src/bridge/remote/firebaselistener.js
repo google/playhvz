@@ -354,7 +354,8 @@ window.FirebaseListener = (function () {
             lifeId: publicLifeId
           });
           this.listenOnce_(privateLife.link).then((snap) => {
-            privateLife.initialize(snap.val(), this.game, this.writer, true);
+            privateLife.initialize(snap.val(), this.game, null, true);
+            this.writer.set(privateLife.path, privateLife); // ?
             this.listenForPropertyChanges_(
               snap.ref, privateLife._properties, privateLife._collections,
               (property, value) => {
