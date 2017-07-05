@@ -286,8 +286,44 @@ class FakeServer {
         missionId);
   }
 
+  getMessageTargets(message, group) {
+    let notificationPlayerIds = [];
+    let ackRequestPlayerIds = [];
+    let textRequestPlayerIds = [];
+    
+    while (true) {
+      let ackRequestRegex = /@(\?|!)?(\w+)\b\s*/;
+      let messageMatch = message.match(ackRequestRegex);
+      if (!messageMatch) {
+        break;
+      }
+      message = message.replace(messageMatch[0], "");
+
+      let newTargetPlayerIds = [];
+      let playerName = messageMatch[2];
+      if (playerName == 'all') {
+        newTargetPlayerIds = group.players.slice();
+      } else {
+        let player = this.game.players.find(player => player.name.toLowerCase() == playerName.toLowerCase());
+        if (!player) {
+          throw "Couldn't find a player by the name '" + playerName + "'!";
+        }
+        newTargetPlayerIds = [player.id];
+      }
+
+      notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
+      if (messageMatch[1] == '!') {
+        ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
+      } else if (messageMatch[1] == '?') {
+        textRequestPlayerIds = textRequestPlayerIds.concat(newTargetPlayerIds);
+      }
+    }
+
+    return [message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds];
+  }
+
   sendChatMessage(args) {
-    let {chatRoomId, playerId, messageId} = args;
+    let {chatRoomId, playerId, messageId, message} = args;
 
     let game = this.game;
     let player = game.playersById[playerId];
@@ -305,6 +341,51 @@ class FakeServer {
     } else {
       throw new InvalidRequestError('Can\'t send message to chat room without membership');
     }
+
+    let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
+        this.getMessageTargets(message, group);
+
+    if (notificationPlayerIds.length) {
+      for (let receiverPlayerId of notificationPlayerIds) {
+        let receiverPlayer = this.game.playersById[receiverPlayerId];
+        let messageForNotification = player.name + ": " + strippedMessage;
+        this.addNotification({
+          playerId: receiverPlayerId,
+          notificationId: this.idGenerator.newNotificationId(),
+          queuedNotificationId: null,
+          message: messageForNotification,
+          previewMessage: messageForNotification,
+          destination: 'chat/' + chatRoom.id,
+          time: this.getTime_(args),
+          icon: null,
+        });
+      }
+    }
+    if (ackRequestPlayerIds.length) {
+      this.sendRequests(chatRoomId, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
+    }
+    if (textRequestPlayerIds.length) {
+      this.sendRequests(chatRoomId, playerId, 'text', strippedMessage, textRequestPlayerIds);
+    }
+  }
+
+  sendRequests(chatRoomId, senderPlayerId, type, message, playerIds) {
+    let requestCategoryId = this.idGenerator.newRequestCategoryId();
+    this.addRequestCategory({
+      requestCategoryId: requestCategoryId,
+      chatRoomId: chatRoomId,
+      playerId: senderPlayerId,
+      text: message,
+      type: type,
+      dismissed: false,
+    });
+    for (let playerId of playerIds) {
+      this.addRequest({
+        requestCategoryId: requestCategoryId,
+        requestId: this.idGenerator.newRequestId(),
+        playerId: playerId,
+      });
+    }
   }
 
   updateChatRoomMembership(args) {
@@ -319,52 +400,6 @@ class FakeServer {
       this.writer.set(
           playerChatRoomMembershipPath.concat([argName]),
           args[argName]);
-    }
-
-    if( message.indexOf("@!")!=-1 && message.indexOf("@?")!= -1)
-      throw 'Only one type of request category at one time!'
-
-    if( message.indexOf("@!")!=-1 || message.indexOf("@?")!=1){
-      let space = 0;
-      while(space< message.length){
-        space = message.indexOf(" ", space);
-        if (message.charAt(space+1) != '@')
-          break;
-      }
-      let text = message.substring(space+1);
-
-      let type;
-      let mark;
-      if(message.indexOf("@!")!=-1){
-        type = "ack";
-        mark = "@!"
-      }
-      else{
-        type = "text";
-        mark = "@?"
-      }
-
-      let requestCategoryID = this.idGenerator.newRequestCategoryId();
-      this.addRequestCategory({
-        requestCategoryId: requestCategoryID,
-        chatRoomId:chatRoomId,
-        playerId: playerId,
-        text: text,
-        type: type,
-        dismissed: false,
-      });
-
-      let firstHalf = message.substring(0, space);
-      let array = firstHalf.split(" ");
-      for(let i=0; i<array.length; i++){
-          let index = array[i].indexOf(mark);
-          let receivePlayerId = array[i].substring(index+2);
-          this.addRequest({
-            requestCategoryId: requestCategoryID,
-            requestId: this.idGenerator.newRequestId(),
-            playerId: receivePlayerId,
-          });
-      }
     }
   }
 
