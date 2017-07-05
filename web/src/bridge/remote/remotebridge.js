@@ -79,6 +79,8 @@ class RemoteBridge {
                   assert("user-" + firebaseUser.uid == this.userId);
                 }
               });
+            } else {
+              console.log('onAuthStateChanged called with a null firebaseUser.');
             }
           });
         });

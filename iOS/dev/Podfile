@@ -1,12 +1,16 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+platform :ios, '9.0'
 
 target 'dev' do
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
+  # platform :ios, '8.0'
 
   # Pods for dev
   pod 'Firebase/Core'
   pod 'Firebase/Messaging'
+  pod 'FirebaseUI/Auth'
+  pod 'FirebaseUI/Google'
+  pod 'Alamofire'
 
 end

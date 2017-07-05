@@ -217,7 +217,8 @@ def StressTestBatch():
 
 @app.route('/api/<method>', methods=['POST'])
 def SingleEndpoint(method):
-  return jsonify(HandleSingleRequest(method, json.loads(request.data)))
+  return jsonify(HandleSingleRequest(method, request.get_json(force=True)))
+
 
 @app.route('/api/batch', methods=['POST'])
 def BatchEndpoint():
