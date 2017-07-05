@@ -74,28 +74,21 @@
 <style>
   :host {
     box-sizing: border-box;
-    display: block;
-  }
-  :host([expand]) {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  :host([expand]) paper-material {
     display: flex;
     flex-direction: column;
   }
-  :host([expand]) paper-material #contents {
+  paper-material {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+  }
+  paper-material #contents {
     flex-grow: 1;
     overflow-y: auto;
   }
   :host([spaced]) {
     padding: 8px;
-  }
-  paper-material {
-    background-color: white;
-    display: block;
-    height: 100%;
   }
   .header {
     background-color: #03A9F4;
@@ -128,8 +121,11 @@
     padding-left: 16px;
   }
   #contents {
-    height: 100%;
+    /* height: 100%; Taken out. When in, mobile safari hides entire contents. */
     overflow: hidden;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
   }
   :host([scrolling]) #contents {
     overflow-y: auto;
