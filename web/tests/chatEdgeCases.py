@@ -27,9 +27,17 @@ try:
 
   driver.Click([[By.NAME, 'close-notification']])
 
-  # Give Zella a reward (just so that she has moe points than Moldavi)
-  driver.DrawerMenuClick('mobile-main-page', 'Rewards')
-  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'signed 1')
+  # Give Zella a reward (just so that she has more points than Moldavi)
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
+  driver.TableMenuClick([[By.NAME, 'row-signed']], 'Show Rewards')
+  driver.Click([[By.NAME, 'header-Claimer'], [By.NAME, 'icon-search']])
+  driver.SendKeys(
+        [[By.NAME, 'header-Claimer'], [By.TAG_NAME, 'input']],
+        'unclaimed')
+  reward = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name']]).get_attribute('val')
+
+  driver.DrawerMenuClick('admin-rewards-card', 'Rewards')
+  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward)
   driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 
   # Switch to a normal human (Jack)

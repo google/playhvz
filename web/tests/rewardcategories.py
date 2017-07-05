@@ -72,13 +72,14 @@ try:
   driver.Click([[By.ID, 'addReward']])
 
   # Check that at least some are there
-  driver.ExpectContains([[By.NAME, 'row-Flosser 0']], '(unclaimed)')
-  driver.ExpectContains([[By.NAME, 'row-Flosser 21']], '(unclaimed)')
+  reward1 = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name']]).get_attribute('val')
+
+  driver.FindElement([[By.NAME, 'reward-name']], '(unclaimed)')
+  driver.ExpectContains([[By.ID, 'rewardsTable'], [By.CLASS_NAME, 'row']], '(unclaimed)')
 
   # Export the rewards.
   driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Export Rewards')
-  driver.ExpectContains([[By.ID, 'codesDialogContents']], 'Flosser 0')
-  driver.ExpectContains([[By.ID, 'codesDialogContents']], 'Flosser 21')
+  driver.ExpectContains([[By.ID, 'codesDialogContents']], reward1)
   driver.Click([[By.ID, 'codesDialog'],[By.NAME, 'done']])
 
   # Zeke was a cool zombie! He ate a bunch of humans, then brushed and flossed his teeth. He was awarded a reward.
@@ -91,7 +92,7 @@ try:
 
   # Zeke claims the reward
   driver.DrawerMenuClick('leaderboard-card', 'Rewards')
-  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 0')
+  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward1)
   driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
   driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
   driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
@@ -128,10 +129,10 @@ try:
   # driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
   # driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
 
-  # Zeke tries to claim another reward in the same category - no luck (his max is 2)
-  driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 2')
-  driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
-  driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward", should_exist=False)
+  # # Zeke tries to claim another reward in the same category - no luck (his max is 2)
+  # driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward2)
+  # driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
+  # driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward", should_exist=False)
 
 
   driver.Quit()

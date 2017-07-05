@@ -85,7 +85,7 @@ def fakeAndRemoteTests(url, password, mobile, desktop, local, remote, files):
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-u", "--url", help="Client URL", default="http://localhost:5000")
-	parser.add_argument("-p", "--password", help="Remote password", default="yolo")
+	parser.add_argument("-p", "--password", help="Remote password", default="hi")
 	parser.add_argument("-m", "--mobile", help="Only run mobile tests", action="store_true")
 	parser.add_argument("-d", "--desktop", help="Only run desktop tests", action="store_true")
 	parser.add_argument("-l", "--local", help="Only run local tests", action="store_true")
