@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "HVZ";
     private static final int RC_SIGN_IN = 9001;
-    private static final String APP_URL = "https://playhvz.com/game/2017-game";
+    private static final String APP_URL = "https://playhvz.com/game/google2017";
     private static final String APP_SERVICE_URL = "http://playhvz-170604.appspot.com/api";
     private static final String TOKEN_KEY = "GOOGLE_SIGN_IN_IDTOKEN";
     private static final MediaType APPLICATION_JSON
@@ -168,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult start");
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
