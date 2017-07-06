@@ -2,3 +2,4 @@ lib
 secrets.py
 config.py
 *.swp
+pythonFCMClient.py

@@ -666,7 +666,7 @@ def SendChatMessage(request, game_state):
     'email': False,
     'mobile': True,
     'vibrate': True,
-    'sound': False,
+    'sound': "ping.caf",
     'destination': 'TODO',
     'sendTime': int(time.time() * 1000),
     'icon': 'TODO'
@@ -1613,7 +1613,7 @@ def SendNotification(request, game_state):
     'email': 'Boolean', # Whether to send to the player's email.
     'mobile': 'Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': 'Boolean', # Whether the notification should vibrate on iOS/Android.
-    'sound': 'Boolean', # Whether the notification should play a sound on iOS/Android.
+    'sound': '?String', # What sound should play on iOS/Android.
     'destination': '?String', # URL that notification should open when clicked. Null means it will just open to the notifications page on the site, to this notification.
     'sendTime': '?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '?PublicPlayerId', # Player to send it to. Either this or groupId must be present.
@@ -1648,7 +1648,7 @@ def UpdateNotification(request, game_state):
     'email': '|Boolean', # Whether to send to the player's email.
     'mobile': '|Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': '|Boolean', # Whether the notification should vibrate on iOS/Android.
-    'sound': '|Boolean', # Whether the notification should play a sound on iOS/Android.
+    'sound': '|?String', # Whether the notification should play a sound on iOS/Android.
     'destination': '|String', # URL that notification should open when clicked.
     'sendTime': '|?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '|?PublicPlayerId', # Player to send it to. Either this or groupId must be present.
