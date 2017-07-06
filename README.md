@@ -187,7 +187,9 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`python run.py --password PASSWORDHERE` replacing PASSWORDHERE with the fake accounts' password (ask someone on the team).
+`python run.py --password PASSWORDHERE [--url TARGET_URL] [SPECIFIC_TEST_NAME]` replacing ALLCAPS'd segments with your values. To get passwords for fake test accounts, please ask someone on the team.
+
+Note: Bracketed segments are optional. Omitting a specific test name will run the whole test suite.
 
 
 ### Back End
