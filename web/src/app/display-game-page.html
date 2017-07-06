@@ -131,9 +131,9 @@
     <ghvz-card
       id$="chat-page-[[player.name]]"
       class="expand"
-      name="chat-card" 
-      spaced$="[[!isMobile]]" 
-      with-back="[[isMobile]]" 
+      name="chat-card"
+      spaced$="[[!isMobile]]"
+      with-back="[[isMobile]]"
       with-menu="[[isMobile]]">
       <ghvz-chat-page
           bridge="[[bridge]]"
@@ -332,6 +332,7 @@
     <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Game Stats</div>
       <ghvz-stats-page
+          name="stats-card"
           class="expand"
           bridge="[[bridge]]"
           database="[[database]]"

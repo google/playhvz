@@ -13,7 +13,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-
 <!-- TODO move these to index.html -->
 
 <dom-module id="ghvz-game-stat-summary">
@@ -82,12 +81,12 @@
 <template class="layout vertical" style="height:300px">
   <paper-icon-button
       src="[[buttonIcon]]"
-      id="swap-gamestat-button" 
+      id="swap-gamestat-button"
       on-click="onSwapClicked_">
   </paper-icon-button>
-  <neon-animated-pages 
-      id="game-stat-summary" 
-      class="flex" 
+  <neon-animated-pages
+      id="game-stat-summary"
+      class="flex"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation"
       selected="[[showing]]">
