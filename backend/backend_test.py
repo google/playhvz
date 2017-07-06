@@ -334,8 +334,6 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertOk('sendNotification', create)
 
-    self.AssertOk('executeNotifications', {})
-
     # Create missions
     create = {
       'gameId': self.Id('gameId'),

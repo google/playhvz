@@ -32,6 +32,7 @@ import logging
 import random
 import textwrap
 import time
+import notifications
 
 import constants
 import db_helpers as helpers
@@ -666,7 +667,7 @@ def SendChatMessage(request, game_state):
     'email': False,
     'mobile': True,
     'vibrate': True,
-    'sound': "ping.caf",
+    'sound': "ping.wav",
     'destination': 'TODO',
     'sendTime': int(time.time() * 1000),
     'icon': 'TODO'
@@ -682,6 +683,7 @@ def SendChatMessage(request, game_state):
       n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
       n['playerId'] = players_in_room[player]
       helpers.QueueNotification(game_state, n)
+      notifications.ExecuteNotifications(None, game_state)
   else:
     tokens = request['message'].split(' ')
     for token in tokens:
@@ -693,6 +695,7 @@ def SendChatMessage(request, game_state):
         n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
         n['playerId'] = players_in_room[name]
         helpers.QueueNotification(game_state, n)
+        notifications.ExecuteNotifications(None, game_state)
 
   put_data = {
     'playerId': request['playerId'],
@@ -1631,6 +1634,7 @@ def SendNotification(request, game_state):
     request['sendTime'] = None
 
   helpers.QueueNotification(game_state, request)
+  notifications.ExecuteNotifications(None, game_state)
 
 
 def UpdateNotification(request, game_state):
