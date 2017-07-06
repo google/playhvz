@@ -16,25 +16,6 @@
 
 """TODO: High-level file comment."""
 
-import unittest
-
-
-class FooTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def testBar(self):
-        pass
-
-
-if __name__ == '__main__':
-    unittest.main()
-#!/bin/python2.7
-
 import difflib
 import json
 import pprint
