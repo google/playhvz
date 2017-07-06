@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2017 Google Inc.
 
@@ -13,12 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ghvz.ghvzapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> -->
 
     <application
         android:allowBackup="true"

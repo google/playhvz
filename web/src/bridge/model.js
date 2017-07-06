@@ -245,7 +245,7 @@ Model.Infection = function(id, args) {
   Utils.addEmptyLists(this, Model.INFECTION_COLLECTIONS);
 }
 
-Model.NOTIFICATION_PROPERTIES = ["message", "previewMessage", "queuedNotificationId", "seenTime", "sound", "vibrate", "site", "mobile", "time", "email", "destination"];
+Model.NOTIFICATION_PROPERTIES = ["message", "previewMessage", "queuedNotificationId", "seenTime", "sound", "vibrate", "site", "mobile", "time", "email", "destination", "icon"];
 Model.NOTIFICATION_COLLECTIONS = [];
 Model.Notification = function(id, args) {
   this.id = id;
