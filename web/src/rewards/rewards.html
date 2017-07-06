@@ -316,7 +316,7 @@
         <template is="dom-repeat" id="rewardsRepeater" items="[[currentRewardCategory.rewards]]" as="reward" initial-count="1" target-framerate="5">
           <div class="row" name$="row-[[reward.code]]">
             <ghvz-table-control-cell item="[[reward]]"></ghvz-table-control-cell>
-            <div class="cell">[[reward.code]]</div>
+            <div class="cell" name="reward-name" val="[[reward.code]]">[[reward.code]]</div>
             <div class="cell">[[computePlayerName_(reward)]]</div>
           </div>
         </template>

@@ -207,7 +207,7 @@ class RemoteDriver:
     self.ExpectAttributeEqual([[By.ID, 'realApp']], 'signed-in', 'true')
 
   def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
-    self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
+    return self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
 
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
@@ -351,3 +351,29 @@ class WholeDriver:
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)
+
+  def RetryUntil(self, action, result, num_times=4):
+    for i in range(num_times):
+      try:
+        action()
+        return result()
+      except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:
+        if i == num_times - 1:
+          raise e
+        else:
+          time.sleep(0.5)
+          print("A retry action failed %d times" % (i + 1))
+
+  def DrawerMenuClick(self, currPage, destinationPage):
+    if self.is_mobile:
+      self.RetryUntil(
+        lambda: self.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']]),
+        lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
+    self.Click([[By.NAME, 'drawer%s' % destinationPage]])
+      
+  def TableMenuClick(self, pathToRow, buttonName):
+    self.RetryUntil(
+      lambda: self.Click(pathToRow + [[By.ID, 'menu']]),
+      lambda: self.FindElement(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]]))
+    self.Click(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]])
+          

@@ -108,7 +108,7 @@
 <template>
   <div id="container" on-tap="handleTap_">
     <iron-icon icon="[[computeIcon_(notification.icon)]]" class="icon"></iron-icon>
-    <div class="preview-message">[[notification.previewMessage]]</div>
+    <div class="preview-message" name$="preview-[[notification.previewMessage]]">[[notification.previewMessage]]</div>
     <paper-icon-button
       name="close-notification"
       hidden$="[[!withClose]]"
