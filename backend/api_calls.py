@@ -36,6 +36,7 @@ import pprint
 import random
 import textwrap
 import time
+import notifications
 
 import constants
 import db_helpers as helpers
@@ -65,10 +66,12 @@ ROOT_ENTRIES = (
 
 def Register(request, game_state):
   """Register a new user in the DB.
+
   Validation:
   Args:
     userId: Unique userId added to the user list.
     name: A name to use to reference a player.
+
   Firebase entries:
     /users/%(userId)
   """
@@ -85,14 +88,17 @@ def Register(request, game_state):
 
 def AddGame(request, game_state):
   """Add a new game.
+
   Validation:
     gameId must be valid format.
+
   Args:
     gameId:
     adminUserId:
     name:
     rulesHtml: static HTML containing the rule doc.
     stunTimer:
+
   Firebase entries:
     /games/%(gameId)
   """
@@ -129,6 +135,7 @@ def AddGame(request, game_state):
 
 def SetAdminContact(request, game_state):
   """Update a game entry.
+
   Firebase entries:
     /games/%(gameId)/a
   """
@@ -143,6 +150,7 @@ def SetAdminContact(request, game_state):
 
 def UpdateGame(request, game_state):
   """Update a game entry.
+
   Firebase entries:
     /games/%(gameId)
   """
@@ -171,10 +179,13 @@ def UpdateGame(request, game_state):
 
 def AddGameAdmin(request, game_state):
   """Add an admin to a game.
+
   Validation:
+
   Args:
     gameId:
     userId:
+
   Firebase entries:
     /games/%(gameId)/adminUsers
   """
@@ -195,6 +206,7 @@ def AddGameAdmin(request, game_state):
 
 def AddGroup(request, game_state):
   """Add a new player group.
+
   Firebase entries:
     /groups/%(groupId)
     /groups/%(groupId)/players/%(playerId)
@@ -237,6 +249,7 @@ def AddGroup(request, game_state):
 
 def UpdateGroup(request, game_state):
   """Update a group entry.
+
   Firebase entries:
     /groups/%(groupId)
   """
@@ -262,9 +275,11 @@ def UpdateGroup(request, game_state):
 
 def AddPlayer(request, game_state):
   """Add a new player for a user and put that player into the game.
+
   Player data gets sharded between /publicPlayers/%(playerId)
   and /privatePlayers/%(playerId) for public and private info about players.
   The latter can be used to map a playerId to a gameId.
+
   Firebase entries:
     /games/%(gameId)/players
     /publicPlayers/%(playerId)
@@ -432,6 +447,7 @@ def UpdatePlayer(request, game_state):
 
 def AddGun(request, game_state):
   """Add a new gun to the DB.
+
   Firebase entries:
     /guns/%(gunId)/
   """
@@ -454,6 +470,7 @@ def AddGun(request, game_state):
 
 def UpdateGun(request, game_state):
   """Update details of a mission.
+
   Firebase entries:
     /missions/%(missionId)
   """
@@ -475,6 +492,7 @@ def UpdateGun(request, game_state):
 
 def AssignGun(request, game_state):
   """Assign a gun to a given player.
+
   Firebase entries:
     /guns/%(gunId)
   """
@@ -495,6 +513,7 @@ def AssignGun(request, game_state):
 
 def AddMission(request, game_state):
   """Add a new mission.
+
   Firebase entries:
     /game/%(gameId)/missions
     /missions/%(missionId)
@@ -533,6 +552,7 @@ def DeleteMission(request, game_state):
 
 def UpdateMission(request, game_state):
   """Update details of a mission.
+
   Firebase entries:
     /missions/%(missionId)
   """
@@ -588,6 +608,7 @@ def AddChatRoom(request, game_state):
 
 def UpdateChatRoom(request, game_state):
   """Update a chat room.
+
   Firebase entries:
     /chatRooms/%(chatRoomId)
   """
@@ -603,13 +624,16 @@ def UpdateChatRoom(request, game_state):
 
 def SendChatMessage(request, game_state):
   """Record a chat message.
+
   Validation:
     Player is in the chat room (via the group).
     The messageId is not used yet in this chat rom.
+
   Args:
     chatRoomId: Chat room to send the message to.
     messageId: Unique ID to use for the message.
     message: The message to send.
+
   Firebase entries:
     /chatRooms/%(chatRoomId)/messages
   """
@@ -711,11 +735,13 @@ def UpdateRequestCategory(request, game_state):
 
 def AddQuizQuestion(request, game_state):
   """Adds a quiz question with the given information
+
     Validation:
       gameId must exist
       quizQuestionId must not exist
       text must be present
       type must be present
+
     Args:
       gameId: the quiz question will be associated with
       quizQuestionId: The id used to identify the question
@@ -752,9 +778,11 @@ def AddQuizQuestion(request, game_state):
 
 def UpdateQuizQuestion(request, game_state):
   """Updates a quiz question with the given information
+
     Validation:
       gameId must exist
       quizQuestionId must exist
+
     Args:
       quizQuestionId: The id used to identify the question
       text: Text that represents the question
@@ -799,6 +827,7 @@ def UpdateQuizQuestion(request, game_state):
 
 def AddQuizAnswer(request, game_state):
   """Adds a quiz answer with the given information
+
     Validation:
       gameId must exist
       isCorrect must a Boolean
@@ -806,6 +835,7 @@ def AddQuizAnswer(request, game_state):
       quizAnswerId must exist
       quizQuestionId must not exist
       text must be a String
+
     Args:
       gameId: the quiz question will be associated with
       isCorrect: Whether or not the answer is the correct one to the question
@@ -845,10 +875,12 @@ def AddQuizAnswer(request, game_state):
 
 def UpdateQuizAnswer(request, game_state):
   """Updates a quiz answer with the given information
+
     Validation:
       gameId must exist
       quizAnswerId must exist
       quizQuestionId must exist
+
     Args:
       gameId: the quiz question will be associated with
       isCorrect: Whether or not the answer is the correct one to the question
@@ -906,12 +938,15 @@ def AddDefaultProfileImage(request, game_state):
 
 def AckChatMessage(request, game_state):
   """Ack a chat message which sets the ack to the timestamp of that message.
+
   Validation:
     Player is in the chat room (via the group).
+
   Args:
     chatRoomId: Chat room to send the message to.
     playerId: Player sending the message.
     messageId: Unique ID to use for the message.
+
   Firebase entries:
     /chatRooms/%(chatRoomId)/acks
   """
@@ -936,17 +971,21 @@ def AckChatMessage(request, game_state):
 
 def AddPlayerToGroup(request, game_state):
   """Add a player to a group.
+
   Either a member of the group adds another player or an admin adds a player.
+
   Validation:
     * Player doing the adding is a member of the group AND the group supports adding
       or
       The player is the group owner.
     * playerToAddId is not already in the group.
     * Both players and the groupId all point to the same game.
+
   Args:
     groupId: The group to add a player to.
     playerId: The player doing the adding (unless an admin).
     playerToAddId: The player being added.
+
   Firebase entries:
     /groups/%(groupId)/players/%(playerId)
     /privatePlayers/%(playerId)/chatRooms/
@@ -998,13 +1037,16 @@ def AddPlayerToGroup(request, game_state):
 
 def AddPlayerToGroupInner(game_state, group_id, public_player_to_add_id):
   """Add player to a group and mappings for chat rooms, missions, etc.
+
   When a player is added to a group, find chats and missions associated with
   that group and add those chats and missions to the list of chats and missions
   the player is in.
+
   Args:
     game_state:
     group_id: Group ID the player was added to.
     player_to_add_id: The player ID in question.
+
   Firebase entries:
     /groups/%(groupId)/players/
     /privatePlayers/%(playerId)/chatRooms/
@@ -1058,17 +1100,21 @@ def UpdateChatRoomMembership(request, game_state):
 
 def RemovePlayerFromGroup(request, game_state):
   """Remove a player from a group.
+
   Either a member of the group or the admin adds a player.
+
   Validation:
     * Player doing the removing is a member of the group AND the group supports removing
       or
       The player is the group owner.
     * playerToAddId is in the group.
     * Both players and the groupId all point to the same game.
+
   Args:
     groupId: The group to remove a player from.
     playerId: The player doing the removing (unless an admin).
     playerToAddId: The player being removed.
+
   Firebase entries:
     /groups/%(groupId)/players/%(playerId)
     /privatePlayers/%(playerId)/chatRooms/
@@ -1122,13 +1168,16 @@ def RemovePlayerFromGroup(request, game_state):
 
 def RemovePlayerFromGroupInner(game_state, group_id, public_player_id):
   """Remove player from a group and the chat room, mission, etc mappings.
+
   When a player is removed from a group, find chats and missions associated with
   that group and remove those chats and missions from the list of chats and missions
   the player is in.
+
   Args:
     game_state:
     group: Group ID the player was added to.
     player: The player ID in question.
+
   Firebase entries:
     /privatePlayers/%(playerId)/chatRooms/
     /privatePlayers/%(playerId)/missions/
@@ -1149,13 +1198,16 @@ def RemovePlayerFromGroupInner(game_state, group_id, public_player_id):
 
 def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
   """Auto add/remove a player from groups.
+
   When a player changes allegiances, automatically add/remove them
   from groups.
   If new player, there is no group removal and we need to add to groups without
   an allegiance.
+
   Args:
     public_player_id: A player ID
     new_player: This is a new player vs allegiance switch.
+
   Firebase entries:
     /groups/%(groupId)/players/%(playerId)
     /privatePlayers/%(playerId)/chatRooms/
@@ -1178,12 +1230,17 @@ def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
 # TODO Decide how to mark a life code as used up.
 def Infect(request, game_state):
   """Infect a player via life code.
+
   Infect a human and gets points.
+
   Args:
     playerId: The person doing the infecting.
     lifeCode: The life code being taken/infected, makes to the victom.
+
+
   Validation:
     Valid IDs. Infector can infect or is self-infecting. Infectee is human.
+
   Firebase entries:
     /games/%(gameId)/players/%(playerId)
     /groups/%(groupId) indirectly
@@ -1285,12 +1342,15 @@ def JoinHorde(request, game_state):
 
 def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
   """Helper to set the allegiance of a player.
+
   Args:
     player_id: The player to update.
     allegiance: Human vs zombie.
     can_infect: Can they infect. Must be true for zombies.
+
   Validation:
     None.
+
   Firebase entries:
     /publicPlayers/%(playerId)/allegiance
     /privatePlayers/%(playerId)/canInfect
@@ -1307,8 +1367,10 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
 
 def AddRewardCategory(request, game_state):
   """Add a new reward group.
+
   Validation:
     rewardCategoryId is of valid form.
+
   Args:
     rewardCategoryId: reward type, eg rewardCategory-foo
     gameId: The game ID. eg game-1
@@ -1318,6 +1380,7 @@ def AddRewardCategory(request, game_state):
         reward codes. Example "epicinfection"
     limitPerPlayer: (int) how many a player can claim
     points: (int) points the reward is worth
+
   Firebase entries:
     /rewardCategories/%(rewardCategoryId)
   """
@@ -1351,6 +1414,7 @@ def AddRewardCategory(request, game_state):
 
 def UpdateRewardCategory(request, game_state):
   """Update an existing reward group.
+
   Firebase entries:
     /rewardCategories/%(rewardCategoryId)
   """
@@ -1377,7 +1441,9 @@ def UpdateRewardCategory(request, game_state):
 
 def AddReward(request, game_state):
   """Add a new reward to an existing category.
+
   Validation:
+
   Args:
     rewardId:
     rewardCategoryId:
@@ -1385,6 +1451,7 @@ def AddReward(request, game_state):
         with the reward category's shortName. For example,
         "epicinfection-purple-roller-strike" is a reward for the reward
         category that has shortName "epicinfection".
+
   Firebase entries:
     /rewards/%(rewardId)
     /rewardCategories/%(rcID)/rewards/%(rewardId)
@@ -1421,6 +1488,7 @@ def AddReward(request, game_state):
 
 def AddRewards(request, game_state):
   """Add a set of rewards.
+
   Firebase entries:
     /rewards/%(rewardId)
     /rewardCategories/%(rcID)/rewards/%(rewardId)
@@ -1449,6 +1517,7 @@ def AddRewards(request, game_state):
 
 def AddRewardToDb(game_state, reward_category_id, reward_id, reward):
   """Put a new reward into the DB.
+
   Firebase entries:
     /rewards/%(rewardId)
     /rewardCategories/%(rcID)/rewards/%(rewardId)
@@ -1459,14 +1528,17 @@ def AddRewardToDb(game_state, reward_category_id, reward_id, reward):
 
 def ClaimReward(request, game_state):
   """Claim a reward for a player.
+
   Validation:
     Reward is valid.
     Reward was not yet claimed.
     This player doesn't have the reward in their claims.
+
   Args:
     playerId: Player's ID
     gameId: Game ID
     rewardId: reward-foo-bar. Must start with the category
+
   Firebase entries:
     /publicPlayers/%(playerId)/claims/%(rewardId)
     /publicPlayers/%(playerId)/points
@@ -1535,6 +1607,7 @@ def RandomWords(n):
 
 def SendNotification(request, game_state):
   """Queue a notification to be sent.
+
   Firebase entries:
     /notifications/%(notificationId)
 """
@@ -1570,6 +1643,7 @@ def SendNotification(request, game_state):
 
 def UpdateNotification(request, game_state):
   """Update a queued notification.
+
   Firebase entries:
     /notifications/%(notificationId)
 """
@@ -1614,6 +1688,7 @@ def UpdateNotification(request, game_state):
 
 def MarkNotificationSeen(request, game_state):
   """Updates the notification's seenTime.
+
   Firebase entries:
     /privatePlayers/%(playerId)/notifications/%(notificationId)
 """
@@ -1635,11 +1710,14 @@ def MarkNotificationSeen(request, game_state):
 
 def RegisterUserDevice(request, game_state):
   """Register a user device to a userId.
+
   Validation:
     userId must exist.
+
   Args:
     userId: User id to associate with.
     deviceToken: Ionic device token.
+
   Firebase entries:
     /users/%(userId)/deviceToken
   """
@@ -1653,9 +1731,12 @@ def RegisterUserDevice(request, game_state):
 
 def AddLife(request, game_state):
   """Add a new player life.
+
   Validation:
+
   Args:
     playerId: The player who gets the new life.
+
   Firebase entry:
     /publicPlayers/%(playerId)/lives
     /lives/%(lifeCode)
@@ -1718,17 +1799,20 @@ def DumpTestData(request, game_state):
 
 def CreateMap(request, game_state):
   """Creates a new Map with the given mapId associated with the given groupId.
+
     Validation:
       gameId must exist
       groupId must exist
       mapId must not exist
       name must be present
+
     Args:
       gameID: Id uniquely identifying the game the map will be associated with.
       groupId: Id uniquely identifying the group the map will be associated
         with.
       mapId: Id uniquely identifying the map to be created.
       name: Name of the map to create
+
     Firebase entries:
       /maps/%(mapId)
   """
@@ -1757,6 +1841,7 @@ def CreateMap(request, game_state):
 
 def UpdateMap(request, game_state):
   """Update an existing reward group.
+
   Firebase entries:
     /rewardCategories/%(rewardCategoryId)
   """
@@ -1788,6 +1873,7 @@ hex_range = map(lambda x: unicode(str(x), "utf-8"), list(hex_range))
 
 def AddMarker(request, game_state):
   """Adds the marker (location) of a player to a map with a set color and name.
+
     Validation:
       color must exist
       latitude must exist
@@ -1796,6 +1882,7 @@ def AddMarker(request, game_state):
       name must exist
       playerId, if not None, must exist
       markerId must not exist
+
     Args:
       color: The color will be used to draw the marker in the UI.
       latitude: Latitude of the player's location.
@@ -1804,6 +1891,7 @@ def AddMarker(request, game_state):
       name: The name associated with the marker.
       playerId: The unique of the id that the marker will be associated with.
       markerId: The unique id of the marker to be added.
+
     Firebase entries:
       /maps/%(mapId)/points/%(markerId)
   """
@@ -1871,10 +1959,12 @@ def AddMarker(request, game_state):
 def UpdatePlayerMarkers(request, game_state):
   """Updates all markers belonging to this player to the given [latitude] and
   [longitude].
+
     Validation:
       latitude must be present
       longitude must be present
       playerId must exist
+
     Args:
       latitude: Latitude of the player's location.
       longitude: Longitude of the player's location.
