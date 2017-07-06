@@ -120,6 +120,7 @@
               label: "Sound",
               name: "play-sound",
               width: "fourth",
+              required: false,
               description: "Android/iOS only: which sound to play, example 'transmission.wav'.",
             },
             {
@@ -182,7 +183,7 @@
                 previewMessage: properties.previewMessage,
                 sendTime: properties.sendTime,
                 site: properties.site,
-                sound: properties.sound,
+                sound: properties.sound || null,
                 vibrate: properties.vibrate,
               });
             });

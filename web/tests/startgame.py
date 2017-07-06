@@ -91,7 +91,7 @@ try:
   # Player sees their lifecode and allegiance
   driver.DrawerMenuClick('mobile-main-page', 'My Profile')
   driver.ExpectContains([[By.NAME, 'status']], 'Alive')
-  driver.ExpectContains([[By.NAME, 'lifecode']], 'codefor-life-1')
+  driver.ExpectContains([[By.NAME, 'lifecode']], 'codefor-ReggieTheRavager')
 
   driver.Quit()
 

@@ -813,10 +813,10 @@ class FakeServer {
   addLife(request) {
     let {lifeId, privateLifeId, playerId, lifeCode} = request;
     let publicLifeId = lifeId;
-    let code = lifeCode || "codefor-" + publicLifeId;
     let playerPath = this.reader.getPublicPlayerPath(playerId);
     let player = this.reader.get(playerPath);
     let time = this.getTime_(request);
+    lifeCode = lifeCode || "codefor-" + player.name;
 
     let latestTime = 0;
     assert(player.lives);
@@ -831,17 +831,16 @@ class FakeServer {
     privateLifeId = privateLifeId || this.idGenerator.newPrivateLifeId();
 
     assert(player.lives.length == player.infections.length);
-    this.writer.insert(
-        this.reader.getPublicLifePath(playerId, null),
-        null,
+    let publicLife =
         new Model.PublicLife(publicLifeId, {
           privateLifeId: privateLifeId,
           time: this.getTime_(request),
-          private:
-              new Model.PrivateLife(privateLifeId, {
-                code: lifeCode
-              }),
-        }));
+        });
+    publicLife.private =
+        new Model.PrivateLife(privateLifeId, {
+          code: lifeCode
+        });
+    this.writer.insert(this.reader.getPublicLifePath(playerId, null), null, publicLife);
     if (player.lives.length > player.infections.length) {
       this.setPlayerHuman(playerId);
     }
