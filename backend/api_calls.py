@@ -1626,8 +1626,9 @@ def SendNotification(request, game_state):
     raise InvalidInputError('Must include either a playerId or a groupId')
 
   current_time = int(time.time() * 1000)
+  # If it's in the past, send it now
   if request['sendTime'] is not None and current_time > int(request['sendTime']):
-    raise InvalidInputError('sendTime must not be in the past!')
+    request['sendTime'] = None
 
   helpers.QueueNotification(game_state, request)
 
