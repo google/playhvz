@@ -183,7 +183,7 @@
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
   <div id="flexThing">
     <div class$="[[getAliveStatusClass_(player.allegiance)]]">
-      <div class="display-avatar">
+      <div name="avatar" class="display-avatar">
         <ghvz-player-avatar 
             large
             game="[[game]]" 
@@ -191,7 +191,7 @@
           </ghvz-player-avatar>
       </div>
       <div class="info">
-        <div class="name">
+        <div name="player-name" class="name">
           [[player.name]]
         </div>
         <div name="status" class="sub-item">
@@ -226,11 +226,11 @@
 
   <template is="dom-if" if="[[seePrivateInfo_(isAdmin, actingPlayerId, playerId)]]">
     <div id="details">
-      <div>Notifications should sound: <b>[[computeBooleanText_(player.private.notificationSettings.sound)]]</b></div>
-      <div>Notifications should vibrate: <b>[[computeBooleanText_(player.private.notificationSettings.vibrate)]]</b></div>
+      <div name="notifications-sound">Notifications should sound: <b>[[computeBooleanText_(player.private.notificationSettings.sound)]]</b></div>
+      <div name="notifications-vibration">Notifications should vibrate: <b>[[computeBooleanText_(player.private.notificationSettings.vibrate)]]</b></div>
 
       <template is="dom-if" if="[[isAdmin]]">
-        <div>
+        <div name="volunteered-for">
           Volunteered for:
           <b>
             <template is="dom-if" if="[[player.volunteer.advertising]]">Advertising</template>
@@ -246,17 +246,17 @@
             <template is="dom-if" if="[[player.volunteer.client]]">Client</template>
           </b>
         </div>
-        <div>Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>
+        <div name="active">Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>
         <div name="can-infect">Can infect: <b>[[computeBooleanText_(player.private.canInfect)]]</b></div>
-        <div>Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
-        <div>Can be starting zombie: <b>[[computeBooleanText_(player.private.startAsZombie)]]</b></div>
-        <div>Wants to be secret zombie: <b>[[computeBooleanText_(player.private.wantToBeSecretZombie)]]</b></div>
+        <div name="need-gun">Need gun: <b>[[computeBooleanText_(player.needGun)]]</b></div>
+        <div name="starting-zombie">Can be starting zombie: <b>[[computeBooleanText_(player.private.startAsZombie)]]</b></div>
+        <div name="possessed-human">Wants to be possessed human: <b>[[computeBooleanText_(player.private.wantToBeSecretZombie)]]</b></div>
         <div name="got-equipment">Got equipment: <b>[[computeBooleanText_(player.private.gotEquipment)]]</b></div>
         <template is="dom-if" if="[[player.isActive]]">
-          <paper-button raised on-tap="deactivate_">Deactivate</paper-button>
+          <paper-button raised name="deactivate-button" on-tap="deactivate_">Deactivate</paper-button>
         </template>
         <template is="dom-if" if="[[!player.isActive]]">
-          <paper-button raised on-tap="activate_">Activate</paper-button>
+          <paper-button raised name="activate-button" on-tap="activate_">Activate</paper-button>
         </template>
         <template is="dom-if" if="[[player.private.canInfect]]">
           <paper-button raised id="unset-infect-button" on-tap="unsetCanInfect_">Unset Can Infect</paper-button>
@@ -264,11 +264,11 @@
         <template is="dom-if" if="[[!player.private.canInfect]]">
           <paper-button raised id="set-infect-button" on-tap="setCanInfect_">Set Can Infect</paper-button>
         </template>
-        <div>Notes: [[player.private.notes]]</div>
+        <div name="notes-box">Notes: [[player.private.notes]]</div>
       </template>
       
       <template is="dom-repeat" items="[[player.lives]]" as="life">
-        <div>
+        <div name="life-line">
           Life, at [[computeDateText_(life.time)]],
           <template is="dom-if" if="[[life.private.code]]">
             life code "[[life.private.code]]"
@@ -276,7 +276,7 @@
         </div>
       </template>
       <template is="dom-repeat" items="[[player.infections]]" as="infection">
-        <div>
+        <div name="infection-line">
           Infection, at [[computeDateText_(infection.time)]], infector
           <ghvz-player-label
               players-by-id="[[game.playersById]]"

@@ -124,7 +124,7 @@
     </template>
 
     <template is="dom-if" if="[[canDeclare]]">
-      <ghvz-card spaced left padded>
+      <ghvz-card spaced left padded name="declare-box">
         <div class="header">Declare Allegiance!</div>
         <ghvz-declare-dashlet></ghvz-declare-dashlet>
       </ghvz-card>
@@ -142,7 +142,7 @@
         </ghvz-card>
       </template>
 
-      <ghvz-card spaced left>
+      <ghvz-card spaced left name="summary-box">
         <div class="header">Game Summary</div>
         <ghvz-game-summary
             game="[[game]]">
@@ -159,7 +159,7 @@
         </ghvz-next-mission>
       </ghvz-card>
 
-      <ghvz-card spaced left>
+      <ghvz-card spaced left name="rules-box">
         <div class="header" name="Rules">Rules</div>
         <ghvz-rules game="[[game]]"></ghvz-rules>
       </ghvz-card>

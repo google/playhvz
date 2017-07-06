@@ -703,9 +703,7 @@ class FakeServer {
     var highestPointCount = -1;
     var highestPlayer = null;
     for (let playerId of group.players) {
-      console.log(playerId);
       let player = game.playersById[playerId];
-      console.log(player);
       // Find other player in group with most points. Ties go to the player with lower player #
       if (player.userId != ownerId && (player.points > highestPointCount || 
         (player.points == highestPointCount && player.number < highestPlayer.number))) {

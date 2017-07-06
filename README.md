@@ -183,7 +183,7 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`./run.sh http://localhost:5000 fake PASSWORDHERE` replacing PASSWORDHERE with the fake accounts' password (ask someone on the team).
+`python run.py --password PASSWORDHERE` replacing PASSWORDHERE with the fake accounts' password (ask someone on the team).
 
 
 ### Back End
