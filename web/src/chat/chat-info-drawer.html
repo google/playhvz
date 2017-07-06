@@ -226,13 +226,13 @@
       <div id="players-list" class="drawer-section">
         <div class="info-label">[[group.players.length]] members</div>
         <template is="dom-repeat" items="[[playersInChatRoom]]">
-          <div name$='[[item.name]]'>
+          <div name$="[[item.name]]"">
             <div class="layout horizontal player-entry">
               <div class="layout horizontal player-info"
                   on-tap="captureTap_"
                   data-action="profile"
                   data-player-id$="[[item.id]]">
-                <ghvz-player-avatar medium game="[[game]]" player-id="[[item.playerId]]"></ghvz-player-avatar>
+                <ghvz-player-avatar medium game="[[game]]" player-id="[[item.id]]"></ghvz-player-avatar>
                 <div class='player-name'>
                   [[item.name]]
                 </div>
