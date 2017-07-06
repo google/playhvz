@@ -76,12 +76,20 @@
       computeCanSelfInfect_: function(allegiance) {
         return allegiance == 'resistance';
       },
+      
+      joinGame_() {
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: ['joinGame'],
+          replace: false,
+        });
+      },
     });
   });
 </script>
 <style>
   :host {
-    display: flex;
+    display: block;
     position: relative;
     width: 100%;
     flex-grow: 1;
@@ -99,20 +107,19 @@
     flex-direction: column;
     flex-grow: 1;
   }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+  }
 </style>
 <template>
   <ghvz-card full with-menu>
     <div class="header">Humans vs Zombies</div>
     
     <template is="dom-if" if="[[canRegister]]">
-      <ghvz-card spaced>
-        <div class="header">Join Game</div>
-        <ghvz-game-registration
-            class="content"
-            bridge="[[bridge]]"
-            game="[[game]]"
-            user-id="[[userId]]">
-        </ghvz-game-registration>
+      <ghvz-card spaced full padded>
+        <div class="header">Join Game!</div>
+        <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
       </ghvz-card>
     </template>
 
