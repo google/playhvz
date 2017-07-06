@@ -68,7 +68,7 @@ try:
 
   # Generate 22 rewards.
   driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Show Rewards')
-  driver.SendKeys([[By.ID, 'newReward'], [By.TAG_NAME, 'input']], "22")
+  driver.SendKeys([[By.ID, 'newReward'], [By.TAG_NAME, 'input']], "2")
   driver.Click([[By.ID, 'addReward']])
 
   # Check that at least some are there

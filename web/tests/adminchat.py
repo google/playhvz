@@ -63,9 +63,14 @@ driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
 # Create chat with admin
 driver.FindElement([[By.NAME, 'create-admin-chat-button']])
-driver.Click([[By.NAME, 'create-admin-chat-button']]) 
-driver.FindElement([[By.NAME, "chat-room-%s" % chatName]])  
-driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
+driver.RetryUntil(
+  lambda: driver.Click([[By.NAME, 'create-admin-chat-button'], [By.TAG_NAME, 'a']]),
+  lambda: driver.FindElement([[By.NAME, "chat-room-%s" % chatName]])
+)
+
+# TODO(aliengirl): make this line work consistently on mobile
+# driver.FindElement([[By.NAME, "chat-room-%s" % chatName]]) 
+# driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
 # Type a message into the chat
 xpathTextarea = getPathToElement(actingPlayerName, 'textarea', 'input-' + chatName)
@@ -89,7 +94,7 @@ for admin in adminPlayers:
 
 # Non-Admin should leave admin chat
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('chat-card', '-' + chatName)
+driver.DrawerMenuClick('mobile-main-page', '-' + chatName)
 
 xpathChatDrawerButton = getPathToElement(actingPlayerName, 'paper-icon-button', 'chat-info-' + chatName)
 driver.Click([[By.XPATH, xpathChatDrawerButton]])  
