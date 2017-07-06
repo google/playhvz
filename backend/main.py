@@ -182,8 +182,8 @@ def CronNotification():
 @app.route('/cronSyncFirebase', methods=['GET'])
 def CronSyncFirebase():
   cron_key = 'X-Appengine-Cron'
-  #if cron_key not in request.headers or not request.headers[cron_key]:
-#    return 'Unauthorized', 403
+  if cron_key not in request.headers or not request.headers[cron_key]:
+    return 'Unauthorized', 403
   HandleSingleRequest('syncFirebase', {})
   return 'OK'
 
