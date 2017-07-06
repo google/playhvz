@@ -28,17 +28,14 @@ if __name__ == '__main__':
 import setup
 from selenium.webdriver.common.by import By
 
-driver = setup.MakeDriver(user="zella")
-
 try:
+
+  driver = setup.MakeDriver(user="zella")
 
   driver.Click([[By.NAME, 'close-notification']])
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-
   # Go to the Rules page, change the rules
-  driver.Click([[By.NAME, 'drawerRules']]) #Crashed here (drawer wasn't open)
+  driver.DrawerMenuClick('mobile-main-page', 'Rules')
   driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'rules-icon']]) # Flaked once on remote, another icon would have received click -verdagon
   driver.SendKeys(
       [[By.NAME, 'rules-card'], [By.TAG_NAME, 'textarea']], 'rules are cools')
@@ -50,7 +47,7 @@ try:
       'rules are cools', False)
 
   # Open up rules, type something different.
-  driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'rules-icon']])
+  driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'rules-icon']])  # TODO(aliengirl): once failed here -m; said the "r u human" popup was blocking
   driver.SendKeys(
       [[By.NAME, 'rules-card'], [By.TAG_NAME, 'textarea']],
       'rules are cools when you save them')
@@ -62,10 +59,7 @@ try:
       'rules are cools when you save them')
 
   # Open game details
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerAdmin Game Details']])
+  driver.DrawerMenuClick('rules-card', 'Admin Game Details')
 
   # Open up Game details, change each field
   driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
@@ -88,10 +82,7 @@ try:
   driver.ExpectContains([[By.NAME, 'game-stunTimer']], "42")
 
   # Go to the FAQ page
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'game-details-card'], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerFAQ']])
+  driver.DrawerMenuClick('game-details-card', 'FAQ')
 
   driver.Click([[By.NAME, 'faq-card'], [By.NAME, 'rules-icon']])
   driver.SendKeys(

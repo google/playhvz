@@ -276,7 +276,7 @@
                 }
               } else {
                 const value = this.getModel_(item, column.index);
-                if (!Utils.filter(value, column.filterText)) {
+                if (!Utils.filter(value + "", column.filterText)) {
                   return false;
                 }
               }

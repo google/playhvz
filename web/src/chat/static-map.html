@@ -50,6 +50,7 @@
 
             // Update the image element to show the map
             this.$.mapContainer.src = mapImageUrl;
+            this.$.mapContainer.name = 'map-ready';
           } else if (displayedImage != 'https://goo.gl/EJ3MGp') {
             // Update the image element to show the nerf loading screen
             this.$.mapContainer.src = 'https://goo.gl/EJ3MGp';

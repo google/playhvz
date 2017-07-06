@@ -67,6 +67,13 @@
                 sortable: true,
                 filterable: true,
                 property: "gotEquipment",
+                filter: (item, text) => {
+                  var equipmentText = "no";
+                  if (item.private.gotEquipment) {
+                    equipmentText = "yes";
+                  }
+                  return equipmentText.indexOf(text.toLowerCase()) !== -1;
+                },
                 getModel: (player) => player.private.gotEquipment,
               },
               {
