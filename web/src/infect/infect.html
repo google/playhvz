@@ -24,7 +24,7 @@
 
         properties: {
           bridge: Object,
-          playerId: String,
+          player: Object,
           game: Object,
           lifeCode: String,
           requesting: {
@@ -35,37 +35,70 @@
             type: Object,
             value: null,
           },
+          infectedSelf: {
+            type: Boolean,
+            value: false,
+          }
         },
 
         computeButtonEnabled_: function(lifeCode, requesting) {
           return !!lifeCode && !requesting;
         },
 
+        computeIsHuman_: function(player) {
+          return player.allegiance == 'resistance';
+        },
+
         reset_: function() {
           this.lifeCode = "";
           this.requesting = false;
           this.infectedPlayer = null;
+          this.infectedSelf = false;
         },
 
         infect_: function() {
-          this.requesting = true;
-          this.bridge.infect({
-            gameId: this.game.id,
-            infectionId: this.bridge.newInfectionId(),
-            infectorPlayerId: this.playerId,
-            victimLifeCode: this.lifeCode,
-            victimPlayerId: null,
-          })
-              .then(
-                  (victimPlayerId) => {
-                    this.infectedPlayer = this.game.playersById[victimPlayerId];
-                    this.requesting = false;
-                  },
-                  (error) => {
-                    alert('Error infecting: '+ error);
-                    this.reset_();
-                  });
+          if (this.player) {
+            if (this.player.allegiance == 'resistance' && !this.player.private.canInfect) {
+              console.log("SELF INFECTING")
+              this.requesting = true;
+              this.bridge.selfInfect({playerId: this.player.id})
+              .then(() => {
+                this.infectedSelf = true;
+                this.infectedPlayer = this.player;
+                this.hordeMessage = true;
+                this.requesting = false;
+              },
+              (error) => {
+                alert('Error self-infecting' + error.message);
+                this.reset_();
+              })
+            } else {
+              console.log("NORMAL INFECTING")
+              console.log(this.player.allegiance)
+              console.log(this.player)
+              console.log(this.player.private.canInfect)
+              this.requesting = true;
+              this.bridge.infect({
+                gameId: this.game.id,
+                infectionId: this.bridge.newInfectionId(),
+                infectorPlayerId: this.player.id,
+                victimLifeCode: this.lifeCode,
+                victimPlayerId: null,
+              })
+              .then((victimPlayerId) => {
+                console.log("afterward")
+                this.infectedPlayer = this.game.playersById[victimPlayerId];
+                console.log("infected player", this.infectedPlayer)
+                this.requesting = false;
+              },
+              (error) => {
+                alert('Error infecting: '+ error.message);
+                this.reset_();
+              });
+            }
+          }
         },
+
       });
     });
   </script>
@@ -86,16 +119,20 @@
         text-align: center;
         margin: 0;
       }
-      #infecting,
+/*      #infecting,
       #infected {
         display: flex;
-      }
+      }*/
       #infecting paper-input,
       #infectedMessage {
         flex: 1;
       }
       #infectedMessage {
         margin: 16px;
+      }
+      #instructions, #codeInput {
+        margin:10px;
+        width: 100%;
       }
       #infectContainer,
       #doneContainer {
@@ -109,11 +146,17 @@
       }
     </style>
     <div id="infecting" hidden$="[[infectedPlayer]]">
-      <paper-input
-          id="lifeCodeInput"
-          label="Human's life code"
-          value="{{lifeCode}}">
-      </paper-input>
+      <div id="instructions" hidden$="[[!computeIsHuman_(player)]]">
+        Possessed humans: Enter your victim's life code. This will also turn you into a zombie.
+        Humans: Enter your own life code to self-infect. Only do this when you have been turned, but the zombie has not yet entered your life code.
+      </div>
+      <div id="codeInput">
+        <paper-input
+            id="lifeCodeInput"
+            label="Human's life code"
+            value="{{lifeCode}}">
+        </paper-input>
+      </div>
       <div id="infectContainer">
         <paper-button
             id="infect"
@@ -124,13 +167,17 @@
         </paper-button>
       </div>
     </div>
-    <div id="infected" hidden$="[[!infectedPlayer]]">
+    </paper-button>
+    <div id="infected" hidden="[[!infectedPlayer]]">
       <div id="infectedMessage">
-        <div>
+        <div hidden$="[[infectedSelf]]">
           Congratulations, you've infected
           <span name="victimName">[[infectedPlayer.name]]</span>!
         </div>
         <div>Glory to the horde!</div>
+      </div>
+      <div id="selfInfectedMessage" hidden$="[[!infectedSelf]]">
+        You are now a zombie. Welcome to the horde!
       </div>
       <div id="doneContainer">
         <paper-button

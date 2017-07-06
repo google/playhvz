@@ -50,6 +50,7 @@
             'notifications': 'notifications',
             'profile': 'profile',
             'rewards': 'rewards',
+            'infect': 'infect',
             'declare': 'declare',
             'rules': 'rules',
             'stats': 'stats',
@@ -172,6 +173,19 @@
       </ghvz-game-registration>
     </ghvz-card>
   </template>
+
+  <template is="dom-if"  if="[[computeShowPage_(showPage.infect, mostRecentPage)]]">
+    <ghvz-card name="declare-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+      <div class="header">Infect</div>
+      <ghvz-infect
+          class="expand"
+          bridge="[[bridge]]"
+          game="[[game]]"
+          player="[[player]]">
+      </ghvz-infect>
+    </ghvz-card>
+  </template>
+
 
   <template is="dom-if"  if="[[computeShowPage_(showPage.rewards, mostRecentPage)]]">
     <ghvz-card name="rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
