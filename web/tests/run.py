@@ -59,7 +59,7 @@ def desktopAndMobileTests(clientUrl, password, useRemote):
 	runTest(clientUrl, password, useRemote, useMobile=False)
 
 def fakeAndRemoteTests(clientUrl, password):
-	# desktopAndMobileTests(clientUrl, password, useRemote=False)
+	desktopAndMobileTests(clientUrl, password, useRemote=False)
 	desktopAndMobileTests(clientUrl, password, useRemote=True)
 
 def main():
