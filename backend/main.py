@@ -144,6 +144,7 @@ methods = {
   'addMarker': api_calls.AddMarker,
   'updatePlayerMarkers': api_calls.UpdatePlayerMarkers,
   'executeNotifications': notifications.ExecuteNotifications,
+  'syncFirebase': api_calls.SyncFirebase,
 }
 
 
@@ -176,6 +177,14 @@ def CronNotification():
   if cron_key not in request.headers or not request.headers[cron_key]:
     return 'Unauthorized', 403
   HandleSingleRequest('executeNotifications', {})
+  return 'OK'
+
+@app.route('/cronSyncFirebase', methods=['GET'])
+def CronSyncFirebase():
+  cron_key = 'X-Appengine-Cron'
+  #if cron_key not in request.headers or not request.headers[cron_key]:
+#    return 'Unauthorized', 403
+  HandleSingleRequest('syncFirebase', {})
   return 'OK'
 
 @app.route('/stressTest', methods=['POST'])
