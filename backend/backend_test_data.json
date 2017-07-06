@@ -179,7 +179,7 @@
       "previewMessage": "@testCharles @testBobby test single Message",
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
-      "sound": "ping.wav",
+      "sound": "ping.caf",
       "email" : false,
       "vibrate": true,
       "sent": true
@@ -193,7 +193,7 @@
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "mobile": true,
-      "sound": "ping.wav",
+      "sound": "ping.caf",
       "email" : false,
       "vibrate": true,
       "site": true,
@@ -209,7 +209,7 @@
       "mobile": true,
       "email" : false,
       "gameId": "game-%(ident)s-1",
-      "sound": "ping.wav",
+      "sound": "ping.caf",
       "site": true,
       "sent": true,
       "vibrate": true
@@ -329,7 +329,7 @@
           "message": "@testCharles @testBobby test single Message",
           "previewMessage": "@testCharles @testBobby test single Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-1testCharles",
-          "sound": "ping.wav",
+          "sound": "ping.caf",
           "time": 0
         },
         "notification-%(ident)s-4testCharles-0": {
@@ -338,7 +338,7 @@
           "message": "@all test all Message",
           "previewMessage": "@all test all Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-4testCharles",
-          "sound": "ping.wav",
+          "sound": "ping.caf",
           "time": 0
         }
       }
@@ -417,7 +417,7 @@
           "message": "@all test all Message",
           "previewMessage": "@all test all Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-4testBobby3",
-          "sound": "ping.wav",
+          "sound": "ping.caf",
           "time": 0
         },
         "notification-%(ident)s-1-1": {
