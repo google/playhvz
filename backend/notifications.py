@@ -63,6 +63,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
       'destination': queued_notification['destination'],
       'time': int(time.time() * 1000),
       'icon': queued_notification['icon'] if 'icon' in queued_notification else None,
+      'sound': queued_notification['sound'],
     }
     private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
     game_state.put('/privatePlayers/%s/notifications' % private_player_id,
@@ -77,6 +78,9 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
     return
   if config.FIREBASE_APIKEY:
     fcm.notify_multiple_devices(registration_ids=list(device_tokens),
+                                message_title=queued_notification['previewMessage'],
+                                message_body=queued_notification['message'],
+                                sound=queued_notification['sound'],
                                 data_message=notification)
 
 def ExecuteNotifications(request, game_state):
