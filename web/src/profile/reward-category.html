@@ -76,7 +76,7 @@
   </style>
   <template>
     <array-selector id="rewardCategorySelector" items="[[game.rewardCategories]]" selected="{{rewardCategory}}"></array-selector>
-    <div id="container">
+    <div id="container" name$="reward-[[rewardCategory.name]]">
       <div>
         <img src$="[[rewardCategory.badgeImageUrl]]"/>
       </div>

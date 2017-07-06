@@ -26,8 +26,6 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv)
 import sys
-import setup
-import time
 from driver import WholeDriver
 import setup
 
@@ -37,145 +35,143 @@ driver = setup.MakeDriver(user="deckerd")
 
 try:
   # Make sure that an undeclared person can see rules, global chat, no missions: TODO(aliengirl): add this
+  driver.DrawerMenuClick('mobile-main-page', 'Rules')
+  driver.FindElement([[By.NAME, 'rules-card']])
+  driver.DrawerMenuClick('rules-card', '-Global Chat')
+  driver.DrawerMenuClick('chat-card', 'Dashboard')
 
-  # Time for Decker to choose a side
-  driver.Click([[By.NAME, 'declareAllegiance']])
+  # Time for Deckerd to choose a side
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'declareAllegiance']]),
+    lambda: driver.FindElement([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']]))
 
   # Choose human!
-  driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']])
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']]),
+    lambda: driver.FindElement([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option0']]))
 
-  # Choose possessed human.
-  driver.Click([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option0']])
+  # Choose possessed human
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option0']]),
+    lambda: driver.FindElement([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'offWeGo']]))
 
   # Click next to start the quiz
-  driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'offWeGo']])
+  driver.RetryUntil(
+    lambda: driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'offWeGo']]),
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']]))
 
 
   ####### Quiz ######
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected0']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer2']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected2']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer3']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer1']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected1']])
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer2']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected2']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer3']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer1']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected1']]))
   driver.ExpectContains(
       [[By.NAME, 'interviewQuestion0Page'], [By.ID, 'prompt']],
       'incorrect')
 
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'reset']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected0']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer1']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected1']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer2']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected2']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer3']])
-  driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']])
-  driver.FindElement(
-    [[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']])
-  driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']])
-
-  driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']])
-  driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']])
-  driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected0']])
-  driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer1']])
-  driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected1']])
-  driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer2']])
-  driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected2']])
-  driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer3']])
-  driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected3']])
-  driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer4']])
-  driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected4']])
-  driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'confirm']])
-
-  driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer0']])
-  driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer0']])
-  driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected0']])
-  driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer1']])
-  driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected1']])
-  driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer2']])
-  driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected2']])
-  driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer3']])
-  driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected3']])
-  driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer4']])
-  driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected4']])
-  driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer5']])
-  driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected5']])
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'reset']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer0']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer1']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected1']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer2']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected2']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'answer3']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'selected3']]))
+  
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion0Page'], [By.NAME, 'confirm']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer0']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer1']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected1']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer2']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected2']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer3']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected3']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'answer4']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'selected4']]))
+  
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion1Page'], [By.NAME, 'confirm']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer0']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected0']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer1']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected1']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer2']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected2']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer3']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected3']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer4']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected4']]))
+  driver.RetryUntil( 
+    lambda: driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'answer5']]),
+    lambda: driver.FindElement([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'selected5']]))
   driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'confirm']])
 
   driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
-  # Make sure that Jack is in the human chat and has appeared on the Leaderboard
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerChat']])
+  # Make sure that Jack is in the human chat and sees all the correct widgets
+
+  driver.FindElement([[By.NAME, 'rules-box']])
+  driver.FindElement([[By.NAME, 'next-mission-box']])
+
+  if not driver.is_mobile:
+    driver.FindElement([[By.NAME, 'stats-box']])
+    driver.FindElement([[By.NAME, 'rewards-box']])
+
+
+
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
   driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Resistance Comms Hub']])
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerLeaderboard']])
-
+  driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Global Chat']])
+  driver.DrawerMenuClick('chat-card', 'Leaderboard')
   driver.ExpectContains(
       [[By.NAME, 'leaderboard-card'],
        [By.NAME, 'Leaderboard Allegiance Cell DeckerdTheHesitant']],
       'resistance')
-
   driver.ExpectContains(
       [[By.NAME, 'leaderboard-card'],
        [By.NAME, 'Leaderboard Points Cell DeckerdTheHesitant']],
       '0')
-
   driver.ExpectContains(
       [[By.NAME, 'leaderboard-card'],
        [By.NAME, 'Leaderboard Name Cell DeckerdTheHesitant']],
       'DeckerdTheHesitant')
+  driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'leaderboard-card'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.SwitchUser('zella')
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+  driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
 
-  # Have Drake (a zombie) infect Jack
-  driver.SwitchUser("drake")
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerMy Profile']])
-
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerDashboard']])
-
-  driver.SendKeys(
-      [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-      'grobble forgbobbly')
-  driver.Click([[By.ID, 'infect']])
-  driver.ExpectContains(
-      [[By.NAME, 'victimName']],
-      'JackSlayerTheBeanSlasher')
-
-  # Check that Drake got points for his infection
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerMy Profile']])
-
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
-
-  # Check that Jack is now a zombie
-  driver.SwitchUser("jack")
-
-  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerChat']])
-
-  driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Horde ZedLink']])
 
   driver.Quit()
 

@@ -443,7 +443,7 @@ Utils.Validator.optional = function(expectation) {
 Utils.isNumber = (x) => typeof x == 'number';
 Utils.isString = (x) => typeof x == 'string';
 Utils.isBoolean = (x) => typeof x == 'boolean';
-Utils.isTimestampMs = (x) => x > 1470000000000;
+Utils.isTimestampMs = (x) => x > 1000000000000; // Sep 8, 2001
 
 /**
  * Determine the mobile operating system.

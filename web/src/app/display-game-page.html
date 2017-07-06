@@ -173,8 +173,20 @@
     </ghvz-card>
   </template>
 
+  <template is="dom-if"  if="[[computeShowPage_(showPage.rewards, mostRecentPage)]]">
+    <ghvz-card name="rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+      <div class="header">Rewards</div>
+      <ghvz-claim-reward
+          class="expand"
+          bridge="[[bridge]]"
+          game="[[game]]"
+          player="[[player]]">
+      </ghvz-claim-reward>
+    </ghvz-card>
+  </template>
+
   <template is="dom-if" if="[[computeShowPage_(showPage.notifications, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications-page
           class="expand"
@@ -251,7 +263,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminNotifications, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="admin-notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications
           class="expand"
