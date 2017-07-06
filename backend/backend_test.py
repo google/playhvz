@@ -344,7 +344,7 @@ class EndToEndTest(unittest.TestCase):
       'email': True,
       'mobile': False,
       'vibrate': False,
-      'sound': False,
+      'sound': 'transmission.caf',
       'destination': 'http://some.url/moo',
       'sendTime': None,
       'playerId': None,
