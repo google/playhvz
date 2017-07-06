@@ -118,10 +118,7 @@ class FakeServer {
   }
   createGroup(args) {
     let {groupId} = args;
-    this.writer.insert(
-        this.reader.getGroupPath(null),
-        null,
-        new Model.Group(groupId, args));
+    new Model.Group(groupId, args).initialize({}, this.game, this.writer);
   }
   updateGroup(args) {
     throwError('Implement!');
@@ -195,10 +192,6 @@ class FakeServer {
         this.reader.getGroupPlayerPath(groupId, null),
         null,
         playerToAddId);
-    this.writer.insert(
-        this.reader.getPlayerGroupMembershipPath(playerToAddId, null),
-        null,
-        new Model.PlayerGroupMembership(groupId, {groupId: groupId}));
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
@@ -244,12 +237,6 @@ class FakeServer {
         membershipPath.slice(0, membershipPath.length - 1),
         membershipPath.slice(-1)[0], // index
         playerId);
-
-    let playerGroupMembershipPath = this.reader.getPlayerGroupMembershipPath(playerId, groupId);
-    this.writer.remove(
-        playerGroupMembershipPath.slice(0, playerGroupMembershipPath.length - 1),
-        playerGroupMembershipPath.slice(-1)[0],
-        groupId);
   }
 
   addPlayerToChatRoom_(chatRoomId, playerId) {
@@ -827,10 +814,10 @@ class FakeServer {
   addLife(request) {
     let {lifeId, privateLifeId, playerId, lifeCode} = request;
     let publicLifeId = lifeId;
-    let code = lifeCode || "codefor-" + publicLifeId;
     let playerPath = this.reader.getPublicPlayerPath(playerId);
     let player = this.reader.get(playerPath);
     let time = this.getTime_(request);
+    lifeCode = lifeCode || "codefor-" + player.name;
 
     let latestTime = 0;
     assert(player.lives);
@@ -845,17 +832,16 @@ class FakeServer {
     privateLifeId = privateLifeId || this.idGenerator.newPrivateLifeId();
 
     assert(player.lives.length == player.infections.length);
-    this.writer.insert(
-        this.reader.getPublicLifePath(playerId, null),
-        null,
+    let publicLife =
         new Model.PublicLife(publicLifeId, {
           privateLifeId: privateLifeId,
           time: this.getTime_(request),
-          private:
-              new Model.PrivateLife(privateLifeId, {
-                code: lifeCode
-              }),
-        }));
+        });
+    publicLife.private =
+        new Model.PrivateLife(privateLifeId, {
+          code: lifeCode
+        });
+    this.writer.insert(this.reader.getPublicLifePath(playerId, null), null, publicLife);
     if (player.lives.length > player.infections.length) {
       this.setPlayerHuman(playerId);
     }

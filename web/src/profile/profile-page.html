@@ -233,17 +233,17 @@
         <div name="volunteered-for">
           Volunteered for:
           <b>
-            <template is="dom-if" if="[[player.volunteer.advertising]]">Advertising</template>
-            <template is="dom-if" if="[[player.volunteer.logistics]]">Logistics</template>
-            <template is="dom-if" if="[[player.volunteer.communications]]">Communications</template>
-            <template is="dom-if" if="[[player.volunteer.moderator]]">Moderator</template>
-            <template is="dom-if" if="[[player.volunteer.cleric]]">Cleric</template>
-            <template is="dom-if" if="[[player.volunteer.sorcerer]]">Sorcerer</template>
-            <template is="dom-if" if="[[player.volunteer.admin]]">Admin</template>
-            <template is="dom-if" if="[[player.volunteer.photographer]]">Photographer</template>
-            <template is="dom-if" if="[[player.volunteer.chronicler]]">Chronicler</template>
-            <template is="dom-if" if="[[player.volunteer.server]]">Server</template>
-            <template is="dom-if" if="[[player.volunteer.client]]">Client</template>
+            <template is="dom-if" if="[[player.private.volunteer.advertising]]">Advertising</template>
+            <template is="dom-if" if="[[player.private.volunteer.logistics]]">Logistics</template>
+            <template is="dom-if" if="[[player.private.volunteer.communications]]">Communications</template>
+            <template is="dom-if" if="[[player.private.volunteer.moderator]]">Moderator</template>
+            <template is="dom-if" if="[[player.private.volunteer.cleric]]">Cleric</template>
+            <template is="dom-if" if="[[player.private.volunteer.sorcerer]]">Sorcerer</template>
+            <template is="dom-if" if="[[player.private.volunteer.admin]]">Admin</template>
+            <template is="dom-if" if="[[player.private.volunteer.photographer]]">Photographer</template>
+            <template is="dom-if" if="[[player.private.volunteer.chronicler]]">Chronicler</template>
+            <template is="dom-if" if="[[player.private.volunteer.server]]">Server</template>
+            <template is="dom-if" if="[[player.private.volunteer.client]]">Client</template>
           </b>
         </div>
         <div name="active">Active: <b>[[computeBooleanText_(player.isActive)]]</b></div>

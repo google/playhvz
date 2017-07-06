@@ -1,283 +1,547 @@
-// Copyright 2017 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// TODO: High-level file comment.
-
 'use strict';
 
-window.Model = (function() {
+var models = {
+  gun: {
+    link: ['guns', 'gunId'], // How to find this object in firebase
+    path: ['guns'], // How to find this object in the browser copy
+    gameId: '', 
+    playerId: '', // Properties of this object (and potential parent linkages)
+    label: '',
+    a: []
+  },
+  chatRoom: {
+    link: ['chatRooms', 'chatRoomId'],
+    path: ['chatRooms'],
+    accessGroupId: '',
+    gameId: '',
+    messages: [],
+    name: '',
+    withAdmins: false,
+    requestCategories: []
+  },
+  game: {
+    link: ['games', 'gameId'],
+    path: ['games'],
+    adminUsers: [],
+    chatRooms: [],
+    declareHordeEndTime: 0,
+    declareResistanceEndTime: 0,
+    endTime: 0,
+    faqHtml: '',
+    groups: [],
+    guns: [],
+    isActive: false,
+    maps: [],
+    missions: [],
+    name: '',
+    players: [],
+    quizQuestions: [],
+    registrationEndTime: 0,
+    rewardCategories: [],
+    rulesHtml: '',
+    startTime: 0,
+    stunTimer: 0,
+    adminContactPlayerId: '',
 
-var Model = {};
+    // for fake server
+    defaultProfileImages: [],
+    queuedNotifications: []
+  },
+  group: {
+    link: ['groups', 'groupId'],
+    path: ['groups'],
+    allegianceFilter: '',
+    autoAdd: false,
+    autoRemove: false,
+    canAddOthers: false,
+    canAddSelf: false,
+    canRemoveOthers: false,
+    canRemoveSelf: false,
+    gameId: '',
+    name: '',
+    ownerPlayerId: '',
+    players: [],
+    memberships: [] //?
+  },
+  map: {
+    link: ['maps', 'mapId'],
+    path: ['maps'],
+    accessGroupId: '',
+    gameId: '',
+    markers: [],
+    name: '',
+  },
+  mission: {
+    link: ['missions', 'missionId'],
+    path: ['missions'],
+    accessGroupId: '',
+    beginTime: 0,
+    detailsHtml: '',
+    endTime: 0,
+    gameId: '',
+    name: '',
+    rsvpersGroupId: ''
+  },
+  marker: {
+    link: ['markers', 'markerId'],
+    path: ['maps', 'mapId', 'markers'],
+    color: '',
+    latitude: 0,
+    longitude: 0,
+    name: '',
+    playerId: '',
+    mapId: ''
+  },
+  message: {
+    link: ['chatRooms', 'chatRoomId', 'messages', 'messageId'],
+    path: ['chatRooms', 'chatRoomId', 'messages'],
+    message: '',
+    image: '',
+    index: '',
+    location: '',
+    playerId: '',
+    time: 0,
+    chatRoomId: '',
+    gameId: ''
+  },
+  queuedNotification: {
+    link: ['queuedNotifications', 'queuedNotificationId'],
+    path: ['playersPrivate', 'playerId', 'notifications'],
+    destination: '',
+    email: false,
+    gameId: '',
+    groupId: '',
+    icon: '',
+    message: '',
+    mobile: false,
+    previewMessage: '',
+    sent: false,
+    site: false,
+    sound: false,
+    vibrate: false
 
-Model.GUN_PROPERTIES = ["gameId", "playerId", "label"];
-Model.GUN_COLLECTIONS = [];
-Model.Gun = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.GUN_PROPERTIES);
-  Utils.addEmptyLists(this, Model.GUN_COLLECTIONS);
+  },
+  quizQuestion: {
+    link: ['games', 'gameId', 'quizQuestions', 'quizQuestionId'],
+    path: ['quizQuestions'],
+    answers: [],
+    text: '',
+    type: '',
+    number: 0,
+    gameId: ''
+  },
+  quizAnswer: {
+    link: ['games', 'gameId', 'quizQuestions', 'quizQuestionId', 'answers', 'quizAnswerId'],
+    path: ['quizQuestions', 'quizQuestionId', 'answers'],
+    isCorrect: false,
+    order: 0,
+    text: '',
+    number: 0,
+    gameId: '', // linkage
+    quizQuestionId: '' // linkage
+  },
+  rewardCategory: {
+    link: ['rewardCategories', 'rewardCategoryId'],
+    path: ['rewardCategories'],
+    badgeImageUrl: '',
+    claimed: 0,
+    description: '',
+    gameId: '',
+    limitPerPlayer: 0,
+    name: '',
+    points: 0,
+    rewards: [],
+    shortName: ''
+
+  },
+  reward: {
+    link: ['rewards', 'rewardId'],
+    path: ['rewardCategories', 'rewardCategoryId', 'rewards'],
+    code: '',
+    playerId: '',
+    rewardCategoryId: '',
+    gameId: ''
+  },
+  user: {
+    link: ['users', 'userId'],
+    path: ['users'],
+    a: true,
+    games: [],
+    publicPlayers: []
+  },
+  admin: {
+    link: ['games', 'gameId', 'adminUsers', 'userId'],
+    path: ['adminUsers'],
+    userId: '',
+    gameId: '',
+  },
+  claim: {
+    link: ['publicPlayers', 'playerId', 'claims', 'rewardId'],
+    path: ['players', 'playerId', 'claims'],
+    rewardCategoryId: '',
+    rewardId: '',
+    time: 0,
+    gameId: '',
+    playerId: ''
+  },
+  userPlayer: {
+    link: ['users', 'userId', 'publicPlayers', 'playerId'],
+    path: ['users', 'userId', 'publicPlayers'],
+    gameId: '',
+    userId: ''
+  },
+  playerChatRoomMembership: {
+    link: ['privatePlayers', 'privatePlayerId', 'chatRoomMemberships', 'chatRoomId'],
+    path: ['players', 'publicPlayerId', 'private', 'chatRoomMemberships'],
+    chatRoomId: '',
+    publicPlayerId: '',
+    privatePlayerId: '',
+    gameId: '',
+    isVisible: false
+  },
+  playerMissionMembership: {
+    link: ['privatePlayers', 'playerId', 'missionMemberships', 'missionId'],
+    path: ['players', 'playerId', 'private', 'missionMemberships'],
+    missionId: '',
+    playerId: '',
+    gameId: '',
+  },
+  infection: {
+    link: ['publicPlayers', 'playerId', 'infections', 'infectionId'],
+    path: ['players', 'playerId', 'infections'],
+    time: 0,
+    infectorId: 0,
+    infectionId: '',
+    gameId: '',
+    playerId: ''
+  },
+  publicLife: {
+    link: ['publicLives', 'publicLifeId'],
+    path: ['players', 'playerId', 'lives'],
+    time: 0,
+    private: '',
+    privateLifeId: '',
+    playerId: '',
+    gameId: ''
+  },
+  privateLife: {
+    link: ['privateLives', 'privateLifeId'],
+    path: ['players', 'playerId', 'lives', 'lifeId', 'private'],
+    code: '',
+    gameId: '',
+    playerId: '',
+    lifeId: ''
+  },
+  publicPlayer: {
+    link: ['publicPlayers', 'publicPlayerId'],
+    path: ['players'],
+    isActive: false,
+    userId: '',
+    number: 0,
+    allegiance: '',
+    name: '',
+    points: '',
+    profileImageUrl: '',
+    gameId: '',
+    privatePlayerId: '',
+    lives: [],
+    claims: [],
+    infections: []
+  },
+  privatePlayer: {
+    link: ['privatePlayers', 'privatePlayerId'],
+    path: ['players', 'playerId', 'private'],
+    isActive: false,
+    beInPhotos: false,
+    userId: '',
+    gameId: '',
+    canInfect: false,
+    needGun: false,
+    startAsZombie: false,
+    wantToBeSecretZombie: false,
+    gotEquipment: '',
+    notes: '',
+    notifications: [],
+    chatRoomMemberships: [],
+    missionMemberships: [],
+    mapMemberships: [],
+    playerId: '',
+    volunteer: [], // special,
+    notificationSettings: [], // special
+  },
+  volunteer: { // special
+    advertising: false,
+    logistics: false,
+    communications: false,
+    moderator: false,
+    cleric: false,
+    sorcerer: false,
+    admin: false,
+    photographer: false,
+    chronicler: false,
+    android: false,
+    ios: false,
+    server: false,
+    client: false
+  },
+  notificationSettings: { // special
+    sound: false,
+    vibrate: false
+  },
+  notification: {
+    link: ['privatePlayers', 'privatePlayerId', 'notifications', 'notificationId'],
+    path: ['players', 'playerId', 'private', 'notifications'],
+    message: '',
+    previewMessage: '',
+    queuedNotificationId: '',
+    seenTime: 0,
+    sound: false,
+    vibrate: false,
+    site: '',
+    mobile: false,
+    time: 0,
+    email: '',
+    destination: '',
+    playerId: '',
+    privatePlayerId: ''
+  }
+};
+
+class Model {
+  constructor(id, args, model, sortOn) {
+    assert(id !== undefined);
+    this.id = id;
+    // To fill in link, which always ends in the id
+    if(args === undefined)
+      args = {};
+    args[model.link[model.link.length - 1]] = id;
+    var newLink = [];
+    model.link.forEach(function (item) {
+      if (args.hasOwnProperty(item))
+        newLink.push(args[item]);
+      else
+        newLink.push(item);
+    });
+    this.link = newLink.join('/');
+    this.sortOn = sortOn || '';
+    this.path = model.path;
+    this._properties = [];
+    this._collections = [];
+    for (var key in model) {
+      if (key === 'link' || key === 'path') continue;
+      if (model.hasOwnProperty(key)) {
+        if (typeof model[key] === 'object') this._collections.push(key);
+        else this._properties.push(key);
+      }
+    }
+    Utils.copyProperties(this, args, this._properties);
+    Utils.addEmptyLists(this, this._collections);
+  }
+  initialize(args, source, writer, privatePlayerExclusion = false) {
+    // Non destructive copyProperties since we have default
+    // values in the model already and they were created in
+    // the constructor
+    if (args !== null) {
+      for (let propertyName of this._properties) {
+        let val = args[propertyName];
+        if (val !== undefined)
+          this[propertyName] = val;
+      }
+    }
+    var pathFilled = [];
+    this.path.forEach((item) => {
+      if (this.hasOwnProperty(item)) {
+        pathFilled.push(Utils.findIndexById(Utils.get(source, pathFilled), this[item]));
+      } else {
+        pathFilled.push(item);
+      }
+    });
+    if (writer !== null) {
+      let insertIndex = null;
+      if (this.sortOn) {
+        let existing = Utils.get(source, pathFilled);
+        insertIndex = existing.findIndex((existing) => existing[this.sortOn] > this[this.sortOn]);
+        if (insertIndex < 0)
+          insertIndex = existing.length;
+      }
+      writer.insert(pathFilled, insertIndex, this);
+    }
+
+    if (!privatePlayerExclusion)
+      this.path = pathFilled.concat([Utils.findIndexById(Utils.get(source, pathFilled), this.id)]);
+    else
+      this.path = pathFilled;
+  }
 }
+Model.Gun = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.gun);
+  }
+};
+Model.User = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.user);
+  }
+};
+Model.UserPlayer = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.userPlayer);
+  }
+};
+Model.Game = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.game);
+  }
+};
+Model.QuizQuestion = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.quizQuestion, 'number');
+  }
+};
+Model.QuizAnswer = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.quizAnswer, 'number');
+  }
+};
+Model.Group = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.group);
+  }
+};
+Model.ChatRoom = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.chatRoom);
+  }
+};
+Model.Map = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.map);
+  }
+};
+Model.Marker = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.marker);
+  }
+};
+Model.Message = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.message, 'time');
+  }
+};
+Model.RewardCategory = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.rewardCategory);
+  }
+};
+Model.Reward = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.reward);
+  }
+};
+Model.Mission = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.mission);
+  }
+};
+Model.QueuedNotification = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.queuedNotification);
+  }
+};
+Model.Admin = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.admin);
+  }
+};
+Model.Claim = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.claim);
+  }
+};
+Model.PlayerChatRoomMembership = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.playerChatRoomMembership);
+  }
+};
+Model.PlayerMissionMembership = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.playerMissionMembership);
+  }
+};
+Model.Infection = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.infection);
+  }
+};
+Model.PublicLife = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.publicLife);
+  }
+};
+Model.PrivateLife = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.privateLife);
+  }
+};
+Model.PublicPlayer = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.publicPlayer);
+  }
+};
+Model.PrivatePlayer = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.privatePlayer);
+  }
+};
+Model.Notification = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.notification);
+  }
+};
 
-Model.USER_PROPERTIES = ["deviceToken", "a"];
-Model.USER_COLLECTIONS = ["publicPlayers"];
-Model.User = function(id, args) {
+
+/*********************************************
+ * For the Fake Server
+ */
+
+const DEFAULT_PROFILE_IMAGE_PROPERTIES = ['gameId', 'defaultProfileImageId', 'allegianceFilter', 'profileImageUrl'];
+const DEFAULT_PROFILE_IMAGE_COLLECTIONS = [];
+Model.DefaultProfileImage = class {
+  constructor(id, args) {
+    this.id = id;
+    Utils.copyProperties(this, args, DEFAULT_PROFILE_IMAGE_PROPERTIES);
+    Utils.addEmptyLists(this, DEFAULT_PROFILE_IMAGE_COLLECTIONS);
+  }
+};
+
+const GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
+const GROUP_MEMBERSHIP_COLLECTIONS = [];
+Model.GroupMembership = class {
+  constructor(id, args) {
+    this.id = id;
+    Utils.copyProperties(this, args, GROUP_MEMBERSHIP_PROPERTIES);
+    Utils.addEmptyLists(this, GROUP_MEMBERSHIP_COLLECTIONS);
+  }
+};
+
+const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
+const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
+Model.RequestCategory = class {
+  constructor(id, args) {
+    this.id = id;
+    Utils.copyProperties(this, args, REQUEST_CATEGORY_PROPERTIES);
+    Utils.addEmptyLists(this, REQUEST_CATEGORY_COLLECTIONS);
+  }
+};
+
+
+const REQUEST_PROPERTIES = ["playerId", "response"];
+const REQUEST_COLLECTIONS = [];
+Model.Request = function (id, args) {
   this.id = id;
-  Utils.copyProperties(this, args, Model.USER_PROPERTIES);
-  Utils.addEmptyLists(this, Model.USER_COLLECTIONS);
-}
-
-Model.USER_PUBLIC_PLAYER_PROPERTIES = ["gameId", "userId"];
-Model.USER_PUBLIC_PLAYER_COLLECTIONS = [];
-Model.UserPublicPlayer = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.USER_PUBLIC_PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, Model.USER_PUBLIC_PLAYER_COLLECTIONS);
-}
-
-Model.GAME_PROPERTIES = ["isActive", "started", "name", "number", "rulesHtml", "faqHtml", "stunTimer", "adminContactPlayerId", "startTime", "endTime", "registrationEndTime", "declareHordeEndTime", "declareResistanceEndTime"];
-Model.GAME_COLLECTIONS = ["guns", "missions", "rewardCategories", "chatRooms", "players", "admins", "queuedNotifications", "quizQuestions", "groups", "maps", "defaultProfileImages"];
-Model.Game = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.GAME_PROPERTIES);
-  Utils.addEmptyLists(this, Model.GAME_COLLECTIONS);
-}
-
-Model.QUIZ_QUESTION_PROPERTIES = ["text", "type", "number"];
-Model.QUIZ_QUESTION_COLLECTIONS = ["answers"];
-Model.QuizQuestion = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.QUIZ_QUESTION_PROPERTIES);
-  Utils.addEmptyLists(this, Model.QUIZ_QUESTION_COLLECTIONS);
-}
-
-Model.QUIZ_ANSWER_PROPERTIES = ["text", "isCorrect", "order", "number"];
-Model.QUIZ_ANSWER_COLLECTIONS = [];
-Model.QuizAnswer = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.QUIZ_ANSWER_PROPERTIES);
-  Utils.addEmptyLists(this, Model.QUIZ_ANSWER_COLLECTIONS);
-}
-
-Model.GROUP_PROPERTIES = ["name", "gameId", "allegianceFilter", "autoAdd", "canAddOthers", "canRemoveOthers", "canAddSelf", "canRemoveSelf", "autoRemove", "ownerPlayerId"];
-Model.GROUP_COLLECTIONS = ["players"];
-Model.Group = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.GROUP_PROPERTIES);
-  Utils.addEmptyLists(this, Model.GROUP_COLLECTIONS);
-}
-
-Model.CHAT_ROOM_PROPERTIES = ["gameId", "name", "accessGroupId", "withAdmins"];
-Model.CHAT_ROOM_COLLECTIONS = ["messages", "requestCategories"];
-Model.ChatRoom = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.CHAT_ROOM_PROPERTIES);
-  Utils.addEmptyLists(this, Model.CHAT_ROOM_COLLECTIONS);
-}
-
-Model.MAP_PROPERTIES = ["gameId", "name", "groupId"];
-Model.MAP_COLLECTIONS = ["markers"];
-Model.Map = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.MAP_PROPERTIES);
-  Utils.addEmptyLists(this, Model.MAP_COLLECTIONS);
-}
-
-Model.MARKER_PROPERTIES = ["name", "color", "playerId", "latitude", "longitude"];
-Model.MARKER_COLLECTIONS = [];
-Model.Marker = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.MARKER_PROPERTIES);
-  Utils.addEmptyLists(this, Model.MARKER_COLLECTIONS);
-}
-
-// Model.GROUP_MEMBERSHIP_PROPERTIES = ["playerId"];
-// Model.GROUP_MEMBERSHIP_COLLECTIONS = [];
-// Model.GroupMembership = function(id, args) {
-//   this.id = id;
-//   Utils.copyProperties(this, args, Model.GROUP_MEMBERSHIP_PROPERTIES);
-//   Utils.addEmptyLists(this, Model.GROUP_MEMBERSHIP_COLLECTIONS);
-// }
-
-Model.PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES = ["chatRoomId", "isVisible"];
-Model.PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS = [];
-Model.PlayerChatRoomMembership = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.PLAYER_CHAT_ROOM_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, Model.PLAYER_CHAT_ROOM_MEMBERSHIP_COLLECTIONS);
-  assert(this.chatRoomId);
-}
-
-Model.PLAYER_MISSION_MEMBERSHIP_PROPERTIES = ["missionId"];
-Model.PLAYER_MISSION_MEMBERSHIP_COLLECTIONS = [];
-Model.PlayerMissionMembership = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.PLAYER_MISSION_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, Model.PLAYER_MISSION_MEMBERSHIP_COLLECTIONS);
-}
-
-Model.PLAYER_GROUP_MEMBERSHIP_PROPERTIES = ["groupId"];
-Model.PLAYER_GROUP_MEMBERSHIP_COLLECTIONS = [];
-Model.PlayerGroupMembership = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.PLAYER_GROUP_MEMBERSHIP_PROPERTIES);
-  Utils.addEmptyLists(this, Model.PLAYER_GROUP_MEMBERSHIP_COLLECTIONS);
-}
-
-Model.MESSAGE_PROPERTIES = ["index", "message", "playerId", "time", "location"];
-Model.MESSAGE_COLLECTIONS = [];
-Model.Message = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.MESSAGE_PROPERTIES);
-  Utils.addEmptyLists(this, Model.MESSAGE_COLLECTIONS);
-}
-
-Model.REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
-Model.REQUEST_CATEGORY_COLLECTIONS = ["requests"];
-Model.RequestCategory = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.REQUEST_CATEGORY_PROPERTIES);
-  Utils.addEmptyLists(this, Model.REQUEST_CATEGORY_COLLECTIONS);
-}
-
-Model.REQUEST_PROPERTIES = ["playerId", "response"];
-Model.REQUEST_COLLECTIONS = [];
-Model.Request = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.REQUEST_PROPERTIES);
-  Utils.addEmptyLists(this, Model.REQUEST_COLLECTIONS);
-}
-
-Model.RESPONSE_PROPERTIES = ["time", "text"];
-Model.RESPONSE_COLLECTIONS = [];
-Model.Response = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.RESPONSE_PROPERTIES);
-  Utils.addEmptyLists(this, Model.RESPONSE_COLLECTIONS);
-}
-
-Model.MISSION_PROPERTIES = ["gameId", "name", "beginTime", "endTime", "detailsHtml", "accessGroupId", "rsvpersGroupId"];
-Model.MISSION_COLLECTIONS = [];
-Model.Mission = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.MISSION_PROPERTIES);
-  Utils.addEmptyLists(this, Model.MISSION_COLLECTIONS);
-}
-
-Model.ADMIN_PROPERTIES = ["userId"];
-Model.ADMIN_COLLECTIONS = [];
-Model.Admin = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.ADMIN_PROPERTIES);
-  Utils.addEmptyLists(this, Model.ADMIN_COLLECTIONS);
-}
-
-Model.QUEUED_NOTIFICATION_PROPERTIES = ["gameId", "message", "site", "mobile", "previewMessage", "sendTime", "sent", "groupId", "email", "sound", "vibrate", "destination", "icon"];
-Model.QUEUED_NOTIFICATION_COLLECTIONS = [];
-Model.QueuedNotification = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.QUEUED_NOTIFICATION_PROPERTIES);
-  Utils.addEmptyLists(this, Model.QUEUED_NOTIFICATION_COLLECTIONS);
-}
+  Utils.copyProperties(this, args, REQUEST_PROPERTIES);
+  Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
+};
 
 Model.PUBLIC_PLAYER_PROPERTIES = ["isActive", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "privatePlayerId", "private"];
-Model.PUBLIC_PLAYER_COLLECTIONS = ["infections", "lives", "claims"];
-Model.PublicPlayer = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.PUBLIC_PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, Model.PUBLIC_PLAYER_COLLECTIONS);
-  if (!this.private)
-    this.private = null;
-}
-
 Model.PRIVATE_PLAYER_PROPERTIES = ["isActive", "beInPhotos", "userId", "gameId", "userId", "canInfect", "needGun", "startAsZombie", "wantToBeSecretZombie", "gotEquipment", "notes"];
-Model.PRIVATE_PLAYER_COLLECTIONS = ["notifications", "chatRoomMemberships", "groupMemberships", "missionMemberships", "mapMemberships"];
-Model.PRIVATE_PLAYER_VOLUNTEER_PROPERTIES = ["advertising", "logistics", "communications", "moderator", "cleric", "sorcerer", "admin", "photographer", "chronicler", "android", "ios", "server", "client"];
-Model.PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES = ["sound", "vibrate"];
-Model.PrivatePlayer = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.PRIVATE_PLAYER_PROPERTIES);
-  Utils.addEmptyLists(this, Model.PRIVATE_PLAYER_COLLECTIONS);
-  this.volunteer = {};
-  Utils.copyProperties(this.volunteer, args.volunteer, Model.PRIVATE_PLAYER_VOLUNTEER_PROPERTIES);
-  this.notificationSettings = {};
-  Utils.copyProperties(this.notificationSettings, args.notificationSettings, Model.PRIVATE_PLAYER_NOTIFICATION_SETTINGS_PROPERTIES);
-}
-
-Model.CLAIM_PROPERTIES = ["time", "rewardId", "rewardCategoryId"];
-Model.CLAIM_COLLECTIONS = [];
-Model.Claim = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.CLAIM_PROPERTIES);
-  Utils.addEmptyLists(this, Model.CLAIM_COLLECTIONS);
-}
-
-Model.PUBLIC_LIFE_PROPERTIES = ["time", "private", "privateLifeId", "gameId"];
-Model.PUBLIC_LIFE_COLLECTIONS = [];
-Model.PublicLife = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.PUBLIC_LIFE_PROPERTIES);
-  Utils.addEmptyLists(this, Model.PUBLIC_LIFE_COLLECTIONS);
-}
-
-Model.PRIVATE_LIFE_PROPERTIES = ["code", "gameId"];
-Model.PRIVATE_LIFE_COLLECTIONS = [];
-Model.PrivateLife = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.PRIVATE_LIFE_PROPERTIES);
-  Utils.addEmptyLists(this, Model.PRIVATE_LIFE_COLLECTIONS);
-}
-
-Model.INFECTION_PROPERTIES = ["time", "infectorId"];
-Model.INFECTION_COLLECTIONS = [];
-Model.Infection = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.INFECTION_PROPERTIES);
-  Utils.addEmptyLists(this, Model.INFECTION_COLLECTIONS);
-}
-
-Model.NOTIFICATION_PROPERTIES = ["message", "previewMessage", "queuedNotificationId", "seenTime", "sound", "vibrate", "site", "mobile", "time", "email", "destination"];
-Model.NOTIFICATION_COLLECTIONS = [];
-Model.Notification = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.NOTIFICATION_PROPERTIES);
-  Utils.addEmptyLists(this, Model.NOTIFICATION_COLLECTIONS);
-}
-
-Model.REWARD_CATEGORY_PROPERTIES = ["name", "shortName", "points", "claimed", "gameId", "limitPerPlayer", "badgeImageUrl", "gameId", "description"];
-Model.REWARD_CATEGORY_COLLECTIONS = ["rewards"];
-Model.RewardCategory = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.REWARD_CATEGORY_PROPERTIES);
-  Utils.addEmptyLists(this, Model.REWARD_CATEGORY_COLLECTIONS);
-}
-
-Model.REWARD_PROPERTIES = ["playerId", "code", "rewardCategoryId", "gameId"];
-Model.REWARD_COLLECTIONS = [];
-Model.Reward = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.REWARD_PROPERTIES);
-  Utils.addEmptyLists(this, Model.REWARD_COLLECTIONS);
-}
-
-Model.DEFAULT_PROFILE_IMAGE_PROPERTIES = ["gameId", "defaultProfileImageId", "allegianceFilter", "profileImageUrl"];
-Model.DEFAULT_PROFILE_IMAGE_COLLECTIONS = [];
-Model.DefaultProfileImage = function(id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, Model.DEFAULT_PROFILE_IMAGE_PROPERTIES);
-  Utils.addEmptyLists(this, Model.DEFAULT_PROFILE_IMAGE_COLLECTIONS);
-}
-
-
-return Model;
-
-})();

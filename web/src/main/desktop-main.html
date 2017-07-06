@@ -32,7 +32,7 @@
 
           isAdmin: {
             type: Boolean,
-            computed: 'computeIsAdmin_(user, game, game.admins.length)',
+            computed: 'computeIsAdmin_(user, game, game.adminUsers.length)',
           },
 
           isPlayer: {
@@ -62,7 +62,7 @@
         },
 
         computeIsAdmin_: function(user, game) {
-          let admin = game.admins.find((admin) => admin.userId == user.id);
+          let admin = game.adminUsers.find((admin) => admin.userId == user.id);
           return !!admin;
         },
 

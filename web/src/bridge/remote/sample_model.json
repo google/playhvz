@@ -369,7 +369,7 @@
           }
         }
       ],
-      "admins":[
+      "adminUsers":[
         {
           "id":"user-test-3840579180089170-1",
           "userId":"user-test-3840579180089170-1"

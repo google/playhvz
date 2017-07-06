@@ -636,7 +636,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     site: true,
     mobile: true,
     vibrate: true,
-    sound: true,
+    sound: "ping.wav",
     destination: "missions/" + firstMissionId,
     icon: null
   });
