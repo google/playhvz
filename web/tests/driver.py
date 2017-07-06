@@ -237,6 +237,8 @@ class FakeDriver:
     if is_mobile:
       selenium_driver.set_window_size(480, 640);
 
+    if len(page) == 0:
+       page = '/game/poptest-1'
     if page and len(page) and page[0] == '/':
       page = page[1:]
 
@@ -370,10 +372,10 @@ class WholeDriver:
         lambda: self.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
     self.Click([[By.NAME, 'drawer%s' % destinationPage]])
-      
+
   def TableMenuClick(self, pathToRow, buttonName):
     self.RetryUntil(
       lambda: self.Click(pathToRow + [[By.ID, 'menu']]),
       lambda: self.FindElement(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]]))
     self.Click(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]])
-          
+
