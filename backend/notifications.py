@@ -72,7 +72,7 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
       user_id = game_state.get('/publicPlayers/%s' % public_player_id, 'userId')
       user = game_state.get('/users', user_id)
       if 'deviceToken' in user:
-        device_tokens.add(user['deviceToken'])
+        device_tokens.append(user['deviceToken'])
   if len(device_tokens) == 0:
     return
   if config.FIREBASE_APIKEY:
