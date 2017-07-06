@@ -32,8 +32,7 @@ driver = setup.MakeDriver(user="reggie")
 
 try:
 
-  if not driver.is_mobile:
-    driver.Click([[By.NAME, 'joinGame']])
+  driver.Click([[By.NAME, 'joinGame']])
 
   driver.SendKeys(
       [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
