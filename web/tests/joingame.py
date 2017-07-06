@@ -88,35 +88,35 @@ try:
 
   driver.SwitchUser('zella')
 
-  # driver.SwitchUser("drake")
+  driver.SwitchUser("drake")
 
-  # driver.Click([[By.NAME, 'drawerMy Profile']])
+  driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  # driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
 
-  # driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.Click([[By.NAME, 'drawerDashboard']])
 
-  # driver.SendKeys(
-  #     [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-  #     'grobble forgbobbly')
+  driver.SendKeys(
+      [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
+      'grobble forgbobbly')
 
-  # driver.Click([[By.ID, 'infect']])
+  driver.Click([[By.ID, 'infect']])
 
-  # driver.ExpectContains(
-  #     [[By.ID, 'victimName']],
-  #     'Jack Slayer the Bean Slasher')
+  driver.ExpectContains(
+      [[By.ID, 'victimName']],
+      'Jack Slayer the Bean Slasher')
 
-  # driver.Click([[By.NAME, 'drawerMy Profile']])
+  driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  # driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '200')
 
-  # driver.SwitchUser("jack")
+  driver.SwitchUser("jack")
 
-  # driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
+  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
-  # driver.FindElement([[By.NAME, 'Horde ZedLink']])
+  driver.FindElement([[By.NAME, 'Horde ZedLink']])
   
-  # driver.Click([[By.NAME, 'drawerMy Profile']])
+  driver.Click([[By.NAME, 'drawerMy Profile']])
 
   driver.Quit()
 
