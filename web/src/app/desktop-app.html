@@ -42,12 +42,15 @@
   </script>
   <style>
     :host {
-      display: block;
+      display: flex;
+      flex-direction: column;
       position: relative;
       padding: 8px;
-      height: 100%;
       width: 100%;
       box-sizing: border-box;
+    }
+    ghvz-display-game-page {
+      flex-grow: 1;
     }
     #notifications {
       position: fixed;

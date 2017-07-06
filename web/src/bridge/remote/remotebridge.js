@@ -55,9 +55,10 @@ class RemoteBridge {
         return;
       }
       console.log('Signing in with credential...');
+
       let provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope('email');
-      let credential = provider.credential(null, accessToken);
+      let credential = provider.credential(accessToken, null);
       firebase.auth().signInWithCredential(credential);
     }
 
@@ -79,6 +80,8 @@ class RemoteBridge {
                   assert("user-" + firebaseUser.uid == this.userId);
                 }
               });
+            } else {
+              console.log('onAuthStateChanged called with a null firebaseUser.');
             }
           });
         });

@@ -89,9 +89,11 @@ try:
 
 
   # Delete the two missions which start out there 
+  time.sleep(.5) # TODO(aliengirl): take this out when retryuntil is in
   driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.ID, 'menu']]) # TODO(aliengirl): figure out why menu doesn't always open here
   driver.Click([[By.NAME, "mission-row-first zed mission!"], [By.NAME, 'menu-item-Delete']])
   
+  time.sleep(.5) # TODO(aliengirl): take this out when retryuntil is in
   driver.Click([[By.NAME, "mission-row-first human mission!"], [By.ID, 'menu']]) # TODO(aliengirl): figure out why menu doesn't always open here
   driver.Click([[By.NAME, "mission-row-first human mission!"], [By.NAME, 'menu-item-Delete']])
 

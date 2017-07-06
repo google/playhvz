@@ -314,7 +314,6 @@ class FakeIdGenerator extends IdGenerator {
   serverMethods.set('deleteMission', {
     gameId: 'GameId',
     missionId: 'MissionId',
-    accessGroupId: 'GroupId',
   });
 
   serverMethods.set('selfInfect', {required: {playerId: 'PublicPlayerId'}});
@@ -535,7 +534,7 @@ class FakeIdGenerator extends IdGenerator {
     site: 'Boolean',
     mobile: 'Boolean',
     vibrate: 'Boolean',
-    sound: 'Boolean',
+    sound: '?String',
     email: 'Boolean',
     destination: '?String',
     sendTime: '?Timestamp',
@@ -552,7 +551,7 @@ class FakeIdGenerator extends IdGenerator {
     site: '|Boolean',
     mobile: '|Boolean',
     vibrate: '|Boolean',
-    sound: '|Boolean',
+    sound: '|?String',
     email: '|Boolean',
     destination: '|String',
     sendTime: '|?Timestamp',

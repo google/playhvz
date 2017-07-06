@@ -139,8 +139,14 @@
   </script>
   <style include="iron-flex iron-flex-alignment">
     :host {
-      height: 100%;
-      display: block;
+      display: flex;
+      flex-grow: 1;
+      flex-direction: column;
+    }
+    #container {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: row
     }
     .chat-window {
       width: 100%;
@@ -158,7 +164,7 @@
   </style>
   <template>
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
-    <div id="container" is-mobile$="[[isMobile]]" class="flex layout horizontal" style="height: 100%;">
+    <div id="container" is-mobile$="[[isMobile]]" class="flex layout horizontal">
       <template is="dom-if" if="[[showChatRoomList]]">
         <ghvz-chat-room-list 
             class="chat-room-list" 
