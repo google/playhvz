@@ -81,9 +81,11 @@
 </script>
 <style>
   :host {
-    display: block;
+    display: flex;
     position: relative;
     width: 100%;
+    flex-grow: 1;
+    flex-direction: column;
   }
   .paper-header {
     background-color: #03a9f4;
@@ -91,6 +93,11 @@
     font-size: 18px;
     line-height: 48px;
     font-weight: bold;
+  }
+  ghvz-card {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
   }
 </style>
 <template>
@@ -104,7 +111,7 @@
             class="content"
             bridge="[[bridge]]"
             game="[[game]]"
-            user-id="[[user.id]]">
+            user-id="[[userId]]">
         </ghvz-game-registration>
       </ghvz-card>
     </template>
