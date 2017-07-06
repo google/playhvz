@@ -26,9 +26,13 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv)
 from api_helpers import AppError, respondError
+from google.appengine.api import mail
 
+import cgi
 import copy
+import difflib
 import logging
+import pprint
 import random
 import textwrap
 import time
@@ -1997,5 +2001,27 @@ def UpdatePlayerMarkers(request, game_state):
       results.append(patch_result)
 
   return results
+
+def SyncFirebase(request, game_state):
+  firebase_instance = game_state.get('/', None, local_instance=False) or {}
+  (has_diff, old_instance) = game_state.setToNewInstance(firebase_instance)
+  if has_diff:
+    old_str = pprint.pformat(old_instance).splitlines()
+    new_str = pprint.pformat(firebase_instance).splitlines()
+    diffs = cgi.escape('\n'.join(list(difflib.ndiff(old_str, new_str))))
+    mail.EmailMessage(sender='panic@playhvz-170604.appspotmail.com',
+      to='yuhao@google.com,rfarias@google.com,chewys@google.com,harshmodi@google.com,verdagon@google.com',
+      subject='Diff detected between local and remote instances',
+      html="""<html><body>
+      Detected diff between local (in-memory) and remote (firebase) versions of data.
+      <br>
+      This most likely means an api call to firebase has failed.
+      <br>
+      diff:
+      <pre>%s</pre>
+      <br>
+      The local version has been replaced w/ the remote version.
+      Panic a little bit. Or not. I'm an email, not a cop.
+      </body></html>""" % (diffs)).Send()
 
 # vim:ts=2:sw=2:expandtab

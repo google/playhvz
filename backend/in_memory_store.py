@@ -106,6 +106,21 @@ class InMemoryStore:
       self.instance = firebase.get('/', None) or {}
       self.firebase = firebase
 
+  def setToNewInstance(self, other_instance):
+    old_instance = self.instance
+    has_diff = old_instance != other_instance
+    self.instance = other_instance
+    # If there is a difference, firebase is out of sync.
+    # Clear pending mutations
+    #   (they are most likely operating on an inconsistent state)
+    # Reinitialize the lock (because if the two states are different because
+    #   a call failed, the callback won't be called and the lock won't be
+    #   released.)
+    if has_diff:
+      enqueued_patch.clear()
+      accessor_mutex = threading.Lock()
+    return (has_diff, old_instance)
+
   def get(self, path, id, local_instance=True):
     """Get data from the model. Getting data from the local instance and the
     remove instance is the same with some exceptions:
