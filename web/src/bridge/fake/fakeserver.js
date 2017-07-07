@@ -668,11 +668,7 @@ class FakeServer {
   selfInfect(args) {
     let {playerId} = args;
     this.setPlayerZombie(playerId);
-    this.setValidCode(this.reader.getPublicPlayerPath(playerId), true);
   }
-  setValidCode(path, value) {
-    this.writer.set(path.concat(["validCode"]), value);
-  } 
   joinResistance(args) {
     let {playerId, lifeId, privateLifeId, lifeCode} = args;
     let publicLifeId = lifeId;
@@ -767,30 +763,31 @@ class FakeServer {
   }
   infect(request) {
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId} = request;
+    console.log(request);
     let victimPlayer = this.findPlayerByIdOrLifeCode_(victimPlayerId, victimLifeCode);
     victimPlayerId = victimPlayer.id;
     let infectorPlayerPath = this.reader.getPublicPlayerPath(infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
+    console.log("LIVES: ", victimPlayer.lives.length, victimPlayer.infections.length);
     // Self-infection
     if (victimPlayer.allegiance == 'resistance' && 
         infectorPlayer.private &&
         !infectorPlayer.private.canInfect) {
       if (victimPlayerId == infectorPlayerId) {
         this.setPlayerZombie(infectorPlayerId);
-        this.setValidCode(infectorPlayerPath, true);
         return "self-infection";
       } else {
         return alert("As a human you cannot infect others.");
       }
     }
-    if  (victimPlayer.allegiance == 'resistance' || victimPlayer.validCode == true) {
-      // Victim's lifecode is no longer valid
-      this.setValidCode(this.reader.getPublicPlayerPath(victimPlayerId), false);
+    let validCode = victimPlayer.lives.length > victimPlayer.infections.length;
+    if  (victimPlayer.validCode) {
       // Give the infector points
       this.writer.set(
         infectorPlayerPath.concat(["points"]),
         this.reader.get(infectorPlayerPath.concat(["points"])) + 100);
       let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
+
       if (infectorPlayer.allegiance == 'resistance') { //Possessed human infection
         // Possessed human becomes a zombie
         this.addInfection_(request, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
