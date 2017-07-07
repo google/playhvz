@@ -761,13 +761,24 @@ class FakeServer {
     }
   }
   infect(request) {
-
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId} = request;
     let victimPlayer = this.findPlayerByIdOrLifeCode_(victimPlayerId, victimLifeCode);
     victimPlayerId = victimPlayer.id;
     let infectorPlayerPath = this.reader.getPublicPlayerPath(infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
-    if (victimPlayer.allegiance == 'resistance' || victimPlayer.validCode == true) { //TODO(aliengirl): deal with valid code here!
+    // Self-infection
+    if (victimPlayer.allegiance == 'resistance' && 
+        infectorPlayer.private &&
+        !infectorPlayer.private.canInfect) {
+      if (victimPlayerId == infectorPlayerId) {
+        this.setPlayerZombie(infectorPlayerId);
+        this.setValidCode(infectorPlayerPath, true);
+        return "self-infection";
+      } else {
+        return alert("As a human you cannot infect others.");
+      }
+    }
+    if  (victimPlayer.allegiance == 'resistance' || victimPlayer.validCode == true) {
       // Victim's lifecode is no longer valid
       this.setValidCode(this.reader.getPublicPlayerPath(victimPlayerId), false);
       // Give the infector points

@@ -175,7 +175,7 @@
   </template>
 
   <template is="dom-if"  if="[[computeShowPage_(showPage.infect, mostRecentPage)]]">
-    <ghvz-card name="declare-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="infect-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Infect</div>
       <ghvz-infect
           class="expand"
@@ -342,10 +342,9 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.stats, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="stats-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Game Stats</div>
       <ghvz-stats-page
-          name="stats-card"
           class="expand"
           bridge="[[bridge]]"
           database="[[database]]"
