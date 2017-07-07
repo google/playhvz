@@ -185,6 +185,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     name: "Test game",
     rulesHtml: RULES_HTML,
     faqHtml: FAQ_HTML,
+    summaryHtml: SUMMARY_HTML,
     stunTimer: 60,
     isActive: true,
     registrationEndTime: 1483286400000,
@@ -337,7 +338,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     lifeId: null,
     privateLifeId: null,
   });
-  
+
   var jackPlayerId = bridge.idGenerator.newPublicPlayerId();
   let jackProperties = makePlayerProperties(jackPlayerId, jackUserId, gameId, 1483257600000, 'JackSlayerTheBeanSlasher');
   jackProperties.wantToBeSecretZombie = true;
@@ -349,7 +350,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     lifeId: null,
     privateLifeId: null,
   });
-  
+
   var drakePlayerId = bridge.idGenerator.newPublicPlayerId();
   bridge.createPlayer(makePlayerProperties(drakePlayerId, drakeUserId, gameId, 1483257600000, 'Drackan'));
   bridge.joinHorde({
@@ -371,7 +372,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'man what i would do for some garlic rolls!'});
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'https://www.youtube.com/watch?v=GrHPTWTSFgc'});
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
-  
+
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: moldaviPlayerId, message: 'yee!'});
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: resistanceChatRoomId, playerId: jackPlayerId, message: 'yee!'});
@@ -383,7 +384,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     victimPlayerId: null,
     gameId: gameId,
   });
-  
+
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: zekePlayerId, message: 'zeds rule!'});
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hoomans drool!'});
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'monkeys eat stool!'});
@@ -507,7 +508,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "Second Tower", color: "00FFFF", playerId: null, mapId: resistanceMapId, latitude: 37.422356, longitude: -122.088078});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "Third Tower", color: "FFFF00", playerId: null, mapId: resistanceMapId, latitude: 37.422757, longitude: -122.081984});
   bridge.addMarker({gameId: gameId, markerId: bridge.idGenerator.newMarkerId(), name: "Fourth Tower", color: "FF8000", playerId: null, mapId: resistanceMapId, latitude: 37.420382, longitude: -122.083884});
-  
+
   bridge.sendChatMessage({gameId: gameId, messageId: bridge.idGenerator.newMessageId(), chatRoomId: zedChatRoomId, playerId: drakePlayerId, message: 'hi'});
 
   if (populateLotsOfPlayers) {
@@ -732,7 +733,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     requestId: textRequestId,
     text: "responseText",
   });
-  
+
   populateQuiz(bridge, gameId);
 }
 
@@ -926,6 +927,10 @@ const FAQ_HTML = `
 <b>I am a FAQ!</b>
 `;
 
+const SUMMARY_HTML = `
+<b>I am a SUMMARY!</b>
+`;
+
 const RULES_HTML = `
 <div>Additional rules and clarifications might be added before game, send any questions to hvz-cdc@</div>
 <div>Admins may change rules as the game goes on. Keep an eye out for updates!</div>
@@ -940,7 +945,7 @@ const RULES_HTML = `
 <li>Moderators will have orange armbands.</li>
 </ul>
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Infecting">
 <div>A Zombie can turn humans to zombies with a firm touch to any part of a Human including anything they are wearing and anything they are holding (unless it is an admin given shield or pool noodle). Please don't tackle!</div>
 <div>When infected:</div>
@@ -959,7 +964,7 @@ const RULES_HTML = `
 </ul>
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Stunning">
 <div>Humans can stun ANY player (humans or zombie) for 1 minute by shooting them with a nerf dart, hitting them with a sock they threw, or tagging them with an admin given pool noodle. When stunned, the player must:</div>
 <div>When stunned:</div>
@@ -985,11 +990,11 @@ const RULES_HTML = `
 </ul>
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Unstunning">
 Any human can “unstun” any stunned human by touching them.
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Secret Zombie">
 Secret zombies are human in every way, except when a secret zombie touches a human:
 <ul>
@@ -1001,7 +1006,7 @@ Secret zombies are human in every way, except when a secret zombie touches a hum
 <li>When the minute is up, they both stand up and resume playing.</li>
 </ul>
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Crossing streets">
 There are many streets in the playable area for the game so please play away from traffic and use this protocol when using crosswalks:
 <ul>
@@ -1013,7 +1018,7 @@ There are many streets in the playable area for the game so please play away fro
 </ul>
 <div>No looking at cell phones in cross walks!</div>
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Time Out">
 For any reason, if a player is in an unsafe situation, that player and all players near them are out of play. The player should call “Time Out!” to tell anyone near them. No infections/stuns count.
 <ul>
@@ -1027,7 +1032,7 @@ Once there are no players in danger:
 </ul>
 If this rule is not being respected, contact a moderator.
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Out of Play">
 <ul>
 <li>A player is playing the game (“in play”) whenever they have their armband/headband on, otherwise, they are not playing at the time (“out of play”).</li>
@@ -1048,12 +1053,12 @@ If you find yourself in one of these areas, you are temporarily out of play unti
 <div>Tags/Stuns made because of unsafe situations do not count.</div>
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="Safe Zones">
 Any circle of cones set up by a moderator or a helper is a safe zone. Zombies cannot stun or infect players from inside safe zones. Humans can stun players from inside safe zones. Any player that has at least one foot inside the safe zone is considered to be in it.
 </ghvz-rules-collapsible>
 </ghvz-rules-section>
- 
+
 <ghvz-rules-section title="How to Not Get Banned">
 <ul>
 <li>Don’t ever go into streets, always use crosswalks!</li>
