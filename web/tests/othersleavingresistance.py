@@ -16,7 +16,7 @@ try:
 
   driver.Click([[By.NAME, 'drawerMy Profile']])
 
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
   driver.Click([[By.NAME, 'drawerDashboard']])
 
@@ -55,7 +55,7 @@ try:
   # make sure drake's profile has updated points
   driver.Click([[By.NAME, 'drawerMy Profile']])
   
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '402')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '408')
 
   # ensure jack is a zombie now
   driver.SwitchUser("jack")

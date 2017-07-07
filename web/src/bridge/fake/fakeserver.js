@@ -111,6 +111,8 @@ class FakeServer {
 
     let publicPlayer = new Model.PublicPlayer(publicPlayerId, properties);
     publicPlayer.private = new Model.PrivatePlayer(privatePlayerId, properties);
+    publicPlayer.private.volunteer = properties.volunteer;
+    publicPlayer.private.notificationSettings = properties.notificationSettings;
 
     this.writer.insert(this.reader.getPublicPlayerPath(null), null, publicPlayer);
 
@@ -186,7 +188,7 @@ class FakeServer {
       return;
 
     if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance)
-      throw new InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
+      throw 'Player does not satisfy this group\'s allegiance filter!';
 
     this.writer.insert(
         this.reader.getGroupPlayerPath(groupId, null),
@@ -326,7 +328,7 @@ class FakeServer {
             playerId: playerId,
           })));
     } else {
-      throw new InvalidRequestError('Can\'t send message to chat room without membership');
+      throw 'Can\'t send message to chat room without membership';
     }
 
     let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
@@ -641,6 +643,9 @@ class FakeServer {
       for (let j = 0; j < rewardCategory.rewards.length; j++) {
         let reward = rewardCategory.rewards[j];
         if (reward.code.replace(/\s/g, '').toLowerCase() == rewardCode) {
+          if (reward.playerId != null) {
+            throw 'This reward has already been claimed!';
+          }
           this.writer.set(
               this.reader.getRewardPath(rewardCategory.id, reward.id).concat(["playerId"]),
               playerId);
@@ -658,7 +663,7 @@ class FakeServer {
         }
       }
     }
-    assert(false);
+    throw 'No reward with that code exists!';
   }
   selfInfect(args) {
     let {playerId} = args;
@@ -740,7 +745,7 @@ class FakeServer {
     if (playerId) {
       let player = this.reader.get(this.reader.getPublicPlayerPath(playerId));
       if (!player) {
-        throw InvalidRequestError('No player found with id ' + playerId);
+        throw 'No player found with id ' + playerId;
       }
       return player;
     } else {
@@ -753,7 +758,7 @@ class FakeServer {
           }
         }
       }
-      throw new InvalidRequestError('No player found with life code ' + lifeCode);
+      throw 'No player found with life code ' + lifeCode;
     }
   }
   infect(request) {

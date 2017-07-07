@@ -1576,9 +1576,14 @@ def ClaimReward(request, game_state):
   if 'limitPerPlayer' in reward_category and int(reward_category['limitPerPlayer']) >= 1:
     limit = int(reward_category['limitPerPlayer'])
     claims = game_state.get(player_path, 'claims')
+    print "claims:"
+    print claims
     if claims:
-      claims = [c for c in claims if c['rewardCategoryId'] == reward_category_id]
-      if len(claims) >= limit:
+      num_rewards_in_category = 0
+      for reward_id, claim in claims.iteritems():
+        if claim['rewardCategoryId'] == reward_category_id:
+          num_rewards_in_category = num_rewards_in_category + 1
+      if num_rewards_in_category >= limit:
         raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % limit)
 
   game_state.patch(reward_path, {'playerId': player_id})
