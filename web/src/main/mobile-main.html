@@ -126,14 +126,14 @@
     <div class="header">Humans vs Zombies</div>
     
     <template is="dom-if" if="[[canRegister]]">
-      <ghvz-card spaced full padded>
+      <ghvz-card spaced full padded mobile>
         <div class="header">Join Game!</div>
         <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
       </ghvz-card>
     </template>
 
     <template is="dom-if" if="[[canDeclare]]">
-      <ghvz-card spaced left padded name="declare-box">
+      <ghvz-card spaced left padded mobile name="declare-box">
         <div class="header">Declare Allegiance!</div>
         <ghvz-declare-dashlet></ghvz-declare-dashlet>
       </ghvz-card>
@@ -151,7 +151,7 @@
         </ghvz-card>
       </template>
 
-      <ghvz-card spaced left name="summary-box">
+      <ghvz-card spaced left padded mobile name="summary-box">
         <div class="header">Game Summary</div>
         <ghvz-game-summary
             game="[[game]]">
@@ -159,7 +159,7 @@
       </ghvz-card>
 
 
-      <ghvz-card spaced name="next-mission-box" >
+      <ghvz-card spaced padded mobile name="next-mission-box" >
         <div class="header">Next Mission</div>
         <ghvz-next-mission
             bridge="[[bridge]]"
@@ -168,7 +168,7 @@
         </ghvz-next-mission>
       </ghvz-card>
 
-      <ghvz-card spaced left name="rules-box">
+      <ghvz-card spaced left padded mobile name="rules-box">
         <div class="header" name="Rules">Rules</div>
         <ghvz-rules game="[[game]]"></ghvz-rules>
       </ghvz-card>
