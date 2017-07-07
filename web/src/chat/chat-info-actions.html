@@ -78,8 +78,8 @@
                 playerToAddId: playerId,
               }).catch((e) => {
                 console.error(e);
-                if (e.message)
-                  alert(e.message);
+                if (e)
+                  alert(e);
               });
             }
           });

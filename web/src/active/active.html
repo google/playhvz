@@ -56,11 +56,9 @@
         }
 
         let activeForMs = 5 * 60 * 1000; // We'll consider them active for 5 minutes
-        if (this.env == 'fake' || this.env == 'dev') {
-          let newActiveForMs = Utils.getParameterByName('activeTimeoutMs');
-          if (newActiveForMs)
-            activeForMs = newActiveForMs;
-        }
+        let newActiveForMs = Utils.getParameterByName('activeTimeoutMs');
+        if (newActiveForMs)
+          activeForMs = newActiveForMs;
 
         // cancel the current timeout
         clearTimeout(this.inactiveTimeout);
