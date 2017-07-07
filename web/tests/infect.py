@@ -84,7 +84,7 @@ try:
   driver.DrawerMenuClick('chat-card', 'Dashboard')
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
   
-  driver.Quit()
+  #driver.Quit()
 
 finally:
   pass

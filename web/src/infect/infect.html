@@ -119,10 +119,10 @@
         text-align: center;
         margin: 0;
       }
-/*      #infecting,
+      #infecting,
       #infected {
         display: flex;
-      }*/
+      }
       #infecting paper-input,
       #infectedMessage {
         flex: 1;
@@ -147,8 +147,9 @@
     </style>
     <div id="infecting" hidden$="[[infectedPlayer]]">
       <div id="instructions" hidden$="[[!computeIsHuman_(player)]]">
-        Possessed humans: Enter your victim's life code. This will also turn you into a zombie.
-        Humans: Enter your own life code to self-infect. Only do this when you have been turned, but the zombie has not yet entered your life code.
+        <div><b>Possessed humans</b>: Enter your victim's life code. This will also turn you into a zombie.</div>
+        <br/>
+        <div><b>Humans</b>: Enter your own life code to self-infect. Only do this when you have been turned, but the zombie has not yet entered your life code.</div>
       </div>
       <div id="codeInput">
         <paper-input
