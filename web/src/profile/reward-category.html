@@ -39,6 +39,9 @@
     });
   </script>
   <style>
+    :host {
+      display: block;
+    }
     #container {
       display: flex;
       align-items: center;
@@ -58,6 +61,7 @@
 
     img {
       max-width: 40px;
+      max-height: 40px;
     }
 
     :host([badgeOnly]) #container {
@@ -72,6 +76,7 @@
 
     :host([badgeOnly]) img {
       max-width: 24px;
+      max-height: 24px;
     }
   </style>
   <template>

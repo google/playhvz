@@ -168,7 +168,7 @@
           <ghvz-game-faq game="[[game]]"></ghvz-game-faq>
         </ghvz-card>
 
-        <ghvz-card spaced left name="summary-box">
+        <ghvz-card spaced left padded name="summary-box">
             <div class="header">Game Summary</div>
             <ghvz-game-summary
                 game="[[game]]">
@@ -176,7 +176,7 @@
         </ghvz-card>
 
         <template is="dom-if" if="[[isDeclared]]">
-          <ghvz-card spaced left name="next-mission-box">
+          <ghvz-card spaced left padded name="next-mission-box">
             <div class="header">Next Mission</div>
             <ghvz-next-mission
                 bridge="[[bridge]]"
