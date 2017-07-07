@@ -76,7 +76,11 @@
               this.requesting = false;
             },
             (error) => {
-              alert('Error infecting: '+ error.message);
+              if (error.message) {
+                alert('Error infecting: '+ error.message);
+              } else {
+                alert('Error infecting: '+ error);
+              }
               this.reset_();
             });
           }

@@ -763,12 +763,10 @@ class FakeServer {
   }
   infect(request) {
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId} = request;
-    console.log(request);
     let victimPlayer = this.findPlayerByIdOrLifeCode_(victimPlayerId, victimLifeCode);
     victimPlayerId = victimPlayer.id;
     let infectorPlayerPath = this.reader.getPublicPlayerPath(infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
-    console.log("LIVES: ", victimPlayer.lives.length, victimPlayer.infections.length);
     // Self-infection
     if (victimPlayer.allegiance == 'resistance' && 
         infectorPlayer.private &&
@@ -777,11 +775,13 @@ class FakeServer {
         this.setPlayerZombie(infectorPlayerId);
         return "self-infection";
       } else {
-        return alert("As a human you cannot infect others.");
+        throw new InvalidRequestError('As a human you can only enter your own lifecode.');
+        return;
+        //return alert("As a human you cannot infect others.");
       }
     }
     let validCode = victimPlayer.lives.length > victimPlayer.infections.length;
-    if  (victimPlayer.validCode) {
+    if  (validCode) {
       // Give the infector points
       this.writer.set(
         infectorPlayerPath.concat(["points"]),
