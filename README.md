@@ -187,13 +187,15 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`python run.py --password PASSWORDHERE [--url TARGET_URL] [SPECIFIC_TEST_NAME] [-d] [-l]`
+`python run.py --password PASSWORD [--url TARGET_URL] [SPECIFIC_TEST_NAME] [-d|m] [-l|r]`
 
 Replacing ALLCAPS'd segments with your values.
 * `PASSWORD` is the password for your fake account. To get passwords for fake test accounts, please ask someone on the team.
 * `SPECIFIC_TEST_NAME` maps to the test file name, minus the .py
 * `-d` uses desktop window sizing. Omitting this flag will run with mobile sizing instead.
-* `-l` indicates local server testing, and will use your settings from `config.json`.
+* `-m` uses mobile window sizing (default behavior).
+* `-l` indicates local server testing, and will rely on in-memory state rather than a database.
+* `-r` indicates remote server testing, and will use your firebase settings from `config.json`.
 
 **Note**: Bracketed segments are optional.
 
