@@ -59,9 +59,7 @@
               victimLifeCode: code,
               victimPlayerId: null,
             }).then(
-                () => {
-                  dialog.close();
-                },
+                () => {},
                 (error) => {
                   alert("Error self-infecting: " + error);
                 });

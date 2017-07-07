@@ -631,7 +631,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     gameId: gameId,
     rewardId: bridge.idGenerator.newRewardId(),
     rewardCategoryId: secondRewardCategoryId,
-    code: "didthething-flarklebark",
+    code: "didthing-flarklebark",
   });
 
   var thirdRewardCategoryId = bridge.idGenerator.newRewardCategoryId();
@@ -678,7 +678,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.claimReward({
     gameId: gameId,
     playerId: drakePlayerId,
-    rewardCode: "didthething-flarklebark",
+    rewardCode: "didthing-flarklebark",
   });
   bridge.claimReward({
     gameId: gameId,
