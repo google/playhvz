@@ -16,7 +16,7 @@ try:
 
   driver.DrawerMenuClick('mobile-main-page', 'My Profile')
 
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
   # get initial counts of zombies from our stats pages
   driver.DrawerMenuClick('profile-card', 'Game Stats')
@@ -53,7 +53,7 @@ try:
   # make sure drake's profile has updated points
   driver.DrawerMenuClick('mobile-main-page', 'My Profile')
   
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '402')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '408')
 
   # ensure jack is a zombie now
   driver.SwitchUser("jack")
