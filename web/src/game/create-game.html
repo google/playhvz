@@ -109,7 +109,7 @@
               if (!gameId.startsWith('game-'))
                 gameId = 'game-' + properties.id;
               let trimmedGameId = gameId.slice('game-'.length);
-              
+
               let defaultProfileImageId = this.bridge.newDefaultProfileImageId();
               let everyoneGroupId = this.bridge.newGroupId('everyone');
               let everyoneChatRoomId = this.bridge.newChatRoomId('everyone');
@@ -125,6 +125,7 @@
                 isActive: true,
                 rulesHtml: '',
                 faqHtml: '',
+                summaryHtml: '',
                 name: properties.name,
                 adminUserId: this.userId,
                 registrationEndTime: properties.registrationEndTime,
