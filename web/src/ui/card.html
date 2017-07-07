@@ -120,6 +120,9 @@
   .header > .text[pad-left] {
     padding-left: 16px;
   }
+  :host([mobile]) .header > .text[pad-left] {
+    padding-left: 8px;
+  }
   #contents {
     /* height: 100%; Taken out. When in, mobile safari hides entire contents. */
     overflow: hidden;
@@ -133,6 +136,12 @@
   }
   :host([padded]) #contents {
     padding: 16px;
+  }
+  .ghvz-mobile-main-page :host([padded]) #contents {
+    padding: 16px;
+  }
+  :host([padded][mobile]) #contents {
+    padding: 8px;
   }
 </style>
 <template>
