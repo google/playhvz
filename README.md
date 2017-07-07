@@ -187,10 +187,15 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`python run.py --password PASSWORDHERE [--url TARGET_URL] [SPECIFIC_TEST_NAME]` replacing ALLCAPS'd segments with your values. To get passwords for fake test accounts, please ask someone on the team.
+`python run.py --password PASSWORDHERE [--url TARGET_URL] [SPECIFIC_TEST_NAME] [-d] [-l]`
 
-Note: Bracketed segments are optional. Omitting a specific test name will run the whole test suite.
+Replacing ALLCAPS'd segments with your values.
+* `PASSWORD` is the password for your fake account. To get passwords for fake test accounts, please ask someone on the team.
+* `SPECIFIC_TEST_NAME` maps to the test file name, minus the .py
+* `-d` uses desktop window sizing. Omitting this flag will run with mobile sizing instead.
+* `-l` indicates local server testing, and will use your settings from `config.json`.
 
+**Note**: Bracketed segments are optional.
 
 ### Back End
 
