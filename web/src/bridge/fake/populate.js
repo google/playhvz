@@ -1061,7 +1061,7 @@ Any human can “unstun” any stunned human by touching them.
 </ghvz-rules-section>
  
 <ghvz-rules-section title="Secret Zombie">
-Secret zombies are human in every way, except when a secret zombie touches a human:
+<div>Secret zombies are human in every way, except when a secret zombie touches a human:</div>
 <ul>
 <li>Both players crouch/sit down are stunned for 1 minute.</li>
 <li>The possessed human gets the victim's life code, and report the infection on the site as soon as they can.</li>
@@ -1073,7 +1073,7 @@ Secret zombies are human in every way, except when a secret zombie touches a hum
 </ghvz-rules-section>
  
 <ghvz-rules-section title="Crossing streets">
-There are many streets in the playable area for the game so please play away from traffic and use this protocol when using crosswalks:
+<div>There are many streets in the playable area for the game so please play away from traffic and use this protocol when using crosswalks:</div>
 <ul>
 <li>Once you get within 15 feet of the crosswalk button, you’re out of play (can’t be infected/stunned, can’t infect/stun).</li>
 <li>Press the button.</li>
@@ -1085,17 +1085,17 @@ There are many streets in the playable area for the game so please play away fro
 </ghvz-rules-section>
  
 <ghvz-rules-section title="Time Out">
-For any reason, if a player is in an unsafe situation, that player and all players near them are out of play. The player should call “Time Out!” to tell anyone near them. No infections/stuns count.
+<div>For any reason, if a player is in an unsafe situation, that player and all players near them are out of play. The player should call “Time Out!” to tell anyone near them. No infections/stuns count.</div>
 <ul>
 <li>If you hear someone yell “Time out!”, or see anyone with their first on head, put your fist on your head.</li>
 <li>If it’s time out, and you see someone without their fist on their head, yell “Time out!”</li>
 </ul>
-Once there are no players in danger:
+<div>Once there are no players in danger:</div>
 <ul>
 <li>Humans say “3 resistance, 2 resistance, 1 resistance, go!” then they are in play and can run.</li>
 <li>Once the humans say “go!”, the zombies, still out of play, will say “3 zombie horde, 2 zombie horde, 1 zombie horde, go!” and then they are in play and can chase the humans.</li>
 </ul>
-If this rule is not being respected, contact a moderator.
+<div>If this rule is not being respected, contact a moderator.</div>
 </ghvz-rules-section>
  
 <ghvz-rules-section title="Out of Play">
@@ -1103,7 +1103,7 @@ If this rule is not being respected, contact a moderator.
 <li>A player is playing the game (“in play”) whenever they have their armband/headband on, otherwise, they are not playing at the time (“out of play”).</li>
 <li>A player can only put the armband/headband on, or take it off, at a door. Combined with the rule above, this means that one can only enter/leave the game at any Google door.</li>
 </ul>
-If you find yourself in one of these areas, you are temporarily out of play until you leave the area. Please do not abuse these areas to escape zombies:
+<div>If you find yourself in one of these areas, you are temporarily out of play until you leave the area. Please do not abuse these areas to escape zombies:</div>
 <ul>
 <li>Inside, and 10 feet around any door</li>
 <li>Any unsafe area, such as parking lots. Going into streets will get you banned.</li>
