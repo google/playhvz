@@ -119,7 +119,11 @@ Add this to your ~/.bash_profile: `export PATH=$PATH:[ghvz folder path here]/web
 
 #### Linux - webdriver tests
 
-(this doesnt work yet because nobody's checked in linuxdrivers, talk to chewys or verdagon if you want to run on linux)
+Navigate to `web/tests/linuxdrivers`. Run `chmod +x chromedriver` to make the
+chromedriver executable.
+
+Note: If the default chromedriver does not work, you can download the latest
+version [here](https://sites.google.com/a/chromium.org/chromedriver/downloads).
 
 Add this to your ~/.bashrc: `export PATH=$PATH:[ghvz folder path here]/web/tests/linuxdrivers` for example: `export PATH=$PATH:/Users/verdagon/Desktop/ghvz/web/tests/linuxdrivers`
 
@@ -183,7 +187,9 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`python run.py --password PASSWORDHERE` replacing PASSWORDHERE with the fake accounts' password (ask someone on the team).
+`python run.py --password PASSWORDHERE [--url TARGET_URL] [SPECIFIC_TEST_NAME]` replacing ALLCAPS'd segments with your values. To get passwords for fake test accounts, please ask someone on the team.
+
+Note: Bracketed segments are optional. Omitting a specific test name will run the whole test suite.
 
 
 ### Back End
