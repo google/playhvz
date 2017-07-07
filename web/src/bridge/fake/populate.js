@@ -51,14 +51,14 @@ function makePlayerProperties(id, userId, gameId, time, name) {
     volunteer: {
       advertising: false,
       logistics: false,
-      communications: false,
+      communications: true,
       moderator: false,
       cleric: false,
       sorcerer: false,
       admin: false,
       photographer: false,
-      chronicler: false,
-      android: false,
+      chronicler: true,
+      android: true,
       ios: false,
       server: false,
       client: false,
@@ -586,9 +586,9 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     rsvpersGroupId: zedMissionRsvpersGroupId,
   });
 
-  var rewardCategoryId = bridge.idGenerator.newRewardCategoryId();
+  var firstRewardCategoryId = bridge.idGenerator.newRewardCategoryId();
   bridge.addRewardCategory({
-    rewardCategoryId: rewardCategoryId,
+    rewardCategoryId: firstRewardCategoryId,
     gameId: gameId,
     name: "signed up!",
     points: 2,
@@ -600,25 +600,95 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.addReward({
     gameId: gameId,
     rewardId: bridge.idGenerator.newRewardId(),
-    rewardCategoryId: rewardCategoryId,
+    rewardCategoryId: firstRewardCategoryId,
     code: "signed-flarklebark",
   });
   bridge.addReward({
     gameId: gameId,
     rewardId: bridge.idGenerator.newRewardId(),
-    rewardCategoryId: rewardCategoryId,
+    rewardCategoryId: firstRewardCategoryId,
     code: null
   });
   bridge.addReward({
     gameId: gameId,
     rewardId: bridge.idGenerator.newRewardId(),
-    rewardCategoryId: rewardCategoryId,
+    rewardCategoryId: firstRewardCategoryId,
     code: null,
   });
+
+  var secondRewardCategoryId = bridge.idGenerator.newRewardCategoryId();
+  bridge.addRewardCategory({
+    rewardCategoryId: secondRewardCategoryId,
+    gameId: gameId,
+    name: "did the thing!",
+    points: 2,
+    badgeImageUrl: 'https://s-media-cache-ak0.pinimg.com/originals/94/9b/80/949b80956f246b74dc1f4f1f476eb9c1.png',
+    shortName: "didthing",
+    description: 'soooo did the thing!',
+    limitPerPlayer: 1
+  });
+  bridge.addReward({
+    gameId: gameId,
+    rewardId: bridge.idGenerator.newRewardId(),
+    rewardCategoryId: secondRewardCategoryId,
+    code: "didthething-flarklebark",
+  });
+
+  var thirdRewardCategoryId = bridge.idGenerator.newRewardCategoryId();
+  bridge.addRewardCategory({
+    rewardCategoryId: thirdRewardCategoryId,
+    gameId: gameId,
+    name: "found a leaf!",
+    points: 2,
+    badgeImageUrl: 'http://static.tumblr.com/87e20377c9c37d0b07dcc10504c636a8/mteq5q3/k1Ynitn6h/tumblr_static_75lgqkjlvcw00cos8g8kko80k.png',
+    shortName: "foundleaf",
+    description: 'i found a leaf when my allies were being ambushed!',
+    limitPerPlayer: 1
+  });
+  bridge.addReward({
+    gameId: gameId,
+    rewardId: bridge.idGenerator.newRewardId(),
+    rewardCategoryId: thirdRewardCategoryId,
+    code: "foundleaf-flarklebark",
+  });
+
+  var fourthRewardCategoryId = bridge.idGenerator.newRewardCategoryId();
+  bridge.addRewardCategory({
+    rewardCategoryId: fourthRewardCategoryId,
+    gameId: gameId,
+    name: "i know geno!",
+    points: 2,
+    badgeImageUrl: 'http://vignette2.wikia.nocookie.net/nintendo/images/0/02/Geno_Artwork_%28Super_Mario_RPG_-_Legend_of_the_Seven_Stars%29.png/revision/latest?cb=20121110130550&path-prefix=en',
+    shortName: "knowgeno",
+    description: 'i know who geno is!',
+    limitPerPlayer: 1
+  });
+  bridge.addReward({
+    gameId: gameId,
+    rewardId: bridge.idGenerator.newRewardId(),
+    rewardCategoryId: fourthRewardCategoryId,
+    code: "knowgeno-flarklebark",
+  });
+
   bridge.claimReward({
     gameId: gameId,
     playerId: drakePlayerId,
     rewardCode: "signed-flarklebark",
+  });
+  bridge.claimReward({
+    gameId: gameId,
+    playerId: drakePlayerId,
+    rewardCode: "didthething-flarklebark",
+  });
+  bridge.claimReward({
+    gameId: gameId,
+    playerId: drakePlayerId,
+    rewardCode: "foundleaf-flarklebark",
+  });
+  bridge.claimReward({
+    gameId: gameId,
+    playerId: drakePlayerId,
+    rewardCode: "knowgeno-flarklebark",
   });
   for (let i = 0; i < 80; i++) {
     bridge.addGun({gameId: gameId, gunId: bridge.idGenerator.newGunId(), label: "" + (1404 + i)});

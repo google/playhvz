@@ -110,6 +110,7 @@ class RemoteBridge {
           alert("Signed out!");
           window.location.reload();
         }).catch((error) => {
+          alert("Error signing out! " + error);
           console.error(error);
         });
   }
