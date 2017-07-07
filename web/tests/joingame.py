@@ -98,11 +98,7 @@ try:
   driver.ExpectContains([[By.NAME, 'starting-zombie']], "No")
   driver.ExpectContains([[By.NAME, 'possessed-human']], "No")
   driver.ExpectContains([[By.NAME, 'got-equipment']], "No")
-
-
   # TODO(aliengirl): Add in other fields, and make sure they show up right.
-
-
 
   driver.Quit()
 

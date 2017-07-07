@@ -767,27 +767,47 @@ class FakeServer {
     victimPlayerId = victimPlayer.id;
     let infectorPlayerPath = this.reader.getPublicPlayerPath(infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
-    this.writer.set(
+    // Self-infection
+    if (victimPlayer.allegiance == 'resistance' && 
+        infectorPlayer.private &&
+        !infectorPlayer.private.canInfect) {
+      if (victimPlayerId == infectorPlayerId) {
+        this.setPlayerZombie(infectorPlayerId);
+        return "self-infection";
+      } else {
+        throw new InvalidRequestError('As a human you can only enter your own lifecode.');
+        return;
+        //return alert("As a human you cannot infect others.");
+      }
+    }
+    let validCode = victimPlayer.lives.length > victimPlayer.infections.length;
+    if  (validCode) {
+      // Give the infector points
+      this.writer.set(
         infectorPlayerPath.concat(["points"]),
         this.reader.get(infectorPlayerPath.concat(["points"])) + 100);
-    let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
-    if (infectorPlayer.allegiance == 'resistance') {
-      // Add a self-infection
-      this.addInfection_(request, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
-      // Set the infector to zombie
-      // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
-      if (infectorPlayer.infections.length >= infectorPlayer.lives.length) {
-        this.setPlayerZombie(infectorPlayer.id);
+      let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
+
+      if (infectorPlayer.allegiance == 'resistance') { //Possessed human infection
+        // Possessed human becomes a zombie
+        this.addInfection_(request, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
+        // Set the infector to zombie
+        // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
+        if (infectorPlayer.infections.length >= infectorPlayer.lives.length) {
+          this.setPlayerZombie(infectorPlayer.id);
+        }
+        // The victim can now infect
+        this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
+    } else { // Normal zombie infection
+        // Add an infection to the victim
+        this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
+        // Set the victim to zombie
+        if (victimPlayer.infections.length >= victimPlayer.lives.length) {
+          this.setPlayerZombie(victimPlayer.id);
+        }
       }
-      // The victim can now infect
-      this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
     } else {
-      // Add an infection to the victim
-      this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
-      // Set the victim to zombie
-      if (victimPlayer.infections.length >= victimPlayer.lives.length) {
-        this.setPlayerZombie(victimPlayer.id);
-      }
+     throw new InvalidRequestError('The player with this lifecode was already zombified.');
     }
     return victimPlayer.id;
   }
