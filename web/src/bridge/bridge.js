@@ -316,7 +316,7 @@ class FakeIdGenerator extends IdGenerator {
     missionId: 'MissionId',
   });
 
-  serverMethods.set('selfInfect', {required: {playerId: 'PublicPlayerId'}});
+  serverMethods.set('selfInfect', {playerId: 'PublicPlayerId'});
 
   serverMethods.set('createGroup', {
     groupId: '!GroupId',

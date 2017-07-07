@@ -14,14 +14,12 @@ try:
   # switch to drake. We'll come back to jack in a bit
   driver.SwitchUser("drake")
 
-  driver.Click([[By.NAME, 'drawerMy Profile']])
+  driver.DrawerMenuClick('mobile-main-page', 'My Profile')
 
   driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
-  driver.Click([[By.NAME, 'drawerDashboard']])
-
   # get initial counts of zombies from our stats pages
-  driver.Click([[By.NAME, 'drawerGame Stats']])
+  driver.DrawerMenuClick('profile-card', 'Game Stats')
   
   initial_zombie_count = driver.FindElement([[By.NAME, 'stats-card'],
                             [By.ID, 'current_population_meta'],
@@ -37,7 +35,7 @@ try:
                           str(initial_zombie_count),
                           check_visible=False)
 
-  driver.Click([[By.NAME, 'drawerDashboard']])
+  driver.DrawerMenuClick('stats-card', 'Dashboard')
 
   # start infecting humans
   for target in INFECTABLES:
@@ -53,7 +51,7 @@ try:
     driver.Click([[By.ID, 'infected'], [By.ID, 'done']])
 
   # make sure drake's profile has updated points
-  driver.Click([[By.NAME, 'drawerMy Profile']])
+  driver.DrawerMenuClick('mobile-main-page', 'My Profile')
   
   driver.ExpectContains([[By.NAME, 'profilePoints']], '408')
 
@@ -62,10 +60,10 @@ try:
   
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
   
-  driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']])
+  #driver.FindElement([[By.NAME, 'ChatRoom: Horde ZedLink']]) TODO(aliengirl): make this line work on mobile
 
   # double check our stats
-  driver.Click([[By.NAME, 'drawerGame Stats']])
+  driver.DrawerMenuClick('mobile-main-page', 'Game Stats')
 
   current_zombie_count = initial_zombie_count + len(INFECTABLES)
 
