@@ -194,8 +194,8 @@ Replacing ALLCAPS'd segments with your values.
 * `SPECIFIC_TEST_NAME` maps to the test file name, minus the .py
 * `-d` uses desktop window sizing. Omitting this flag will run with mobile sizing instead.
 * `-m` uses mobile window sizing (default behavior).
-* `-l` indicates local server testing, and will rely on in-memory state rather than a database.
-* `-r` indicates remote server testing, and will use your firebase settings from `config.json`.
+* `-l` indicates local server testing, and will rely on in-memory state rather than a database. User accounts defined in config.json will be used for tests.
+* `-r` indicates remote server testing, and will use your firebase and user account settings from `config.json`.
 
 **Note**: Bracketed segments are optional.
 
