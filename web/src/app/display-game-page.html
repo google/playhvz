@@ -62,6 +62,7 @@
             'adminNotifications': 'adminNotifications',
             'adminPlayers': 'adminPlayers',
             'adminRewards': 'adminRewards',
+            'gameChats': 'gameChats',
           },
         },
       },
@@ -339,6 +340,27 @@
           game="[[game]]"
           user-id="[[userId]]">
       </ghvz-stats-page>
+    </ghvz-card>
+  </template>
+
+  <template is="dom-if" if="[[computeShowPage_(showPage.gameChats, mostRecentPage)]]">
+    <ghvz-card
+      id$="game-chat-page-[[player.name]]"
+      class="expand"
+      name="chat-card"
+      spaced$="[[!isMobile]]"
+      with-back="[[isMobile]]"
+      with-menu="[[isMobile]]">
+      <ghvz-game-chat-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user-id="[[userId]]"
+          player="[[player]]"
+          path="[[path]]"
+          is-mobile="[[isMobile]]"
+          is-admin="[[isAdmin]]">
+      </ghvz-game-chat-page>
     </ghvz-card>
   </template>
 </template>
