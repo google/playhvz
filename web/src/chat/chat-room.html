@@ -329,6 +329,12 @@
     .ack-container {
       flex-grow: 0;
     }
+    .drawer-content {
+      overflow: auto;
+    }
+    .drawer-panel {
+      pointer-events: none;
+    }
     .message-from-other {
       display: flex;
       justify-content: flex-start;
@@ -642,8 +648,8 @@
     </div>
 
     <div on-tap="captureTap_">
-      <paper-drawer-panel id="drawer" right-drawer disable-swipe force-narrow style="pointer-events: none;">
-        <paper-material drawer>
+      <paper-drawer-panel id="drawer" class="drawer-panel" right-drawer disable-swipe force-narrow>
+        <paper-material drawer class="drawer-content">
           <ghvz-chat-info-drawer
               bridge="[[bridge]]"
               game="[[game]]"

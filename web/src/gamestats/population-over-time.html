@@ -37,6 +37,18 @@
 
       attached() {
         google.charts.setOnLoadCallback(() => this.setChartLoaded());
+        // The following makes Google Charts responsive and will resize the chart
+        // as the page is resized.
+        var lastResize; // closure property for debouncing
+        window.addEventListener('resize', () => {
+          if (lastResize) {
+            window.clearTimeout(lastResize);
+          }
+
+          lastResize = window.setTimeout(() => {
+            this.drawPopulationOverTimeChart();
+          }, 200)
+        });
       },
 
       setChartLoaded() {
@@ -311,6 +323,16 @@
           ['7',  0,      200]
           ]);
       */
+        //console.log("### data: ", newData);
+        var humanStart = newData[1][1];
+        var humanEnd = newData[newData.length - 1][1];
+        var zombieStart = newData[1][2];
+        var zombieEnd = newData[newData.length - 1][2];
+
+        this.$.human_start_count.textContent = zombieStart;
+        this.$.human_end_count.textContent = zombieEnd;
+        this.$.zombie_start_count.textContent = zombieStart;
+        this.$.zombie_end_count.textContent = zombieEnd;
 
         var data = google.visualization.arrayToDataTable(newData);
 
@@ -322,21 +344,30 @@
           }
         };
 
+        // ensure old dom is cleared out
+        this.$.population_over_time_chart.textContent = '';
         var chart = new google.visualization.LineChart(
           this.$.population_over_time_chart);
 
         chart.draw(data, options);
-
-        // The following makes Google Charts responsive and will resize the chart
-        // as the page is resized. 
-        //TODO(christophernel): Add this back in once it stops resizing indefinitely
-        //window.addEventListener('resize', () => this.drawPopulationOverTimeChart());
       },
     });
   });
 </script>
-
+<style>
+  .hidden {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>
 <template>
   <div id="population_over_time_chart"></div>
+  <div id="population_over_time_meta" class="hidden">
+    <div id="zombie_start_count"></div>
+    <div id="zombie_end_count"></div>
+    <div id="human_start_count"></div>
+    <div id="human_end_count"></div>
+  </div>
 </template>
 </dom-module>

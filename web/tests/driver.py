@@ -16,15 +16,6 @@
 
 """TODO: High-level file comment."""
 
-import sys
-
-
-def main(argv):
-    pass
-
-
-if __name__ == '__main__':
-    main(sys.argv)
 import random
 import time
 from selenium import webdriver
@@ -87,8 +78,8 @@ class SimpleDriver:
     attribute_value = element.get_attribute(attribute_name)
     assert(attribute_value == value)
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    element = self.FindElement(path)
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    element = self.FindElement(path, check_visible=check_visible)
     # There's four ways to get the contents of an element:
     # print 'el text is "%s" "%s" "%s" "%s"' % (
     #     element.text.strip(),
@@ -120,14 +111,14 @@ class RetryingDriver:
 
   def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
     return self.Retry(lambda: self.inner_driver.FindElement(
-      path, 
-      should_exist=should_exist, 
-      check_visible=check_visible), 
+      path,
+      should_exist=should_exist,
+      check_visible=check_visible),
       wait_long=wait_long)
 
   def Click(self, path):
     return self.Retry(lambda: self.inner_driver.Click(path))
-  
+
   def DismissAlert(self):
     return self.Retry(lambda: self.inner_driver.DismissAlert())
 
@@ -137,8 +128,8 @@ class RetryingDriver:
   def Backspace(self, path, number):
     return self.Retry(lambda: self.inner_driver.Backspace(path, number))
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist))
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible))
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.Retry(lambda: self.inner_driver.ExpectAttributeEqual(path, attribute_name, value))
@@ -224,8 +215,8 @@ class RemoteDriver:
   def DismissAlert(self):
     self.drivers_by_user[self.current_user].DismissAlert()
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist)
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def SendKeys(self, path, keys):
     self.drivers_by_user[self.current_user].SendKeys(path, keys)
@@ -247,7 +238,7 @@ class FakeDriver:
       selenium_driver.set_window_size(480, 640);
 
     if len(page) == 0:
-      page = '/game/poptest-1'
+       page = '/game/poptest-1'
     if page and len(page) and page[0] == '/':
       page = page[1:]
 
@@ -303,11 +294,11 @@ class FakeDriver:
     else:
       self.inner_driver.Backspace(path, number)
 
-  def ExpectContains(self, path, needle, scoped=True, should_exist=True):
+  def ExpectContains(self, path, needle, scoped=True, should_exist=True, check_visible=True):
     if scoped:
-      self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist)
+      self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist=should_exist, check_visible=check_visible)
     else:
-      self.inner_driver.ExpectContains(path, needle, should_exist)
+      self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     if scoped:
@@ -357,8 +348,8 @@ class WholeDriver:
   def Backspace(self, path, number=1):
     return self.inner_driver.Backspace(path, number)
 
-  def ExpectContains(self, path, needle, should_exist=True):
-    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist)
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)
@@ -381,10 +372,10 @@ class WholeDriver:
         lambda: self.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
     self.Click([[By.NAME, 'drawer%s' % destinationPage]])
-      
+
   def TableMenuClick(self, pathToRow, buttonName):
     self.RetryUntil(
       lambda: self.Click(pathToRow + [[By.ID, 'menu']]),
       lambda: self.FindElement(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]]))
     self.Click(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]])
-          
+
