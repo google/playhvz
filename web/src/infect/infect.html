@@ -59,7 +59,6 @@
         infect_: function() {
           if (this.player) {
             if (this.player.allegiance == 'resistance' && !this.player.private.canInfect) {
-              console.log("SELF INFECTING")
               this.requesting = true;
               this.bridge.selfInfect({playerId: this.player.id})
               .then(() => {
@@ -73,10 +72,6 @@
                 this.reset_();
               })
             } else {
-              console.log("NORMAL INFECTING")
-              console.log(this.player.allegiance)
-              console.log(this.player)
-              console.log(this.player.private.canInfect)
               this.requesting = true;
               this.bridge.infect({
                 gameId: this.game.id,
@@ -86,9 +81,7 @@
                 victimPlayerId: null,
               })
               .then((victimPlayerId) => {
-                console.log("afterward")
                 this.infectedPlayer = this.game.playersById[victimPlayerId];
-                console.log("infected player", this.infectedPlayer)
                 this.requesting = false;
               },
               (error) => {
@@ -174,11 +167,11 @@
         <div hidden$="[[infectedSelf]]">
           Congratulations, you've infected
           <span name="victimName">[[infectedPlayer.name]]</span>!
+          <div>Glory to the horde!</div>
         </div>
-        <div>Glory to the horde!</div>
       </div>
       <div id="selfInfectedMessage" hidden$="[[!infectedSelf]]">
-        You are now a zombie. Welcome to the horde!
+        Congratulations, [[player.name]], you are now a zombie. Welcome to the horde!
       </div>
       <div id="doneContainer">
         <paper-button
