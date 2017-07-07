@@ -39,7 +39,7 @@ try:
   # Drake infects Jack
   driver.SwitchUser("drake")
   driver.DrawerMenuClick('mobile-main-page', 'My Profile')
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
   driver.DrawerMenuClick('profile-card', 'Dashboard')
   driver.SendKeys(
@@ -74,7 +74,7 @@ try:
 
   # Check that Drake has been given points for the kill
   driver.DrawerMenuClick('profile-card', 'My Profile')
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '208')
 
   # See that Jack is now a zombie
   driver.SwitchUser("jack")

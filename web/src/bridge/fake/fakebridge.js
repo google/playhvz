@@ -39,6 +39,11 @@ class FakeBridge {
     this.server.register({userId: userId});
     return userId;
   }
+  signOut() {
+    setTimeout(() => {
+      alert("Signed out!");
+    }, 0);
+  }
   getSignedInPromise({userId}) {
     assert(userId);
     return this.server.register({userId: userId}).then(() => userId);

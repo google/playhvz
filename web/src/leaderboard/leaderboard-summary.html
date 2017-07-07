@@ -62,6 +62,13 @@
         return playerIdsToShow.includes(playerId);
       },
 
+      makeClaimsFilter_(claimsArray) {
+        return function(claim) {
+          // Last three claims the player has
+          return claimsArray.indexOf(claim) >= claimsArray.length - 3;
+        };
+      },
+
       makeTableBlueprint_: function() {
         return {
           itemsRepeater: this.$.repeater,
@@ -110,6 +117,10 @@
     display: table-cell;
     padding: 4px 12px;
   }
+  ghvz-reward-category {
+    display: inline-block;
+    vertical-align: middle;
+  }
 </style>
 <template>
   <ghvz-table
@@ -131,7 +142,7 @@
             name$="Leaderboard Name Cell [[player.name]]"
             class="cell">
           [[player.name]]
-          <template is="dom-repeat" items="[[player.claims]]" as="claim">
+          <template is="dom-repeat" items="[[player.claims]]" as="claim" filter="[[makeClaimsFilter_(player.claims)]]">
             <ghvz-reward-category
                 bridge="[[bridge]]"
                 game="[[game]]"
