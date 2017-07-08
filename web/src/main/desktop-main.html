@@ -59,6 +59,11 @@
             type: Boolean,
             computed: 'computeCanSelfInfect_(player.allegiance)',
           },
+
+          isZombie: {
+            type: Boolean,
+            computed: 'computeIsZombie_(player.allegiance)',
+          },
         },
 
         computeIsAdmin_: function(user, game) {
@@ -84,6 +89,10 @@
 
         computeIsPlayer_(player) {
           return !!player;
+        },
+
+        computeIsZombie_(allegiance) {
+          return allegiance == 'horde';
         },
 
         joinGame_() {
@@ -147,13 +156,13 @@
 
       <template is="dom-if" if="[[isPlayer]]">
 
-        <template is="dom-if" if="[[player.private.canInfect]]">
+        <template is="dom-if" if="[[isZombie]]">
           <ghvz-card name="infect-box" spaced left>
             <div class="header">Infect</div>
             <ghvz-infect
                 bridge="[[bridge]]"
                 game="[[game]]"
-                player-id="[[player.id]]">
+                player="[[player]]"">
             </ghvz-infect>
           </ghvz-card>
         </template>

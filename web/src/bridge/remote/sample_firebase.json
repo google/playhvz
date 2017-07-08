@@ -43,6 +43,7 @@
       },
       "endTime":1706884521000,
       "faqHtml":"test faq 2",
+      "summaryHtml":"test summary 2",
       "groups":{
         "group-test-3840579180089170-1":true,
         "group-test-3840579180089170-2":true
