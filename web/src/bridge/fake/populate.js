@@ -143,7 +143,7 @@ function populatePlayers(bridge, gameId, gameStartOffset, numPlayers, numStartin
         lifeCodesByPlayerId[playerIds[j]] = lifeCode;
         let reviveTimeOffset = dayStartOffset + 12 * 60 * 60 * 1000; // 12 hours past day start
         bridge.setRequestTimeOffset(reviveTimeOffset);
-        // console.log('reviving', playerIds[j], 'at', reviveTimeOffset);
+        console.log('reviving', playerIds[j], 'at', reviveTimeOffset);
         bridge.addLife({
           gameId: gameId,
           lifeId: bridge.idGenerator.newPublicLifeId(),
