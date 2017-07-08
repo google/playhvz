@@ -37,18 +37,14 @@
         ],
 
         updateNextMissionId_: function() {
-          console.log('GOT AN UPDATE TO MISSIONS');
           let nextMission = null;
           // Of all the missions that end in the future, get the one that ends the soonest.
           for (const missionMembership of this.player.private.missionMemberships) {
             let missionId = missionMembership.missionId;
             let mission = this.game.missionsById[missionId];
             assert(mission);
-            console.log('checking mission', mission.name, 'comparing', new Date().getTime(), mission.endTime);
             if (new Date().getTime() < mission.endTime) {
-              console.log('yep, this mission is in the future. comparing', mission.endTime, nextMission && nextMission.endTime);
               if (!nextMission || mission.endTime < nextMission.endTime) {
-                console.log('yep, this should be the new next mission!');
                 nextMission = mission;
               }
             }

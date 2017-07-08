@@ -326,7 +326,6 @@ window.FirebaseListener = (function () {
             this.firebaseRoot.child(privatePlayer.link + '/missionMemberships')
               .on('child_removed', (snap) => {
                 let missionId = snap.getKey();
-                console.log('ITS GOIN AWAY!', missionId);
                 let mission = new Model.PlayerMissionMembership(missionId, {
                   gameId: this.gameIdObj.gameId,
                   privatePlayerId: privatePlayerId,
@@ -336,7 +335,6 @@ window.FirebaseListener = (function () {
                 let path = mission.path;
                 let index = path[path.length - 1];
                 path = path.slice(0, path.length - 1);
-                console.log('removing from path!', path, index, missionId);
                 this.writer.remove(path, index, missionId);
               });
           });
