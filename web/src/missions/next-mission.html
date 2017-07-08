@@ -33,7 +33,7 @@
         },
 
         observers: [
-          "updateNextMissionId_(game.missions.length, player.private.missionMemberships.*)",
+          "updateNextMissionId_(game.missions.*, player.private.missionMemberships.*)",
         ],
 
         updateNextMissionId_: function() {
