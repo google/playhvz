@@ -72,7 +72,7 @@ class BatchedPolymerWriter {
           throwError('Unknown operation:', operation);
       }
     }
-    console.log('Notifying ', notifies.length, ' times!');
+    // console.log('Notifying ', notifies.length, ' times!');
     for (let notify of notifies)
       notify();
   }
