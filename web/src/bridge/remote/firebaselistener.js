@@ -450,10 +450,11 @@ window.FirebaseListener = (function () {
       }));
     }
 
-    listenToPlayerMissionMembership_(playerId, missionId) {
+    listenToPlayerMissionMembership_(publicPlayerId, privatePlayerId, missionId) {
       this.listenToModel(new Model.PlayerMissionMembership(missionId, {
         gameId: this.gameIdObj.gameId,
-        playerId: playerId
+        publicPlayerId: publicPlayerId,
+        privatePlayerId: privatePlayerId,
       }));
     }
 

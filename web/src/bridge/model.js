@@ -201,10 +201,11 @@ var models = {
     isVisible: false
   },
   playerMissionMembership: {
-    link: ['privatePlayers', 'playerId', 'missionMemberships', 'missionId'],
-    path: ['players', 'playerId', 'private', 'missionMemberships'],
+    link: ['privatePlayers', 'privatePlayerId', 'missionMemberships', 'missionId'],
+    path: ['players', 'publicPlayerId', 'private', 'missionMemberships'],
     missionId: '',
-    playerId: '',
+    publicPlayerId: '',
+    privatePlayerId: '',
     gameId: '',
   },
   infection: {

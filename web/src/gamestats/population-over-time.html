@@ -64,7 +64,7 @@
         var stats = {
           timeMin: undefined,
           timeMax: undefined,
-          numPlayers: this.game.players.length
+          numPlayers: this.game.players.filter(p => p.allegiance != 'undeclared').length
         };
         var compareTimeToMinAndMax = function(newTime) {
           stats.timeMin =
@@ -75,6 +75,8 @@
             newTime : stats.timeMax;
         }
         for (let player of this.game.players) {
+          if (player.allegiance == 'undeclared')
+            continue;
           for (let life of player.lives) {
             compareTimeToMinAndMax(life.time);
           }
@@ -209,6 +211,8 @@
         }
 
         for (let player of this.game.players) {
+          if (player.allegiance == 'undeclared')
+            continue;
           var lives = player.lives;
           var infections = player.infections;
           logger("\nPlayer: " + player.id);
