@@ -772,15 +772,17 @@ class FakeServer {
         infectorPlayer.private &&
         !infectorPlayer.private.canInfect) {
       if (victimPlayerId == infectorPlayerId) {
+        this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, null);
         this.setPlayerZombie(infectorPlayerId);
         return "self-infection";
       } else {
         throw new InvalidRequestError('As a human you can only enter your own lifecode.');
         return;
-        //return alert("As a human you cannot infect others.");
       }
     }
-    let validCode = victimPlayer.lives.length > victimPlayer.infections.length;
+    let validCode = victimPlayer.lives.length > victimPlayer.infections.length || 
+      victimPlayer.infections[victimPlayer.infections.length -1].infectorId == null;
+
     if  (validCode) {
       // Give the infector points
       this.writer.set(

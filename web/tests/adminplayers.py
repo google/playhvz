@@ -26,10 +26,8 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv)
 import setup
-import time
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import time #bad bad bad
 
 try:
 
@@ -89,7 +87,7 @@ try:
   # Add a note
   driver.DrawerMenuClick('players-card', 'Admin Players')
   driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Set Notes')
-  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster') #TODO(aliengirl): failed once here
+  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster') #TODO(aliengirl): failed 2x here
   driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
 
   # Search by notes

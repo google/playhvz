@@ -57,7 +57,7 @@ def openChatDrawer(driver, actingPlayer, chatRoomName):
 actingPlayer = 'zeke' # non-admin zombie
 actingPlayerName = playerNames[actingPlayer]
 driver = setup.MakeDriver()
-driver.WaitForGameLoaded()
+driver.WaitForGameLoaded() #TODO(aliengirl): failed once here - page hadn't loaded I think???
 
 # Open chat page
 driver.SwitchUser(actingPlayer)
