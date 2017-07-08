@@ -56,15 +56,7 @@
             value: false,
           },
 
-          locationUploadEnabled: {
-            type: Boolean,
-            value: true,
-          },
-
-          imageUploadEnabled: {
-            type: Boolean,
-            value: false,
-          },
+          isMemberOfChatRoom: Boolean,
         },
 
         listeners: {
@@ -73,13 +65,10 @@
 
         observers: [
           'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
+          'onChatRoomMembershipChange_(chatRoomId, currentPlayer.private.chatRoomMembershipsById.*)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
         ],
-
-        locationUploadEnabled_(isMobile, locationUploadEnabled) {
-          return isMobile && locationUploadEnabled;
-        },
 
         attached: function() {
           this.isAttached = true;
@@ -95,6 +84,11 @@
 
         onChatRoomNameChange_: function() {
           this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
+        },
+
+        onChatRoomMembershipChange_: function() {
+          this.isMemberOfChatRoom = 
+            this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId] ? true : false;
         },
 
         onMessageReceived_() {
@@ -117,33 +111,6 @@
 
         computeMessageDisplayClass_(senderId, myId) {
           return senderId === myId ? 'message-from-me' : 'message-from-other';
-        },
-
-        onSendClicked_: function() {
-          if (!this.$.messageInput.value) {
-            return;
-          }
-          this.bridge.sendChatMessage({
-            gameId: this.game.id,
-            messageId: this.bridge.newMessageId(), 
-            chatRoomId: this.chatRoom.id, 
-            playerId: this.currentPlayer.id, 
-            message: this.$.messageInput.value
-          }).catch((e) => {
-            alert(e);
-          });
-          this.$.messageInput.value = "";
-        },
-
-        /**
-        * Submit text on 'enter', allow shift+enter to insert a new line in
-        * the text field.
-        */
-        checkForEnter_: function(e) {
-         if (e.keyCode === 13 && !e.shiftKey) {
-            e.preventDefault();
-            this.$.messageSend.click();
-          }
         },
 
         displaySenderInfo(playerId) {
@@ -315,12 +282,6 @@
     :host[small] {
       height: 400px;
     }
-    paper-button.send {
-      background-color: rgba(135, 206, 250, .5);
-      color: darkslategrey;
-      font-size: small;
-      font-weight: bold;
-    }
     .conversation-container {
       flex-grow: 1;
       overflow-y: scroll;
@@ -435,25 +396,10 @@
       align-self: flex-start;
       background-color: lightgrey;
     }
-    .multimedia-option {
-      color: dodgerblue;
-      flex-grow: 0;
-    }
     .request-category {
       padding: 8px;
       margin: 8px 8px 0 8px;
       background-color: #e3f2fd;
-    }
-    .text-input {
-      display: flex;
-      flex-shrink: 0;
-      padding: 4px 8px 8px 8px;
-    }
-    .text-input-field {
-      flex-grow: 1;
-      position: relative;
-      padding-right: 16px;
-      word-break: break-word;
     }
     #forWebdriver { height: 1px; }
     .request-input {
@@ -474,6 +420,12 @@
     }
     .request-button {
       flex-shrink: 0;
+    }
+    .warning {
+      background-color: beige;
+      color: darkslategrey;
+      padding: 4px;
+      text-align: center;
     }
   </style>
   <template>
@@ -607,45 +559,18 @@
       </template>
     </div>
 
-    <div class="text-input">
-      <div class="text-input-field">
-      <paper-textarea 
-          id="messageInput"
-          name$="input-[[chatRoom.name]]" 
-          autocorrect
-          multiline
-          max-rows=3
-          label="message"
-          no-label-float
-          on-keydown="checkForEnter_">
-        </paper-textarea>
-      </div>
-      <template is="dom-if" if="[[imageUploadEnabled]]">
-        <paper-icon-button
-          class="multimedia-option"
-          icon="image:photo"
-          title="Send image"
-          on-click="sendImage_">
-        </paper-icon-button>
-      </template>
-      <template is="dom-if" if="[[locationUploadEnabled_(isMobile, locationUploadEnabled)]]">
-        <ghvz-chat-location
-          class="multimedia-option"
-          bridge="[[bridge]]"
-          game="[[game]]"
-          player="[[currentPlayer]]"
-          chat-room-id="[[chatRoomId]]">
-        </ghvz-chat-location>
-      </template>
-      <paper-button 
-        class="send"
-        name$="submit-[[chatRoom.name]]"
-        id="messageSend" 
-        raised
-        on-click="onSendClicked_">
-        SEND
-      </paper-button>
-    </div>
+    <template is="dom-if" if="[[!isMemberOfChatRoom]]">
+      <div class="warning">Become a member of this group to send messages</div>
+    </template>
+    <template is="dom-if" if="[[isMemberOfChatRoom]]">
+      <ghvz-chat-room-input
+        bridge="[[bridge]]"
+        game="[[game]]"
+        current-player="[[currentPlayer]]"
+        chat-room="[[chatRoom]]"
+        is-mobile="[[isMobile]]">
+      </ghvz-chat-room-input>
+    </template>
 
     <div on-tap="captureTap_">
       <paper-drawer-panel id="drawer" class="drawer-panel" right-drawer disable-swipe force-narrow>
