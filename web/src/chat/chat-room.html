@@ -282,6 +282,10 @@
     :host[small] {
       height: 400px;
     }
+    paper-button.send {
+      background-color: #03A9F4;
+      color: white;
+    }
     .conversation-container {
       flex-grow: 1;
       overflow-y: scroll;
@@ -304,8 +308,6 @@
     paper-button.request {
       background-color: #03A9F4;
       color: white;
-      padding: 2px;
-      height: 22px;
     }
     .message-from-me {
       display: flex;
@@ -400,17 +402,24 @@
       padding: 8px;
       margin: 8px 8px 0 8px;
       background-color: #e3f2fd;
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+    .request-category-with-answer {
+      flex-wrap: wrap;
+    }
+    .request-category-text-column {
+      flex-grow: 1;
+      align-items: center;
     }
     #forWebdriver { height: 1px; }
     .request-input {
-      flex-shrink: 0;
+      padding: 8px;
     }
     .request-message {
       flex-grow: 1;
       display: inline-block;
-    }
-    .request-container {
-      display: flex;
     }
     .request-input-container {
       display: flex;
@@ -448,26 +457,28 @@
         <template is="dom-if" if="[[!requestCategory.dismissed]]">
           <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
             <paper-material class="request-category">
-              <div class="request-message">
-                [[requestCategory.text]]
-                ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]])
-              </div>
-              <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
-                waiting on: <b>[[getNoRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]</b>
-               </template>
-              <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
-                  <template is="dom-if" if="[[request.response]]">
-                    <div class="request-container">
-                      <ghvz-player-label
-                          game="[[game]]"
-                          player-id="[[request.playerId]]">
-                      </ghvz-player-label>:&#160;
-                      [[request.response.text]]
-                    </div>
+              <div class="request-category-text-column">
+                <div class="request-message">
+                  [[requestCategory.text]]
+                  ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]])
+                </div>
+                <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
+                  waiting on: <b>[[getNoRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]</b>
+                </template>
+                <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
+                  <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
+                    <template is="dom-if" if="[[request.response]]">
+                      <div class="request-container">
+                        <ghvz-player-label
+                            game="[[game]]"
+                            player-id="[[request.playerId]]">
+                        </ghvz-player-label>:&#160;
+                        [[request.response.text]]
+                      </div>
+                    </template>
                   </template>
                 </template>
-              </template>
+              </div> <!-- .request-category-text-column -->
               <paper-button raised class="request" on-click="deleteAck">Dismiss</paper-button>
             </paper-material>
           </template>
@@ -476,45 +487,51 @@
               <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
                   <template is="dom-if" if="[[isRequestAck_(requestCategory.type)]]">
                     <paper-material class="request-category request-container">
-                      <ghvz-player-label
-                          game="[[game]]"
-                          player-id="[[requestCategory.playerId]]">
-                      </ghvz-player-label>:&#160;
-                      <div class="request-message">
-                        [[requestCategory.text]]
-                      </div>
-                      <span hidden>[[request.time]]</span>
+                      <div class="request-category-text-column">
+                        <ghvz-player-label
+                            game="[[game]]"
+                            player-id="[[requestCategory.playerId]]">
+                        </ghvz-player-label>:&#160;
+                        <div class="request-message">
+                          [[requestCategory.text]]
+                        </div>
+                        <span hidden>[[request.time]]</span>
+                      </div> <!-- .request-category-text-column -->
                       <paper-button raised class="request request-button" on-click="acknowledge">
                         Ack
                       </paper-button>
                     </paper-material>
                   </template>
                   <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category">
-                      <p hidden>[[request.time]]</p>
-                      <ghvz-player-label
-                          game="[[game]]"
-                          player-id="[[requestCategory.playerId]]">
-                      </ghvz-player-label>:&#160;
-                      <div class="request-message">
-                        [[requestCategory.text]]
-                      </div>
-                      <div class="request-input-container">
-                        <paper-input
-                            no-label-float
-                            class="request-input"
-                            on-keydown="checkForEnterTextRequest_"
-                            type="string"
-                            label="Answer">
-                        </paper-input>
-                        <paper-button
-                            raised
-                            class="request"
-                            id="textRequestSend"
-                            on-click="sendAckText">
-                          Send
-                        </paper-button>
-                      </div>
+                    <paper-material class="request-category request-category-with-answer">
+                      <div class="request-category-text-column">
+                        <p hidden>[[request.time]]</p>
+                        <ghvz-player-label
+                            game="[[game]]"
+                            player-id="[[requestCategory.playerId]]">
+                        </ghvz-player-label>:&#160;
+                        <div class="request-message">
+                          [[requestCategory.text]]
+                        </div>
+                      </div> <!-- .request-category-text-column -->  
+                      <div class="request-category-text-column">
+                        <div class="request-input-container">
+                          <paper-input
+                              no-label-float
+                              class="request-input"
+                              on-keydown="checkForEnterTextRequest_"
+                              type="string"
+                              label="Answer">
+                          </paper-input>
+                          <paper-button
+                              raised
+                              class="request"
+                              id="textRequestSend"
+                              on-click="sendAckText">
+                            Send
+                          </paper-button>
+                        </div> <!-- .request-input-container -->
+                      </div> <!-- .request-category-text-column -->  
                     </paper-material>
                   </template>
                 </div>

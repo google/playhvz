@@ -302,14 +302,14 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.faq, mostRecentPage)]]">
-    <ghvz-card name="faq-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="faq-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">FAQ</div>
       <ghvz-faq-page class="expand" bridge="[[bridge]]" game="[[game]]" is-admin="[[isAdmin]]"></ghvz-faq-page>
     </ghvz-card>
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.missions, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">Missions</div>
       <ghvz-missions-page
           class="expand"
