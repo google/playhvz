@@ -33,62 +33,58 @@ driver = setup.MakeDriver(user="jack")
 try:
 
   # Make sure Jack starts out human
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerChat']])
-
+  driver.DrawerMenuClick('mobile-main-page', 'Chat')
   driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
 
   # Drake infects Jack
   driver.SwitchUser("drake")
+  driver.DrawerMenuClick('mobile-main-page', 'My Profile')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerMy Profile']])
-
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '102')
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
-  
-  driver.Click([[By.NAME, 'drawerDashboard']]) # Crashed here once (mobile)
-
+  driver.DrawerMenuClick('profile-card', 'Dashboard')
   driver.SendKeys(
       [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
       'grobble forgbobbly') # Crashed here once (desktop)
 
   driver.Click([[By.ID, 'infect']])
-
   driver.ExpectContains(
       [[By.NAME, 'victimName']],
       'JackSlayerTheBeanSlasher')
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+  # Check that Jack is now in the zombie chat
+  driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
+  driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Horde ZedLink']])
+  driver.FindElement([
+      [By.NAME, 'chat-card'], 
+      [By.NAME, 'chat-drawer-Horde ZedLink'], 
+      [By.NAME, 'JackSlayerTheBeanSlasher']], should_exist=True)
+
+  # Jack shows up as a zed on the leaderboard
+  driver.DrawerMenuClick('chat-card', 'Leaderboard')
+  driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME,'Leaderboard Allegiance Cell JackSlayerTheBeanSlasher']], 'horde')
+
+  # Jack's alive status changes
+  driver.DrawerMenuClick('leaderboard-card', '-Global Chat')
+  driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Global Chat']])
+  driver.Click([
+      [By.NAME, 'chat-card'], 
+      [By.NAME, 'chat-drawer-Global Chat'], 
+      [By.NAME, 'JackSlayerTheBeanSlasher']])
+  driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 
   # Check that Drake has been given points for the kill
-  driver.Click([[By.NAME, 'drawerMy Profile']])
-
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '202')
+  driver.DrawerMenuClick('profile-card', 'My Profile')
+  driver.ExpectContains([[By.NAME, 'profilePoints']], '208')
 
   # See that Jack is now a zombie
   driver.SwitchUser("jack")
 
   driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
-
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerDashboard']])
-
-
+  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub', should_exist=False)
+  driver.DrawerMenuClick('chat-card', 'Dashboard')
   driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
-
-
-  #driver.Quit()
+  
+  driver.Quit()
 
 finally:
-  # driver.Quit()
   pass

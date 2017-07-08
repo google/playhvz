@@ -45,12 +45,6 @@ def getPathToElement(playerName, tag, name):
   xpathForPageElement = "//*[contains(@id, 'chat-page-%s')]//%s[contains(@name, '%s')]"
   return xpathForPageElement % (playerName, tag, name)
 
-def changeToPage(driver, drawerOption, currPage='mobile-main-page'):
-  if driver.is_mobile:
-    driver.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawer' + drawerOption]])
-
 def closeNotifications(driver):
   driver.Click([[By.NAME, 'close-notification']])
 
@@ -67,7 +61,7 @@ driver.WaitForGameLoaded()
 
 # Open chat page
 driver.SwitchUser(actingPlayer)
-changeToPage(driver, 'Chat')
+driver.DrawerMenuClick('mobile-main-page', 'Chat')
 driver.FindElement([[By.TAG_NAME, 'ghvz-chat-room-list']])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.TAG_NAME, 'ghvz-chat-page']])
 
@@ -112,7 +106,7 @@ actingPlayerName = playerNames[actingPlayer]
 # Switch to chat page and open drawer
 driver.SwitchUser(actingPlayer)
 closeNotifications(driver)
-changeToPage(driver, '-' + 'Global Chat')
+driver.DrawerMenuClick('mobile-main-page', '-Global Chat')
 openChatDrawer(driver, actingPlayerName, 'Global Chat')
 
 # Check admin can add players
@@ -130,5 +124,13 @@ driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, player
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'trigger']])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zeke']], [By.ID, 'trigger']])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['jack']], [By.ID, 'trigger']])
+
+# Make sure you can click through drawer to people's profiles
+driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']]])
+driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'player-name']], 'DeckerdTheHesitant')
+driver.DrawerMenuClick('profile-card', '-Global Chat')
+driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']]])
+driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'player-name']], 'MoldaviTheMoldavish')
+
 
 driver.Quit()

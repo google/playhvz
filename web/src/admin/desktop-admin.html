@@ -51,11 +51,11 @@
           modify
           bridge="[[bridge]]"
           game="[[game]]"
-          user-id="[[user.id]]">
+          user-id="[[userId]]">
       </ghvz-game-details>
     </ghvz-card>
 
-    <ghvz-card spaced admin left padded>
+    <ghvz-card spaced admin left>
       <div class="header" name="Rules">Rules</div>
       <ghvz-rules
           name="admin-page"
@@ -72,6 +72,15 @@
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-game-faq>
+    </ghvz-card>
+
+    <ghvz-card spaced admin left>
+      <div class="header">Game Summary</div>
+      <ghvz-game-summary
+          is-admin
+          bridge="[[bridge]]"
+          game="[[game]]">
+      </ghvz-game-summary>
     </ghvz-card>
 
     <ghvz-card spaced admin full>

@@ -166,7 +166,7 @@
       "sent" : true,
       "site" : true,
       "email" : true,
-      "sound" : false,
+      "sound" : "transmission.caf",
       "vibrate" : false
     },
     "queuedNotification-%(ident)s-1testCharles": {
@@ -179,7 +179,7 @@
       "previewMessage": "@testCharles @testBobby test single Message",
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
-      "sound": false,
+      "sound": "ping.wav",
       "email" : false,
       "vibrate": true,
       "sent": true
@@ -193,7 +193,7 @@
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "mobile": true,
-      "sound": false,
+      "sound": "ping.wav",
       "email" : false,
       "vibrate": true,
       "site": true,
@@ -209,7 +209,7 @@
       "mobile": true,
       "email" : false,
       "gameId": "game-%(ident)s-1",
-      "sound": false,
+      "sound": "ping.wav",
       "site": true,
       "sent": true,
       "vibrate": true
@@ -320,6 +320,7 @@
           "message": "hello!",
           "previewMessage": "hell",
           "queuedNotificationId": "queuedNotification-%(ident)s-1",
+          "sound" : "transmission.caf",
           "time": 0
         },
         "notification-%(ident)s-1testCharles-0": {
@@ -328,6 +329,7 @@
           "message": "@testCharles @testBobby test single Message",
           "previewMessage": "@testCharles @testBobby test single Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-1testCharles",
+          "sound": "ping.wav",
           "time": 0
         },
         "notification-%(ident)s-4testCharles-0": {
@@ -336,6 +338,7 @@
           "message": "@all test all Message",
           "previewMessage": "@all test all Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-4testCharles",
+          "sound": "ping.wav",
           "time": 0
         }
       }
@@ -414,14 +417,17 @@
           "message": "@all test all Message",
           "previewMessage": "@all test all Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-4testBobby3",
+          "sound": "ping.wav",
           "time": 0
         },
         "notification-%(ident)s-1-1": {
           "destination": "http://some.url/moo",
           "icon": "icons:close",
           "message": "hello!",
+          "sound" : "transmission.caf",
           "previewMessage": "hell",
           "queuedNotificationId": "queuedNotification-%(ident)s-1",
+          "sound": "transmission.caf",
           "time": 0
         }
       }

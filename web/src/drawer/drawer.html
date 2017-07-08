@@ -27,7 +27,7 @@
         bridge: Object,
         database: Object,
 
-        user: Object,
+        userId: String,
 
         game: Object,
 
@@ -157,7 +157,7 @@
 <template>
   <div>
     <div class="drawer-header">
-      Humans vs Zombies
+      Humans vs Zombies <img src="/favicon.png" aria-hidden="true" />
     </div>
 
     <div id="confidential">
@@ -227,6 +227,14 @@
           <iron-icon icon="icons:account-box"></iron-icon>
           My Profile
         </a>
+        <a href="javascript:void(0)" name="drawerInfect" data-page="infect" class="drawer-item" on-tap="captureTap_">
+          <iron-icon icon="social:whatshot"></iron-icon>
+          Infect
+        </a>
+        <a href="javascript:void(0)" name="drawerRewards" data-page="rewards" class="drawer-item" on-tap="captureTap_">
+          <iron-icon icon="icons:stars"></iron-icon>
+          Rewards
+        </a>
         <a href="javascript:void(0)" name="drawerRules" data-page="rules" class="drawer-item" on-tap="captureTap_">
           <iron-icon icon="editor:format-list-numbered"></iron-icon>
           Rules
@@ -288,7 +296,7 @@
     </template>
 
     <div class="drawer-section">
-      <template is="dom-if" if="[[user]]">
+      <template is="dom-if" if="[[userId]]">
         <a href="javascript:void(0)" class="drawer-item" on-tap="signOut_">
           <iron-icon icon="icons:account-circle"></iron-icon>
           Sign Out

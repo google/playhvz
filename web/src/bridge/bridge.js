@@ -191,6 +191,7 @@ class FakeIdGenerator extends IdGenerator {
     name: 'String',
     rulesHtml: 'String',
     faqHtml: 'String',
+    summaryHtml: 'String',
     stunTimer: 'Number',
     isActive: 'Boolean',
     startTime: 'Timestamp',
@@ -204,6 +205,7 @@ class FakeIdGenerator extends IdGenerator {
     name: '|String',
     rulesHtml: '|String',
     faqHtml: '|String',
+    summaryHtml: '|String',
     stunTimer: '|Number',
     isActive: '|Boolean',
     startTime: '|Timestamp',
@@ -316,7 +318,7 @@ class FakeIdGenerator extends IdGenerator {
     missionId: 'MissionId',
   });
 
-  serverMethods.set('selfInfect', {required: {playerId: 'PublicPlayerId'}});
+  serverMethods.set('selfInfect', {playerId: 'PublicPlayerId'});
 
   serverMethods.set('createGroup', {
     groupId: '!GroupId',
@@ -534,7 +536,7 @@ class FakeIdGenerator extends IdGenerator {
     site: 'Boolean',
     mobile: 'Boolean',
     vibrate: 'Boolean',
-    sound: 'Boolean',
+    sound: '?String',
     email: 'Boolean',
     destination: '?String',
     sendTime: '?Timestamp',
@@ -551,7 +553,7 @@ class FakeIdGenerator extends IdGenerator {
     site: '|Boolean',
     mobile: '|Boolean',
     vibrate: '|Boolean',
-    sound: '|Boolean',
+    sound: '|?String',
     email: '|Boolean',
     destination: '|String',
     sendTime: '|?Timestamp',

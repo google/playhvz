@@ -15,7 +15,7 @@
 -->
 <resources>
     <string name="app_name">ghvzApp</string>
-    <string name="auth_web_cliend_id">
+    <string name="auth_web_client_id">
         353094728756-85fe2ojimrqm5nic32ki0gmihc2qsljf.apps.googleusercontent.com
     </string>
 </resources>

@@ -111,6 +111,8 @@ class FakeServer {
 
     let publicPlayer = new Model.PublicPlayer(publicPlayerId, properties);
     publicPlayer.private = new Model.PrivatePlayer(privatePlayerId, properties);
+    publicPlayer.private.volunteer = properties.volunteer;
+    publicPlayer.private.notificationSettings = properties.notificationSettings;
 
     this.writer.insert(this.reader.getPublicPlayerPath(null), null, publicPlayer);
 
@@ -118,10 +120,7 @@ class FakeServer {
   }
   createGroup(args) {
     let {groupId} = args;
-    this.writer.insert(
-        this.reader.getGroupPath(null),
-        null,
-        new Model.Group(groupId, args));
+    new Model.Group(groupId, args).initialize({}, this.game, this.writer);
   }
   updateGroup(args) {
     throwError('Implement!');
@@ -189,16 +188,12 @@ class FakeServer {
       return;
 
     if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance)
-      throw new InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
+      throw 'Player does not satisfy this group\'s allegiance filter!';
 
     this.writer.insert(
         this.reader.getGroupPlayerPath(groupId, null),
         null,
         playerToAddId);
-    this.writer.insert(
-        this.reader.getPlayerGroupMembershipPath(playerToAddId, null),
-        null,
-        new Model.PlayerGroupMembership(groupId, {groupId: groupId}));
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
@@ -244,12 +239,6 @@ class FakeServer {
         membershipPath.slice(0, membershipPath.length - 1),
         membershipPath.slice(-1)[0], // index
         playerId);
-
-    let playerGroupMembershipPath = this.reader.getPlayerGroupMembershipPath(playerId, groupId);
-    this.writer.remove(
-        playerGroupMembershipPath.slice(0, playerGroupMembershipPath.length - 1),
-        playerGroupMembershipPath.slice(-1)[0],
-        groupId);
   }
 
   addPlayerToChatRoom_(chatRoomId, playerId) {
@@ -279,7 +268,6 @@ class FakeServer {
 
   removePlayerFromMission_(missionId, playerId) {
     // Assumes still in the group, and will be removed after this call
-    console.log("removing", playerId, "from", missionId);
     let playerMissionMembershipPath = this.reader.getPlayerMissionMembershipPath(playerId, missionId);
     this.writer.remove(
         playerMissionMembershipPath.slice(0, playerMissionMembershipPath.length - 1),
@@ -340,7 +328,7 @@ class FakeServer {
             playerId: playerId,
           })));
     } else {
-      throw new InvalidRequestError('Can\'t send message to chat room without membership');
+      throw 'Can\'t send message to chat room without membership';
     }
 
     let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
@@ -473,7 +461,6 @@ class FakeServer {
 
   removeMissionMembershipsForAllGroupMembers_(missionId, accessGroupId) {
     let group = this.game.groupsById[accessGroupId];
-    console.log("removing all players from", missionId, accessGroupId, group);
     for (let playerId of group.players) {
       this.removePlayerFromMission_(missionId, playerId);
     }
@@ -656,6 +643,9 @@ class FakeServer {
       for (let j = 0; j < rewardCategory.rewards.length; j++) {
         let reward = rewardCategory.rewards[j];
         if (reward.code.replace(/\s/g, '').toLowerCase() == rewardCode) {
+          if (reward.playerId != null) {
+            throw 'This reward has already been claimed!';
+          }
           this.writer.set(
               this.reader.getRewardPath(rewardCategory.id, reward.id).concat(["playerId"]),
               playerId);
@@ -673,7 +663,7 @@ class FakeServer {
         }
       }
     }
-    assert(false);
+    throw 'No reward with that code exists!';
   }
   selfInfect(args) {
     let {playerId} = args;
@@ -718,9 +708,7 @@ class FakeServer {
     var highestPointCount = -1;
     var highestPlayer = null;
     for (let playerId of group.players) {
-      console.log(playerId);
       let player = game.playersById[playerId];
-      console.log(player);
       // Find other player in group with most points. Ties go to the player with lower player #
       if (player.userId != ownerId && (player.points > highestPointCount || 
         (player.points == highestPointCount && player.number < highestPlayer.number))) {
@@ -757,7 +745,7 @@ class FakeServer {
     if (playerId) {
       let player = this.reader.get(this.reader.getPublicPlayerPath(playerId));
       if (!player) {
-        throw InvalidRequestError('No player found with id ' + playerId);
+        throw 'No player found with id ' + playerId;
       }
       return player;
     } else {
@@ -770,7 +758,7 @@ class FakeServer {
           }
         }
       }
-      throw new InvalidRequestError('No player found with life code ' + lifeCode);
+      throw 'No player found with life code ' + lifeCode;
     }
   }
   infect(request) {
@@ -779,27 +767,47 @@ class FakeServer {
     victimPlayerId = victimPlayer.id;
     let infectorPlayerPath = this.reader.getPublicPlayerPath(infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
-    this.writer.set(
+    // Self-infection
+    if (victimPlayer.allegiance == 'resistance' && 
+        infectorPlayer.private &&
+        !infectorPlayer.private.canInfect) {
+      if (victimPlayerId == infectorPlayerId) {
+        this.setPlayerZombie(infectorPlayerId);
+        return "self-infection";
+      } else {
+        throw new InvalidRequestError('As a human you can only enter your own lifecode.');
+        return;
+        //return alert("As a human you cannot infect others.");
+      }
+    }
+    let validCode = victimPlayer.lives.length > victimPlayer.infections.length;
+    if  (validCode) {
+      // Give the infector points
+      this.writer.set(
         infectorPlayerPath.concat(["points"]),
         this.reader.get(infectorPlayerPath.concat(["points"])) + 100);
-    let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
-    if (infectorPlayer.allegiance == 'resistance') {
-      // Add a self-infection
-      this.addInfection_(request, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
-      // Set the infector to zombie
-      // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
-      if (infectorPlayer.infections.length >= infectorPlayer.lives.length) {
-        this.setPlayerZombie(infectorPlayer.id);
+      let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
+
+      if (infectorPlayer.allegiance == 'resistance') { //Possessed human infection
+        // Possessed human becomes a zombie
+        this.addInfection_(request, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
+        // Set the infector to zombie
+        // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
+        if (infectorPlayer.infections.length >= infectorPlayer.lives.length) {
+          this.setPlayerZombie(infectorPlayer.id);
+        }
+        // The victim can now infect
+        this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
+    } else { // Normal zombie infection
+        // Add an infection to the victim
+        this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
+        // Set the victim to zombie
+        if (victimPlayer.infections.length >= victimPlayer.lives.length) {
+          this.setPlayerZombie(victimPlayer.id);
+        }
       }
-      // The victim can now infect
-      this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
     } else {
-      // Add an infection to the victim
-      this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
-      // Set the victim to zombie
-      if (victimPlayer.infections.length >= victimPlayer.lives.length) {
-        this.setPlayerZombie(victimPlayer.id);
-      }
+     throw new InvalidRequestError('The player with this lifecode was already zombified.');
     }
     return victimPlayer.id;
   }
@@ -830,10 +838,10 @@ class FakeServer {
   addLife(request) {
     let {lifeId, privateLifeId, playerId, lifeCode} = request;
     let publicLifeId = lifeId;
-    let code = lifeCode || "codefor-" + publicLifeId;
     let playerPath = this.reader.getPublicPlayerPath(playerId);
     let player = this.reader.get(playerPath);
     let time = this.getTime_(request);
+    lifeCode = lifeCode || "codefor-" + player.name;
 
     let latestTime = 0;
     assert(player.lives);
@@ -848,17 +856,16 @@ class FakeServer {
     privateLifeId = privateLifeId || this.idGenerator.newPrivateLifeId();
 
     assert(player.lives.length == player.infections.length);
-    this.writer.insert(
-        this.reader.getPublicLifePath(playerId, null),
-        null,
+    let publicLife =
         new Model.PublicLife(publicLifeId, {
           privateLifeId: privateLifeId,
           time: this.getTime_(request),
-          private:
-              new Model.PrivateLife(privateLifeId, {
-                code: lifeCode
-              }),
-        }));
+        });
+    publicLife.private =
+        new Model.PrivateLife(privateLifeId, {
+          code: lifeCode
+        });
+    this.writer.insert(this.reader.getPublicLifePath(playerId, null), null, publicLife);
     if (player.lives.length > player.infections.length) {
       this.setPlayerHuman(playerId);
     }

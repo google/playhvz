@@ -55,9 +55,10 @@ class RemoteBridge {
         return;
       }
       console.log('Signing in with credential...');
+
       let provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope('email');
-      let credential = provider.credential(null, accessToken);
+      let credential = provider.credential(accessToken, null);
       firebase.auth().signInWithCredential(credential);
     }
 
@@ -109,6 +110,7 @@ class RemoteBridge {
           alert("Signed out!");
           window.location.reload();
         }).catch((error) => {
+          alert("Error signing out! " + error);
           console.error(error);
         });
   }

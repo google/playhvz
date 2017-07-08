@@ -26,12 +26,17 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv)
 from api_helpers import AppError, respondError
+from google.appengine.api import mail
 
+import cgi
 import copy
+import difflib
 import logging
+import pprint
 import random
 import textwrap
 import time
+import notifications
 
 import constants
 import db_helpers as helpers
@@ -666,7 +671,7 @@ def SendChatMessage(request, game_state):
     'email': False,
     'mobile': True,
     'vibrate': True,
-    'sound': False,
+    'sound': "ping.wav",
     'destination': 'TODO',
     'sendTime': int(time.time() * 1000),
     'icon': 'TODO'
@@ -682,6 +687,7 @@ def SendChatMessage(request, game_state):
       n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
       n['playerId'] = players_in_room[player]
       helpers.QueueNotification(game_state, n)
+      notifications.ExecuteNotifications(None, game_state)
   else:
     tokens = request['message'].split(' ')
     for token in tokens:
@@ -693,6 +699,7 @@ def SendChatMessage(request, game_state):
         n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
         n['playerId'] = players_in_room[name]
         helpers.QueueNotification(game_state, n)
+        notifications.ExecuteNotifications(None, game_state)
 
   put_data = {
     'playerId': request['playerId'],
@@ -1569,9 +1576,14 @@ def ClaimReward(request, game_state):
   if 'limitPerPlayer' in reward_category and int(reward_category['limitPerPlayer']) >= 1:
     limit = int(reward_category['limitPerPlayer'])
     claims = game_state.get(player_path, 'claims')
+    print "claims:"
+    print claims
     if claims:
-      claims = [c for c in claims if c['rewardCategoryId'] == reward_category_id]
-      if len(claims) >= limit:
+      num_rewards_in_category = 0
+      for reward_id, claim in claims.iteritems():
+        if claim['rewardCategoryId'] == reward_category_id:
+          num_rewards_in_category = num_rewards_in_category + 1
+      if num_rewards_in_category >= limit:
         raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % limit)
 
   game_state.patch(reward_path, {'playerId': player_id})
@@ -1613,7 +1625,7 @@ def SendNotification(request, game_state):
     'email': 'Boolean', # Whether to send to the player's email.
     'mobile': 'Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': 'Boolean', # Whether the notification should vibrate on iOS/Android.
-    'sound': 'Boolean', # Whether the notification should play a sound on iOS/Android.
+    'sound': '?String', # What sound should play on iOS/Android.
     'destination': '?String', # URL that notification should open when clicked. Null means it will just open to the notifications page on the site, to this notification.
     'sendTime': '?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '?PublicPlayerId', # Player to send it to. Either this or groupId must be present.
@@ -1626,10 +1638,12 @@ def SendNotification(request, game_state):
     raise InvalidInputError('Must include either a playerId or a groupId')
 
   current_time = int(time.time() * 1000)
+  # If it's in the past, send it now
   if request['sendTime'] is not None and current_time > int(request['sendTime']):
-    raise InvalidInputError('sendTime must not be in the past!')
+    request['sendTime'] = None
 
   helpers.QueueNotification(game_state, request)
+  notifications.ExecuteNotifications(None, game_state)
 
 
 def UpdateNotification(request, game_state):
@@ -1647,7 +1661,7 @@ def UpdateNotification(request, game_state):
     'email': '|Boolean', # Whether to send to the player's email.
     'mobile': '|Boolean', # Whether to send to the iOS/Android devices.
     'vibrate': '|Boolean', # Whether the notification should vibrate on iOS/Android.
-    'sound': '|Boolean', # Whether the notification should play a sound on iOS/Android.
+    'sound': '|?String', # Whether the notification should play a sound on iOS/Android.
     'destination': '|String', # URL that notification should open when clicked.
     'sendTime': '|?Timestamp', # Unix milliseconds timestamp of When to send, or null to send asap.
     'playerId': '|?PublicPlayerId', # Player to send it to. Either this or groupId must be present.
@@ -1992,5 +2006,27 @@ def UpdatePlayerMarkers(request, game_state):
       results.append(patch_result)
 
   return results
+
+def SyncFirebase(request, game_state):
+  firebase_instance = game_state.get('/', None, local_instance=False) or {}
+  (has_diff, old_instance) = game_state.setToNewInstance(firebase_instance)
+  if has_diff:
+    old_str = pprint.pformat(old_instance).splitlines()
+    new_str = pprint.pformat(firebase_instance).splitlines()
+    diffs = cgi.escape('\n'.join(list(difflib.ndiff(old_str, new_str))))
+    mail.EmailMessage(sender='panic@playhvz-170604.appspotmail.com',
+      to='yuhao@google.com,rfarias@google.com,chewys@google.com,harshmodi@google.com,verdagon@google.com',
+      subject='Diff detected between local and remote instances',
+      html="""<html><body>
+      Detected diff between local (in-memory) and remote (firebase) versions of data.
+      <br>
+      This most likely means an api call to firebase has failed.
+      <br>
+      diff:
+      <pre>%s</pre>
+      <br>
+      The local version has been replaced w/ the remote version.
+      Panic a little bit. Or not. I'm an email, not a cop.
+      </body></html>""" % (diffs)).Send()
 
 # vim:ts=2:sw=2:expandtab

@@ -50,6 +50,7 @@
             'notifications': 'notifications',
             'profile': 'profile',
             'rewards': 'rewards',
+            'infect': 'infect',
             'declare': 'declare',
             'rules': 'rules',
             'stats': 'stats',
@@ -92,7 +93,10 @@
     padding: 8px;
   }
 
-  .expand,
+  .expand {
+    flex-grow: 1;
+    flex-direction: column;
+  }
   ghvz-card {
     flex-grow: 1;
     display: flex;
@@ -131,9 +135,9 @@
     <ghvz-card
       id$="chat-page-[[player.name]]"
       class="expand"
-      name="chat-card" 
-      spaced$="[[!isMobile]]" 
-      with-back="[[isMobile]]" 
+      name="chat-card"
+      spaced$="[[!isMobile]]"
+      with-back="[[isMobile]]"
       with-menu="[[isMobile]]">
       <ghvz-chat-page
           bridge="[[bridge]]"
@@ -173,8 +177,32 @@
     </ghvz-card>
   </template>
 
+  <template is="dom-if"  if="[[computeShowPage_(showPage.infect, mostRecentPage)]]">
+    <ghvz-card name="infect-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+      <div class="header">Infect</div>
+      <ghvz-infect
+          class="expand"
+          bridge="[[bridge]]"
+          game="[[game]]"
+          player="[[player]]">
+      </ghvz-infect>
+    </ghvz-card>
+  </template>
+
+  <template is="dom-if"  if="[[computeShowPage_(showPage.rewards, mostRecentPage)]]">
+    <ghvz-card name="rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+      <div class="header">Rewards</div>
+      <ghvz-claim-reward
+          class="expand"
+          bridge="[[bridge]]"
+          game="[[game]]"
+          player="[[player]]">
+      </ghvz-claim-reward>
+    </ghvz-card>
+  </template>
+
   <template is="dom-if" if="[[computeShowPage_(showPage.notifications, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications-page
           class="expand"
@@ -251,7 +279,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminNotifications, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="admin-notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications
           class="expand"
@@ -317,14 +345,14 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.stats, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card name="stats-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Game Stats</div>
       <ghvz-stats-page
           class="expand"
           bridge="[[bridge]]"
           database="[[database]]"
           game="[[game]]"
-          user="[[user]]">
+          user-id="[[userId]]">
       </ghvz-stats-page>
     </ghvz-card>
   </template>

@@ -42,6 +42,7 @@
 <template>
   <template is="dom-repeat" items="[[player.private.notifications]]" as="notification">
     <ghvz-expandable-notification
+        name$="expandable-[[notification.previewMessage]]"
         bridge="[[bridge]]"
         player="[[player]]"
         game="[[game]]"

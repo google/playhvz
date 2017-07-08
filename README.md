@@ -123,7 +123,11 @@ Add this to your ~/.bash_profile: `export PATH=$PATH:[ghvz folder path here]/web
 
 #### Linux - webdriver tests
 
-(this doesnt work yet because nobody's checked in linuxdrivers, talk to chewys or verdagon if you want to run on linux)
+Navigate to `web/tests/linuxdrivers`. Run `chmod +x chromedriver` to make the
+chromedriver executable.
+
+Note: If the default chromedriver does not work, you can download the latest
+version [here](https://sites.google.com/a/chromium.org/chromedriver/downloads).
 
 Add this to your ~/.bashrc: `export PATH=$PATH:[ghvz folder path here]/web/tests/linuxdrivers` for example: `export PATH=$PATH:/Users/verdagon/Desktop/ghvz/web/tests/linuxdrivers`
 
@@ -187,8 +191,17 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`./run.sh http://localhost:5000 fake PASSWORDHERE` replacing PASSWORDHERE with the fake accounts' password (ask someone on the team).
+`python run.py --password PASSWORD [--url TARGET_URL] [SPECIFIC_TEST_NAME] [-d|m] [-l|r]`
 
+Replacing ALLCAPS'd segments with your values.
+* `PASSWORD` is the password for your fake account. To get passwords for fake test accounts, please ask someone on the team.
+* `SPECIFIC_TEST_NAME` maps to the test file name, minus the .py
+* `-d` uses desktop window sizing. Omitting this flag will run with mobile sizing instead.
+* `-m` uses mobile window sizing (default behavior).
+* `-l` indicates local server testing, and will rely on in-memory state rather than a database. User accounts defined in config.json will be used for tests.
+* `-r` indicates remote server testing, and will use your firebase and user account settings from `config.json`.
+
+**Note**: Bracketed segments are optional.
 
 ### Back End
 

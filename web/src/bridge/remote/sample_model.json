@@ -8,6 +8,7 @@
       "number":null,
       "rulesHtml":"test rule 2",
       "faqHtml":"test faq 2",
+      "summaryHtml":"test summary 2",
       "stunTimer":5,
       "adminContactPlayerId":null,
       "guns":[
@@ -369,7 +370,7 @@
           }
         }
       ],
-      "admins":[
+      "adminUsers":[
         {
           "id":"user-test-3840579180089170-1",
           "userId":"user-test-3840579180089170-1"

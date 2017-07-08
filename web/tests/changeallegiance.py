@@ -33,56 +33,57 @@ try:
   # Sign in as an admin
   driver = setup.MakeDriver(user="zella")
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+
+  # Search for people interested in being possessed humans
+  driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.NAME, 'icon-search']])
+  driver.SendKeys(
+    [[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
+    'wp')
+  driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
+  driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
 
   # Go to Jack's profile (currently can't infect)
-  driver.Click([[By.NAME, 'drawerAdmin Players']])
-  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) 
+  driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) #TODO(aliengirl): crashed here once -m ... maybe make this RetryUntil
 
-  # Click the Set Can Infect button
+  # Click the Set Can Infect button (basically, make Jack a Possessed human)
   driver.Click([[By.ID, 'set-infect-button']])
   driver.FindElement([[By.ID, 'unset-infect-button']])
   driver.ExpectContains([[By.NAME, 'can-infect']], "Yes")
 
   # Sign in as Jack, confirm that he can infect
   driver.SwitchUser("jack")
-  driver.FindElement([[By.NAME, "infect-box"]])
+  driver.DrawerMenuClick('mobile-main-page', 'Infect')
   driver.SendKeys(
-        [[By.NAME, 'infect-box'], [By.TAG_NAME, 'input']],
+        [[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']],
         'glarple zerp wobbledob') # Zella's life code
   driver.Click([[By.ID, 'infect']])
-  #driver.ExpectContains([[By.NAME, 'infect-box']], "you've infected ZellaTheUltimate!") #TODO - issued; infect doesn't work on mobile
+  driver.ExpectContains([[By.NAME, 'infect-card']], "you've infected ZellaTheUltimate!")
 
   # Sign back in as Zella (admin)
   driver.SwitchUser("zella")
 
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']]) # if this is failing change back to profile-card
-
-  # Check her profile, see that she's still a human
-  driver.Click([[By.NAME, 'drawerMy Profile']])
+  # Check her profile, see that she's still a human (now a possessed human)
+  driver.DrawerMenuClick('profile-card', 'My Profile')
   driver.ExpectContains([[By.NAME, 'status']], "Alive")
 
   # Confirm that she can infect people now
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'profile-card'], [By.NAME, 'drawerButton']])
+  driver.DrawerMenuClick('profile-card', 'Infect')
+  driver.SendKeys(
+      [[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']],
+      'zooble flipwoogly') # Moldavi's life code
+  driver.Click([[By.ID, 'infect']])
+  driver.ExpectContains([[By.NAME, 'infect-card']], "you've infected MoldaviTheMoldavish!")
 
-  driver.Click([[By.NAME, 'drawerDashboard']])
-  driver.FindElement([[By.NAME, "infect-box"]])
 
   # Unset Can Infect for Zella
-  if driver.is_mobile:
-    driver.Click([[By.NAME, 'mobile-main-page'], [By.NAME, 'drawerButton']])
-
-  driver.Click([[By.NAME, 'drawerMy Profile']])
-
+  driver.DrawerMenuClick('infect-card', 'My Profile')
   driver.Click([[By.ID, 'unset-infect-button']])
   driver.FindElement([[By.ID, 'set-infect-button']])
   driver.ExpectContains([[By.NAME, 'can-infect']], "No")
 
-  # Confirm that she can no longer infect people
-  driver.FindElement([[By.NAME, "infect-box"]], should_exist=False)
+  # # Confirm that she can no longer infect people //TODO(aliengirl): check this
+  # driver.FindElement([[By.NAME, "infect-card"]], should_exist=False)
 
   driver.Quit()
 

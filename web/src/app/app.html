@@ -59,7 +59,7 @@
 
         isAdmin: {
           type: Boolean,
-          computed: 'computeIsAdmin_(userId, game.admins.length)',
+          computed: 'computeIsAdmin_(userId, game.adminUsers.length)',
         },
 
         showLoadingSpinner: {
@@ -185,7 +185,7 @@
       },
 
       computeIsAdmin_: function() {
-        let admin = this.game.admins.find((admin) => admin.userId == this.userId);
+        let admin = this.game.adminUsers.find((admin) => admin.userId == this.userId);
         return !!admin;
       },
 
@@ -267,12 +267,10 @@
 </style>
 <template>
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
-  <ghvz-active
-      env="[[env]]"
-      active="{{userActive}}">
-  </ghvz-active>
+  <ghvz-active active="{{userActive}}"></ghvz-active>
   <ghvz-inactive-dialog
       bridge="[[bridge]]"
+      game="[[game]]"
       player="[[player]]"
       active="[[userActive]]">
   </ghvz-inactive-dialog>

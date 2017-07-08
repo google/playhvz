@@ -18,3 +18,7 @@ cron:
 - description: Notification execution handler
   url: /cronNotification
   schedule: every 1 mins
+
+- description: Sync with firebase model
+  url: /cronSyncFirebase
+  schedule: every 1 mins

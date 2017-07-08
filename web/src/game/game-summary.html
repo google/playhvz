@@ -22,18 +22,59 @@
         game: {
           type: Object,
           value: null,
-        }
+        },
+        isAdmin: {
+          type: Boolean,
+          value: false,
+        },
       },
-	});
+      observers: ['summaryChanged_(game.summaryHtml)'],
+      attached() {
+        this.fire('ghvz-add-toolbar-button', { button: this.$.update });
+      },
+      summaryChanged_(summaryHtml) {
+        this.$.summary.innerHTML = summaryHtml;
+        this.scopeSubtree(this.$.summary);
+      },
+      makeFormBlueprint_: function() {
+        return {
+          fields: [
+            {
+              property: "summaryHtml",
+              label: "SUMMARY html",
+              description: "HTML summary of the game",
+              type: 'text',
+            },
+          ],
+        };
+      },
+      updateSummary_: function() {
+        this.$.summaryForm.openForEditing({
+          summaryHtml: this.game.summaryHtml,
+        }).then((properties) => {
+          this.bridge.updateGame({
+            gameId: this.game.id,
+            summaryHtml: properties.summaryHtml
+          });
+        });
+      },
+    });
   });
 </script>
 <style>
 :host {
-  margin: 16px;
   display: block;
 }
 </style>
 <template>
-<div name="game-summary-box"><strong>Stun Timer:</strong> [[game.stunTimer]]</div>
+<paper-icon-button name="rules-icon" hidden$="[[!isAdmin]]" id="update" icon="icons:create" on-tap="updateSummary_">
+</paper-icon-button>
+<ghvz-super-form
+    id="summaryForm"
+    type-name="summary"
+    blueprint="[[makeFormBlueprint_()]]">
+</ghvz-super-form>
+<div id="summary"></div>
+<div name="game-summary-box"><strong>Stun Timer:</strong> [[game.stunTimer]]</p>
 </template>
 </dom-module>

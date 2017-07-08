@@ -32,7 +32,7 @@
 
         isAdmin: {
           type: Boolean,
-          computed: 'computeIsAdmin_(user, game, game.admins.*)',
+          computed: 'computeIsAdmin_(user, game, game.adminUsers.*)',
         },
 
         isPlayer: {
@@ -54,10 +54,15 @@
           type: Boolean,
           computed: 'computeCanSelfInfect_(player.allegiance)',
         },
+
+        isZombie: {
+          type: Boolean,
+          computed: 'computeIsZombie_(player.allegiance)',
+        },
       },
 
       computeIsAdmin_: function(user, game) {
-        let admin = game.admins.find((admin) => admin.userId == user.id);
+        let admin = game.adminUsers.find((admin) => admin.userId == user.id);
         return !!admin;
       },
 
@@ -76,6 +81,18 @@
       computeCanSelfInfect_: function(allegiance) {
         return allegiance == 'resistance';
       },
+
+      computeIsZombie_(allegiance) {
+        return allegiance == 'horde';
+      },
+      
+      joinGame_() {
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: ['joinGame'],
+          replace: false,
+        });
+      },
     });
   });
 </script>
@@ -84,6 +101,8 @@
     display: block;
     position: relative;
     width: 100%;
+    flex-grow: 1;
+    flex-direction: column;
   }
   .paper-header {
     background-color: #03a9f4;
@@ -92,43 +111,47 @@
     line-height: 48px;
     font-weight: bold;
   }
+  ghvz-card {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+  }
 </style>
 <template>
   <ghvz-card full with-menu>
     <div class="header">Humans vs Zombies</div>
     
     <template is="dom-if" if="[[canRegister]]">
-      <ghvz-card spaced>
-        <div class="header">Join Game</div>
-        <ghvz-game-registration
-            class="content"
-            bridge="[[bridge]]"
-            game="[[game]]"
-            user-id="[[user.id]]">
-        </ghvz-game-registration>
+      <ghvz-card spaced full padded mobile>
+        <div class="header">Join Game!</div>
+        <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
       </ghvz-card>
     </template>
 
     <template is="dom-if" if="[[canDeclare]]">
-      <ghvz-card spaced left padded>
+      <ghvz-card spaced left padded mobile name="declare-box">
         <div class="header">Declare Allegiance!</div>
         <ghvz-declare-dashlet></ghvz-declare-dashlet>
       </ghvz-card>
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
-      <template is="dom-if" if="[[player.private.canInfect]]">
+      <template is="dom-if" if="[[isZombie]]">
         <ghvz-card name="infect-box" spaced>
           <div class="header">Infect</div>
           <ghvz-infect
               bridge="[[bridge]]"
               game="[[game]]"
-              player-id="[[player.id]]">
+              player="[[player]]">
           </ghvz-infect>
         </ghvz-card>
       </template>
 
-      <ghvz-card spaced left>
+      <ghvz-card spaced left padded mobile name="summary-box">
         <div class="header">Game Summary</div>
         <ghvz-game-summary
             game="[[game]]">
@@ -136,7 +159,7 @@
       </ghvz-card>
 
 
-      <ghvz-card spaced name="next-mission-box" >
+      <ghvz-card spaced padded mobile name="next-mission-box" >
         <div class="header">Next Mission</div>
         <ghvz-next-mission
             bridge="[[bridge]]"
@@ -145,7 +168,7 @@
         </ghvz-next-mission>
       </ghvz-card>
 
-      <ghvz-card spaced left>
+      <ghvz-card spaced left padded mobile name="rules-box">
         <div class="header" name="Rules">Rules</div>
         <ghvz-rules game="[[game]]"></ghvz-rules>
       </ghvz-card>

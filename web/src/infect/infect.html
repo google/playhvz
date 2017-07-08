@@ -24,7 +24,7 @@
 
         properties: {
           bridge: Object,
-          playerId: String,
+          player: Object,
           game: Object,
           lifeCode: String,
           requesting: {
@@ -35,37 +35,57 @@
             type: Object,
             value: null,
           },
+          infectedSelf: {
+            type: Boolean,
+            value: false,
+          }
         },
 
         computeButtonEnabled_: function(lifeCode, requesting) {
           return !!lifeCode && !requesting;
         },
 
+        computeIsHuman_: function(player) {
+          return player.allegiance == 'resistance';
+        },
+
         reset_: function() {
           this.lifeCode = "";
           this.requesting = false;
           this.infectedPlayer = null;
+          this.infectedSelf = false;
         },
 
         infect_: function() {
-          this.requesting = true;
-          this.bridge.infect({
-            gameId: this.game.id,
-            infectionId: this.bridge.newInfectionId(),
-            infectorPlayerId: this.playerId,
-            victimLifeCode: this.lifeCode,
-            victimPlayerId: null,
-          })
-              .then(
-                  (victimPlayerId) => {
-                    this.infectedPlayer = this.game.playersById[victimPlayerId];
-                    this.requesting = false;
-                  },
-                  (error) => {
-                    alert('Error infecting: '+ error);
-                    this.reset_();
-                  });
+          if (this.player) {
+            this.requesting = true;
+            this.bridge.infect({
+              gameId: this.game.id,
+              infectionId: this.bridge.newInfectionId(),
+              infectorPlayerId: this.player.id,
+              victimLifeCode: this.lifeCode,
+              victimPlayerId: null,
+            })
+            .then((victimPlayerId) => {
+              if (victimPlayerId == "self-infection") {
+                this.infectedSelf = true;
+                this.infectedPlayer = this.player;
+              } else {
+                this.infectedPlayer = this.game.playersById[victimPlayerId];
+              }
+              this.requesting = false;
+            },
+            (error) => {
+              if (error.message) {
+                alert('Error infecting: '+ error.message);
+              } else {
+                alert('Error infecting: '+ error);
+              }
+              this.reset_();
+            });
+          }
         },
+
       });
     });
   </script>
@@ -91,11 +111,15 @@
         display: flex;
       }
       #infecting paper-input,
-      #infectedMessage {
+      #infectedMessage, #selfInfectedMessage {
         flex: 1;
       }
-      #infectedMessage {
+      #infectedMessage, #selfInfectedMessage{
         margin: 16px;
+      }
+      #instructions, #codeInput {
+        margin:10px;
+        width: 100%;
       }
       #infectContainer,
       #doneContainer {
@@ -108,12 +132,19 @@
         font-weight: bold;
       }
     </style>
+    <div id="instructions" hidden$="[[!computeIsHuman_(player)]]">
+        <div><b>Possessed humans</b>: Enter your victim's life code. This will also turn you into a zombie.</div>
+        <br/>
+        <div><b>Humans</b>: Enter your own life code to self-infect. Only do this when you have been turned, but the zombie has not yet entered your life code.</div>
+      </div>
     <div id="infecting" hidden$="[[infectedPlayer]]">
-      <paper-input
-          id="lifeCodeInput"
-          label="Human's life code"
-          value="{{lifeCode}}">
-      </paper-input>
+      <div id="codeInput">
+        <paper-input
+            id="lifeCodeInput"
+            label="Human's life code"
+            value="{{lifeCode}}">
+        </paper-input>
+      </div>
       <div id="infectContainer">
         <paper-button
             id="infect"
@@ -124,13 +155,17 @@
         </paper-button>
       </div>
     </div>
-    <div id="infected" hidden$="[[!infectedPlayer]]">
+    </paper-button>
+    <div id="infected" hidden="[[!infectedPlayer]]">
       <div id="infectedMessage">
-        <div>
+        <div hidden$="[[infectedSelf]]">
           Congratulations, you've infected
           <span name="victimName">[[infectedPlayer.name]]</span>!
+          <div>Glory to the horde!</div>
         </div>
-        <div>Glory to the horde!</div>
+      </div>
+      <div id="selfInfectedMessage" hidden$="[[!infectedSelf]]">
+        Congratulations, <b>[[player.name]]</b>, you are now a zombie. Welcome to the horde!
       </div>
       <div id="doneContainer">
         <paper-button

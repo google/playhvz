@@ -50,9 +50,7 @@ try:
   driver.WaitForGameLoaded()
 
   # Log in as an Admin
-  if driver.is_mobile:
-    driver.Click([[By.TAG_NAME, 'ghvz-mobile-main-page'], [By.NAME, 'drawerButton']])
-  driver.Click([[By.NAME, 'drawerAdmin Game Details']])
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Game Details')
   
   driver.ExpectContains(
       [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'number']],
