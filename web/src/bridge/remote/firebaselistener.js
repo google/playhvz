@@ -446,7 +446,7 @@ window.FirebaseListener = (function () {
         this.listenToGroup_(obj.accessGroupId);
         // Only listen to anything more recent
         // Temporary, until some day when we split /messages into its own root or something
-        let startMessageTimestamp = 0;
+        let lastMessage = {};
         let messagesMap = snapVal.messages;
         let messages = [];
         for (let messageId in messagesMap) {
@@ -463,11 +463,13 @@ window.FirebaseListener = (function () {
           mod.initialize(messages[m], this.game, this.writer);
         }
         
-        startMessageTimestamp = messages[messages.length - 1].time;
+        lastMessage = messages[messages.length - 1];
 
         this.firebaseRoot.child(obj.link + '/messages')
           .on('child_added', (snap) => {
-            if (snap.val().time >= startMessageTimestamp) {
+            // Listen to newer and avoid dupes (if time happens to be the same)
+            // though there is a slight change we have a dupe again if 3+ have the same time
+            if (lastMessage && snap.val().time >= lastMessage.time && snap.getKey() !== lastMessage.id) {
               this.listenToModel(new Model.Message(snap.getKey(), {
                 gameId: this.gameIdObj.gameId,
                 chatRoomId: chatRoomId
