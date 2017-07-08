@@ -58,9 +58,7 @@ try:
   # Have a player join the game
   driver.SwitchUser("reggie")
 
-  if not driver.is_mobile:
-    driver.Click([[By.NAME, 'joinGame']])
-
+  driver.Click([[By.NAME, 'joinGame']])
   driver.SendKeys(
       [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
       'ReggieTheRavager')

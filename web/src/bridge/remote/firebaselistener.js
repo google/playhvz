@@ -131,7 +131,7 @@ window.FirebaseListener = (function () {
       // We need this for when things go from something to null
       collectionRef.on('child_removed', (change) => {
         if (properties.includes(change.getKey())) {
-          // Do nothing, this means the containing thing is about to disappear too, hopefully
+          setCallback(change.getKey(), null);
         } else {
           assert(
             ignored.includes(change.getKey()),
@@ -450,10 +450,11 @@ window.FirebaseListener = (function () {
       }));
     }
 
-    listenToPlayerMissionMembership_(playerId, missionId) {
+    listenToPlayerMissionMembership_(publicPlayerId, privatePlayerId, missionId) {
       this.listenToModel(new Model.PlayerMissionMembership(missionId, {
         gameId: this.gameIdObj.gameId,
-        playerId: playerId
+        publicPlayerId: publicPlayerId,
+        privatePlayerId: privatePlayerId,
       }));
     }
 

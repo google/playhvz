@@ -28,6 +28,7 @@ if __name__ == '__main__':
 from api_helpers import AppError, respondError
 from google.appengine.api import mail
 
+# NOTE: DO NOT import time, instead use helpers.GetTime(request)
 import cgi
 import copy
 import difflib
@@ -35,13 +36,12 @@ import logging
 import pprint
 import random
 import textwrap
-import time
 import notifications
-
 import constants
 import db_helpers as helpers
 from db_helpers import Optional
 import config
+# NOTE: DO NOT import time, instead use helpers.GetTime(request)
 
 
 InvalidInputError = helpers.InvalidInputError
@@ -109,6 +109,7 @@ def AddGame(request, game_state):
     'name': 'String',
     'rulesHtml': 'String',
     'faqHtml': 'String',
+    'summaryHtml': 'String',
     'stunTimer': 'Number',
     'startTime': 'Timestamp',
     'endTime': 'Timestamp',
@@ -122,6 +123,7 @@ def AddGame(request, game_state):
     'isActive': request['isActive'],
     'rulesHtml': request['rulesHtml'],
     'faqHtml': request['faqHtml'],
+    'summaryHtml': request['summaryHtml'],
     'stunTimer': request['stunTimer'],
     'startTime': request['startTime'],
     'endTime': request['endTime'],
@@ -161,6 +163,7 @@ def UpdateGame(request, game_state):
     'name': '|String',
     'rulesHtml': '|String',
     'faqHtml': '|String',
+    'summaryHtml': '|String',
     'stunTimer': '|Number',
     'startTime': '|Timestamp',
     'endTime': '|Timestamp',
@@ -170,7 +173,7 @@ def UpdateGame(request, game_state):
   })
 
   put_data = {}
-  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
+  for property in ['name', 'rulesHtml', 'faqHtml', 'summaryHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
     if property in request:
       put_data[property] = request[property]
 
@@ -367,7 +370,7 @@ def AddPlayer(request, game_state):
 
   game_state.put('/games/%s/players' % game_id, public_player_id, True)
 
-  AutoUpdatePlayerGroups(game_state, public_player_id, new_player=True)
+  UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player=True)
 
 
 def UpdatePlayer(request, game_state):
@@ -546,8 +549,16 @@ def DeleteMission(request, game_state):
     'missionId': 'MissionId'
   })
 
-  game_state.delete('/missions', request['missionId'])
-  game_state.delete('/games/%s/missions' % request['gameId'], request['missionId'])
+  game_id = request['gameId']
+  mission_id = request['missionId']
+  mission = game_state.get('/missions', mission_id)
+  access_group_id = mission['accessGroupId']
+
+  for public_player_id in helpers.GetPublicPlayerIdsInGroup(game_state, access_group_id):
+    RemoveMissionMembership(game_state, public_player_id, mission_id)
+
+  game_state.delete('/games/%s/missions' % game_id, mission_id)
+  game_state.delete('/missions', mission_id)
 
 
 def UpdateMission(request, game_state):
@@ -562,17 +573,23 @@ def UpdateMission(request, game_state):
     'name': '|String',
     'beginTime': '|Timestamp',
     'endTime': '|Timestamp',
-    'detailsHtml': '|String'
+    'detailsHtml': '|String',
+    'accessGroupId': '|GroupId',
   })
 
   mission_id = request['missionId']
 
   put_data = {}
-  for property in ['name', 'beginTime', 'endTime', 'detailsHtml']:
+  for property in ['name', 'beginTime', 'endTime', 'detailsHtml', 'accessGroupId']:
     if property in request:
       put_data[property] = request[property]
 
   game_state.patch('/missions/%s' % mission_id, put_data)
+
+  # TODO: move this out of update, update should only deal with data that has no side effects
+  if 'accessGroupId' in request:
+    RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
+    AddMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
 
 
 def AddChatRoom(request, game_state):
@@ -673,7 +690,7 @@ def SendChatMessage(request, game_state):
     'vibrate': True,
     'sound': "ping.wav",
     'destination': 'TODO',
-    'sendTime': int(time.time() * 1000),
+    'sendTime': helpers.GetTime(request),
     'icon': 'TODO'
   }
   # If we check for all @all, then there is no need to send out additional
@@ -704,7 +721,7 @@ def SendChatMessage(request, game_state):
   put_data = {
     'playerId': request['playerId'],
     'message': request['message'],
-    'time': int(time.time() * 1000)
+    'time': helpers.GetTime(request)
   }
   if 'image' in request:
     put_data['image'] = {
@@ -727,10 +744,6 @@ def AddRequest(request, game_state):
   pass
 
 def AddResponse(request, game_state):
-  pass
-
-
-def UpdateRequestCategory(request, game_state):
   pass
 
 def AddQuizQuestion(request, game_state):
@@ -1078,6 +1091,22 @@ def AddMissionMembership(game_state, public_player_id, mission_id):
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
   game_state.put('/privatePlayers/%s/missionMemberships' % private_player_id, mission_id, True)
 
+def RemoveMissionMembership(game_state, public_player_id, mission_id):
+  private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
+  game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission_id)
+
+
+def AddMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_group_id):
+  group = game_state.get('/groups', access_group_id)
+  if 'players' in group:
+    for public_player_id in group['players'].keys():
+      AddMissionMembership(game_state, public_player_id, mission_id)
+
+def RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_group_id):
+  group = game_state.get('/groups', access_group_id)
+  if 'players' in group:
+    for public_player_id in group['players'].keys():
+      RemoveMissionMembership(game_state, public_player_id, mission_id)
 
 def UpdateChatRoomMembership(request, game_state):
   helpers.ValidateInputs(request, game_state, {
@@ -1191,12 +1220,12 @@ def RemovePlayerFromGroupInner(game_state, group_id, public_player_id):
   for chat in chats:
     game_state.delete('/privatePlayers/%s/chatRoomMemberships' % private_player_id, chat)
 
-  missions = helpers.GroupToMissions(game_state, group_id)
-  for mission in missions:
-    game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission)
+  mission_ids = helpers.GroupToMissions(game_state, group_id)
+  for mission_id in mission_ids:
+    RemoveMissionMembership(game_state, public_player_id, mission_id);
 
 
-def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
+def UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player=False):
   """Auto add/remove a player from groups.
 
   When a player changes allegiances, automatically add/remove them
@@ -1216,16 +1245,21 @@ def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
   game = helpers.PlayerToGame(game_state, public_player_id)
   allegiance = helpers.PlayerAllegiance(game_state, public_player_id)
   groups = game_state.get('/games/%s' % game, 'groups') or []
+
   for group_id in groups:
     group = game_state.get('/groups', group_id)
-    if group['autoAdd'] and group['allegianceFilter'] == allegiance:
-      AddPlayerToGroupInner(game_state, group_id, public_player_id)
-    elif (not new_player and group['autoRemove'] and
-          group['allegianceFilter'] != allegiance):
-      RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
-    elif new_player and group['autoAdd'] and group['allegianceFilter'] == 'none':
-      AddPlayerToGroupInner(game_state, group_id, public_player_id)
+    if 'players' in group:
+      if public_player_id in group['players']:
+        if group['autoRemove'] and group['allegianceFilter'] != 'none':
+          if allegiance != group['allegianceFilter']:
+            RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
 
+  for group_id in groups:
+    group = game_state.get('/groups', group_id)
+    if group['autoAdd']:
+      if 'players' not in group or public_player_id not in group['players']:
+        if group['allegianceFilter'] == 'none' or allegiance == group['allegianceFilter']:
+          AddPlayerToGroupInner(game_state, group_id, public_player_id)
 
 # TODO Decide how to mark a life code as used up.
 def Infect(request, game_state):
@@ -1283,7 +1317,7 @@ def Infect(request, game_state):
     infect_path = '/publicPlayers/%s/infections' % victim_public_player_id
     infect_data = {
       'infectorId': infector_public_player_id,
-      'time': int(time.time() * 1000),
+      'time': helpers.GetTime(request),
     }
     game_state.put(infect_path, infection_id, infect_data)
 
@@ -1362,7 +1396,7 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
   print private_player_id
   game_state.put('/publicPlayers/%s' % player_id, 'allegiance', allegiance)
   game_state.put('/privatePlayers/%s' % private_player_id, 'canInfect', can_infect)
-  AutoUpdatePlayerGroups(game_state, player_id, new_player=False)
+  UpdateMembershipsOnAllegianceChange(game_state, player_id, new_player=False)
 
 
 def AddRewardCategory(request, game_state):
@@ -1576,9 +1610,14 @@ def ClaimReward(request, game_state):
   if 'limitPerPlayer' in reward_category and int(reward_category['limitPerPlayer']) >= 1:
     limit = int(reward_category['limitPerPlayer'])
     claims = game_state.get(player_path, 'claims')
+    print "claims:"
+    print claims
     if claims:
-      claims = [c for c in claims if c['rewardCategoryId'] == reward_category_id]
-      if len(claims) >= limit:
+      num_rewards_in_category = 0
+      for reward_id, claim in claims.iteritems():
+        if claim['rewardCategoryId'] == reward_category_id:
+          num_rewards_in_category = num_rewards_in_category + 1
+      if num_rewards_in_category >= limit:
         raise InvalidInputError('You have already claimed this reward type %d times, which is the limit.' % limit)
 
   game_state.patch(reward_path, {'playerId': player_id})
@@ -1589,7 +1628,7 @@ def ClaimReward(request, game_state):
   helpers.AddPoints(game_state, player_id, reward_points)
   game_state.patch(reward_category_path, {'claimed': rewards_claimed + 1})
   game_state.patch(reward_path, {'playerId': player_id})
-  claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time() * 1000)}
+  claim_data = {'rewardCategoryId': reward_category_id, 'time': helpers.GetTime(request)}
   game_state.put('%s/claims' % player_path, reward_id, claim_data)
 
   return reward_category_id
@@ -1632,7 +1671,7 @@ def SendNotification(request, game_state):
   if (request['groupId'] is None) == (request['playerId'] is None):
     raise InvalidInputError('Must include either a playerId or a groupId')
 
-  current_time = int(time.time() * 1000)
+  current_time = helpers.GetTime(request)
   # If it's in the past, send it now
   if request['sendTime'] is not None and current_time > int(request['sendTime']):
     request['sendTime'] = None
@@ -1664,7 +1703,7 @@ def UpdateNotification(request, game_state):
     'icon': '|?String', # An icon code to show. Null to show the default.
   })
 
-  current_time = int(time.time() * 1000)
+  current_time = helpers.GetTime(request)
   if request['sendTime'] is not None and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
 
@@ -1700,7 +1739,7 @@ def MarkNotificationSeen(request, game_state):
   public_player_id = request['playerId']
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
 
-  current_time = int(time.time() * 1000)
+  current_time = helpers.GetTime(request)
   put_data = {
     'seenTime': current_time
   }
@@ -1766,12 +1805,20 @@ def AddLife(request, game_state):
 
   public_life = {
     'gameId': game_id,
-    'time': int(time.time() * 1000),
+    'time': helpers.GetTime(request),
     'privateLifeId': private_life_id,
   }
   game_state.put('/publicLives', public_life_id, public_life),
 
   game_state.patch('/publicPlayers/%s/lives' % public_player_id, {public_life_id: True})
+
+  public_player = game_state.get('/publicPlayers', public_player_id)
+  private_player = game_state.get('/privatePlayers', helpers.GetPrivatePlayerId(game_state, public_player_id))
+
+  num_lives = len(public_player['lives'].keys()) if 'lives' in public_player else 0
+  num_infections = len(public_player['infections'].keys()) if 'infections' in public_player else 0
+  if num_lives > num_infections:
+    SetPlayerAllegiance(game_state, public_player_id, allegiance=constants.HUMAN, can_infect=private_player['canInfect'])
 
 
 def DeleteTestData(request, game_state):

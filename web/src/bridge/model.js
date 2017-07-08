@@ -4,7 +4,7 @@ var models = {
   gun: {
     link: ['guns', 'gunId'], // How to find this object in firebase
     path: ['guns'], // How to find this object in the browser copy
-    gameId: '', 
+    gameId: '',
     playerId: '', // Properties of this object (and potential parent linkages)
     label: '',
     a: []
@@ -28,6 +28,7 @@ var models = {
     declareResistanceEndTime: 0,
     endTime: 0,
     faqHtml: '',
+    summaryHtml: '',
     groups: [],
     guns: [],
     isActive: false,
@@ -200,10 +201,11 @@ var models = {
     isVisible: false
   },
   playerMissionMembership: {
-    link: ['privatePlayers', 'playerId', 'missionMemberships', 'missionId'],
-    path: ['players', 'playerId', 'private', 'missionMemberships'],
+    link: ['privatePlayers', 'privatePlayerId', 'missionMemberships', 'missionId'],
+    path: ['players', 'publicPlayerId', 'private', 'missionMemberships'],
     missionId: '',
-    playerId: '',
+    publicPlayerId: '',
+    privatePlayerId: '',
     gameId: '',
   },
   infection: {

@@ -17,6 +17,10 @@
 """TODO: High-level file comment."""
 
 import sys
+import time
+import copy
+import constants
+import textwrap
 
 
 def main(argv):
@@ -28,10 +32,6 @@ if __name__ == '__main__':
 """DB helper methods."""
 
 
-import sys
-import copy
-import constants
-import textwrap
 
 class Optional:
   def __init__(self, expectation):
@@ -370,6 +370,11 @@ def GetPlayerNamesInChatRoom(game_state, chatroom_id):
     names[name] = player
   return names
 
+def GetTime(request):
+  current_time = int(time.time() * 1000)
+  if 'requestTimeOffset' in request:
+    current_time = current_time + request['requestTimeOffset']
+  return current_time
 
 def QueueNotification(game_state, request):
   put_data = {

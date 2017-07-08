@@ -134,6 +134,7 @@ class EndToEndTest(unittest.TestCase):
       'name': 'test Game',
       'rulesHtml': 'test rules',
       'faqHtml': 'test faq',
+      'summaryHtml': 'test summary',
       'stunTimer': 10,
       'registrationEndTime': 1506884521000,
       'startTime': 1606884521000,
@@ -145,6 +146,7 @@ class EndToEndTest(unittest.TestCase):
       'gameId': self.Id('gameId'),
       'rulesHtml': 'test rule 2',
       'faqHtml': 'test faq 2',
+      'summaryHtml': 'test summary 2',
       'stunTimer': 5,
     }
     self.AssertCreateUpdateSequence('createGame', create, 'updateGame', update)
@@ -600,6 +602,30 @@ class EndToEndTest(unittest.TestCase):
       'victimLifeCode': 'purple roller patrol',
       'victimPlayerId': None,
       'infectionId': self.Id('infectionId', 1),
+    })
+
+    self.AssertOk('joinResistance', {
+      'gameId': self.Id('gameId', 1),
+      'playerId': self.Id('publicPlayerId', 4),
+      'lifeCode': 'sparkle board shorts',
+      'lifeId': self.Id('publicLifeId', 2),
+      'privateLifeId': self.Id('privateLifeId', 2),
+    })
+
+    self.AssertOk('infect', {
+      'gameId': self.Id('gameId', 1),
+      'infectorPlayerId': self.Id('publicPlayerId', 3),
+      'victimLifeCode': 'sparkle board shorts',
+      'victimPlayerId': None,
+      'infectionId': self.Id('infectionId', 2),
+    })
+
+    self.AssertOk('addLife', {
+      'gameId': self.Id('gameId', 1),
+      'playerId': self.Id('publicPlayerId', 4),
+      'lifeId': self.Id('publicLifeId', 3),
+      'privateLifeId': self.Id('privateLifeId', 3),
+      'lifeCode': "sporkle borkle dorks",
     })
 
     # Final keep last
