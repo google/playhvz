@@ -335,6 +335,7 @@ window.FirebaseListener = (function () {
                 let path = mission.path;
                 let index = path[path.length - 1];
                 path = path.slice(0, path.length - 1);
+                console.log('removing from path!', path, index, missionId);
                 this.writer.remove(path, index, missionId);
               });
           });
@@ -450,10 +451,11 @@ window.FirebaseListener = (function () {
       }));
     }
 
-    listenToPlayerMissionMembership_(playerId, missionId) {
+    listenToPlayerMissionMembership_(publicPlayerId, privatePlayerId, missionId) {
       this.listenToModel(new Model.PlayerMissionMembership(missionId, {
         gameId: this.gameIdObj.gameId,
-        playerId: playerId
+        publicPlayerId: publicPlayerId,
+        privatePlayerId: privatePlayerId,
       }));
     }
 

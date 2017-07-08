@@ -687,15 +687,14 @@ class FakeServer {
       if (group.autoRemove) {
         if (playerId in group.playersById) {
           if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
-              this.removePlayerFromGroup({groupId: group.id, playerToRemoveId: playerId});
-            }
+            this.removePlayerFromGroup({groupId: group.id, playerToRemoveId: playerId});
           }
         }
       }
     }
     for (let group of this.game.groups) {
       if (group.autoAdd) {
-        if (!(group.playersById in playerId])) {
+        if (!(group.playersById in playerId)) {
           if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
             this.addPlayerToGroup({groupId: group.id, playerToAddId: playerId});
           }

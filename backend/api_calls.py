@@ -553,7 +553,7 @@ def DeleteMission(request, game_state):
   mission_id = request['missionId']
   mission = game_state.get('/missions', mission_id)
   access_group_id = mission['accessGroupId']
-  
+
   for public_player_id in helpers.GetPublicPlayerIdsInGroup(game_state, access_group_id):
     RemoveMissionMembership(game_state, public_player_id, mission_id)
 
@@ -573,17 +573,23 @@ def UpdateMission(request, game_state):
     'name': '|String',
     'beginTime': '|Timestamp',
     'endTime': '|Timestamp',
-    'detailsHtml': '|String'
+    'detailsHtml': '|String',
+    'accessGroupId': '|GroupId',
   })
 
   mission_id = request['missionId']
 
   put_data = {}
-  for property in ['name', 'beginTime', 'endTime', 'detailsHtml']:
+  for property in ['name', 'beginTime', 'endTime', 'detailsHtml', 'accessGroupId']:
     if property in request:
       put_data[property] = request[property]
 
   game_state.patch('/missions/%s' % mission_id, put_data)
+
+  # TODO: move this out of update, update should only deal with data that has no side effects
+  if 'accessGroupId' in request:
+    RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
+    RddMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
 
 
 def AddChatRoom(request, game_state):
@@ -1085,6 +1091,22 @@ def AddMissionMembership(game_state, public_player_id, mission_id):
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
   game_state.put('/privatePlayers/%s/missionMemberships' % private_player_id, mission_id, True)
 
+def RemoveMissionMembership(game_state, public_player_id, mission_id):
+  private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
+  game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission_id)
+
+
+def AddMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_group_id):
+  group = game_state.get('/groups', access_group_id)
+  if 'players' in group:
+    for public_player_id in group['players'].keys():
+      AddMissionMembership(game_state, public_player_id, mission_id)
+
+def RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_group_id):
+  group = game_state.get('/groups', access_group_id)
+  if 'players' in group:
+    for public_player_id in group['players'].keys():
+      RemoveMissionMembership(game_state, public_player_id, mission_id)
 
 def UpdateChatRoomMembership(request, game_state):
   helpers.ValidateInputs(request, game_state, {
@@ -1198,9 +1220,9 @@ def RemovePlayerFromGroupInner(game_state, group_id, public_player_id):
   for chat in chats:
     game_state.delete('/privatePlayers/%s/chatRoomMemberships' % private_player_id, chat)
 
-  missions = helpers.GroupToMissions(game_state, group_id)
-  for mission in missions:
-    game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission)
+  mission_ids = helpers.GroupToMissions(game_state, group_id)
+  for mission_id in mission_ids:
+    RemoveMissionMembership(game_state, public_player_id, mission_id);
 
 
 def UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player=False):
@@ -1226,15 +1248,16 @@ def UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player
 
   for group_id in groups:
     group = game_state.get('/groups', group_id)
-    if public_player_id in group['players']:
-      if group['autoRemove'] and group['allegianceFilter'] != 'none':
-        if allegiance != group['allegianceFilter']:
-          RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
+    if 'players' in group:
+      if public_player_id in group['players']:
+        if group['autoRemove'] and group['allegianceFilter'] != 'none':
+          if allegiance != group['allegianceFilter']:
+            RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
 
   for group_id in groups:
     group = game_state.get('/groups', group_id)
     if group['autoAdd']:
-      if public_player_id not in group['players']:
+      if 'players' not in group or public_player_id not in group['players']:
         if group['allegianceFilter'] == 'none' or allegiance == group['allegianceFilter']:
           AddPlayerToGroupInner(game_state, group_id, public_player_id)
 
