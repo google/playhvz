@@ -479,3 +479,10 @@ Utils.arrayShallowEquals = function(a, b) {
   }
   return true;
 }
+
+Utils.numObjects = function(obj) {
+  if(obj)
+    return Object.keys(obj).length;
+  else
+    return 0;
+};
