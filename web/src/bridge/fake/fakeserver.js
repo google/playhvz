@@ -694,7 +694,7 @@ class FakeServer {
     }
     for (let group of this.game.groups) {
       if (group.autoAdd) {
-        if (!(group.playersById in playerId)) {
+        if (!(playerId in group.playersById)) {
           if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
             this.addPlayerToGroup({groupId: group.id, playerToAddId: playerId});
           }
@@ -729,7 +729,7 @@ class FakeServer {
     this.writer.set(publicPlayerPath.concat(["allegiance"]), allegiance);
     let privatePlayerPath = this.reader.getPrivatePlayerPath(playerId);
     this.writer.set(privatePlayerPath.concat(["canInfect"]), canInfect);
-    if (newAllegiance != oldAllegiance)
+    if (allegiance != oldAllegiance)
       this.updateMembershipsOnAllegianceChange(playerId);
   }
   // TODO: get rid of setPlayerHuman and setPlayerZombie
