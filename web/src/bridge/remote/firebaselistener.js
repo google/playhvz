@@ -326,6 +326,7 @@ window.FirebaseListener = (function () {
             this.firebaseRoot.child(privatePlayer.link + '/missionMemberships')
               .on('child_removed', (snap) => {
                 let missionId = snap.getKey();
+                console.log('ITS GOIN AWAY!', missionId);
                 let mission = new Model.PlayerMissionMembership(missionId, {
                   gameId: this.gameIdObj.gameId,
                   privatePlayerId: privatePlayerId,

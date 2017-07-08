@@ -589,7 +589,7 @@ def UpdateMission(request, game_state):
   # TODO: move this out of update, update should only deal with data that has no side effects
   if 'accessGroupId' in request:
     RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
-    RddMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
+    AddMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
 
 
 def AddChatRoom(request, game_state):

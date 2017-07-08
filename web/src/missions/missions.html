@@ -28,10 +28,6 @@
 
           game: Object,
 
-          missions: {
-            type: Array,
-          },
-
           newMission: {
             type: Object,
             value: () => ({
@@ -241,8 +237,8 @@
         selectable
         id="table"
         blueprint="[[makeTableBlueprint_()]]"
-        items="[[missions]]">
-      <template is="dom-repeat" id="repeater" items="[[missions]]" as="mission" initial-count="1" target-framerate="5">
+        items="[[game.missions]]">
+      <template is="dom-repeat" id="repeater" items="[[game.missions]]" as="mission" initial-count="1" target-framerate="5">
         <div class="row" name$="mission-row-[[mission.name]]">
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
           <div class="cell" name="missionName">[[mission.name]]</div>
