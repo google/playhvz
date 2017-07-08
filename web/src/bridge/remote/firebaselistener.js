@@ -443,13 +443,11 @@ window.FirebaseListener = (function () {
 
     listenToChatRoom_(chatRoomId) {
       this.listenToModel(new Model.ChatRoom(chatRoomId, this.gameIdObj), (obj, snapVal) => {
-        let numMessages = Utils.numObjects(snapVal.messages);
-        this.firebaseObjectCounter += (numMessages > 100) ? 100 : numMessages;
         this.listenToGroup_(obj.accessGroupId);
-        // Only listen to anything more recent than the last 100 messages
+        // Only listen to anything more recent
         // Temporary, until some day when we split /messages into its own root or something
         let startMessageTimestamp = 0;
-        let messagesMap = obj.messages;
+        let messagesMap = snapVal.messages;
         let messages = [];
         for (let messageId in messagesMap) {
           let message = messagesMap[messageId];
@@ -457,10 +455,15 @@ window.FirebaseListener = (function () {
           messages.push(message);
         }
         messages.sort((a, b) => a.time - b.time);
-        if (messages.length > 100) {
-          let hundredthMostRecentMessage = messages[messages.length - 100];
-          startMessageTimestamp = hundredthMostRecentMessage.time;
+        for(var m in messages) {
+          var mod =  new Model.Message(messages[m].id, {
+            gameId: this.gameIdObj.gameId,
+            chatRoomId: chatRoomId
+          });
+          mod.initialize(messages[m], this.game, this.writer);
         }
+        
+        startMessageTimestamp = messages[messages.length - 1].time;
 
         this.firebaseRoot.child(obj.link + '/messages')
           .on('child_added', (snap) => {
