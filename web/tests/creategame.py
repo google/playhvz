@@ -31,7 +31,7 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="minny", page="/createGame", populate=False)
 
 try:
-  driver.Click([[By.ID, 'createGame']]) #TODO(aliengirl): failed oncheere (page hadn't loaded maybe?)
+  driver.Click([[By.ID, 'createGame']])
 
   gameId = driver.GetGameId()
 
