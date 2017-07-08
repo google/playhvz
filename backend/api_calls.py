@@ -1503,7 +1503,7 @@ def AddReward(request, game_state):
 
   reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
 
-  reward_code = request['code'] or '%s-%s' % (reward_category['shortName'], RandomWords(3))
+  reward_code = request['code'] or MakeRewardCode(game_state, game_id, reward_category_id)
 
   if helpers.RewardCodeToRewardId(game_state, game_id, reward_code, False) is not None:
     raise InvalidInputError('Reward with that code already exists!')
@@ -1518,6 +1518,37 @@ def AddReward(request, game_state):
     'playerId': None,
   }
   AddRewardToDb(game_state, reward_category_id, reward_id, reward_data)
+
+
+def MakeLifeCode(game_state, game_id, public_player_id):
+  game = game_state.get('/games', game_id)
+  public_player =  game_state.get('/publicPlayers/%s' % public_player_id, None)
+
+  game_name = game['name']
+  player_name = public_player['name']
+  num_lives = len(public_player['lives'].keys()) if 'lives' in public_player else 0
+
+  seed = game_name + player_name + str(num_lives)
+  print 'lizard seed:' + seed
+  life_code_words = RandomWords(seed, 3)
+  life_code = '-'.join(life_code_words)
+
+  return life_code
+
+
+def MakeRewardCode(game_state, game_id, reward_category_id):
+  game = game_state.get('/games', game_id)
+  reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
+
+  game_name = game['name']
+  short_name = reward_category['shortName']
+  num_rewards = len(reward_category['rewards'].keys()) if 'rewards' in reward_category else 0
+
+  seed = game_name + short_name + str(num_rewards)
+  reward_code_words = RandomWords(seed, 2)
+  reward_code = '-'.join([short_name] + reward_code_words)
+
+  return reward_code
 
 
 def AddRewards(request, game_state):
@@ -1543,7 +1574,7 @@ def AddRewards(request, game_state):
     reward_data = {
       'gameId': request['gameId'],
       'rewardCategoryId': reward_category_id,
-      'code': '%s-%s' % (reward_category['shortName'], RandomWords(3)),
+      'code': MakeRewardCode(game_state, game_id, reward_category_id),
       'playerId': None
     }
     AddRewardToDb(game_state, reward_category_id, reward_id, reward_data)
@@ -1634,14 +1665,21 @@ def ClaimReward(request, game_state):
   return reward_category_id
 
 
+def HashString(string):
+  total = 5381
+  for letter in string:
+    total = total * 33 + ord(letter)
+  return total
 
-def RandomWords(n):
+
+def RandomWords(seed, n):
   words = []
   with open('wordlist.txt') as f:
     wordlist = f.readlines()
     for i in range(n):
-      words.append(random.choice(wordlist).strip())
-  return '-'.join(words)
+      random_num = HashString("herp-" + str(i) + "-derp-" + seed)
+      words.append(wordlist[random_num % len(wordlist)].strip())
+  return words
 
 
 def SendNotification(request, game_state):
@@ -1795,7 +1833,7 @@ def AddLife(request, game_state):
   public_life_id = request['lifeId'] or ('publicLife-%s' % random.randint(0, 2**52))
   private_life_id = request['privateLifeId'] or ('privateLife-' + helpers.GetIdSuffix(public_life_id))
 
-  life_code = request['lifeCode'] or RandomWords(3)
+  life_code = request['lifeCode'] or MakeLifeCode(game_state, game_id, public_player_id)
 
   private_life = {
     'gameId': game_id,
