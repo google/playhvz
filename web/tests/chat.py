@@ -62,6 +62,7 @@ try:
           [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
 
         # Check the profile pic shows up
+        # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
         pic = driver.FindElement(
           [[By.NAME, 'chat-card'], 
           [By.NAME, 'chat-drawer-%s' % chatName], 

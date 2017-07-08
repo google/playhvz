@@ -1,4 +1,5 @@
 import setup
+import pdb
 from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="jack")
@@ -22,18 +23,24 @@ try:
 
   driver.DrawerMenuClick('profile-card', 'Game Stats')
 
-  initial_zombie_count = driver.FindElement([[By.NAME, 'stats-card'],
+  driver.FindElement([[By.NAME, 'stats-card'],
                             [By.ID, 'current_population_meta'],
                             [By.ID, 'zombie_count']],
                             check_visible=False)
 
-  initial_zombie_count = int(initial_zombie_count.get_attribute('textContent'))
+  initial_zombie_start_count = 4
+  initial_zombie_end_count = 6
 
   # ensure our zombies over time current value reflects the current population
   driver.ExpectContains([[By.NAME, 'stats-card'],
                           [By.ID, 'population_over_time_meta'],
+                          [By.ID, 'zombie_start_count']],
+                          str(initial_zombie_start_count),
+                          check_visible=False)
+  driver.ExpectContains([[By.NAME, 'stats-card'],
+                          [By.ID, 'population_over_time_meta'],
                           [By.ID, 'zombie_end_count']],
-                          str(initial_zombie_count),
+                          str(initial_zombie_end_count),
                           check_visible=False)
 
   driver.DrawerMenuClick('stats-card', 'Dashboard')
@@ -68,7 +75,7 @@ try:
   # double check our stats
   driver.DrawerMenuClick('mobile-main-page', 'Game Stats')
 
-  current_zombie_count = initial_zombie_count + len(INFECTABLES)
+  current_zombie_count = initial_zombie_end_count + len(INFECTABLES)
 
   # check our charts. Ensure that new zombie counts are reflected
   driver.ExpectContains([[By.NAME, 'stats-card'],
@@ -89,7 +96,6 @@ try:
                           [By.ID, 'zombie_end_count']],
                           str(current_zombie_count),
                           check_visible=False)
-
 
   driver.Quit()
 

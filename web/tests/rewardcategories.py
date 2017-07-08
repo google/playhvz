@@ -72,6 +72,7 @@ try:
   driver.Click([[By.ID, 'addReward']])
 
   # Check that at least some are there
+  # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
   reward1 = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name']]).get_attribute('val')
 
   driver.FindElement([[By.NAME, 'reward-name']], '(unclaimed)')
@@ -102,6 +103,7 @@ try:
   driver.DrawerMenuClick('rewards-card', 'Leaderboard')
 
   # After claiming the reward, Zeke has 3 points, and the badge shows up in the Leaderboard
+  # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
   driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell Zeke']], "3")
   pic = driver.FindElement([
       [By.NAME, 'leaderboard-card'], 
@@ -116,6 +118,7 @@ try:
   driver.ExpectContains(
     [[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flosser Badge']], 
     'A reward you get for brushing and flossing after eating humans.')
+  # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
   pic = driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flosser Badge'], [By.TAG_NAME, 'img']])
   assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png"
 

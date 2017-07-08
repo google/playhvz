@@ -39,6 +39,7 @@ try:
       lambda : True,
       lambda: driver.FindElement([[By.NAME, 'map-ready']]))
     driver.Click([[By.ID, 'sendLocationForm'], [By.ID, 'done']])
+    # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
     location = driver.FindElement([[By.NAME, 'message-Global Chat-'], [By.ID, 'mapContainer']])
     location = location.get_attribute('src')
     assert "https://maps.googleapis.com/maps/api/staticmap" in location;
@@ -46,6 +47,7 @@ try:
     # Jack can see it
     driver.SwitchUser('jack')
     driver.DrawerMenuClick('mobile-main-page', '-Global Chat')
+    # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
     location = driver.FindElement([[By.NAME, 'message-Global Chat-'], [By.ID, 'mapContainer']])
     location = location.get_attribute('src')
     assert "https://maps.googleapis.com/maps/api/staticmap" in location;

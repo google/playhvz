@@ -44,6 +44,7 @@ try:
   # See that the players list shows Jack isn't active
   driver.DrawerMenuClick('profile-card', 'Admin Players')
   driver.FindElement([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'extra']], '!Active')
+  # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
   nameDiv = driver.FindElement([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])
   unactive = nameDiv.get_attribute('inactive')
   active = nameDiv.get_attribute('yoloa')
