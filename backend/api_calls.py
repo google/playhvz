@@ -28,6 +28,7 @@ if __name__ == '__main__':
 from api_helpers import AppError, respondError
 from google.appengine.api import mail
 
+# NOTE: DO NOT import time, instead use helpers.GetTime(request)
 import cgi
 import copy
 import difflib
@@ -35,13 +36,12 @@ import logging
 import pprint
 import random
 import textwrap
-import time
 import notifications
-
 import constants
 import db_helpers as helpers
 from db_helpers import Optional
 import config
+# NOTE: DO NOT import time, instead use helpers.GetTime(request)
 
 
 InvalidInputError = helpers.InvalidInputError
@@ -109,6 +109,7 @@ def AddGame(request, game_state):
     'name': 'String',
     'rulesHtml': 'String',
     'faqHtml': 'String',
+    'summaryHtml': 'String',
     'stunTimer': 'Number',
     'startTime': 'Timestamp',
     'endTime': 'Timestamp',
@@ -122,6 +123,7 @@ def AddGame(request, game_state):
     'isActive': request['isActive'],
     'rulesHtml': request['rulesHtml'],
     'faqHtml': request['faqHtml'],
+    'summaryHtml': request['summaryHtml'],
     'stunTimer': request['stunTimer'],
     'startTime': request['startTime'],
     'endTime': request['endTime'],
@@ -161,6 +163,7 @@ def UpdateGame(request, game_state):
     'name': '|String',
     'rulesHtml': '|String',
     'faqHtml': '|String',
+    'summaryHtml': '|String',
     'stunTimer': '|Number',
     'startTime': '|Timestamp',
     'endTime': '|Timestamp',
@@ -170,7 +173,7 @@ def UpdateGame(request, game_state):
   })
 
   put_data = {}
-  for property in ['name', 'rulesHtml', 'faqHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
+  for property in ['name', 'rulesHtml', 'faqHtml', 'summaryHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
     if property in request:
       put_data[property] = request[property]
 
@@ -673,7 +676,7 @@ def SendChatMessage(request, game_state):
     'vibrate': True,
     'sound': "ping.wav",
     'destination': 'TODO',
-    'sendTime': int(time.time() * 1000),
+    'sendTime': helpers.GetTime(request),
     'icon': 'TODO'
   }
   # If we check for all @all, then there is no need to send out additional
@@ -704,7 +707,7 @@ def SendChatMessage(request, game_state):
   put_data = {
     'playerId': request['playerId'],
     'message': request['message'],
-    'time': int(time.time() * 1000)
+    'time': helpers.GetTime(request)
   }
   if 'image' in request:
     put_data['image'] = {
@@ -1283,7 +1286,7 @@ def Infect(request, game_state):
     infect_path = '/publicPlayers/%s/infections' % victim_public_player_id
     infect_data = {
       'infectorId': infector_public_player_id,
-      'time': int(time.time() * 1000),
+      'time': helpers.GetTime(request),
     }
     game_state.put(infect_path, infection_id, infect_data)
 
@@ -1594,7 +1597,7 @@ def ClaimReward(request, game_state):
   helpers.AddPoints(game_state, player_id, reward_points)
   game_state.patch(reward_category_path, {'claimed': rewards_claimed + 1})
   game_state.patch(reward_path, {'playerId': player_id})
-  claim_data = {'rewardCategoryId': reward_category_id, 'time': int(time.time() * 1000)}
+  claim_data = {'rewardCategoryId': reward_category_id, 'time': helpers.GetTime(request)}
   game_state.put('%s/claims' % player_path, reward_id, claim_data)
 
   return reward_category_id
@@ -1637,7 +1640,7 @@ def SendNotification(request, game_state):
   if (request['groupId'] is None) == (request['playerId'] is None):
     raise InvalidInputError('Must include either a playerId or a groupId')
 
-  current_time = int(time.time() * 1000)
+  current_time = helpers.GetTime(request)
   # If it's in the past, send it now
   if request['sendTime'] is not None and current_time > int(request['sendTime']):
     request['sendTime'] = None
@@ -1669,7 +1672,7 @@ def UpdateNotification(request, game_state):
     'icon': '|?String', # An icon code to show. Null to show the default.
   })
 
-  current_time = int(time.time() * 1000)
+  current_time = helpers.GetTime(request)
   if request['sendTime'] is not None and current_time > int(request['sendTime']):
     raise InvalidInputError('sendTime must not be in the past!')
 
@@ -1705,7 +1708,7 @@ def MarkNotificationSeen(request, game_state):
   public_player_id = request['playerId']
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
 
-  current_time = int(time.time() * 1000)
+  current_time = helpers.GetTime(request)
   put_data = {
     'seenTime': current_time
   }
@@ -1771,12 +1774,20 @@ def AddLife(request, game_state):
 
   public_life = {
     'gameId': game_id,
-    'time': int(time.time() * 1000),
+    'time': helpers.GetTime(request),
     'privateLifeId': private_life_id,
   }
   game_state.put('/publicLives', public_life_id, public_life),
 
   game_state.patch('/publicPlayers/%s/lives' % public_player_id, {public_life_id: True})
+
+  public_player = game_state.get('/publicPlayers', public_player_id)
+  private_player = game_state.get('/privatePlayers', helpers.GetPrivatePlayerId(game_state, public_player_id))
+
+  num_lives = len(public_player['lives'].keys()) if 'lives' in public_player else 0
+  num_infections = len(public_player['infections'].keys()) if 'infections' in public_player else 0
+  if num_lives > num_infections:
+    SetPlayerAllegiance(game_state, public_player_id, allegiance=constants.HUMAN, can_infect=private_player['canInfect'])
 
 
 def DeleteTestData(request, game_state):

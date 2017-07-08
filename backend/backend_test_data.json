@@ -92,6 +92,7 @@
       },
       "rulesHtml": "test rule 2",
       "faqHtml": "test faq 2",
+      "summaryHtml": "test summary 2",
       "stunTimer": 5,
       "startTime": 1606884521000,
       "endTime": 1706884521000,
@@ -256,14 +257,24 @@
       "privatePlayerId": "privatePlayer-%(ident)s-3",
       "allegiance": "horde",
       "isActive": false, "number": 103, "name": "testBobby3",
-      "points": 100, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
+      "points": 200, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
     },
     "publicPlayer-%(ident)s-4": {
       "gameId": "game-%(ident)s-1",
       "privatePlayerId": "privatePlayer-%(ident)s-4",
-      "allegiance": "undeclared",
+      "allegiance": "resistance",
       "isActive": false, "number": 104, "name": "testBobby3",
-      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-4"
+      "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-4",
+      "infections": {
+        "infection-%(ident)s-2": {
+          "infectorId": "publicPlayer-%(ident)s-3",
+          "time": 0
+        }
+      },
+      "lives": {
+        "publicLife-%(ident)s-2": true,
+        "publicLife-%(ident)s-3": true
+      }
     },
     "publicPlayer-%(ident)s-5": {
       "gameId": "game-%(ident)s-1",
@@ -394,7 +405,7 @@
     },
     "privatePlayer-%(ident)s-4": {
       "notificationSettings": { "sound": true, "vibrate": true },
-      "canInfect": false,
+      "canInfect": true,
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
@@ -519,12 +530,30 @@
     "privateLife-%(ident)s-1": {
       "gameId": "game-%(ident)s-1",
       "code": "purple roller patrol"
+    },
+    "privateLife-%(ident)s-2": {
+      "gameId": "game-%(ident)s-1",
+      "code": "sparkle board shorts"
+    },
+    "privateLife-%(ident)s-3": {
+      "gameId": "game-%(ident)s-1",
+      "code": "sporkle borkle dorks"
     }
   },
   "publicLives": {
     "publicLife-%(ident)s-1": {
       "gameId": "game-%(ident)s-1",
       "privateLifeId": "privateLife-%(ident)s-1",
+      "time": 0
+    },
+    "publicLife-%(ident)s-2": {
+      "gameId": "game-%(ident)s-1",
+      "privateLifeId": "privateLife-%(ident)s-2",
+      "time": 0
+    },
+    "publicLife-%(ident)s-3": {
+      "gameId": "game-%(ident)s-1",
+      "privateLifeId": "privateLife-%(ident)s-3",
       "time": 0
     }
   },
