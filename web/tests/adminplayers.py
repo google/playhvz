@@ -97,7 +97,7 @@ try:
   driver.SendKeys(
     [[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
     'zap')
-  driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
+  driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up #TODO(aliengirl): failed here once
   driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
   driver.Backspace([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']], 3)
 
