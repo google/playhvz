@@ -116,6 +116,7 @@
       "players": {
         "publicPlayer-%(ident)s-1": true,
         "publicPlayer-%(ident)s-2": true,
+        "publicPlayer-%(ident)s-3": true,
         "publicPlayer-%(ident)s-4": true,
         "publicPlayer-%(ident)s-5": true
       }
@@ -393,6 +394,14 @@
       "notes": "",
       "beInPhotos": true,
       "userId": "user-%(ident)s-3",
+      "chatRoomMemberships": {
+        "chatRoom-%(ident)s-1": {
+          "isVisible": true
+        }
+      },
+      "missionMemberships": {
+        "mission-%(ident)s-1": true
+      },
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
       "volunteer": {

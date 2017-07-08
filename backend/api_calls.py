@@ -370,7 +370,7 @@ def AddPlayer(request, game_state):
 
   game_state.put('/games/%s/players' % game_id, public_player_id, True)
 
-  AutoUpdatePlayerGroups(game_state, public_player_id, new_player=True)
+  UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player=True)
 
 
 def UpdatePlayer(request, game_state):
@@ -549,8 +549,16 @@ def DeleteMission(request, game_state):
     'missionId': 'MissionId'
   })
 
-  game_state.delete('/missions', request['missionId'])
-  game_state.delete('/games/%s/missions' % request['gameId'], request['missionId'])
+  game_id = request['gameId']
+  mission_id = request['missionId']
+  mission = game_state.get('/missions', mission_id)
+  access_group_id = mission['accessGroupId']
+  
+  for public_player_id in helpers.GetPublicPlayerIdsInGroup(game_state, access_group_id):
+    RemoveMissionMembership(game_state, public_player_id, mission_id)
+
+  game_state.delete('/games/%s/missions' % game_id, mission_id)
+  game_state.delete('/missions', mission_id)
 
 
 def UpdateMission(request, game_state):
@@ -730,10 +738,6 @@ def AddRequest(request, game_state):
   pass
 
 def AddResponse(request, game_state):
-  pass
-
-
-def UpdateRequestCategory(request, game_state):
   pass
 
 def AddQuizQuestion(request, game_state):
@@ -1199,7 +1203,7 @@ def RemovePlayerFromGroupInner(game_state, group_id, public_player_id):
     game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission)
 
 
-def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
+def UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player=False):
   """Auto add/remove a player from groups.
 
   When a player changes allegiances, automatically add/remove them
@@ -1219,16 +1223,20 @@ def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
   game = helpers.PlayerToGame(game_state, public_player_id)
   allegiance = helpers.PlayerAllegiance(game_state, public_player_id)
   groups = game_state.get('/games/%s' % game, 'groups') or []
+
   for group_id in groups:
     group = game_state.get('/groups', group_id)
-    if group['autoAdd'] and group['allegianceFilter'] == allegiance:
-      AddPlayerToGroupInner(game_state, group_id, public_player_id)
-    elif (not new_player and group['autoRemove'] and
-          group['allegianceFilter'] != allegiance):
-      RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
-    elif new_player and group['autoAdd'] and group['allegianceFilter'] == 'none':
-      AddPlayerToGroupInner(game_state, group_id, public_player_id)
+    if public_player_id in group['players']:
+      if group['autoRemove'] and group['allegianceFilter'] != 'none':
+        if allegiance != group['allegianceFilter']:
+          RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
 
+  for group_id in groups:
+    group = game_state.get('/groups', group_id)
+    if group['autoAdd']:
+      if public_player_id not in group['players']:
+        if group['allegianceFilter'] == 'none' or allegiance == group['allegianceFilter']:
+          AddPlayerToGroupInner(game_state, group_id, public_player_id)
 
 # TODO Decide how to mark a life code as used up.
 def Infect(request, game_state):
@@ -1365,7 +1373,7 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
   print private_player_id
   game_state.put('/publicPlayers/%s' % player_id, 'allegiance', allegiance)
   game_state.put('/privatePlayers/%s' % private_player_id, 'canInfect', can_infect)
-  AutoUpdatePlayerGroups(game_state, player_id, new_player=False)
+  UpdateMembershipsOnAllegianceChange(game_state, player_id, new_player=False)
 
 
 def AddRewardCategory(request, game_state):
