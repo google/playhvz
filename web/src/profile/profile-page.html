@@ -34,7 +34,7 @@
         path: Array,
         lifeCode: {
           type: String,
-          computed: 'computeLifeCode_(player.allegiance, player.lives.length)',
+          computed: 'computeLifeCode_(player.allegiance, player.lives.*)',
         }
       },
 
@@ -47,7 +47,8 @@
       computeLifeCode_() {
         if (this.player.allegiance == 'resistance') {
           if (this.player.lives.length) {
-            return this.player.lives[this.player.lives.length - 1].private.code;
+            let life = this.player.lives[this.player.lives.length - 1];
+            return life && life.private && life.private.code;
           }
         }
         return null;
