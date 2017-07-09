@@ -156,11 +156,7 @@
 
           let temporaryGameObjectWriter = new SimpleWriter(null);
           let teeWriter = new TeeWriter(temporaryGameObjectWriter);
-          this.bridge.listenToGame(this.userId, this.gameId, teeWriter);
-
-          new Promise((resolve, reject) => {
-            setTimeout(resolve, 2000);
-          }).then(() => {
+          this.bridge.listenToGame(this.userId, this.gameId, teeWriter).then(() => {
             teeWriter.removeDestination(temporaryGameObjectWriter);
             this.set('game', temporaryGameObjectWriter.destination);
             teeWriter.addDestination(new BatchedPolymerWriter(this, 'game'));

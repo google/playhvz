@@ -72,10 +72,13 @@ class FakeBridge {
           gatedWriter.closeGate();
         }, 100);
 
-    return () => {
-      clearInterval(interval);
-      this.teeWriter.removeDestination(cloningWriter);
-    };
+    return new Promise ((resolve, reject) => {
+      setTimeout(() => {
+        clearInterval(interval);
+        this.teeWriter.removeDestination(cloningWriter);
+        resolve();        
+      }, 2000);
+    });
   }
 }
 
