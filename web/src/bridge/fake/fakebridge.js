@@ -31,9 +31,6 @@ class FakeBridge {
 
     for (const funcName of Bridge.METHODS) {
       if (!this[funcName])
-<<<<<<< HEAD
-        this[funcName] = (...args) => this.server[funcName](...args).catch((error) => alert(error));
-=======
         this[funcName] = (...args) => this.server[funcName](...args)
             .catch(function(error) {
               console.error('failed in', funcName);
@@ -41,7 +38,6 @@ class FakeBridge {
               console.error(arguments);
               alert(error)
             });
->>>>>>> e4a70124ff9eb97f61248943a606ea3004b1006f
     }
   }
   signIn({userId}) {
