@@ -37,13 +37,12 @@ class SimpleDriver:
     element = None
     for step in path:
       by, locator = step
-      try:
-        if element is None:
-          element = self.selenium_driver.find_element(by, locator)
-        else:
-          element = element.find_element(by, locator)
-      except NoSuchElementException:
-        element = None
+      if element is None:
+        elements = self.selenium_driver.find_elements(by, locator)
+      else:
+        elements = element.find_elements(by, locator)
+      # assert len(elements) < 2, "Multiple elements found!"
+      element = elements[0] if len(elements) > 0 else None
       if element is None:
         break
     if should_exist:

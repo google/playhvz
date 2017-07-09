@@ -17,16 +17,14 @@
 """TODO: High-level file comment."""
 
 import sys
-
+import pdb
+import setup
+from selenium.webdriver.common.by import By
 
 def main(argv):
     pass
-
-
 if __name__ == '__main__':
     main(sys.argv)
-import setup
-from selenium.webdriver.common.by import By
 
 # Sign in as a normal human.
 driver = setup.MakeDriver(user="jack")
@@ -59,7 +57,6 @@ driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAM
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'done']])
-
 # Try to infect Jack again - shouldn't work this time (since life code is already claimed)
 driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly')
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])

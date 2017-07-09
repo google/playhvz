@@ -150,7 +150,7 @@ methods = {
 
 @app.route('/')
 def index():
-  return "<h1>Welcome To Google HVZ (backend)!</h1>"
+  return "<h1>Welcome To PlayHvZ (backend)!</h1>"
 
 
 @app.route('/help')

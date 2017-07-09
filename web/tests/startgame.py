@@ -87,6 +87,7 @@ driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 # Player sees their lifecode and allegiance
 driver.DrawerMenuClick('mobile-main-page', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')
-driver.ExpectContains([[By.NAME, 'lifecode']], 'person-sandy-swift' if driver.use_remote else 'codefor-ReggieTheRavager')
+driver.ExpectContains([[By.NAME, 'lifecode']], 'watch-alone-belkin' if driver.use_remote else 'codefor-ReggieTheRavager')
 
 driver.Quit()
+
