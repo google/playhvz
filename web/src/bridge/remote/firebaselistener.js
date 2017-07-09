@@ -132,8 +132,11 @@ window.FirebaseListener = (function () {
 
     decrement() {
       this.firebaseObjectCounter--;
-      if (this.firebaseObjectCounter == 0) 
+      if (this.firebaseObjectCounter == 0) {
+        let endTime = new Date().getTime();
+        console.log('All objects loaded in', (endTime - this.timeWhenLoadingStarted)/1000, 'seconds');
         this.firebaseObjectsLoaded();
+      }
     }
 
     listenOnce_(path) {
@@ -166,11 +169,11 @@ window.FirebaseListener = (function () {
     listenToModel(obj, extraCallback) {
       return this.listenOnce_(obj.link).then((snap) => {
         obj.initialize(snap.val(), this.game, this.writer);
-        /* this.listenForPropertyChanges_(
+        this.listenForPropertyChanges_(
           snap.ref, obj._properties, obj._collections,
           (property, value) => {
             this.writer.set(obj.path.concat([property]), value);
-          }); */
+          });
         if (extraCallback)
           extraCallback(obj, snap.val());
         this.decrement(); // The increment happened when someone asked this model to load
@@ -182,7 +185,8 @@ window.FirebaseListener = (function () {
       this.firebaseObjectsLoadedPromise = new Promise((resolve, reject) => {
         this.firebaseObjectsLoaded = resolve;
       });
-      console.log('listening to a game!', listeningUserId, gameId);
+      this.timeWhenLoadingStarted = new Date().getTime();
+      console.log('listening to a game! at ', this.timeWhenLoadingStarted, listeningUserId, gameId);
       this.destination.addDestination(destination);
       this.game = new Model.Game(gameId);
       this.gameIdObj = {
@@ -466,15 +470,12 @@ window.FirebaseListener = (function () {
         lastMessage = messages[messages.length - 1];
 
         this.firebaseRoot.child(obj.link + '/messages')
-          .on('child_added', (snap) => {
-            // Listen to newer and avoid dupes (if time happens to be the same)
-            // though there is a slight change we have a dupe again if 3+ have the same time
-            if (lastMessage && snap.val().time >= lastMessage.time && snap.getKey() !== lastMessage.id) {
-              this.listenToModel(new Model.Message(snap.getKey(), {
-                gameId: this.gameIdObj.gameId,
-                chatRoomId: chatRoomId
-              }));
-            }
+          .orderByChild('time').startAt(lastMessage.time + 1).on('child_added', (snap) => {
+            // Listen to newer ones, could be an issue if a message came at exactly the same time
+            this.listenToModel(new Model.Message(snap.getKey(), {
+              gameId: this.gameIdObj.gameId,
+              chatRoomId: chatRoomId
+            }));
           });
       });
     }
@@ -487,10 +488,11 @@ window.FirebaseListener = (function () {
       }));
     }
 
-    listenToPlayerMissionMembership_(playerId, missionId) {
+    listenToPlayerMissionMembership_(publicPlayerId, privatePlayerId, missionId) {
       this.listenToModel(new Model.PlayerMissionMembership(missionId, {
         gameId: this.gameIdObj.gameId,
-        playerId: playerId
+        playerId: publicPlayerId,
+        privatePlayerId: privatePlayerId
       }));
     }
 

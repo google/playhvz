@@ -516,6 +516,9 @@ type PublicLife {
 }
 
 /chatRooms/{ChatRoomId} is ChatRoom;
+/chatRooms/{ChatRoomId}/messages {
+  index() {['time']}
+}
 /chatRooms/ChatRoomId/messages/{MessageId} is Message;
 /games/{GameId} is Game;
 /games is PublicEntity;
@@ -526,9 +529,9 @@ type PublicLife {
 /queuedNotification/{QueuedNotificationId} is QueuedNotification;
 /maps/{MapId} is MapType;
 /missions/{MissionId} is Mission;
-/playersPrivate/{PrivatePlayerId} is PrivatePlayer;
+/privatePlayers/{PrivatePlayerId} is PrivatePlayer;
 /privateLives/{PrivateLifeId} is PrivateLife;
-/playersPublic/{PublicPlayerId} is PublicPlayer;
+/publicPlayers/{PublicPlayerId} is PublicPlayer;
 /publicLives/{PublicLifeId} is PublicLife;
 /rewardCategories/{RewardCategoryId} is RewardCategory;
 /rewards/{RewardId} is RewardCategory;
