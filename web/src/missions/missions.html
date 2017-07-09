@@ -103,7 +103,7 @@
                 property: "accessGroupId",
                 name: "mission-group",
                 label: "Group",
-                description: "Select the group that can see this mission",
+                description: "The group that can see this mission",
                 type: "group",
                 width: "half",
               },
@@ -113,7 +113,6 @@
                 property: "beginTime",
                 label: "Begin timestamp",
                 width: "half",
-                description: "(in milliseconds)",
                 type: "timestamp",
               },
               {
@@ -122,7 +121,6 @@
                 property: "endTime",
                 label: "End timestamp",
                 width: "half",
-                description: "(in milliseconds)",
                 type: "timestamp",
               },
               {
@@ -256,6 +254,7 @@
         id="missionForm"
         game="[[game]]"
         type-name="Mission"
+        is-mobile="[[isMobile]]"
         blueprint="[[makeFormBlueprint_()]]">
     </ghvz-super-form>
   </template>

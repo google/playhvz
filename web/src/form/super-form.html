@@ -28,6 +28,8 @@
           type: Object,
         },
 
+        isMobile: Boolean,
+
         game: Object,
 
         typeName: {
@@ -238,11 +240,12 @@
       type-name="[[typeName]]">
     <template is="dom-repeat" items="{{fields}}" as="field">
       <ghvz-form-section
+          is-mobile$="[[isMobile]]"
           section-width$="[[field.width]]"
           name="[[field.name]]"
-          label="[[field.label]]"
           description="[[field.description]]">
         <template is="dom-if" if="[[usePaperDropdown_(field)]]">
+          <div>[[field.label]]</div>
           <paper-dropdown-menu
               label="Allegiance Filter">
             <paper-listbox
@@ -257,6 +260,7 @@
           </paper-dropdown-menu>
         </template>
         <template is="dom-if" if="[[useTimestampPicker_(field)]]">
+          <div>[[field.label]]</div>
           <ghvz-timestamp-picker timestamp="{{field.value}}">
           </ghvz-timestamp-picker>
         </template>
@@ -269,6 +273,7 @@
           </paper-textarea>
         </template>
         <template is="dom-if" if="[[useGroupField_(field)]]">
+          <div>[[field.label]]</div>
           <ghvz-group-field game="[[game]]" value="{{field.value}}">
           </ghvz-group-field>
         </template>

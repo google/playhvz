@@ -28,9 +28,7 @@
 
           game: Object,
 
-          rewardCategories: Array,
-          rewardCategoriesById: Object,
-          playersById: Object,
+          isMobile: Boolean,
 
           currentRewardCategory: {
             type: Object,
@@ -184,7 +182,7 @@
           if (reward.playerId == null) {
             return "(unclaimed)";
           } else {
-            var player = this.playersById[reward.playerId];
+            var player = this.game.playersById[reward.playerId];
             return player ? player.name : "(unknown!)";
           }
         },
@@ -247,7 +245,7 @@
   <template>
     <array-selector
         id="selector"
-        items="[[rewardCategories]]"
+        items="[[game.rewardCategories]]"
         selected="{{currentRewardCategory}}">
     </array-selector>
 
@@ -264,8 +262,8 @@
     <ghvz-table
         id="categoriesTable"
         blueprint="[[makeCategoriesTableBlueprint_()]]"
-        items="[[rewardCategories]]">
-      <template is="dom-repeat" id="categoriesRepeater" items="[[rewardCategories]]" as="category" initial-count="1" target-framerate="5">
+        items="[[game.rewardCategories]]">
+      <template is="dom-repeat" id="categoriesRepeater" items="[[game.rewardCategories]]" as="category" initial-count="1" target-framerate="5">
         <div class="row" name$="row-[[category.shortName]]">
           <ghvz-table-control-cell item="[[category]]"></ghvz-table-control-cell>
           <div class="cell">[[category.name]]</div>
@@ -279,6 +277,7 @@
     <ghvz-super-form
         id="categoryForm"
         type-name="Reward Category"
+        is-mobile="[[isMobile]]"
         blueprint="[[makeCategoryFormBlueprint_()]]">
     </ghvz-super-form>
 

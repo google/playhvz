@@ -117,6 +117,7 @@ var models = {
     mobile: false,
     previewMessage: '',
     sent: false,
+    sendTime: '',
     site: false,
     sound: false,
     vibrate: false

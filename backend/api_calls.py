@@ -1313,7 +1313,7 @@ def Infect(request, game_state):
     if victim_public_player['allegiance'] != constants.HUMAN:
       raise InvalidInputError('You can only self-infect if you are a human.')
     AddInfection(game_state, time, infection_id, victim_public_player_id, infector_public_player_id)
-    return None
+    return "self-infection"
 
   if not infector_private_player['canInfect']:
     raise InvalidInputError('You cannot infect another player at the present time.')
