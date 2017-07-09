@@ -313,6 +313,7 @@ class FakeDriver:
 class WholeDriver:
   def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
     self.is_mobile = is_mobile
+    self.use_remote = use_remote
     if use_remote:
       self.inner_driver = RemoteDriver(client_url, is_mobile, password, populate, user, page)
     else:

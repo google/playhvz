@@ -114,8 +114,9 @@ try:
   driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Add Life')
   driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
 
-  # Add Life to Zella (already a human, so shouldn't change anything)
+  # Add Life to Zella (already a human, so should show an error)
   driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
+  driver.DismissAlert()
   driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 
   # Make sure the infections/revivals are reflected on the players' pages
