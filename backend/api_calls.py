@@ -658,7 +658,7 @@ def SendChatMessage(request, game_state):
     'gameId': 'GameId',
     'chatRoomId': 'ChatRoomId',
     'messageId': '!MessageId',
-    'message': 'String',
+    'message': '?String',
     'playerId': 'PublicPlayerId',
     'image': Optional({
       'url': 'String'
@@ -677,52 +677,54 @@ def SendChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
-  user_id = game_state.get('/publicPlayers/%s' % request['playerId'], 'userId')
-  players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
-  notification_data = {
-    'gameId': request['gameId'],
-    'queuedNotificationId': 'queuedNotification-%s' % request['messageId'][len('message-'):],
-    'message': request['message'],
-    'previewMessage': textwrap.wrap(request['message'], 100)[0],
-    'site': True,
-    'email': False,
-    'mobile': True,
-    'vibrate': True,
-    'sound': "ping.wav",
-    'destination': 'TODO',
-    'sendTime': helpers.GetTime(request),
-    'icon': 'TODO'
-  }
-  # If we check for all @all, then there is no need to send out additional
-  # player notifications.
-  if '@all' in request['message'] and helpers.IsAdmin(game_state,
-                                                      request['gameId'],
-                                                      user_id):
+  if 'message' in request:
+    user_id = game_state.get('/publicPlayers/%s' % request['playerId'], 'userId')
+    players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
+    notification_data = {
+      'gameId': request['gameId'],
+      'queuedNotificationId': 'queuedNotification-%s' % request['messageId'][len('message-'):],
+      'message': request['message'],
+      'previewMessage': textwrap.wrap(request['message'], 100)[0],
+      'site': True,
+      'email': False,
+      'mobile': True,
+      'vibrate': True,
+      'sound': "ping.wav",
+      'destination': 'TODO',
+      'sendTime': helpers.GetTime(request),
+      'icon': 'TODO'
+    }
+    # If we check for all @all, then there is no need to send out additional
+    # player notifications.
+    if '@all' in request['message'] and helpers.IsAdmin(game_state,
+                                                        request['gameId'],
+                                                        user_id):
 
-    for player in players_in_room:
-      n = notification_data.copy()
-      n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
-      n['playerId'] = players_in_room[player]
-      helpers.QueueNotification(game_state, n)
-      notifications.ExecuteNotifications(None, game_state)
-  else:
-    tokens = request['message'].split(' ')
-    for token in tokens:
-      if not token.startswith('@'):
-        continue
-      name = token[1:]
-      if name in players_in_room:
+      for player in players_in_room:
         n = notification_data.copy()
-        n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
-        n['playerId'] = players_in_room[name]
+        n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
+        n['playerId'] = players_in_room[player]
         helpers.QueueNotification(game_state, n)
         notifications.ExecuteNotifications(None, game_state)
+    else:
+      tokens = request['message'].split(' ')
+      for token in tokens:
+        if not token.startswith('@'):
+          continue
+        name = token[1:]
+        if name in players_in_room:
+          n = notification_data.copy()
+          n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
+          n['playerId'] = players_in_room[name]
+          helpers.QueueNotification(game_state, n)
+          notifications.ExecuteNotifications(None, game_state)
 
   put_data = {
     'playerId': request['playerId'],
     'message': request['message'],
     'time': helpers.GetTime(request)
   }
+    
   if 'image' in request:
     put_data['image'] = {
       'url': request['image']['url']
@@ -1459,14 +1461,14 @@ def UpdateRewardCategory(request, game_state):
     'shortName': '|String',
     'points': '|Number',
     'limitPerPlayer': '|Number',
-    'badgeUrl': '|String',
+    'badgeImageUrl': '|String',
     'description': '|String',
   })
 
   reward_category_id = request['rewardCategoryId']
 
   reward_category_data = {}
-  for k in ('name', 'points', 'limitPerPlayer', 'badgeUrl', 'description'):
+  for k in ('name', 'points', 'shortName', 'limitPerPlayer', 'badgeImageUrl', 'description'):
     if k in request:
       reward_category_data[k] = request[k]
 
@@ -1564,6 +1566,8 @@ def AddRewards(request, game_state):
     'rewardCategoryId': 'RewardCategoryId',
     'count': 'Number'
   })
+
+  game_id = request['gameId']
 
   reward_category_id = request['rewardCategoryId']
 

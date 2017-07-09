@@ -104,6 +104,10 @@ getCurrentPrivatePlayerId(gameId) {
   root.publicPlayers[getCurrentPublicPlayerId(gameId)].privatePlayerId
 }
 
+isPrivatePlayer(gameId) {
+  (getUserId()) == root.privatePlayers[getCurrentPrivatePlayerId(gameId)].userId
+}
+
 isGroupMember(groupId, gameId) {  
   root.groups[groupId].players[getCurrentPublicPlayerId(gameId)]
 }
@@ -480,7 +484,7 @@ type PrivateLife {
   gameId: GameId;
   read() {
     isServer() ||
-    key() == getCurrentPrivatePlayerId(this.gameId) ||
+    isPrivatePlayer(this.gameId) ||
     isAdmin(this.gameId)
   }
 
@@ -516,6 +520,9 @@ type PublicLife {
 }
 
 /chatRooms/{ChatRoomId} is ChatRoom;
+/chatRooms/{ChatRoomId}/messages {
+  index() {['time']}
+}
 /chatRooms/ChatRoomId/messages/{MessageId} is Message;
 /games/{GameId} is Game;
 /games is PublicEntity;
@@ -523,12 +530,12 @@ type PublicLife {
 /groups/{GroupId} is Group;
 /groups/GroupId/players/{PublicPlayerId} is PublicPlayer;
 /guns/{GunId} is Gun;
-/queuedNotification/{QueuedNotificationId} is QueuedNotification;
+/queuedNotifications/{QueuedNotificationId} is QueuedNotification;
 /maps/{MapId} is MapType;
 /missions/{MissionId} is Mission;
-/playersPrivate/{PrivatePlayerId} is PrivatePlayer;
+/privatePlayers/{PrivatePlayerId} is PrivatePlayer;
 /privateLives/{PrivateLifeId} is PrivateLife;
-/playersPublic/{PublicPlayerId} is PublicPlayer;
+/publicPlayers/{PublicPlayerId} is PublicPlayer;
 /publicLives/{PublicLifeId} is PublicLife;
 /rewardCategories/{RewardCategoryId} is RewardCategory;
 /rewards/{RewardId} is RewardCategory;

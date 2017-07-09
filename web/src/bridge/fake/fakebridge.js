@@ -31,7 +31,13 @@ class FakeBridge {
 
     for (const funcName of Bridge.METHODS) {
       if (!this[funcName])
-        this[funcName] = (...args) => this.server[funcName](...args);
+        this[funcName] = (...args) => this.server[funcName](...args)
+            .catch(function(error) {
+              console.error('failed in', funcName);
+              console.error(error);
+              console.error(arguments);
+              alert(error)
+            });
     }
   }
   signIn({userId}) {
@@ -66,10 +72,11 @@ class FakeBridge {
           gatedWriter.closeGate();
         }, 100);
 
-    return () => {
-      clearInterval(interval);
-      this.teeWriter.removeDestination(cloningWriter);
-    };
+    return new Promise ((resolve, reject) => {
+      setTimeout(() => {
+        resolve();        
+      }, 2000);
+    });
   }
 }
 

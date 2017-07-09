@@ -16,29 +16,8 @@ window.FirebaseListener = (function () {
   //   hierarchy, because it's easier for polymer to understand.
 
   // Once the outside code constructs FirebaseListener, it should soon afterwards
-  // call listenToUser.
-
-  // listenToUser will start listening to the /users/[userId] and will also start
-  // listening shallowly to everything under /games, so that elsewhere in the
-  // code we can decide which game to listen more closely to, and how to listen
-  // to it (whether as an admin or regular player).
-
-  // Sometime after listenToUser, the outside code should call
-  // listenToGameAsAdmin or listenToGameAsPlayer.
-
-  // listenToGameAsAdmin will listen in a somewhat straightforward way; it will
-  // look at /games/[gameId], see /games/[gameId]/missions,
-  // /games/[gameId]/chatRooms, /games/[gameId]/players, etc. which are lists of
-  // IDS, and use those IDs to start listening to /missions/[missionId],
-  // /chatRooms/[chatRoomId], /playersPublic/[playerId],
-  // /playersPrivate/[playerId], etc.
-
-  // listenToGameAsPlayer can't take that approach, because since we're not an
-  // admin, we can't just blindly listen to everything. To know what we have
-  // access to, we look at /playersPrivate/[playerId]/chatRooms,
-  // /playersPrivate/[playerId]/missions, etc. which are lists of IDs, and
-  // use those IDs to start listening to /missions/[missionId],
-  // /chatRooms/[chatRoomId], etc.
+  // call listenToGame which will traverse the tree and ultimately populate the objects
+  // with appropriate Models (objects with extra properties).
 
   class FirebaseListener {
     constructor(firebaseRoot) {
@@ -140,18 +119,40 @@ window.FirebaseListener = (function () {
       });
     }
 
+    // These two functions are meant to count how many times
+    // we request something to be loaded, this way we can know
+    // how many things we are waiting to hear back from, which allows
+    // us to figure out when everything is completely loaded
+    //
+    // WARNING: The assumption is that we get firebase to return,
+    //          if that doesn't happen we are hosed (but data is corrupt anyways)
+    increment() {
+      this.firebaseObjectCounter++;
+    }
+
+    decrement() {
+      this.firebaseObjectCounter--;
+      if (this.firebaseObjectCounter == 0) {
+        let endTime = new Date().getTime();
+        console.log('All objects loaded in', (endTime - this.timeWhenLoadingStarted)/1000, 'seconds');
+        this.firebaseObjectsLoaded();
+      }
+    }
+
     listenOnce_(path) {
       if (this.listenedToPaths[path]) {
         // Never resolves
         return new Promise((resolve, reject) => {});
       }
       this.listenedToPaths[path] = true;
+      this.increment();
 
       return new Promise((resolve, reject) => {
         let attempt = () => {
           this.firebaseRoot.child(path).once('value').then((snap) => {
             if (snap.val()) {
               resolve(snap);
+              this.decrement();
             } else {
               setTimeout(attempt, 250);
             }
@@ -159,8 +160,6 @@ window.FirebaseListener = (function () {
         };
         attempt();
       });
-
-      return this.firebaseRoot.child(path).once('value');
     }
 
     unlisten_(path) {
@@ -176,19 +175,23 @@ window.FirebaseListener = (function () {
             this.writer.set(obj.path.concat([property]), value);
           });
         if (extraCallback)
-          return extraCallback(obj);
-        else
-          return null;
+          extraCallback(obj, snap.val());
       });
     }
 
     listenToGame(listeningUserId, gameId, destination) {
-      console.log('listening to a game!', listeningUserId, gameId);
+      this.firebaseObjectCounter = 0;
+      this.firebaseObjectsLoadedPromise = new Promise((resolve, reject) => {
+        this.firebaseObjectsLoaded = resolve;
+      });
+      this.timeWhenLoadingStarted = new Date().getTime();
+      console.log('listening to a game!', this.timeWhenLoadingStarted, listeningUserId, gameId);
       this.destination.addDestination(destination);
       this.game = new Model.Game(gameId);
       this.gameIdObj = {
         gameId: gameId
       };
+      this.increment(); // Wait until game has been loaded
       this.listenOnce_(this.game.link).then((gameSnap) => {
         this.game.initialize(gameSnap.val(), this.game, null, true);
         this.setupPrivateModelAndReaderAndWriter(this.game);
@@ -198,6 +201,11 @@ window.FirebaseListener = (function () {
           (property, value) => {
             this.writer.set([property], value);
           });
+
+        // TODO combine this into something a bit better,
+        // right now objects from the snap val are objects and not
+        // models, so we rely on the child_added. Example of better
+        // solution in chat room messages
 
         this.firebaseRoot.child(this.game.link + '/adminUsers')
           .on('child_added', (snap) => this.listenToAdmin_(snap.getKey()));
@@ -209,6 +217,7 @@ window.FirebaseListener = (function () {
           .on('child_added', (snap) => this.listenToRewardCategory_(snap.getKey()));
 
         if (listeningUserId in gameSnap.val().adminUsers) { // this.game.adminUsers not populated by this point
+
           this.firebaseRoot.child(this.game.link + '/players')
             .on('child_added', (snap) => this.listenToPlayer_(snap.getKey(), listeningUserId, true));
           this.firebaseRoot.child(this.game.link + '/groups')
@@ -233,7 +242,11 @@ window.FirebaseListener = (function () {
           this.firebaseRoot.child(this.game.link + '/players')
             .on('child_added', (snap) => this.listenToPlayer_(snap.getKey(), listeningUserId, false));
         }
+        setTimeout(() => {
+          this.decrement();
+        }, 500); // There is a min 500ms load time to give the above a chance
       });
+      return this.firebaseObjectsLoadedPromise;
     }
 
     listenToGun_(gunId) {
@@ -245,7 +258,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToPlayer_(publicPlayerId, listeningUserId, listeningAsAdmin) {
-      this.listenToModel(new Model.PublicPlayer(publicPlayerId, this.gameIdObj), (obj) => {
+      this.listenToModel(new Model.PublicPlayer(publicPlayerId, this.gameIdObj), (obj, snapVal) => {
         let listenToPrivate = listeningAsAdmin || (obj.userId == listeningUserId);
 
         this.firebaseRoot.child(obj.link + '/claims')
@@ -262,6 +275,8 @@ window.FirebaseListener = (function () {
             playerId: publicPlayerId
           }, this.game, null, true);
           this.listenOnce_(privatePlayer.link).then((privateSnap) => {
+            let pVal = privateSnap.val();
+
             let privatePlayerPath = privatePlayer.path;
             this.writer.set(privatePlayerPath, privatePlayer); // ?
             this.listenForPropertyChanges_(
@@ -292,6 +307,7 @@ window.FirebaseListener = (function () {
               (property, value) => {
                 this.writer.set(privatePlayerPath.concat(['notificationSettings', property]), value);
               });
+
             this.firebaseRoot.child(privatePlayer.link + '/notifications')
               .on('child_added', (snap) => {
                 let notificationId = snap.getKey();
@@ -412,32 +428,42 @@ window.FirebaseListener = (function () {
     }
 
     listenToChatRoom_(chatRoomId) {
-      this.listenToModel(new Model.ChatRoom(chatRoomId, this.gameIdObj), (obj) => {
+      this.listenToModel(new Model.ChatRoom(chatRoomId, this.gameIdObj), (obj, snapVal) => {
         this.listenToGroup_(obj.accessGroupId);
-        // Only listen to anything more recent than the last 100 messages
+        // Only listen to anything more recent
         // Temporary, until some day when we split /messages into its own root or something
-        let startMessageTimestamp = 0;
-        let messagesMap = obj.messages;
+        let lastMessage = {};
+        let messagesMap = snapVal.messages;
         let messages = [];
         for (let messageId in messagesMap) {
           let message = messagesMap[messageId];
           message.id = messageId;
           messages.push(message);
         }
-        messages.sort((a, b) => a.time - b.time);
-        if (messages.length > 100) {
-          let hundredthMostRecentMessage = messages[messages.length - 100];
-          startMessageTimestamp = hundredthMostRecentMessage.time;
+        messages.sort((a, b) => b.time - a.time);
+
+        // Add all the messages directly into the model
+        // only the last 100 because Polymer doesn't like too many
+        for(var m in messages.slice(-100)) {
+          new Model.Message(messages[m].id, {
+            gameId: this.gameIdObj.gameId,
+            chatRoomId: chatRoomId
+          }).initialize(messages[m], this.game, this.writer);
         }
+        
+        if(messages.length > 0)
+          lastMessage = messages[0];
+        else
+          lastMessage.time = 0;
 
         this.firebaseRoot.child(obj.link + '/messages')
-          .on('child_added', (snap) => {
-            if (snap.val().time >= startMessageTimestamp) {
-              this.listenToModel(new Model.Message(snap.getKey(), {
-                gameId: this.gameIdObj.gameId,
-                chatRoomId: chatRoomId
-              }));
-            }
+          .orderByChild('time').startAt(lastMessage.time + 1).on('child_added', (snap) => {
+            // WARNING the +1 above is to prevent the last message from dupe
+            // could be an issue if a message came at exactly the same time
+            this.listenToModel(new Model.Message(snap.getKey(), {
+              gameId: this.gameIdObj.gameId,
+              chatRoomId: chatRoomId
+            }));
           });
       });
     }
@@ -459,7 +485,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToRewardCategory_(rewardCategoryId) {
-      this.listenToModel(new Model.RewardCategory(rewardCategoryId, this.gameIdObj), (obj) => {
+      this.listenToModel(new Model.RewardCategory(rewardCategoryId, this.gameIdObj), (obj, snapVal) => {
         this.firebaseRoot.child(obj.link + '/rewards')
           .on('child_added', (snap) => this.listenToModel(new Model.Reward(snap.getKey(), {
             rewardCategoryId: rewardCategoryId,
@@ -469,13 +495,19 @@ window.FirebaseListener = (function () {
     }
 
     listenToQuizQuestion_(quizQuestionId) {
-      this.listenToModel(new Model.QuizQuestion(quizQuestionId, this.gameIdObj), (obj) => {
+      this.listenToModel(new Model.QuizQuestion(quizQuestionId, this.gameIdObj), (obj, snapVal) => {
         this.firebaseRoot.child(obj.link + '/answers')
           .on('child_added', (snap) => this.listenToModel(new Model.QuizAnswer(snap.getKey(), {
             quizQuestionId: quizQuestionId,
             gameId: this.gameIdObj.gameId
           })));
       });
+    }
+
+    listenToQueuedNotification_(queuedNotificationId) {
+      this.listenToModel(new Model.QueuedNotification(queuedNotificationId, {
+        gameId: this.gameIdObj.gameId,
+      }));
     }
   }
 

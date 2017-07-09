@@ -116,7 +116,7 @@ class RemoteBridge {
   }
 
   listenToGame(userId, gameId, destination) {
-    this.firebaseListener.listenToGame(userId, gameId, destination);
+    return this.firebaseListener.listenToGame(userId, gameId, destination);
   }
 
   register(args) {

@@ -377,6 +377,7 @@ def GetTime(request):
   return current_time
 
 def QueueNotification(game_state, request):
+  game_id = request['gameId']
   put_data = {
     'sent': False,
   }
@@ -390,6 +391,7 @@ def QueueNotification(game_state, request):
   print 'request were putting:'
   print put_data
 
+  game_state.put('/games/%s/queuedNotifications' % game_id, request['queuedNotificationId'], True)
   game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
 
 
