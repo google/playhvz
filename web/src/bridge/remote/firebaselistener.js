@@ -477,6 +477,12 @@ window.FirebaseListener = (function () {
           })));
       });
     }
+
+    listenToQueuedNotification_(queuedNotificationId) {
+      this.listenToModel(new Model.QueuedNotification(queuedNotificationId, {
+        gameId: this.gameIdObj.gameId,
+      }));
+    }
   }
 
   return FirebaseListener;
