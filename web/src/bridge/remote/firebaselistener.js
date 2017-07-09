@@ -443,8 +443,8 @@ window.FirebaseListener = (function () {
         messages.sort((a, b) => b.time - a.time);
 
         // Add all the messages directly into the model
-        // only the last 10 because Polymer doesn't like too many
-        for(var m in messages.slice(-200)) {
+        // only the last 100 because Polymer doesn't like too many
+        for(var m in messages.slice(-100)) {
           new Model.Message(messages[m].id, {
             gameId: this.gameIdObj.gameId,
             chatRoomId: chatRoomId
