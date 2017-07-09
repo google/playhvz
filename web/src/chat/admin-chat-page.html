@@ -1,0 +1,199 @@
+<!--
+  Copyright 2017 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  This module is used to display all the chats in the game.
+-->
+<dom-module id="ghvz-admin-chat-page">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-admin-chat-page',
+
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: String,
+          game: String,
+          player: Object,
+          path: String,
+          isAdmin: Boolean,
+          isMobile: {
+            type: Boolean,
+            value: false,
+          },
+
+          adminChats: Array,
+
+          currentChatRoom: {
+            type: Object,
+            value: null,
+          },
+
+          showChatRoom: {
+            type: Boolean,
+            computed: 'computeShowChatRoom_(isMobile, path)',
+          },
+
+          showChatRoomList: {
+            type: Boolean,
+            computed: 'computeShowChatRoomList_(isMobile, path)',
+          },
+        },
+
+        observers: [
+          'onPathChanged_(path, game.chatRooms.*, adminChats)',
+          'onChatRoomsUpdated_(game, currentChatRoom, adminChats.length)',
+          'getAdminChats_(game.chatRooms.*)',
+        ],
+
+
+        computeShowChatRoomList_(isMobile, path) {
+          if (isMobile) {
+            return !this.computeShowChatRoom_(isMobile, path);
+          } else {
+            return true;
+          }
+        },
+
+        computeShowChatRoom_(isMobile, path) {
+          if (!isMobile) {
+            return true;
+          }
+          let indexOfChatString = path.indexOf("adminChats");
+          if (indexOfChatString >= 0) {
+            // If there's something after "chat" in the path
+            if (indexOfChatString < path.length - 1) {
+              return true;
+            }
+          }
+          return false;
+        },
+       
+        getAdminChats_() {
+          let adminChats = [];
+          for (chatRoom of this.game.chatRooms) {
+            if (chatRoom.withAdmins) {
+              adminChats.push(chatRoom);
+            }
+          }
+          this.adminChats = adminChats;
+        },
+
+        onPathChanged_() {
+          if (!this.isAdmin && this.path[0] != 'adminChats') {
+            return;
+          }
+          var chatRoomId = this.path[1];
+          if (chatRoomId) {
+            this.$.chatRoomSelector.select(
+                this.game.chatRooms.find(chatRoom => {
+                  return chatRoom.id == chatRoomId;
+                }));
+            if (this.$.chatRoomSelector.selected != null) {
+              return;
+            }
+          }
+          // If we get here, then there wasn't a chat room, it was just /gameChats in the url
+          // (or there was a chat room id but we couldnt find that chat room)
+          if (this.isMobile) {
+            // If we get here, that means we're at /adminChats and on mobile. In this case
+            // we just want to show the chat list.
+          } else {
+            // If we get here, that means we're at /adminChats and on desktop. In this case
+            // we want to just pick a chat room and show it.
+            if (this.adminChats.length > 0) {
+              this.async(() => {
+                chatRoomId = this.adminChats[0].id;
+                this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['adminChats', chatRoomId],
+                  replace: true,
+                });
+              });
+            }
+          }
+        },
+
+        onChatRoomsUpdated_() {
+          if (this.currentChatRoom) {
+            // We are viewing a chat room that still exists, do nothing
+            return;
+          }
+          // Change to adminChat/ which will redirect us to a valid chat room
+          this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['adminChats'],
+                  replace: true,
+          });
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: column;
+    }
+    #container {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: row
+    }
+    .chat-window {
+      width: 100%;
+    }
+    .chat-room-list {
+      max-width: 15%;
+      overflow-y: auto;
+    }
+    #container[is-mobile] .chat-room-list {
+      max-width: 100%;
+    }
+    .vertical-separator {
+      border-right: 1px solid darkgray;
+    }
+  </style>
+  <template>
+    <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
+    <div id="container" is-mobile$="[[isMobile]]" class="flex layout horizontal">
+      <template is="dom-if" if="[[showChatRoomList]]">
+        <ghvz-admin-chat-room-list 
+            class="chat-room-list" 
+            bridge="[[bridge]]"
+            game="[[game]]"
+            player="[[player]]"
+            is-admin="[[isAdmin]]">
+        </ghvz-admin-chat-room-list>
+      </template>
+      <template is="dom-if" if="[[showChatRoom]]">
+        <div class="vertical-separator"></div>
+          <ghvz-chat-room
+              name$="chat-room-[[currentChatRoom.name]]"
+              bridge="[[bridge]]"
+              game="[[game]]"
+              is-admin="[[isAdmin]]"
+              current-player="[[player]]"
+              chat-room-id="[[currentChatRoom.id]]"
+              is-mobile="[[isMobile]]"
+              class="chat-window">
+          </ghvz-chat-room>
+      </template>
+    </div>
+  </template>
+</dom-module>
