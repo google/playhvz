@@ -78,6 +78,9 @@ driver.ExpectContains([
 	[By.NAME, 'request-message-Why are we sorcerers? What does this have to do with zombies?'],
 	[By.NAME, 'not-responded']], 
 	"JackSlayerTheBeanSlasher, Drackan")
+driver.FindElement(
+	[[By.NAME, 'preview-ZellaTheUltimate: Why are we sorcerers? What does this have to do with zombies?']],
+	should_exist=False) #Shouldn't see your own notification
 
 # Jack sees the ack
 driver.SwitchUser('jack')
