@@ -275,7 +275,7 @@ class FakeServer {
         missionId);
   }
 
-  getMessageTargets(message, group) {
+  getMessageTargets(message, group, senderId) {
     let notificationPlayerIds = [];
     let ackRequestPlayerIds = [];
     let textRequestPlayerIds = [];
@@ -299,8 +299,16 @@ class FakeServer {
         }
         newTargetPlayerIds = [player.id];
       }
-
       notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
+      let senderIndex = notificationPlayerIds.indexOf(senderId);
+      console.log("getting targets")
+      console.log(newTargetPlayerIds)
+      console.log(notificationPlayerIds)
+      if (senderIndex != -1) {
+        console.log("splicing")
+        notificationPlayerIds.splice(senderIndex, 1);
+        console.log(notificationPlayerIds)
+      }
       if (messageMatch[1] == '!') {
         ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
       } else if (messageMatch[1] == '?') {
@@ -330,9 +338,9 @@ class FakeServer {
     } else {
       throw 'Can\'t send message to chat room without membership';
     }
-
+    
     let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-        this.getMessageTargets(message, group);
+        this.getMessageTargets(message, group, playerId);
 
     if (notificationPlayerIds.length) {
       for (let receiverPlayerId of notificationPlayerIds) {
