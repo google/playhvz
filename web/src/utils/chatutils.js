@@ -114,22 +114,3 @@ ChatUtils.createAdminChat = function(bridge, game, player, chatRoomName) {
   });
   return chatRoomId;
 };
-
-/**
- * Loops through player's chat rooms and sees if they have a chat room with admins.
- *
- * @returns true if there is already a chat with admins for this player
- */
-ChatUtils.adminChatExists = function(chatRoomsById, chatRoomMemberships) {
-  for (let chatRoomMembership of chatRoomMemberships) {
-    let chatRoomId = chatRoomMembership.chatRoomId;
-    let chatRoom = chatRoomsById[chatRoomId];
-    if (chatRoom.withAdmins) {
-      if (chatRoomMembership.isVisible) {
-        this.adminChatExists = true;
-        return;
-      }
-    }
-  }
-  this.adminChatExists = false;
-};
