@@ -234,7 +234,7 @@ class RemoteDriver:
     self.drivers_by_user[self.current_user].Backspace(path, number)
 
   def Clear(self, path):
-    self.drivers_by_user[self.current_user].Backspace(path)
+    self.drivers_by_user[self.current_user].Clear(path)
 
   def Quit(self):
     for driver in self.drivers_by_user.values():

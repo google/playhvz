@@ -89,7 +89,7 @@ driver.FindElement([[By.NAME, 'gun-row-pancake']], should_exist=False)
 driver.FindElement([[By.NAME, 'gun-row-3.14']])
 driver.Backspace([[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']], 4)
 
-# Change the weapon ID, and show that it shows up
+# Change the weapon Label, and show that it shows up
 driver.TableMenuClick([[By.NAME, 'gun-row-3.14']], 'Edit')
 driver.SendKeys(
       [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],

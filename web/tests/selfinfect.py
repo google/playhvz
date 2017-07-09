@@ -49,7 +49,8 @@ driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
 driver.DrawerMenuClick('chat-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '0') # Self-infecting doesn't give you points
-driver.FindElement([[By.NAME, 'infection-line']])
+driver.FindElement([[By.NAME, 'infection-line-0']])
+driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactly 1 infection
 
 # Zeke records the kill
 driver.SwitchUser('zeke')
@@ -67,6 +68,11 @@ driver.DismissAlert()
 # Check that Zeke got points
 driver.DrawerMenuClick('infect-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
+
+# Check that Jack only has 1 infection on his profile
+driver.SwitchUser('jack')
+driver.FindElement([[By.NAME, 'infection-line-0']])
+driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactly 1 infection
 
 driver.Quit()
 
