@@ -468,7 +468,7 @@ type QueuedNotification {
   vibrate: Boolean;
   
   read() {
-    isAuthenticatedMember(this.groupId, this.gameId)
+    isAdmin(this.gameId)
   }
 
   write() {     isServer()   }

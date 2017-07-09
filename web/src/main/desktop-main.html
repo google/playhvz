@@ -29,6 +29,7 @@
           user: String,
           game: String,
           player: Object,
+          isMobile: Boolean,
 
           isAdmin: {
             type: Boolean,
@@ -174,12 +175,13 @@
 
         <ghvz-card spaced right padded name="faq-box">
           <div class="header">FAQ</div>
-          <ghvz-game-faq game="[[game]]"></ghvz-game-faq>
+          <ghvz-game-faq game="[[game]]" is-mobile="[[isMobile]]"></ghvz-game-faq>
         </ghvz-card>
 
         <ghvz-card spaced left padded name="summary-box">
             <div class="header">Game Summary</div>
             <ghvz-game-summary
+                is-mobile="[[isMobile]]"
                 game="[[game]]">
             </ghvz-game-summary>
         </ghvz-card>
