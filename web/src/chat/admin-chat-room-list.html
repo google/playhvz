@@ -15,37 +15,53 @@
 
   This module is used to display all the chats in the game.
 -->
-<dom-module id="ghvz-game-chat-room-list">
+<dom-module id="ghvz-admin-chat-room-list">
   <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
       Polymer({
-        is: 'ghvz-game-chat-room-list',
+        is: 'ghvz-admin-chat-room-list',
 
         properties: {
           bridge: Object,
           game: String,
           player: Object,
           isAdmin: Boolean,
+
+          adminChats: Array,
         },
 
         listeners: {
           'tap': 'captureTap_',
         },
 
+        observers: [
+          'getAdminChats_(game.chatRooms.*)',
+        ],
+
         captureTap_(e) {
           let chatRoomId = e.target.dataset.chatRoomId;
           if (chatRoomId) {
             this.fire('ghvz-set-path', {
               inGame: true,
-              path: ['gameChats', chatRoomId],
+              path: ['adminChats', chatRoomId],
               replace: false,
             });
           }
           e.preventDefault();
           e.stopPropagation();
+        },
+
+        getAdminChats_() {
+          let adminChats = [];
+          for (chatRoom of this.game.chatRooms) {
+            if (chatRoom.withAdmins) {
+              adminChats.push(chatRoom);
+            }
+          }
+          this.adminChats = adminChats;
         },
       });
     });
@@ -100,7 +116,7 @@
   </style>
   <template>
     <div class="frame" on-tap="captureTap_">
-      <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom">
+      <template is="dom-repeat" items="[[adminChats]]" as="chatRoom">
         <ghvz-chat-room-name-label
             name$="[[chatRoom.name]]"
             class="layout horizontal list-item name-label"

@@ -15,14 +15,14 @@
 
   This module is used to display all the chats in the game.
 -->
-<dom-module id="ghvz-game-chat-page">
+<dom-module id="ghvz-admin-chat-page">
   <script>
     // Not sure why this HTMLImports.whenReady is really needed.
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
       Polymer({
-        is: 'ghvz-game-chat-page',
+        is: 'ghvz-admin-chat-page',
 
         properties: {
           bridge: Object,
@@ -36,6 +36,8 @@
             type: Boolean,
             value: false,
           },
+
+          adminChats: Array,
 
           currentChatRoom: {
             type: Object,
@@ -54,9 +56,11 @@
         },
 
         observers: [
-          'onPathChanged_(path, game.chatRooms.*, player.private.chatRoomMemberships.*)',
-          'onChatRoomsUpdated_(game, currentChatRoom, player.private.chatRoomMemberships.length)',
+          'onPathChanged_(path, game.chatRooms.*, adminChats)',
+          'onChatRoomsUpdated_(game, currentChatRoom, adminChats.length)',
+          'getAdminChats_(game.chatRooms.*)',
         ],
+
 
         computeShowChatRoomList_(isMobile, path) {
           if (isMobile) {
@@ -70,7 +74,7 @@
           if (!isMobile) {
             return true;
           }
-          let indexOfChatString = path.indexOf("gameChats");
+          let indexOfChatString = path.indexOf("adminChats");
           if (indexOfChatString >= 0) {
             // If there's something after "chat" in the path
             if (indexOfChatString < path.length - 1) {
@@ -79,9 +83,19 @@
           }
           return false;
         },
+       
+        getAdminChats_() {
+          let adminChats = [];
+          for (chatRoom of this.game.chatRooms) {
+            if (chatRoom.withAdmins) {
+              adminChats.push(chatRoom);
+            }
+          }
+          this.adminChats = adminChats;
+        },
 
         onPathChanged_() {
-          if (!this.isAdmin && this.path[0] != 'gameChats') {
+          if (!this.isAdmin && this.path[0] != 'adminChats') {
             return;
           }
           var chatRoomId = this.path[1];
@@ -97,17 +111,17 @@
           // If we get here, then there wasn't a chat room, it was just /gameChats in the url
           // (or there was a chat room id but we couldnt find that chat room)
           if (this.isMobile) {
-            // If we get here, that means we're at /gameChats and on mobile. In this case
+            // If we get here, that means we're at /adminChats and on mobile. In this case
             // we just want to show the chat list.
           } else {
-            // If we get here, that means we're at /gameChats and on desktop. In this case
+            // If we get here, that means we're at /adminChats and on desktop. In this case
             // we want to just pick a chat room and show it.
-            if (this.game.chatRooms.length > 0) {
+            if (this.adminChats.length > 0) {
               this.async(() => {
-                chatRoomId = this.game.chatRooms[0].id;
+                chatRoomId = this.adminChats[0].id;
                 this.fire('ghvz-set-path', {
                   inGame: true,
-                  path: ['gameChats', chatRoomId],
+                  path: ['adminChats', chatRoomId],
                   replace: true,
                 });
               });
@@ -116,15 +130,14 @@
         },
 
         onChatRoomsUpdated_() {
-          if (!this.currentChatRoom || this.isAdmin ||
-             this.player.private.chatRoomMembershipsById[this.currentChatRoom.id]) {
-            // We are viewing a chat room we still have access to, do nothing
+          if (this.currentChatRoom) {
+            // We are viewing a chat room that still exists, do nothing
             return;
           }
-          // Change to chat/ which will redirect us to a chat room we have access to
+          // Change to adminChat/ which will redirect us to a valid chat room
           this.fire('ghvz-set-path', {
                   inGame: true,
-                  path: ['gameChats'],
+                  path: ['adminChats'],
                   replace: true,
           });
         },
@@ -160,13 +173,13 @@
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
     <div id="container" is-mobile$="[[isMobile]]" class="flex layout horizontal">
       <template is="dom-if" if="[[showChatRoomList]]">
-        <ghvz-game-chat-room-list 
+        <ghvz-admin-chat-room-list 
             class="chat-room-list" 
             bridge="[[bridge]]"
             game="[[game]]"
             player="[[player]]"
             is-admin="[[isAdmin]]">
-        </ghvz-game-chat-room-list>
+        </ghvz-admin-chat-room-list>
       </template>
       <template is="dom-if" if="[[showChatRoom]]">
         <div class="vertical-separator"></div>
