@@ -100,5 +100,3 @@ driver.ExpectContains([[By.NAME, 'got-equipment']], "No")
 
 driver.Quit()
 
-finally:
-  pass

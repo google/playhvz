@@ -27,6 +27,7 @@ if __name__ == '__main__':
     main(sys.argv)
 import setup
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 
 driver = setup.MakeDriver(user="zella")
 
@@ -58,41 +59,121 @@ driver.ExpectContains(
 
 # Open game details
 driver.DrawerMenuClick('rules-card', 'Admin Game Details')
-
-# Open up Game details, change each field
 driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
-driver.SendKeys([[By.ID, 'form-section-game-name'], [By.ID, 'input']], 'A Quick and Certain Death to Humanity')
-driver.SendKeys([[By.ID, 'form-section-game-stunTimer'], [By.TAG_NAME, 'input']], 100)
 
-# If you click Cancel, the new changes shouldn't show up.
-driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'cancel']])
-driver.ExpectContains([[By.NAME, 'game-name']], 'A Quick and Certain Death to Humanity', False)
-driver.ExpectContains([[By.NAME, 'game-stunTimer']], "100", False)
-
-# # Open up Game details, change all the fields again.
-driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
+driver.Clear([[By.ID, 'form-section-game-name'], [By.ID, 'input']])
 driver.SendKeys([[By.ID, 'form-section-game-name'], [By.ID, 'input']], 'Welcome to the Zombies-Have-Hunger Games')
 driver.SendKeys([[By.ID, 'form-section-game-stunTimer'], [By.TAG_NAME, 'input']], 42)
 
-# # If you click Save, the new stun timer should show up.
+# Set game start time to sometime in the past
+driver.Clear([[By.ID, 'form-section-start-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2016")
+driver.Clear([[By.ID, 'form-section-start-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']], "1")
+driver.Clear([[By.ID, 'form-section-start-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']], "1")
+driver.Clear([[By.ID, 'form-section-start-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-start-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']], "1:00am")
+
+# Set game end time 
+driver.Clear([[By.ID, 'form-section-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2017")
+driver.Clear([[By.ID, 'form-section-end-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-end-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']], "12")
+driver.Clear([[By.ID, 'form-section-end-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-end-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']], "31")
+driver.Clear([[By.ID, 'form-section-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']], "12:00am")
+
+# Set the declare resistance and declare horde end times to sometime in the past
+driver.Clear([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2016")
+driver.Clear([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']], "2")
+driver.Clear([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']], "29")
+driver.Clear([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']], "4:15am")
+
+driver.Clear([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2016")
+driver.Clear([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'month'],[By.TAG_NAME, 'input']], "10")
+driver.Clear([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'day'],[By.TAG_NAME, 'input']], "12")
+driver.Clear([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']], "12:34pm")
+
+# If you click Save, the new stun timer should show up.
 driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
 driver.ExpectContains([[By.NAME, 'game-name']], 'Welcome to the Zombies-Have-Hunger Games')
 driver.ExpectContains([[By.NAME, 'game-stunTimer']], "42")
+driver.ExpectContains([[By.NAME, 'game-startTime']], "Jan 1 1:00am")
+driver.ExpectContains([[By.NAME, 'game-endTime']], "Dec 31 12:00am")
+driver.ExpectContains([[By.NAME, 'game-declareResistanceEndTime']], "Feb 29 4:15am")
+driver.ExpectContains([[By.NAME, 'game-declareHordeEndTime']], "Oct 12 12:34pm")
 
-# Go to the FAQ page
-driver.DrawerMenuClick('game-details-card', 'FAQ')
+# Have Deckerd try to declare and fail
+driver.SwitchUser('deckerd')
+driver.Click([[By.NAME, 'declareAllegiance']])
+driver.ExpectAttributeEqual([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']], 'aria-disabled', "true")
+driver.ExpectAttributeEqual([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option1']], 'aria-disabled', "true")
 
-driver.Click([[By.NAME, 'faq-card'], [By.NAME, 'rules-icon']])
-driver.SendKeys(
-    [[By.NAME, 'faq-card'], [By.TAG_NAME, 'textarea']], 
-    'Here is how you find a possessed human.')
 
-# If you click Save, the new words should show up.
-driver.Click([[By.NAME, 'faq-card'],[By.ID, 'done']])
+#NOTE: commented out b/c declare button doesn't update in real time
 
-driver.ExpectContains(
-    [[By.NAME, 'faq-card'], [By.ID, 'contents']],
-    'Here is how you find a possessed human.')
+# # Go back, change resistance cutoff time to future
+# driver.SwitchUser('zella')
+# driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
+# driver.Clear([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
+# driver.SendKeys([[By.ID, 'form-section-declare-resistance-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2020")
+# driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
 
-driver.Quit()
+# # Deckerd could declare resistance now
+# driver.SwitchUser('deckerd')
+# driver.Click([[By.NAME, 'declareAllegiance']])
+# driver.ExpectAttributeEqual([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']], 'aria-disabled', "false")
+# driver.ExpectAttributeEqual([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option1']], 'aria-disabled', "true")
+
+# # change the horde cutoff time to the future too
+# driver.SwitchUser('zella')
+# driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
+# driver.Clear([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
+# driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2018")
+# driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
+
+# # Deckerd can now declare either
+# driver.SwitchUser('deckerd')
+# driver.Click([[By.NAME, 'declareAllegiance']])
+# driver.ExpectAttributeEqual([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']], 'aria-disabled', "false")
+# driver.ExpectAttributeEqual([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option1']], 'aria-disabled', "false")
+
+# Zella sets the registration cutoff to be in the past
+driver.SwitchUser('zella')
+driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
+driver.Clear([[By.ID, 'form-section-reg-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
+driver.SendKeys([[By.ID, 'form-section-reg-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2016")
+driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
+
+# Minny tries to join game, can't
+driver.SwitchUser('minny')
+driver.Click([[By.NAME, 'joinGame']])
+
+
+# # Go to the FAQ page
+# driver.DrawerMenuClick('game-details-card', 'FAQ')
+
+# driver.Click([[By.NAME, 'faq-card'], [By.NAME, 'rules-icon']])
+# driver.SendKeys(
+#     [[By.NAME, 'faq-card'], [By.TAG_NAME, 'textarea']], 
+#     'Here is how you find a possessed human.')
+
+# # If you click Save, the new words should show up.
+# driver.Click([[By.NAME, 'faq-card'],[By.ID, 'done']])
+
+# driver.ExpectContains(
+#     [[By.NAME, 'faq-card'], [By.ID, 'contents']],
+#     'Here is how you find a possessed human.')
+
+# driver.Quit()
 

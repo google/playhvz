@@ -41,27 +41,28 @@ def runTest(url, password, files, useRemote, useMobile):
 
 	testFiles = [
 		"adminchat"
-		# "adminguns",
-		# "adminplayers",
-		# "changeallegiance",
-		# "chat",
-		# "chatEdgeCases",
-		# "chatlocation",
-		# "chatpage",
-		# "createGame",
-		# "deactivate",
-		# "declare",
-		# "globalchat",
-		# "infect",
-		# "joingame",
-		# "mission",
-		# "modifygame",
-		# "notifications1",
-		# "othersleavingresistance",
-		# "possession",
-		# "rewardcategories",
-		# "selfinfect",
-		# "startgame"
+		"adminguns",
+		"adminplayers",
+		"changeallegiance",
+		"chat",
+		"chatEdgeCases",
+		"chatlocation",
+		"chatpage",
+		"createGame",
+		"deactivate",
+		"declare",
+		"globalchat",
+		"infect",
+		"joingame",
+		"mission",
+		"modifygame",
+		"notifications1",
+		"othersleavingresistance",
+		"possession",
+		"requests",
+		"rewardcategories",
+		"selfinfect",
+		"startgame"
 	]
 
 	if len(files) > 0:
@@ -69,7 +70,7 @@ def runTest(url, password, files, useRemote, useMobile):
 			for file in files[1:]:
 				testFiles.remove(file)
 		else:
-			testFiles = files[1:]
+			testFiles = files
 
 
 	for file in testFiles:
@@ -102,13 +103,13 @@ def main():
 	parser.add_argument("-d", "--desktop", help="Only run desktop tests", action="store_true")
 	parser.add_argument("-l", "--local", help="Only run local tests", action="store_true")
 	parser.add_argument("-r", "--remote", help="Only run remote tests", action="store_true")
-	parser.add_argument("-rf", "--rerunFailures", help="Reruns tests that failed the last time.", action="store_true")
-	parser.add_argument("-cp", "--changePassword", help="Change the default remote password")
+	#parser.add_argument("-rf", "--rerunFailures", help="Reruns tests that failed the last time.", action="store_true")
+	#parser.add_argument("-cp", "--changePassword", help="Change the default remote password")
 	parser.add_argument("files", nargs="*", help="Specific tests to run")
 	args = parser.parse_args()
 
-	if args.cp:
-		dict = shelve.open("testdata")
+	# if args.cp:
+	# 	dict = shelve.open("testdata")
 
 	fakeAndRemoteTests(args.url, args.password, args.mobile, args.desktop, args.local, args.remote, args.files)
 

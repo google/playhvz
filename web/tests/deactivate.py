@@ -49,4 +49,4 @@ unactive = nameDiv.get_attribute('inactive')
 active = nameDiv.get_attribute('yoloa')
 assert unactive != None;
 
-  driver.Quit()
+driver.Quit()
