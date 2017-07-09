@@ -62,6 +62,8 @@ def runTest(url, password, files, useRemote, useMobile):
 		printAndRun("python chatEdgeCases.py %s" % args)
 		printAndRun("python deactivate.py %s" % args)
 		printAndRun("python chatlocation.py %s" % args)
+		printAndRun("python possession.py %s" % args)
+		printAndRun("python selfinfect.py %s" % args)
 
 
 def desktopAndMobileTests(url, password, mobile, desktop, files, useRemote):

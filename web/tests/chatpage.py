@@ -17,6 +17,7 @@
 """TODO: High-level file comment."""
 
 import sys
+import pdb
 
 
 def main(argv):
@@ -76,6 +77,7 @@ driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'chat-
 
 # Add a zombie to chat
 toggleChatDrawer(driver, actingPlayerName, newChatName)
+pdb.set_trace()
 xpathAdd = getPathToElement(actingPlayerName, 'a', 'chat-drawer-add')
 driver.Click([[By.XPATH, xpathAdd]])
 driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], playerNames['drake'])

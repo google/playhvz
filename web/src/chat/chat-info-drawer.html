@@ -108,6 +108,10 @@
 
 
         onGroupIdChanged_(groupId, groupsById) {
+          console.log('group changed!', groupsById, groupId, groupsById[groupId]);
+          if (!groupsById[groupId]) {
+            debugger;
+          }
           this.$.groupsSelector.select(groupsById[groupId]);
         },
 

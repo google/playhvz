@@ -31,7 +31,7 @@ class FakeBridge {
 
     for (const funcName of Bridge.METHODS) {
       if (!this[funcName])
-        this[funcName] = (...args) => this.server[funcName](...args);
+        this[funcName] = (...args) => this.server[funcName](...args).catch((error) => alert(error));
     }
   }
   signIn({userId}) {
