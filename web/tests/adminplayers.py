@@ -119,7 +119,6 @@ try:
 
   # Add Life to Zella (already a human, but that's fine, she just has an extra life)
   driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
-  driver.DismissAlert()
   driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 
   # Make sure the infections/revivals are reflected on the players' pages
