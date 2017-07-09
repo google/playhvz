@@ -479,8 +479,8 @@ window.FirebaseListener = (function () {
     listenToPlayerMissionMembership_(publicPlayerId, privatePlayerId, missionId) {
       this.listenToModel(new Model.PlayerMissionMembership(missionId, {
         gameId: this.gameIdObj.gameId,
-        playerId: publicPlayerId,
-        privatePlayerId: privatePlayerId
+        publicPlayerId: publicPlayerId,
+        privatePlayerId: privatePlayerId,
       }));
     }
 
@@ -502,6 +502,12 @@ window.FirebaseListener = (function () {
             gameId: this.gameIdObj.gameId
           })));
       });
+    }
+
+    listenToQueuedNotification_(queuedNotificationId) {
+      this.listenToModel(new Model.QueuedNotification(queuedNotificationId, {
+        gameId: this.gameIdObj.gameId,
+      }));
     }
   }
 

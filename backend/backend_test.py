@@ -625,7 +625,7 @@ class EndToEndTest(unittest.TestCase):
       'playerId': self.Id('publicPlayerId', 4),
       'lifeId': self.Id('publicLifeId', 3),
       'privateLifeId': self.Id('privateLifeId', 3),
-      'lifeCode': "sporkle borkle dorks",
+      'lifeCode': None, # Let it generate a deterministic one
     })
 
     # Final keep last

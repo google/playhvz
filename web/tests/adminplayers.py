@@ -26,10 +26,8 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv)
 import setup
-import time
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import time #bad bad bad
 
 try:
 
@@ -89,7 +87,7 @@ try:
   # Add a note
   driver.DrawerMenuClick('players-card', 'Admin Players')
   driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Set Notes')
-  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster') #TODO(aliengirl): failed once here
+  driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster') #TODO(aliengirl): failed 2x here
   driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
 
   # Search by notes
@@ -99,7 +97,7 @@ try:
   driver.SendKeys(
     [[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']],
     'zap')
-  driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
+  driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up #TODO(aliengirl): failed here once
   driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
   driver.Backspace([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']], 3)
 
@@ -116,8 +114,9 @@ try:
   driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Add Life')
   driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
 
-  # Add Life to Zella (already a human, so shouldn't change anything)
+  # Add Life to Zella (already a human, so should show an error)
   driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
+  driver.DismissAlert()
   driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 
   # Make sure the infections/revivals are reflected on the players' pages

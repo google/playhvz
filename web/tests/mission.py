@@ -17,6 +17,7 @@
 """TODO: High-level file comment."""
 
 import sys
+import time
 
 
 def main(argv):
@@ -84,6 +85,10 @@ try:
 
   # Delete the two missions which start out there
   driver.TableMenuClick([[By.NAME, "mission-row-first zed mission!"]], 'Delete')
+
+  # TODO(verdagon): take this back out, was added in because of a weird menu issue that deleted both the missions
+  time.sleep(2)
+
   driver.TableMenuClick([[By.NAME, "mission-row-first human mission!"]], 'Delete')
 
   # Make sure both humans and zombies get a default message when no missions are posted.

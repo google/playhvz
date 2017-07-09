@@ -370,7 +370,7 @@ def AddPlayer(request, game_state):
 
   game_state.put('/games/%s/players' % game_id, public_player_id, True)
 
-  AutoUpdatePlayerGroups(game_state, public_player_id, new_player=True)
+  UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player=True)
 
 
 def UpdatePlayer(request, game_state):
@@ -549,8 +549,16 @@ def DeleteMission(request, game_state):
     'missionId': 'MissionId'
   })
 
-  game_state.delete('/missions', request['missionId'])
-  game_state.delete('/games/%s/missions' % request['gameId'], request['missionId'])
+  game_id = request['gameId']
+  mission_id = request['missionId']
+  mission = game_state.get('/missions', mission_id)
+  access_group_id = mission['accessGroupId']
+
+  for public_player_id in helpers.GetPublicPlayerIdsInGroup(game_state, access_group_id):
+    RemoveMissionMembership(game_state, public_player_id, mission_id)
+
+  game_state.delete('/games/%s/missions' % game_id, mission_id)
+  game_state.delete('/missions', mission_id)
 
 
 def UpdateMission(request, game_state):
@@ -565,17 +573,23 @@ def UpdateMission(request, game_state):
     'name': '|String',
     'beginTime': '|Timestamp',
     'endTime': '|Timestamp',
-    'detailsHtml': '|String'
+    'detailsHtml': '|String',
+    'accessGroupId': '|GroupId',
   })
 
   mission_id = request['missionId']
 
   put_data = {}
-  for property in ['name', 'beginTime', 'endTime', 'detailsHtml']:
+  for property in ['name', 'beginTime', 'endTime', 'detailsHtml', 'accessGroupId']:
     if property in request:
       put_data[property] = request[property]
 
   game_state.patch('/missions/%s' % mission_id, put_data)
+
+  # TODO: move this out of update, update should only deal with data that has no side effects
+  if 'accessGroupId' in request:
+    RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
+    AddMissionMembershipsForAllGroupMembers_(game_state, mission_id, request['accessGroupId'])
 
 
 def AddChatRoom(request, game_state):
@@ -730,10 +744,6 @@ def AddRequest(request, game_state):
   pass
 
 def AddResponse(request, game_state):
-  pass
-
-
-def UpdateRequestCategory(request, game_state):
   pass
 
 def AddQuizQuestion(request, game_state):
@@ -1081,6 +1091,22 @@ def AddMissionMembership(game_state, public_player_id, mission_id):
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
   game_state.put('/privatePlayers/%s/missionMemberships' % private_player_id, mission_id, True)
 
+def RemoveMissionMembership(game_state, public_player_id, mission_id):
+  private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
+  game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission_id)
+
+
+def AddMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_group_id):
+  group = game_state.get('/groups', access_group_id)
+  if 'players' in group:
+    for public_player_id in group['players'].keys():
+      AddMissionMembership(game_state, public_player_id, mission_id)
+
+def RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_group_id):
+  group = game_state.get('/groups', access_group_id)
+  if 'players' in group:
+    for public_player_id in group['players'].keys():
+      RemoveMissionMembership(game_state, public_player_id, mission_id)
 
 def UpdateChatRoomMembership(request, game_state):
   helpers.ValidateInputs(request, game_state, {
@@ -1194,12 +1220,12 @@ def RemovePlayerFromGroupInner(game_state, group_id, public_player_id):
   for chat in chats:
     game_state.delete('/privatePlayers/%s/chatRoomMemberships' % private_player_id, chat)
 
-  missions = helpers.GroupToMissions(game_state, group_id)
-  for mission in missions:
-    game_state.delete('/privatePlayers/%s/missionMemberships' % private_player_id, mission)
+  mission_ids = helpers.GroupToMissions(game_state, group_id)
+  for mission_id in mission_ids:
+    RemoveMissionMembership(game_state, public_player_id, mission_id);
 
 
-def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
+def UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player=False):
   """Auto add/remove a player from groups.
 
   When a player changes allegiances, automatically add/remove them
@@ -1219,16 +1245,21 @@ def AutoUpdatePlayerGroups(game_state, public_player_id, new_player=False):
   game = helpers.PlayerToGame(game_state, public_player_id)
   allegiance = helpers.PlayerAllegiance(game_state, public_player_id)
   groups = game_state.get('/games/%s' % game, 'groups') or []
+
   for group_id in groups:
     group = game_state.get('/groups', group_id)
-    if group['autoAdd'] and group['allegianceFilter'] == allegiance:
-      AddPlayerToGroupInner(game_state, group_id, public_player_id)
-    elif (not new_player and group['autoRemove'] and
-          group['allegianceFilter'] != allegiance):
-      RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
-    elif new_player and group['autoAdd'] and group['allegianceFilter'] == 'none':
-      AddPlayerToGroupInner(game_state, group_id, public_player_id)
+    if 'players' in group:
+      if public_player_id in group['players']:
+        if group['autoRemove'] and group['allegianceFilter'] != 'none':
+          if allegiance != group['allegianceFilter']:
+            RemovePlayerFromGroupInner(game_state, group_id, public_player_id)
 
+  for group_id in groups:
+    group = game_state.get('/groups', group_id)
+    if group['autoAdd']:
+      if 'players' not in group or public_player_id not in group['players']:
+        if group['allegianceFilter'] == 'none' or allegiance == group['allegianceFilter']:
+          AddPlayerToGroupInner(game_state, group_id, public_player_id)
 
 # TODO Decide how to mark a life code as used up.
 def Infect(request, game_state):
@@ -1365,7 +1396,7 @@ def SetPlayerAllegiance(game_state, player_id, allegiance, can_infect):
   print private_player_id
   game_state.put('/publicPlayers/%s' % player_id, 'allegiance', allegiance)
   game_state.put('/privatePlayers/%s' % private_player_id, 'canInfect', can_infect)
-  AutoUpdatePlayerGroups(game_state, player_id, new_player=False)
+  UpdateMembershipsOnAllegianceChange(game_state, player_id, new_player=False)
 
 
 def AddRewardCategory(request, game_state):
@@ -1428,14 +1459,14 @@ def UpdateRewardCategory(request, game_state):
     'shortName': '|String',
     'points': '|Number',
     'limitPerPlayer': '|Number',
-    'badgeUrl': '|String',
+    'badgeImageUrl': '|String',
     'description': '|String',
   })
 
   reward_category_id = request['rewardCategoryId']
 
   reward_category_data = {}
-  for k in ('name', 'points', 'limitPerPlayer', 'badgeUrl', 'description'):
+  for k in ('name', 'points', 'shortName', 'limitPerPlayer', 'badgeImageUrl', 'description'):
     if k in request:
       reward_category_data[k] = request[k]
 
@@ -1472,7 +1503,7 @@ def AddReward(request, game_state):
 
   reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
 
-  reward_code = request['code'] or '%s-%s' % (reward_category['shortName'], RandomWords(3))
+  reward_code = request['code'] or MakeRewardCode(game_state, game_id, reward_category_id)
 
   if helpers.RewardCodeToRewardId(game_state, game_id, reward_code, False) is not None:
     raise InvalidInputError('Reward with that code already exists!')
@@ -1489,6 +1520,37 @@ def AddReward(request, game_state):
   AddRewardToDb(game_state, reward_category_id, reward_id, reward_data)
 
 
+def MakeLifeCode(game_state, game_id, public_player_id):
+  game = game_state.get('/games', game_id)
+  public_player =  game_state.get('/publicPlayers/%s' % public_player_id, None)
+
+  game_name = game['name']
+  player_name = public_player['name']
+  num_lives = len(public_player['lives'].keys()) if 'lives' in public_player else 0
+
+  seed = game_name + player_name + str(num_lives)
+  print 'lizard seed:' + seed
+  life_code_words = RandomWords(seed, 3)
+  life_code = '-'.join(life_code_words)
+
+  return life_code
+
+
+def MakeRewardCode(game_state, game_id, reward_category_id):
+  game = game_state.get('/games', game_id)
+  reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
+
+  game_name = game['name']
+  short_name = reward_category['shortName']
+  num_rewards = len(reward_category['rewards'].keys()) if 'rewards' in reward_category else 0
+
+  seed = game_name + short_name + str(num_rewards)
+  reward_code_words = RandomWords(seed, 2)
+  reward_code = '-'.join([short_name] + reward_code_words)
+
+  return reward_code
+
+
 def AddRewards(request, game_state):
   """Add a set of rewards.
 
@@ -1503,6 +1565,8 @@ def AddRewards(request, game_state):
     'count': 'Number'
   })
 
+  game_id = request['gameId']
+
   reward_category_id = request['rewardCategoryId']
 
   reward_category =  game_state.get('/rewardCategories/%s' % reward_category_id, None)
@@ -1512,7 +1576,7 @@ def AddRewards(request, game_state):
     reward_data = {
       'gameId': request['gameId'],
       'rewardCategoryId': reward_category_id,
-      'code': '%s-%s' % (reward_category['shortName'], RandomWords(3)),
+      'code': MakeRewardCode(game_state, game_id, reward_category_id),
       'playerId': None
     }
     AddRewardToDb(game_state, reward_category_id, reward_id, reward_data)
@@ -1603,14 +1667,21 @@ def ClaimReward(request, game_state):
   return reward_category_id
 
 
+def HashString(string):
+  total = 5381
+  for letter in string:
+    total = total * 33 + ord(letter)
+  return total
 
-def RandomWords(n):
+
+def RandomWords(seed, n):
   words = []
   with open('wordlist.txt') as f:
     wordlist = f.readlines()
     for i in range(n):
-      words.append(random.choice(wordlist).strip())
-  return '-'.join(words)
+      random_num = HashString("herp-" + str(i) + "-derp-" + seed)
+      words.append(wordlist[random_num % len(wordlist)].strip())
+  return words
 
 
 def SendNotification(request, game_state):
@@ -1764,7 +1835,7 @@ def AddLife(request, game_state):
   public_life_id = request['lifeId'] or ('publicLife-%s' % random.randint(0, 2**52))
   private_life_id = request['privateLifeId'] or ('privateLife-' + helpers.GetIdSuffix(public_life_id))
 
-  life_code = request['lifeCode'] or RandomWords(3)
+  life_code = request['lifeCode'] or MakeLifeCode(game_state, game_id, public_player_id)
 
   private_life = {
     'gameId': game_id,

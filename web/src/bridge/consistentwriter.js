@@ -37,14 +37,14 @@ let definitions = [
 
 let references = [
   // AKA "anything at here is an ID referring somewhere else"
-  ["chatRooms", null, "groupId", null],
+  ["chatRooms", null, "accessGroupId", null],
   ["chatRooms", null, "id", null],
   ["chatRooms", null, "messages", null, "id", null],
   ["chatRooms", null, "messages", null, "playerId", null],
   ["groups", null, "players", null, null],
   ["groups", null, "playersById", null],
   ["groups", null, "membershipsByPlayerId", null],
-  ["missions", null, "groupId", null],
+  ["missions", null, "accessGroupId", null],
   ["missions", null, "id", null],
   ["queuedNotifications", null, "id", null],
   ["players", null, "claims", null, "id", null],
