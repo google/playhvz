@@ -39,14 +39,14 @@ var models = {
     quizQuestions: [],
     registrationEndTime: 0,
     rewardCategories: [],
+    queuedNotifications: [],
     rulesHtml: '',
     startTime: 0,
     stunTimer: 0,
     adminContactPlayerId: '',
 
     // for fake server
-    defaultProfileImages: [],
-    queuedNotifications: []
+    defaultProfileImages: []
   },
   group: {
     link: ['groups', 'groupId'],
@@ -107,7 +107,7 @@ var models = {
   },
   queuedNotification: {
     link: ['queuedNotifications', 'queuedNotificationId'],
-    path: ['playersPrivate', 'playerId', 'notifications'],
+    path: ['queuedNotifications'],
     destination: '',
     email: false,
     gameId: '',
@@ -117,6 +117,7 @@ var models = {
     mobile: false,
     previewMessage: '',
     sent: false,
+    sendTime: '',
     site: false,
     sound: false,
     vibrate: false
@@ -300,12 +301,14 @@ var models = {
     sound: false,
     vibrate: false,
     site: '',
+    icon: '',
     mobile: false,
     time: 0,
     email: '',
     destination: '',
     playerId: '',
-    privatePlayerId: ''
+    privatePlayerId: '',
+    icon: ''
   }
 };
 

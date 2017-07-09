@@ -24,7 +24,7 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">google.charts.load('current', {'packages':['corechart']});</script>
 
-<script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.1.3/firebase.js"></script>
 
 <script src="/bower_components/webcomponentsjs/webcomponents.js"></script>
 <!-- <script>
@@ -136,6 +136,8 @@
 <link rel="import" href="/src/app/mobile-app.html">
 <link rel="import" href="/src/app/real-app.html">
 <link rel="import" href="/src/app/root-app.html">
+<link rel="import" href="/src/chat/admin-chat-page.html">
+<link rel="import" href="/src/chat/admin-chat-room-list.html">
 <link rel="import" href="/src/chat/chat-info-actions.html">
 <link rel="import" href="/src/chat/chat-info-drawer.html">
 <link rel="import" href="/src/chat/chat-location.html">
@@ -218,6 +220,10 @@
   html, body {
     width: 100%;
     height: 100%;
+
+    /* these two are to prevent overscroll on iphone */
+    position: fixed;
+    overflow: hidden;
   }
 
   body {

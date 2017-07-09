@@ -26,6 +26,7 @@
       properties: {
         bridge: Object,
         database: Object,
+        isMobile: Boolean,
         user: String,
         game: Object,
       },
@@ -58,6 +59,7 @@
   	  <ghvz-notifications
   	      bridge="[[bridge]]"
   	      game="[[game]]"
+          is-mobile="[[isMobile]]"
   	      players-by-id="[[game.playersById]]"
   	      queued-notifications="[[game.queuedNotifications]]"
   	      queued-notifications-by-id="[[game.queuedNotificationsById]]">

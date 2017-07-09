@@ -104,17 +104,20 @@ try:
   # Infect Jack
   driver.DrawerMenuClick('players-card', 'Admin Players')
   driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Infect')
+  driver.DismissAlert()
   driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'allegiance']], "Horde")
 
   # Revive Zeke
   driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
+  driver.DismissAlert()
   driver.ExpectContains([[By.NAME, 'player-row-Zeke'], [By.ID, 'allegiance']], "Resistance")
 
   # Revive Deckerd
   driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Add Life')
+  driver.DismissAlert()
   driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
 
-  # Add Life to Zella (already a human, so shouldn't change anything)
+  # Add Life to Zella (already a human, but that's fine, she just has an extra life)
   driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
   driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 

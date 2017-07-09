@@ -658,7 +658,7 @@ def SendChatMessage(request, game_state):
     'gameId': 'GameId',
     'chatRoomId': 'ChatRoomId',
     'messageId': '!MessageId',
-    'message': 'String',
+    'message': '?String',
     'playerId': 'PublicPlayerId',
     'image': Optional({
       'url': 'String'
@@ -677,52 +677,54 @@ def SendChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
-  user_id = game_state.get('/publicPlayers/%s' % request['playerId'], 'userId')
-  players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
-  notification_data = {
-    'gameId': request['gameId'],
-    'queuedNotificationId': 'queuedNotification-%s' % request['messageId'][len('message-'):],
-    'message': request['message'],
-    'previewMessage': textwrap.wrap(request['message'], 100)[0],
-    'site': True,
-    'email': False,
-    'mobile': True,
-    'vibrate': True,
-    'sound': "ping.wav",
-    'destination': 'TODO',
-    'sendTime': helpers.GetTime(request),
-    'icon': 'TODO'
-  }
-  # If we check for all @all, then there is no need to send out additional
-  # player notifications.
-  if '@all' in request['message'] and helpers.IsAdmin(game_state,
-                                                      request['gameId'],
-                                                      user_id):
+  if 'message' in request:
+    user_id = game_state.get('/publicPlayers/%s' % request['playerId'], 'userId')
+    players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
+    notification_data = {
+      'gameId': request['gameId'],
+      'queuedNotificationId': 'queuedNotification-%s' % request['messageId'][len('message-'):],
+      'message': request['message'],
+      'previewMessage': textwrap.wrap(request['message'], 100)[0],
+      'site': True,
+      'email': False,
+      'mobile': True,
+      'vibrate': True,
+      'sound': "ping.wav",
+      'destination': 'TODO',
+      'sendTime': helpers.GetTime(request),
+      'icon': 'TODO'
+    }
+    # If we check for all @all, then there is no need to send out additional
+    # player notifications.
+    if '@all' in request['message'] and helpers.IsAdmin(game_state,
+                                                        request['gameId'],
+                                                        user_id):
 
-    for player in players_in_room:
-      n = notification_data.copy()
-      n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
-      n['playerId'] = players_in_room[player]
-      helpers.QueueNotification(game_state, n)
-      notifications.ExecuteNotifications(None, game_state)
-  else:
-    tokens = request['message'].split(' ')
-    for token in tokens:
-      if not token.startswith('@'):
-        continue
-      name = token[1:]
-      if name in players_in_room:
+      for player in players_in_room:
         n = notification_data.copy()
-        n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
-        n['playerId'] = players_in_room[name]
+        n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
+        n['playerId'] = players_in_room[player]
         helpers.QueueNotification(game_state, n)
         notifications.ExecuteNotifications(None, game_state)
+    else:
+      tokens = request['message'].split(' ')
+      for token in tokens:
+        if not token.startswith('@'):
+          continue
+        name = token[1:]
+        if name in players_in_room:
+          n = notification_data.copy()
+          n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
+          n['playerId'] = players_in_room[name]
+          helpers.QueueNotification(game_state, n)
+          notifications.ExecuteNotifications(None, game_state)
 
   put_data = {
     'playerId': request['playerId'],
     'message': request['message'],
     'time': helpers.GetTime(request)
   }
+
   if 'image' in request:
     put_data['image'] = {
       'url': request['image']['url']
@@ -1267,11 +1269,6 @@ def Infect(request, game_state):
 
   Infect a human and gets points.
 
-  Args:
-    playerId: The person doing the infecting.
-    lifeCode: The life code being taken/infected, makes to the victom.
-
-
   Validation:
     Valid IDs. Infector can infect or is self-infecting. Infectee is human.
 
@@ -1282,7 +1279,7 @@ def Infect(request, game_state):
   helpers.ValidateInputs(request, game_state, {
     'infectionId': '!InfectionId',
     'gameId': 'GameId',
-    'infectorPlayerId': 'PublicPlayerId',
+    'infectorPlayerId': '?PublicPlayerId',
     'victimLifeCode': '?String',
     'victimPlayerId': '?PublicPlayerId',
   })
@@ -1291,11 +1288,8 @@ def Infect(request, game_state):
   infector_public_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
   victim_life_code = request['victimLifeCode']
-  victim_public_player_id = helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
-
-  infector_public_player = game_state.get('/publicPlayers', infector_public_player_id)
-  infector_private_player_id = helpers.GetPrivatePlayerId(game_state, infector_public_player_id)
-  infector_private_player = game_state.get('/privatePlayers', infector_private_player_id)
+  victim_public_player_id = request['victimPlayerId'] or helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
+  time = helpers.GetTime(request)
 
   victim_public_player = game_state.get('/publicPlayers', victim_public_player_id)
   victim_private_player_id = helpers.GetPrivatePlayerId(game_state, victim_public_player_id)
@@ -1304,31 +1298,40 @@ def Infect(request, game_state):
   # Both players must be in the same game.
   if helpers.PlayerToGame(game_state, victim_public_player_id) != game_id:
     raise InvalidInputError('Those players are not part of the same game!')
-  # The infector must be able to infect or be doing a self-infect
-  if infector_public_player_id != victim_public_player_id and not infector_private_player['canInfect']:
+
+  # Admin infection
+  if infector_public_player_id is None:
+    AddInfection(game_state, time, infection_id, victim_public_player_id, infector_public_player_id)
+    return None
+
+  infector_public_player = game_state.get('/publicPlayers', infector_public_player_id)
+  infector_private_player_id = helpers.GetPrivatePlayerId(game_state, infector_public_player_id)
+  infector_private_player = game_state.get('/privatePlayers', infector_private_player_id)
+
+  # A non-possessed human, self infecting
+  if victim_public_player_id == infector_public_player_id:
+    if victim_public_player['allegiance'] != constants.HUMAN:
+      raise InvalidInputError('You can only self-infect if you are a human.')
+    AddInfection(game_state, time, infection_id, victim_public_player_id, infector_public_player_id)
+    return "self-infection"
+
+  if not infector_private_player['canInfect']:
     raise InvalidInputError('You cannot infect another player at the present time.')
-  # The victim must be human to be infected
-  if victim_public_player['allegiance'] != constants.HUMAN:
-    raise InvalidInputError('Your victim is not human and cannot be infected.')
 
   # Add points and an infection entry for a successful infection
-  if infector_public_player_id != victim_public_player_id:
-    helpers.AddPoints(game_state, infector_public_player_id, constants.POINTS_INFECT)
-    infect_path = '/publicPlayers/%s/infections' % victim_public_player_id
-    infect_data = {
-      'infectorId': infector_public_player_id,
-      'time': helpers.GetTime(request),
-    }
-    game_state.put(infect_path, infection_id, infect_data)
+  helpers.AddPoints(game_state, infector_public_player_id, constants.POINTS_INFECT)
 
   # If secret zombie, set the victim to secret zombie and the infector to zombie
   # Else set the victom to zombie
   if infector_public_player_id != victim_public_player_id and infector_public_player['allegiance'] == constants.HUMAN:
-    logging.warn('Secret infection')
-    SetPlayerAllegiance(game_state, victim_public_player_id, allegiance=constants.HUMAN, can_infect=True)
+    logging.warn('Possession')
+    AddInfection(game_state, time, infection_id, infector_public_player_id, infector_public_player_id)
     SetPlayerAllegiance(game_state, infector_public_player_id, allegiance=constants.ZOMBIE, can_infect=True)
+    # Make the victim the new possessed human
+    SetPlayerAllegiance(game_state, victim_public_player_id, allegiance=constants.HUMAN, can_infect=True)
   else:
     logging.warn('Normal infection')
+    AddInfection(game_state, time, infection_id, victim_public_player_id, infector_public_player_id)
     SetPlayerAllegiance(game_state, victim_public_player_id, allegiance=constants.ZOMBIE, can_infect=True)
 
   # DO NOT BLINDLY COPY THIS
@@ -1337,6 +1340,37 @@ def Infect(request, game_state):
   # data returned from the server. In this case, this playerId response will likely reach
   # the client before firebase tells the client that this player was zombified.
   return victim_public_player_id
+
+def AddInfection(game_state, time, new_infection_id, victim_public_player_id, infector_public_player_id):
+  latest_time = 0
+  num_lives = 0
+  num_infections = 0
+
+  victim_public_player = game_state.get('/publicPlayers', victim_public_player_id)
+  if 'lives' in victim_public_player:
+    num_lives = len(victim_public_player['lives'].keys())
+    for life_id in victim_public_player['lives'].keys():
+      print 'getting %s' % life_id
+      life = game_state.get('/publicLives', life_id)
+      latest_time = max(latest_time, life['time'])
+  if 'infections' in victim_public_player:
+    num_infections = len(victim_public_player['infections'].keys())
+    for infection_id in victim_public_player['infections'].keys():
+      infection = game_state.get('/publicPlayers/%s/infections' % victim_public_player_id, infection_id)
+      latest_time = max(latest_time, infection['time'])
+  if time < latest_time:
+    raise InvalidInputError("Adding an infection that's later than the latest life/infection!")
+
+  infect_path = '/publicPlayers/%s/infections' % victim_public_player_id
+  infect_data = {
+    'infectorId': infector_public_player_id,
+    'time': time,
+  }
+  game_state.put(infect_path, new_infection_id, infect_data)
+  num_infections = num_infections + 1
+
+  if num_infections >= num_lives:
+    SetPlayerAllegiance(game_state, victim_public_player_id, constants.ZOMBIE, True)
 
 
 def JoinResistance(request, game_state):
@@ -1832,6 +1866,9 @@ def AddLife(request, game_state):
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
   game_id = request['gameId']
 
+  public_player = game_state.get('/publicPlayers', public_player_id)
+  private_player = game_state.get('/privatePlayers', helpers.GetPrivatePlayerId(game_state, public_player_id))
+
   public_life_id = request['lifeId'] or ('publicLife-%s' % random.randint(0, 2**52))
   private_life_id = request['privateLifeId'] or ('privateLife-' + helpers.GetIdSuffix(public_life_id))
 
@@ -1851,9 +1888,6 @@ def AddLife(request, game_state):
   game_state.put('/publicLives', public_life_id, public_life),
 
   game_state.patch('/publicPlayers/%s/lives' % public_player_id, {public_life_id: True})
-
-  public_player = game_state.get('/publicPlayers', public_player_id)
-  private_player = game_state.get('/privatePlayers', helpers.GetPrivatePlayerId(game_state, public_player_id))
 
   num_lives = len(public_player['lives'].keys()) if 'lives' in public_player else 0
   num_infections = len(public_player['infections'].keys()) if 'infections' in public_player else 0

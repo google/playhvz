@@ -85,7 +85,9 @@ driver.Click([[By.NAME, 'submit-%s' % chatName], [By.XPATH, xpathSend]])
 for admin in adminPlayers:
   driver.SwitchUser(admin)
   closeNotifications(driver)
-  driver.DrawerMenuClick('mobile-main-page', '-' + chatName)
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Chats')
+  xpathChatListItem = getPathToElement(playerNames[admin], 'ghvz-chat-room-name-label', chatName)
+  driver.Click([[By.XPATH, xpathChatListItem]])  
   driver.ExpectContains([
       [By.NAME, 'chat-card'], 
       [By.NAME, 'message-%s-Hi im %s, how do i know if im the possessed zombie?' % (chatName, actingPlayerName)], 

@@ -42,8 +42,8 @@
         showPage: {
           type: Object,
           value: {
-            'main': 'main',
             'joinGame': 'joinGame',
+            'main': 'main',
             'chat': 'chat',
             'faq': 'faq',
             'leaderboard': 'leaderboard',
@@ -63,6 +63,7 @@
             'adminNotifications': 'adminNotifications',
             'adminPlayers': 'adminPlayers',
             'adminRewards': 'adminRewards',
+            'adminChats': 'adminChats',
           },
         },
       },
@@ -208,6 +209,7 @@
           class="expand"
           bridge="[[bridge]]"
           game="[[game]]"
+          is-mobile="[[isMobile]]"
           player="[[player]]"
           path="[[path]]">
       </ghvz-notifications-page>
@@ -219,6 +221,7 @@
       <div class="header">Guns</div>
       <ghvz-guns
           class="expand"
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-guns>
@@ -231,6 +234,7 @@
       <ghvz-player-table
           class="expand"
           game="[[game]]"
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           reward-categories-by-id="[[game.rewardCategoriesById]]"
           players="[[game.players]]"
@@ -244,11 +248,9 @@
       <div class="header">Rewards</div>
       <ghvz-rewards
           class="expand"
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
-          game="[[game]]"
-          players-by-id="[[game.playersById]]"
-          reward-categories="[[game.rewardCategories]]"
-          reward-categories-by-id="[[game.rewardCategoriesById]]">
+          game="[[game]]">
       </ghvz-rewards>
     </ghvz-card>
   </template>
@@ -257,6 +259,7 @@
     <ghvz-card name="admin-missions-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Missions</div>
       <ghvz-missions
+          is-mobile="[[isMobile]]"
           class="expand"
           bridge="[[bridge]]"
           player="[[player]]"
@@ -271,6 +274,7 @@
       <ghvz-game-details
           class="expand"
           modify
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-missions>
@@ -282,6 +286,7 @@
       <div class="header">Notifications</div>
       <ghvz-notifications
           class="expand"
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-notifications>
@@ -294,6 +299,7 @@
       <ghvz-rules
           class="expand"
           bridge="[[bridge]]"
+          is-mobile="[[isMobile]]"
           game="[[game]]"
           is-admin="[[isAdmin]]">
       </ghvz-rules>
@@ -303,7 +309,7 @@
   <template is="dom-if" if="[[computeShowPage_(showPage.faq, mostRecentPage)]]">
     <ghvz-card name="faq-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">FAQ</div>
-      <ghvz-faq-page class="expand" bridge="[[bridge]]" game="[[game]]" is-admin="[[isAdmin]]"></ghvz-faq-page>
+      <ghvz-faq-page class="expand" bridge="[[bridge]]" game="[[game]]" is-mobile="[[isMobile]]" is-admin="[[isAdmin]]"></ghvz-faq-page>
     </ghvz-card>
   </template>
 
@@ -311,6 +317,7 @@
     <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">Missions</div>
       <ghvz-missions-page
+          is-mobile="[[isMobile]]"
           class="expand"
           bridge="[[bridge]]"
           game="[[game]]"
@@ -352,6 +359,27 @@
           game="[[game]]"
           user-id="[[userId]]">
       </ghvz-stats-page>
+    </ghvz-card>
+  </template>
+
+  <template is="dom-if" if="[[computeShowPage_(showPage.adminChats, mostRecentPage)]]">
+    <ghvz-card
+      id$="admin-chat-page-[[player.name]]"
+      class="expand"
+      name="chat-card"
+      spaced$="[[!isMobile]]"
+      with-back="[[isMobile]]"
+      with-menu="[[isMobile]]">
+      <ghvz-admin-chat-page
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user-id="[[userId]]"
+          player="[[player]]"
+          path="[[path]]"
+          is-mobile="[[isMobile]]"
+          is-admin="[[isAdmin]]">
+      </ghvz-admin-chat-page>
     </ghvz-card>
   </template>
 </template>
