@@ -104,6 +104,10 @@ getCurrentPrivatePlayerId(gameId) {
   root.publicPlayers[getCurrentPublicPlayerId(gameId)].privatePlayerId
 }
 
+isPrivatePlayer(gameId) {
+  (getUserId()) == root.privatePlayers[getCurrentPrivatePlayerId(gameId)].userId
+}
+
 isGroupMember(groupId, gameId) {  
   root.groups[groupId].players[getCurrentPublicPlayerId(gameId)]
 }
@@ -480,7 +484,7 @@ type PrivateLife {
   gameId: GameId;
   read() {
     isServer() ||
-    key() == getCurrentPrivatePlayerId(this.gameId) ||
+    isPrivatePlayer(this.gameId) ||
     isAdmin(this.gameId)
   }
 
