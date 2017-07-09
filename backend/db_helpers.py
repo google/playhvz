@@ -359,9 +359,8 @@ def GetPublicPlayerIdsInGroup(game_state, group_id):
     return []
   return players.keys()
 
-def GetPlayerNamesInChatRoom(game_state, chatroom_id):
+def GetPlayerNamesInGroup(game_state, group_id):
   names = {}
-  group_id = game_state.get('/chatRooms/%s' % chatroom_id, 'accessGroupId')
   for player in GetPublicPlayerIdsInGroup(game_state, group_id):
     name = game_state.get('/publicPlayers/%s' % player, 'name')
     if not name:

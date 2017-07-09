@@ -669,17 +669,17 @@ def SendChatMessage(request, game_state):
     }),
   })
 
-  chat = request['chatRoomId']
+  chat_room_id = request['chatRoomId']
   messageId = request['messageId']
-  group = helpers.ChatToGroup(game_state, chat)
-  if game_state.get('/chatRooms/%s/messages' % chat, messageId):
+  group = helpers.ChatToGroup(game_state, chat_room_id)
+  if game_state.get('/chatRooms/%s/messages' % chat_room_id, messageId):
     raise InvalidInputError('That message ID was already used.')
   if not game_state.get('/groups/%s/players' % group, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
   if 'message' in request:
     user_id = game_state.get('/publicPlayers/%s' % request['playerId'], 'userId')
-    players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat)
+    players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat_room_id)
     notification_data = {
       'gameId': request['gameId'],
       'queuedNotificationId': 'queuedNotification-%s' % request['messageId'][len('message-'):],
@@ -690,9 +690,9 @@ def SendChatMessage(request, game_state):
       'mobile': True,
       'vibrate': True,
       'sound': "ping.wav",
-      'destination': 'TODO',
+      'destination': 'chat/' + chat_room_id,
       'sendTime': helpers.GetTime(request),
-      'icon': 'TODO'
+      'icon': ''
     }
     # If we check for all @all, then there is no need to send out additional
     # player notifications.
@@ -734,9 +734,38 @@ def SendChatMessage(request, game_state):
       'latitude': request['location']['latitude'],
       'longitude': request['location']['longitude']
     }
-  game_state.put('/chatRooms/%s/messages' % chat, messageId, put_data)
+  game_state.put('/chatRooms/%s/messages' % chat_room_id, messageId, put_data)
 
 def AddRequestCategory(request, game_state):
+  """Adds a request category
+  """
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'quizQuestionId': 'String', # New quiz question's ID
+    'text': 'String',
+    'type': 'String', # Type of the question, either 'order' or 'multipleChoice'
+    'number': 'Number',
+  })
+
+  question = game_state.get(
+    '/games/%s/quizQuestions' % request['gameId'],
+    request['quizQuestionId'])
+
+  if question is not None:
+    return respondError(400, 'Quiz question already exists')
+
+  question_type = request['type']
+  if question_type != 'order' and question_type != 'multipleChoice':
+    return respondError(400, 'type must be "order" or "multipleChoice"')
+
+  return game_state.put(
+    '/games/%s/quizQuestions' % request['gameId'],
+    request['quizQuestionId'],
+    {
+      'text': request['text'],
+      'type': request['type'],
+      'number': request['number'],
+  })
   pass
 
 def UpdateRequestCategory(request, game_state):
@@ -748,26 +777,166 @@ def AddRequest(request, game_state):
 def AddResponse(request, game_state):
   pass
 
+
+def GetMessageTargets(message, group_id):
+  notification_player_ids = []
+  ack_request_player_ids = []
+  text_request_player_ids = []
+
+  player_ids_by_name = helpers.GetPlayerNamesInGroup(game_state, group_id)
+
+  while True:
+    target_regex = r"@(\\?|!)?(\\w+)\\b\\s*"
+    match = re.search(target_regex, message)
+    if not match:
+      break
+    message = message.replace(match.group(0), "", 1)
+
+    new_target_player_ids = []
+    player_name = match.group(2)
+    if player_name == 'all':
+      new_target_player_ids = group.players.keys()
+    else:
+      if player_name not in player_ids_by_name:
+        raise InvalidInputError("No player by the name '" + player_name + "' in this group!")
+      new_target_player_ids = [player_ids_by_name[player_name]]
+
+    notification_player_ids = notification_player_ids + new_target_player_ids
+    if match.group(1) == '!':
+      ack_request_player_ids = ack_request_player_ids + new_target_player_ids
+    if match.group(1) == '?':
+      text_request_player_ids = text_request_player_ids + new_target_player_ids
+
+  return message, notification_player_ids, ack_request_player_ids, text_request_player_ids
+
+  # sendChatMessage(args) {
+  #   let {chatRoomId, playerId, messageId, message} = args;
+
+  #   let game = this.game;
+  #   let player = game.playersById[playerId];
+  #   let chatRoom = game.chatRoomsById[chatRoomId];
+  #   let group = game.groupsById[chatRoom.accessGroupId];
+
+  #   if (group.playersById[player.id]) {
+  #     this.writer.insert(
+  #         this.reader.getChatRoomPath(chatRoomId).concat(["messages"]),
+  #         null,
+  #         new Model.Message(messageId, Utils.merge(args, {
+  #           time: this.getTime_(args),
+  #           playerId: playerId,
+  #         })));
+  #   } else {
+  #     throw 'Can\'t send message to chat room without membership';
+  #   }
+
+  #   let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
+  #       this.getMessageTargets(message, group);
+
+  #   if (notificationPlayerIds.length) {
+  #     for (let receiverPlayerId of notificationPlayerIds) {
+  #       let receiverPlayer = this.game.playersById[receiverPlayerId];
+  #       let messageForNotification = player.name + ": " + strippedMessage;
+  #       this.addNotification({
+  #         playerId: receiverPlayerId,
+  #         notificationId: this.idGenerator.newNotificationId(),
+  #         queuedNotificationId: null,
+  #         message: messageForNotification,
+  #         previewMessage: messageForNotification,
+  #         destination: 'chat/' + chatRoom.id,
+  #         time: this.getTime_(args),
+  #         icon: null,
+  #       });
+  #     }
+  #   }
+  #   if (ackRequestPlayerIds.length) {
+  #     this.sendRequests(chatRoomId, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
+  #   }
+  #   if (textRequestPlayerIds.length) {
+  #     this.sendRequests(chatRoomId, playerId, 'text', strippedMessage, textRequestPlayerIds);
+  #   }
+  # }
+
+  # sendRequests(chatRoomId, senderPlayerId, type, message, playerIds) {
+  #   let requestCategoryId = this.idGenerator.newRequestCategoryId();
+  #   this.addRequestCategory({
+  #     requestCategoryId: requestCategoryId,
+  #     chatRoomId: chatRoomId,
+  #     playerId: senderPlayerId,
+  #     text: message,
+  #     type: type,
+  #     dismissed: false,
+  #   });
+  #   for (let playerId of playerIds) {
+  #     this.addRequest({
+  #       requestCategoryId: requestCategoryId,
+  #       requestId: this.idGenerator.newRequestId(),
+  #       playerId: playerId,
+  #     });
+  #   }
+  # }
+
+  # addRequestCategory(args) {
+  #   let {requestCategoryId, chatRoomId} = args;
+  #   this.writer.insert(
+  #       this.reader.getRequestCategoryPath(chatRoomId, null),
+  #       null,
+  #       new Model.RequestCategory(requestCategoryId, Utils.merge(args, {
+  #         time: this.getTime_(args),
+  #       })));
+  # }
+
+  # updateRequestCategory(args) {
+  #   let {requestCategoryId} = args;
+  #   let chatRoomId = this.reader.getChatRoomIdForRequestCategoryId(requestCategoryId);
+  #   let requestCategoryPath = this.reader.getRequestCategoryPath(chatRoomId, requestCategoryId);
+  #   for (let argName in args) {
+  #     this.writer.set(requestCategoryPath.concat([argName]), args[argName]);
+  #   }
+  # }
+  
+  # addRequest(args) {
+  #   let {requestId, requestCategoryId, playerId} = args;
+  #   let chatRoomId = this.reader.getChatRoomIdForRequestCategoryId(requestCategoryId);
+  #   this.writer.insert(
+  #       this.reader.getRequestPath(chatRoomId, requestCategoryId, null),
+  #       null,
+  #       new Model.Request(requestId, {
+  #         playerId: playerId,
+  #         time: null,
+  #         text: null,
+  #       }));
+  # }
+
+  # addResponse(args) {
+  #   let {requestId, text} = args;
+  #   let requestCategoryId = this.reader.getRequestCategoryIdForRequestId(requestId);
+  #   let chatRoomId = this.reader.getChatRoomIdForMessageId(requestId);
+  #   let requestCategory = this.reader.get(this.reader.getRequestCategoryPath(chatRoomId, requestCategoryId));
+  #   let requestPath = this.reader.getRequestPath(chatRoomId, requestCategoryId, requestId);
+  #   let request = this.reader.get(requestPath);
+  #   if (requestCategory.type == 'ack')
+  #     assert(text === null);
+  #   else if (requestCategory.type == 'text')
+  #     assert(typeof text == 'string' && text);
+  #   else
+  #     throwError('Bad request type');
+  #   this.writer.set(requestPath.concat(["response"]), {
+  #     time: this.getTime_(args),
+  #     text: text
+  #   });
+  # }
+
+
+
+
 def AddQuizQuestion(request, game_state):
   """Adds a quiz question with the given information
-
-    Validation:
-      gameId must exist
-      quizQuestionId must not exist
-      text must be present
-      type must be present
-
-    Args:
-      gameId: the quiz question will be associated with
-      quizQuestionId: The id used to identify the question
-      text: Text that represents the question
-      type: The type of the question. Either 'order' or 'multipleChoice'
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'quizQuestionId': 'String',
+    'quizQuestionId': 'String', # New quiz question's ID
     'text': 'String',
-    'type': 'String',
+    'type': 'String', # Type of the question, either 'order' or 'multipleChoice'
     'number': 'Number',
   })
 
