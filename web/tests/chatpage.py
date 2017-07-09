@@ -109,7 +109,7 @@ driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-page'], [By.NAME, 'message-%s-Wh
 
 # Switch back to original player
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('chat-card', '-' + newChatName)
+driver.DrawerMenuClick('chat-card', newChatName)
 toggleChatDrawer(driver, actingPlayerName, newChatName)
 
 # Kick player from chat

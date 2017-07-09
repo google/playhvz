@@ -69,8 +69,8 @@
         e.stopPropagation();
       },
 
-      getItemName_() {
-        return 'drawer' + this.text;
+      getItemName_(text) {
+        return 'drawer' + text;
       },
     });
   });
@@ -109,7 +109,7 @@
   }
 </style>
 <template>
-  <div on-click="onClick_" name="[[getItemName_()]]" class="drawer-item">
+  <div on-click="onClick_" name$="[[getItemName_(text)]]" class="drawer-item">
     <iron-icon icon="[[icon]]"></iron-icon>
     [[text]]
   </div>

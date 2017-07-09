@@ -52,7 +52,7 @@ try:
       'JackSlayerTheBeanSlasher')
 
   # Check that Jack is now in the zombie chat
-  driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
+  driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Horde ZedLink']])
   driver.FindElement([
       [By.NAME, 'chat-card'], 
@@ -64,7 +64,7 @@ try:
   driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME,'Leaderboard Allegiance Cell JackSlayerTheBeanSlasher']], 'horde')
 
   # Jack's alive status changes
-  driver.DrawerMenuClick('leaderboard-card', '-Global Chat')
+  driver.DrawerMenuClick('leaderboard-card', 'Global Chat')
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Global Chat']])
   driver.Click([
       [By.NAME, 'chat-card'], 

@@ -54,7 +54,7 @@ try:
   driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
   driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
-  driver.DrawerMenuClick('chat-card', '-Secret Stuff')
+  driver.DrawerMenuClick('chat-card', 'Secret Stuff')
 
   # Jack creates a chatroom with other players
   driver.DrawerMenuClick('chat-card', 'Chat')
@@ -66,7 +66,7 @@ try:
   if driver.is_mobile:
     driver.FindElement([[By.NAME, "chat-info-Humanity's Last Hope"]])
   else:
-    driver.FindElement([[By.NAME, "drawer-Humanity's Last Hope"]])
+    driver.FindElement([[By.NAME, "drawerHumanity's Last Hope"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-drawer-add"]])
   driver.Click([[By.NAME, 'chat-card'], [By.NAME, "player-name-MoldaviTheMoldavish"]])

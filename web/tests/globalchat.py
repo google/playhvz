@@ -128,7 +128,7 @@ driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, player
 # Make sure you can click through drawer to people's profiles
 driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']]])
 driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'player-name']], 'DeckerdTheHesitant')
-driver.DrawerMenuClick('profile-card', '-Global Chat')
+driver.DrawerMenuClick('profile-card', 'Global Chat')
 driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']]])
 driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'player-name']], 'MoldaviTheMoldavish')
 

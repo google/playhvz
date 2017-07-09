@@ -57,7 +57,7 @@ driver.Click([[By.ID, 'set-infect-button']])
 driver.ExpectContains([[By.NAME, 'can-infect']], 'Yes')
 
 # Check that Zella is still in the human chat
-driver.DrawerMenuClick('profile-card', '-Resistance Comms Hub')
+driver.DrawerMenuClick('profile-card', 'Resistance Comms Hub')
 
 # Zella infects Moldavi
 driver.DrawerMenuClick('mobile-main-page', 'Infect')
@@ -68,7 +68,7 @@ driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'Molda
 # Zella is now a zombie
 driver.DrawerMenuClick('infect-card', 'Dashboard')
 driver.FindElement([[By.NAME, 'infect-box']])
-driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
+driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
 driver.DrawerMenuClick('chat-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100') # Points from infecting Moldavi
@@ -82,7 +82,7 @@ driver.ExpectContains([[By.NAME, 'status']], 'Alive')
 
 # Moldavi now can secret-zombie infects Jack
 driver.SwitchUser('moldavi')
-driver.DrawerMenuClick('profile-card', '-Resistance Comms Hub')
+driver.DrawerMenuClick('profile-card', 'Resistance Comms Hub')
 driver.DrawerMenuClick('mobile-main-page', 'Infect')
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly') # Jack's code
 driver.Click([[By.ID, 'infect']])
@@ -91,7 +91,7 @@ driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackS
 # Moldavi is now a zombie
 driver.DrawerMenuClick('infect-card', 'Dashboard')
 driver.FindElement([[By.NAME, 'infect-box']])
-driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
+driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
 driver.DrawerMenuClick('chat-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100') # Points from infecting Jack
@@ -99,7 +99,7 @@ driver.FindElement([[By.NAME, 'infection-line']])
 
 # Jack is still human
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('mobile-main-page', '-Resistance Comms Hub')
+driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
 
 driver.Quit()
 
