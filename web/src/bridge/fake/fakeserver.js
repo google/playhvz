@@ -797,10 +797,6 @@ class FakeServer {
           // Add an infection to the victim
           this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
         }
-        // Set the victim to zombie
-        if (victimPlayer.infections.length >= victimPlayer.lives.length) {
-          this.setPlayerZombie(victimPlayer.id);
-        }
       }
     } else {
      throw 'The player with this lifecode was already zombified.';

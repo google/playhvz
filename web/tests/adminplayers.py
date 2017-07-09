@@ -29,7 +29,6 @@ import setup
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
-<<<<<<< HEAD
 driver = setup.MakeDriver(user="zella")
 
 # Set got equipment for Jack
@@ -262,4 +261,3 @@ try:
 
 finally:
   pass
->>>>>>> 8c1910be8832649c02efce249417afb159969c57
