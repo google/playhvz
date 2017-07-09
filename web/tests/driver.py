@@ -190,7 +190,7 @@ class RemoteDriver:
     return self.game_id
 
   def MakeDriver(self, user, page):
-    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s" % (
+    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s&logrequests=1" % (
         self.client_url,
         page,
         user,
@@ -251,7 +251,7 @@ class FakeDriver:
     if page and len(page) and page[0] == '/':
       page = page[1:]
 
-    url = "%s/%s?user=%s&bridge=fake&layout=%s" % (
+    url = "%s/%s?user=%s&bridge=fake&layout=%s&logrequests=1" % (
         client_url,
         page,
         user,
