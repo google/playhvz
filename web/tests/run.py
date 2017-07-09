@@ -19,6 +19,7 @@
 import sys
 import os
 import argparse
+import shelve
 
 def main(argv):
     pass
@@ -38,33 +39,41 @@ def runTest(url, password, files, useRemote, useMobile):
 	if useMobile:
 		args += " -m"
 
-	if len(files) > 0:
-		for file in files:
-			printAndRun("python %s.py %s" % (file, args))
-	else:
-		printAndRun("python creategame.py %s" % args)
-		printAndRun("python joingame.py %s" % args)
-		printAndRun("python infect.py %s" % args)
-		printAndRun("python othersleavingresistance.py %s" % args)
-		printAndRun("python modifygame.py %s" % args)
-		printAndRun("python mission.py %s" % args)
-		printAndRun("python adminplayers.py %s" % args)
-		printAndRun("python adminguns.py %s" % args)
-		printAndRun("python changeallegiance.py %s" % args)
-		printAndRun("python adminchat.py %s" % args)
-		printAndRun("python globalchat.py %s" % args)
-		printAndRun("python declare.py %s" % args)
-		printAndRun("python startgame.py %s" % args)
-		printAndRun("python chat.py %s" % args)
-		printAndRun("python chatpage.py %s" % args)
-		printAndRun("python notifications1.py %s" % args)
-		printAndRun("python rewardcategories.py %s" % args)
-		printAndRun("python chatEdgeCases.py %s" % args)
-		printAndRun("python deactivate.py %s" % args)
-		printAndRun("python chatlocation.py %s" % args)
-		printAndRun("python possession.py %s" % args)
-		printAndRun("python selfinfect.py %s" % args)
+	testFiles = [
+		"adminchat"
+		# "adminguns",
+		# "adminplayers",
+		# "changeallegiance",
+		# "chat",
+		# "chatEdgeCases",
+		# "chatlocation",
+		# "chatpage",
+		# "createGame",
+		# "deactivate",
+		# "declare",
+		# "globalchat",
+		# "infect",
+		# "joingame",
+		# "mission",
+		# "modifygame",
+		# "notifications1",
+		# "othersleavingresistance",
+		# "possession",
+		# "rewardcategories",
+		# "selfinfect",
+		# "startgame"
+	]
 
+	if len(files) > 0:
+		if files[0] == "not":
+			for file in files[1:]:
+				testFiles.remove(file)
+		else:
+			testFiles = files[1:]
+
+
+	for file in testFiles:
+		printAndRun("python %s.py %s" % (file, args))
 
 def desktopAndMobileTests(url, password, mobile, desktop, files, useRemote):
 	if mobile:
@@ -93,8 +102,13 @@ def main():
 	parser.add_argument("-d", "--desktop", help="Only run desktop tests", action="store_true")
 	parser.add_argument("-l", "--local", help="Only run local tests", action="store_true")
 	parser.add_argument("-r", "--remote", help="Only run remote tests", action="store_true")
+	parser.add_argument("-rf", "--rerunFailures", help="Reruns tests that failed the last time.", action="store_true")
+	parser.add_argument("-cp", "--changePassword", help="Change the default remote password")
 	parser.add_argument("files", nargs="*", help="Specific tests to run")
 	args = parser.parse_args()
+
+	if args.cp:
+		dict = shelve.open("testdata")
 
 	fakeAndRemoteTests(args.url, args.password, args.mobile, args.desktop, args.local, args.remote, args.files)
 
