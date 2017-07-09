@@ -301,13 +301,8 @@ class FakeServer {
       }
       notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
       let senderIndex = notificationPlayerIds.indexOf(senderId);
-      console.log("getting targets")
-      console.log(newTargetPlayerIds)
-      console.log(notificationPlayerIds)
       if (senderIndex != -1) {
-        console.log("splicing")
         notificationPlayerIds.splice(senderIndex, 1);
-        console.log(notificationPlayerIds)
       }
       if (messageMatch[1] == '!') {
         ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);

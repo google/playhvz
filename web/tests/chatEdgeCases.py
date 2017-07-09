@@ -20,8 +20,6 @@ import setup
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
-try:
-
   # Sign in as an admin
   driver = setup.MakeDriver(user="zella")
 
@@ -110,6 +108,3 @@ try:
   driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "player-name-MoldaviTheMoldavish"]])
 
   driver.Quit()
-
-finally:
-  pass

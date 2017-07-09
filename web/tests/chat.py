@@ -31,86 +31,77 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver()
 driver.WaitForGameLoaded()
 
-try:
-  playerNames = {
-        'zella': 'ZellaTheUltimate',
-        'deckerd': 'DeckerdTheHesitant',
-        'moldavi': 'MoldaviTheMoldavish',
-        'drake': 'Drackan',
-        'zeke': 'Zeke',
-        'jack': 'JackSlayerTheBeanSlasher'
-      }
+playerNames = {
+      'zella': 'ZellaTheUltimate',
+      'deckerd': 'DeckerdTheHesitant',
+      'moldavi': 'MoldaviTheMoldavish',
+      'drake': 'Drackan',
+      'zeke': 'Zeke',
+      'jack': 'JackSlayerTheBeanSlasher'
+    }
 
-  def testChat(player, chatName, shouldBeMember):
-    try: 
-      driver.SwitchUser(player)
+def testChat(player, chatName, shouldBeMember):
+  try:
+   driver.Click([[By.NAME, 'close-notification']])
+  except AssertionError:
+    pass # This user didn't have a notification
 
-      try:
-       driver.Click([[By.NAME, 'close-notification']])
-      except AssertionError:
-        pass # This user didn't have a notification
+  if shouldBeMember:
+    driver.DrawerMenuClick('mobile-main-page', 'Chat')
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # aaah, crashed here too on mobile
 
-      if shouldBeMember:
-        driver.DrawerMenuClick('mobile-main-page', 'Chat')
-        driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # aaah, crashed here too on mobile
+    # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
+    # This is probably because clicking the X on the notification didn't make it go away.
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
+    driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, 'num-players']])
+    driver.FindElement(
+      [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
 
-        # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
-        # This is probably because clicking the X on the notification didn't make it go away.
-        driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
-        driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, 'num-players']])
-        driver.FindElement(
-          [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
+    # Check the profile pic shows up
+    # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
+    pic = driver.FindElement(
+      [[By.NAME, 'chat-card'], 
+      [By.NAME, 'chat-drawer-%s' % chatName], 
+      [By.NAME, playerNames[player]],
+      [By.CLASS_NAME, 'profile-pic']])
+    assert(pic.get_attribute('style') != u'background-image: url("");')
 
-        # Check the profile pic shows up
-        # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
-        pic = driver.FindElement(
-          [[By.NAME, 'chat-card'], 
-          [By.NAME, 'chat-drawer-%s' % chatName], 
-          [By.NAME, playerNames[player]],
-          [By.CLASS_NAME, 'profile-pic']])
-        assert(pic.get_attribute('style') != u'background-image: url("");')
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
 
-        driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
+    # Post a message
+    driver.FindElement([[By.NAME, "ChatRoom: %s" % chatName]], check_visible=False) # Check that the chat exists
+    driver.SendKeys([
+      [By.NAME, 'chat-card'], 
+      [By.NAME, 'input-%s' % chatName], 
+      [By.TAG_NAME, 'textarea']], 'Brains for %s' % player)
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'submit-%s' % chatName]])
 
-        # Post a message
-        driver.FindElement([[By.NAME, "ChatRoom: %s" % chatName]], check_visible=False) # Check that the chat exists
-        driver.SendKeys([
-          [By.NAME, 'chat-card'], 
-          [By.NAME, 'input-%s' % chatName], 
-          [By.TAG_NAME, 'textarea']], 'Brains for %s' % player)
-        driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'submit-%s' % chatName]])
+    # Make sure the element shows up
+    driver.FindElement([[By.NAME, 'chat-card'], [By.CLASS_NAME, 'message-from-me']])
+    driver.ExpectContains([[By.NAME, 'chat-card']], 'Brains for %s' % player)
+    driver.DrawerMenuClick('chat-card', 'Dashboard')
 
-        # Make sure the element shows up
-        driver.FindElement([[By.NAME, 'chat-card'], [By.CLASS_NAME, 'message-from-me']])
-        driver.ExpectContains([[By.NAME, 'chat-card']], 'Brains for %s' % player)
-        driver.DrawerMenuClick('chat-card', 'Dashboard')
+  else:
+    driver.DrawerMenuClick('mobile-main-page', 'Chat')
+    driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], chatName, should_exist=False)
+    driver.DrawerMenuClick('chat-card', 'Dashboard')
 
-      else:
-        driver.DrawerMenuClick('mobile-main-page', 'Chat')
-        driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], chatName, should_exist=False)
-        driver.DrawerMenuClick('chat-card', 'Dashboard')
-
-    finally:
-      pass
-
-  # GLOBAL CHAT ROOM - all types of joined players + admins should view.
-  testChat('jack', 'Global Chat', True) # Human
-  testChat('zeke', 'Global Chat', True) # Zombie
-  testChat('deckerd', 'Global Chat', True) # Undeclared
+# GLOBAL CHAT ROOM - all types of joined players + admins should view.
+testChat('jack', 'Global Chat', True) # Human
+testChat('zeke', 'Global Chat', True) # Zombie
+testChat('deckerd', 'Global Chat', True) # Undeclared
 
 
-  # HORDE CHAT ROOM - only declared zombies should view
-  testChat('jack', 'Horde ZedLink', False) # Human
-  testChat('zeke', 'Horde ZedLink', True) # Zombie
-  testChat('deckerd', 'Horde ZedLink', False) # Undeclared
+# HORDE CHAT ROOM - only declared zombies should view
+testChat('jack', 'Horde ZedLink', False) # Human
+testChat('zeke', 'Horde ZedLink', True) # Zombie
+testChat('deckerd', 'Horde ZedLink', False) # Undeclared
 
-  # HUMAN CHAT ROOM - only declared humans should view
-  testChat('jack', 'Resistance Comms Hub', True) # Human
-  testChat('zeke', 'Resistance Comms Hub', False) # Zombie
-  testChat('deckerd', 'Resistance Comms Hub', False) # Undeclared
+# HUMAN CHAT ROOM - only declared humans should view
+testChat('jack', 'Resistance Comms Hub', True) # Human
+testChat('zeke', 'Resistance Comms Hub', False) # Zombie
+testChat('deckerd', 'Resistance Comms Hub', False) # Undeclared
 
-  driver.Quit()
+driver.Quit()
 
-finally:
-  pass
 
