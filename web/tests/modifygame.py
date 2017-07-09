@@ -185,7 +185,7 @@ driver.ExpectContains(
     'Here is how you find a possessed human.')
 
 # Go to the Admin Game Summary page
-driver.DrawerMenuClick('summary-card', 'Admin Game Summary')
+driver.DrawerMenuClick('faq-card', 'Admin Game Summary')
 driver.Click([[By.NAME, 'summary-card'], [By.NAME, 'rules-icon']])
 driver.Clear([[By.NAME, 'summary-card'], [By.ID, 'summaryHtmlInput'], [By.TAG_NAME, 'textarea']])
 driver.SendKeys(
