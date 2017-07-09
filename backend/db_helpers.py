@@ -237,7 +237,6 @@ def GetPrivatePlayerId(game_state, public_player_id):
   return game_state.get('/publicPlayers/%s' % public_player_id, 'privatePlayerId')
 
 def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
-  player_short_name = life_code.split('-')[0]
   public_players = GetValueWithPropertyEqualTo(
       game_state,
       'publicPlayers',
