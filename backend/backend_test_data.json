@@ -70,6 +70,12 @@
         "publicPlayer-%(ident)s-4": true,
         "publicPlayer-%(ident)s-5": true
       },
+      "queuedNotifications": {
+        "queuedNotification-%(ident)s-1": true,
+        "queuedNotification-%(ident)s-1testCharles": true,
+        "queuedNotification-%(ident)s-4testBobby3": true,
+        "queuedNotification-%(ident)s-4testCharles": true
+      },
       "quizQuestions": {
         "quizQuestion-%(ident)s-1": {
           "answers": {

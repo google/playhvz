@@ -74,8 +74,6 @@ class FakeBridge {
 
     return new Promise ((resolve, reject) => {
       setTimeout(() => {
-        clearInterval(interval);
-        this.teeWriter.removeDestination(cloningWriter);
         resolve();        
       }, 2000);
     });

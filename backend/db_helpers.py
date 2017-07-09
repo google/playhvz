@@ -391,7 +391,7 @@ def QueueNotification(game_state, request):
   print 'request were putting:'
   print put_data
 
-  game_state.put('/games/%s/queuedNotifications' % game_id, request['queuedNotificationId'], put_data)
+  game_state.put('/games/%s/queuedNotifications' % game_id, request['queuedNotificationId'], True)
   game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
 
 
