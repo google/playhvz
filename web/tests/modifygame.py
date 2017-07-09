@@ -57,6 +57,13 @@ driver.ExpectContains(
     [[By.NAME, 'rules-card'], [By.ID, 'rules']],
     'rules are cools when you save them')
 
+driver.FindElement([[By.NAME, 'rules-card'], [By.NAME, 'collapsible-text-Details']], should_exist=False)
+driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'collapsible-Details']])
+driver.FindElement([[By.NAME, 'rules-card'], [By.NAME, 'collapsible-text-Details']], should_exist=True)
+##### driver.ExpectContains([[By.NAME, 'rules-card'], [By.NAME, 'collapsible-text-Details']])
+driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'collapsible-Details']])
+driver.FindElement([[By.NAME, 'rules-card'], [By.NAME, 'collapsible-text-Details']], should_exist=False)
+
 # Open game details
 driver.DrawerMenuClick('rules-card', 'Admin Game Details')
 driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
@@ -121,6 +128,7 @@ driver.ExpectAttributeEqual([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 
 
 
 #NOTE: commented out b/c declare button doesn't update in real time
+# TODO(aliengirl): Uncomment these lines once the declare buttons update in realtime
 
 # # Go back, change resistance cutoff time to future
 # driver.SwitchUser('zella')
@@ -154,26 +162,42 @@ driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
 driver.Clear([[By.ID, 'form-section-reg-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
 driver.SendKeys([[By.ID, 'form-section-reg-end-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']], "2016")
 driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
+driver.ExpectContains([[By.NAME, 'game-registrationEndTime']], "Jan 1 8:00am")
 
-# Minny tries to join game, can't
-driver.SwitchUser('minny')
-driver.Click([[By.NAME, 'joinGame']])
+# NOTE: As far as I can tell, the registration cutoff time does absolutely nothing
+
+# TODO(aliengirl): Once the reg. cutoff actually blocks registration, have a test where Minny tries to join game, but can't
 
 
-# # Go to the FAQ page
-# driver.DrawerMenuClick('game-details-card', 'FAQ')
+# Go to the FAQ page
+driver.DrawerMenuClick('game-details-card', 'FAQ')
 
-# driver.Click([[By.NAME, 'faq-card'], [By.NAME, 'rules-icon']])
-# driver.SendKeys(
-#     [[By.NAME, 'faq-card'], [By.TAG_NAME, 'textarea']], 
-#     'Here is how you find a possessed human.')
+driver.Click([[By.NAME, 'faq-card'], [By.NAME, 'rules-icon']])
+driver.SendKeys(
+    [[By.NAME, 'faq-card'], [By.TAG_NAME, 'textarea']], 
+    'Here is how you find a possessed human.')
 
-# # If you click Save, the new words should show up.
-# driver.Click([[By.NAME, 'faq-card'],[By.ID, 'done']])
+# If you click Save, the new words should show up.
+driver.Click([[By.NAME, 'faq-card'],[By.ID, 'done']])
 
-# driver.ExpectContains(
-#     [[By.NAME, 'faq-card'], [By.ID, 'contents']],
-#     'Here is how you find a possessed human.')
+driver.ExpectContains(
+    [[By.NAME, 'faq-card'], [By.ID, 'contents']],
+    'Here is how you find a possessed human.')
 
-# driver.Quit()
+# Go to the Admin Game Summary page
+driver.DrawerMenuClick('summary-card', 'Admin Game Summary')
+driver.Click([[By.NAME, 'summary-card'], [By.NAME, 'rules-icon']])
+driver.Clear([[By.NAME, 'summary-card'], [By.ID, 'summaryHtmlInput'], [By.TAG_NAME, 'textarea']])
+driver.SendKeys(
+    [[By.NAME, 'summary-card'], [By.TAG_NAME, 'textarea']], 
+    "<div>During yesterday's mission, the humans decided the best defense was a good offense and ran around trying to bite zombies.</div>")
+driver.Click([[By.NAME, 'summary-card'],[By.ID, 'done']])
+driver.ExpectContains(
+    [[By.NAME, 'summary-card'], [By.ID, 'summary']],
+    "During yesterday's mission, the humans decided the best defense was a good offense and ran around trying to bite zombies.")
+driver.ExpectContains(
+    [[By.NAME, 'summary-card'], [By.NAME, 'game-summary-box']],
+    '42') # current stun timer
+
+driver.Quit()
 

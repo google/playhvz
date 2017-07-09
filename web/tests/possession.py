@@ -60,7 +60,7 @@ driver.ExpectContains([[By.NAME, 'can-infect']], 'Yes')
 driver.DrawerMenuClick('profile-card', '-Resistance Comms Hub')
 
 # Zella infects Moldavi
-driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.DrawerMenuClick('chat-card', 'Infect')
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'zooble flipwoogly') # Moldavi's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'MoldaviTheMoldavish')
@@ -72,18 +72,20 @@ driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
 driver.DrawerMenuClick('chat-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100') # Points from infecting Moldavi
-driver.FindElement([[By.NAME, 'infection-line']])
+driver.FindElement([[By.NAME, 'infection-line-0']])
+driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactly 1 infections
 
 # Check that Moldavi is now a possessed human
 driver.DrawerMenuClick('profile-card', 'Admin Players')
 driver.Click([[By.NAME, 'player-row-MoldaviTheMoldavish'], [By.ID, 'name']])
 driver.ExpectContains([[By.NAME, 'can-infect']], 'Yes')
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')
+driver.FindElement([[By.NAME, 'infection-line-0']], should_exist=False)
 
 # Moldavi now can secret-zombie infects Jack
 driver.SwitchUser('moldavi')
-driver.DrawerMenuClick('profile-card', '-Resistance Comms Hub')
-driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.DrawerMenuClick('mobile-main-page', '-Resistance Comms Hub')
+driver.DrawerMenuClick('chat-card', 'Infect')
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly') # Jack's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
@@ -95,11 +97,12 @@ driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
 driver.DrawerMenuClick('chat-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100') # Points from infecting Jack
-driver.FindElement([[By.NAME, 'infection-line']])
+driver.FindElement([[By.NAME, 'infection-line-0']])
+driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactly 1 infections
 
 # Jack is still human
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('mobile-main-page', '-Resistance Comms Hub')
+driver.DrawerMenuClick('infect-card', '-Resistance Comms Hub')
 
 driver.Quit()
 

@@ -2,10 +2,23 @@ import setup
 import pdb
 from selenium.webdriver.common.by import By
 
-driver = setup.MakeDriver(user="jack")
+driver = setup.MakeDriver(user="zella")
+
+# Make Zeke a human (just b/c we need more humans than we currently have)
+driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
+
+driver.SwitchUser('zeke')
+# Zeke is in the Resistance Comms Hub
+driver.DrawerMenuClick('mobile-main-page', '-Resistance Comms Hub')
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Resistance Comms Hub']])
+driver.FindElement(
+        [[By.NAME, 'chat-card'], 
+        [By.NAME, 'chat-drawer-Resistance Comms Hub'], 
+        [By.NAME, 'Zeke']])
 
 INFECTABLES = [ # these names seem to have collapsed in the last pull
- ('Moldavi', 'zooble flipwoogly', 'Moldavi the Moldavish'), # TheMoldavish
+ ('MoldaviTheMoldavish', 'zooble flipwoogly', 'Moldavi the Moldavish'), # TheMoldavish
  ('JackSlayerTheBeanSlasher', 'grobble forgbobbly', 'Jack Slayer the Bean Slasher'),
  ('ZellaTheUltimate', 'glarple zerp wobbledob', 'Zella the Ultimate')
 ]
@@ -28,7 +41,7 @@ driver.FindElement([[By.NAME, 'stats-card'],
                           check_visible=False)
 
 initial_zombie_start_count = 4
-initial_zombie_end_count = 6
+initial_zombie_end_count = 5
 
 # ensure our zombies over time current value reflects the current population
 driver.ExpectContains([[By.NAME, 'stats-card'],
@@ -95,6 +108,16 @@ driver.ExpectContains([[By.NAME, 'stats-card'],
                         [By.ID, 'zombie_end_count']],
                         str(current_zombie_count),
                         check_visible=False)
+
+# Check that the turned humans have disappeared from the chat
+driver.SwitchUser('zeke')
+
+for target in INFECTABLES:
+  driver.FindElement(
+        [[By.NAME, 'chat-card'], 
+        [By.NAME, 'chat-drawer-Resistance Comms Hub'], 
+        [By.NAME, target[0]]],
+        should_exist=False)
 
 driver.Quit()
 

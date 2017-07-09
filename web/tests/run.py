@@ -40,7 +40,7 @@ def runTest(url, password, files, useRemote, useMobile):
 		args += " -m"
 
 	testFiles = [
-		"adminchat"
+		"adminchat",
 		"adminguns",
 		"adminplayers",
 		"changeallegiance",

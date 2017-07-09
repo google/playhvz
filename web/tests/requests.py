@@ -98,7 +98,7 @@ driver.Click([[By.NAME, 'chat-card'],
 	[By.NAME, 'received-ack-Why are we sorcerers? What does this have to do with zombies?'],
 	[By.TAG_NAME, 'a']])
 driver.ExpectContains([[By.NAME, 'player-name']], 'ZellaTheUltimate')
-driver.DrawerMenuClick('profile-page', '-Expelliarmus')
+driver.DrawerMenuClick('profile-card', '-Expelliarmus')
 
 # Acks the message
 driver.Click([[By.NAME, 'chat-card'], 

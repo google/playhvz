@@ -41,6 +41,9 @@ playerNames = {
     }
 
 def testChat(player, chatName, shouldBeMember):
+
+  driver.SwitchUser(player)
+  
   try:
    driver.Click([[By.NAME, 'close-notification']])
   except AssertionError:

@@ -783,10 +783,14 @@ class FakeServer {
         return;
       }
     }
-    let validCode = victimPlayer.lives.length > victimPlayer.infections.length || 
-      victimPlayer.infections[victimPlayer.infections.length -1].infectorId == null;
+    let normalValidCode = victimPlayer.lives.length > victimPlayer.infections.length;
+    var selfInfectedValidCode = false;
+    if (victimPlayer.infections.length > 0 && 
+        victimPlayer.infections[victimPlayer.infections.length -1].infectorId == null) {
+      selfInfectedValidCode = true;
+    }
 
-    if  (validCode) {
+    if  (normalValidCode || selfInfectedValidCode) {
       // Give the infector points
       this.writer.set(
         infectorPlayerPath.concat(["points"]),
@@ -804,8 +808,12 @@ class FakeServer {
         // The victim can now infect
         this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
     } else { // Normal zombie infection
-        // Add an infection to the victim
-        this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
+        if (selfInfectedValidCode) {
+          this.updateNullInfector_(victimPlayer.id, infectorPlayerId)
+        } else {
+          // Add an infection to the victim
+          this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
+        }
         // Set the victim to zombie
         if (victimPlayer.infections.length >= victimPlayer.lives.length) {
           this.setPlayerZombie(victimPlayer.id);
@@ -815,6 +823,16 @@ class FakeServer {
      throw new InvalidRequestError('The player with this lifecode was already zombified.');
     }
     return victimPlayer.id;
+  }
+
+  updateNullInfector_(victimId, infectorId) {
+    // Fill in the missing infector Id
+    let victim = this.findPlayerByIdOrLifeCode_(victimId, null /*no lifecode*/);
+    let victimInfections = victim.infections;
+    victim.infections[victim.infections.length -1].infectorId = infectorId;
+    this.writer.set(
+      this.reader.getPublicPlayerPath(victimId).concat(["infections"]),
+      victimInfections)
   }
 
   addInfection_(request, infectionId, infecteePlayerId, infectorPlayerId) {
