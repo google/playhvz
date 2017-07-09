@@ -73,6 +73,11 @@ class NormalRequester {
     return new Promise((resolve, reject) => {
       let requests = this.waitingRequests;
       this.waitingRequests = [];
+      if (Utils.getParameterByName('logrequests', null)) {
+        for (let request of requests) {
+          console.log(request.method, request.body);
+        }
+      }
       let requestBody =
           requests.map((waitingRequest) => ({
             method: waitingRequest.method,

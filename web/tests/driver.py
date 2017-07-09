@@ -37,13 +37,12 @@ class SimpleDriver:
     element = None
     for step in path:
       by, locator = step
-      try:
-        if element is None:
-          element = self.selenium_driver.find_element(by, locator)
-        else:
-          element = element.find_element(by, locator)
-      except NoSuchElementException:
-        element = None
+      if element is None:
+        elements = self.selenium_driver.find_elements(by, locator)
+      else:
+        elements = element.find_elements(by, locator)
+      # assert len(elements) < 2, "Multiple elements found!"
+      element = elements[0] if len(elements) > 0 else None
       if element is None:
         break
     if should_exist:
@@ -184,7 +183,7 @@ class RemoteDriver:
     return self.game_id
 
   def MakeDriver(self, user, page):
-    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s" % (
+    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s&logrequests=1" % (
         self.client_url,
         page,
         user,
@@ -242,7 +241,7 @@ class FakeDriver:
     if page and len(page) and page[0] == '/':
       page = page[1:]
 
-    url = "%s/%s?user=%s&bridge=fake&layout=%s" % (
+    url = "%s/%s?user=%s&bridge=fake&layout=%s&logrequests=1" % (
         client_url,
         page,
         user,
