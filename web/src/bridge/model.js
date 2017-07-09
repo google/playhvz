@@ -305,7 +305,8 @@ var models = {
     email: '',
     destination: '',
     playerId: '',
-    privatePlayerId: ''
+    privatePlayerId: '',
+    icon: ''
   }
 };
 
