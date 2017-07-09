@@ -164,6 +164,18 @@
       Remember, don't post confidential info!</div>
     </div>
 
+    <ghvz-drawer-item
+      bridge="[[bridge]]"
+      is-admin="[[isAdmin]]"
+      database="[[database]]"
+      user-id="[[userId]]"
+      game="[[game]]"
+      player="[[player]]"
+      data="adminMain"
+      text="Admin Dashboard"
+      icon="icons:dashboard">
+    </ghvz-drawer-item>
+
     <template is="dom-if" if="[[canUseDevTools]]">
       <a href="javascript:void(0)" data-page="devTools" class="drawer-item">
         <iron-icon icon="icons:dashboard"></iron-icon>
@@ -281,6 +293,11 @@
             </ghvz-chat-room-name-label>
           </template>
         </template>
+
+        <a href="javascript:void(0)" name="drawerNewAdminChat" data-page="chat" class="drawer-item" on-tap="captureTap_">
+          <iron-icon icon="icons:add"></iron-icon>
+          Chat with Admins
+        </a>
       </div>
     </template>
 
