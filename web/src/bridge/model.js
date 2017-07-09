@@ -46,8 +46,7 @@ var models = {
     adminContactPlayerId: '',
 
     // for fake server
-    defaultProfileImages: [],
-    queuedNotifications: []
+    defaultProfileImages: []
   },
   group: {
     link: ['groups', 'groupId'],
@@ -307,7 +306,8 @@ var models = {
     email: '',
     destination: '',
     playerId: '',
-    privatePlayerId: ''
+    privatePlayerId: '',
+    icon: ''
   }
 };
 
