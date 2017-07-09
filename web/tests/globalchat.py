@@ -106,7 +106,7 @@ actingPlayerName = playerNames[actingPlayer]
 # Switch to chat page and open drawer
 driver.SwitchUser(actingPlayer)
 closeNotifications(driver)
-driver.DrawerMenuClick('mobile-main-page', '-Global Chat')
+driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
 openChatDrawer(driver, actingPlayerName, 'Global Chat')
 
 # Check admin can add players

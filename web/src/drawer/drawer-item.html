@@ -29,50 +29,50 @@
         userId: String,
         game: Object,
         player: Object,
-        page: String,
         icon: String,
         text: String,
         action: Object,
-        },
+        page: String,
+        chatRoomId: String,
 
-
-      onClick_() {
-        console.log("clicked!");
-        if (this.action) {
-          this.action();
-        } else {
-          openPage_();
+        // Optionally add a dash to the element name
+        addDash: {
+          type: Boolean,
+          value: false,
         }
       },
 
-      openPage_() {
-          let page = this.page;
-          assert(page);
-          let path = [page];
-          if (page == "chat" && e.target.dataset.chatRoomId) {
-            let chatRoomId = e.target.dataset.chatRoomId;
-            assert(chatRoomId);
-            path = path.concat(chatRoomId);
-          }
-          this.fire('ghvz-close-drawer');
-          this.fire('ghvz-set-path', {
-            inGame: true,
-            path: path,
-            replace: false,
-          });
-          e.preventDefault();
-          e.stopPropagation();
+      onClick_(e) {
+        console.log("clicked!");
+        if (this.action) {
+          this.action(e);
+        } else {
+          this.openPage_(e);
+        }
+      },
+
+      openPage_(e) {
+        let page = this.page;
+        assert(page);
+        let path = [page];
+        if (page == "chat" && this.chatRoomId) {
+          let chatRoomId = this.chatRoomId;
+          assert(chatRoomId);
+          path = path.concat(chatRoomId);
+        }
+        this.fire('ghvz-close-drawer');
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: path,
+          replace: false,
+        });
+        e.preventDefault();
+        e.stopPropagation();
       },
 
       getItemName_() {
         return 'drawer' + this.text;
       },
-
-      doThing() {
-        return () => {
-          alert("hi");
-        };
-      }
     });
   });
 </script>
@@ -111,7 +111,7 @@
 </style>
 <template>
   <div on-click="onClick_" name="[[getItemName_()]]" class="drawer-item">
-    <iron-icon icon="[[icon]]" thing="[[doThing()]]"></iron-icon>
+    <iron-icon icon="[[icon]]"></iron-icon>
     [[text]]
   </div>
 </template>

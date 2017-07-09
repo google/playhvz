@@ -103,7 +103,7 @@ driver.Click([[By.NAME, 'submit-%s' % newChatName], [By.XPATH, xpathSend]])
 
 # Check that other player can see the message
 driver.SwitchUser('drake')
-driver.DrawerMenuClick('mobile-main-page', '-' + newChatName)
+driver.DrawerMenuClick('mobile-main-page', newChatName)
 driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-page'], [By.NAME, 'message-%s-Whats our plan?' % newChatName], [By.CLASS_NAME, 'message-bubble']], 
 'Whats our plan?')
 

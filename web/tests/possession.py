@@ -35,7 +35,7 @@ driver = setup.MakeDriver(user="jack")
 driver.FindElement([[By.NAME, 'infect-box']], should_exist=False)
 
 # See the resistance chat
-driver.DrawerMenuClick('mobile-main-page', '-Resistance Comms Hub')
+driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
 
 # Normal human tries to infect people
 driver.DrawerMenuClick('chat-card', 'Infect')
