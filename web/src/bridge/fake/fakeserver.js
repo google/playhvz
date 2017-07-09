@@ -852,12 +852,16 @@ class FakeServer {
       latestTime = Math.max(latestTime, life.time);
     for (let infection of player.infections)
       latestTime = Math.max(latestTime, infection.time);
-    assert(time > latestTime);
+    if (time < latestTime) {
+      throw "Adding a life before the latest life!";
+    }
 
     publicLifeId = publicLifeId || this.idGenerator.newPublicLifeId();
     privateLifeId = privateLifeId || this.idGenerator.newPrivateLifeId();
 
-    assert(player.lives.length == player.infections.length);
+    if (player.lives.length != player.infections.length) {
+      throw "Adding a life to someone who has different number of lives and infections!";
+    }
     let publicLife =
         new Model.PublicLife(publicLifeId, {
           privateLifeId: privateLifeId,
