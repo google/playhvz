@@ -1,0 +1,132 @@
+<!--
+  Copyright 2017 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  This module is used to display all the chats in the game.
+-->
+<dom-module id="ghvz-admin-chat-room-list">
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-admin-chat-room-list',
+
+        properties: {
+          bridge: Object,
+          game: String,
+          player: Object,
+          isAdmin: Boolean,
+
+          adminChats: Array,
+        },
+
+        listeners: {
+          'tap': 'captureTap_',
+        },
+
+        observers: [
+          'getAdminChats_(game.chatRooms.*)',
+        ],
+
+        captureTap_(e) {
+          let chatRoomId = e.target.dataset.chatRoomId;
+          if (chatRoomId) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['adminChats', chatRoomId],
+              replace: false,
+            });
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        },
+
+        getAdminChats_() {
+          let adminChats = [];
+          for (chatRoom of this.game.chatRooms) {
+            if (chatRoom.withAdmins) {
+              adminChats.push(chatRoom);
+            }
+          }
+          this.adminChats = adminChats;
+        },
+      });
+    });
+  </script>
+  <style include="iron-flex iron-flex-alignment">
+    :host {
+      display: block;
+    }
+    .action {
+      display: flex;
+      align-items: center;
+      opacity: .6;
+      padding-left: 4px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+    }
+    .frame {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .list-item {
+      padding-top: 8px;
+      height: 48px;
+      align-items: center;
+      display: flex;
+      padding-bottom: 8px;
+    }
+    .section {
+      border-top: 1px solid #ddd;
+      padding: 8px 0;
+    }
+    .name-label {
+      height: 48px;
+      align-items: center;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      --ghvz-chat-room-name-label-icon: {
+        padding-right: 8px;
+      }
+    }
+    iron-icon {
+      flex-shrink: 0;
+      padding-right: 8px;
+      margin: 0;
+    }
+  </style>
+  <template>
+    <div class="frame" on-tap="captureTap_">
+      <template is="dom-repeat" items="[[adminChats]]" as="chatRoom">
+        <ghvz-chat-room-name-label
+            name$="[[chatRoom.name]]"
+            class="layout horizontal list-item name-label"
+            with-icon
+            game="[[game]]"
+            name$="[[chatRoom.name]]"
+            chat-room-id="[[chatRoom.id]]"
+            data-chat-room-id$="[[chatRoom.id]]">
+        </ghvz-chat-room-name-label>
+      </template>
+    </div>    
+  </template>
+</dom-module>
