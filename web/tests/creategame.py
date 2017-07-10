@@ -30,39 +30,36 @@ from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="minny", page="/createGame", populate=False)
 
-try:
-  driver.Click([[By.ID, 'createGame']])
+driver.Click([[By.ID, 'createGame']])
 
-  gameId = driver.GetGameId()
+gameId = driver.GetGameId()
 
-  # Fill out fields
-  driver.SendKeys(
-      [[By.ID, 'idInput'], [By.TAG_NAME, 'input']],
-      gameId)
-  driver.SendKeys(
-      [[By.ID, 'nameInput'], [By.TAG_NAME, 'input']],
-      'My Game')
-  driver.SendKeys(
-      [[By.ID, 'stunTimerInput'], [By.TAG_NAME, 'input']],
-      '60')
-  driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
-  
-  driver.WaitForGameLoaded()
+# Fill out fields
+driver.SendKeys(
+    [[By.ID, 'idInput'], [By.TAG_NAME, 'input']],
+    gameId)
+driver.SendKeys(
+    [[By.ID, 'nameInput'], [By.TAG_NAME, 'input']],
+    'My Game')
+driver.SendKeys(
+    [[By.ID, 'stunTimerInput'], [By.TAG_NAME, 'input']],
+    '60')
+driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
 
-  # Log in as an Admin
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Game Details')
-  
-  driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'number']],
-      gameId)
-  driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'name']],
-      'My Game')
-  driver.ExpectContains(
-      [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'stunTimer']],
-      '60')
+driver.WaitForGameLoaded()
 
-  driver.Quit()
+# Log in as an Admin
+driver.DrawerMenuClick('mobile-main-page', 'Admin Game Details')
 
-finally:
-  pass
+driver.ExpectContains(
+    [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'number']],
+    gameId)
+driver.ExpectContains(
+    [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'name']],
+    'My Game')
+driver.ExpectContains(
+    [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'stunTimer']],
+    '60')
+
+driver.Quit()
+

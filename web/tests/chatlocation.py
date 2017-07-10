@@ -28,32 +28,28 @@ if __name__ == '__main__':
 import setup
 from selenium.webdriver.common.by import By
 
-try:
-  driver = setup.MakeDriver(user="moldavi")
+driver = setup.MakeDriver(user="moldavi")
 
-  if driver.is_mobile:
-    # Moldavi shares his location
-    driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
-    driver.Click([[By.TAG_NAME, 'ghvz-chat-location'], [By.TAG_NAME, 'paper-icon-button']])
-    driver.RetryUntil(
-      lambda : True,
-      lambda: driver.FindElement([[By.NAME, 'map-ready']]))
-    driver.Click([[By.ID, 'sendLocationForm'], [By.ID, 'done']])
-    # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
-    location = driver.FindElement([[By.NAME, 'message-Global Chat-'], [By.ID, 'mapContainer']])
-    location = location.get_attribute('src')
-    assert "https://maps.googleapis.com/maps/api/staticmap" in location;
+if driver.is_mobile:
+  # Moldavi shares his location
+  driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
+  driver.Click([[By.TAG_NAME, 'ghvz-chat-location'], [By.TAG_NAME, 'paper-icon-button']])
+  driver.RetryUntil(
+    lambda : True,
+    lambda: driver.FindElement([[By.NAME, 'map-ready']]))
+  driver.Click([[By.ID, 'sendLocationForm'], [By.ID, 'done']])
+  # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
+  location = driver.FindElement([[By.NAME, 'message-Global Chat-'], [By.ID, 'mapContainer']])
+  location = location.get_attribute('src')
+  assert "https://maps.googleapis.com/maps/api/staticmap" in location;
 
-    # Jack can see it
-    driver.SwitchUser('jack')
-    driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
-    # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
-    location = driver.FindElement([[By.NAME, 'message-Global Chat-'], [By.ID, 'mapContainer']])
-    location = location.get_attribute('src')
-    assert "https://maps.googleapis.com/maps/api/staticmap" in location;
+  # Jack can see it
+  driver.SwitchUser('jack')
+  driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
+  # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
+  location = driver.FindElement([[By.NAME, 'message-Global Chat-'], [By.ID, 'mapContainer']])
+  location = location.get_attribute('src')
+  assert "https://maps.googleapis.com/maps/api/staticmap" in location;
 
-  driver.Quit()
-
-finally:
-  pass
+driver.Quit()
 
