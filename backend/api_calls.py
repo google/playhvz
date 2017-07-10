@@ -730,6 +730,10 @@ def SendChatMessage(request, game_state):
         receiver_player = game_state.get('/publicPlayers', receiver_player_id)
         message_for_notification = sender['name'] + ": " + stripped_message
 
+        sound = "ping.wav"
+        if len(ack_request_player_ids) or len(text_request_player_ids):
+          sound = "transmission.wav"
+
         notification_data = {
           'gameId': request['gameId'],
           'queuedNotificationId': 'queuedNotification-%s' % message_id[len('message-'):] + "-" + receiver_player['name'],
@@ -740,8 +744,8 @@ def SendChatMessage(request, game_state):
           'email': False,
           'mobile': True,
           'vibrate': True,
-          'sound': "ping.wav",
-          'destination': 'chat/' + chat_room_id,
+          'sound': sound,
+          'destination': 'game/%s/chat/%s' % (game_id[len('game-'):], chat_room_id),
           'sendTime': None,
           'icon': "communication:message",
         }
