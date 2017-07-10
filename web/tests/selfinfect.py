@@ -43,7 +43,7 @@ driver.ExpectContains([[By.NAME, 'infect-card'], [By.ID, 'selfInfectedMessage']]
 # Check Jack is now a zombie (infect widget, profile)
 driver.DrawerMenuClick('infect-card', 'Dashboard')
 driver.FindElement([[By.NAME, 'infect-box']])
-driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
+driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
 driver.DrawerMenuClick('chat-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '0') # Self-infecting doesn't give you points
