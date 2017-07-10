@@ -13,7 +13,16 @@
 		B7A6C2281F034AF50019D105 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7A6C2271F034AF50019D105 /* Assets.xcassets */; };
 		B7A6C22B1F034AF50019D105 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B7A6C2291F034AF50019D105 /* LaunchScreen.storyboard */; };
 		B7A6C2331F034BBB0019D105 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B7A6C2321F034BBB0019D105 /* GoogleService-Info.plist */; };
-		B7B60B791F03551D00641B00 /* transmission.caf in Resources */ = {isa = PBXBuildFile; fileRef = B7B60B781F03551D00641B00 /* transmission.caf */; };
+		B7DF6EAB1F0DD97F0060CCCD /* defeat.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA11F0DD97F0060CCCD /* defeat.wav */; };
+		B7DF6EAC1F0DD97F0060CCCD /* error.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA21F0DD97F0060CCCD /* error.wav */; };
+		B7DF6EAD1F0DD97F0060CCCD /* explosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA31F0DD97F0060CCCD /* explosion.wav */; };
+		B7DF6EAE1F0DD97F0060CCCD /* farexplosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA41F0DD97F0060CCCD /* farexplosion.wav */; };
+		B7DF6EAF1F0DD97F0060CCCD /* intrigue.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA51F0DD97F0060CCCD /* intrigue.wav */; };
+		B7DF6EB01F0DD97F0060CCCD /* longexplosion.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA61F0DD97F0060CCCD /* longexplosion.wav */; };
+		B7DF6EB11F0DD97F0060CCCD /* ping.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA71F0DD97F0060CCCD /* ping.wav */; };
+		B7DF6EB21F0DD97F0060CCCD /* revelation.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA81F0DD97F0060CCCD /* revelation.wav */; };
+		B7DF6EB31F0DD97F0060CCCD /* transmission.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EA91F0DD97F0060CCCD /* transmission.wav */; };
+		B7DF6EB41F0DD97F0060CCCD /* warning.wav in Resources */ = {isa = PBXBuildFile; fileRef = B7DF6EAA1F0DD97F0060CCCD /* warning.wav */; };
 		CABA3AD1069B4239DC77B616 /* Pods_dev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6D7DFEEF5257B9E59A00A21 /* Pods_dev.framework */; };
 /* End PBXBuildFile section */
 
@@ -27,7 +36,16 @@
 		B7A6C22A1F034AF50019D105 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B7A6C22C1F034AF50019D105 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B7A6C2321F034BBB0019D105 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		B7B60B781F03551D00641B00 /* transmission.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = transmission.caf; sourceTree = "<group>"; };
+		B7DF6EA11F0DD97F0060CCCD /* defeat.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = defeat.wav; sourceTree = "<group>"; };
+		B7DF6EA21F0DD97F0060CCCD /* error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = error.wav; sourceTree = "<group>"; };
+		B7DF6EA31F0DD97F0060CCCD /* explosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = explosion.wav; sourceTree = "<group>"; };
+		B7DF6EA41F0DD97F0060CCCD /* farexplosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = farexplosion.wav; sourceTree = "<group>"; };
+		B7DF6EA51F0DD97F0060CCCD /* intrigue.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = intrigue.wav; sourceTree = "<group>"; };
+		B7DF6EA61F0DD97F0060CCCD /* longexplosion.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = longexplosion.wav; sourceTree = "<group>"; };
+		B7DF6EA71F0DD97F0060CCCD /* ping.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ping.wav; sourceTree = "<group>"; };
+		B7DF6EA81F0DD97F0060CCCD /* revelation.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = revelation.wav; sourceTree = "<group>"; };
+		B7DF6EA91F0DD97F0060CCCD /* transmission.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = transmission.wav; sourceTree = "<group>"; };
+		B7DF6EAA1F0DD97F0060CCCD /* warning.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = warning.wav; sourceTree = "<group>"; };
 		B7E33A3A1F034D8C00ED5600 /* dev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = dev.entitlements; sourceTree = "<group>"; };
 		D453CC345F38A2767AF986E1 /* Pods-dev.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-dev.release.xcconfig"; path = "Pods/Target Support Files/Pods-dev/Pods-dev.release.xcconfig"; sourceTree = "<group>"; };
 		F6D7DFEEF5257B9E59A00A21 /* Pods_dev.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_dev.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,9 +84,18 @@
 		B7A6C21F1F034AF50019D105 /* dev */ = {
 			isa = PBXGroup;
 			children = (
-				B7B60B781F03551D00641B00 /* transmission.caf */,
 				B7E33A3A1F034D8C00ED5600 /* dev.entitlements */,
 				B7A6C2321F034BBB0019D105 /* GoogleService-Info.plist */,
+				B7DF6EA11F0DD97F0060CCCD /* defeat.wav */,
+				B7DF6EA21F0DD97F0060CCCD /* error.wav */,
+				B7DF6EA31F0DD97F0060CCCD /* explosion.wav */,
+				B7DF6EA41F0DD97F0060CCCD /* farexplosion.wav */,
+				B7DF6EA51F0DD97F0060CCCD /* intrigue.wav */,
+				B7DF6EA61F0DD97F0060CCCD /* longexplosion.wav */,
+				B7DF6EA71F0DD97F0060CCCD /* ping.wav */,
+				B7DF6EA81F0DD97F0060CCCD /* revelation.wav */,
+				B7DF6EA91F0DD97F0060CCCD /* transmission.wav */,
+				B7DF6EAA1F0DD97F0060CCCD /* warning.wav */,
 				B7A6C2201F034AF50019D105 /* AppDelegate.swift */,
 				B7A6C2221F034AF50019D105 /* ViewController.swift */,
 				B7A6C2241F034AF50019D105 /* Main.storyboard */,
@@ -163,11 +190,20 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7DF6EB11F0DD97F0060CCCD /* ping.wav in Resources */,
 				B7A6C22B1F034AF50019D105 /* LaunchScreen.storyboard in Resources */,
-				B7B60B791F03551D00641B00 /* transmission.caf in Resources */,
 				B7A6C2331F034BBB0019D105 /* GoogleService-Info.plist in Resources */,
+				B7DF6EB21F0DD97F0060CCCD /* revelation.wav in Resources */,
+				B7DF6EB01F0DD97F0060CCCD /* longexplosion.wav in Resources */,
+				B7DF6EAD1F0DD97F0060CCCD /* explosion.wav in Resources */,
 				B7A6C2281F034AF50019D105 /* Assets.xcassets in Resources */,
+				B7DF6EB41F0DD97F0060CCCD /* warning.wav in Resources */,
+				B7DF6EAB1F0DD97F0060CCCD /* defeat.wav in Resources */,
 				B7A6C2261F034AF50019D105 /* Main.storyboard in Resources */,
+				B7DF6EAE1F0DD97F0060CCCD /* farexplosion.wav in Resources */,
+				B7DF6EAC1F0DD97F0060CCCD /* error.wav in Resources */,
+				B7DF6EAF1F0DD97F0060CCCD /* intrigue.wav in Resources */,
+				B7DF6EB31F0DD97F0060CCCD /* transmission.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
