@@ -1361,8 +1361,6 @@ def UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player
 
   for group_id in groups:
     group = game_state.get('/groups', group_id)
-    print 'group!'
-    print group
     if group['autoAdd']:
       if 'players' not in group or public_player_id not in group['players']:
         if group['allegianceFilter'] == 'none' or allegiance == group['allegianceFilter']:

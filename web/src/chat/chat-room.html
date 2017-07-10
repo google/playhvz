@@ -207,7 +207,6 @@
         },
 
         countTotalRequests_(senderId, requests) {
-          console.log('counting', senderId, requests, requests.filter(request => request.playerId != senderId));
           return requests.filter(request => request.playerId != senderId).length;
         },
 
