@@ -49,7 +49,7 @@
         },
 
         observers: [
-          'onChatRoomIdChanged_(chatRoomId, game.chatRooms, game.chatRoomsById, isAdmin)',
+          'onChatRoomIdChanged_(chatRoomId, game.chatRooms, game.chatRoomsById)',
           'onChatRoomPropertiesChanged_(currentPlayer, isAdmin, chatRoom, group)',
         ],
 
@@ -61,6 +61,9 @@
         },
 
         onChatRoomPropertiesChanged_() {
+          if (!this.group || !this.chatRoom) {
+            return;
+          }
           let ownsGroup = this.currentPlayer.id == this.group.ownerPlayerId;
           this.canAdd = this.isAdmin || this.group.canAddOthers || (ownsGroup && !this.chatRoom.withAdmins);
           this.canRemoveSelf = this.isAdmin || this.group.canRemoveSelf || (ownsGroup && !this.chatRoom.withAdmins);
