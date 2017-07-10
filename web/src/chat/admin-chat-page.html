@@ -107,12 +107,27 @@
             if (this.$.chatRoomSelector.selected != null) {
               return;
             }
+            // If we get here we tried to view a chat room we no longer have access to, 
+            // redirect to chat/ for mobile (desktop takes care of this by setting a new chat room id below)
+            if (this.isMobile) {
+              this.async(() => {
+                this.fire('ghvz-set-card-header-text', { headerText: "Admin Chats" });
+                this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['adminChat'],
+                  replace: true,
+                });
+              });
+            }
           }
           // If we get here, then there wasn't a chat room, it was just /gameChats in the url
           // (or there was a chat room id but we couldnt find that chat room)
           if (this.isMobile) {
             // If we get here, that means we're at /adminChats and on mobile. In this case
             // we just want to show the chat list.
+            this.async(() => {
+              this.fire('ghvz-set-card-header-text', { headerText: "Admin Chats" });
+            });
           } else {
             // If we get here, that means we're at /adminChats and on desktop. In this case
             // we want to just pick a chat room and show it.

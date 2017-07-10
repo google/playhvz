@@ -212,13 +212,13 @@ class FakeServer {
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
-        this.removePlayerFromChatRoom_(chatRoom.id, player.id);
+        this.removePlayerFromChatRoom_(chatRoom.id, playerId);
       }
     }
 
     for (let mission of game.missions) {
       if (mission.accessGroupId == groupId) {
-        this.removePlayerFromMission_(mission.id, player.id);
+        this.removePlayerFromMission_(mission.id, playerId);
       }
     }
 
