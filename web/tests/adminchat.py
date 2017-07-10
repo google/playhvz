@@ -64,7 +64,7 @@ driver.DrawerMenuClick('mobile-main-page', 'Chat')
 # Create chat with admin
 driver.FindElement([[By.NAME, 'create-admin-chat-button']])
 driver.RetryUntil(
-  lambda: driver.Click([[By.NAME, 'create-admin-chat-button'], [By.TAG_NAME, 'a']]),
+  lambda: driver.Click([[By.NAME, 'create-admin-chat-button']]),
   lambda: driver.FindElement([[By.NAME, "chat-room-%s" % chatName]])
 )
 
