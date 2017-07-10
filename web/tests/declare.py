@@ -36,7 +36,7 @@ driver = setup.MakeDriver(user="deckerd")
 # Make sure that an undeclared person can see rules, global chat, no missions: TODO(aliengirl): add this
 driver.DrawerMenuClick('mobile-main-page', 'Rules')
 driver.FindElement([[By.NAME, 'rules-card']])
-driver.DrawerMenuClick('rules-card', '-Global Chat')
+driver.DrawerMenuClick('rules-card', 'Global Chat')
 driver.DrawerMenuClick('chat-card', 'Dashboard')
 
 # Time for Deckerd to choose a side
@@ -173,4 +173,3 @@ driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'alle
 
 
 driver.Quit()
-

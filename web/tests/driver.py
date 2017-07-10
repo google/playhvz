@@ -71,8 +71,11 @@ class SimpleDriver:
   def Clear(self, path):
     self.FindElement(path).clear() 
 
-  def DismissAlert(self):
-    self.selenium_driver.switch_to_alert().accept();
+  def DismissAlert(self, textToLookFor = ''):
+    someAlert = self.selenium_driver.switch_to_alert()
+    if (textToLookFor != ''):
+      assert(textToLookFor == someAlert.text)
+    someAlert.accept();
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     element = self.FindElement(path)
@@ -121,8 +124,8 @@ class RetryingDriver:
   def Click(self, path):
     return self.Retry(lambda: self.inner_driver.Click(path))
 
-  def DismissAlert(self):
-    return self.Retry(lambda: self.inner_driver.DismissAlert())
+  def DismissAlert(self, textToLookFor = ''):
+    return self.Retry(lambda: self.inner_driver.DismissAlert(textToLookFor))
 
   def SendKeys(self, path, keys):
     return self.Retry(lambda: self.inner_driver.SendKeys(path, keys))
@@ -217,8 +220,8 @@ class RemoteDriver:
   def Click(self, path):
     self.drivers_by_user[self.current_user].Click(path)
 
-  def DismissAlert(self):
-    self.drivers_by_user[self.current_user].DismissAlert()
+  def DismissAlert(self, textToLookFor = ''):
+    self.drivers_by_user[self.current_user].DismissAlert(textToLookFor)
 
   def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
     self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
@@ -287,8 +290,8 @@ class FakeDriver:
     else:
       self.inner_driver.Click(path)
 
-  def DismissAlert(self):
-    self.inner_driver.DismissAlert()
+  def DismissAlert(self, textToLookFor = ''):
+    self.inner_driver.DismissAlert(textToLookFor)
 
   def SendKeys(self, path, keys, scoped=True):
     if scoped:
@@ -355,8 +358,8 @@ class WholeDriver:
   def Click(self, path):
     return self.inner_driver.Click(path)
 
-  def DismissAlert(self):
-    return self.inner_driver.DismissAlert()
+  def DismissAlert(self, textToLookFor = ''):
+    return self.inner_driver.DismissAlert(textToLookFor)
 
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)

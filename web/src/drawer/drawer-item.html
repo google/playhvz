@@ -1,0 +1,112 @@
+<!--
+  Copyright 2017 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<dom-module id="ghvz-drawer-item">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-drawer-item',
+
+      properties: {
+        icon: String,
+        text: String,
+        action: Object,
+        page: String,
+        chatRoomId: String,
+
+        // Optionally add a dash to the element name
+        addDash: {
+          type: Boolean,
+          value: false,
+        }
+      },
+
+      onClick_(e) {
+        if (this.action) {
+          this.action(e);
+        } else {
+          this.openPage_(e);
+        }
+      },
+
+      openPage_(e) {
+        let page = this.page;
+        assert(page);
+        let path = [page];
+        if (page == "chat" && this.chatRoomId) {
+          let chatRoomId = this.chatRoomId;
+          assert(chatRoomId);
+          path = path.concat(chatRoomId);
+        }
+        this.fire('ghvz-close-drawer');
+        this.fire('ghvz-set-path', {
+          inGame: true,
+          path: path,
+          replace: false,
+        });
+        e.preventDefault();
+        e.stopPropagation();
+      },
+
+      getItemName_(text) {
+        return 'drawer' + text;
+      },
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    overflow-y: auto;
+  }
+  .drawer-item {
+    display: flex;
+    align-items: center;
+    opacity: .6;
+    padding-left: 4px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+
+    --ghvz-chat-room-name-label-icon: {
+      margin: 8px;
+      opacity: .8;
+    }
+  }
+  .drawer-item:active {
+    background-color: #e7e7e7;
+  }
+  .drawer-item:focus {
+    background-color: #e7e7e7;
+  }
+  .drawer-item iron-icon {
+    margin: 8px;
+    opacity: .8;
+  }
+</style>
+<template>
+  <div on-click="onClick_" name$="[[getItemName_(text)]]" class="drawer-item">
+    <iron-icon icon="[[icon]]"></iron-icon>
+    [[text]]
+  </div>
+</template>
+</dom-module>
