@@ -17,6 +17,8 @@
 """TODO: High-level file comment."""
 
 import sys
+import subprocess
+from subprocess import PIPE
 import os
 import argparse
 import shelve
@@ -29,9 +31,9 @@ if __name__ == '__main__':
 
 def printAndRun(command):
 	print("Running %s" % command)
-	os.system(command)
+	return subprocess.Popen(command, shell=True, stdout=PIPE)
 
-def runTest(url, password, files, useRemote, useMobile):
+def generateTest(url, password, files, useRemote, useMobile):
 	args = "--url %s --password %s" % (url, password)
 
 	if useRemote:
@@ -72,28 +74,70 @@ def runTest(url, password, files, useRemote, useMobile):
 		else:
 			testFiles = files
 
+	allTests = []
 
 	for file in testFiles:
-		printAndRun("python %s.py %s" % (file, args))
+		allTests.append("python %s.py %s" % (file, args))
+	return allTests
 
 def desktopAndMobileTests(url, password, mobile, desktop, files, useRemote):
+	allTests = []
 	if mobile:
-		runTest(url, password, files, useRemote, useMobile=True)
+		allTests += generateTest(url, password, files, useRemote, useMobile=True)
 	if desktop:
-		runTest(url, password, files, useRemote, useMobile=False)
+		allTests += generateTest(url, password, files, useRemote, useMobile=False)
 	if not mobile and not desktop:
-		runTest(url, password, files, useRemote, useMobile=True)
-		runTest(url, password, files, useRemote, useMobile=False)
+		allTests += generateTest(url, password, files, useRemote, useMobile=True)
+		allTests += generateTest(url, password, files, useRemote, useMobile=False)
+	return allTests
 
 def fakeAndRemoteTests(url, password, mobile, desktop, local, remote, files):
+	allTests = []
 	if local:
-		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=False)
+		allTests += desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=False)
 	if remote:
-		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=True)
+		allTests += desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=True)
 	if not local and not remote:
-		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=False)
-		desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=True)
+		allTests += desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=False)
+		allTests += desktopAndMobileTests(url, password, mobile, desktop, files, useRemote=True)
+	return allTests
 
+def runAll(allTests, maxParallel=3):
+	finished = 0
+	processes = []
+	processIDs = {}
+	for test in allTests:
+		if len(processes) - finished >= maxParallel:
+			os.wait()
+			finished += 1
+		newProcess = printAndRun(test)
+		processes.append(newProcess)
+	return [allTests[i] for i in range(len(allTests)) if not processes[i].communicate()[0] == "done\n"]
+
+
+def runAllSequentially(allTests):
+	failedTests = []
+	for test in allTests:
+		print("Running %s" % test)
+		if os.system(test) != 0:
+			failedTests.append(test)
+	return failedTests
+
+def rerunFailures(savedData, sequential, maximumParallel):
+	if "failedTests" in savedData:
+		if sequential:
+			return runAllSequentially(savedData["failedTests"])
+		else:
+			max = None
+			if maximumParallel:
+				max = maximumParallel
+			elif savedData.has_key("maxParallel"):
+				max = savedData["maxParallel"]
+			else:
+				max = 3
+			return runAll(savedData["failedTests"], max)
+	else:
+		print "No failed tests saved."
 
 def main():
 	parser = argparse.ArgumentParser()
@@ -103,15 +147,53 @@ def main():
 	parser.add_argument("-d", "--desktop", help="Only run desktop tests", action="store_true")
 	parser.add_argument("-l", "--local", help="Only run local tests", action="store_true")
 	parser.add_argument("-r", "--remote", help="Only run remote tests", action="store_true")
-	#parser.add_argument("-rf", "--rerunFailures", help="Reruns tests that failed the last time.", action="store_true")
-	#parser.add_argument("-cp", "--changePassword", help="Change the default remote password")
+	parser.add_argument("-s", "--sequential", help="Run tests one at a time (by default, they run in parallel)", action="store_true")
+	parser.add_argument("-rr", "--rerun", help="Run tests with the same flags used last time", action="store_true")
+	parser.add_argument("-rf", "--rerunFailures", help="Reruns tests that failed the last time.", action="store_true")
+	parser.add_argument("-cp", "--changePassword", help="Change the default remote password")
+	parser.add_argument("-max", "--maximumParallel", type=int, help="The maximum number of tests which will run in parallel at once", default=3)
+	parser.add_argument("-cmp", "--changeMaxParallel", help="Change the default maximum number of tests which run in parallel at once.")
 	parser.add_argument("files", nargs="*", help="Specific tests to run")
 	args = parser.parse_args()
 
-	# if args.cp:
-	# 	dict = shelve.open("testdata")
+	savedData = shelve.open("testdata")
+	try:
+		if savedData.has_key("password"):
+			args.password = savedData["password"]
 
-	fakeAndRemoteTests(args.url, args.password, args.mobile, args.desktop, args.local, args.remote, args.files)
+		if args.changePassword:
+			savedData["password"] = args.changePassword
+		elif args.changeMaxParallel:
+			savedData["maxParallel"] = args.changeMaxParallel
+		else:
+			failedTests = None
+			if args.rerunFailures:
+				failedTests = rerunFailures(savedData, args.sequential, args.maximumParallel)
+			else:
+				if args.rerun:
+					if "lastRun" in savedData:
+						args = savedData["lastRun"]
+					else:
+						print "No previous run saved."
+						return
+				else:
+					savedData["lastRun"] = args
+				allTests = fakeAndRemoteTests(args.url, args.password, args.mobile, args.desktop, args.local, args.remote, args.files)
+				
+				if args.sequential:
+					failedTests = runAllSequentially(allTests)
+				else:
+					maxParallel = None
+					if args.maximumParallel:
+						maxParallel = args.maximumParallel
+					elif savedData.has_key("maxParallel"):
+						maxParallel = savedData["maxParallel"]
+					failedTests = runAll(allTests, maxParallel)
+					
+			print("FAILED TESTS:", failedTests)
+			savedData["failedTests"] = failedTests
+	finally:
+		savedData.close()
 
 if __name__ == "__main__":
     main()

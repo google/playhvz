@@ -343,6 +343,7 @@ class WholeDriver:
 
   def Quit(self):
     self.inner_driver.Quit()
+    print "done"
 
   def SwitchUser(self, user):
     return self.inner_driver.SwitchUser(user)

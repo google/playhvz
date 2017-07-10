@@ -26,24 +26,18 @@
         properties: {
           bridge: Object,
           game: Object,
-          chatRoom: Object,
-          group: Object,
-          player: Object,
+          chatRoomId: Object,
+          currentPlayer: Object,
           isAdmin: Boolean,
 
-          playersInChatRoom: {
-            type: Object,
-            value: function() { return []; },
-          },
+          chatRoom: Object,
+          group: Object,
 
-          playerInputValue: {
-            type: String,
-          },
-          
-          matchingPlayerOrNull: {
-            type: Object,
-            notify: true,
-          },
+          canAdd: Boolean,
+          canRemoveSelf: Boolean,
+          canRemoveOthers: Boolean,
+          showActionsSection: Boolean,
+          showPlayerDropdown: Boolean,
 
           selectedMenuItem: String,
 
@@ -51,73 +45,36 @@
             type: Boolean,
             value: false,
           },
-
-          canAdd: {
-            type: Boolean,
-            computed: 'computeCanAdd_(isAdmin, player.id, group.ownerPlayerId, group.canAddOthers, chatRoom)',
-          },
-
-          canRemoveSelf: {
-            type: Boolean,
-            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveSelf, chatRoom)',
-          },
-
-          canRemoveOthers: {
-            type: Boolean,
-            computed: 'computeCanRemove_(isAdmin, player.id, group.ownerPlayerId, group.canRemoveOthers, chatRoom)',
-          },
-
-          showActionsSection: {
-            type: Boolean,
-            computed: 'computeShowActionsSection_(canAdd, canRemoveSelf)',
-          },
-
-          showPlayerDropdown: {
-            type: Boolean,
-            computed: 'computeShowPlayerDropdown_(canRemoveOthers)',
-          },
+          
         },
 
         observers: [
-          'onGroupIdChanged_(chatRoom.accessGroupId, game.groupsById)',
-          'onChatRoomChanged_(game, chatRoom, chatRoom.players)',
-          'onChatMembershipsChanged_(game, group.players.length)',
+          'onChatRoomIdChanged_(chatRoomId, game.chatRooms, game.chatRoomsById)',
+          'onChatRoomPropertiesChanged_(currentPlayer, isAdmin, chatRoom, group)',
         ],
 
-        computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers, chatRoom) {
-          return isAdmin || canAddOthers || 
-            (playerId == ownerPlayerId && !chatRoom.withAdmins);
+        onChatRoomIdChanged_(chatRoomId) {
+          assert(this.game.chatRoomsById[chatRoomId]);
+          this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
+          assert(this.game.groupsById[this.chatRoom.accessGroupId]);
+          this.$.groupsSelector.select(this.game.groupsById[this.chatRoom.accessGroupId]);
         },
 
-        computeCanRemove_(isAdmin, playerId, ownerPlayerId, canRemove, chatRoom) {
-          return isAdmin || canRemove ||
-            (playerId == ownerPlayerId && !chatRoom.withAdmins);
-        },
-
-        computeShowActionsSection_(canAdd, canRemove) {
-          return canAdd || canRemove;
-        },
-
-        computeShowPlayerDropdown_(canRemove) {
-          return canRemove;
-        },
-
-        onChatRoomChanged_() {
-          this.onChatMembershipsChanged_();
-        },
-
-
-        onGroupIdChanged_(groupId, groupsById) {
-          this.$.groupsSelector.select(groupsById[groupId]);
-        },
-
-        onChatMembershipsChanged_() {
-          var updatedPlayers = [];
-          for (let playerId of this.group.players) {
-            updatedPlayers.push(this.game.playersById[playerId]);
+        onChatRoomPropertiesChanged_() {
+          if (!this.group || !this.chatRoom) {
+            return;
           }
-          this.playersInChatRoom = [];
-          this.playersInChatRoom = updatedPlayers;
+          let ownsGroup = this.currentPlayer.id == this.group.ownerPlayerId;
+          this.canAdd = this.isAdmin || this.group.canAddOthers || (ownsGroup && !this.chatRoom.withAdmins);
+          this.canRemoveSelf = this.isAdmin || this.group.canRemoveSelf || (ownsGroup && !this.chatRoom.withAdmins);
+          this.canRemoveOthers = this.isAdmin || this.group.canRemoveOthers || (ownsGroup && !this.chatRoom.withAdmins);
+
+          this.showActionsSection = this.canAddd || this.canRemoveSelf;
+          this.showPlayerDropdown = this.canRemoveOthers;
+        },
+
+        getPlayerName_(playerId) {
+          return this.game.playersById[playerId].name;
         },
 
         captureTap_(e) {
@@ -197,7 +154,9 @@
     }
   </style>
   <template>
+    <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="groupsSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
+
     <div name$="chat-drawer-[[chatRoom.name]]" on-tap="captureTap_">
       <div class="drawer-header">
         [[chatRoom.name]]
@@ -225,16 +184,16 @@
 
       <div id="players-list" class="drawer-section">
         <div class="info-label" name="num-players">[[group.players.length]] members</div>
-        <template is="dom-repeat" items="[[playersInChatRoom]]">
-          <div name$="[[item.name]]"">
+        <template is="dom-repeat" items="[[group.players]]" as="playerId">
+          <div name$="[[getPlayerName_(playerId)]]"">
             <div class="layout horizontal player-entry">
               <div class="layout horizontal player-info"
                   on-tap="captureTap_"
                   data-action="profile"
-                  data-player-id$="[[item.id]]">
-                <ghvz-player-avatar medium game="[[game]]" player-id="[[item.id]]"></ghvz-player-avatar>
+                  data-player-id$="[[playerId]]">
+                <ghvz-player-avatar medium game="[[game]]" player-id="[[playerId]]"></ghvz-player-avatar>
                 <div class='player-name'>
-                  [[item.name]]
+                  [[getPlayerName_(playerId)]]
                 </div>
               </div>
               <template is="dom-if" if="[[showPlayerDropdown]]">
@@ -254,10 +213,10 @@
                     </paper-item> -->
                     <template is="dom-if" if="[[canRemoveOthers]]">
                       <paper-item 
-                        id$="kick-[[item.name]]"
+                        id$="kick-[[getPlayerName_(playerId)]]"
                         on-tap="captureTap_" 
                         data-action="kick" 
-                        data-player-id$="[[item.id]]">
+                        data-player-id$="[[playerId]]">
                         Kick
                       </paper-item>
                     </template>

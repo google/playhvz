@@ -30,11 +30,7 @@
           game: String,
           player: Object,
           isMobile: Boolean,
-
-          isAdmin: {
-            type: Boolean,
-            computed: 'computeIsAdmin_(user, game, game.adminUsers.length)',
-          },
+          isAdmin: Boolean,
 
           isPlayer: {
             type: Boolean,
@@ -65,11 +61,6 @@
             type: Boolean,
             computed: 'computeIsZombie_(player.allegiance)',
           },
-        },
-
-        computeIsAdmin_: function(user, game) {
-          let admin = game.adminUsers.find((admin) => admin.userId == user.id);
-          return !!admin;
         },
 
         computeCanDeclare_(allegiance) {
