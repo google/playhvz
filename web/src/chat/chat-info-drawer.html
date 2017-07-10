@@ -83,13 +83,14 @@
         observers: [
           'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
           'onGroupIdChanged_(chatRoom.accessGroupId, game.groupsById)',
-          'onChatRoomChanged_(game, chatRoom, chatRoom.players)',
           'onChatMembershipsChanged_(game, group.players.length)',
         ],
 
         onChatRoomIdChange_(chatRoomId) {
           assert(this.game.chatRoomsById[chatRoomId]);
           this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
+          console.log(this.chatRoom);
+          this.$.groupsSelector.select(this.game.groupsById[this.chatRoom.accessGroupId]);
         },
 
         computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers, chatRoom) {
@@ -109,11 +110,6 @@
         computeShowPlayerDropdown_(canRemove) {
           return canRemove;
         },
-
-        onChatRoomChanged_() {
-          this.onChatMembershipsChanged_();
-        },
-
 
         onGroupIdChanged_(groupId, groupsById) {
           this.$.groupsSelector.select(groupsById[groupId]);
