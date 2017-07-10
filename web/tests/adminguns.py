@@ -31,82 +31,77 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time #bad bad bad
 
-try:
+# Sign in as an admin
+driver = setup.MakeDriver(user="zella")
 
-  # Sign in as an admin
-  driver = setup.MakeDriver(user="zella")
+######################  Testing Admin Guns Page  ######################
 
-  ######################  Testing Admin Guns Page  ######################
+# Close the notification
+driver.Click([[By.NAME, 'close-notification']])
 
-  # Close the notification
-  driver.Click([[By.NAME, 'close-notification']])
+# Admin adds gun
+driver.DrawerMenuClick('mobile-main-page', 'Admin Guns')
 
-  # Admin adds gun
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Guns')
+driver.Click([[By.ID, 'add']])
+driver.SendKeys(
+      [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
+      '3.14') # Crashed here a few times (element not visible, although it looks invisible)
 
-  driver.Click([[By.ID, 'add']])
-  driver.SendKeys(
-        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        '3.14') # Crashed here a few times (element not visible, although it looks invisible)
+driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
+
+# View added gun
+driver.ExpectContains([[By.NAME, 'gun-row-3.14']], "3.14")
+
+# Assign player a gun
+driver.Click([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'pencil']])
+
+driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'JackSlayerTheBeanSlasher')
+driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
+
+# Show that player shows up as having the gun
+driver.ExpectContains([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'player-label']], "JackSlayerTheBeanSlasher")
+
+#Add another gun, assign to another player
+driver.Click([[By.ID, 'add']])
+driver.SendKeys(
+      [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
+      'pancake')
+driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
+driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
+driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'MoldaviTheMoldavish')
+driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
+
+# Search by label
+driver.Click([[By.NAME, 'header-Label'], [By.NAME, 'icon-search']])
+driver.SendKeys(
+      [[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']],
+      'pan')
+driver.FindElement([[By.NAME, 'gun-row-pancake']])
+driver.FindElement([[By.NAME, 'gun-row-3.14']], should_exist=False)
+driver.Backspace([[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']], 3)
+
+# Search by player
+driver.Click([[By.NAME, 'header-Player'], [By.NAME, 'icon-search']])
+driver.SendKeys(
+      [[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']],
+      'Jack')
+driver.FindElement([[By.NAME, 'gun-row-pancake']], should_exist=False)
+driver.FindElement([[By.NAME, 'gun-row-3.14']])
+driver.Backspace([[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']], 4)
+
+# Change the weapon Label, and show that it shows up
+driver.TableMenuClick([[By.NAME, 'gun-row-3.14']], 'Edit')
+driver.SendKeys(
+      [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
+      '42')
+driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
+driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
+
+# Remove a player from a gun
+driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
+driver.Click([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'paper-item']])
+driver.ExpectContains([[By.NAME, 'gun-row-pancake']], "(none)")
  
-  driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
+# TODO - when implemented, have a player see that they've been assigned a gun
 
-  # View added gun
-  driver.ExpectContains([[By.NAME, 'gun-row-3.14']], "3.14")
-
-  # Assign player a gun
-  driver.Click([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'pencil']])
-
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'JackSlayerTheBeanSlasher')
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
-
-  # Show that player shows up as having the gun
-  driver.ExpectContains([[By.NAME, 'gun-row-3.14'], [By.CLASS_NAME, 'player-label']], "JackSlayerTheBeanSlasher")
-
-  #Add another gun, assign to another player
-  driver.Click([[By.ID, 'add']])
-  driver.SendKeys(
-        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        'pancake')
-  driver.Click([[By.ID, 'gunForm'],[By.ID, 'done']])
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], 'MoldaviTheMoldavish')
-  driver.SendKeys([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
-
-  # Search by label
-  driver.Click([[By.NAME, 'header-Label'], [By.NAME, 'icon-search']])
-  driver.SendKeys(
-        [[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']],
-        'pan')
-  driver.FindElement([[By.NAME, 'gun-row-pancake']])
-  driver.FindElement([[By.NAME, 'gun-row-3.14']], should_exist=False)
-  driver.Backspace([[By.NAME, 'header-Label'], [By.TAG_NAME, 'input']], 3)
-
-  # Search by player
-  driver.Click([[By.NAME, 'header-Player'], [By.NAME, 'icon-search']])
-  driver.SendKeys(
-        [[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']],
-        'Jack')
-  driver.FindElement([[By.NAME, 'gun-row-pancake']], should_exist=False)
-  driver.FindElement([[By.NAME, 'gun-row-3.14']])
-  driver.Backspace([[By.NAME, 'header-Player'], [By.TAG_NAME, 'input']], 4)
-
-  # Change the weapon ID, and show that it shows up
-  driver.TableMenuClick([[By.NAME, 'gun-row-3.14']], 'Edit')
-  driver.SendKeys(
-        [[By.ID, 'form-section-create-gun'], [By.TAG_NAME, 'input']],
-        '42')
-  driver.Click([[By.ID, 'gunForm'], [By.ID, 'done']])
-  driver.ExpectContains([[By.NAME, 'gun-row-42']], "42")
-
-  # Remove a player from a gun
-  driver.Click([[By.NAME, 'gun-row-pancake'], [By.CLASS_NAME, 'pencil']])
-  driver.Click([[By.TAG_NAME, 'ghvz-guns'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'paper-item']])
-  driver.ExpectContains([[By.NAME, 'gun-row-pancake']], "(none)")
-   
-  # TODO - when implemented, have a player see that they've been assigned a gun
-
-  driver.Quit()
-
-finally:
-  pass
+driver.Quit()
