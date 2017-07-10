@@ -85,8 +85,8 @@ driver.FindElement([[By.NAME, 'infection-line-0']], should_exist=False)
 
 # Moldavi now can secret-zombie infects Jack
 driver.SwitchUser('moldavi')
-driver.DrawerMenuClick('profile-card', 'Resistance Comms Hub')
-driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
+driver.DrawerMenuClick('chat-card', 'Infect')
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly') # Jack's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
@@ -103,7 +103,7 @@ driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactl
 
 # Jack is still human
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
+driver.DrawerMenuClick('infect-card', 'Resistance Comms Hub')
 
 driver.Quit()
 
