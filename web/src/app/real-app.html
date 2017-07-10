@@ -99,7 +99,7 @@
         this.bridge =
             new Bridge(
                 new IdGenerator(),
-                new RemoteBridge(this.config.backendUrl, this.config.firebaseConfig, (e) => this.fire('ghvz-alert', e)));
+                new RemoteBridge(this.config.backendUrl, this.config.firebaseConfig, (e) => this.fire('ghvz-alert', {message: e})));
         this.bridge.getSignedInPromise().then(() => {
           this.setAttribute('signed-in', true);
         });

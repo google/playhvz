@@ -63,7 +63,7 @@
             playerId: this.currentPlayer.id, 
             message: this.$.messageInput.value
           }).catch((e) => {
-            this.fire('ghvz-alert', e);
+            this.fire('ghvz-alert', {message: e});
           });
           this.$.messageInput.value = "";
         },

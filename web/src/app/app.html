@@ -96,7 +96,15 @@
       },
 
       signOut_() {
-        this.bridge.signOut();
+        new Promise((resolve, reject) => {
+          this.bridge.signOut()
+              .then((result) => this.fire('ghvz-alert', {message: "Signed out!", callback: resolve}))
+        })
+            .then(() => window.location.reload())
+            .catch((error) => {
+              return this.alertHandler("Error signing out! " + error);
+              console.error(error);
+            });
       },
 
       navigateGameToDashboard_() {

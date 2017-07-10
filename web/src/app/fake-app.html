@@ -124,7 +124,7 @@
         this.bridge =
             new Bridge(
                 idGenerator,
-                new FakeBridge(idGenerator, new TeeWriter(), (e) => this.fire('ghvz-alert', e)));
+                new FakeBridge(idGenerator, (e) => this.fire('ghvz-alert', {message: e})));
 
         let populate = Utils.getParameterByName('populate', 'light');
         assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");

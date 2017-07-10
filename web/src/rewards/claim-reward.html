@@ -62,7 +62,7 @@
               this.requesting = false;
             },
             (error) => {
-              this.fire('ghvz-alert', 'Error claiming reward: '+ error);
+              this.fire('ghvz-alert', {message: 'Error claiming reward: '+ error});
               this.reset_();
             });
       },

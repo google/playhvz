@@ -61,10 +61,10 @@
             }).then(
                 () => {},
                 (error) => {
-                  this.fire('ghvz-alert', "Error self-infecting: " + error);
+                  this.fire('ghvz-alert', {message: "Error self-infecting: " + error});
                 });
           } else {
-            this.fire('ghvz-alert', "Can't infect, don't have more lives than infections!");
+            this.fire('ghvz-alert', {message: "Can't infect, don't have more lives than infections!"});
           }
         } else {
           this.$$("#dialog").close();

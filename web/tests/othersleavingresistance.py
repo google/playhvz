@@ -11,7 +11,7 @@ driver.DismissAlert()
 
 driver.SwitchUser('zeke')
 # Zeke is in the Resistance Comms Hub
-driver.DrawerMenuClick('mobile-main-page', '-Resistance Comms Hub')
+driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Resistance Comms Hub']])
 driver.FindElement(
         [[By.NAME, 'chat-card'], 
