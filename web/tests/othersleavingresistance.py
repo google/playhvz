@@ -121,4 +121,3 @@ for target in INFECTABLES:
         should_exist=False)
 
 driver.Quit()
-

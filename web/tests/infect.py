@@ -50,6 +50,7 @@ driver.ExpectContains(
     'JackSlayerTheBeanSlasher')
 
 # Check that Jack is now in the zombie chat
+
 driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Horde ZedLink']])
 driver.FindElement([

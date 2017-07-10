@@ -59,7 +59,7 @@
           "type": "ack"
         },
         "requestCategory-%(ident)s-5-text": {
-          "dismissed": false,
+          "dismissed": true,
           "gameId": "game-%(ident)s-1",
           "playerId": "publicPlayer-%(ident)s-1",
           "requests": {
@@ -220,12 +220,11 @@
     "queuedNotification-%(ident)s-1-testEddy": {
       "site": true,
       "mobile": true,
-      "destination": "chat/chatRoom-%(ident)s-1",
+      "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
       "icon": "communication:message",
       "message": "testCharles: test single Message",
       "playerId": "publicPlayer-%(ident)s-3",
       "previewMessage": "testCharles: test single Message",
-      "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "sound": "ping.wav",
       "email" : false,
@@ -235,12 +234,11 @@
     "queuedNotification-%(ident)s-1-testFreddy": {
       "site": true,
       "mobile": true,
-      "destination": "chat/chatRoom-%(ident)s-1",
+      "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
       "icon": "communication:message",
       "message": "testCharles: test single Message",
       "playerId": "publicPlayer-%(ident)s-4",
       "previewMessage": "testCharles: test single Message",
-      "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "sound": "ping.wav",
       "email" : false,
@@ -248,12 +246,11 @@
       "sent": true
     },
     "queuedNotification-%(ident)s-4-testFreddy": {
-      "destination": "chat/chatRoom-%(ident)s-1",
+      "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
       "icon": "communication:message",
       "message": "testCharles: test all Message",
       "playerId": "publicPlayer-%(ident)s-4",
       "previewMessage": "testCharles: test all Message",
-      "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "mobile": true,
       "sound": "ping.wav",
@@ -263,12 +260,11 @@
       "sent": true
     },
     "queuedNotification-%(ident)s-4-testEddy": {
-      "destination": "chat/chatRoom-%(ident)s-1",
+      "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
       "icon": "communication:message",
       "message": "testCharles: test all Message",
       "playerId": "publicPlayer-%(ident)s-3",
       "previewMessage": "testCharles: test all Message",
-      "sendTime": 0,
       "mobile": true,
       "email" : false,
       "gameId": "game-%(ident)s-1",
@@ -278,7 +274,7 @@
       "vibrate": true
     },
     "queuedNotification-%(ident)s-5-testEddy": {
-      "destination": "chat/chatRoom-%(ident)s-1",
+      "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
       "email": false,
       "gameId": "game-%(ident)s-1",
       "icon": "communication:message",
@@ -286,14 +282,13 @@
       "mobile": true,
       "playerId": "publicPlayer-%(ident)s-3",
       "previewMessage": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
-      "sendTime": 0,
-      "sent": false,
+      "sent": true,
       "site": true,
-      "sound": "ping.wav",
+      "sound": "transmission.wav",
       "vibrate": true
     },
     "queuedNotification-%(ident)s-5-testFreddy": {
-      "destination": "chat/chatRoom-%(ident)s-1",
+      "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
       "email": false,
       "gameId": "game-%(ident)s-1",
       "icon": "communication:message",
@@ -301,10 +296,9 @@
       "mobile": true,
       "playerId": "publicPlayer-%(ident)s-4",
       "previewMessage": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
-      "sendTime": 0,
-      "sent": false,
+      "sent": true,
       "site": true,
-      "sound": "ping.wav",
+      "sound": "transmission.wav",
       "vibrate": true
     }
   },
@@ -495,7 +489,7 @@
           "time": 0
         },
         "notification-%(ident)s-1-testEddy-0": {
-          "destination": "chat/chatRoom-%(ident)s-1",
+          "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
           "icon": "communication:message",
           "message": "testCharles: test single Message",
           "previewMessage": "testCharles: test single Message",
@@ -504,12 +498,21 @@
           "time": 0
         },
         "notification-%(ident)s-4-testEddy-0": {
-          "destination": "chat/chatRoom-%(ident)s-1",
+          "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
           "icon": "communication:message",
           "message": "testCharles: test all Message",
           "previewMessage": "testCharles: test all Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-4-testEddy",
           "sound": "ping.wav",
+          "time": 0
+        },
+        "notification-%(ident)s-5-testEddy-0": {
+          "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
+          "icon": "communication:message",
+          "message": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+          "previewMessage": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+          "queuedNotificationId": "queuedNotification-%(ident)s-5-testEddy",
+          "sound" : "transmission.wav",
           "time": 0
         }
       }
@@ -544,7 +547,7 @@
           "time": 0
         },
         "notification-%(ident)s-1-testFreddy-0": {
-          "destination": "chat/chatRoom-%(ident)s-1",
+          "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
           "icon": "communication:message",
           "message": "testCharles: test single Message",
           "previewMessage": "testCharles: test single Message",
@@ -553,12 +556,21 @@
           "time": 0
         },
         "notification-%(ident)s-4-testFreddy-0": {
-          "destination": "chat/chatRoom-%(ident)s-1",
+          "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
           "icon": "communication:message",
           "message": "testCharles: test all Message",
           "previewMessage": "testCharles: test all Message",
           "queuedNotificationId": "queuedNotification-%(ident)s-4-testFreddy",
           "sound": "ping.wav",
+          "time": 0
+        },
+        "notification-%(ident)s-5-testFreddy-0": {
+          "destination": "game/%(ident)s-1/chat/chatRoom-%(ident)s-1",
+          "icon": "communication:message",
+          "message": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+          "previewMessage": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+          "queuedNotificationId": "queuedNotification-%(ident)s-5-testFreddy",
+          "sound" : "transmission.wav",
           "time": 0
         }
       }
