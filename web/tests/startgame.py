@@ -57,6 +57,7 @@ driver.WaitForGameLoaded()
 driver.SwitchUser("reggie")
 
 driver.Click([[By.NAME, 'joinGame']])
+driver.Click([[By.NAME, 'joinGameIntroNext']])
 driver.SendKeys(
     [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
     'ReggieTheRavager')
