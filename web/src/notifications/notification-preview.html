@@ -56,7 +56,7 @@
           let destinationString = this.notification.destination || 'notifications/' + this.notification.id;
           let destinationPath = destinationString.split('/');
           this.fire('ghvz-set-path', {
-            inGame: !destinationString.startsWith('/'),
+            inGame: !destinationString.startsWith('game/'),
             path: destinationPath,
             replace: false,
           });
