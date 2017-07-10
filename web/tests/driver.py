@@ -183,10 +183,9 @@ class RemoteDriver:
     return self.game_id
 
   def MakeDriver(self, user, page):
-    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s&logrequests=1" % (
+    url = "%s/%s?bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s&logrequests=1" % (
         self.client_url,
         page,
-        user,
         user + '@playhvz.com',
         self.password,
         'mobile' if self.is_mobile else 'desktop')

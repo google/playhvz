@@ -17,7 +17,8 @@
 """TODO: High-level file comment."""
 
 import sys
-
+import re
+from collections import OrderedDict
 
 def main(argv):
     pass
@@ -639,17 +640,54 @@ def UpdateChatRoom(request, game_state):
   game_state.patch('/chatRooms/%s' % request['chatRoomId'], put_data)
 
 
+def GetMessageTargets(game_state, message, group_id, sender_player_id):
+  group = game_state.get('/groups', group_id)
+
+  notification_player_ids = []
+  ack_request_player_ids = []
+  text_request_player_ids = []
+
+  player_ids_by_name = helpers.GetPlayerNamesInGroup(game_state, group_id)
+
+  while True:
+    target_regex = r"@(\?|!)?(\w+)\b\s*"
+    match = re.search(target_regex, message)
+    if not match:
+      break
+    message = message.replace(match.group(0), "", 1)
+
+    new_target_player_ids = []
+    player_name = match.group(2)
+    if player_name == 'all':
+      new_target_player_ids = group['players'].keys()
+    else:
+      if player_name not in player_ids_by_name:
+        raise InvalidInputError("No player by the name '" + player_name + "' in this group!")
+      new_target_player_ids = [player_ids_by_name[player_name]]
+
+    notification_player_ids = notification_player_ids + new_target_player_ids
+    if match.group(1) == '!':
+      ack_request_player_ids = ack_request_player_ids + new_target_player_ids
+    if match.group(1) == '?':
+      text_request_player_ids = text_request_player_ids + new_target_player_ids
+
+  # Deduplicate and sort
+  notification_player_ids = list(set(notification_player_ids))
+  ack_request_player_ids = list(set(ack_request_player_ids))
+  text_request_player_ids = list(set(text_request_player_ids))
+
+  # Remove the sender
+  if sender_player_id in notification_player_ids:
+    notification_player_ids.remove(sender_player_id)
+  if sender_player_id in ack_request_player_ids:
+    ack_request_player_ids.remove(sender_player_id)
+  if sender_player_id in text_request_player_ids:
+    text_request_player_ids.remove(sender_player_id)
+
+  return message, notification_player_ids, ack_request_player_ids, text_request_player_ids
+
 def SendChatMessage(request, game_state):
   """Record a chat message.
-
-  Validation:
-    Player is in the chat room (via the group).
-    The messageId is not used yet in this chat rom.
-
-  Args:
-    chatRoomId: Chat room to send the message to.
-    messageId: Unique ID to use for the message.
-    message: The message to send.
 
   Firebase entries:
     /chatRooms/%(chatRoomId)/messages
@@ -669,55 +707,50 @@ def SendChatMessage(request, game_state):
     }),
   })
 
+  game_id = request['gameId']
   chat_room_id = request['chatRoomId']
-  messageId = request['messageId']
-  group = helpers.ChatToGroup(game_state, chat_room_id)
-  if game_state.get('/chatRooms/%s/messages' % chat_room_id, messageId):
+  message_id = request['messageId']
+  group_id = helpers.ChatToGroup(game_state, chat_room_id)
+  sender_id = request['playerId']
+  sender = game_state.get('/publicPlayers', sender_id)
+
+  if game_state.get('/chatRooms/%s/messages' % chat_room_id, message_id):
     raise InvalidInputError('That message ID was already used.')
-  if not game_state.get('/groups/%s/players' % group, request['playerId']):
+  if not game_state.get('/groups/%s/players' % group_id, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
   if 'message' in request:
-    user_id = game_state.get('/publicPlayers/%s' % request['playerId'], 'userId')
-    players_in_room = helpers.GetPlayerNamesInChatRoom(game_state, chat_room_id)
-    notification_data = {
-      'gameId': request['gameId'],
-      'queuedNotificationId': 'queuedNotification-%s' % request['messageId'][len('message-'):],
-      'message': request['message'],
-      'previewMessage': textwrap.wrap(request['message'], 100)[0],
-      'site': True,
-      'email': False,
-      'mobile': True,
-      'vibrate': True,
-      'sound': "ping.wav",
-      'destination': 'chat/' + chat_room_id,
-      'sendTime': helpers.GetTime(request),
-      'icon': ''
-    }
-    # If we check for all @all, then there is no need to send out additional
-    # player notifications.
-    if '@all' in request['message'] and helpers.IsAdmin(game_state,
-                                                        request['gameId'],
-                                                        user_id):
+    message = request['message']
 
-      for player in players_in_room:
-        n = notification_data.copy()
-        n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], player)
-        n['playerId'] = players_in_room[player]
-        helpers.QueueNotification(game_state, n)
-        notifications.ExecuteNotifications(None, game_state)
-    else:
-      tokens = request['message'].split(' ')
-      for token in tokens:
-        if not token.startswith('@'):
-          continue
-        name = token[1:]
-        if name in players_in_room:
-          n = notification_data.copy()
-          n['queuedNotificationId'] = '%s%s' % (n['queuedNotificationId'], name)
-          n['playerId'] = players_in_room[name]
-          helpers.QueueNotification(game_state, n)
-          notifications.ExecuteNotifications(None, game_state)
+    stripped_message, notification_player_ids, ack_request_player_ids, text_request_player_ids = (
+        GetMessageTargets(game_state, message, group_id, sender_id))
+
+    if len(notification_player_ids):
+      for receiver_player_id in notification_player_ids:
+        receiver_player = game_state.get('/publicPlayers', receiver_player_id)
+        message_for_notification = sender['name'] + ": " + stripped_message
+
+        notification_data = {
+          'gameId': request['gameId'],
+          'queuedNotificationId': 'queuedNotification-%s' % message_id[len('message-'):] + "-" + receiver_player['name'],
+          'playerId': receiver_player_id,
+          'message': message_for_notification,
+          'previewMessage': message_for_notification,
+          'site': True,
+          'email': False,
+          'mobile': True,
+          'vibrate': True,
+          'sound': "ping.wav",
+          'destination': 'chat/' + chat_room_id,
+          'sendTime': None,
+          'icon': "communication:message",
+        }
+        helpers.QueueNotification(game_state, notification_data)
+
+    if len(ack_request_player_ids):
+      SendRequests(game_state, game_id, message_id, chat_room_id, sender_id, 'ack', stripped_message, ack_request_player_ids, helpers.GetTime(request))
+    if len(text_request_player_ids):
+      SendRequests(game_state, game_id, message_id, chat_room_id, sender_id, 'text', stripped_message, text_request_player_ids, helpers.GetTime(request))
 
   put_data = {
     'playerId': request['playerId'],
@@ -734,199 +767,135 @@ def SendChatMessage(request, game_state):
       'latitude': request['location']['latitude'],
       'longitude': request['location']['longitude']
     }
-  game_state.put('/chatRooms/%s/messages' % chat_room_id, messageId, put_data)
+  game_state.put('/chatRooms/%s/messages' % chat_room_id, message_id, put_data)
+
+  notifications.ExecuteNotifications(None, game_state)
+
+
+def SendRequests(game_state, game_id, message_id, chat_room_id, sender_player_id, type, message, player_ids, time):
+  request_category_id = 'requestCategory-' + message_id[len('message-'):] + "-" + type
+  AddRequestCategoryInner(game_state, game_id, request_category_id, chat_room_id, sender_player_id, message, type, False, time)
+
+  number = 0
+  for player_id in player_ids:
+    request_id = 'request-' + message_id[len('message-'):] + "-" + type + "-" + str(number)
+    AddRequestInner(game_state, chat_room_id, request_category_id, request_id, time, player_id)
+    number = number + 1
 
 def AddRequestCategory(request, game_state):
   """Adds a request category
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'quizQuestionId': 'String', # New quiz question's ID
+    'requestCategoryId': '!RequestCategoryId',
+    'chatRoomId': 'ChatRoomId',
+    'playerId': 'PublicPlayerId',
     'text': 'String',
-    'type': 'String', # Type of the question, either 'order' or 'multipleChoice'
-    'number': 'Number',
+    'type': 'String', # Either 'ack' for button or 'text' for a text input
+    'dismissed': 'Boolean',
   })
 
-  question = game_state.get(
-    '/games/%s/quizQuestions' % request['gameId'],
-    request['quizQuestionId'])
+  chat_room_id = request['chatRoomId']
+  request_category_id = request['requestCategoryId']
 
-  if question is not None:
-    return respondError(400, 'Quiz question already exists')
+  request_category_type = request['type']
+  if request_category_type != 'ack' and request_category_type != 'text':
+    return respondError(400, 'type must be "ack" or "text"')
 
-  question_type = request['type']
-  if question_type != 'order' and question_type != 'multipleChoice':
-    return respondError(400, 'type must be "order" or "multipleChoice"')
+  AddRequestCategoryInner(game_state, request['gameId'], request_category_id, chat_room_id, request['playerId'], request['text'], request['type'], request['dismissed'], helpers.GetTime(request))
 
-  return game_state.put(
-    '/games/%s/quizQuestions' % request['gameId'],
-    request['quizQuestionId'],
+
+def AddRequestCategoryInner(game_state, game_id, request_category_id, chat_room_id, sender_player_id, message, type, dismissed, time):
+  game_state.put(
+    '/chatRooms/%s/requestCategories' % chat_room_id,
+    request_category_id,
     {
-      'text': request['text'],
-      'type': request['type'],
-      'number': request['number'],
-  })
-  pass
+      'gameId': game_id,
+      'playerId': sender_player_id,
+      'text': message,
+      'type': type,
+      'dismissed': dismissed,
+      'time': time,
+    })
+
 
 def UpdateRequestCategory(request, game_state):
-  pass
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'requestCategoryId': 'RequestCategoryId',
+    'text': '|String',
+    'dismissed': '|Boolean',
+  })
+
+  game_id = request['gameId']
+  request_category_id = request['requestCategoryId']
+
+  chat_room_id = helpers.FindRequestCategory(game_state, game_id, request_category_id)
+  assert chat_room_id is not None
+
+  put_data = {}
+  for property in ['text', 'dismissed']:
+    if property in request:
+      put_data[property] = request[property]
+
+  game_state.patch('/chatRooms/%s/requestCategories/%s' % (chat_room_id, request_category_id), put_data)
+
+
 
 def AddRequest(request, game_state):
-  pass
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'requestCategoryId': 'RequestCategoryId',
+    'requestId': '!RequestId',
+    'playerId': 'PublicPlayerId',
+  })
+
+  game_id = request['gameId']
+  request_category_id = request['requestCategoryId']
+  request_id = request['requestId']
+  player_id = request['playerId']
+
+  chat_room_id = helpers.FindRequestCategory(game_state, game_id, request_category_id)
+  assert chat_room_id is not None
+
+  AddRequestInner(game_state, chat_room_id, request_category_id, request_id, helpers.GetTime(request), player_id)
+
+def AddRequestInner(game_state, chat_room_id, request_category_id, request_id, time, player_id):
+  game_state.put(
+      '/chatRooms/%s/requestCategories/%s/requests' % (chat_room_id, request_category_id),
+      request_id,
+      {
+        'time': time,
+        'playerId': player_id,
+      })
+
 
 def AddResponse(request, game_state):
-  pass
 
+  helpers.ValidateInputs(request, game_state, {
+    'gameId': 'GameId',
+    'requestId': '!RequestId',
+    'text': '?String',
+  })
 
-def GetMessageTargets(message, group_id):
-  notification_player_ids = []
-  ack_request_player_ids = []
-  text_request_player_ids = []
+  game_id = request['gameId']
+  request_id = request['requestId']
+  text = request['text']
 
-  player_ids_by_name = helpers.GetPlayerNamesInGroup(game_state, group_id)
+  chat_room_id, request_category_id = helpers.FindRequest(game_state, game_id, request_id)
+  assert chat_room_id is not None
+  assert request_category_id is not None
 
-  while True:
-    target_regex = r"@(\\?|!)?(\\w+)\\b\\s*"
-    match = re.search(target_regex, message)
-    if not match:
-      break
-    message = message.replace(match.group(0), "", 1)
+  put_data = {
+    'time': helpers.GetTime(request),
+  }
+  if text is not None:
+    put_data['text'] = text
 
-    new_target_player_ids = []
-    player_name = match.group(2)
-    if player_name == 'all':
-      new_target_player_ids = group.players.keys()
-    else:
-      if player_name not in player_ids_by_name:
-        raise InvalidInputError("No player by the name '" + player_name + "' in this group!")
-      new_target_player_ids = [player_ids_by_name[player_name]]
-
-    notification_player_ids = notification_player_ids + new_target_player_ids
-    if match.group(1) == '!':
-      ack_request_player_ids = ack_request_player_ids + new_target_player_ids
-    if match.group(1) == '?':
-      text_request_player_ids = text_request_player_ids + new_target_player_ids
-
-  return message, notification_player_ids, ack_request_player_ids, text_request_player_ids
-
-  # sendChatMessage(args) {
-  #   let {chatRoomId, playerId, messageId, message} = args;
-
-  #   let game = this.game;
-  #   let player = game.playersById[playerId];
-  #   let chatRoom = game.chatRoomsById[chatRoomId];
-  #   let group = game.groupsById[chatRoom.accessGroupId];
-
-  #   if (group.playersById[player.id]) {
-  #     this.writer.insert(
-  #         this.reader.getChatRoomPath(chatRoomId).concat(["messages"]),
-  #         null,
-  #         new Model.Message(messageId, Utils.merge(args, {
-  #           time: this.getTime_(args),
-  #           playerId: playerId,
-  #         })));
-  #   } else {
-  #     throw 'Can\'t send message to chat room without membership';
-  #   }
-
-  #   let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-  #       this.getMessageTargets(message, group);
-
-  #   if (notificationPlayerIds.length) {
-  #     for (let receiverPlayerId of notificationPlayerIds) {
-  #       let receiverPlayer = this.game.playersById[receiverPlayerId];
-  #       let messageForNotification = player.name + ": " + strippedMessage;
-  #       this.addNotification({
-  #         playerId: receiverPlayerId,
-  #         notificationId: this.idGenerator.newNotificationId(),
-  #         queuedNotificationId: null,
-  #         message: messageForNotification,
-  #         previewMessage: messageForNotification,
-  #         destination: 'chat/' + chatRoom.id,
-  #         time: this.getTime_(args),
-  #         icon: null,
-  #       });
-  #     }
-  #   }
-  #   if (ackRequestPlayerIds.length) {
-  #     this.sendRequests(chatRoomId, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
-  #   }
-  #   if (textRequestPlayerIds.length) {
-  #     this.sendRequests(chatRoomId, playerId, 'text', strippedMessage, textRequestPlayerIds);
-  #   }
-  # }
-
-  # sendRequests(chatRoomId, senderPlayerId, type, message, playerIds) {
-  #   let requestCategoryId = this.idGenerator.newRequestCategoryId();
-  #   this.addRequestCategory({
-  #     requestCategoryId: requestCategoryId,
-  #     chatRoomId: chatRoomId,
-  #     playerId: senderPlayerId,
-  #     text: message,
-  #     type: type,
-  #     dismissed: false,
-  #   });
-  #   for (let playerId of playerIds) {
-  #     this.addRequest({
-  #       requestCategoryId: requestCategoryId,
-  #       requestId: this.idGenerator.newRequestId(),
-  #       playerId: playerId,
-  #     });
-  #   }
-  # }
-
-  # addRequestCategory(args) {
-  #   let {requestCategoryId, chatRoomId} = args;
-  #   this.writer.insert(
-  #       this.reader.getRequestCategoryPath(chatRoomId, null),
-  #       null,
-  #       new Model.RequestCategory(requestCategoryId, Utils.merge(args, {
-  #         time: this.getTime_(args),
-  #       })));
-  # }
-
-  # updateRequestCategory(args) {
-  #   let {requestCategoryId} = args;
-  #   let chatRoomId = this.reader.getChatRoomIdForRequestCategoryId(requestCategoryId);
-  #   let requestCategoryPath = this.reader.getRequestCategoryPath(chatRoomId, requestCategoryId);
-  #   for (let argName in args) {
-  #     this.writer.set(requestCategoryPath.concat([argName]), args[argName]);
-  #   }
-  # }
-  
-  # addRequest(args) {
-  #   let {requestId, requestCategoryId, playerId} = args;
-  #   let chatRoomId = this.reader.getChatRoomIdForRequestCategoryId(requestCategoryId);
-  #   this.writer.insert(
-  #       this.reader.getRequestPath(chatRoomId, requestCategoryId, null),
-  #       null,
-  #       new Model.Request(requestId, {
-  #         playerId: playerId,
-  #         time: null,
-  #         text: null,
-  #       }));
-  # }
-
-  # addResponse(args) {
-  #   let {requestId, text} = args;
-  #   let requestCategoryId = this.reader.getRequestCategoryIdForRequestId(requestId);
-  #   let chatRoomId = this.reader.getChatRoomIdForMessageId(requestId);
-  #   let requestCategory = this.reader.get(this.reader.getRequestCategoryPath(chatRoomId, requestCategoryId));
-  #   let requestPath = this.reader.getRequestPath(chatRoomId, requestCategoryId, requestId);
-  #   let request = this.reader.get(requestPath);
-  #   if (requestCategory.type == 'ack')
-  #     assert(text === null);
-  #   else if (requestCategory.type == 'text')
-  #     assert(typeof text == 'string' && text);
-  #   else
-  #     throwError('Bad request type');
-  #   this.writer.set(requestPath.concat(["response"]), {
-  #     time: this.getTime_(args),
-  #     text: text
-  #   });
-  # }
-
-
+  game_state.put(
+      '/chatRooms/%s/requestCategories/%s/requests/%s' % (chat_room_id, request_category_id, request_id),
+      'response',
+      put_data)
 
 
 def AddQuizQuestion(request, game_state):
@@ -934,7 +903,7 @@ def AddQuizQuestion(request, game_state):
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'quizQuestionId': 'String', # New quiz question's ID
+    'quizQuestionId': '!QuizQuestionId', # New quiz question's ID
     'text': 'String',
     'type': 'String', # Type of the question, either 'order' or 'multipleChoice'
     'number': 'Number',
@@ -974,7 +943,7 @@ def UpdateQuizQuestion(request, game_state):
   """
   helpers.ValidateInputs(request, game_state, {
     'gameId': 'GameId',
-    'quizQuestionId': 'String',
+    'quizQuestionId': 'QuizQuestionId',
     'text': '|String',
     'type': '|String',
     'number': '|Number',
@@ -1032,8 +1001,8 @@ def AddQuizAnswer(request, game_state):
     'gameId': 'GameId',
     'isCorrect': 'Boolean',
     'order': 'Number',
-    'quizAnswerId': 'String',
-    'quizQuestionId': 'String',
+    'quizAnswerId': '!QuizAnswerId',
+    'quizQuestionId': 'QuizQuestionId',
     'text': 'String',
     'number': 'Number',
   })
@@ -1077,8 +1046,8 @@ def UpdateQuizAnswer(request, game_state):
     'gameId': 'GameId',
     'isCorrect': '|Boolean',
     'order': '|Number',
-    'quizAnswerId': 'String',
-    'quizQuestionId': 'String',
+    'quizAnswerId': 'QuizAnswerId',
+    'quizQuestionId': 'QuizQuestionId',
     'text': '|String',
     'number': '|Number',
   })
@@ -1117,41 +1086,6 @@ def AddDefaultProfileImage(request, game_state):
   # allegianceFilter: 'resistance',
   # profileImageUrl: 'https://cdn.vectorstock.com/i/thumb-large/03/81/1890381.jpg',
   pass
-
-
-
-def AckChatMessage(request, game_state):
-  """Ack a chat message which sets the ack to the timestamp of that message.
-
-  Validation:
-    Player is in the chat room (via the group).
-
-  Args:
-    chatRoomId: Chat room to send the message to.
-    playerId: Player sending the message.
-    messageId: Unique ID to use for the message.
-
-  Firebase entries:
-    /chatRooms/%(chatRoomId)/acks
-  """
-  valid_args = ['chatRoomId', 'publicPlayerId']
-  required_args = list(valid_args)
-  required_args.extend(['messageId'])
-  helpers.ValidateInputs(request, game_state, required_args, valid_args)
-
-  chat = request['chatRoomId']
-  messageId = request['messageId']
-  playerId = request['playerId']
-  group = helpers.ChatToGroup(game_state, chat)
-  message = game_state.get('/chatRooms/%s/messages' % chat, messageId)
-
-  if message is None:
-    raise InvalidInputError('That message ID is not valid.')
-  if not game_state.get('/groups/%s/players' % group, playerId):
-    raise InvalidInputError('You are not a member of that chat room.')
-
-  game_state.put('/chatRooms/%s/acks' % chat, playerId, message['time'])
-
 
 def AddPlayerToGroup(request, game_state):
   """Add a player to a group.
@@ -1427,6 +1361,8 @@ def UpdateMembershipsOnAllegianceChange(game_state, public_player_id, new_player
 
   for group_id in groups:
     group = game_state.get('/groups', group_id)
+    print 'group!'
+    print group
     if group['autoAdd']:
       if 'players' not in group or public_player_id not in group['players']:
         if group['allegianceFilter'] == 'none' or allegiance == group['allegianceFilter']:
