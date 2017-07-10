@@ -112,6 +112,7 @@ var models = {
     email: false,
     gameId: '',
     groupId: '',
+    playerId: '',
     icon: '',
     message: '',
     mobile: false,
@@ -309,8 +310,37 @@ var models = {
     playerId: '',
     privatePlayerId: '',
     icon: ''
-  }
+  },
+  requestCategory: {
+    link: ['chatRooms', 'chatRoomId', 'requestCategories', 'requestCategoryId'],
+    path: ['chatRooms', 'chatRoomId', 'requestCategories'],
+    gameId: '',
+    chatRoomId: '',
+    requestCategoryId: '',
+    playerId: '',
+    requests: [],
+    time: 0,
+    text: '',
+    type: '',
+    dismissed: false,
+  },
+  request: {
+    link: ['chatRooms', 'chatRoomId', 'requestCategories', 'requestCategoryId', 'requests', 'requestId'],
+    path: ['chatRooms', 'chatRoomId', 'requestCategories', 'requestCategoryId', 'requests'],
+    gameId: '',
+    chatRoomId: '',
+    requestCategoryId: '',
+    requestId: '',
+    playerId: '',
+    response: null, // special. SUPER HACK. Makes the model/firebaselistener treat the entire response subobject as a value.
+    time: 0,
+  },
+  response: { // special
+    text: '',
+    time: 0,
+  },
 };
+
 
 class Model {
   constructor(id, args, model, sortOn) {
@@ -335,7 +365,8 @@ class Model {
     for (var key in model) {
       if (key === 'link' || key === 'path') continue;
       if (model.hasOwnProperty(key)) {
-        if (typeof model[key] === 'object') this._collections.push(key);
+        // NOTE FOR ALEKS: Added  "&& model[key] !== null" to hack requests' responses into existence
+        if (typeof model[key] === 'object' && model[key] !== null) this._collections.push(key);
         else this._properties.push(key);
       }
     }
@@ -433,6 +464,21 @@ Model.Message = class extends Model {
     super(id, args, models.message, 'time');
   }
 };
+Model.RequestCategory = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.requestCategory);
+  }
+};
+Model.Request = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.request);
+  }
+};
+Model.Response = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.response);
+  }
+};
 Model.RewardCategory = class extends Model {
   constructor(id, args) {
     super(id, args, models.rewardCategory);
@@ -527,25 +573,6 @@ Model.GroupMembership = class {
     Utils.copyProperties(this, args, GROUP_MEMBERSHIP_PROPERTIES);
     Utils.addEmptyLists(this, GROUP_MEMBERSHIP_COLLECTIONS);
   }
-};
-
-const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
-const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
-Model.RequestCategory = class {
-  constructor(id, args) {
-    this.id = id;
-    Utils.copyProperties(this, args, REQUEST_CATEGORY_PROPERTIES);
-    Utils.addEmptyLists(this, REQUEST_CATEGORY_COLLECTIONS);
-  }
-};
-
-
-const REQUEST_PROPERTIES = ["playerId", "response"];
-const REQUEST_COLLECTIONS = [];
-Model.Request = function (id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, REQUEST_PROPERTIES);
-  Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
 };
 
 Model.PUBLIC_PLAYER_PROPERTIES = ["isActive", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "privatePlayerId", "private"];

@@ -458,7 +458,7 @@
               <div class="request-category-text-column">
                 <div class="request-message">
                   [[requestCategory.text]]
-                  ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[countTotalRequests_(requestCategory.playerId, requestCategory.requests)]])
+                  ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[countTotalRequests_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*)]])
                 </div>
                 <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
                   waiting on: <b name="not-responded">[[getNoRespondPlayer_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*)]]</b>

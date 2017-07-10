@@ -30,6 +30,8 @@ window.FirebaseListener = (function () {
       this.game = {}; // the database object to be filled (reader)
 
       this.gameIdObj = {}; // a shortcut for models that need to know about the game
+
+      window.firebaseListener = this;
     }
 
     setupPrivateModelAndReaderAndWriter(privateModelGame) {
@@ -126,13 +128,24 @@ window.FirebaseListener = (function () {
     //
     // WARNING: The assumption is that we get firebase to return,
     //          if that doesn't happen we are hosed (but data is corrupt anyways)
-    increment() {
-      this.firebaseObjectCounter++;
+    increment(path) {
+      assert(path);
+      assert(!(path in this.firebaseObjectPaths));
+      this.firebaseObjectPaths[path] = true;
     }
 
-    decrement() {
-      this.firebaseObjectCounter--;
-      if (this.firebaseObjectCounter == 0) {
+    decrement(path) {
+      assert(path);
+      assert(path in this.firebaseObjectPaths);
+      delete this.firebaseObjectPaths[path];
+
+      let anyLeft = false;
+      for (let key in this.firebaseObjectPaths) {
+        anyLeft = true;
+        break;
+      }
+
+      if (!anyLeft) {
         let endTime = new Date().getTime();
         console.log('All objects loaded in', (endTime - this.timeWhenLoadingStarted)/1000, 'seconds');
         this.firebaseObjectsLoaded();
@@ -145,14 +158,14 @@ window.FirebaseListener = (function () {
         return new Promise((resolve, reject) => {});
       }
       this.listenedToPaths[path] = true;
-      this.increment();
+      this.increment(path);
 
       return new Promise((resolve, reject) => {
         let attempt = () => {
           this.firebaseRoot.child(path).once('value').then((snap) => {
             if (snap.val()) {
               resolve(snap);
-              this.decrement();
+              this.decrement(path);
             } else {
               setTimeout(attempt, 250);
             }
@@ -180,7 +193,7 @@ window.FirebaseListener = (function () {
     }
 
     listenToGame(listeningUserId, gameId, destination) {
-      this.firebaseObjectCounter = 0;
+      this.firebaseObjectPaths = {};
       this.firebaseObjectsLoadedPromise = new Promise((resolve, reject) => {
         this.firebaseObjectsLoaded = resolve;
       });
@@ -191,7 +204,7 @@ window.FirebaseListener = (function () {
       this.gameIdObj = {
         gameId: gameId
       };
-      this.increment(); // Wait until game has been loaded
+      this.increment('(special)'); // Wait until game has been loaded
       this.listenOnce_(this.game.link).then((gameSnap) => {
         this.game.initialize(gameSnap.val(), this.game, null, true);
         this.setupPrivateModelAndReaderAndWriter(this.game);
@@ -243,7 +256,7 @@ window.FirebaseListener = (function () {
             .on('child_added', (snap) => this.listenToPlayer_(snap.getKey(), listeningUserId, false));
         }
         setTimeout(() => {
-          this.decrement();
+          this.decrement('(special)');
         }, 500); // There is a min 500ms load time to give the above a chance
       });
       return this.firebaseObjectsLoadedPromise;
@@ -464,6 +477,26 @@ window.FirebaseListener = (function () {
               gameId: this.gameIdObj.gameId,
               chatRoomId: chatRoomId
             }));
+          });
+
+        this.firebaseRoot.child(obj.link + '/requestCategories')
+          .on('child_added', (snap) => {
+            let requestCategoryId = snap.getKey();
+            this.listenToModel(
+                new Model.RequestCategory(requestCategoryId, {
+                  gameId: this.gameIdObj.gameId,
+                  chatRoomId: chatRoomId,
+                }),
+                (obj, snapVal) => {
+                  this.firebaseRoot.child(obj.link + '/requests')
+                      .on('child_added', (requestSnap) => {
+                        this.listenToModel(new Model.Request(requestSnap.getKey(), {
+                          gameId: this.gameIdObj.gameId,
+                          chatRoomId: chatRoomId,
+                          requestCategoryId: requestCategoryId,
+                        }));
+                      });
+                });
           });
       });
     }
