@@ -112,7 +112,7 @@ def runAll(allTests, maxParallel=3):
 			finished += 1
 		newProcess = printAndRun(test)
 		processes.append(newProcess)
-	return [process.communicate()[0] == "done\n" for process in processes]
+	return [allTests[i] for i in range(len(allTests)) if not processes[i].communicate()[0] == "done\n"]
 
 
 def runAllSequentially(allTests):
@@ -126,7 +126,7 @@ def runAllSequentially(allTests):
 def rerunFailures(savedData, sequential, maximumParallel):
 	if "failedTests" in savedData:
 		if sequential:
-			runAllSequentially(savedData["failedTests"])
+			return runAllSequentially(savedData["failedTests"])
 		else:
 			max = None
 			if maximumParallel:
@@ -135,7 +135,7 @@ def rerunFailures(savedData, sequential, maximumParallel):
 				max = savedData["maxParallel"]
 			else:
 				max = 3
-			runAll(savedData["failedTests"], max)
+			return runAll(savedData["failedTests"], max)
 	else:
 		print "No failed tests saved."
 
@@ -165,29 +165,31 @@ def main():
 			savedData["password"] = args.changePassword
 		elif args.changeMaxParallel:
 			savedData["maxParallel"] = args.changeMaxParallel
-		elif args.rerunFailures:
-			rerunFailures(savedData, args.sequential, args.maximumParallel)
 		else:
-			if args.rerun:
-				if "lastRun" in savedData:
-					args = savedData["lastRun"]
-				else:
-					print "No previous run saved."
-					return
-			else:
-				savedData["lastRun"] = args
-			allTests = fakeAndRemoteTests(args.url, args.password, args.mobile, args.desktop, args.local, args.remote, args.files)
 			failedTests = None
-			if args.sequential:
-				failedTests = runAllSequentially(allTests)
+			if args.rerunFailures:
+				failedTests = rerunFailures(savedData, args.sequential, args.maximumParallel)
 			else:
-				maxParallel = None
-				if args.maximumParallel:
-					maxParallel = args.maximumParallel
-				elif savedData.has_key("maxParallel"):
-					maxParallel = args.maximumParallel
-				failedTestIndexes = runAll(allTests, maxParallel)
-				failedTests = [allTests[i] for i in range(len(allTests)) if not failedTestIndexes[i] ]
+				if args.rerun:
+					if "lastRun" in savedData:
+						args = savedData["lastRun"]
+					else:
+						print "No previous run saved."
+						return
+				else:
+					savedData["lastRun"] = args
+				allTests = fakeAndRemoteTests(args.url, args.password, args.mobile, args.desktop, args.local, args.remote, args.files)
+				
+				if args.sequential:
+					failedTests = runAllSequentially(allTests)
+				else:
+					maxParallel = None
+					if args.maximumParallel:
+						maxParallel = args.maximumParallel
+					elif savedData.has_key("maxParallel"):
+						maxParallel = savedData["maxParallel"]
+					failedTests = runAll(allTests, maxParallel)
+					
 			print("FAILED TESTS:", failedTests)
 			savedData["failedTests"] = failedTests
 	finally:
