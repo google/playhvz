@@ -37,13 +37,12 @@ class SimpleDriver:
     element = None
     for step in path:
       by, locator = step
-      try:
-        if element is None:
-          element = self.selenium_driver.find_element(by, locator)
-        else:
-          element = element.find_element(by, locator)
-      except NoSuchElementException:
-        element = None
+      if element is None:
+        elements = self.selenium_driver.find_elements(by, locator)
+      else:
+        elements = element.find_elements(by, locator)
+      # assert len(elements) < 2, "Multiple elements found!"
+      element = elements[0] if len(elements) > 0 else None
       if element is None:
         break
     if should_exist:
@@ -69,14 +68,20 @@ class SimpleDriver:
     for i in range(number):
       self.FindElement(path).send_keys(Keys.BACKSPACE)
 
-  def DismissAlert(self):
-    self.selenium_driver.switch_to_alert().accept();
+  def Clear(self, path):
+    self.FindElement(path).clear() 
+
+  def DismissAlert(self, textToLookFor = ''):
+    someAlert = self.selenium_driver.switch_to_alert()
+    if (textToLookFor != ''):
+      assert(textToLookFor == someAlert.text)
+    someAlert.accept();
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     element = self.FindElement(path)
     assert(element is not None)
     attribute_value = element.get_attribute(attribute_name)
-    assert(attribute_value == value)
+    assert(attribute_value == value), "The found attribute %s does not match value %s for attribute %s of %s" % (attribute_value, value, attribute_name, path)
 
   def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
     element = self.FindElement(path, check_visible=check_visible)
@@ -119,14 +124,17 @@ class RetryingDriver:
   def Click(self, path):
     return self.Retry(lambda: self.inner_driver.Click(path))
 
-  def DismissAlert(self):
-    return self.Retry(lambda: self.inner_driver.DismissAlert())
+  def DismissAlert(self, textToLookFor = ''):
+    return self.Retry(lambda: self.inner_driver.DismissAlert(textToLookFor))
 
   def SendKeys(self, path, keys):
     return self.Retry(lambda: self.inner_driver.SendKeys(path, keys))
 
   def Backspace(self, path, number):
     return self.Retry(lambda: self.inner_driver.Backspace(path, number))
+
+  def Clear(self, path):
+    return self.Retry(lambda: self.inner_driver.Clear(path))
 
   def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
     return self.Retry(lambda: self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible))
@@ -184,10 +192,9 @@ class RemoteDriver:
     return self.game_id
 
   def MakeDriver(self, user, page):
-    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s" % (
+    url = "%s/%s?bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s&logrequests=1" % (
         self.client_url,
         page,
-        user,
         user + '@playhvz.com',
         self.password,
         'mobile' if self.is_mobile else 'desktop')
@@ -209,13 +216,13 @@ class RemoteDriver:
   def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
     return self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
 
-  def Click(self, path):
+  def Click(self, path, scoped=False):
     self.drivers_by_user[self.current_user].Click(path)
 
-  def DismissAlert(self):
-    self.drivers_by_user[self.current_user].DismissAlert()
+  def DismissAlert(self, textToLookFor = ''):
+    self.drivers_by_user[self.current_user].DismissAlert(textToLookFor)
 
-  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True, scoped=True):
     self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def SendKeys(self, path, keys):
@@ -226,6 +233,9 @@ class RemoteDriver:
 
   def Backspace(self, path, number):
     self.drivers_by_user[self.current_user].Backspace(path, number)
+
+  def Clear(self, path):
+    self.drivers_by_user[self.current_user].Clear(path)
 
   def Quit(self):
     for driver in self.drivers_by_user.values():
@@ -242,7 +252,7 @@ class FakeDriver:
     if page and len(page) and page[0] == '/':
       page = page[1:]
 
-    url = "%s/%s?user=%s&bridge=fake&layout=%s" % (
+    url = "%s/%s?user=%s&bridge=fake&layout=%s&logrequests=1" % (
         client_url,
         page,
         user,
@@ -279,8 +289,8 @@ class FakeDriver:
     else:
       self.inner_driver.Click(path)
 
-  def DismissAlert(self):
-    self.inner_driver.DismissAlert()
+  def DismissAlert(self, textToLookFor = ''):
+    self.inner_driver.DismissAlert(textToLookFor)
 
   def SendKeys(self, path, keys, scoped=True):
     if scoped:
@@ -294,13 +304,19 @@ class FakeDriver:
     else:
       self.inner_driver.Backspace(path, number)
 
+  def Clear(self, path, scoped=True):
+    if scoped:
+      self.inner_driver.Clear([[By.ID, self.current_user + "App"]] + path)
+    else:
+      self.inner_driver.Clear(path)
+
   def ExpectContains(self, path, needle, scoped=True, should_exist=True, check_visible=True):
     if scoped:
       self.inner_driver.ExpectContains([[By.ID, self.current_user + "App"]] + path, needle, should_exist=should_exist, check_visible=check_visible)
     else:
       self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
-  def ExpectAttributeEqual(self, path, attribute_name, value):
+  def ExpectAttributeEqual(self, path, attribute_name, value, scoped=True):
     if scoped:
       self.inner_driver.ExpectAttributeEqual([[By.ID, self.current_user + "App"]] + path, attribute_name, value)
     else:
@@ -313,6 +329,7 @@ class FakeDriver:
 class WholeDriver:
   def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
     self.is_mobile = is_mobile
+    self.use_remote = use_remote
     if use_remote:
       self.inner_driver = RemoteDriver(client_url, is_mobile, password, populate, user, page)
     else:
@@ -326,6 +343,7 @@ class WholeDriver:
 
   def Quit(self):
     self.inner_driver.Quit()
+    print "done"
 
   def SwitchUser(self, user):
     return self.inner_driver.SwitchUser(user)
@@ -336,11 +354,16 @@ class WholeDriver:
   def DontFindElement(self, path, wait_long=False, check_visible=True):
     return self.FindElement(path, wait_long=wait_long, should_exist=False)
 
-  def Click(self, path):
-    return self.inner_driver.Click(path)
+  def Click(self, path, scoped=True):
+    return self.inner_driver.Click(path, scoped)
 
-  def DismissAlert(self):
-    return self.inner_driver.DismissAlert()
+  def DismissAlert(self, textToLookFor = '', native=False):
+    if native:
+      return self.inner_driver.DismissAlert(textToLookFor)
+    else:
+      if textToLookFor:
+        self.ExpectContains([[By.ID, 'alertContents']], textToLookFor, scoped=False)
+      self.Click([[By.ID, 'alertDismiss']], scoped=False)
 
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)
@@ -348,8 +371,11 @@ class WholeDriver:
   def Backspace(self, path, number=1):
     return self.inner_driver.Backspace(path, number)
 
-  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
-    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
+  def Clear(self, path):
+    return self.inner_driver.Clear(path)
+
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True, scoped=True):
+    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible, scoped=scoped)
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)

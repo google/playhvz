@@ -17,8 +17,9 @@
 'use strict';
 
 class FakeBridge {
-  constructor(idGenerator) {
+  constructor(idGenerator, alertHandler) {
     this.databaseOperations = [];
+    this.alertHandler = alertHandler;
     this.simpleWriter = new SimpleWriter(null)
     this.teeWriter = new TeeWriter(this.simpleWriter);
     var fakeServer = new FakeServer(idGenerator, this.teeWriter, new Date().getTime());
@@ -31,7 +32,13 @@ class FakeBridge {
 
     for (const funcName of Bridge.METHODS) {
       if (!this[funcName])
-        this[funcName] = (...args) => this.server[funcName](...args);
+        this[funcName] = (...args) => this.server[funcName](...args)
+            .catch(function(error) {
+              console.error('failed in', funcName);
+              console.error(error);
+              console.error(arguments);
+              alertHandler(error)
+            });
     }
   }
   signIn({userId}) {
@@ -40,9 +47,9 @@ class FakeBridge {
     return userId;
   }
   signOut() {
-    setTimeout(() => {
-      alert("Signed out!");
-    }, 0);
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, 0);
+    });
   }
   getSignedInPromise({userId}) {
     assert(userId);
@@ -66,10 +73,11 @@ class FakeBridge {
           gatedWriter.closeGate();
         }, 100);
 
-    return () => {
-      clearInterval(interval);
-      this.teeWriter.removeDestination(cloningWriter);
-    };
+    return new Promise ((resolve, reject) => {
+      setTimeout(() => {
+        resolve();        
+      }, 2000);
+    });
   }
 }
 

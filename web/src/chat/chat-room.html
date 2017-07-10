@@ -46,25 +46,12 @@
             value: null,
           },
 
-          previousMessagePlayerId: {
-            type: String,
-            value: "",
-          }, 
-
           chatInfoVisible: {
             type: Boolean,
             value: false,
           },
 
-          locationUploadEnabled: {
-            type: Boolean,
-            value: true,
-          },
-
-          imageUploadEnabled: {
-            type: Boolean,
-            value: false,
-          },
+          isMemberOfChatRoom: Boolean,
         },
 
         listeners: {
@@ -73,13 +60,10 @@
 
         observers: [
           'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
+          'onChatRoomMembershipChange_(chatRoomId, currentPlayer.private.chatRoomMembershipsById.*)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
         ],
-
-        locationUploadEnabled_(isMobile, locationUploadEnabled) {
-          return isMobile && locationUploadEnabled;
-        },
 
         attached: function() {
           this.isAttached = true;
@@ -90,11 +74,17 @@
           assert(this.game.chatRoomsById[chatRoomId]);
           this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
           this.hideChatInfo();
-          this.previousMessagePlayerId = "";
         },
 
         onChatRoomNameChange_: function() {
-          this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
+          this.async(() => {
+            this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
+          });
+        },
+
+        onChatRoomMembershipChange_: function() {
+          let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
+          this.isMemberOfChatRoom = membership ? true : false;
         },
 
         onMessageReceived_() {
@@ -119,36 +109,13 @@
           return senderId === myId ? 'message-from-me' : 'message-from-other';
         },
 
-        onSendClicked_: function() {
-          if (!this.$.messageInput.value) {
-            return;
+        displaySenderInfo(messageIndex) {
+          if (messageIndex == 0) {
+            return 'display-sender';
           }
-          this.bridge.sendChatMessage({
-            gameId: this.game.id,
-            messageId: this.bridge.newMessageId(), 
-            chatRoomId: this.chatRoom.id, 
-            playerId: this.currentPlayer.id, 
-            message: this.$.messageInput.value
-          }).catch((e) => {
-            alert(e);
-          });
-          this.$.messageInput.value = "";
-        },
-
-        /**
-        * Submit text on 'enter', allow shift+enter to insert a new line in
-        * the text field.
-        */
-        checkForEnter_: function(e) {
-         if (e.keyCode === 13 && !e.shiftKey) {
-            e.preventDefault();
-            this.$.messageSend.click();
-          }
-        },
-
-        displaySenderInfo(playerId) {
-          if (playerId != this.previousMessagePlayerId) {
-            this.previousMessagePlayerId = playerId;
+          let currentMessage = this.chatRoom.messages[messageIndex];
+          let previousMessage = this.chatRoom.messages[messageIndex - 1];
+          if (currentMessage.playerId != previousMessage.playerId) {
             return 'display-sender';
           } else {
             return 'hide-sender';
@@ -241,13 +208,17 @@
           return requests.filter(request => request.response != null).length;
         },
 
-        notEveryPlayerRespond_(requests) {
-          return this.countRespondPlayer_(requests) < requests.length;
+        countTotalRequests_(senderId, requests) {
+          return requests.filter(request => request.playerId != senderId).length;
         },
 
-        getNoRespondPlayer_(requests){
+        notEveryPlayerRespond_(senderId, requests) {
+          return this.countRespondPlayer_(requests) < this.countTotalRequests_(senderId, requests);
+        },
+
+        getNoRespondPlayer_(senderId, requests){
           return requests
-              .filter(request => request.response == null)
+              .filter(request => request.response == null && request.playerId != senderId)
               .map(request => this.game.playersById[request.playerId].name)
               .join(", ");
         },
@@ -315,12 +286,6 @@
     :host[small] {
       height: 400px;
     }
-    paper-button.send {
-      background-color: rgba(135, 206, 250, .5);
-      color: darkslategrey;
-      font-size: small;
-      font-weight: bold;
-    }
     .conversation-container {
       flex-grow: 1;
       overflow-y: scroll;
@@ -343,8 +308,6 @@
     paper-button.request {
       background-color: #03A9F4;
       color: white;
-      padding: 2px;
-      height: 22px;
     }
     .message-from-me {
       display: flex;
@@ -435,36 +398,28 @@
       align-self: flex-start;
       background-color: lightgrey;
     }
-    .multimedia-option {
-      color: dodgerblue;
-      flex-grow: 0;
-    }
     .request-category {
       padding: 8px;
       margin: 8px 8px 0 8px;
       background-color: #e3f2fd;
-    }
-    .text-input {
       display: flex;
-      flex-shrink: 0;
-      padding: 4px 8px 8px 8px;
+      align-items: center;
+      flex-wrap: nowrap;
     }
-    .text-input-field {
+    .request-category-with-answer {
+      flex-wrap: wrap;
+    }
+    .request-category-text-column {
       flex-grow: 1;
-      position: relative;
-      padding-right: 16px;
-      word-break: break-word;
+      align-items: center;
     }
     #forWebdriver { height: 1px; }
     .request-input {
-      flex-shrink: 0;
+      padding: 8px;
     }
     .request-message {
       flex-grow: 1;
       display: inline-block;
-    }
-    .request-container {
-      display: flex;
     }
     .request-input-container {
       display: flex;
@@ -474,6 +429,12 @@
     }
     .request-button {
       flex-shrink: 0;
+    }
+    .warning {
+      background-color: beige;
+      color: darkslategrey;
+      padding: 4px;
+      text-align: center;
     }
   </style>
   <template>
@@ -495,74 +456,82 @@
       <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
         <template is="dom-if" if="[[!requestCategory.dismissed]]">
           <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
-            <paper-material class="request-category">
-              <div class="request-message">
-                [[requestCategory.text]]
-                ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]])
-              </div>
-              <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
-                waiting on: <b>[[getNoRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]</b>
-               </template>
-              <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
-                  <template is="dom-if" if="[[request.response]]">
-                    <div class="request-container">
-                      <ghvz-player-label
-                          game="[[game]]"
-                          player-id="[[request.playerId]]">
-                      </ghvz-player-label>:&#160;
-                      [[request.response.text]]
-                    </div>
+            <paper-material class="request-category" name$="request-message-[[requestCategory.text]]">
+              <div class="request-category-text-column">
+                <div class="request-message">
+                  [[requestCategory.text]]
+                  ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[countTotalRequests_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*)]])
+                </div>
+                <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
+                  waiting on: <b name="not-responded">[[getNoRespondPlayer_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*)]]</b>
+                </template>
+                <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
+                  <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
+                    <template is="dom-if" if="[[request.response]]">
+                      <div class="request-container">
+                        <ghvz-player-label
+                            game="[[game]]"
+                            player-id="[[request.playerId]]">
+                        </ghvz-player-label>:&#160;
+                        [[request.response.text]]
+                      </div>
+                    </template>
                   </template>
                 </template>
-              </template>
-              <paper-button raised class="request" on-click="deleteAck">Dismiss</paper-button>
+              </div> <!-- .request-category-text-column -->
+              <paper-button raised name="dismiss-button" class="request" on-click="deleteAck">Dismiss</paper-button>
             </paper-material>
           </template>
           <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
             <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
               <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
                   <template is="dom-if" if="[[isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category request-container">
-                      <ghvz-player-label
-                          game="[[game]]"
-                          player-id="[[requestCategory.playerId]]">
-                      </ghvz-player-label>:&#160;
-                      <div class="request-message">
-                        [[requestCategory.text]]
-                      </div>
-                      <span hidden>[[request.time]]</span>
-                      <paper-button raised class="request request-button" on-click="acknowledge">
+                    <paper-material class="request-category request-container" name$="received-ack-[[requestCategory.text]]">
+                      <div class="request-category-text-column">
+                        <ghvz-player-label
+                            game="[[game]]"
+                            player-id="[[requestCategory.playerId]]">
+                        </ghvz-player-label>:&#160;
+                        <div class="request-message">
+                          [[requestCategory.text]]
+                        </div>
+                        <span hidden>[[request.time]]</span>
+                      </div> <!-- .request-category-text-column -->
+                      <paper-button raised name="ack-button" class="request request-button" on-click="acknowledge">
                         Ack
                       </paper-button>
                     </paper-material>
                   </template>
                   <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category">
-                      <p hidden>[[request.time]]</p>
-                      <ghvz-player-label
-                          game="[[game]]"
-                          player-id="[[requestCategory.playerId]]">
-                      </ghvz-player-label>:&#160;
-                      <div class="request-message">
-                        [[requestCategory.text]]
-                      </div>
-                      <div class="request-input-container">
-                        <paper-input
-                            no-label-float
-                            class="request-input"
-                            on-keydown="checkForEnterTextRequest_"
-                            type="string"
-                            label="Answer">
-                        </paper-input>
-                        <paper-button
-                            raised
-                            class="request"
-                            id="textRequestSend"
-                            on-click="sendAckText">
-                          Send
-                        </paper-button>
-                      </div>
+                    <paper-material class="request-category request-category-with-answer">
+                      <div class="request-category-text-column">
+                        <p hidden>[[request.time]]</p>
+                        <ghvz-player-label
+                            game="[[game]]"
+                            player-id="[[requestCategory.playerId]]">
+                        </ghvz-player-label>:&#160;
+                        <div class="request-message">
+                          [[requestCategory.text]]
+                        </div>
+                      </div> <!-- .request-category-text-column -->  
+                      <div class="request-category-text-column">
+                        <div class="request-input-container">
+                          <paper-input
+                              no-label-float
+                              class="request-input"
+                              on-keydown="checkForEnterTextRequest_"
+                              type="string"
+                              label="Answer">
+                          </paper-input>
+                          <paper-button
+                              raised
+                              class="request"
+                              id="textRequestSend"
+                              on-click="sendAckText">
+                            Send
+                          </paper-button>
+                        </div> <!-- .request-input-container -->
+                      </div> <!-- .request-category-text-column -->  
                     </paper-material>
                   </template>
                 </div>
@@ -576,7 +545,7 @@
     <div id="conversationContainer" class="conversation-container">
       <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
         <div name$="message-[[chatRoom.name]]-[[item.message]]"
-          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
+          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(index)]]">
           <div class="display-message">
             <div class="player-name">
               [[getName_(item.playerId, game.players.length)]]
@@ -607,45 +576,18 @@
       </template>
     </div>
 
-    <div class="text-input">
-      <div class="text-input-field">
-      <paper-textarea 
-          id="messageInput"
-          name$="input-[[chatRoom.name]]" 
-          autocorrect
-          multiline
-          max-rows=3
-          label="message"
-          no-label-float
-          on-keydown="checkForEnter_">
-        </paper-textarea>
-      </div>
-      <template is="dom-if" if="[[imageUploadEnabled]]">
-        <paper-icon-button
-          class="multimedia-option"
-          icon="image:photo"
-          title="Send image"
-          on-click="sendImage_">
-        </paper-icon-button>
-      </template>
-      <template is="dom-if" if="[[locationUploadEnabled_(isMobile, locationUploadEnabled)]]">
-        <ghvz-chat-location
-          class="multimedia-option"
-          bridge="[[bridge]]"
-          game="[[game]]"
-          player="[[currentPlayer]]"
-          chat-room-id="[[chatRoomId]]">
-        </ghvz-chat-location>
-      </template>
-      <paper-button 
-        class="send"
-        name$="submit-[[chatRoom.name]]"
-        id="messageSend" 
-        raised
-        on-click="onSendClicked_">
-        SEND
-      </paper-button>
-    </div>
+    <template is="dom-if" if="[[!isMemberOfChatRoom]]">
+      <div class="warning">Become a member of this group to send messages</div>
+    </template>
+    <template is="dom-if" if="[[isMemberOfChatRoom]]">
+      <ghvz-chat-room-input
+        bridge="[[bridge]]"
+        game="[[game]]"
+        current-player="[[currentPlayer]]"
+        chat-room="[[chatRoom]]"
+        is-mobile="[[isMobile]]">
+      </ghvz-chat-room-input>
+    </template>
 
     <div on-tap="captureTap_">
       <paper-drawer-panel id="drawer" class="drawer-panel" right-drawer disable-swipe force-narrow>
@@ -654,8 +596,8 @@
               bridge="[[bridge]]"
               game="[[game]]"
               is-admin="[[isAdmin]]"
-              chat-room="[[chatRoom]]"
-              player="[[currentPlayer]]">
+              chat-room-id="[[chatRoomId]]"
+              current-player="[[currentPlayer]]">
           </ghvz-chat-info-drawer>
         </paper-material>
         <div main></div>

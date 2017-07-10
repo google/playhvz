@@ -109,6 +109,8 @@
                     infectionId: this.bridge.newInfectionId(),
                     victimLifeCode: null,
                     victimPlayerId: player.id,
+                  }).then(() => {
+                    this.fire('ghvz-alert', {message: "Successfully infected " + player.name});
                   });
                 },
               },
@@ -122,6 +124,8 @@
                     lifeId: this.bridge.newPublicLifeId(),
                     privateLifeId: null,
                     lifeCode: null,
+                  }).then(() => {
+                    this.fire('ghvz-alert', {message: "Successfully added a life to " + player.name});
                   });
                 },
               },
@@ -185,6 +189,7 @@
     <ghvz-super-form
         id="notesForm"
         type-name="Notes"
+        is-mobile="[[isMobile]]"
         blueprint='{"fields": [{"property": "notes", "type": "string"}]}'>
     </ghvz-super-form>
 
@@ -192,6 +197,7 @@
         id="addToGroupForm"
         game="[[game]]"
         type-name="Game"
+        is-mobile="[[isMobile]]"
         blueprint='{"fields": [{"property": "groupId", "type": "group"}]}'>
     </ghvz-super-form>
 

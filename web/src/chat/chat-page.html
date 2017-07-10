@@ -53,7 +53,7 @@
 
         observers: [
           'onPathChanged_(path, game.chatRooms.*, player.private.chatRoomMemberships.*)',
-          'onChatRoomsUpdated_(game, currentChatRoom, player.private.chatRoomMemberships.length)',
+          'onChatRoomsUpdated_(game, currentChatRoom, player.private.chatRoomMemberships.*)',
         ],
 
         computeShowChatRoomList_(isMobile, path) {
@@ -88,6 +88,7 @@
                 this.game.chatRooms.find(chatRoom => {
                   let isVisible;
                   let memberSetting = this.player.private.chatRoomMembershipsById[chatRoomId];
+                  
                   if (memberSetting) {
                     isVisible = memberSetting.isVisible;
                   }
@@ -99,12 +100,27 @@
             if (this.$.chatRoomSelector.selected != null) {
               return;
             }
+            // If we get here we tried to view a chat room we no longer have access to, 
+            // redirect to chat/ for mobile (desktop takes care of this by setting a new chat room id below)
+            if (this.isMobile) {
+              this.async(() => {
+                this.fire('ghvz-set-card-header-text', { headerText: "Your Chats" });
+                this.fire('ghvz-set-path', {
+                  inGame: true,
+                  path: ['chat'],
+                  replace: true,
+                });
+              });
+            }
           }
           // If we get here, then there wasn't a chat room, it was just /chat in the url
           // (or there was a chat room id but we couldnt find that chat room)
           if (this.isMobile) {
             // If we get here, that means we're at /chat and on mobile. In this case
-            // we just want to show the chat list.
+            // we just want to show the chat list and set the title bar.
+             this.async(() => {
+                this.fire('ghvz-set-card-header-text', { headerText: "Your Chats" });
+              });
           } else {
             // If we get here, that means we're at /chat and on desktop. In this case
             // we want to just pick a chat room and show it.

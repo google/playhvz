@@ -28,6 +28,7 @@
         database: Object,
         user: String,
         game: String,
+        isMobile: Boolean,
       },
     });
   });
@@ -50,6 +51,7 @@
       <ghvz-game-details
           modify
           bridge="[[bridge]]"
+          is-mobile="[[isMobile]]"
           game="[[game]]"
           user-id="[[userId]]">
       </ghvz-game-details>
@@ -60,6 +62,7 @@
       <ghvz-rules
           name="admin-page"
           is-admin
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-rules>
@@ -69,6 +72,7 @@
       <div class="header">FAQ</div>
       <ghvz-game-faq
           is-admin
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-game-faq>
@@ -79,6 +83,7 @@
       <ghvz-game-summary
           is-admin
           bridge="[[bridge]]"
+          is-mobile="[[isMobile]]"
           game="[[game]]">
       </ghvz-game-summary>
     </ghvz-card>
@@ -86,10 +91,10 @@
     <ghvz-card spaced admin full>
       <div class="header">Missions</div>
       <ghvz-missions
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           player="[[player]]"
-          game="[[game]]"
-          missions="[[game.missions]]">
+          game="[[game]]">
       </ghvz-missions>
     </ghvz-card>
 
@@ -99,6 +104,7 @@
           id="playerTableModule"
           game="[[game]]"
           bridge="[[bridge]]"
+          is-mobile="[[isMobile]]"
           reward-categories-by-id="[[game.rewardCategoriesById]]"
           players="[[game.players]]"
           players-by-id="[[game.playersById]]">
@@ -108,6 +114,7 @@
     <ghvz-card spaced scrolling admin right>
       <div class="header">Guns</div>
       <ghvz-guns
+          is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-guns>
@@ -118,9 +125,7 @@
       <ghvz-rewards
           bridge="[[bridge]]"
           game="[[game]]"
-          players-by-id="[[game.playersById]]"
-          reward-categories="[[game.rewardCategories]]"
-          reward-categories-by-id="[[game.rewardCategoriesById]]">
+          is-mobile="[[isMobile]]">
       </ghvz-rewards>
     </ghvz-card>
 
@@ -128,6 +133,7 @@
       <div class="header">Notifications</div>
       <ghvz-notifications
           bridge="[[bridge]]"
+          is-mobile="[[isMobile]]"
           game="[[game]]">
       </ghvz-notifications>
     </ghvz-card>

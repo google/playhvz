@@ -17,6 +17,10 @@
 """TODO: High-level file comment."""
 
 import sys
+import time
+import copy
+import constants
+import textwrap
 
 
 def main(argv):
@@ -28,10 +32,6 @@ if __name__ == '__main__':
 """DB helper methods."""
 
 
-import sys
-import copy
-import constants
-import textwrap
 
 class Optional:
   def __init__(self, expectation):
@@ -174,7 +174,15 @@ def ValidateInputsInner(request, game_state, expectations_by_param_name):
         pass
       elif expectation == "MessageId":
         pass
+      elif expectation == "RequestCategoryId":
+        pass
       elif expectation == "InfectionId":
+        pass
+      elif expectation == "QuizQuestionId":
+        pass
+      elif expectation == "RequestId":
+        pass
+      elif expectation == "QuizAnswerId":
         pass
       elif expectation == "MarkerId":
         pass
@@ -237,7 +245,6 @@ def GetPrivatePlayerId(game_state, public_player_id):
   return game_state.get('/publicPlayers/%s' % public_player_id, 'privatePlayerId')
 
 def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
-  player_short_name = life_code.split('-')[0]
   public_players = GetValueWithPropertyEqualTo(
       game_state,
       'publicPlayers',
@@ -351,6 +358,26 @@ def GetValueWithPropertyEqualTo(game_state, property, key, target):
       values[k] = v
   return values
 
+def FindRequestCategory(game_state, game_id, request_category_id):
+  chat_rooms = game_state.get('/', 'chatRooms')
+  for chat_room_id, chat_room in chat_rooms.iteritems():
+    if chat_room['gameId'] == game_id:
+      if 'requestCategories' in chat_room:
+        if request_category_id in chat_room['requestCategories']:
+          return chat_room_id
+  return None
+
+def FindRequest(game_state, game_id, request_id):
+  chat_rooms = game_state.get('/', 'chatRooms')
+  for chat_room_id, chat_room in chat_rooms.iteritems():
+    if chat_room['gameId'] == game_id:
+      if 'requestCategories' in chat_room:
+        for request_category_id, request_category in chat_room['requestCategories'].iteritems():
+          if 'requests' in request_category:
+            if request_id in request_category['requests']:
+              return chat_room_id, request_category_id
+  return None, None
+
 
 def GetPublicPlayerIdsInGroup(game_state, group_id):
   if not group_id:
@@ -360,9 +387,8 @@ def GetPublicPlayerIdsInGroup(game_state, group_id):
     return []
   return players.keys()
 
-def GetPlayerNamesInChatRoom(game_state, chatroom_id):
+def GetPlayerNamesInGroup(game_state, group_id):
   names = {}
-  group_id = game_state.get('/chatRooms/%s' % chatroom_id, 'accessGroupId')
   for player in GetPublicPlayerIdsInGroup(game_state, group_id):
     name = game_state.get('/publicPlayers/%s' % player, 'name')
     if not name:
@@ -370,8 +396,14 @@ def GetPlayerNamesInChatRoom(game_state, chatroom_id):
     names[name] = player
   return names
 
+def GetTime(request):
+  current_time = int(time.time() * 1000)
+  if 'requestTimeOffset' in request:
+    current_time = current_time + request['requestTimeOffset']
+  return current_time
 
 def QueueNotification(game_state, request):
+  game_id = request['gameId']
   put_data = {
     'sent': False,
   }
@@ -385,6 +417,7 @@ def QueueNotification(game_state, request):
   print 'request were putting:'
   print put_data
 
+  game_state.put('/games/%s/queuedNotifications' % game_id, request['queuedNotificationId'], True)
   game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
 
 

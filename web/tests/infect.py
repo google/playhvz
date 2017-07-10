@@ -30,61 +30,57 @@ from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="jack")
 
-try:
+# Make sure Jack starts out human
+driver.DrawerMenuClick('mobile-main-page', 'Chat')
+driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
 
-  # Make sure Jack starts out human
-  driver.DrawerMenuClick('mobile-main-page', 'Chat')
-  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
+# Drake infects Jack
+driver.SwitchUser("drake")
+driver.DrawerMenuClick('mobile-main-page', 'My Profile')
+driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
-  # Drake infects Jack
-  driver.SwitchUser("drake")
-  driver.DrawerMenuClick('mobile-main-page', 'My Profile')
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
+driver.DrawerMenuClick('profile-card', 'Dashboard')
+driver.SendKeys(
+    [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
+    'grobble forgbobbly') # Crashed here once (desktop)
 
-  driver.DrawerMenuClick('profile-card', 'Dashboard')
-  driver.SendKeys(
-      [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-      'grobble forgbobbly') # Crashed here once (desktop)
+driver.Click([[By.ID, 'infect']])
+driver.ExpectContains(
+    [[By.NAME, 'victimName']],
+    'JackSlayerTheBeanSlasher')
 
-  driver.Click([[By.ID, 'infect']])
-  driver.ExpectContains(
-      [[By.NAME, 'victimName']],
-      'JackSlayerTheBeanSlasher')
+# Check that Jack is now in the zombie chat
 
-  # Check that Jack is now in the zombie chat
-  driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
-  driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Horde ZedLink']])
-  driver.FindElement([
-      [By.NAME, 'chat-card'], 
-      [By.NAME, 'chat-drawer-Horde ZedLink'], 
-      [By.NAME, 'JackSlayerTheBeanSlasher']], should_exist=True)
+driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Horde ZedLink']])
+driver.FindElement([
+    [By.NAME, 'chat-card'], 
+    [By.NAME, 'chat-drawer-Horde ZedLink'], 
+    [By.NAME, 'JackSlayerTheBeanSlasher']], should_exist=True)
 
-  # Jack shows up as a zed on the leaderboard
-  driver.DrawerMenuClick('chat-card', 'Leaderboard')
-  driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME,'Leaderboard Allegiance Cell JackSlayerTheBeanSlasher']], 'horde')
+# Jack shows up as a zed on the leaderboard
+driver.DrawerMenuClick('chat-card', 'Leaderboard')
+driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME,'Leaderboard Allegiance Cell JackSlayerTheBeanSlasher']], 'horde')
 
-  # Jack's alive status changes
-  driver.DrawerMenuClick('leaderboard-card', '-Global Chat')
-  driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Global Chat']])
-  driver.Click([
-      [By.NAME, 'chat-card'], 
-      [By.NAME, 'chat-drawer-Global Chat'], 
-      [By.NAME, 'JackSlayerTheBeanSlasher']])
-  driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
+# Jack's alive status changes
+driver.DrawerMenuClick('leaderboard-card', 'Global Chat')
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Global Chat']])
+driver.Click([
+    [By.NAME, 'chat-card'], 
+    [By.NAME, 'chat-drawer-Global Chat'], 
+    [By.NAME, 'JackSlayerTheBeanSlasher']])
+driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 
-  # Check that Drake has been given points for the kill
-  driver.DrawerMenuClick('profile-card', 'My Profile')
-  driver.ExpectContains([[By.NAME, 'profilePoints']], '208')
+# Check that Drake has been given points for the kill
+driver.DrawerMenuClick('profile-card', 'My Profile')
+driver.ExpectContains([[By.NAME, 'profilePoints']], '208')
 
-  # See that Jack is now a zombie
-  driver.SwitchUser("jack")
+# See that Jack is now a zombie
+driver.SwitchUser("jack")
 
-  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
-  driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub', should_exist=False)
-  driver.DrawerMenuClick('chat-card', 'Dashboard')
-  driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
-  
-  driver.Quit()
+driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
+driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub', should_exist=False)
+driver.DrawerMenuClick('chat-card', 'Dashboard')
+driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
-finally:
-  pass
+driver.Quit()
