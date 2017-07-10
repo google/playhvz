@@ -7,6 +7,7 @@ driver = setup.MakeDriver(user="zella")
 # Make Zeke a human (just b/c we need more humans than we currently have)
 driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
 driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
+driver.DismissAlert()
 
 driver.SwitchUser('zeke')
 # Zeke is in the Resistance Comms Hub

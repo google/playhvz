@@ -1,6 +1,7 @@
 *.pyc
 *.sublime-project
 *.sublime-workspace
+testdata.db
 .DS_Store
 firebase-debug.log
 firebase/rules.json
