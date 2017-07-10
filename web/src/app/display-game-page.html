@@ -59,6 +59,7 @@
             'adminDevTools': 'adminDevTools',
             'adminGame': 'adminGame',
             'adminGuns': 'adminGuns',
+            'adminGameSummary': 'adminGameSummary',
             'adminMissions': 'adminMissions',
             'adminNotifications': 'adminNotifications',
             'adminPlayers': 'adminPlayers',
@@ -225,6 +226,18 @@
           bridge="[[bridge]]"
           game="[[game]]">
       </ghvz-guns>
+    </ghvz-card>
+  </template>
+
+  <template is="dom-if" if="[[computeShowPage_(showPage.adminGameSummary, mostRecentPage)]]">
+    <ghvz-card name="summary-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+      <div class="header">Game Summary</div>
+      <ghvz-game-summary
+          is-admin
+          class="expand"
+          bridge="[[bridge]]"
+          game="[[game]]">
+      </ghvz-game-summary>
     </ghvz-card>
   </template>
 

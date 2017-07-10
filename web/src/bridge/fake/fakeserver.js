@@ -263,7 +263,7 @@ class FakeServer {
         missionId);
   }
 
-  getMessageTargets(message, group) {
+  getMessageTargets(message, group, senderId) {
     let notificationPlayerIds = [];
     let ackRequestPlayerIds = [];
     let textRequestPlayerIds = [];
@@ -287,8 +287,11 @@ class FakeServer {
         }
         newTargetPlayerIds = [player.id];
       }
-
       notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
+      let senderIndex = notificationPlayerIds.indexOf(senderId);
+      if (senderIndex != -1) {
+        notificationPlayerIds.splice(senderIndex, 1);
+      }
       if (messageMatch[1] == '!') {
         ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
       } else if (messageMatch[1] == '?') {
@@ -318,9 +321,9 @@ class FakeServer {
     } else {
       throw 'Can\'t send message to chat room without membership';
     }
-
+    
     let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-        this.getMessageTargets(message, group);
+        this.getMessageTargets(message, group, playerId);
 
     if (notificationPlayerIds.length) {
       for (let receiverPlayerId of notificationPlayerIds) {
@@ -767,10 +770,14 @@ class FakeServer {
         return;
       }
     }
-    let validCode = victimPlayer.lives.length > victimPlayer.infections.length || 
-      victimPlayer.infections[victimPlayer.infections.length -1].infectorId == null;
+    let normalValidCode = victimPlayer.lives.length > victimPlayer.infections.length;
+    var selfInfectedValidCode = false;
+    if (victimPlayer.infections.length > 0 && 
+        victimPlayer.infections[victimPlayer.infections.length -1].infectorId == null) {
+      selfInfectedValidCode = true;
+    }
 
-    if  (validCode) {
+    if  (normalValidCode || selfInfectedValidCode) {
       // Give the infector points
       this.writer.set(
         infectorPlayerPath.concat(["points"]),
@@ -783,14 +790,28 @@ class FakeServer {
         // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
         // The victim can now infect
         this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
-      } else { // Normal zombie infection
-        // Add an infection to the victim
-        this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
+    } else { // Normal zombie infection
+        if (selfInfectedValidCode) {
+          this.updateNullInfector_(victimPlayer.id, infectorPlayerId)
+        } else {
+          // Add an infection to the victim
+          this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
+        }
       }
     } else {
      throw 'The player with this lifecode was already zombified.';
     }
     return victimPlayer.id;
+  }
+
+  updateNullInfector_(victimId, infectorId) {
+    // Fill in the missing infector Id
+    let victim = this.findPlayerByIdOrLifeCode_(victimId, null /*no lifecode*/);
+    let victimInfections = victim.infections;
+    victim.infections[victim.infections.length -1].infectorId = infectorId;
+    this.writer.set(
+      this.reader.getPublicPlayerPath(victimId).concat(["infections"]),
+      victimInfections)
   }
 
   addInfection_(request, infectionId, victimPlayerId, infectorPlayerId, possession) {

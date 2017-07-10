@@ -118,42 +118,8 @@
               }
             }
           }
-          let name =  this.player.name + " & HvZ CDC";
-          let groupId = this.bridge.newGroupId('withadmins');
-          this.bridge.createGroup({
-            name: name,
-            groupId: groupId,
-            gameId: this.game.id,
-            allegianceFilter: 'none',
-            ownerPlayerId: this.player.id,
-            autoAdd: false,
-            autoRemove: false,
-            canAddOthers: false,
-            canRemoveOthers: false,
-            canAddSelf: true,
-            canRemoveSelf: true,
-          });
-          let chatRoomId = this.bridge.newChatRoomId('withadmins');
+          let chatRoomId = ChatUtils.createAdminChat(this.bridge, this.game, this.player);
           this.waitingToOpenChatRoomId = chatRoomId;
-          this.bridge.createChatRoom({
-            gameId: this.game.id,
-            chatRoomId: chatRoomId,
-            accessGroupId: groupId,
-            name: name,
-            withAdmins: true,
-          });
-          this.bridge.addPlayerToGroup({
-            gameId: this.game.id,
-            groupId: groupId,
-            playerToAddId: this.player.id,
-            actingPlayerId: this.player.id,
-          });
-          this.bridge.addPlayerToGroup({
-            gameId: this.game.id,
-            groupId: groupId,
-            playerToAddId: this.game.adminContactPlayerId,
-            actingPlayerId: this.player.id,
-          });
         },
 
         getChatRoomName_(chatRoomId) {

@@ -51,11 +51,13 @@
             return Utils.getParameterByName('devTools', false) !== false;
           },
         },
+
+        waitingToOpenChatRoomId: String,
       },
 
-      listeners: {
-        'tap': 'captureTap_',
-      },
+      observers: [
+        'openAdminChat_(player.private.chatRoomMemberships.*)',
+      ],
 
       computeCanRegister_(game, player) {
         return game && !player;
@@ -65,34 +67,48 @@
         return !!player;
       },
 
-      captureTap_(e) {
-        if (e.target.classList.contains('drawer-item')) {
-          let page = e.target.dataset.page;
-          assert(page);
-          let path = [page];
-          if (page == "chat" && e.target.dataset.chatRoomId) {
-            let chatRoomId = e.target.dataset.chatRoomId;
-            assert(chatRoomId);
-            path = path.concat(chatRoomId);
-          }
-          this.fire('ghvz-close-drawer');
-          this.fire('ghvz-set-path', {
-            inGame: true,
-            path: path,
-            replace: false,
-          });
-          e.preventDefault();
+      signOut_(e) {
+        return (e) => {
+          this.fire('ghvz-sign-out');
           e.stopPropagation();
         }
       },
 
-      computeChatPage_(chatRoomId) {
-        return ["chat", chatRoomId];
+      createAdminChat_() {
+        return () => {
+          // If admin chat already exists just open it, don't create a new chat
+          for (let chatRoomMembership of this.player.private.chatRoomMemberships) {
+            let chatRoom = this.game.chatRoomsById[chatRoomMembership.chatRoomId];
+            if (chatRoom.withAdmins) {
+              if (!chatRoomMembership.isVisible) {
+                this.bridge.updateChatRoomMembership({
+                  gameId: this.game.id, 
+                  chatRoomId: chatRoom.id,
+                  actingPlayerId: this.player.id,
+                  isVisible: true,
+                });
+              }
+              // Change to the chat page but wait for this chat to be visible again if it isn't
+              this.waitingToOpenChatRoomId = chatRoom.id;
+              return;
+            }
+          }
+          // Admin chat does not exist, create it
+          this.waitingToOpenChatRoomId = ChatUtils.createAdminChat(this.bridge, this.game, this.player);
+        }
       },
 
-      signOut_(e) {
-        this.fire('ghvz-sign-out');
-        e.stopPropagation();
+      openAdminChat_() {
+        if (this.waitingToOpenChatRoomId && this.game.chatRoomsById[this.waitingToOpenChatRoomId]) {
+          // Admin chat is now created and visible and ready to be opened for the user
+          let chatRoomId = this.waitingToOpenChatRoomId;
+          this.waitingToOpenChatRoomId = "";
+          this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', chatRoomId],
+              replace: false,
+          });
+        }
       },
 
       getChatName_(chatRoomId) {
@@ -168,131 +184,63 @@
     </div>
 
     <template is="dom-if" if="[[canUseDevTools]]">
-      <a href="javascript:void(0)" data-page="devTools" class="drawer-item">
-        <iron-icon icon="icons:dashboard"></iron-icon>
-        Dev Tools
-      </a>
+      <ghvz-drawer-item text="Dev Tools" page="devTools" icon="icons:dashboard"></ghvz-drawer-item>
     </template>
 
-    <template is="dom-if" if="[[isAdmin]]">
+    <template is="dom-if" if="[[isAdmin]]">   
       <div id="adminPages" class="drawer-section">
-        <a href="javascript:void(0)" name="drawerAdmin Dashboard" data-page="adminMain" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="icons:dashboard"></iron-icon>
-          Admin Dashboard
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Game Details" data-page="adminGame" class="drawer-item admin" on-tap="captureTap_">
-          <iron-icon icon="icons:group-work"></iron-icon>
-          Admin Game Details
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Missions" data-page="adminMissions" class="drawer-item admin" on-tap="captureTap_">
-          <iron-icon icon="icons:group-work"></iron-icon>
-          Admin Missions
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Players" data-page="adminPlayers" class="drawer-item admin" on-tap="captureTap_">
-          <iron-icon icon="social:group"></iron-icon>
-          Admin Players
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Dev Tools" data-page="adminDevTools" class="drawer-item admin" on-tap="captureTap_">
-          <iron-icon icon="device:developer-mode"></iron-icon>
-          Admin Dev Tools
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Guns" data-page="adminGuns" class="drawer-item admin" on-tap="captureTap_">
-          <iron-icon icon="icons:favorite"></iron-icon>
-          Admin Guns
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Rewards" data-page="adminRewards" class="drawer-item admin" on-tap="captureTap_">
-          <iron-icon icon="icons:stars"></iron-icon>
-          Admin Rewards
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Notifications" data-page="adminNotifications" class="drawer-item admin" on-tap="captureTap_">
-          <iron-icon icon="notification:sms"></iron-icon>
-          Admin Notifications
-        </a>
-        <a href="javascript:void(0)" name="drawerAdmin Chats" data-page="adminChats" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="communication:chat"></iron-icon>
-          Admin Chats
-        </a>
+        <ghvz-drawer-item text="Admin Dashboard" page="adminMain" icon="icons:dashboard"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Game Details" page="adminGame" icon="icons:group-work"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Game Summary" page="adminGameSummary" icon="icons:language"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Missions" page="adminMissions" icon="icons:group-work"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Players" page="adminPlayers" icon="social:group"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Dev Tools" page="adminDevTools" icon="icons:build"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Guns" page="adminGuns" icon="icons:favorite"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Rewards" page="adminRewards" icon="icons:stars"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Notifications" page="adminNotifications" icon="notification:sms"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Chats" page="adminChats" icon="communication:chat"></ghvz-drawer-item>
       </div>
     </template>
 
     <template is="dom-if" if="[[canRegister]]">
       <div id="playerPages" class="drawer-section">
-        <a href="javascript:void(0)" name="drawer-Regiser" data-page="joinGame" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="social:person-add"></iron-icon>
-          Register
-        </a>
+        <ghvz-drawer-item text="Register" page="joinGame" icon="social:person-add"></ghvz-drawer-item>
       </div>
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
       <div name="playerPagesJoined" id="playerPages" class="drawer-section">
-        <a href="javascript:void(0)" name="drawerDashboard" data-page="main" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="icons:dashboard"></iron-icon>
-          Dashboard
-        </a>
-        <a href="javascript:void(0)" name="drawerMy Profile" data-page="profile" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="icons:account-box"></iron-icon>
-          My Profile
-        </a>
-        <a href="javascript:void(0)" name="drawerInfect" data-page="infect" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="social:whatshot"></iron-icon>
-          Infect
-        </a>
-        <a href="javascript:void(0)" name="drawerRewards" data-page="rewards" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="icons:stars"></iron-icon>
-          Rewards
-        </a>
-        <a href="javascript:void(0)" name="drawerRules" data-page="rules" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="editor:format-list-numbered"></iron-icon>
-          Rules
-        </a>
-        <a href="javascript:void(0)" name="drawerFAQ" data-page="faq" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="icons:question-answer"></iron-icon>
-          FAQ
-        </a>
-        <a href="javascript:void(0)" name="drawerMissions" data-page="missions" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="icons:group-work"></iron-icon>
-          Missions
-        </a>
-        <a href="javascript:void(0)" name="drawerLeaderboard" data-page="leaderboard" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="social:group"></iron-icon>
-          Leaderboard
-        </a>
-        <a href="javascript:void(0)" name="drawerGame Stats" data-page="stats" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="editor:pie-chart"></iron-icon>
-          Game Stats
-        </a>
-        <a href="javascript:void(0)" name="drawerNotifications" data-page="notifications" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="notification:sms"></iron-icon>
-          Notifications
-        </a>
-        <a href="javascript:void(0)" name="drawerChat" data-page="chat" class="drawer-item" on-tap="captureTap_">
-          <iron-icon icon="communication:chat"></iron-icon>
-          Chat
-        </a>
+        <ghvz-drawer-item text="Dashboard" page="main" icon="icons:dashboard"></ghvz-drawer-item>
+        <ghvz-drawer-item text="My Profile" page="profile" icon="icons:account-box"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Infect" page="infect" icon="social:whatshot"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Rewards" page="rewards" icon="icons:stars"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Rules" page="rules" icon="editor:format-list-numbered"></ghvz-drawer-item>
+        <ghvz-drawer-item text="FAQ" page="faq" icon="icons:question-answer"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Missions" page="missions" icon="icons:group-work"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Leaderboard" page="leaderboard" icon="social:group"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Game Stats" page="stats" icon="editor:pie-chart"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Notifications" page="notifications" icon="notification:sms"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Chat" page="chat" icon="communication:chat"></ghvz-drawer-item>
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
           <template is="dom-if" if="[[membership.isVisible]]">
-            <ghvz-chat-room-name-label
-                class="layout horizontal listing drawer-item"
-                with-icon
-                name$="drawer-[[getChatName_(membership.chatRoomId)]]"
-                game="[[game]]"
-                chat-room-id="[[membership.chatRoomId]]"
-                data-page="chat"
-                data-chat-room-id$="[[membership.chatRoomId]]">
-            </ghvz-chat-room-name-label>
+            <ghvz-drawer-item 
+              text="[[getChatName_(membership.chatRoomId)]]" 
+              page="chat" 
+              chat-room-id$="[[membership.chatRoomId]]" 
+              icon="communication:chat">
+            </ghvz-drawer-item>
           </template>
         </template>
+
+        <!-- Always show the option to create a chat with admins, if admin chat exists just open it. -->
+        <ghvz-drawer-item text="Chat with Admins" action="[[createAdminChat_()]]" page="chat" icon="icons:add"></ghvz-drawer-item>
       </div>
     </template>
 
     <div class="drawer-section">
       <template is="dom-if" if="[[userId]]">
-        <a href="javascript:void(0)" class="drawer-item" on-tap="signOut_">
-          <iron-icon icon="icons:account-circle"></iron-icon>
-          Sign Out
-        </a>
+        <ghvz-drawer-item text="Sign Out" action="[[signOut_()]]" icon="icons:account-circle"></ghvz-drawer-item>
       </template>
     </div>
 
