@@ -53,7 +53,7 @@
 
         observers: [
           'onPathChanged_(path, game.chatRooms.*, player.private.chatRoomMemberships.*)',
-          'onChatRoomsUpdated_(game, currentChatRoom, player.private.chatRoomMemberships.length)',
+          'onChatRoomsUpdated_(game, currentChatRoom, player.private.chatRoomMemberships.*)',
         ],
 
         computeShowChatRoomList_(isMobile, path) {
