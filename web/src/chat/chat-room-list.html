@@ -87,6 +87,12 @@
           e.stopPropagation();
         },
 
+        createNewChat_() {
+          return () => {
+            this.$.settings.openForCreate();
+          }
+        },
+
         changeToNewChat_(e) {
           let chatRoomId = e.detail.chatRoomId;
           if (!chatRoomId) {
@@ -104,22 +110,24 @@
         },
 
         createAdminChat_() {
-          if (this.adminChatRoomId) {
-            for (let chatRoomMembership of this.player.private.chatRoomMemberships) {
-              if (chatRoomMembership.chatRoomId == this.adminChatRoomId) {
-                this.waitingToOpenChatRoomId = chatRoomMembership.chatRoomId;
-                this.bridge.updateChatRoomMembership({
-                  gameId: this.game.id, 
-                  chatRoomId: chatRoomMembership.chatRoomId,
-                  actingPlayerId: this.player.id,
-                  isVisible: true,
-                });
-                return;
+          return () => {
+            if (this.adminChatRoomId) {
+              for (let chatRoomMembership of this.player.private.chatRoomMemberships) {
+                if (chatRoomMembership.chatRoomId == this.adminChatRoomId) {
+                  this.waitingToOpenChatRoomId = chatRoomMembership.chatRoomId;
+                  this.bridge.updateChatRoomMembership({
+                    gameId: this.game.id, 
+                    chatRoomId: chatRoomMembership.chatRoomId,
+                    actingPlayerId: this.player.id,
+                    isVisible: true,
+                  });
+                  return;
+                }
               }
             }
+            let chatRoomId = ChatUtils.createAdminChat(this.bridge, this.game, this.player);
+            this.waitingToOpenChatRoomId = chatRoomId;
           }
-          let chatRoomId = ChatUtils.createAdminChat(this.bridge, this.game, this.player);
-          this.waitingToOpenChatRoomId = chatRoomId;
         },
 
         getChatRoomName_(chatRoomId) {
@@ -207,20 +215,10 @@
     </div>
 
     <template is="dom-if" if="[[!adminChatExists]]">
-      <div class="list-item" name="create-admin-chat-button">
-        <a href="javascript:void(0)" data-action="admin" class="with-admin">
-          <iron-icon icon="communication:chat"></iron-icon>
-          HvZ CDC Game Admins
-        </a>
-      </div>
+      <ghvz-drawer-item style="padding-top: 8px;" name="create-admin-chat-button" text="Chat with Admins" action="[[createAdminChat_()]]" icon="social:group"></ghvz-drawer-item>
     </template>
 
-    <div class="list-item">
-      <a id="new-chat" href="javascript:void(0)" data-action="new" class="action">
-        <iron-icon icon="icons:add"></iron-icon>
-        New chat
-      </a>
-    </div>
+    <ghvz-drawer-item style="padding-top: 8px;" id="new-chat" text="New chat" action="[[createNewChat_()]]" icon="icons:add"></ghvz-drawer-item>
 
     <ghvz-chat-room-settings 
       id="settings" 
