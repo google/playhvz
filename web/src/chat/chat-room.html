@@ -77,7 +77,9 @@
         },
 
         onChatRoomNameChange_: function() {
-          this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
+          this.async(() => {
+            this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
+          });
         },
 
         onChatRoomMembershipChange_: function() {
