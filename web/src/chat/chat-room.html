@@ -46,11 +46,6 @@
             value: null,
           },
 
-          previousMessagePlayerId: {
-            type: String,
-            value: "",
-          }, 
-
           chatInfoVisible: {
             type: Boolean,
             value: false,
@@ -79,7 +74,6 @@
           assert(this.game.chatRoomsById[chatRoomId]);
           this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
           this.hideChatInfo();
-          this.previousMessagePlayerId = "";
         },
 
         onChatRoomNameChange_: function() {
@@ -113,9 +107,13 @@
           return senderId === myId ? 'message-from-me' : 'message-from-other';
         },
 
-        displaySenderInfo(playerId) {
-          if (playerId != this.previousMessagePlayerId) {
-            this.previousMessagePlayerId = playerId;
+        displaySenderInfo(messageIndex) {
+          if (messageIndex == 0) {
+            return 'display-sender';
+          }
+          let currentMessage = this.chatRoom.messages[messageIndex];
+          let previousMessage = this.chatRoom.messages[messageIndex - 1];
+          if (currentMessage.playerId != previousMessage.playerId) {
             return 'display-sender';
           } else {
             return 'hide-sender';
@@ -545,7 +543,7 @@
     <div id="conversationContainer" class="conversation-container">
       <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
         <div name$="message-[[chatRoom.name]]-[[item.message]]"
-          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item.playerId)]]">
+          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(index)]]">
           <div class="display-message">
             <div class="player-name">
               [[getName_(item.playerId, game.players.length)]]

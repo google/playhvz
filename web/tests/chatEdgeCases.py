@@ -52,7 +52,7 @@ driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], 'Secret Stuff')
 driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
 driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
 driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
-driver.DrawerMenuClick('chat-card', '-Secret Stuff')
+driver.DrawerMenuClick('chat-card', 'Secret Stuff')
 
 # Jack creates a chatroom with other players
 driver.DrawerMenuClick('chat-card', 'Chat')
@@ -64,7 +64,7 @@ driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
 if driver.is_mobile:
   driver.FindElement([[By.NAME, "chat-info-Humanity's Last Hope"]])
 else:
-  driver.FindElement([[By.NAME, "drawer-Humanity's Last Hope"]])
+  driver.FindElement([[By.NAME, "drawerHumanity's Last Hope"]])
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-drawer-add"]])
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, "player-name-MoldaviTheMoldavish"]])
@@ -81,8 +81,8 @@ driver.SendKeys(
 driver.Click([[By.ID, 'infect']])
 
 # Jack shouldn't see either chat anymore
-driver.FindElement([[By.NAME, 'drawer-Secret Stuff']], should_exist=False)
-driver.FindElement([[By.NAME, "drawer-Humanity's Last Hope"]], should_exist=False)
+driver.FindElement([[By.NAME, 'drawerSecret Stuff']], should_exist=False)
+driver.FindElement([[By.NAME, "drawerHumanity's Last Hope"]], should_exist=False)
 
 # Sign in as Zella, make sure she's the owner
 driver.SwitchUser('zella')
