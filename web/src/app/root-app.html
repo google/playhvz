@@ -49,6 +49,10 @@
         },
       },
 
+      listeners: {
+        'ghvz-alert': 'showAlert_',
+      },
+
       isRealEnv(bridgeType) {
         return bridgeType == 'remote';
       },
@@ -92,6 +96,10 @@
             }
           }
         };
+      },
+
+      showAlert_(e) {
+        this.$.alert.open(e.detail);
       }
     });
   });
@@ -107,6 +115,8 @@
   }
 </style>
 <template>
+  <ghvz-alert id="alert"></ghvz-alert>
+
   <template is="dom-if" if="[[isRealEnv(bridgeType)]]">
     <ghvz-real-app id="realApp" config="[[config]]"></ghvz-real-app>
   </template>

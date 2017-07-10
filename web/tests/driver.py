@@ -213,7 +213,7 @@ class RemoteDriver:
   def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
     return self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
 
-  def Click(self, path):
+  def Click(self, path, scoped=False):
     self.drivers_by_user[self.current_user].Click(path)
 
   def DismissAlert(self):
@@ -350,11 +350,14 @@ class WholeDriver:
   def DontFindElement(self, path, wait_long=False, check_visible=True):
     return self.FindElement(path, wait_long=wait_long, should_exist=False)
 
-  def Click(self, path):
-    return self.inner_driver.Click(path)
+  def Click(self, path, scoped=True):
+    return self.inner_driver.Click(path, scoped)
 
-  def DismissAlert(self):
-    return self.inner_driver.DismissAlert()
+  def DismissAlert(self, native=False):
+    if native:
+      return self.inner_driver.DismissAlert()
+    else:
+      self.Click([[By.ID, 'alertDismiss']], False)
 
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)

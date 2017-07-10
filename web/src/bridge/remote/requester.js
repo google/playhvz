@@ -25,9 +25,10 @@ function newPromise() {
 }
 
 class NormalRequester {
-  constructor(serverUrl) {
+  constructor(serverUrl, errorHandler) {
     assert(serverUrl);
     this.serverUrl = serverUrl;
+    this.errorHandler = errorHandler;
     this.userIdJwt = null;
     this.userId = null;
     this.playerId = null;
@@ -106,7 +107,7 @@ class NormalRequester {
         }
       }
     } else {
-      alert('There was an error with your request: ' + ajaxRequest.responseText);
+      this.errorHandler('There was an error with your request: ' + ajaxRequest.responseText);
       for (let i = 0; i < requests.length; i++) {
         requests[i].reject(ajaxRequest.responseText);
       }

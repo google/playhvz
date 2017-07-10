@@ -16,12 +16,12 @@
 
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig) {
+  constructor(serverUrl, firebaseConfig, errorHandler) {
     firebase.initializeApp(firebaseConfig);
     this.firebaseListener =
         new FirebaseListener(firebase.app().database().ref());
 
-    this.requester = new NormalRequester(serverUrl);
+    this.requester = new NormalRequester(serverUrl, errorHandler);
 
     this.userId = null;
 

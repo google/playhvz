@@ -17,7 +17,7 @@
 'use strict';
 
 class FakeBridge {
-  constructor(idGenerator) {
+  constructor(idGenerator, errorHandler) {
     this.databaseOperations = [];
     this.simpleWriter = new SimpleWriter(null)
     this.teeWriter = new TeeWriter(this.simpleWriter);
@@ -36,7 +36,7 @@ class FakeBridge {
               console.error('failed in', funcName);
               console.error(error);
               console.error(arguments);
-              alert(error)
+              errorHandler(error)
             });
     }
   }

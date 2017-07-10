@@ -110,7 +110,7 @@
                     victimLifeCode: null,
                     victimPlayerId: player.id,
                   }).then(() => {
-                    alert("Successfully infected " + player.name);
+                    this.fire('ghvz-alert', "Successfully infected " + player.name);
                   });
                 },
               },
@@ -125,7 +125,7 @@
                     privateLifeId: null,
                     lifeCode: null,
                   }).then(() => {
-                    alert("Successfully added a life to " + player.name);
+                    this.fire('ghvz-alert', "Successfully added a life to " + player.name);
                   });
                 },
               },
