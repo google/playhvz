@@ -26,10 +26,12 @@
         properties: {
           bridge: Object,
           game: Object,
-          chatRoom: Object,
+          chatRoomId: Object,
           group: Object,
           player: Object,
           isAdmin: Boolean,
+
+          chatRoom: Object,
 
           playersInChatRoom: {
             type: Object,
@@ -79,10 +81,16 @@
         },
 
         observers: [
+          'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
           'onGroupIdChanged_(chatRoom.accessGroupId, game.groupsById)',
           'onChatRoomChanged_(game, chatRoom, chatRoom.players)',
           'onChatMembershipsChanged_(game, group.players.length)',
         ],
+
+        onChatRoomIdChange_(chatRoomId) {
+          assert(this.game.chatRoomsById[chatRoomId]);
+          this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
+        },
 
         computeCanAdd_(isAdmin, playerId, ownerPlayerId, canAddOthers, chatRoom) {
           return isAdmin || canAddOthers || 
@@ -197,6 +205,7 @@
     }
   </style>
   <template>
+    <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="groupsSelector" items="[[game.groups]]" selected="{{group}}"></array-selector>
     <div name$="chat-drawer-[[chatRoom.name]]" on-tap="captureTap_">
       <div class="drawer-header">
