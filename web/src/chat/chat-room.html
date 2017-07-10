@@ -60,7 +60,7 @@
 
         observers: [
           'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
-          'onChatRoomMembershipChange_(chatRoomId, currentPlayer.private.chatRoomMembershipsById.*)',
+          'onChatRoomMembershipChange_(chatRoomId, currentPlayer.private.chatRoomMembershipsById)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
           'onMessageReceived_(chatRoom.messages.length)',
         ],
@@ -81,8 +81,17 @@
         },
 
         onChatRoomMembershipChange_: function() {
-          this.isMemberOfChatRoom = 
-            this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId] ? true : false;
+          let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
+          this.isMemberOfChatRoom = membership ? true : false;
+
+          if (this.isMobile && (!membership || !membership.isVisible)) {
+            // We're on mobile viewing a chat room we no longer have access to, go to chat/
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat'],
+              replace: true,
+            });
+          }
         },
 
         onMessageReceived_() {
