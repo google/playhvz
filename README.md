@@ -191,11 +191,12 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`python run.py --password PASSWORD [--url TARGET_URL] [SPECIFIC_TEST_NAME] [-d|m] [-l|r]`
+`python run.py --password PASSWORD [--url TARGET_URL] [SPECIFIC_TEST_NAMES] [-d|m] [-l|r]`
 
 Replacing ALLCAPS'd segments with your values.
 * `PASSWORD` is the password for your fake account. To get passwords for fake test accounts, please ask someone on the team.
-* `SPECIFIC_TEST_NAME` maps to the test file name, minus the .py
+* `SPECIFIC_TEST_NAMES` maps to test file names, minus the .py. This list of tests may have any number of elements. If no tests are specified, by default all are run.
+* If the first element in `SPECIFIC_TEST_NAMES` is not, all tests will be run EXCEPT those specified
 * `-d` uses desktop window sizing. Omitting this flag will run with mobile sizing instead.
 * `-m` uses mobile window sizing (default behavior).
 * `-l` indicates local server testing, and will rely on in-memory state rather than a database. User accounts defined in config.json will be used for tests.

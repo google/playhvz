@@ -206,13 +206,17 @@
           return requests.filter(request => request.response != null).length;
         },
 
-        notEveryPlayerRespond_(requests) {
-          return this.countRespondPlayer_(requests) < requests.length;
+        countTotalRequests_(senderId, requests) {
+          return requests.filter(request => request.playerId != senderId).length;
         },
 
-        getNoRespondPlayer_(requests){
+        notEveryPlayerRespond_(senderId, requests) {
+          return this.countRespondPlayer_(requests) < this.countTotalRequests_(senderId, requests);
+        },
+
+        getNoRespondPlayer_(senderId, requests){
           return requests
-              .filter(request => request.response == null)
+              .filter(request => request.response == null && request.playerId != senderId)
               .map(request => this.game.playersById[request.playerId].name)
               .join(", ");
         },
@@ -450,14 +454,14 @@
       <template is="dom-repeat" items="[[chatRoom.requestCategories]]" as="requestCategory">
         <template is="dom-if" if="[[!requestCategory.dismissed]]">
           <template is="dom-if" if="[[isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
-            <paper-material class="request-category">
+            <paper-material class="request-category" name$="request-message-[[requestCategory.text]]">
               <div class="request-category-text-column">
                 <div class="request-message">
                   [[requestCategory.text]]
-                  ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[requestCategory.requests.length]])
+                  ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[countTotalRequests_(requestCategory.playerId, requestCategory.requests)]])
                 </div>
-                <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
-                  waiting on: <b>[[getNoRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]</b>
+                <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
+                  waiting on: <b name="not-responded">[[getNoRespondPlayer_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*)]]</b>
                 </template>
                 <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
                   <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
@@ -473,14 +477,14 @@
                   </template>
                 </template>
               </div> <!-- .request-category-text-column -->
-              <paper-button raised class="request" on-click="deleteAck">Dismiss</paper-button>
+              <paper-button raised name="dismiss-button" class="request" on-click="deleteAck">Dismiss</paper-button>
             </paper-material>
           </template>
           <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
             <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
               <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
                   <template is="dom-if" if="[[isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category request-container">
+                    <paper-material class="request-category request-container" name$="received-ack-[[requestCategory.text]]">
                       <div class="request-category-text-column">
                         <ghvz-player-label
                             game="[[game]]"
@@ -491,7 +495,7 @@
                         </div>
                         <span hidden>[[request.time]]</span>
                       </div> <!-- .request-category-text-column -->
-                      <paper-button raised class="request request-button" on-click="acknowledge">
+                      <paper-button raised name="ack-button" class="request request-button" on-click="acknowledge">
                         Ack
                       </paper-button>
                     </paper-material>
