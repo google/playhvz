@@ -7,7 +7,7 @@
       "withAdmins" : false,
       "messages": {
         "message-%(ident)s-1": {
-          "message": "@testCharles @testBobby test single Message",
+          "message": "@testEddy @testFreddy test single Message",
           "playerId": "publicPlayer-%(ident)s-1",
           "time": 0
         },
@@ -35,6 +35,43 @@
           "image": {
             "url": "google.com/image.png"
           }
+        },
+        "message-%(ident)s-5": {
+          "message": "@!testEddy @?testFreddy eddy and freddy get to the choppah, freddy whats your eta",
+          "playerId": "publicPlayer-%(ident)s-1",
+          "time": 0
+        }
+      },
+      "requestCategories": {
+        "requestCategory-%(ident)s-5-ack": {
+          "dismissed": false,
+          "gameId": "game-%(ident)s-1",
+          "playerId": "publicPlayer-%(ident)s-1",
+          "requests": {
+            "request-%(ident)s-5-ack-0": {
+              "playerId": "publicPlayer-%(ident)s-3",
+              "response": {"time": 0},
+              "time": 0
+            }
+          },
+          "text": "eddy and freddy get to the choppah, freddy whats your eta",
+          "time": 0,
+          "type": "ack"
+        },
+        "requestCategory-%(ident)s-5-text": {
+          "dismissed": false,
+          "gameId": "game-%(ident)s-1",
+          "playerId": "publicPlayer-%(ident)s-1",
+          "requests": {
+            "request-%(ident)s-5-text-0": {
+              "playerId": "publicPlayer-%(ident)s-4",
+              "response": {"text": "5 mins or so", "time": 0},
+              "time": 0
+            }
+          },
+          "text": "eddy and freddy get to the choppah, freddy whats your eta",
+          "time": 0,
+          "type": "text"
         }
       }
     }
@@ -72,9 +109,12 @@
       },
       "queuedNotifications": {
         "queuedNotification-%(ident)s-1": true,
-        "queuedNotification-%(ident)s-1testCharles": true,
-        "queuedNotification-%(ident)s-4testBobby3": true,
-        "queuedNotification-%(ident)s-4testCharles": true
+        "queuedNotification-%(ident)s-1-testEddy": true,
+        "queuedNotification-%(ident)s-1-testFreddy": true,
+        "queuedNotification-%(ident)s-4-testFreddy": true,
+        "queuedNotification-%(ident)s-4-testEddy": true,
+        "queuedNotification-%(ident)s-5-testFreddy": true,
+        "queuedNotification-%(ident)s-5-testEddy": true
       },
       "quizQuestions": {
         "quizQuestion-%(ident)s-1": {
@@ -174,17 +214,17 @@
       "sent" : true,
       "site" : true,
       "email" : true,
-      "sound" : "transmission.caf",
+      "sound" : "transmission.wav",
       "vibrate" : false
     },
-    "queuedNotification-%(ident)s-1testCharles": {
+    "queuedNotification-%(ident)s-1-testEddy": {
       "site": true,
       "mobile": true,
-      "destination": "TODO",
-      "icon": "TODO",
-      "message": "@testCharles @testBobby test single Message",
-      "playerId": "publicPlayer-%(ident)s-1",
-      "previewMessage": "@testCharles @testBobby test single Message",
+      "destination": "chat/chatRoom-%(ident)s-1",
+      "icon": "communication:message",
+      "message": "testCharles: test single Message",
+      "playerId": "publicPlayer-%(ident)s-3",
+      "previewMessage": "testCharles: test single Message",
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "sound": "ping.wav",
@@ -192,12 +232,27 @@
       "vibrate": true,
       "sent": true
     },
-    "queuedNotification-%(ident)s-4testBobby3": {
-      "destination": "TODO",
-      "icon": "TODO",
-      "message": "@all test all Message",
+    "queuedNotification-%(ident)s-1-testFreddy": {
+      "site": true,
+      "mobile": true,
+      "destination": "chat/chatRoom-%(ident)s-1",
+      "icon": "communication:message",
+      "message": "testCharles: test single Message",
       "playerId": "publicPlayer-%(ident)s-4",
-      "previewMessage": "@all test all Message",
+      "previewMessage": "testCharles: test single Message",
+      "sendTime": 0,
+      "gameId": "game-%(ident)s-1",
+      "sound": "ping.wav",
+      "email" : false,
+      "vibrate": true,
+      "sent": true
+    },
+    "queuedNotification-%(ident)s-4-testFreddy": {
+      "destination": "chat/chatRoom-%(ident)s-1",
+      "icon": "communication:message",
+      "message": "testCharles: test all Message",
+      "playerId": "publicPlayer-%(ident)s-4",
+      "previewMessage": "testCharles: test all Message",
       "sendTime": 0,
       "gameId": "game-%(ident)s-1",
       "mobile": true,
@@ -207,12 +262,12 @@
       "site": true,
       "sent": true
     },
-    "queuedNotification-%(ident)s-4testCharles": {
-      "destination": "TODO",
-      "icon": "TODO",
-      "message": "@all test all Message",
-      "playerId": "publicPlayer-%(ident)s-1",
-      "previewMessage": "@all test all Message",
+    "queuedNotification-%(ident)s-4-testEddy": {
+      "destination": "chat/chatRoom-%(ident)s-1",
+      "icon": "communication:message",
+      "message": "testCharles: test all Message",
+      "playerId": "publicPlayer-%(ident)s-3",
+      "previewMessage": "testCharles: test all Message",
       "sendTime": 0,
       "mobile": true,
       "email" : false,
@@ -220,6 +275,36 @@
       "sound": "ping.wav",
       "site": true,
       "sent": true,
+      "vibrate": true
+    },
+    "queuedNotification-%(ident)s-5-testEddy": {
+      "destination": "chat/chatRoom-%(ident)s-1",
+      "email": false,
+      "gameId": "game-%(ident)s-1",
+      "icon": "communication:message",
+      "message": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+      "mobile": true,
+      "playerId": "publicPlayer-%(ident)s-3",
+      "previewMessage": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+      "sendTime": 0,
+      "sent": false,
+      "site": true,
+      "sound": "ping.wav",
+      "vibrate": true
+    },
+    "queuedNotification-%(ident)s-5-testFreddy": {
+      "destination": "chat/chatRoom-%(ident)s-1",
+      "email": false,
+      "gameId": "game-%(ident)s-1",
+      "icon": "communication:message",
+      "message": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+      "mobile": true,
+      "playerId": "publicPlayer-%(ident)s-4",
+      "previewMessage": "testCharles: eddy and freddy get to the choppah, freddy whats your eta",
+      "sendTime": 0,
+      "sent": false,
+      "site": true,
+      "sound": "ping.wav",
       "vibrate": true
     }
   },
@@ -254,7 +339,7 @@
           "time": 0
         }
       },
-      "name": "testBobby2",
+      "name": "testDavid",
       "points": 0,
       "profileImageUrl": "http://jpg",
       "userId": "user-%(ident)s-2"
@@ -263,14 +348,14 @@
       "gameId": "game-%(ident)s-1",
       "privatePlayerId": "privatePlayer-%(ident)s-3",
       "allegiance": "horde",
-      "isActive": false, "number": 103, "name": "testBobby3",
+      "isActive": false, "number": 103, "name": "testEddy",
       "points": 200, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-3"
     },
     "publicPlayer-%(ident)s-4": {
       "gameId": "game-%(ident)s-1",
       "privatePlayerId": "privatePlayer-%(ident)s-4",
       "allegiance": "resistance",
-      "isActive": false, "number": 104, "name": "testBobby3",
+      "isActive": false, "number": 104, "name": "testFreddy",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-4",
       "infections": {
         "infection-%(ident)s-2": {
@@ -287,7 +372,7 @@
       "gameId": "game-%(ident)s-1",
       "privatePlayerId": "privatePlayer-%(ident)s-5",
       "allegiance": "undeclared",
-      "isActive": false, "number": 105, "name": "testBobby3",
+      "isActive": false, "number": 105, "name": "testGanon",
       "points": 0, "profileImageUrl": "http://jpg", "userId": "user-%(ident)s-5"
     }
   },
@@ -316,6 +401,17 @@
       "userId": "user-%(ident)s-1",
       "gotEquipment": true,
       "wantToBeSecretZombie": true,
+      "notifications": {
+        "notification-%(ident)s-1-0": {
+          "destination": "http://some.url/moo",
+          "icon": "icons:close",
+          "message": "hello!",
+          "previewMessage": "hell",
+          "queuedNotificationId": "queuedNotification-%(ident)s-1",
+          "sound" : "transmission.wav",
+          "time": 0
+        }
+      },
       "volunteer": {
         "admin": false,
         "advertising": false,
@@ -330,35 +426,6 @@
         "photographer": false,
         "server": true,
         "sorcerer": false
-      },
-      "notifications": {
-        "notification-%(ident)s-1-0": {
-          "destination": "http://some.url/moo",
-          "icon": "icons:close",
-          "message": "hello!",
-          "previewMessage": "hell",
-          "queuedNotificationId": "queuedNotification-%(ident)s-1",
-          "sound" : "transmission.caf",
-          "time": 0
-        },
-        "notification-%(ident)s-1testCharles-0": {
-          "destination": "TODO",
-          "icon": "TODO",
-          "message": "@testCharles @testBobby test single Message",
-          "previewMessage": "@testCharles @testBobby test single Message",
-          "queuedNotificationId": "queuedNotification-%(ident)s-1testCharles",
-          "sound": "ping.wav",
-          "time": 0
-        },
-        "notification-%(ident)s-4testCharles-0": {
-          "destination": "TODO",
-          "icon": "TODO",
-          "message": "@all test all Message",
-          "previewMessage": "@all test all Message",
-          "queuedNotificationId": "queuedNotification-%(ident)s-4testCharles",
-          "sound": "ping.wav",
-          "time": 0
-        }
       }
     },
     "privatePlayer-%(ident)s-2": {
@@ -416,6 +483,35 @@
         "chronicler": false, "server": false, "client": false,
         "android": false,
         "ios": false
+      },
+      "notifications": {
+        "notification-%(ident)s-1-1": {
+          "destination": "http://some.url/moo",
+          "icon": "icons:close",
+          "message": "hello!",
+          "previewMessage": "hell",
+          "queuedNotificationId": "queuedNotification-%(ident)s-1",
+          "sound" : "transmission.wav",
+          "time": 0
+        },
+        "notification-%(ident)s-1-testEddy-0": {
+          "destination": "chat/chatRoom-%(ident)s-1",
+          "icon": "communication:message",
+          "message": "testCharles: test single Message",
+          "previewMessage": "testCharles: test single Message",
+          "queuedNotificationId": "queuedNotification-%(ident)s-1-testEddy",
+          "sound": "ping.wav",
+          "time": 0
+        },
+        "notification-%(ident)s-4-testEddy-0": {
+          "destination": "chat/chatRoom-%(ident)s-1",
+          "icon": "communication:message",
+          "message": "testCharles: test all Message",
+          "previewMessage": "testCharles: test all Message",
+          "queuedNotificationId": "queuedNotification-%(ident)s-4-testEddy",
+          "sound": "ping.wav",
+          "time": 0
+        }
       }
     },
     "privatePlayer-%(ident)s-4": {
@@ -437,23 +533,32 @@
         "ios": false
       },
       "notifications": {
-        "notification-%(ident)s-4testBobby3-0": {
-          "destination": "TODO",
-          "icon": "TODO",
-          "message": "@all test all Message",
-          "previewMessage": "@all test all Message",
-          "queuedNotificationId": "queuedNotification-%(ident)s-4testBobby3",
-          "sound": "ping.wav",
-          "time": 0
-        },
-        "notification-%(ident)s-1-1": {
+        "notification-%(ident)s-1-2": {
           "destination": "http://some.url/moo",
           "icon": "icons:close",
           "message": "hello!",
-          "sound" : "transmission.caf",
+          "sound" : "transmission.wav",
           "previewMessage": "hell",
           "queuedNotificationId": "queuedNotification-%(ident)s-1",
-          "sound": "transmission.caf",
+          "sound": "transmission.wav",
+          "time": 0
+        },
+        "notification-%(ident)s-1-testFreddy-0": {
+          "destination": "chat/chatRoom-%(ident)s-1",
+          "icon": "communication:message",
+          "message": "testCharles: test single Message",
+          "previewMessage": "testCharles: test single Message",
+          "queuedNotificationId": "queuedNotification-%(ident)s-1-testFreddy",
+          "sound": "ping.wav",
+          "time": 0
+        },
+        "notification-%(ident)s-4-testFreddy-0": {
+          "destination": "chat/chatRoom-%(ident)s-1",
+          "icon": "communication:message",
+          "message": "testCharles: test all Message",
+          "previewMessage": "testCharles: test all Message",
+          "queuedNotificationId": "queuedNotification-%(ident)s-4-testFreddy",
+          "sound": "ping.wav",
           "time": 0
         }
       }
@@ -552,7 +657,7 @@
     },
     "privateLife-%(ident)s-3": {
       "gameId": "game-%(ident)s-1",
-      "code": "power-lucia-garmin"
+      "code": "fight-casey-worker"
     }
   },
   "publicLives": {

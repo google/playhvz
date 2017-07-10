@@ -16,12 +16,14 @@
 
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig) {
+  constructor(serverUrl, firebaseConfig, alertHandler) {
+    this.alertHandler = alertHandler;
+
     firebase.initializeApp(firebaseConfig);
     this.firebaseListener =
         new FirebaseListener(firebase.app().database().ref());
 
-    this.requester = new NormalRequester(serverUrl);
+    this.requester = new NormalRequester(serverUrl, alertHandler);
 
     this.userId = null;
 
@@ -41,7 +43,7 @@ class RemoteBridge {
       let email = Utils.getParameterByName('email', null);
       let password = Utils.getParameterByName('password', null);
       if (!email || !password) {
-        alert('Email and password must be set');
+        this.alertHandler('Email and password must be set');
         return;
       }
       console.log('Signing in with email and password...');
@@ -51,7 +53,7 @@ class RemoteBridge {
       firebase.auth().signOut();
       let accessToken = Utils.getParameterByName('accessToken', null);
       if (!accessToken) {
-        alert('If signInMethod=accessToken, then accessToken must be set!');
+        this.alertHandler('If signInMethod=accessToken, then accessToken must be set!');
         return;
       }
       console.log('Signing in with credential...');
@@ -105,14 +107,7 @@ class RemoteBridge {
   }
 
   signOut() {
-    firebase.auth().signOut()
-        .then((result) => {
-          alert("Signed out!");
-          window.location.reload();
-        }).catch((error) => {
-          alert("Error signing out! " + error);
-          console.error(error);
-        });
+    return firebase.auth().signOut();
   }
 
   listenToGame(userId, gameId, destination) {
