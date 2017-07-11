@@ -38,16 +38,25 @@
           type: Object,
           value: null,
         },
+        shouldShow: {
+          type: Boolean,
+          value: true,
+        }
       },
 
       computeButtonEnabled_: function(rewardCode, requesting) {
         return !!rewardCode && !requesting;
       },
 
+      computeShowSuccessMessage_: function(shouldShow, claimedRewardCategory) {
+        return shouldShow && claimedRewardCategory;
+      },
+
       reset_: function() {
         this.rewardCode = "";
         this.requesting = false;
-        this.claimedRewardCategory = null;
+        this.shouldShow = false;
+        this.showRewardCategory = false;
       },
 
       claim_: function() {
@@ -60,6 +69,7 @@
             (rewardCategoryId) => {
               this.claimedRewardCategoryId = rewardCategoryId;
               this.requesting = false;
+              this.shouldShow = true;
             },
             (error) => {
               this.fire('ghvz-alert', {message: 'Error claiming reward: '+ error});
@@ -111,7 +121,7 @@
       reward-category="{{claimedRewardCategory}}">
   </ghvz-reward-category-selector>
 
-  <div id="claiming" hidden$="[[claimedRewardCategory]]">
+  <div id="claiming" hidden="[[computeShowSuccessMessage_(shouldShow, claimedRewardCategory)]]">
     <paper-input
         name="claimRewardInput"
         label="Reward code"
@@ -128,7 +138,7 @@
       </paper-button>
     </div>
   </div>
-  <div id="claimed" hidden$="[[!claimedRewardCategory]]">
+  <div id="claimed" hidden="[[!computeShowSuccessMessage_(shouldShow, claimedRewardCategory)]]">
     <div id="claimedMessage">
       Congratulations, you've claimed the reward <b>[[claimedRewardCategory.name]]</b>!
     </div>

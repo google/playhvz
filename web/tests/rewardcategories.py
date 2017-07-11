@@ -150,13 +150,15 @@ assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commo
 
 # driver.DrawerMenuClick('profile-card', 'Rewards')
 
-# TODO(aliengirl): once the site deals with multiple rewards better, have Zeke claim a second one
-# Zeke tries to claim another reward in the same category - it works!
-# driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 1')
-# driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
-# driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
-# driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
 
+# Zeke tries to claim another reward in the same category - it works!
+driver.DrawerMenuClick('profile-card', 'Rewards')
+driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 1') #TODO(aliengirl): This will fail!!!!!
+driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
+driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
+driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
+
+# TODO(aliengirl): once the site deals with multiple rewards better, have Zeke claim a second one
 # # Zeke tries to claim another reward in the same category - no luck (his max is 2)
 # driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward2)
 # driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
