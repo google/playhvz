@@ -85,17 +85,17 @@
 
 <template>
   <div id="timer-text">
-    <div hidden=[[!doneMessage]] >Time's up! Go get brains!</div>
-    <div hidden=[[doneMessage]] >[[time]] sec</div>
+    <div name="times-up" hidden="[[!doneMessage]]">Time's up! Go get brains!</div>
+    <div name="time-counter" hidden="[[doneMessage]]" time="[[time]]">[[time]] sec</div>
   </div>
   <paper-button
-      id="infect"
+      name="timer-reset"
       raised
       on-tap="reset_">
       Reset
   </paper-button>
   <paper-button
-      id="infect"
+      name="timer-startstop"
       raised
       on-tap="startStop_">
     [[computeStartStopText_(counting)]]
