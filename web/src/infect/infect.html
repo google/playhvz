@@ -38,7 +38,14 @@
           infectedSelf: {
             type: Boolean,
             value: false,
+          },
+          target: {
+            type: Object
           }
+        },
+
+        ready: function() {
+          this.target = this.$.lifeCodeInput;
         },
 
         computeButtonEnabled_: function(lifeCode, requesting) {
