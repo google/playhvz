@@ -169,6 +169,9 @@
     opacity: .5;
     font-size: 90%;
   }
+  #debugInfo {
+    padding: 8px;
+  }
 </style>
 <template>
   <div>
@@ -241,11 +244,13 @@
       </template>
     </div>
 
-    <div>User ID: [[userId]]</div>
-    <div>Game ID: [[game.id]]</div>
-    <div>Player ID: [[player.id]]</div>
-    <div>Player Number: [[player.number]]</div>
-    <div>Player Name: [[player.name]]</div>
+    <div id="debugInfo">
+      <div>User ID: [[userId]]</div>
+      <div>Game ID: [[game.id]]</div>
+      <div>Player ID: [[player.id]]</div>
+      <div>Player Number: [[player.number]]</div>
+      <div>Player Name: [[player.name]]</div>
+    </div>
 
   </div>
 </template>

@@ -45,7 +45,7 @@
       handleTap_(e) {
         if (this.notification.destination) {
           this.fire('ghvz-set-path', {
-            inGame: true,
+            inGame: false,
             path: this.notification.destination.split('/'),
             replace: false,
           });

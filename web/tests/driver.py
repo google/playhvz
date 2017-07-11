@@ -192,10 +192,9 @@ class RemoteDriver:
     return self.game_id
 
   def MakeDriver(self, user, page):
-    url = "%s/%s?user=%s&bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s&logrequests=1" % (
+    url = "%s/%s?bridge=remote&signInMethod=email&email=%s&password=%s&layout=%s&logrequests=1" % (
         self.client_url,
         page,
-        user,
         user + '@playhvz.com',
         self.password,
         'mobile' if self.is_mobile else 'desktop')
@@ -217,13 +216,13 @@ class RemoteDriver:
   def FindElement(self, path, wait_long=False, should_exist=True, check_visible=True):
     return self.drivers_by_user[self.current_user].FindElement(path, wait_long=wait_long, should_exist=should_exist, check_visible=check_visible)
 
-  def Click(self, path):
+  def Click(self, path, scoped=False):
     self.drivers_by_user[self.current_user].Click(path)
 
   def DismissAlert(self, textToLookFor = ''):
     self.drivers_by_user[self.current_user].DismissAlert(textToLookFor)
 
-  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True, scoped=True):
     self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
   def SendKeys(self, path, keys):
@@ -355,11 +354,16 @@ class WholeDriver:
   def DontFindElement(self, path, wait_long=False, check_visible=True):
     return self.FindElement(path, wait_long=wait_long, should_exist=False)
 
-  def Click(self, path):
-    return self.inner_driver.Click(path)
+  def Click(self, path, scoped=True):
+    return self.inner_driver.Click(path, scoped)
 
-  def DismissAlert(self, textToLookFor = ''):
-    return self.inner_driver.DismissAlert(textToLookFor)
+  def DismissAlert(self, textToLookFor = '', native=False):
+    if native:
+      return self.inner_driver.DismissAlert(textToLookFor)
+    else:
+      if textToLookFor:
+        self.ExpectContains([[By.ID, 'alertContents']], textToLookFor, scoped=False)
+      self.Click([[By.ID, 'alertDismiss']], scoped=False)
 
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)
@@ -370,8 +374,8 @@ class WholeDriver:
   def Clear(self, path):
     return self.inner_driver.Clear(path)
 
-  def ExpectContains(self, path, needle, should_exist=True, check_visible=True):
-    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
+  def ExpectContains(self, path, needle, should_exist=True, check_visible=True, scoped=True):
+    return self.inner_driver.ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible, scoped=scoped)
 
   def ExpectAttributeEqual(self, path, attribute_name, value):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value)
