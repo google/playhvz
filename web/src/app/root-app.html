@@ -35,7 +35,7 @@
             }
             var bridgeType = Utils.getParameterByName('bridge', defaultBridgeType);
             if (bridgeType != 'fake' && bridgeType != 'remote') {
-              alert("'bridge' must either be 'fake' or 'remote'! Falling back to fake.");
+              this.fire('ghvz-alert', {message: "'bridge' must either be 'fake' or 'remote'! Falling back to fake."});
               bridgeType = 'fake';
             }
             return bridgeType;
@@ -46,6 +46,10 @@
           type: Object,
           value: undefined,
         },
+      },
+
+      listeners: {
+        'ghvz-alert': 'showAlert_',
       },
 
       isRealEnv(bridgeType) {
@@ -87,10 +91,15 @@
               console.error("Got exception:", e);
               console.error("Received config response:", ajaxRequest.responseText);
               console.error("Attempted parsed json:", config);
-              alert("Problems getting config: " + e);
+              this.fire('ghvz-alert', {message: "Problems getting config: " + e});
             }
           }
         };
+      },
+
+      showAlert_(e) {
+        this.$.alert.open(e.detail.message)
+            .then(e.detail.done);
       }
     });
   });
@@ -106,6 +115,8 @@
   }
 </style>
 <template>
+  <ghvz-alert id="alert"></ghvz-alert>
+
   <template is="dom-if" if="[[isRealEnv(bridgeType)]]">
     <ghvz-real-app id="realApp" config="[[config]]"></ghvz-real-app>
   </template>

@@ -193,15 +193,22 @@ To run the webdrivers:
 
 `cd web/tests`
 
-`python run.py --password PASSWORD [--url TARGET_URL] [SPECIFIC_TEST_NAME] [-d|m] [-l|r]`
+`python run.py --p PASSWORD [--url TARGET_URL] [SPECIFIC_TEST_NAMES] [-d|m] [-l|r] [-s|-max MAX_PARALLEL] [-cp NEW_PASSWORD] [-cmp MAX_PARALLEL] [-rr] [-rf]`
 
 Replacing ALLCAPS'd segments with your values.
 * `PASSWORD` is the password for your fake account. To get passwords for fake test accounts, please ask someone on the team.
-* `SPECIFIC_TEST_NAME` maps to the test file name, minus the .py
+* `SPECIFIC_TEST_NAMES` maps to test file names, minus the .py. This list of tests may have any number of elements. If no tests are specified, by default all are run.
+* If the first element in `SPECIFIC_TEST_NAMES` is not, all tests will be run EXCEPT those specified
 * `-d` uses desktop window sizing. Omitting this flag will run with mobile sizing instead.
 * `-m` uses mobile window sizing (default behavior).
 * `-l` indicates local server testing, and will rely on in-memory state rather than a database. User accounts defined in config.json will be used for tests.
 * `-r` indicates remote server testing, and will use your firebase and user account settings from `config.json`.
+* `-s` runs the tests sequentially (rather than in parallel)
+* `-max` specifies the maximum number of tests which can be run in parallel at a time (default is 3)
+* `-cp` changes the default password if the password flag is not provided.
+* `-cmp` changes maxParallel default - the default number of tests which will run together at a time
+* `-rr` reruns the same tests run last time run.py was run
+* `-rf` reruns tests that failed the last time run.py was run
 
 **Note**: Bracketed segments are optional.
 

@@ -17,8 +17,9 @@
 'use strict';
 
 class FakeBridge {
-  constructor(idGenerator) {
+  constructor(idGenerator, alertHandler) {
     this.databaseOperations = [];
+    this.alertHandler = alertHandler;
     this.simpleWriter = new SimpleWriter(null)
     this.teeWriter = new TeeWriter(this.simpleWriter);
     var fakeServer = new FakeServer(idGenerator, this.teeWriter, new Date().getTime());
@@ -36,7 +37,7 @@ class FakeBridge {
               console.error('failed in', funcName);
               console.error(error);
               console.error(arguments);
-              alert(error)
+              alertHandler(error)
             });
     }
   }
@@ -46,9 +47,9 @@ class FakeBridge {
     return userId;
   }
   signOut() {
-    setTimeout(() => {
-      alert("Signed out!");
-    }, 0);
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, 0);
+    });
   }
   getSignedInPromise({userId}) {
     assert(userId);

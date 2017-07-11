@@ -38,6 +38,7 @@ if config.FIREBASE_APIKEY:
 
 def HandleNotification(game_state, queued_notification_id, queued_notification):
   """Helper function to propogate a notification."""
+  game_id = queued_notification['gameId']
 
   if 'playerId' in queued_notification and queued_notification['playerId'] is not None:
     public_player_ids = [queued_notification['playerId']]
@@ -77,7 +78,9 @@ def HandleNotification(game_state, queued_notification_id, queued_notification):
   if len(device_tokens) == 0:
     return
   if config.FIREBASE_APIKEY:
-    fcm.notify_multiple_devices(registration_ids=list(device_tokens),
+    notification['destination'] = 'http://playhvz.com/%s' % notification['destination']
+
+    fcm.notify_multiple_devices(registration_ids=list(set(device_tokens)),
                                 message_title=queued_notification['previewMessage'],
                                 message_body=queued_notification['message'],
                                 sound=queued_notification['sound'],
@@ -94,7 +97,6 @@ def ExecuteNotifications(request, game_state):
   We iterate over the entire set of notifications in existence currently. Soon,
   we'll iterate over all notifications in the given game id.
   """
-
   current_time = int(time.time() * 1000)
   while True:
     updates = False

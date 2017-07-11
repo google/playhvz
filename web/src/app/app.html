@@ -95,30 +95,16 @@
             });
       },
 
-      // selectUser_(userId) {
-      //   this.showLoadingSpinner = false;
-      //   if (!this.user) {
-      //     let user = this.database.users.find(user => user.id == this.userId);
-      //     if (user) {
-      //       this.$.userSelector.select(user);
-      //     }
-      //   }
-      // },
-
-      // listenToDatabaseAndAutoSignIn_(bridge, userId) {
-      //   if (!this.listeningToDatabase) {
-      //     this.listeningToDatabase = true;
-      //     this.bridgeListenCanceler =
-      //         this.bridge.listenToDatabase({
-      //           destination: new CollectingWriter(
-      //               new BatchedPolymerWriter(this, 'database'))
-      //         });
-      //   }
-
-      // },
-
       signOut_() {
-        this.bridge.signOut();
+        new Promise((resolve, reject) => {
+          this.bridge.signOut()
+              .then((result) => this.fire('ghvz-alert', {message: "Signed out!", callback: resolve}))
+        })
+            .then(() => window.location.reload())
+            .catch((error) => {
+              return this.alertHandler("Error signing out! " + error);
+              console.error(error);
+            });
       },
 
       navigateGameToDashboard_() {
@@ -185,14 +171,6 @@
         return !!admin;
       },
 
-
-      // handleSelectGame_(e) {
-      //   this.gameId = e.detail.gameId;
-      //   this.fire('ghvz-set-path', {
-      //     page: 'main',
-      //   });
-      // },
-
       signIn_: function() {
         this.bridge.signIn({userId: this.userId});
       },
@@ -211,29 +189,6 @@
           this.setPath_(e.detail.path, e.detail.replace);
         }
       },
-
-      // handlePopState(e) {
-      //   this.page = e.state && e.state.page || 'main';
-      // },
-
-      // extractUrl_() {
-      //   let initialUrl = window.location.pathname;
-      //   let nonGamePageMatch = /^\/(\w+)$/.exec(initialUrl);
-      //   if (nonGamePageMatch) {
-      //     let page = nonGamePageMatch[1];
-      //     return [null, page];
-      //   }
-      //   let gamePageMatch = /^\/(game-[\w-]+)(?:\/([\w/-]+))?/.exec(initialUrl);
-      //   if (gamePageMatch) {
-      //     let gameNumber = gamePageMatch[1];
-      //     if (!gamePageMatch[2]) {
-      //       return [gameNumber, null, null];
-      //     }
-      //     let page = gamePageMatch[2];
-      //     return [gameNumber, page];
-      //   }
-      //   return [null, null, null];
-      // },
     });
   });
 </script>
