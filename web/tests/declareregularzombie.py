@@ -37,7 +37,7 @@ driver = setup.MakeDriver(user="deckerd")
 # Time for Deckerd to choose a side
 driver.RetryUntil( 
   lambda: driver.Click([[By.NAME, 'declareAllegiance']]),
-  lambda: driver.FindElement([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option1']])) # Horde
+  lambda: driver.FindElement([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option1']])) # Zombie ("Horde")
 
 # Choose zombie!
 driver.RetryUntil( 
