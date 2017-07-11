@@ -357,10 +357,6 @@ class WholeDriver:
   def Click(self, path, scoped=True):
     return self.inner_driver.Click(path, scoped)
 
-<<<<<<< HEAD
-  def DismissAlert(self, textToLookFor = ''):
-    return self.inner_driver.DismissAlert(textToLookFor)
-=======
   def DismissAlert(self, textToLookFor = '', native=False):
     if native:
       return self.inner_driver.DismissAlert(textToLookFor)
@@ -368,7 +364,6 @@ class WholeDriver:
       if textToLookFor:
         self.ExpectContains([[By.ID, 'alertContents']], textToLookFor, scoped=False)
       self.Click([[By.ID, 'alertDismiss']], scoped=False)
->>>>>>> f43ee9508b125a2a6b1c054609a7a68e008ebada
 
   def SendKeys(self, path, keys):
     return self.inner_driver.SendKeys(path, keys)
