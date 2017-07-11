@@ -148,9 +148,6 @@ pic = driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flos
 assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png"
 
 
-# driver.DrawerMenuClick('profile-card', 'Rewards')
-
-
 # Zeke tries to claim another reward in the same category - it works!
 driver.DrawerMenuClick('profile-card', 'Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward2)
@@ -177,7 +174,7 @@ driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], "definitely
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.DismissAlert('No reward with that code exists!')
 
-# TODO(aliengirl): 
+# TODO(aliengirl): Once the site updates the claimer in real time, uncomment this
 # # Zella (admin) sees that the code has been claimed by Zeke
 # driver.SwitchUser('zella')
 # driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
