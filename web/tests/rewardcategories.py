@@ -32,6 +32,32 @@ driver = setup.MakeDriver(user="zella")
 
 driver.Click([[By.NAME, 'close-notification']])
 
+# Check that Drake has 3 rewards on the leaderboard and 4 on his profile page
+driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
+driver.FindElement([
+    [By.NAME, 'leaderboard-card'], 
+    [By.NAME, 'Leaderboard Name Cell Drackan'], 
+    [By.NAME, 'reward-cat-0']])
+driver.FindElement([
+    [By.NAME, 'leaderboard-card'], 
+    [By.NAME, 'Leaderboard Name Cell Drackan'], 
+    [By.NAME, 'reward-cat-1']])
+driver.FindElement([
+    [By.NAME, 'leaderboard-card'], 
+    [By.NAME, 'Leaderboard Name Cell Drackan'], 
+    [By.NAME, 'reward-cat-2']])
+driver.FindElement([
+    [By.NAME, 'leaderboard-card'], 
+    [By.NAME, 'Leaderboard Name Cell Drackan'], 
+    [By.NAME, 'reward-cat-3']], should_exist=False)
+
+driver.TableMenuClick([[By.NAME, 'leaderboard-card'], [By.NAME, 'leaderboard-player-row-Drackan']], 'View')
+driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-signed up!']])
+driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-did the thing!']])
+driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-found a leaf!']])
+driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-i know geno!']])
+
+
 # Go to the admin rewards section
 driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
 driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'add']])
@@ -122,7 +148,7 @@ pic = driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flos
 assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png"
 
 
-driver.DrawerMenuClick('profile-card', 'Rewards')
+# driver.DrawerMenuClick('profile-card', 'Rewards')
 
 # TODO(aliengirl): once the site deals with multiple rewards better, have Zeke claim a second one
 # Zeke tries to claim another reward in the same category - it works!
@@ -136,6 +162,24 @@ driver.DrawerMenuClick('profile-card', 'Rewards')
 # driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 # driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward", should_exist=False)
 
+# Another player tries to claim the reward Zeke just claimed
+driver.SwitchUser('drake')
+driver.DrawerMenuClick('leaderboard-card', 'Rewards')
+driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward1)
+driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
+driver.DismissAlert('This reward has already been claimed!')
+
+# Drake tries to claim an invalid reward code
+driver.Clear([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']])
+driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], "definitely not a reward code")
+driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
+driver.DismissAlert('No reward with that code exists!')
+
+# Zella (admin) sees that the code has been claimed by Zeke
+driver.SwitchUser('zella')
+driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
+driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Show Rewards')
+driver.ExpectContains([[By.NAME, 'row-Flosser 0']], "Zeke")
 
 driver.Quit()
   

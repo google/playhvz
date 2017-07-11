@@ -27,7 +27,7 @@ if __name__ == '__main__':
     main(sys.argv)
 import setup
 from selenium.webdriver.common.by import By
-
+assert False
 driver = setup.MakeDriver(user="jack")
 
 # Make sure Jack starts out human
