@@ -33,7 +33,7 @@ driver.SendKeys(
       [[By.NAME, 'header-Claimer'], [By.TAG_NAME, 'input']],
       'unclaimed')
 # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
-reward = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name']]).get_attribute('val')
+reward = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name-0']]).get_attribute('val')
 
 driver.DrawerMenuClick('admin-rewards-card', 'Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward)

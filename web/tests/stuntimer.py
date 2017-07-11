@@ -24,9 +24,9 @@ def main(argv):
 
 def countingDown(shouldCount, maxTime=False, checkGreater=False):
 	# Sketchy sketchy ... I should come back and improve this at some point
-	oldTime = int(driver.FindElement([[By.NAME, 'time-counter']], check_visible=False).get_attribute("time"))
+	oldTime = int(driver.FindElement([[By.NAME, 'stuntimer-card'], [By.NAME, 'time-counter']], check_visible=False).get_attribute("time"))
 	time.sleep(2.1)
-	newTime = int(driver.FindElement([[By.NAME, 'time-counter']], check_visible=False).get_attribute("time"))
+	newTime = int(driver.FindElement([[By.NAME, 'stuntimer-card'], [By.NAME, 'time-counter']], check_visible=False).get_attribute("time"))
 	if shouldCount:	
 		# The -1 is and the abs. value is b/c sometimes the timer ticks down one more time after you've pressed stop.
 		assert newTime < oldTime - 1, "%d is not less than %d" % (newTime, oldTime)
@@ -56,28 +56,28 @@ if driver.is_mobile:
 driver.DrawerMenuClick('mobile-main-page', 'Stun Timer')
 
 # Check that the timer actually counts down when you press start/stop
-driver.ExpectAttributeEqual([[By.NAME, 'timer-startstop']], "innerText", "START")
-driver.Click([[By.NAME, 'timer-startstop']])
-driver.ExpectAttributeEqual([[By.NAME, 'timer-startstop']], "innerText", "STOP")
+driver.ExpectAttributeEqual([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']], "innerText", "START")
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
+driver.ExpectAttributeEqual([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']], "innerText", "STOP")
 time.sleep(2)
 currTime = countingDown(True, INTITIAL_TIMER)
 
 # Zeke stops and restarts timer
-driver.Click([[By.NAME, 'timer-startstop']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
 currTime = countingDown(False, currTime)
-driver.Click([[By.NAME, 'timer-startstop']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
 currTime = countingDown(True, currTime)
 
 # Zeke resets timer
-driver.Click([[By.NAME, 'timer-reset']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-reset']])
 currTime = countingDown(True, currTime, True)
 
 # Zeke stops timer, then resets it (then restarts it)
-driver.Click([[By.NAME, 'timer-startstop']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
 currTime = countingDown(False, currTime)
-driver.Click([[By.NAME, 'timer-reset']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-reset']])
 currTime = countingDown(False, INTITIAL_TIMER, True)
-driver.Click([[By.NAME, 'timer-startstop']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
 currTime = countingDown(True, currTime)
 
 # Zeke tries infecting a human while his timer is going (shouldn't interrupt timer)
@@ -96,30 +96,30 @@ currTime = countingDown(True, currTime)
 # Zella (an admin) changes the stun timer
 driver.SwitchUser('zella')
 driver.Click([[By.NAME, 'close-notification']])
-driver.DrawerMenuClick('rules-card', 'Admin Game Details')
+driver.DrawerMenuClick('mobile-main-page', 'Admin Game Details')
 driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
 driver.SendKeys([[By.ID, 'form-section-game-stunTimer'], [By.TAG_NAME, 'input']], 3)
 driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
 
 # Zeke resets the stun timer and checks that it counts down to 0
 driver.SwitchUser('zeke')
-driver.Click([[By.NAME, 'timer-reset']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-reset']])
 time.sleep(3.1)
 countingDown(False, 0, True)
-driver.FindElement([[By.NAME, 'times-up']])
+driver.FindElement([[By.NAME, 'stuntimer-card'], [By.NAME, 'times-up']])
 
 # Zeke resets the timer, restarts it again
-driver.Click([[By.NAME, 'timer-reset']])
-driver.Click([[By.NAME, 'timer-startstop']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-reset']])
+driver.Click([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
 countingDown(True, 3)
 
 # Check that all registered types members can also see the stun timer in their drawer
 driver.SwitchUser('zella') # human
 driver.DrawerMenuClick('mobile-main-page', 'Stun Timer')
-driver.FindElement([[By.NAME, 'timer-startstop']])
+driver.FindElement([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
 
 driver.SwitchUser('deckerd') # undeclared
 driver.DrawerMenuClick('mobile-main-page', 'Stun Timer')
-driver.FindElement([[By.NAME, 'timer-startstop']])
+driver.FindElement([[By.NAME, 'stuntimer-card'], [By.NAME, 'timer-startstop']])
 
 driver.Quit()

@@ -59,7 +59,7 @@ driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-i know geno!']]
 
 
 # Go to the admin rewards section
-driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
+driver.DrawerMenuClick('profile-card', 'Admin Rewards')
 driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'add']])
 
 # Make reward category.
@@ -91,16 +91,16 @@ driver.Backspace([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], 
 driver.SendKeys([[By.NAME, 'admin-rewards-card'], [By.ID, 'descriptionInput'], [By.TAG_NAME, 'textarea']], "A reward you get for brushing and flossing after eating humans.")
 driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'done']])
 
-# Generate 22 rewards.
+# Generate 2 rewards. # TODO(aliengirl): at some point there was an issue with generating too many of these. Revisit this sometime.
 driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Show Rewards')
 driver.SendKeys([[By.ID, 'newReward'], [By.TAG_NAME, 'input']], "2")
 driver.Click([[By.ID, 'addReward']])
 
 # Check that at least some are there
 # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
-reward1 = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name']]).get_attribute('val')
+reward1 = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name-0']]).get_attribute('val')
+reward2 = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name-1']]).get_attribute('val')
 
-driver.FindElement([[By.NAME, 'reward-name']], '(unclaimed)')
 driver.ExpectContains([[By.ID, 'rewardsTable'], [By.CLASS_NAME, 'row']], '(unclaimed)')
 
 # Export the rewards.
@@ -153,12 +153,12 @@ assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commo
 
 # Zeke tries to claim another reward in the same category - it works!
 driver.DrawerMenuClick('profile-card', 'Rewards')
-driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], 'Flosser 1') #TODO(aliengirl): This will fail!!!!!
+driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward2)
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
 driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
 
-# TODO(aliengirl): once the site deals with multiple rewards better, have Zeke claim a second one
+# TODO(aliengirl): once the site actually deals with player reward caps, have Zeke claim a second one
 # # Zeke tries to claim another reward in the same category - no luck (his max is 2)
 # driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward2)
 # driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
@@ -166,7 +166,7 @@ driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
 
 # Another player tries to claim the reward Zeke just claimed
 driver.SwitchUser('drake')
-driver.DrawerMenuClick('leaderboard-card', 'Rewards')
+driver.DrawerMenuClick('mobile-main-page', 'Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward1)
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.DismissAlert('This reward has already been claimed!')
@@ -177,11 +177,12 @@ driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], "definitely
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.DismissAlert('No reward with that code exists!')
 
-# Zella (admin) sees that the code has been claimed by Zeke
-driver.SwitchUser('zella')
-driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
-driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Show Rewards')
-driver.ExpectContains([[By.NAME, 'row-Flosser 0']], "Zeke")
+# TODO(aliengirl): 
+# # Zella (admin) sees that the code has been claimed by Zeke
+# driver.SwitchUser('zella')
+# driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
+# driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Show Rewards')
+# driver.ExpectContains([[By.NAME, 'row-Flosser 0']], "Zeke")
 
 driver.Quit()
   
