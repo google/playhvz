@@ -127,6 +127,8 @@
         font-weight: bold;
       }
     </style>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
+                on-keys-pressed="infect_"></iron-a11y-keys>
     <div id="instructions" hidden$="[[!computeIsHuman_(player)]]">
         <div><b>Possessed humans</b>: Enter your victim's life code. This will also turn you into a zombie.</div>
         <br/>
