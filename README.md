@@ -27,6 +27,8 @@ limitations under the License.
 
 This is not an official Google product.
 
+Icon made by Freepik from www.flaticon.com
+
 # Humans vs Zombies
 Full stack solution leveraging Firebase, Polymer, and a Python Flask server on App Engine to create a live action game. Learn more at https://humansvszombies.org/
 
