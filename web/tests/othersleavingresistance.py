@@ -7,10 +7,11 @@ driver = setup.MakeDriver(user="zella")
 # Make Zeke a human (just b/c we need more humans than we currently have)
 driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
 driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
+driver.DismissAlert()
 
 driver.SwitchUser('zeke')
 # Zeke is in the Resistance Comms Hub
-driver.DrawerMenuClick('mobile-main-page', '-Resistance Comms Hub')
+driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Resistance Comms Hub']])
 driver.FindElement(
         [[By.NAME, 'chat-card'], 
@@ -120,4 +121,3 @@ for target in INFECTABLES:
         should_exist=False)
 
 driver.Quit()
-
