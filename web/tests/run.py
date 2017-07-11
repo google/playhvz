@@ -47,7 +47,7 @@ def generateTest(url, password, files, useRemote, useMobile):
 		"adminplayers",
 		"changeallegiance",
 		"chat",
-		"chatownerleavesß",
+		"chatownerleaves",
 		"chatlocation",
 		"chatpage",
 		"createGame",
