@@ -96,7 +96,7 @@ for admin in adminPlayers:
 
 # Non-Admin should leave admin chat
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', '-' + chatName)
+driver.DrawerMenuClick('mobile-main-page', chatName)
 
 xpathChatDrawerButton = getPathToElement(actingPlayerName, 'paper-icon-button', 'chat-info-' + chatName)
 driver.Click([[By.XPATH, xpathChatDrawerButton]])  

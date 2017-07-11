@@ -112,7 +112,10 @@ methods = {
   'createChatRoom': api_calls.AddChatRoom,
   'updateChatRoom': api_calls.UpdateChatRoom,
   'sendChatMessage': api_calls.SendChatMessage,
-  'ackChatMessage': api_calls.AckChatMessage,
+  'addRequestCategory': api_calls.AddRequestCategory,
+  'updateRequestCategory': api_calls.UpdateRequestCategory,
+  'addRequest': api_calls.AddRequest,
+  'addResponse': api_calls.AddResponse,
   'addRewardCategory': api_calls.AddRewardCategory,
   'updateRewardCategory': api_calls.UpdateRewardCategory,
   'addReward': api_calls.AddReward,
@@ -150,7 +153,7 @@ methods = {
 
 @app.route('/')
 def index():
-  return "<h1>Welcome To Google HVZ (backend)!</h1>"
+  return "<h1>Welcome To PlayHvZ (backend)!</h1>"
 
 
 @app.route('/help')

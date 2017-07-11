@@ -67,70 +67,28 @@
         createChatRoom_: function(bridge, player) {
           this.doneEnabled = false;
           let name = this.$.chatName.value;
+          
+          let properties = {};
 
-          let autoRemove = false;
-          let allegianceFilter = 'none';
           if (this.isAdmin) {
-            autoRemove = this.$$("#autoRemove").checked;
-            allegianceFilter = this.$$('#allegianceFilter').selectedItem.dataset.value;
+            properties.allegianceFilter = this.$$('#allegianceFilter').selectedItem.dataset.value;
+            properties.autoAdd = this.$$("#autoAdd").checked;
+            properties.autoRemove = this.$$("#autoRemove").checked;
+            properties.canAddOthers = this.$$("#canAddOthers").checked;
+            properties.canRemoveOthers = this.$$("#canRemoveOthers").checked;
           } else {
             let filter = this.$$("#allegianceFilter").checked;
             if (filter) {
-              allegianceFilter = this.player.allegiance;
+              properties.allegianceFilter = this.player.allegiance;
               if (allegianceFilter) {
-                autoRemove = true;
+                properties.autoRemove = true;
               }
             }
           }
 
-          let autoAdd = false;
-          if (this.isAdmin) {
-            autoAdd = this.$$("#autoAdd").checked;
-          }
-
-          let canAddOthers = true;
-          if (this.isAdmin) {
-            canAddOthers = this.$$("#canAddOthers").checked;
-          }
-
-          let canRemoveOthers = true;
-          if (this.isAdmin) {
-            canRemoveOthers = this.$$("#canRemoveOthers").checked;
-          }
-
-          let groupId = this.bridge.newGroupId();
-          var chatRoomId = this.bridge.newChatRoomId();
-          this.bridge.createGroup({
-            name: "Group for " + player.id + "'s chat room",
-            gameId: this.gameId,
-            groupId: groupId,
-            ownerPlayerId: this.player.id,
-            allegianceFilter: allegianceFilter,
-            autoAdd: autoAdd,
-            autoRemove: autoRemove,
-            canAddOthers: canAddOthers,
-            canRemoveOthers: canRemoveOthers,
-            canAddSelf: false,
-            canRemoveSelf: true,
-          }).then(() => {
-            return this.bridge.createChatRoom({
-              gameId: this.gameId,
-              chatRoomId: chatRoomId,
-              accessGroupId: groupId,
-              name: name,
-              withAdmins: false,
-            });
-          }).then(() => {
-            return this.bridge.addPlayerToGroup({
-              gameId: this.gameId,
-              groupId: groupId,
-              playerToAddId: this.player.id,
-              actingPlayerId: this.player.id,
-            });
-          }).then(() => {
-            this.fire('ghvz-change-to-new-chat', {
-              chatRoomId: chatRoomId,
-            });
+          let chatRoomId = ChatUtils.createChatRoom(this.bridge, this.gameId, this.player.id, name, properties);
+          this.fire('ghvz-change-to-new-chat', {
+            chatRoomId: chatRoomId,
           });
         },
 

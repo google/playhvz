@@ -196,11 +196,11 @@ class EndToEndTest(unittest.TestCase):
     self.requester.SetRequestingPlayerId(self.Id('publicPlayerId'))
     create_player['playerId'] = self.Id('publicPlayerId', 2)
     create_player['userId'] = self.Id('userId', 2)
-    create_player['name'] = '%s2' % create_player['name']
+    create_player['name'] = 'testDavid'
     self.AssertOk('createPlayer', create_player)
     create_player['playerId'] = self.Id('publicPlayerId', 3)
     create_player['userId'] = self.Id('userId', 3)
-    create_player['name'] = '%s3' % create_player['name'][:-1]
+    create_player['name'] = 'testEddy'
     self.AssertOk('createPlayer', create_player)
 
     # Create groups
@@ -255,6 +255,7 @@ class EndToEndTest(unittest.TestCase):
 
     create_player['playerId'] = self.Id('publicPlayerId', 4)
     create_player['userId'] = self.Id('userId', 4)
+    create_player['name'] = 'testFreddy'
     self.AssertOk('createPlayer', create_player)
 
     # Create chat rooms
@@ -272,12 +273,20 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertCreateUpdateSequence('createChatRoom', create, 'updateChatRoom', update)
 
+    update = {
+      'gameId': self.Id('gameId'),
+      'playerToAddId': self.Id('publicPlayerId', 3),
+      'groupId': self.Id('groupId'),
+      'actingPlayerId': self.Id('publicPlayerId'),
+    }
+    self.AssertOk('addPlayerToGroup', update)
+
     create = {
       'gameId': self.Id('gameId'),
       'chatRoomId': self.Id('chatRoomId'),
       'playerId': self.Id('publicPlayerId'),
       'messageId': self.Id('messageId'),
-      'message': '@testCharles @testBobby test single Message',
+      'message': '@testEddy @testFreddy test single Message',
     }
     self.AssertOk('sendChatMessage', create)
 
@@ -327,7 +336,7 @@ class EndToEndTest(unittest.TestCase):
       'email': True,
       'mobile': False,
       'vibrate': False,
-      'sound': 'transmission.caf',
+      'sound': 'transmission.wav',
       'destination': 'http://some.url/moo',
       'sendTime': None,
       'playerId': None,
@@ -356,6 +365,7 @@ class EndToEndTest(unittest.TestCase):
 
     create_player['playerId'] = self.Id('publicPlayerId', 5)
     create_player['userId'] = self.Id('userId', 5)
+    create_player['name'] = 'testGanon'
     self.AssertOk('createPlayer', create_player)
 
     # Add players to groups.
@@ -626,6 +636,32 @@ class EndToEndTest(unittest.TestCase):
       'lifeId': self.Id('publicLifeId', 3),
       'privateLifeId': self.Id('privateLifeId', 3),
       'lifeCode': None, # Let it generate a deterministic one
+    })
+
+    self.AssertOk('sendChatMessage', {
+      'gameId': self.Id('gameId', 1),
+      'chatRoomId': self.Id('chatRoomId'),
+      'playerId': self.Id('publicPlayerId'),
+      'messageId': self.Id('messageId', 5),
+      'message': '@!testEddy @?testFreddy eddy and freddy get to the choppah, freddy whats your eta',
+    })
+
+    self.AssertOk('addResponse', {
+      'gameId': self.Id('gameId', 1),
+      'requestId': self.Id('request', 5) + "-ack-0",
+      'text': None
+    })
+
+    self.AssertOk('addResponse', {
+      'gameId': self.Id('gameId', 1),
+      'requestId': self.Id('request', 5) + "-text-0",
+      'text': "5 mins or so",
+    })
+
+    self.AssertOk('updateRequestCategory', {
+      'gameId': self.Id('gameId', 1),
+      'requestCategoryId': self.Id('requestCategory', 5) + "-text",
+      'dismissed': True
     })
 
     # Final keep last
