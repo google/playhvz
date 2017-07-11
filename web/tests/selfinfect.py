@@ -17,16 +17,14 @@
 """TODO: High-level file comment."""
 
 import sys
-
+import pdb
+import setup
+from selenium.webdriver.common.by import By
 
 def main(argv):
     pass
-
-
 if __name__ == '__main__':
     main(sys.argv)
-import setup
-from selenium.webdriver.common.by import By
 
 # Sign in as a normal human.
 driver = setup.MakeDriver(user="jack")
@@ -45,11 +43,12 @@ driver.ExpectContains([[By.NAME, 'infect-card'], [By.ID, 'selfInfectedMessage']]
 # Check Jack is now a zombie (infect widget, profile)
 driver.DrawerMenuClick('infect-card', 'Dashboard')
 driver.FindElement([[By.NAME, 'infect-box']])
-driver.DrawerMenuClick('mobile-main-page', '-Horde ZedLink')
+driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
 driver.DrawerMenuClick('chat-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '0') # Self-infecting doesn't give you points
-driver.FindElement([[By.NAME, 'infection-line']])
+driver.FindElement([[By.NAME, 'infection-line-0']])
+driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactly 1 infection
 
 # Zeke records the kill
 driver.SwitchUser('zeke')
@@ -58,7 +57,6 @@ driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAM
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'done']])
-
 # Try to infect Jack again - shouldn't work this time (since life code is already claimed)
 driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly')
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
@@ -67,6 +65,11 @@ driver.DismissAlert()
 # Check that Zeke got points
 driver.DrawerMenuClick('infect-card', 'My Profile')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
+
+# Check that Jack only has 1 infection on his profile
+driver.SwitchUser('jack')
+driver.FindElement([[By.NAME, 'infection-line-0']])
+driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactly 1 infection
 
 driver.Quit()
 

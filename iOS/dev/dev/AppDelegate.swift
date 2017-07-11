@@ -176,6 +176,50 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         viewController.resultText = "You're all set up! You can now receive notifications about the game, and other players can send you notifications via '@playername' in chat rooms."
     }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
+        // If you are receiving a notification message while your app is in the background,
+        // this callback will not be fired till the user taps on the notification launching the application.
+        // TODO: Handle data of notification
+        
+        // With swizzling disabled you must let Messaging know about the message, for Analytics
+        // Messaging.messaging().appDidReceiveMessage(userInfo)
+        
+        // Print full message.
+        print("doop")
+        print(userInfo)
+        print(userInfo["destination"] ?? "nonexistant")
+        
+        if let urlString = userInfo["destination"] as? String {
+            if let url = URL(string: urlString) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
+        
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        // If you are receiving a notification message while your app is in the background,
+        // this callback will not be fired till the user taps on the notification launching the application.
+        // TODO: Handle data of notification
+        
+        // With swizzling disabled you must let Messaging know about the message, for Analytics
+        // Messaging.messaging().appDidReceiveMessage(userInfo)
+        
+        // Print full message.
+        print("bloop")
+        print(userInfo)
+        print(userInfo["destination"] ?? "nonexistant")
+        
+        if let urlString = userInfo["destination"] as? String {
+            if let url = URL(string: urlString) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
+        
+        completionHandler(UIBackgroundFetchResult.newData)
+    }
 
     
     // The callback to handle data message received via FCM for devices running iOS 10 or above.

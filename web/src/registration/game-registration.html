@@ -249,13 +249,31 @@
   <paper-progress value="[[progressPercent]]"></paper-progress>
   <neon-animated-pages id="pages" class="flex" selected="[[pageNumber]]" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
     <neon-animatable>
+      <div class="page">
+        <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
+        <div class="maintext">
+          A note before we start: if you're going to be using the Android and iOS apps to receive notifications,
+          make sure that the email address you logged in with here is also accessible on your phone.
+        </div>
+        <div class="maintext">
+          If you logged in with a corporate account to this site, but your phone can't log into that
+          corporate account, then you won't be receiving notifications. The easy option is to just use
+          a non-corporate account.
+        </div>
+        <paper-button name="joinGameIntroNext" on-tap="nextPage_">Next</paper-button>
+      </div>
+    </neon-animatable>
+
+    <neon-animatable>
       <ghvz-interview-string-page
           name="joinGameNamePage"
           placeholder="who be u?"
           on-ghvz-interview-page-done="handleNamePageDone_">
-        <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
         <div class="maintext">What user name would you like?</div>
-        <div class="subtext">To strike terror in the hearts of your victims. e.g. John Smith, The Destroyer, King Spigglewigget the Flamscrankle. People will see this on the leaderboard, and in the chat rooms.</div>
+        <div class="subtext">
+          To strike terror in the hearts of your victims. e.g. JohnSmith, TheDestroyer, KingSpigglewiggetTheFlamscrankle. People will see this on the leaderboard, and in the chat rooms.
+          <b>This name cannot include spaces!</b>
+        </div>
       </ghvz-interview-string-page>
     </neon-animatable>
 
@@ -302,10 +320,7 @@
     <neon-animatable>
       <div class="page">
         <div class="section">
-          WELCOME TO THE FRAY
-        </div>
-        <div class="section">
-          GET READY TO GET REKT
+          You're ready! Hit the Submit button to join the game!
         </div>
         <div class="section">
           <paper-button name="submitJoinGame" raised on-click="done_">
