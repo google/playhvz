@@ -136,7 +136,7 @@
         target-framerate="5"
         sort="sort_"
         observe="points">
-      <div class="row" hidden$="[[!showPlayer_(player.id, playerIdsToShow)]]">
+      <div name$=leaderboard-player-row-[[player.name]] class="row" hidden$="[[!showPlayer_(player.id, playerIdsToShow)]]">
         <ghvz-table-control-cell item="[[player]]"></ghvz-table-control-cell>
         <div
             name$="Leaderboard Name Cell [[player.name]]"
@@ -144,6 +144,7 @@
           [[player.name]]
           <template is="dom-repeat" items="[[player.claims]]" as="claim" filter="[[makeClaimsFilter_(player.claims)]]">
             <ghvz-reward-category
+                name$="reward-cat-[[index]]"
                 bridge="[[bridge]]"
                 game="[[game]]"
                 reward-category-id="[[claim.rewardCategoryId]]" badgeOnly>

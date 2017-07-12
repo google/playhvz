@@ -33,6 +33,10 @@ driver = setup.MakeDriver(user="zella")
 
 driver.Click([[By.NAME, 'close-notification']])
 
+driver.ExpectContains(
+    [[By.NAME, 'game-summary-box']],
+    '60') # current stun timer
+
 # Go to the Rules page, change the rules
 driver.DrawerMenuClick('mobile-main-page', 'Rules')
 driver.Click([[By.NAME, 'rules-card'], [By.NAME, 'rules-icon']]) # Flaked once on remote, another icon would have received click -verdagon
@@ -111,7 +115,7 @@ driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'day'],[
 driver.Clear([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']])
 driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'time'],[By.TAG_NAME, 'input']], "12:34pm")
 
-# If you click Save, the new stun timer should show up.
+# If you click Save, the new data should show up.
 driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
 driver.ExpectContains([[By.NAME, 'game-name']], 'Welcome to the Zombies-Have-Hunger Games')
 driver.ExpectContains([[By.NAME, 'game-stunTimer']], "42")

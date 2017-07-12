@@ -151,6 +151,15 @@
         </ghvz-card>
       </template>
 
+      <template is="dom-if" if="[[isZombie]]">
+        <ghvz-card spaced left padded mobile name="stuntimer-box">
+          <div class="header">Stun Timer</div>
+          <ghvz-stun-timer
+              game="[[game]]">
+          </ghvz-stun-timer>
+        </ghvz-card>
+      </template>
+
       <ghvz-card spaced left padded mobile name="summary-box">
         <div class="header">Game Summary</div>
         <ghvz-game-summary
@@ -158,7 +167,6 @@
             game="[[game]]">
         </ghvz-game-summary>
       </ghvz-card>
-
 
       <ghvz-card spaced padded mobile name="next-mission-box" >
         <div class="header">Next Mission</div>
