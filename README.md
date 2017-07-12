@@ -27,6 +27,8 @@ limitations under the License.
 
 This is not an official Google product.
 
+Icon made by Freepik from www.flaticon.com
+
 # Humans vs Zombies
 Full stack solution leveraging Firebase, Polymer, and a Python Flask server on App Engine to create a live action game. Learn more at https://humansvszombies.org/
 
@@ -43,8 +45,8 @@ Clone this project and follow the setup section if you are missing any dependenc
 
 ```bash
 cd web
-bower install
 npm install
+bower install
 ./node_modules/firebase-tools/bin/firebase login
 ./node_modules/firebase-tools/bin/firebase use --add trogdors-29fa4
 ```
