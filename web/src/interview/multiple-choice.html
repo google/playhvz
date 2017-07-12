@@ -32,6 +32,10 @@
         } else {
           this.fire('ghvz-alert', {message: "Nope, please try again!"});
         }
+      },
+
+      sort_(a, b) {
+        return a.number - b.number;
       }
     });
   });

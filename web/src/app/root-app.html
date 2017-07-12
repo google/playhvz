@@ -99,7 +99,7 @@
 
       showAlert_(e) {
         this.$.alert.open(e.detail.message)
-            .then(e.detail.done);
+            .then(e.detail.callback);
       }
     });
   });
