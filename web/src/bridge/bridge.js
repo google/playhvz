@@ -410,6 +410,7 @@ class FakeIdGenerator extends IdGenerator {
     chatRoomId: 'ChatRoomId',
     actingPlayerId: 'PublicPlayerId',
     isVisible: '|Boolean',
+    unseenMessages: '|Boolean',
   });
 
   serverMethods.set('createMap', {

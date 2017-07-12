@@ -200,7 +200,8 @@ var models = {
     publicPlayerId: '',
     privatePlayerId: '',
     gameId: '',
-    isVisible: false
+    isVisible: false,
+    unseenMessages: false,
   },
   playerMissionMembership: {
     link: ['privatePlayers', 'privatePlayerId', 'missionMemberships', 'missionId'],
