@@ -62,6 +62,7 @@ def generateTest(url, password, files, useRemote, useMobile):
 		"notifications1",
 		"othersleavingresistance",
 		"possession",
+		"declareregularzombie",
 		"requests",
 		"rewardcategories",
 		"selfinfect",
