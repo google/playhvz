@@ -2239,7 +2239,7 @@ def SyncFirebase(request, game_state):
     old_str = pprint.pformat(old_instance).splitlines()
     new_str = pprint.pformat(firebase_instance).splitlines()
     diffs = cgi.escape('\n'.join(list(difflib.ndiff(old_str, new_str))))
-    mail.EmailMessage(sender='panic@playhvz-170604.appspotmail.com',
+    mail.EmailMessage(sender='panic@trogdors-29fa4.appspotmail.com',
       to='yuhao@google.com,rfarias@google.com,chewys@google.com,harshmodi@google.com,verdagon@google.com',
       subject='Diff detected between local and remote instances',
       html="""<html><body>
