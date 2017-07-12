@@ -50,7 +50,7 @@ def generateTest(url, password, files, useRemote, useMobile):
 		"chatEdgeCases",
 		"chatlocation",
 		"chatpage",
-		"createGame",
+		"creategame",
 		"deactivate",
 		"declare",
 		"globalchat",
