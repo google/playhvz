@@ -34,24 +34,34 @@ driver.Click([[By.NAME, 'joinGame']])
 
 driver.Click([[By.NAME, 'joinGameIntroNext']])
 
+driver.Click([[By.NAME, 'joinGameGfitNext']])
+
 driver.SendKeys(
     [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
     'ReggieTheRavager')
 
 driver.Click([[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-button']])
 
+driver.Click([[By.NAME, 'joinGameBandPage'], [By.NAME, 'option1']])
+
+driver.Click([[By.NAME, 'joinGameBandInfoPageNext']])
+
 # TODO(aliengirl): crashed here - maybe add RetryUntil?
 driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option1']])
 
-driver.Click([[By.NAME, 'joinGameTakePhotos'], [By.NAME, 'option1']])
+driver.Click([[By.NAME, 'joinGameBlasterInfoPageNext']])
 
-driver.Click([[By.NAME, 'joinGameBeVolunteerPage'], [By.NAME, 'option0']])
+# driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option1']])
 
-driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option2']]) # comms
-driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option4']]) # first aid
-driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option5']]) # sorcery
-driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option8']]) # chronicler
-driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.TAG_NAME, 'paper-button']])
+# driver.Click([[By.NAME, 'joinGameTakePhotos'], [By.NAME, 'option1']])
+
+# driver.Click([[By.NAME, 'joinGameBeVolunteerPage'], [By.NAME, 'option0']])
+
+# driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option2']]) # comms
+# driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option4']]) # first aid
+# driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option5']]) # sorcery
+# driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.NAME, 'option8']]) # chronicler
+# driver.Click([[By.NAME, 'joinGameVolunteerPositionsPage'], [By.TAG_NAME, 'paper-button']])
 
 driver.Click([[By.TAG_NAME, 'ghvz-game-registration'], [By.NAME, 'submitJoinGame']])
 
@@ -88,10 +98,10 @@ driver.ExpectContains([[By.NAME, 'status']], 'Alive')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '0')
 driver.ExpectContains([[By.NAME, 'notifications-sound']], "No")
 driver.ExpectContains([[By.NAME, 'notifications-vibration']], "No")
-driver.ExpectContains([[By.NAME, 'volunteered-for']], "Communications")
-driver.ExpectContains([[By.NAME, 'volunteered-for']], "Communications")
-driver.ExpectContains([[By.NAME, 'volunteered-for']], "Sorcerer")
-driver.ExpectContains([[By.NAME, 'volunteered-for']], "Chronicler")
+# driver.ExpectContains([[By.NAME, 'volunteered-for']], "Communications")
+# driver.ExpectContains([[By.NAME, 'volunteered-for']], "Communications")
+# driver.ExpectContains([[By.NAME, 'volunteered-for']], "Sorcerer")
+# driver.ExpectContains([[By.NAME, 'volunteered-for']], "Chronicler")
 driver.ExpectContains([[By.NAME, 'active']], "Yes")
 driver.ExpectContains([[By.NAME, 'can-infect']], "No")
 driver.ExpectContains([[By.NAME, 'need-gun']], "No")

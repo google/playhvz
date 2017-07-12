@@ -1395,7 +1395,8 @@ def Infect(request, game_state):
   infector_public_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
   victim_life_code = request['victimLifeCode']
-  victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
+  if victim_life_code is not None:
+    victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
   victim_public_player_id = request['victimPlayerId'] or helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
   time = helpers.GetTime(request)
 
@@ -2238,7 +2239,7 @@ def SyncFirebase(request, game_state):
     old_str = pprint.pformat(old_instance).splitlines()
     new_str = pprint.pformat(firebase_instance).splitlines()
     diffs = cgi.escape('\n'.join(list(difflib.ndiff(old_str, new_str))))
-    mail.EmailMessage(sender='panic@playhvz-170604.appspotmail.com',
+    mail.EmailMessage(sender='panic@trogdors-29fa4.appspotmail.com',
       to='yuhao@google.com,rfarias@google.com,chewys@google.com,harshmodi@google.com,verdagon@google.com',
       subject='Diff detected between local and remote instances',
       html="""<html><body>

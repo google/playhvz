@@ -1,0 +1,4 @@
+queue:
+- name: extra-requests
+  bucket_size: 500
+  rate: 40/s

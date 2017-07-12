@@ -28,6 +28,7 @@
         isAdmin: Boolean,
         database: Object,
         userId: String,
+        email: String,
         game: Object,
         player: Object,
         path: {
@@ -46,6 +47,7 @@
             'main': 'main',
             'chat': 'chat',
             'faq': 'faq',
+            'stuntimer': 'stuntimer',
             'leaderboard': 'leaderboard',
             'notifications': 'notifications',
             'profile': 'profile',
@@ -174,6 +176,7 @@
       <ghvz-game-registration
           class="expand"
           bridge="[[bridge]]"
+          email="[[email]]"
           game="[[game]]"
           user-id="[[userId]]">
       </ghvz-game-registration>
@@ -291,7 +294,7 @@
           is-mobile="[[isMobile]]"
           bridge="[[bridge]]"
           game="[[game]]">
-      </ghvz-missions>
+      </ghvz-game-details>
     </ghvz-card>
   </template>
 
@@ -327,8 +330,17 @@
     </ghvz-card>
   </template>
 
+  <template is="dom-if" if="[[computeShowPage_(showPage.stuntimer, mostRecentPage)]]">
+    <ghvz-card name="stuntimer-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
+      <div class="header">Stun Timer</div>
+      <ghvz-stun-timer
+          game="[[game]]">
+      </ghvz-stun-timer>
+    </ghvz-card>
+  </template>
+
   <template is="dom-if" if="[[computeShowPage_(showPage.missions, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
+    <ghvz-card name="missions-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">Missions</div>
       <ghvz-missions-page
           is-mobile="[[isMobile]]"

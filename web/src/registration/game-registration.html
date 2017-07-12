@@ -26,6 +26,7 @@
         bridge: Object,
         game: Object,
         userId: String,
+        email: String,
         newPlayerArgs: {
           type: Object,
           value: () => ({}),
@@ -48,9 +49,23 @@
       },
 
       done_() {
-        // As the new player comes down from firebase,
-        // <ghvz-app> will detect it and auto-choose it.
         this.newPlayerArgs.profileImageUrl = PlayerUtils.getDefaultProfilePic(this.newPlayerArgs.name || "");
+        this.newPlayerArgs.beInPhotos = true;
+        this.newPlayerArgs.volunteer = {
+          advertising: false,
+          logistics: false,
+          communications: false,
+          moderator: false,
+          cleric: false,
+          sorcerer: false,
+          admin: false,
+          photographer: false,
+          chronicler: false,
+          server: false,
+          client: false,
+          android: false,
+          ios: false,
+        };
         this.bridge.createPlayer(
             Utils.merge(
                 {
@@ -86,47 +101,50 @@
       },
 
       handleNamePageDone_(e) {
-        this.newPlayerArgs.name = e.detail.value;
+        let name = e.detail.value;
+        if (/\s/.test(e.detail.value)) {
+          this.fire('ghvz-alert', {message: "Your name cannot include spaces!"});
+          return;
+        }
+        if (name == "all") {
+          this.fire('ghvz-alert', {message: "This name is reserved for Benedict Cumberbatch!"});
+          return;
+        }
+        this.newPlayerArgs.name = name;
         this.pageNumber++;
       },
 
       handleGunPageDone_(e) {
-        this.newPlayerArgs.needGun = e.detail.value;
-        this.pageNumber++;
-      },
-
-      handlePhotosPageDone_(e) {
-        this.newPlayerArgs.beInPhotos = e.detail.value;
-        this.pageNumber++;
-      },
-
-      handleVolunteerPageDone_(e) {
-        if (e.detail.value) {
-          this.pageNumber++;
-        } else {
-          this.newPlayerArgs.volunteer = {
-            advertising: false,
-            logistics: false,
-            communications: false,
-            moderator: false,
-            cleric: false,
-            sorcerer: false,
-            admin: false,
-            photographer: false,
-            chronicler: false,
-            server: false,
-            client: false,
-            android: false,
-            ios: false,
-          };
+        let haveGun = e.detail.value;
+        this.newPlayerArgs.needGun = !haveGun;
+        if (haveGun) {
           this.pageNumber += 2;
+        } else {
+          this.pageNumber++;
         }
       },
 
-      handleVolunteerPositionsPageDone_(e) {
-        this.newPlayerArgs.volunteer = e.detail.values;
-        this.pageNumber++;
+      handleBandPageDone_(e) {
+        let haveBand = e.detail.value;
+        if (haveBand) {
+          this.pageNumber += 2;
+        } else {
+          this.pageNumber++;
+        }
       },
+
+      // handleVolunteerPageDone_(e) {
+      //   if (e.detail.value) {
+      //     this.pageNumber++;
+      //   } else {
+      //     this.pageNumber += 2;
+      //   }
+      // },
+
+      // handleVolunteerPositionsPageDone_(e) {
+      //   this.newPlayerArgs.volunteer = e.detail.values;
+      //   this.pageNumber++;
+      // },
 
       nextPage_(e) {
         this.pageNumber++;
@@ -134,8 +152,15 @@
 
       makeNerfGunOptions() {
         return [
-          {value: true, buttonLabel: "Yes!", text: "I can bring/buy/steal/3D print my own nerf gun!"},
-          {value: false, buttonLabel: "No...", text: "I need a nerf gun and can't get one before the game, save one for me please!"},
+          {value: true, buttonLabel: "Yes!", text: "I've got a nerf gun!"},
+          {value: false, buttonLabel: "No...", text: "Tell me where I can borrow or buy a nerf gun!"},
+        ];
+      },
+
+      makeBandOptions() {
+        return [
+          {value: true, buttonLabel: "Yes!", text: "I've picked up my band!"},
+          {value: false, buttonLabel: "No...", text: "Tell me where I can pick up my band!"},
         ];
       },
 
@@ -180,6 +205,10 @@
 
       computeQuestionNumber_(question) {
         return this.game.quizQuestions.indexOf(question);
+      },
+
+      displayEmailWarning_(email) {
+        return !email.includes("@gmail.com");
       },
     });
   });
@@ -244,6 +273,17 @@
   paper-progress {
     width: auto;
   }
+  #email {
+    border: 1px solid rgba(255, 0, 0, .2);
+    background-color: rgba(255, 0, 0, .1);
+    padding: 2px;
+  }
+  #warning {
+    margin-bottom: 16px;
+  }
+  #gunOptions li {
+    margin: 8px 0;
+  }
 </style>
 <template>
   <paper-progress value="[[progressPercent]]"></paper-progress>
@@ -251,16 +291,26 @@
     <neon-animatable>
       <div class="page">
         <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
-        <div class="maintext">
-          A note before we start: if you're going to be using the Android and iOS apps to receive notifications,
-          make sure that the email address you logged in with here is also accessible on your phone.
-        </div>
-        <div class="maintext">
-          If you logged in with a corporate account to this site, but your phone can't log into that
-          corporate account, then you won't be receiving notifications. The easy option is to just use
-          a non-corporate account.
-        </div>
-        <paper-button name="joinGameIntroNext" on-tap="nextPage_">Next</paper-button>
+        <template is="dom-if" if="[[displayEmailWarning_(email)]]">
+          <div id="warning">
+            <b>Heads up!</b> You're using <span id="email">[[email]]</span>, which is not a gmail account. <b>Make sure you can sign in to this account on the phone you'll use during missions!</b> You can't change accounts later, so make sure this is the account you want to register with.
+          </div>
+        </template>
+        <paper-button raised name="joinGameIntroNext" on-tap="nextPage_">Next</paper-button>
+      </div>
+    </neon-animatable>
+
+    <neon-animatable>
+      <div class="page">
+        <p>Have you registered with <a href="http://go/gfit">go/gfit</a>?</p>
+        <p>Every player is required to register on their site.</p>
+        <ul>
+          <li>Click on "CLICK HERE TO REGISTER"</li>
+          <li>Scroll down the page and click on the "REGISTER HERE" link</li>
+          <li>On the next page, sign in with your corp account.</li>
+          <li>When you get to the Exos page, you're done!</li>
+        </ul>
+        <paper-button raised name="joinGameGfitNext" on-tap="nextPage_">Next</paper-button>
       </div>
     </neon-animatable>
 
@@ -279,25 +329,44 @@
 
     <neon-animatable>
       <ghvz-interview-option-page
-          name="joinGameBlasterPage"
-          options="[[makeNerfGunOptions()]]"
-          on-ghvz-interview-page-done="handleGunPageDone_">
-        <div class="maintext">Can you get your own Nerf gun before the game? (If not, we can get you one!)</div>
-        <div class="subtext">We have way more players than we have nerf guns to lend out, so please try to bring your own! We recommend the <a href='https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050'>Disruptor</a> tried-and-true and only $12, most players will have them.</div>
+          name="joinGameBandPage"
+          options="[[makeBandOptions()]]"
+          on-ghvz-interview-page-done="handleBandPageDone_">
+        <div class="maintext">Do you have your band yet?</div>
+        <div class="subtext">Every player needs their armband/headband to play.</div>
       </ghvz-interview-option-page>
+    </neon-animatable>
+
+    <neon-animatable>
+      <div class="page">
+        <p>You can pick up your band at any of the places and times on <a href="https://calendar.google.com/calendar/embed?src=google.com_gv3kv7ed6q42mufforn6aem86g%40group.calendar.google.com&ctz=America/Los_Angeles">this calendar</a>!</p>
+        <paper-button raised name="joinGameBandInfoPageNext" on-tap="nextPage_">Next</paper-button>
+      </div>
     </neon-animatable>
 
     <neon-animatable>
       <ghvz-interview-option-page
-          name="joinGameTakePhotos"
-          options="[[makeTakePhotoOptions()]]"
-          on-ghvz-interview-page-done="handlePhotosPageDone_">
-        <div class="maintext">Are you ok with photos including your face being taken during the game?</div>
-        <div class="subtext">Photos taken may be included in promotional content of the game and/or a public gallery of highlights.</div>
+          name="joinGameBlasterPage"
+          options="[[makeNerfGunOptions()]]"
+          on-ghvz-interview-page-done="handleGunPageDone_">
+        <div class="maintext">Do you have a nerf gun?</div>
+        <div class="subtext">We have way more players than we have nerf guns to lend out, so please try to bring your own!</div>
       </ghvz-interview-option-page>
     </neon-animatable>
 
     <neon-animatable>
+      <div class="page">
+        <div class="maintext">You have options!</div>
+        <ul id="gunOptions">
+          <li>Borrow a nerf gun. We might have some left! <a href="https://calendar.google.com/calendar/embed?src=google.com_gv3kv7ed6q42mufforn6aem86g%40group.calendar.google.com&ctz=America/Los_Angeles">See this calendar</a> for times you can swing by!</li>
+          <li>Buy one! We recommend the <a href="https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050" target="_blank">Disruptor</a> tried-and-true and only $12, most players will have them.</li>
+          <li>If you're aiming to start as a zombie, you don't need a blaster! (and you get revived halfway through, at which time there will probably be blasters available!)</li>
+        </ul>
+        <paper-button raised name="joinGameBlasterInfoPageNext" on-tap="nextPage_">Next</paper-button>
+      </div>
+    </neon-animatable>
+
+    <!--<neon-animatable>
       <ghvz-interview-option-page
           name="joinGameBeVolunteerPage"
           options="[[makeBeAVolunteerOptions()]]"
@@ -315,7 +384,7 @@
         <div class="maintext">Which positions might you be interested in?</div>
         <div class="subtext">With many of these options you'll still be able to be part of the game! Checking off any of these boxes doesn't mean a commitment. We'll message you with more details of what this entails!</div>
       </ghvz-interview-multi-choice-page>
-    </neon-animatable>
+    </neon-animatable>-->
 
     <neon-animatable>
       <div class="page">
@@ -323,7 +392,7 @@
           You're ready! Hit the Submit button to join the game!
         </div>
         <div class="section">
-          <paper-button name="submitJoinGame" raised on-click="done_">
+          <paper-button raised name="submitJoinGame" raised on-click="done_">
             Submit
           </paper-button>
         </div>

@@ -23,9 +23,20 @@
       is: 'ghvz-multiple-choice',
 
       properties: {
-        question: String,
-        answers: Array,
+        question: Object,
       },
+
+      onAnswerTapped_(e) {
+        if (e.model.answer.isCorrect) {
+          this.fire('ghvz-quiz-done');
+        } else {
+          this.fire('ghvz-alert', {message: "Nope, please try again!"});
+        }
+      },
+
+      sort_(a, b) {
+        return a.number - b.number;
+      }
     });
   });
 </script>
@@ -39,7 +50,16 @@
     box-sizing: border-box;
   }
   .answer {
-    padding: 16px;
+    padding: 8px;
+    display: flex;
+  }
+  .answer-text {
+    flex-grow: 1;
+  }
+  paper-button {
+    background-color: #03A9F4;
+    color: white;
+    flex-shrink: 0;
   }
   * {
     /* This works around a mysterious polymer bug which causes buttons to disappear */
@@ -49,13 +69,15 @@
 </style>
 <template>
   <div>
-    [[question]]
+    [[question.text]]
   </div>
-  <template id="repeater" is="dom-repeat" items="[[answers]]" as="answer">
+  <template id="repeater" is="dom-repeat" items="[[question.answers]]" as="answer">
     <iron-collapse opened>
       <paper-material class="answer">
-        [[answer]]
-        <paper-button on-tap="onAnswerTapped_">Choose</paper-button>
+        <div class="answer-text">[[answer.text]]</div>
+        <div class="answer-choose">
+          <paper-button raised name$="answer[[answer.number]]" on-tap="onAnswerTapped_">Choose</paper-button>
+        </div>
       </paper-material>
     </iron-collapse>
   </template>

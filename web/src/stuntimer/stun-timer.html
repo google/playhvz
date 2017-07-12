@@ -1,0 +1,104 @@
+<!--
+  Copyright 2017 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<dom-module id="ghvz-stun-timer">
+<script>
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-stun-timer',
+      properties: {
+        game: {
+          type: Object,
+          value: null,
+        },
+        counting: {
+          type: Boolean,
+          value: false,
+        },
+        doneMessage: {
+          type: Boolean,
+          value: false,
+        },
+        time: Number,
+      },
+
+      attached() {
+        this.time = this.game.stunTimer
+      },
+
+      reset_() {
+        this.doneMessage = false;
+        this.time = this.game.stunTimer;
+      },
+
+      startStop_() {
+        this.counting = ! this.counting;
+        this.countDown_(this.time)
+      },
+
+      computeStartStopText_(counting) {
+        return counting ? "Stop" : "Start";
+      },
+
+      countDown_() {
+        if (this.counting) {
+          if (this.time == 0) {
+            this.counting = false;
+            this.doneMessage = true;
+          } else {
+            setTimeout(() => {
+              this.time = this.time - 1;
+              this.countDown_();
+            }, 1000)
+        }
+        }
+      }
+      
+    });
+  });
+</script>
+<style>
+  paper-button {
+      background-color: #03A9F4;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      margin: 5px;
+    }
+  #timer-text {
+    font-size: 200%;
+    margin: 5px;
+  }
+</style>
+
+<template>
+  <div id="timer-text">
+    <div name="times-up" hidden="[[!doneMessage]]">Time's up! Go get brains!</div>
+    <div name="time-counter" hidden="[[doneMessage]]" time="[[time]]">[[time]] sec</div>
+  </div>
+  <paper-button
+      name="timer-reset"
+      raised
+      on-tap="reset_">
+      Reset
+  </paper-button>
+  <paper-button
+      name="timer-startstop"
+      raised
+      on-tap="startStop_">
+    [[computeStartStopText_(counting)]]
+  </paper-button>
+</template>
+</dom-module>
