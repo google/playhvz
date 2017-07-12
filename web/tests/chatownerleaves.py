@@ -33,7 +33,7 @@ driver.SendKeys(
       [[By.NAME, 'header-Claimer'], [By.TAG_NAME, 'input']],
       'unclaimed')
 # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
-reward = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name']]).get_attribute('val')
+reward = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name-0']]).get_attribute('val')
 
 driver.DrawerMenuClick('admin-rewards-card', 'Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward)
@@ -103,8 +103,31 @@ driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"],
   [By.ID, 'kick-MoldaviTheMoldavish']])
 driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.ID, 'kickForm'], [By.ID, 'done']])
 
-# Add Moldavi back in
+# Add Moldavi
 driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-add"]])
 driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "player-name-MoldaviTheMoldavish"]])
+
+# Zella leaves, making Moldavi the owner
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-leave']])
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-room-Humanity's Last Hope"], [By.ID, 'leaveForm'], [By.ID, 'done']])
+
+# Moldavi checks he's the owner
+driver.SwitchUser('moldavi')
+driver.Click([[By.NAME, 'close-notification']])
+driver.DrawerMenuClick('mobile-main-page', "Humanity's Last Hope")
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
+driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, "chat-drawer-Humanity's Last Hope"], [By.NAME, 'ZellaTheUltimate']], should_exist=False)
+
+# As the owner, add Zella back in
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-add']])
+driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "player-name-ZellaTheUltimate"]])
+
+# Zella can't add/remove anymore since Moldavi's the owenr
+driver.SwitchUser('zella')
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
+driver.FindElement([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-add"]], should_exist=False)
+driver.FindElement([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-leave"]], should_exist=False)
+
+
 
 driver.Quit()

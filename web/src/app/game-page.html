@@ -79,8 +79,10 @@
     box-sizing: border-box;
   }
   div[main] {
-    overflow-y: auto;
+    overflow-y: scroll; /* has to be scroll, not auto */
+    -webkit-overflow-scrolling: touch; /* momentum scrolling */
   }
+
   div[main],
   div[drawer] {
     flex-grow: 1;
@@ -89,7 +91,9 @@
   }
 
   paper-material[drawer] {
-    overflow-y: auto;
+    /* momentum scrolling */
+    overflow-y: scroll; 
+    -webkit-overflow-scrolling: touch;
   }
 
   ghvz-drawer,

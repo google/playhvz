@@ -217,6 +217,12 @@
   ghvz-display-page {
     flex-grow: 1;
   }
+
+  paper-button[name="signIn"] {
+    background-color: #03A9F4;
+    color: white;
+    margin: 3px 0;
+  }
 </style>
 <template>
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
@@ -229,7 +235,7 @@
   </ghvz-inactive-dialog>
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
-    <paper-button name="signIn" on-tap="signIn_" hidden$="[[!showSignInButton]]">
+    <paper-button raised name="signIn" on-tap="signIn_" hidden$="[[!showSignInButton]]">
       Sign In With Google
     </paper-button>
   </template>

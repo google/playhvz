@@ -83,12 +83,12 @@
 
   <!-- for webdrivers -->
   <div style="height: 1px" name$="mission-[[mission.name]]"></div>
-  <div id="missionControls">
+  <div id="missionControls" name$="mission-controls-[[mission.name]]">
     <div id="time">
       Mission time:
       <b>[[formatTime_(mission.beginTime)]]</b>
       to
-      <b> [[formatTime_(mission.beginTime)]]</b>
+      <b> [[formatTime_(mission.endTime)]]</b>
     </div>
     <!--ghvz-rsvp
         id="rsvp"
@@ -99,6 +99,6 @@
         in-group="{{inGroup}}">
     </ghvz-rsvp-->
   </div>
-  <div id="mission"></div>
+  <div id="mission" name$="mission-text-[[mission.name]]"></div>
 </template>
 </dom-module>
