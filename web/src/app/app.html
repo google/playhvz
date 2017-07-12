@@ -34,6 +34,7 @@
 
         url: String,
         userId: String,
+        email: String,
 
         gameId: {
           type: String,
@@ -88,10 +89,11 @@
 
       onBridgeSet_() {
         this.bridge.getSignedInPromise({userId: this.userId})
-            .then((userId) => {
+            .then(({userId, email}) => {
               this.showSignInButton = false;
               this.showLoadingSpinner = true;
               this.userId = userId;
+              this.email = email;
             });
       },
 
@@ -224,13 +226,13 @@
 </style>
 <template>
   <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
-  <ghvz-active active="{{userActive}}"></ghvz-active>
+  <!--<ghvz-active active="{{userActive}}"></ghvz-active>
   <ghvz-inactive-dialog
       bridge="[[bridge]]"
       game="[[game]]"
       player="[[player]]"
       active="[[userActive]]">
-  </ghvz-inactive-dialog>
+  </ghvz-inactive-dialog>-->
   <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
   <template is="dom-if" if="[[showSignInButton]]">
     <paper-button raised name="signIn" on-tap="signIn_" hidden$="[[!showSignInButton]]">
@@ -246,6 +248,7 @@
     <ghvz-display-page
         config="[[config]]"
         bridge="[[bridge]]"
+        email="[[email]]"
         path="[[path]]"
         game="[[game]]"
         player="[[player]]"

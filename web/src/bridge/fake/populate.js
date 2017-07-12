@@ -275,7 +275,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.joinResistance({
     gameId: gameId,
     playerId: zellaPlayerId,
-    lifeCode: "glarple zerp wobbledob",
+    lifeCode: "glarple-zerp-wobbledob",
     lifeId: bridge.idGenerator.newPublicLifeId(),
     privateLifeId: null,
   });
@@ -334,7 +334,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.joinResistance({
     gameId: gameId,
     playerId: moldaviPlayerId,
-    lifeCode: "zooble flipwoogly",
+    lifeCode: "zooble-flipwoogly",
     lifeId: null,
     privateLifeId: null,
   });
@@ -346,7 +346,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.joinResistance({
     gameId: gameId,
     playerId: jackPlayerId,
-    lifeCode: "grobble forgbobbly",
+    lifeCode: "grobble-forgbobbly",
     lifeId: null,
     privateLifeId: null,
   });
@@ -363,7 +363,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.joinResistance({
     gameId: gameId,
     playerId: zekePlayerId,
-    lifeCode: "bobblewob dobblewob",
+    lifeCode: "bobblewob-dobblewob",
     lifeId: null,
     privateLifeId: null,
   });
@@ -380,7 +380,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
   bridge.infect({
     infectionId: bridge.idGenerator.newInfectionId(),
     infectorPlayerId: drakePlayerId,
-    victimLifeCode: "bobblewob dobblewob",
+    victimLifeCode: "bobblewob-dobblewob",
     victimPlayerId: null,
     gameId: gameId,
   });
@@ -942,6 +942,32 @@ function populateQuiz(bridge, gameId) {
     isCorrect: false,
     number: 9,
   });
+
+  let lyingDownQuestionId = bridge.idGenerator.newQuizQuestionId();
+  bridge.addQuizQuestion({quizQuestionId: lyingDownQuestionId, gameId: gameId,
+    text: "You see somebody lying down, not moving. What should you do?",
+    type: 'multipleChoice',
+    number: 3,
+  });
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: lyingDownQuestionId, gameId: gameId,
+    text: "Keep playing",
+    order: 0,
+    isCorrect: false,
+    number: 0,
+  });
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: lyingDownQuestionId, gameId: gameId,
+    text: "Let an admin know",
+    order: 0,
+    isCorrect: false,
+    number: 1,
+  });
+  bridge.addQuizAnswer({quizAnswerId: bridge.idGenerator.newQuizAnswerId(), quizQuestionId: lyingDownQuestionId, gameId: gameId,
+    text: "Check that they’re ok, and call 911/GSOC if they’re unresponsive.",
+    order: 0,
+    isCorrect: true,
+    number: 2,
+  });
+
   bridge.setRequestTimeOffset(0);
   bridge.executeNotifications({});
 }

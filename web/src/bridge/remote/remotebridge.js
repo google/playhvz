@@ -74,7 +74,7 @@ class RemoteBridge {
                   this.userId = "user-" + firebaseUser.uid;
                   this.requester.setRequestingUserIdAndJwt(userIdJwt, this.userId);
                   this.register({userId: this.userId}).then(() => {
-                    resolve(this.userId);
+                    resolve({userId: this.userId, email: firebaseUser.email});
                   });
                 } else {
                   // Sometimes we get spurious auth changes.

@@ -1395,7 +1395,8 @@ def Infect(request, game_state):
   infector_public_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
   victim_life_code = request['victimLifeCode']
-  victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
+  if victim_life_code is not None:
+    victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
   victim_public_player_id = request['victimPlayerId'] or helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
   time = helpers.GetTime(request)
 
