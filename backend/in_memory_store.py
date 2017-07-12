@@ -52,8 +52,9 @@ def enqueue_patch(firebase, data):
   enqueued_patch.patch('/', data)
   patch_mutex.release()
   print "getting accessor_mutex:", str(accessor_mutex)
-  if accessor_mutex.acquire(False):
-    deferred.defer(compact_and_send, firebase=firebase, _queue="extra-requests")
+  accessor_mutex.acquire()
+  deferred.defer(compact_and_send, firebase=firebase, _queue="extra-requests")
+  accessor_mutex.release()
 
 def compact_and_send(firebase):
   """
@@ -76,7 +77,7 @@ def finished_patch(firebase, res):
   Send the next patch. If not, clear the lock, allowing accessors to firebase.
   """
   if not enqueued_patch.has_mutations():
-    accessor_mutex.acquire(False)
+    accessor_mutex.acquire()
     print "releasing accessor_mutex:", str(accessor_mutex)
     accessor_mutex.release()
   else:

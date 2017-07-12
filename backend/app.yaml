@@ -31,6 +31,6 @@ handlers:
 
 instance_class: F4_1G
 automatic_scaling:
-  max_idle_instances: 0
+  max_idle_instances: 1
   max_concurrent_requests: 80
-  max_pending_latency: 15s
+  max_pending_latency: 5s
