@@ -88,6 +88,9 @@
         },
 
         onMessageReceived_() {
+          let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
+          console.log(membership);
+          console.log(this.chatRoom.messages);
           let scrollTop = this.$.conversationContainer.scrollTop;
           let offsetHeight = this.$.conversationContainer.offsetHeight;
           let scrollHeight = this.$.conversationContainer.scrollHeight;
