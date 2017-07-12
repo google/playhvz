@@ -95,7 +95,7 @@
         },
 
         onPathChanged_() {
-          if (!this.isAdmin && this.path[0] != 'adminChats') {
+          if (!this.isAdmin || this.path[0] != 'adminChats') {
             return;
           }
           var chatRoomId = this.path[1];
