@@ -106,6 +106,8 @@ class NormalRequester {
           requests[i].reject("No result for request to " + requests[i].method);
         }
       }
+		} else if (ajaxRequest.status == 503) {
+			this.waitingRequests.push(requests);
     } else {
       this.alertHandler('There was an error with your request: ' + ajaxRequest.responseText);
       for (let i = 0; i < requests.length; i++) {

@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
       mHandler = new Handler(new Handler.Callback(){
+          Log.d(TAG, "Starting Handler ");
             @Override
             public boolean handleMessage(Message msg){
                 switch(msg.what){
@@ -133,9 +134,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-
+        Log.d(TAG, "Got gso " + gso.toString());
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        Log.d(TAG, "Got user " + currentUser.toString());
         if(sharedPreferences.getString(TOKEN_KEY, null) == null || currentUser == null) {
             signIn();
         }

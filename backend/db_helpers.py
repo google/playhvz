@@ -50,6 +50,7 @@ def ExpectExistence(game_state, path, id, test_property, should_exist):
   if exists and not should_exist:
     raise InvalidInputError('ID "%s" should not have existed!' % id)
   if not exists and should_exist:
+    print "game_state:", str(game_state.transaction.local_patch.data_tree)
     raise InvalidInputError('ID "%s" should have existed!' % id)
 
 

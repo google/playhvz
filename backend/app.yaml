@@ -29,6 +29,8 @@ handlers:
   script: google.appengine.ext.deferred.deferred.application
   login: admin
 
-instance_class: B1
-manual_scaling:
-  instances: 1
+instance_class: F4_1G
+automatic_scaling:
+  max_idle_instances: 0
+  max_concurrent_requests: 80
+  max_pending_latency: 15s

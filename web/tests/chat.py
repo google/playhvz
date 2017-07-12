@@ -55,7 +55,10 @@ def testChat(player, chatName, shouldBeMember):
 
     # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
     # This is probably because clicking the X on the notification didn't make it go away.
-    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
+    try:
+      driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
+    except WebDriverException:
+      pass
     driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, 'num-players']])
     driver.FindElement(
       [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
@@ -106,5 +109,3 @@ testChat('zeke', 'Resistance Comms Hub', False) # Zombie
 testChat('deckerd', 'Resistance Comms Hub', False) # Undeclared
 
 driver.Quit()
-
-

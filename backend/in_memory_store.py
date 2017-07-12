@@ -51,8 +51,9 @@ def enqueue_patch(firebase, data):
   patch_mutex.acquire()
   enqueued_patch.patch('/', data)
   patch_mutex.release()
+  print "getting accessor_mutex:", str(accessor_mutex)
   if accessor_mutex.acquire(False):
-    compact_and_send(firebase)
+    deferred.defer(compact_and_send, firebase=firebase, _queue="extra-requests")
 
 def compact_and_send(firebase):
   """
@@ -75,8 +76,11 @@ def finished_patch(firebase, res):
   Send the next patch. If not, clear the lock, allowing accessors to firebase.
   """
   if not enqueued_patch.has_mutations():
+    accessor_mutex.acquire(False)
+    print "releasing accessor_mutex:", str(accessor_mutex)
     accessor_mutex.release()
   else:
+    print "continuing mutex"
     compact_and_send(firebase)
 
 
@@ -134,8 +138,10 @@ class InMemoryStore:
           if false, gets the data from the remote copy.
     """
     if not local_instance:
+      print "getting accessor_mutex"
       accessor_mutex.acquire()
       data = self.firebase.get(path, id)
+      print "releasing accessor_mutex"
       accessor_mutex.release()
       return data
     full_path = path_utils.join_paths(path, id)
