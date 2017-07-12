@@ -51,9 +51,17 @@ class FakeBridge {
       setTimeout(resolve, 0);
     });
   }
-  getSignedInPromise({userId}) {
+  getSignedInPromise({userId, email}) {
     assert(userId);
-    return this.server.register({userId: userId}).then(() => userId);
+    return new Promise((resolve, reject) => {
+      this.server.register({userId: userId})
+          .then(
+              () => {
+                //TODO(verdagon): somehow retrieve the fake user's email here
+                resolve({userId: userId, email: "emailhere@somewebsite.lol"})
+              }, 
+              reject);
+    });
   }
   listenToGame(userId, gameId, destination) {
     var gatedWriter = new GatedWriter(new MappingWriter(destination), false);

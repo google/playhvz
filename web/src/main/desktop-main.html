@@ -128,6 +128,9 @@
       background-color: #03A9F4;
       color: white;
     }
+    #welcome {
+      margin-bottom: 8px;
+    }
   </style>
   <template>
     <ghvz-dashboard>
@@ -135,7 +138,10 @@
       <template is="dom-if" if="[[canJoinGame]]">
         <ghvz-card spaced full padded name="join-box">
           <div class="header">Join Game!</div>
-          <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
+          <div>
+            <div id="welcome">Welcome to playhvz.com! Click the button to join the game.</div>
+            <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
+          </div>
         </ghvz-card>
       </template>
 

@@ -34,6 +34,7 @@
 
         url: String,
         userId: String,
+        email: String,
 
         gameId: {
           type: String,
@@ -88,10 +89,11 @@
 
       onBridgeSet_() {
         this.bridge.getSignedInPromise({userId: this.userId})
-            .then((userId) => {
+            .then(({userId, email}) => {
               this.showSignInButton = false;
               this.showLoadingSpinner = true;
               this.userId = userId;
+              this.email = email;
             });
       },
 
@@ -240,6 +242,7 @@
     <ghvz-display-page
         config="[[config]]"
         bridge="[[bridge]]"
+        email="[[email]]"
         path="[[path]]"
         game="[[game]]"
         player="[[player]]"

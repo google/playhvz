@@ -58,13 +58,13 @@ driver.SwitchUser("reggie")
 
 driver.Click([[By.NAME, 'joinGame']])
 driver.Click([[By.NAME, 'joinGameIntroNext']])
+driver.Click([[By.NAME, 'joinGameGfitNext']])
 driver.SendKeys(
     [[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-input'], [By.TAG_NAME, 'input']],
     'ReggieTheRavager')
 driver.Click([[By.NAME, 'joinGameNamePage'], [By.TAG_NAME, 'paper-button']])
-driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option1']])
-driver.Click([[By.NAME, 'joinGameTakePhotos'], [By.NAME, 'option1']])
-driver.Click([[By.NAME, 'joinGameBeVolunteerPage'], [By.NAME, 'option2']])
+driver.Click([[By.NAME, 'joinGameBandPage'], [By.NAME, 'option0']])
+driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option0']])
 driver.Click([[By.TAG_NAME, 'ghvz-game-registration'], [By.NAME, 'submitJoinGame']])
 
 # Check that the leaderboard has the person show up with 0 points
