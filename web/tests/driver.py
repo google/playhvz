@@ -222,7 +222,6 @@ class RemoteDriver:
   def DismissAlert(self, textToLookFor = ''):
     self.drivers_by_user[self.current_user].DismissAlert(textToLookFor)
 
-
   def ExpectContains(self, path, needle, should_exist=True, check_visible=True, scoped=True):
     self.drivers_by_user[self.current_user].ExpectContains(path, needle, should_exist=should_exist, check_visible=check_visible)
 
