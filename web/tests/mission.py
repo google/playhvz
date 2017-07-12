@@ -17,6 +17,7 @@
 """TODO: High-level file comment."""
 
 import sys
+import time
 
 
 def main(argv):
@@ -77,114 +78,111 @@ def insertAndVerifyMissionInfo(
 
 driver = setup.MakeDriver(user="zella")
 
-try:
+driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
+driver.Click([[By.NAME, 'close-notification']])
 
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
-  driver.Click([[By.NAME, 'close-notification']])
+# Delete the two missions which start out there
+driver.TableMenuClick([[By.NAME, "mission-row-first zed mission!"]], 'Delete')
 
-  # Delete the two missions which start out there
-  driver.TableMenuClick([[By.NAME, "mission-row-first zed mission!"]], 'Delete')
-  driver.TableMenuClick([[By.NAME, "mission-row-first human mission!"]], 'Delete')
+# TODO(verdagon): take this back out, was added in because of a weird menu issue that deleted both the missions
+time.sleep(2)
 
-  # Make sure both humans and zombies get a default message when no missions are posted.
-  driver.DrawerMenuClick('admin-missions-card', 'Dashboard')
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
+driver.TableMenuClick([[By.NAME, "mission-row-first human mission!"]], 'Delete')
 
-  driver.SwitchUser('zeke') # He's a zombie
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
+# Make sure both humans and zombies get a default message when no missions are posted.
+driver.DrawerMenuClick('admin-missions-card', 'Dashboard')
+driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
 
-  # Log back in as an admin.
-  driver.SwitchUser('zella')
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
+driver.SwitchUser('zeke') # He's a zombie
+driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
 
-  # Create a human mission
-  driver.Click([[By.ID, 'add']])
-  insertAndVerifyMissionInfo(
-    name='insert witty and entertaining name here',
-    startYear='2017',
-    startMonth='10',
-    startDay='20',
-    startTime='3:00am',
-    endYear='2038',
-    endMonth='4',
-    endDay='2',
-    endTime='10:15pm',
-    details='<div>take over the world</div>',
-    groupName='Resistance')
+# Log back in as an admin.
+driver.SwitchUser('zella')
+driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
 
-  # Create a zombie mission
-  driver.Click([[By.ID, 'add']])
-  insertAndVerifyMissionInfo(
-    name='zed mission',
-    startYear='2017',
-    startMonth='1',
-    startDay='2',
-    startTime='12:34am',
-    endYear='2038',
-    endMonth='4',
-    endDay='2',
-    endTime='2:34pm',
-    details='<div>eat humans</div>',
-    groupName='Horde')
+# Create a human mission
+driver.Click([[By.ID, 'add']])
+insertAndVerifyMissionInfo(
+  name='insert witty and entertaining name here',
+  startYear='2017',
+  startMonth='10',
+  startDay='20',
+  startTime='3:00am',
+  endYear='2038',
+  endMonth='4',
+  endDay='2',
+  endTime='10:15pm',
+  details='<div>take over the world</div>',
+  groupName='Resistance')
 
-  # Log in as a human (Jack), make sure he can see the human mission but not the zombie mission
-  driver.SwitchUser('jack')
+# Create a zombie mission
+driver.Click([[By.ID, 'add']])
+insertAndVerifyMissionInfo(
+  name='zed mission',
+  startYear='2017',
+  startMonth='1',
+  startDay='2',
+  startTime='12:34am',
+  endYear='2038',
+  endMonth='4',
+  endDay='2',
+  endTime='2:34pm',
+  details='<div>eat humans</div>',
+  groupName='Horde')
 
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans', should_exist=False)
-  
-  # Log in as a zombie (Zeke), make sure he can see the zombie mission but not the human mission
-  driver.SwitchUser('zeke')
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans')
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world', should_exist=False)
+# Log in as a human (Jack), make sure he can see the human mission but not the zombie mission
+driver.SwitchUser('jack')
 
-  # As an admin, create another human mission
-  driver.SwitchUser('zella')
+driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
+driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans', should_exist=False)
 
-  driver.Click([[By.ID, 'add']])
-  insertAndVerifyMissionInfo(
-    name='Defeat the dread zombie boss Gnashable the Zeebweeble',
-    startYear='2017',
-    startMonth='9',
-    startDay='20',
-    startTime='3:00am',
-    endYear='2037',
-    endMonth='4',
-    endDay='2',
-    endTime='10:15pm',
-    details='<div>Basically, we just run around in circles trying not to die.</div>',
-    groupName='Everyone')
+# Log in as a zombie (Zeke), make sure he can see the zombie mission but not the human mission
+driver.SwitchUser('zeke')
+driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans')
+driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world', should_exist=False)
 
-  # This mission shows up (since the end date is sooner than the other one)
-  driver.SwitchUser('jack')
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'Basically, we just run around in circles trying not to die.')
+# As an admin, create another human mission
+driver.SwitchUser('zella')
 
-  # As an admin, change the mission end date to later than the other human mission
-  driver.SwitchUser('zella')
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
-  
-  driver.TableMenuClick([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble']], 'Edit')
-  insertAndVerifyMissionInfo(
-    name='Defeat the super scary awful zombie boss Gnashable the Zeebweeble',
-    startYear='2018',
-    startMonth='10',
-    startDay='21',
-    startTime='12:34pm',
-    endYear='2039',
-    endMonth='5',
-    endDay='3',
-    endTime='11:16pm',
-    details='<div>Basically, we just run around in ellipses trying not to die.</div>',
-    groupName='Everyone')
+driver.Click([[By.ID, 'add']])
+insertAndVerifyMissionInfo(
+  name='Defeat the dread zombie boss Gnashable the Zeebweeble',
+  startYear='2017',
+  startMonth='9',
+  startDay='20',
+  startTime='3:00am',
+  endYear='2037',
+  endMonth='4',
+  endDay='2',
+  endTime='10:15pm',
+  details='<div>Basically, we just run around in circles trying not to die.</div>',
+  groupName='Everyone')
 
-  # Log in as a human (Jack). Show that the new mission doesn't show up anymore
-  driver.SwitchUser('jack')
-  driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
-  
-  driver.Quit()
+# This mission shows up (since the end date is sooner than the other one)
+driver.SwitchUser('jack')
+driver.ExpectContains([[By.NAME, 'next-mission-box']], 'Basically, we just run around in circles trying not to die.')
 
-finally:
-  pass
+# As an admin, change the mission end date to later than the other human mission
+driver.SwitchUser('zella')
+driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
 
+driver.TableMenuClick([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble']], 'Edit')
+insertAndVerifyMissionInfo(
+  name='Defeat the super scary awful zombie boss Gnashable the Zeebweeble',
+  startYear='2018',
+  startMonth='10',
+  startDay='21',
+  startTime='12:34pm',
+  endYear='2039',
+  endMonth='5',
+  endDay='3',
+  endTime='11:16pm',
+  details='<div>Basically, we just run around in ellipses trying not to die.</div>',
+  groupName='Everyone')
 
+# Log in as a human (Jack). Show that the new mission doesn't show up anymore
+driver.SwitchUser('jack')
+driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
+
+driver.Quit()
 

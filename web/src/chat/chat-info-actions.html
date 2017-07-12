@@ -76,10 +76,6 @@
                 groupId: this.chatRoom.accessGroupId,
                 actingPlayerId: this.playerId,
                 playerToAddId: playerId,
-              }).catch((e) => {
-                console.error(e);
-                if (e.message)
-                  alert(e.message);
               });
             }
           });

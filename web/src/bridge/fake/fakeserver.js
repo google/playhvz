@@ -16,18 +16,6 @@
 
 'use strict';
 
-class ServerError {
-  constructor(message) {
-    this.message = message;
-  }
-}
-
-class InvalidRequestError {
-  constructor(message) {
-    this.message = message;
-  }
-}
-
 class FakeServer {
   constructor(idGenerator, destination, time) {
     this.idGenerator = idGenerator;
@@ -111,6 +99,8 @@ class FakeServer {
 
     let publicPlayer = new Model.PublicPlayer(publicPlayerId, properties);
     publicPlayer.private = new Model.PrivatePlayer(privatePlayerId, properties);
+    publicPlayer.private.volunteer = properties.volunteer;
+    publicPlayer.private.notificationSettings = properties.notificationSettings;
 
     this.writer.insert(this.reader.getPublicPlayerPath(null), null, publicPlayer);
 
@@ -186,7 +176,7 @@ class FakeServer {
       return;
 
     if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance)
-      throw new InvalidRequestError('Player does not satisfy this group\'s allegiance filter!');
+      throw 'Player does not satisfy this group\'s allegiance filter!';
 
     this.writer.insert(
         this.reader.getGroupPlayerPath(groupId, null),
@@ -222,13 +212,13 @@ class FakeServer {
 
     for (let chatRoom of game.chatRooms) {
       if (chatRoom.accessGroupId == groupId) {
-        this.removePlayerFromChatRoom_(chatRoom.id, player.id);
+        this.removePlayerFromChatRoom_(chatRoom.id, playerId);
       }
     }
 
     for (let mission of game.missions) {
       if (mission.accessGroupId == groupId) {
-        this.removePlayerFromMission_(mission.id, player.id);
+        this.removePlayerFromMission_(mission.id, playerId);
       }
     }
 
@@ -273,7 +263,7 @@ class FakeServer {
         missionId);
   }
 
-  getMessageTargets(message, group) {
+  getMessageTargets(message, group, senderId) {
     let notificationPlayerIds = [];
     let ackRequestPlayerIds = [];
     let textRequestPlayerIds = [];
@@ -297,8 +287,11 @@ class FakeServer {
         }
         newTargetPlayerIds = [player.id];
       }
-
       notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
+      let senderIndex = notificationPlayerIds.indexOf(senderId);
+      if (senderIndex != -1) {
+        notificationPlayerIds.splice(senderIndex, 1);
+      }
       if (messageMatch[1] == '!') {
         ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
       } else if (messageMatch[1] == '?') {
@@ -326,11 +319,11 @@ class FakeServer {
             playerId: playerId,
           })));
     } else {
-      throw new InvalidRequestError('Can\'t send message to chat room without membership');
+      throw 'Can\'t send message to chat room without membership';
     }
-
+    
     let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-        this.getMessageTargets(message, group);
+        this.getMessageTargets(message, group, playerId);
 
     if (notificationPlayerIds.length) {
       for (let receiverPlayerId of notificationPlayerIds) {
@@ -641,6 +634,9 @@ class FakeServer {
       for (let j = 0; j < rewardCategory.rewards.length; j++) {
         let reward = rewardCategory.rewards[j];
         if (reward.code.replace(/\s/g, '').toLowerCase() == rewardCode) {
+          if (reward.playerId != null) {
+            throw 'This reward has already been claimed!';
+          }
           this.writer.set(
               this.reader.getRewardPath(rewardCategory.id, reward.id).concat(["playerId"]),
               playerId);
@@ -658,11 +654,7 @@ class FakeServer {
         }
       }
     }
-    assert(false);
-  }
-  selfInfect(args) {
-    let {playerId} = args;
-    this.setPlayerZombie(playerId);
+    throw 'No reward with that code exists!';
   }
   joinResistance(args) {
     let {playerId, lifeId, privateLifeId, lifeCode} = args;
@@ -672,11 +664,11 @@ class FakeServer {
     assert(player.allegiance == 'undeclared');
 
     this.addLife(args);
-    this.setPlayerHuman(playerId);
+    this.setPlayerAllegiance(playerId, "resistance", false);
   }
   joinHorde(args) {
     let {playerId} = args;
-    this.setPlayerZombie(playerId);
+    this.setPlayerAllegiance(playerId, "horde", true);
   }
   updateMembershipsOnAllegianceChange(playerId) {
     let game = this.game;
@@ -684,8 +676,8 @@ class FakeServer {
 
     for (let group of this.game.groups) {
       if (group.autoRemove) {
-        if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
-          if (group.playersById[playerId]) {
+        if (playerId in group.playersById) {
+          if (group.allegianceFilter != 'none' && group.allegianceFilter != player.allegiance) {
             this.removePlayerFromGroup({groupId: group.id, playerToRemoveId: playerId});
           }
         }
@@ -693,8 +685,10 @@ class FakeServer {
     }
     for (let group of this.game.groups) {
       if (group.autoAdd) {
-        if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
-          this.addPlayerToGroup({groupId: group.id, playerToAddId: playerId});
+        if (!(playerId in group.playersById)) {
+          if (group.allegianceFilter == 'none' || group.allegianceFilter == player.allegiance) {
+            this.addPlayerToGroup({groupId: group.id, playerToAddId: playerId});
+          }
         }
       }
     }
@@ -720,19 +714,14 @@ class FakeServer {
       this.writer.set(groupPath.concat(['ownerPlayerId']), highestPlayer.userId)
     }
   }
-  setPlayerZombie(playerId) {
+  setPlayerAllegiance(playerId, allegiance, canInfect) {
+    let oldAllegiance = this.game.playersById[playerId].allegiance;
     let publicPlayerPath = this.reader.getPublicPlayerPath(playerId);
-    this.writer.set(publicPlayerPath.concat(["allegiance"]), "horde");
+    this.writer.set(publicPlayerPath.concat(["allegiance"]), allegiance);
     let privatePlayerPath = this.reader.getPrivatePlayerPath(playerId);
-    this.writer.set(privatePlayerPath.concat(["canInfect"]), true);
-    this.updateMembershipsOnAllegianceChange(playerId);
-  }
-  setPlayerHuman(playerId) {
-    let publicPlayerPath = this.reader.getPublicPlayerPath(playerId);
-    this.writer.set(publicPlayerPath.concat(["allegiance"]), "resistance");
-    let privatePlayerPath = this.reader.getPrivatePlayerPath(playerId);
-    this.writer.set(privatePlayerPath.concat(["canInfect"]), false);
-    this.updateMembershipsOnAllegianceChange(playerId);
+    this.writer.set(privatePlayerPath.concat(["canInfect"]), canInfect);
+    if (allegiance != oldAllegiance)
+      this.updateMembershipsOnAllegianceChange(playerId);
   }
   findPlayerByIdOrLifeCode_(playerId, lifeCode) {
     let players = this.reader.get(this.reader.getPublicPlayerPath(null));
@@ -740,7 +729,7 @@ class FakeServer {
     if (playerId) {
       let player = this.reader.get(this.reader.getPublicPlayerPath(playerId));
       if (!player) {
-        throw InvalidRequestError('No player found with id ' + playerId);
+        throw 'No player found with id ' + playerId;
       }
       return player;
     } else {
@@ -753,61 +742,103 @@ class FakeServer {
           }
         }
       }
-      throw new InvalidRequestError('No player found with life code ' + lifeCode);
+      throw 'No player found with life code ' + lifeCode;
     }
   }
   infect(request) {
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId} = request;
     let victimPlayer = this.findPlayerByIdOrLifeCode_(victimPlayerId, victimLifeCode);
     victimPlayerId = victimPlayer.id;
+
+    // Admin infection
+    if (infectorPlayerId == null) {
+      this.addInfection_(request, infectionId, victimPlayerId, null);
+      return null;
+    }
+
     let infectorPlayerPath = this.reader.getPublicPlayerPath(infectorPlayerId);
     let infectorPlayer = this.reader.get(infectorPlayerPath);
-    this.writer.set(
+    // Normal human (not possessed) trying to infect
+    if (victimPlayer.allegiance == 'resistance' && 
+        infectorPlayer.private &&
+        !infectorPlayer.private.canInfect) {
+      if (victimPlayerId == infectorPlayerId) {
+        this.addInfection_(request, infectionId, victimPlayerId, null);
+        return "self-infection";
+      } else {
+        throw 'As a human you can only enter your own lifecode.';
+        return;
+      }
+    }
+    let normalValidCode = victimPlayer.lives.length > victimPlayer.infections.length;
+    var selfInfectedValidCode = false;
+    if (victimPlayer.infections.length > 0 && 
+        victimPlayer.infections[victimPlayer.infections.length -1].infectorId == null) {
+      selfInfectedValidCode = true;
+    }
+
+    if  (normalValidCode || selfInfectedValidCode) {
+      // Give the infector points
+      this.writer.set(
         infectorPlayerPath.concat(["points"]),
         this.reader.get(infectorPlayerPath.concat(["points"])) + 100);
-    let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
-    if (infectorPlayer.allegiance == 'resistance') {
-      // Add a self-infection
-      this.addInfection_(request, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
-      // Set the infector to zombie
-      // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
-      if (infectorPlayer.infections.length >= infectorPlayer.lives.length) {
-        this.setPlayerZombie(infectorPlayer.id);
+      let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
+
+      if (infectorPlayer.allegiance == 'resistance') { //Possessed human infection
+        // Possessed human becomes a zombie
+        this.addInfection_(request, this.idGenerator.newInfectionId(), infectorPlayerId, infectorPlayerId);
+        // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
+        // The victim can now infect
+        this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
+    } else { // Normal zombie infection
+        if (selfInfectedValidCode) {
+          this.updateNullInfector_(victimPlayer.id, infectorPlayerId)
+        } else {
+          // Add an infection to the victim
+          this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
+        }
       }
-      // The victim can now infect
-      this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
     } else {
-      // Add an infection to the victim
-      this.addInfection_(request, this.idGenerator.newInfectionId(), victimPlayerId, infectorPlayerId);
-      // Set the victim to zombie
-      if (victimPlayer.infections.length >= victimPlayer.lives.length) {
-        this.setPlayerZombie(victimPlayer.id);
-      }
+     throw 'The player with this lifecode was already zombified.';
     }
     return victimPlayer.id;
   }
 
-  addInfection_(request, infectionId, infecteePlayerId, infectorPlayerId) {
-    let infecteePlayerPath = this.reader.getPublicPlayerPath(infecteePlayerId);
-    let infecteePlayer = this.reader.get(infecteePlayerPath);
+  updateNullInfector_(victimId, infectorId) {
+    // Fill in the missing infector Id
+    let victim = this.findPlayerByIdOrLifeCode_(victimId, null /*no lifecode*/);
+    let victimInfections = victim.infections;
+    victim.infections[victim.infections.length -1].infectorId = infectorId;
+    this.writer.set(
+      this.reader.getPublicPlayerPath(victimId).concat(["infections"]),
+      victimInfections)
+  }
+
+  addInfection_(request, infectionId, victimPlayerId, infectorPlayerId, possession) {
+    let victimPlayerPath = this.reader.getPublicPlayerPath(victimPlayerId);
+    let victimPlayer = this.reader.get(victimPlayerPath);
     let time = this.getTime_(request);
 
     let latestTime = 0;
-    assert(infecteePlayer.lives);
-    assert(infecteePlayer.infections);
-    for (let life of infecteePlayer.lives)
+    assert(victimPlayer.lives);
+    assert(victimPlayer.infections);
+    for (let life of victimPlayer.lives)
       latestTime = Math.max(latestTime, life.time);
-    for (let infection of infecteePlayer.infections)
+    for (let infection of victimPlayer.infections)
       latestTime = Math.max(latestTime, infection.time);
     assert(time > latestTime);
 
     this.writer.insert(
-        infecteePlayerPath.concat(["infections"]),
+        victimPlayerPath.concat(["infections"]),
         null,
         new Model.Infection(infectionId, {
           infectorId: infectorPlayerId,
           time: time,
         }));
+
+    if (victimPlayer.infections.length >= victimPlayer.lives.length) {
+      this.setPlayerAllegiance(victimPlayerId, "horde", true);
+    }
   }
 
   addLife(request) {
@@ -825,12 +856,13 @@ class FakeServer {
       latestTime = Math.max(latestTime, life.time);
     for (let infection of player.infections)
       latestTime = Math.max(latestTime, infection.time);
-    assert(time > latestTime);
+    if (time < latestTime) {
+      throw "Adding a life before the latest life!";
+    }
 
     publicLifeId = publicLifeId || this.idGenerator.newPublicLifeId();
     privateLifeId = privateLifeId || this.idGenerator.newPrivateLifeId();
 
-    assert(player.lives.length == player.infections.length);
     let publicLife =
         new Model.PublicLife(publicLifeId, {
           privateLifeId: privateLifeId,
@@ -842,7 +874,7 @@ class FakeServer {
         });
     this.writer.insert(this.reader.getPublicLifePath(playerId, null), null, publicLife);
     if (player.lives.length > player.infections.length) {
-      this.setPlayerHuman(playerId);
+      this.setPlayerAllegiance(playerId, "resistance", false);
     }
   }
 

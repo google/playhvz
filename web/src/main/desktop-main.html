@@ -29,11 +29,8 @@
           user: String,
           game: String,
           player: Object,
-
-          isAdmin: {
-            type: Boolean,
-            computed: 'computeIsAdmin_(user, game, game.adminUsers.length)',
-          },
+          isMobile: Boolean,
+          isAdmin: Boolean,
 
           isPlayer: {
             type: Boolean,
@@ -59,11 +56,11 @@
             type: Boolean,
             computed: 'computeCanSelfInfect_(player.allegiance)',
           },
-        },
 
-        computeIsAdmin_: function(user, game) {
-          let admin = game.adminUsers.find((admin) => admin.userId == user.id);
-          return !!admin;
+          isZombie: {
+            type: Boolean,
+            computed: 'computeIsZombie_(player.allegiance)',
+          },
         },
 
         computeCanDeclare_(allegiance) {
@@ -84,6 +81,10 @@
 
         computeIsPlayer_(player) {
           return !!player;
+        },
+
+        computeIsZombie_(allegiance) {
+          return allegiance == 'horde';
         },
 
         joinGame_() {
@@ -147,13 +148,13 @@
 
       <template is="dom-if" if="[[isPlayer]]">
 
-        <template is="dom-if" if="[[player.private.canInfect]]">
+        <template is="dom-if" if="[[isZombie]]">
           <ghvz-card name="infect-box" spaced left>
             <div class="header">Infect</div>
             <ghvz-infect
                 bridge="[[bridge]]"
                 game="[[game]]"
-                player-id="[[player.id]]">
+                player="[[player]]"">
             </ghvz-infect>
           </ghvz-card>
         </template>
@@ -165,18 +166,19 @@
 
         <ghvz-card spaced right padded name="faq-box">
           <div class="header">FAQ</div>
-          <ghvz-game-faq game="[[game]]"></ghvz-game-faq>
+          <ghvz-game-faq game="[[game]]" is-mobile="[[isMobile]]"></ghvz-game-faq>
         </ghvz-card>
 
-        <ghvz-card spaced left name="summary-box">
+        <ghvz-card spaced left padded name="summary-box">
             <div class="header">Game Summary</div>
             <ghvz-game-summary
+                is-mobile="[[isMobile]]"
                 game="[[game]]">
             </ghvz-game-summary>
         </ghvz-card>
 
         <template is="dom-if" if="[[isDeclared]]">
-          <ghvz-card spaced left name="next-mission-box">
+          <ghvz-card spaced left padded name="next-mission-box">
             <div class="header">Next Mission</div>
             <ghvz-next-mission
                 bridge="[[bridge]]"

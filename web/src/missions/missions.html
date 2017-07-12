@@ -28,10 +28,6 @@
 
           game: Object,
 
-          missions: {
-            type: Array,
-          },
-
           newMission: {
             type: Object,
             value: () => ({
@@ -107,7 +103,7 @@
                 property: "accessGroupId",
                 name: "mission-group",
                 label: "Group",
-                description: "Select the group that can see this mission",
+                description: "The group that can see this mission",
                 type: "group",
                 width: "half",
               },
@@ -117,7 +113,6 @@
                 property: "beginTime",
                 label: "Begin timestamp",
                 width: "half",
-                description: "(in milliseconds)",
                 type: "timestamp",
               },
               {
@@ -126,7 +121,6 @@
                 property: "endTime",
                 label: "End timestamp",
                 width: "half",
-                description: "(in milliseconds)",
                 type: "timestamp",
               },
               {
@@ -241,8 +235,8 @@
         selectable
         id="table"
         blueprint="[[makeTableBlueprint_()]]"
-        items="[[missions]]">
-      <template is="dom-repeat" id="repeater" items="[[missions]]" as="mission" initial-count="1" target-framerate="5">
+        items="[[game.missions]]">
+      <template is="dom-repeat" id="repeater" items="[[game.missions]]" as="mission" initial-count="1" target-framerate="5">
         <div class="row" name$="mission-row-[[mission.name]]">
           <ghvz-table-control-cell item="[[mission]]"></ghvz-table-control-cell>
           <div class="cell" name="missionName">[[mission.name]]</div>
@@ -260,6 +254,7 @@
         id="missionForm"
         game="[[game]]"
         type-name="Mission"
+        is-mobile="[[isMobile]]"
         blueprint="[[makeFormBlueprint_()]]">
     </ghvz-super-form>
   </template>

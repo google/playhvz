@@ -4,7 +4,7 @@ var models = {
   gun: {
     link: ['guns', 'gunId'], // How to find this object in firebase
     path: ['guns'], // How to find this object in the browser copy
-    gameId: '', 
+    gameId: '',
     playerId: '', // Properties of this object (and potential parent linkages)
     label: '',
     a: []
@@ -28,6 +28,7 @@ var models = {
     declareResistanceEndTime: 0,
     endTime: 0,
     faqHtml: '',
+    summaryHtml: '',
     groups: [],
     guns: [],
     isActive: false,
@@ -38,14 +39,14 @@ var models = {
     quizQuestions: [],
     registrationEndTime: 0,
     rewardCategories: [],
+    queuedNotifications: [],
     rulesHtml: '',
     startTime: 0,
     stunTimer: 0,
     adminContactPlayerId: '',
 
     // for fake server
-    defaultProfileImages: [],
-    queuedNotifications: []
+    defaultProfileImages: []
   },
   group: {
     link: ['groups', 'groupId'],
@@ -106,16 +107,18 @@ var models = {
   },
   queuedNotification: {
     link: ['queuedNotifications', 'queuedNotificationId'],
-    path: ['playersPrivate', 'playerId', 'notifications'],
+    path: ['queuedNotifications'],
     destination: '',
     email: false,
     gameId: '',
     groupId: '',
+    playerId: '',
     icon: '',
     message: '',
     mobile: false,
     previewMessage: '',
     sent: false,
+    sendTime: '',
     site: false,
     sound: false,
     vibrate: false
@@ -200,10 +203,11 @@ var models = {
     isVisible: false
   },
   playerMissionMembership: {
-    link: ['privatePlayers', 'playerId', 'missionMemberships', 'missionId'],
-    path: ['players', 'playerId', 'private', 'missionMemberships'],
+    link: ['privatePlayers', 'privatePlayerId', 'missionMemberships', 'missionId'],
+    path: ['players', 'publicPlayerId', 'private', 'missionMemberships'],
     missionId: '',
-    playerId: '',
+    publicPlayerId: '',
+    privatePlayerId: '',
     gameId: '',
   },
   infection: {
@@ -298,14 +302,45 @@ var models = {
     sound: false,
     vibrate: false,
     site: '',
+    icon: '',
     mobile: false,
     time: 0,
     email: '',
     destination: '',
     playerId: '',
-    privatePlayerId: ''
-  }
+    privatePlayerId: '',
+    icon: ''
+  },
+  requestCategory: {
+    link: ['chatRooms', 'chatRoomId', 'requestCategories', 'requestCategoryId'],
+    path: ['chatRooms', 'chatRoomId', 'requestCategories'],
+    gameId: '',
+    chatRoomId: '',
+    requestCategoryId: '',
+    playerId: '',
+    requests: [],
+    time: 0,
+    text: '',
+    type: '',
+    dismissed: false,
+  },
+  request: {
+    link: ['chatRooms', 'chatRoomId', 'requestCategories', 'requestCategoryId', 'requests', 'requestId'],
+    path: ['chatRooms', 'chatRoomId', 'requestCategories', 'requestCategoryId', 'requests'],
+    gameId: '',
+    chatRoomId: '',
+    requestCategoryId: '',
+    requestId: '',
+    playerId: '',
+    response: null, // special. SUPER HACK. Makes the model/firebaselistener treat the entire response subobject as a value.
+    time: 0,
+  },
+  response: { // special
+    text: '',
+    time: 0,
+  },
 };
+
 
 class Model {
   constructor(id, args, model, sortOn) {
@@ -330,7 +365,8 @@ class Model {
     for (var key in model) {
       if (key === 'link' || key === 'path') continue;
       if (model.hasOwnProperty(key)) {
-        if (typeof model[key] === 'object') this._collections.push(key);
+        // NOTE FOR ALEKS: Added  "&& model[key] !== null" to hack requests' responses into existence
+        if (typeof model[key] === 'object' && model[key] !== null) this._collections.push(key);
         else this._properties.push(key);
       }
     }
@@ -428,6 +464,21 @@ Model.Message = class extends Model {
     super(id, args, models.message, 'time');
   }
 };
+Model.RequestCategory = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.requestCategory);
+  }
+};
+Model.Request = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.request);
+  }
+};
+Model.Response = class extends Model {
+  constructor(id, args) {
+    super(id, args, models.response);
+  }
+};
 Model.RewardCategory = class extends Model {
   constructor(id, args) {
     super(id, args, models.rewardCategory);
@@ -522,25 +573,6 @@ Model.GroupMembership = class {
     Utils.copyProperties(this, args, GROUP_MEMBERSHIP_PROPERTIES);
     Utils.addEmptyLists(this, GROUP_MEMBERSHIP_COLLECTIONS);
   }
-};
-
-const REQUEST_CATEGORY_PROPERTIES = ["playerId", "time", "text", "type", "dismissed"];
-const REQUEST_CATEGORY_COLLECTIONS = ["requests"];
-Model.RequestCategory = class {
-  constructor(id, args) {
-    this.id = id;
-    Utils.copyProperties(this, args, REQUEST_CATEGORY_PROPERTIES);
-    Utils.addEmptyLists(this, REQUEST_CATEGORY_COLLECTIONS);
-  }
-};
-
-
-const REQUEST_PROPERTIES = ["playerId", "response"];
-const REQUEST_COLLECTIONS = [];
-Model.Request = function (id, args) {
-  this.id = id;
-  Utils.copyProperties(this, args, REQUEST_PROPERTIES);
-  Utils.addEmptyLists(this, REQUEST_COLLECTIONS);
 };
 
 Model.PUBLIC_PLAYER_PROPERTIES = ["isActive", "userId", "number", "allegiance", "name", "points", "profileImageUrl", "gameId", "userId", "privatePlayerId", "private"];

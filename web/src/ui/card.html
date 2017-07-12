@@ -97,9 +97,16 @@
     align-items: center;
     height: 48px;
     padding-right: 4px;
+    flex-shrink: 0;
+  }
+  :host([mobile]) .header {
+    height: initial;
+    padding-top:8px;
+    padding-bottom: 8px;
   }
   .menu {
     order: 1;
+    flex-shrink: 0;
   }
   :host([admin]) .header {
     background-color: #9C27B0;
@@ -120,6 +127,9 @@
   .header > .text[pad-left] {
     padding-left: 16px;
   }
+  :host([mobile]) .header > .text[pad-left] {
+    padding-left: 8px;
+  }
   #contents {
     /* height: 100%; Taken out. When in, mobile safari hides entire contents. */
     overflow: hidden;
@@ -132,22 +142,26 @@
     max-height: 400px;
   }
   :host([padded]) #contents {
-    padding: 16px;
+    padding: 8px;
+  }
+  :host([padded][mobile]) #contents {
+    padding: 8px;
   }
 </style>
 <template>
 
   <paper-material>
     <div class="header">
-      <template is="dom-if" if="[[withMenu]]">
-        <paper-icon-button name="drawerButton" class="menu" icon="icons:menu" raised on-tap="openDrawer_">
-        </paper-icon-button>
-      </template>
+
       <template is="dom-if" if="[[withBack]]">
         <paper-icon-button name="backButton" class="menu" icon="icons:arrow-back" raised on-tap="back_">
         </paper-icon-button>
       </template>
-      <div id="header" class="text" pad-left$="[[!withMenu]]"><content select=".header"></div>
+      <template is="dom-if" if="[[withMenu]]">
+        <paper-icon-button name="drawerButton" class="menu" icon="icons:menu" raised on-tap="openDrawer_">
+        </paper-icon-button>
+      </template>
+      <div id="header" class="text" pad-left$="[[!withBack]]"><content select=".header"></div>
       <!-- <paper-icon-button class="button" icon="icons:chevron-left"></paper-icon-button>
       <paper-icon-button class="button" icon="icons:chevron-right"></paper-icon-button> -->
       <!-- <paper-icon-button class="header-button" icon="icons:refresh">

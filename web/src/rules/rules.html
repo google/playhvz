@@ -75,6 +75,10 @@
   }
   ul {
     margin: 0;
+    padding-left: 16px;
+  }
+  .ghvz-rules {
+    margin-bottom: 8px;
   }
 </style>
 <template>
@@ -83,6 +87,7 @@
   <ghvz-super-form
       id="rulesForm"
       type-name="Rules"
+      is-mobile="[[isMobile]]"
       blueprint="[[makeFormBlueprint_()]]">
   </ghvz-super-form>
   <div id="rules"></div>

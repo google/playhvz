@@ -34,7 +34,7 @@
         path: Array,
         lifeCode: {
           type: String,
-          computed: 'computeLifeCode_(player.allegiance, player.lives.length)',
+          computed: 'computeLifeCode_(player.allegiance, player.lives.*)',
         }
       },
 
@@ -47,7 +47,8 @@
       computeLifeCode_() {
         if (this.player.allegiance == 'resistance') {
           if (this.player.lives.length) {
-            return this.player.lives[this.player.lives.length - 1].private.code;
+            let life = this.player.lives[this.player.lives.length - 1];
+            return life && life.private && life.private.code;
           }
         }
         return null;
@@ -177,6 +178,8 @@
   paper-button {
     background-color: #03A9F4;
     color: white;
+    margin-top: 16px;
+    margin-bottom: 16px;
   }
 </style>
 <template>
@@ -268,7 +271,7 @@
       </template>
       
       <template is="dom-repeat" items="[[player.lives]]" as="life">
-        <div name="life-line">
+        <div name$="life-line-[[index]]">
           Life, at [[computeDateText_(life.time)]],
           <template is="dom-if" if="[[life.private.code]]">
             life code "[[life.private.code]]"
@@ -276,7 +279,7 @@
         </div>
       </template>
       <template is="dom-repeat" items="[[player.infections]]" as="infection">
-        <div name="infection-line">
+        <div name$="infection-line-[[index]]">
           Infection, at [[computeDateText_(infection.time)]], infector
           <ghvz-player-label
               players-by-id="[[game.playersById]]"

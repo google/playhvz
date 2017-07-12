@@ -33,7 +33,7 @@
         },
 
         observers: [
-          "updateNextMissionId_(game.missions.length, player.private.missionMemberships.*)",
+          "updateNextMissionId_(game.missions.*, player.private.missionMemberships.*)",
         ],
 
         updateNextMissionId_: function() {
@@ -58,9 +58,6 @@
     <style>
       :host {
         display: block;
-      }
-      #comingSoon {
-        margin: 16px;
       }
     </style>
     <template is="dom-if" if="[[nextMissionId]]">

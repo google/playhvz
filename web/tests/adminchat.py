@@ -64,7 +64,7 @@ driver.DrawerMenuClick('mobile-main-page', 'Chat')
 # Create chat with admin
 driver.FindElement([[By.NAME, 'create-admin-chat-button']])
 driver.RetryUntil(
-  lambda: driver.Click([[By.NAME, 'create-admin-chat-button'], [By.TAG_NAME, 'a']]),
+  lambda: driver.Click([[By.NAME, 'create-admin-chat-button']]),
   lambda: driver.FindElement([[By.NAME, "chat-room-%s" % chatName]])
 )
 
@@ -85,7 +85,9 @@ driver.Click([[By.NAME, 'submit-%s' % chatName], [By.XPATH, xpathSend]])
 for admin in adminPlayers:
   driver.SwitchUser(admin)
   closeNotifications(driver)
-  driver.DrawerMenuClick('mobile-main-page', '-' + chatName)
+  driver.DrawerMenuClick('mobile-main-page', 'Admin Chats')
+  xpathChatListItem = getPathToElement(playerNames[admin], 'ghvz-chat-room-name-label', chatName)
+  driver.Click([[By.XPATH, xpathChatListItem]])  
   driver.ExpectContains([
       [By.NAME, 'chat-card'], 
       [By.NAME, 'message-%s-Hi im %s, how do i know if im the possessed zombie?' % (chatName, actingPlayerName)], 
@@ -94,7 +96,7 @@ for admin in adminPlayers:
 
 # Non-Admin should leave admin chat
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', '-' + chatName)
+driver.DrawerMenuClick('mobile-main-page', chatName)
 
 xpathChatDrawerButton = getPathToElement(actingPlayerName, 'paper-icon-button', 'chat-info-' + chatName)
 driver.Click([[By.XPATH, xpathChatDrawerButton]])  

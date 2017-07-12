@@ -191,6 +191,7 @@ class FakeIdGenerator extends IdGenerator {
     name: 'String',
     rulesHtml: 'String',
     faqHtml: 'String',
+    summaryHtml: 'String',
     stunTimer: 'Number',
     isActive: 'Boolean',
     startTime: 'Timestamp',
@@ -204,6 +205,7 @@ class FakeIdGenerator extends IdGenerator {
     name: '|String',
     rulesHtml: '|String',
     faqHtml: '|String',
+    summaryHtml: '|String',
     stunTimer: '|Number',
     isActive: '|Boolean',
     startTime: '|Timestamp',
@@ -315,8 +317,6 @@ class FakeIdGenerator extends IdGenerator {
     gameId: 'GameId',
     missionId: 'MissionId',
   });
-
-  serverMethods.set('selfInfect', {required: {playerId: 'PublicPlayerId'}});
 
   serverMethods.set('createGroup', {
     groupId: '!GroupId',

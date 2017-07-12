@@ -153,7 +153,7 @@ Utils.getKeys = function(...objs) {
 Utils.formatTime = function(timestampInMs) {
   var date = new Date(timestampInMs);
   var result = "";
-  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   result += months[date.getMonth()] + ' ';
   result += date.getDate() + ' ';
   let hours = date.getHours();
@@ -479,3 +479,10 @@ Utils.arrayShallowEquals = function(a, b) {
   }
   return true;
 }
+
+Utils.numObjects = function(obj) {
+  if(obj)
+    return Object.keys(obj).length;
+  else
+    return 0;
+};

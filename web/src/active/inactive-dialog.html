@@ -24,6 +24,7 @@
 
       properties: {
         bridge: Object,
+        game: Object,
         player: Object,
 
         active: {
@@ -39,13 +40,32 @@
 
       onActiveChanged_(newActive, allegiance) {
         if (newActive == false && allegiance == 'resistance') {
-          this.$$("#dialog").open();
+          let dialog = this.$$("#dialog");
+          if (dialog) {
+            dialog.open();
+          }
         }
       },
 
       onClosed_(e) {
         if (e.detail.confirmed) {
-          this.bridge.selfInfect({playerId: this.player.id});
+          if (this.player.lives.length > this.player.infections.length) {
+            let life = this.player.lives[this.player.infections.length];
+            let code = life.private.code;
+            this.bridge.infect({
+              gameId: this.game.id,
+              infectionId: this.bridge.newInfectionId(),
+              infectorPlayerId: this.player.id,
+              victimLifeCode: code,
+              victimPlayerId: null,
+            }).then(
+                () => {},
+                (error) => {
+                  this.fire('ghvz-alert', {message: "Error self-infecting: " + error});
+                });
+          } else {
+            this.fire('ghvz-alert', {message: "Can't infect, don't have more lives than infections!"});
+          }
         } else {
           this.$$("#dialog").close();
         }
