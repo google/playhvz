@@ -16,10 +16,8 @@
 
 """TODO: High-level file comment."""
 
-import datetime
 import sys
 
-from google.appengine.ext import ndb
 
 def main(argv):
     pass
@@ -41,10 +39,6 @@ accessor_mutex = threading.Lock()
 patch_mutex = threading.Lock()
 enqueued_patch = patch.Patch()
 
-class AwaitingRequests(ndb.Model):
-  data = ndb.JsonProperty()
-  timestamp = ndb.DateTimeProperty()
-
 def enqueue_patch(firebase, data):
   """
   Enqueue a patch to be sent to firebase. If a patch to firebase is ongoing,
@@ -55,14 +49,11 @@ def enqueue_patch(firebase, data):
   before it is up to date with all patches.
   """
   patch_mutex.acquire()
-  #enqueued_patch.data_to_patch.append(data)
-  print "data:" + str(data)
-  ar = AwaitingRequests(data=data, timestamp=datetime.datetime.now())
-  ar.put()
+  enqueued_patch.patch('/', data)
   patch_mutex.release()
   print "getting accessor_mutex:", str(accessor_mutex)
   accessor_mutex.acquire()
-  deferred.defer(compact_and_send, firebase=firebase, _queue="awaiting-requests")
+  deferred.defer(compact_and_send, firebase=firebase, _queue="extra-requests")
   accessor_mutex.release()
 
 def compact_and_send(firebase):
@@ -71,12 +62,8 @@ def compact_and_send(firebase):
   single patch and sends it to firebase. Clears the patch queue
   """
   patch_mutex.acquire()
-  next_request = AwaitingRequests.query().order(AwaitingRequests.timestamp).get()
-
-  enqueued_patch.patch('/', next_request.data)
   compacted_batch_mutation = enqueued_patch.batch_mutation()
   enqueued_patch.clear()
-  next_request.key.delete()
   patch_mutex.release()
   print '****************** ACTUALLY SENDING COMPACTED BATCH MUTATION '
   print compacted_batch_mutation
