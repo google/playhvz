@@ -76,7 +76,7 @@ driver.Click([[By.NAME, 'chat-card'], [By.NAME, "player-name-ZellaTheUltimate"]]
 driver.SwitchUser('drake')
 driver.SendKeys(
     [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-    'grobble forgbobbly')
+    'grobble-forgbobbly')
 
 driver.Click([[By.ID, 'infect']])
 

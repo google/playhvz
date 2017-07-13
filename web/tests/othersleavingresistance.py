@@ -19,9 +19,9 @@ driver.FindElement(
         [By.NAME, 'Zeke']])
 
 INFECTABLES = [ # these names seem to have collapsed in the last pull
- ('MoldaviTheMoldavish', 'zooble flipwoogly', 'Moldavi the Moldavish'), # TheMoldavish
- ('JackSlayerTheBeanSlasher', 'grobble forgbobbly', 'Jack Slayer the Bean Slasher'),
- ('ZellaTheUltimate', 'glarple zerp wobbledob', 'Zella the Ultimate')
+ ('MoldaviTheMoldavish', 'zooble-flipwoogly', 'Moldavi the Moldavish'), # TheMoldavish
+ ('JackSlayerTheBeanSlasher', 'grobble-forgbobbly', 'Jack Slayer the Bean Slasher'),
+ ('ZellaTheUltimate', 'glarple-zerp-wobbledob', 'Zella the Ultimate')
 ]
 
 # Jack is a human here.

@@ -137,8 +137,10 @@ driver.RetryUntil(
 driver.RetryUntil( 
   lambda: driver.Click([[By.NAME, 'interviewQuestion2Page'], [By.NAME, 'confirm']]),
   lambda: driver.FindElement([[By.NAME, 'interviewQuestion3Page'], [By.NAME, 'answer0']]))
+driver.Click([[By.NAME, 'interviewQuestion3Page'], [By.NAME, 'answer0']])
+driver.DismissAlert()
 driver.Click([[By.NAME, 'interviewQuestion3Page'], [By.NAME, 'answer1']])
-driver.DismissAlert('Nope, please try again!')
+driver.DismissAlert()
 driver.Click([[By.NAME, 'interviewQuestion3Page'], [By.NAME, 'answer2']])
 
 driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
