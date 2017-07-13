@@ -121,4 +121,45 @@ driver.ExpectContains([
   [By.CLASS_NAME, 'message-bubble']], 
   'Hi im %s, how do i know if im the possessed zombie?' % actingPlayerName)
 
+# Player opens drawer and hides chat room
+xpathChatDrawerButton = getPathToElement(actingPlayerName, 'paper-icon-button', 'chat-info-' + chatName)
+driver.Click([[By.XPATH, xpathChatDrawerButton]])  
+xpathChatDrawer = getPathToElement(actingPlayerName, 'div', 'chat-drawer-%s' % chatName)
+driver.FindElement([[By.XPATH, xpathChatDrawer]])  
+xpathLeaveButton = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
+driver.FindElement([[By.XPATH, xpathLeaveButton]])
+driver.Click([[By.XPATH, xpathLeaveButton]])
+
+driver.DontFindElement([
+  [By.NAME, 'chat-card'], 
+  [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
+
+
+actingPlayer = 'moldavi'
+driver.SwitchUser(actingPlayer)
+
+driver.DrawerMenuClick('mobile-main-page', chatName)
+
+actingPlayerName = playerNames[actingPlayer]
+xpathTextarea = getPathToElement(actingPlayerName, 'textarea', 'input-' + chatName)
+xpathSend = getPathToElement(actingPlayerName, 'paper-button', 'submit-' + chatName)
+driver.FindElement([[By.XPATH, xpathTextarea]]) 
+driver.SendKeys([[By.XPATH, xpathTextarea]], 
+  'Mere player, did you just leave the chat room!?')
+driver.Click([[By.XPATH, xpathSend]])
+
+actingPlayer = 'zeke'
+driver.SwitchUser(actingPlayer)
+
+driver.DrawerMenuClick('mobile-main-page', chatName)
+
+driver.FindElement([
+  [By.NAME, 'chat-card'], 
+  [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
+
+
+
+
+
+
 driver.Quit()
