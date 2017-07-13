@@ -106,6 +106,10 @@
           this.fire('ghvz-alert', {message: "Your name cannot include spaces!"});
           return;
         }
+        if (/[@!?]/.test(e.detail.value)) {
+          this.fire('ghvz-alert', {message: "Your name cannot include: @, ?, !"});
+          return;
+        }
         if (name == "all") {
           this.fire('ghvz-alert', {message: "This name is reserved for Benedict Cumberbatch!"});
           return;
