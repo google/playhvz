@@ -758,6 +758,9 @@ class FakeServer {
     let victimPlayer = this.findPlayerByIdOrLifeCode_(victimPlayerId, victimLifeCode);
     victimPlayerId = victimPlayer.id;
 
+    if (victimLifeCode)
+      victimLifeCode = victimLifeCode.trim().replace(/\s+/g, "-").toLowerCase();
+
     // Admin infection
     if (infectorPlayerId == null) {
       this.addInfection_(request, infectionId, victimPlayerId, null);
