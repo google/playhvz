@@ -303,12 +303,20 @@ class FakeServer {
   }
 
   sendChatMessage(args) {
-    let {chatRoomId, playerId, messageId, message} = args;
+    let {gameId, chatRoomId, playerId, messageId, message} = args;
 
     let game = this.game;
     let player = game.playersById[playerId];
     let chatRoom = game.chatRoomsById[chatRoomId];
     let group = game.groupsById[chatRoom.accessGroupId];
+
+    // Make this chat room visible to everyone, since there's a new message.
+    for (let publicPlayerId of group.players) {
+      let member = game.playersById[publicPlayerId];
+      let chatRoomMembership = player.private.chatRoomMemberships.find(m => m.chatRoomId = chatRoomId);
+      // Change the chat room to visible
+      this.updateChatRoomMembership({gameId: gameId, chatRoomId: chatRoomId, actingPlayerId: publicPlayerId, isVisible: true});
+    }
 
     if (group.playersById[player.id]) {
       this.writer.insert(

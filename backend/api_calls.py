@@ -719,6 +719,12 @@ def SendChatMessage(request, game_state):
   if not game_state.get('/groups/%s/players' % group_id, request['playerId']):
     raise InvalidInputError('You are not a member of that chat room.')
 
+  group = game_state.get('/groups', group_id)
+  if 'players' in group:
+    for member_public_player_id, unused in group['players'].iteritems():
+      member_private_player_id = helpers.GetPrivatePlayerId(game_state, member_public_player_id)
+      game_state.put('/privatePlayers/%s/chatRoomMemberships/%s' % (member_private_player_id, chat_room_id), 'isVisible', True)
+
   if 'message' in request:
     message = request['message']
 
