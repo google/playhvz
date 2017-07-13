@@ -68,6 +68,19 @@
         attached: function() {
           this.isAttached = true;
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
+          
+          this.$.conversationContainer.addEventListener('scroll', function(e) {
+            let ticking;
+            last_known_scroll_position = this.$.conversationContainer.scrollTop;
+            if (!ticking) {
+              window.requestAnimationFrame(() => {
+                console.log(last_known_scroll_position);
+                //doSomething(last_known_scroll_position);
+                ticking = false;
+              });
+            }
+            ticking = true;
+          }.bind(this));
         },
 
         onChatRoomIdChange_(chatRoomId) {
@@ -87,10 +100,7 @@
           this.isMemberOfChatRoom = membership ? true : false;
         },
 
-        onMessageReceived_() {
-          let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
-          console.log(membership);
-          console.log(this.chatRoom.messages);
+        onMessageReceived_() { 
           let scrollTop = this.$.conversationContainer.scrollTop;
           let offsetHeight = this.$.conversationContainer.offsetHeight;
           let scrollHeight = this.$.conversationContainer.scrollHeight;
@@ -104,8 +114,25 @@
               this.$.renderedMessages.render();
               this.$.conversationContainer.scrollTop =
                   this.$.conversationContainer.scrollHeight;
+
+              let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
+              console.log(membership);
+              console.log(this.chatRoom.messages);
+              // if the message we just received is visible, 
             });
           }
+        },
+
+        isElementInView(element, container) {
+          let containerTop = container.scrollTop;
+          let containerBottom = containerTop + container.height();
+          let offsetHeight = container.offsetHeight;
+          
+          var elementTop = element.offset().top;
+          var elementBottom = elementTop + element.height();
+
+          // Returns true if any part of the message is visible
+          return ((elementTop <= containerBottom) && (elementBottom >= containerTop));
         },
 
         computeMessageDisplayClass_(senderId, myId) {
