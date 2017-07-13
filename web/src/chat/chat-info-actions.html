@@ -83,8 +83,12 @@
         },
 
         leaveChat_: function() {
-          let canLeaveAdminChat = this.chatRoom.withAdmins && this.isAdmin && (this.playerId != this.game.adminContactPlayerId);
-          if (!this.chatRoom.withAdmins || canLeaveAdminChat) {
+          let adminChat = this.chatRoom.withAdmins;
+          let group = this.game.groupsById[this.chatRoom.accessGroupId];
+          let canLeaveAdminChat =  this.isAdmin 
+              && (this.playerId != this.game.adminContactPlayerId) 
+              && (this.playerId != group.ownerPlayerId);
+          if (!adminChat || (adminChat && canLeaveAdminChat)) {
             this.$.leaveForm.open();
           } else {
            this.hideChat_();
