@@ -106,6 +106,15 @@
           this.fire('ghvz-alert', {message: "Your name cannot include spaces!"});
           return;
         }
+        if (/[@!?]/.test(e.detail.value)) {
+          this.fire('ghvz-alert', {message: "Your name cannot include: @, ?, !"});
+          return;
+        }
+//        if(/^[\u0000-\u007f]+$/.test(e.detail.value)){ // FAILS
+        if ([...e.detail.value].some(char => (char.charCodeAt(0) < 0x21 || char.charCodeAt(0) > 0x7E))) {
+          this.fire('ghvz-alert', {message: "Your name must be limited to visible ASCII characters!"});
+          return;
+        }
         if (name == "all") {
           this.fire('ghvz-alert', {message: "This name is reserved for Benedict Cumberbatch!"});
           return;

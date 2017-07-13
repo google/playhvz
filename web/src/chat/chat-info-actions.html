@@ -27,6 +27,7 @@
           bridge: Object,
           game: Object,
           chatRoom: Object,
+          isAdmin: Boolean,
 
           playerId: String,
 
@@ -82,10 +83,15 @@
         },
 
         leaveChat_: function() {
-          if (this.chatRoom.withAdmins) {
-            this.hideChat_();
-          } else {
+          let adminChat = this.chatRoom.withAdmins;
+          let group = this.game.groupsById[this.chatRoom.accessGroupId];
+          let canLeaveAdminChat =  this.isAdmin 
+              && (this.playerId != this.game.adminContactPlayerId) 
+              && (this.playerId != group.ownerPlayerId);
+          if (!adminChat || (adminChat && canLeaveAdminChat)) {
             this.$.leaveForm.open();
+          } else {
+           this.hideChat_();
           }
         },
 
