@@ -88,65 +88,68 @@
           let notificationPlayerIds = [];
           let ackRequestPlayerIds = [];
           let textRequestPlayerIds = [];
-
-          let ackRequestRegex1 = /@(\?|!)?(\w+)\b\s*/;
-          console.log(message.match(ackRequestRegex1));
             
-            while (true) {
-                let ackRequestRegex = /@(\?|!)?(\w+)\b\s*/;
-                let messageMatch = message.match(ackRequestRegex);
-                if (!messageMatch) {
-                  break;
-                }
-                message = message.replace(messageMatch[0], "");
-                        console.log(messageMatch);
-                        console.log(message);
-
-
-              let newTargetPlayerIds = [];
-              let playerName = messageMatch[2];
-              if (playerName == 'all') {
-                newTargetPlayerIds = group.players.slice();
-              } else {
-                let player = this.game.players.find(player => player.name.toLowerCase() == playerName.toLowerCase());
-                if (!player) {
-                  throw "Couldn't find a player by the name '" + playerName + "'!";
-                }
-                newTargetPlayerIds = [player.id];
-              }
-              notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
-              let senderIndex = notificationPlayerIds.indexOf(senderId);
-              if (senderIndex != -1) {
-                notificationPlayerIds.splice(senderIndex, 1);
-              }
-              if (messageMatch[1] == '!') {
-                ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
-              } else if (messageMatch[1] == '?') {
-                textRequestPlayerIds = textRequestPlayerIds.concat(newTargetPlayerIds);
-              }
+          while (true) {
+            let ackRequestRegex = /@(\?|!)?(\w+)\b\s*/;
+            let messageMatch = message.match(ackRequestRegex);
+            if (!messageMatch) {
+              break;
             }
+            message = message.replace(messageMatch[0], "");
+                  
+            let newTargetPlayerIds = [];
+            let playerName = messageMatch[2];
+            if (playerName == 'all') {
+              newTargetPlayerIds = group.players.slice();
+            } else {
+              let player = this.game.players.find(player => player.name.toLowerCase() == playerName.toLowerCase());
+              if (!player) {
+                throw "Couldn't find a player by the name '" + playerName + "'!";
+              }
+              newTargetPlayerIds = [player.id];
+            }
+            notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
+            let senderIndex = notificationPlayerIds.indexOf(senderId);
+            if (senderIndex != -1) {
+              notificationPlayerIds.splice(senderIndex, 1);
+            }
+            if (messageMatch[1] == '!') {
+              ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
+            } else if (messageMatch[1] == '?') {
+              textRequestPlayerIds = textRequestPlayerIds.concat(newTargetPlayerIds);
+            }
+          }
 
-            console.log([message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds]);
-            return [message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds];
+          console.log([message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds]);
+          return [message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds];
         },
 
         sendNotifications_(message) {
+          let group = this.game.groupsById[this.chatRoom.accessGroupId];
           let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-              this.getMessageTargets_(message, group, playerId);
+              this.getMessageTargets_(message, group, this.currentPlayer.id);
 
           if (notificationPlayerIds.length) {
             for (let receiverPlayerId of notificationPlayerIds) {
               let receiverPlayer = this.game.playersById[receiverPlayerId];
-              let messageForNotification = player.name + ": " + strippedMessage;
-              this.addNotification({
+              let messageForNotification = this.currentPlayer.name + ": " + strippedMessage;
+
+
+              this.bridge.sendNotification({
+                gameId: this.game.id,
+                queuedNotificationId: this.bridge.newQueuedNotificationId(),
                 playerId: receiverPlayerId,
-                notificationId: this.idGenerator.newNotificationId(),
-                queuedNotificationId: null,
-                message: messageForNotification,
-                previewMessage: messageForNotification,
-                destination: 'chat/' + chatRoom.id,
-                time: this.getTime_(args),
+                email: false,
+                destination: 'chat/' + this.chatRoom.id,
+                groupId: null,
                 icon: null,
+                message: messageForNotification,
+                mobile: true,
+                previewMessage: messageForNotification,
+                sendTime: null,
+                site: true,
+                sound: 'ping.wav',
+                vibrate: true,
               });
             }
           }
