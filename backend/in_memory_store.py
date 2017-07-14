@@ -116,7 +116,7 @@ class InMemoryStore:
     contents = copy.deepcopy(contents)
     if 'chatRooms' in contents:
       for chat_room_id, chat_room in contents['chatRooms'].iteritems():
-      if 'messages' in chat_room:
+        if 'messages' in chat_room:
           del chat_room['messages']
     if 'privatePlayers' in contents:
       for private_player_id, private_player in contents['privatePlayers'].iteritems():
