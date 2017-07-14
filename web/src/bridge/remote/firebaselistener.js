@@ -209,6 +209,12 @@ window.FirebaseListener = (function () {
       this.firebaseObjectsLoadedPromise = new Promise((resolve, reject) => {
         this.firebaseObjectsLoaded = resolve;
       });
+
+      let gameFoundResolve;
+      let gameFoundPromise = new Promise((resolve, reject) => {
+        gameFoundResolve = resolve;
+      });
+      
       this.timeWhenLoadingStarted = new Date().getTime();
       console.log('listening to a game!', this.timeWhenLoadingStarted, listeningUserId, gameId);
       this.destination.addDestination(destination);
@@ -221,6 +227,7 @@ window.FirebaseListener = (function () {
         this.game.initialize(gameSnap.val(), this.game, null, true);
         this.setupPrivateModelAndReaderAndWriter(this.game);
         this.writer.set([], this.game);
+        gameFoundResolve();
         this.listenForPropertyChanges_(
           gameSnap.ref, this.game._properties, this.game._collections,
           (property, value) => {
@@ -271,7 +278,8 @@ window.FirebaseListener = (function () {
           this.decrement('(special)');
         }, 500); // There is a min 500ms load time to give the above a chance
       });
-      return this.firebaseObjectsLoadedPromise;
+
+      return [gameFoundPromise, this.firebaseObjectsLoadedPromise];
     }
 
     listenToGun_(gunId) {
