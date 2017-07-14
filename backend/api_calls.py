@@ -334,6 +334,15 @@ def AddPlayer(request, game_state):
   private_player_id = request['privatePlayerId'] or ('privatePlayer-' + helpers.GetIdSuffix(public_player_id))
   user_id = request['userId']
 
+  # Ensure that there isn't already a player in this game with the same userId
+  all_players = game_state.get('/games', game_id)['players']
+
+  for player_id in all_players:
+    player = game_state.get('/publicPlayers', player_id)
+
+    if player['userId'] == user_id:
+      raise InvalidInputError('A user can only join a game once')
+
   number = helpers.GetNextPlayerNumber(game_state, game_id)
 
   user_player = {'gameId': game_id}
@@ -1389,6 +1398,12 @@ def Infect(request, game_state):
     /games/%(gameId)/players/%(playerId)
     /groups/%(groupId) indirectly
   """
+  victim_life_code = request.get('victimLifeCode')
+
+  if victim_life_code is not None:
+    victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
+    request['victimLifeCode'] = victim_life_code
+
   helpers.ValidateInputs(request, game_state, {
     'infectionId': '!InfectionId',
     'gameId': 'GameId',
@@ -1400,9 +1415,6 @@ def Infect(request, game_state):
   game_id = request['gameId']
   infector_public_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
-  victim_life_code = request['victimLifeCode']
-  if victim_life_code is not None:
-    victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
   victim_public_player_id = request['victimPlayerId'] or helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
   time = helpers.GetTime(request)
 
@@ -2226,11 +2238,9 @@ def UpdatePlayerMarkers(request, game_state):
   }
 
   results = []
-  print associated_maps
 
   for map_to_update in associated_maps:
     for marker in associated_maps[map_to_update]:
-      print "" + map_to_update + ": " + marker
       patch_result = game_state.patch(
         '/maps/%s/markers/%s' % (map_to_update, marker),
         location_data)
