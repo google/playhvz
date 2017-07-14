@@ -121,9 +121,7 @@
 
       createNewChat_() {
         return () => {
-          // Move the dialog outside of the drawer so it covers the whole screen
-          document.getElementById('drawer').parentElement.appendChild(this.$.settings);
-          this.$.settings.openForCreate();
+          this.fire('ghvz-open-dialog', {dialog: this.$.settings});
         }
       },
 
