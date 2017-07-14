@@ -1389,6 +1389,12 @@ def Infect(request, game_state):
     /games/%(gameId)/players/%(playerId)
     /groups/%(groupId) indirectly
   """
+  victim_life_code = request.get('victimLifeCode')
+
+  if victim_life_code is not None:
+    victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
+    request['victimLifeCode'] = victim_life_code
+
   helpers.ValidateInputs(request, game_state, {
     'infectionId': '!InfectionId',
     'gameId': 'GameId',
@@ -1400,9 +1406,6 @@ def Infect(request, game_state):
   game_id = request['gameId']
   infector_public_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
-  victim_life_code = request['victimLifeCode']
-  if victim_life_code is not None:
-    victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
   victim_public_player_id = request['victimPlayerId'] or helpers.LifeCodeToPlayerId(game_state, game_id, victim_life_code)
   time = helpers.GetTime(request)
 

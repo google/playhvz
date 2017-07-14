@@ -387,6 +387,7 @@
         "vibrate": true
       },
       "canInfect": false,
+      "chatRoomMemberships": {"chatRoom-%(ident)s-1": {"isVisible": true}},
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
@@ -520,6 +521,7 @@
     "privatePlayer-%(ident)s-4": {
       "notificationSettings": { "sound": true, "vibrate": true },
       "canInfect": true,
+      "chatRoomMemberships": {"chatRoom-%(ident)s-1": {"isVisible": true}},
       "gameId": "game-%(ident)s-1",
       "needGun": true,
       "notes": "",
@@ -661,11 +663,11 @@
   "privateLives": {
     "privateLife-%(ident)s-1": {
       "gameId": "game-%(ident)s-1",
-      "code": "purple roller patrol"
+      "code": "purple-roller-patrol"
     },
     "privateLife-%(ident)s-2": {
       "gameId": "game-%(ident)s-1",
-      "code": "sparkle board shorts"
+      "code": "sparkle-board-shorts"
     },
     "privateLife-%(ident)s-3": {
       "gameId": "game-%(ident)s-1",
