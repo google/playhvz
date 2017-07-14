@@ -17,6 +17,7 @@
 """TODO: High-level file comment."""
 
 import sys
+import copy
 
 
 def main(argv):
@@ -111,9 +112,29 @@ class InMemoryStore:
       self.instance = firebase.get('/', None) or {}
       self.firebase = firebase
 
+  def strippedDatabaseContents(self, contents):
+    contents = copy.deepcopy(contents)
+    if 'chatRooms' in contents:
+      for chat_room_id, chat_room in contents['chatRooms'].iteritems():
+      if 'messages' in chat_room:
+          del chat_room['messages']
+    if 'privatePlayers' in contents:
+      for private_player_id, private_player in contents['privatePlayers'].iteritems():
+        if 'chatRoomMemberships' in private_player:
+          for chat_room_id, chat_room_membership in private_player['chatRoomMemberships'].iteritems():
+            if 'lastSeenTime' in chat_room_membership:
+              del chat_room_membership['lastSeenTime']
+    return contents
+
+  def databaseContentsEqual(self, contentsA, contentsB):
+    contentsA = self.strippedDatabaseContents(contentsA)
+    contentsB = self.strippedDatabaseContents(contentsB)
+    return contentsA == contentsB
+
   def setToNewInstance(self, other_instance):
     old_instance = self.instance
-    has_diff = old_instance != other_instance
+    has_diff = not self.databaseContentsEqual(old_instance, other_instance)
+
     self.instance = other_instance
     # If there is a difference, firebase is out of sync.
     # Clear pending mutations
