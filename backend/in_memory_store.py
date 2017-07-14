@@ -16,10 +16,9 @@
 
 """TODO: High-level file comment."""
 
-import datetime
 import sys
+import copy
 
-from google.appengine.ext import ndb
 
 def main(argv):
     pass
@@ -41,10 +40,6 @@ accessor_mutex = threading.Lock()
 patch_mutex = threading.Lock()
 enqueued_patch = patch.Patch()
 
-class AwaitingRequests(ndb.Model):
-  data = ndb.JsonProperty()
-  timestamp = ndb.DateTimeProperty()
-
 def enqueue_patch(firebase, data):
   """
   Enqueue a patch to be sent to firebase. If a patch to firebase is ongoing,
@@ -55,14 +50,11 @@ def enqueue_patch(firebase, data):
   before it is up to date with all patches.
   """
   patch_mutex.acquire()
-  #enqueued_patch.data_to_patch.append(data)
-  print "data:" + str(data)
-  ar = AwaitingRequests(data=data, timestamp=datetime.datetime.now())
-  ar.put()
+  enqueued_patch.patch('/', data)
   patch_mutex.release()
   print "getting accessor_mutex:", str(accessor_mutex)
   accessor_mutex.acquire()
-  deferred.defer(compact_and_send, firebase=firebase, _queue="awaiting-requests")
+  deferred.defer(compact_and_send, firebase=firebase, _queue="extra-requests")
   accessor_mutex.release()
 
 def compact_and_send(firebase):
@@ -71,12 +63,8 @@ def compact_and_send(firebase):
   single patch and sends it to firebase. Clears the patch queue
   """
   patch_mutex.acquire()
-  next_request = AwaitingRequests.query().order(AwaitingRequests.timestamp).get()
-
-  enqueued_patch.patch('/', next_request.data)
   compacted_batch_mutation = enqueued_patch.batch_mutation()
   enqueued_patch.clear()
-  next_request.key.delete()
   patch_mutex.release()
   print '****************** ACTUALLY SENDING COMPACTED BATCH MUTATION '
   print compacted_batch_mutation
@@ -124,9 +112,29 @@ class InMemoryStore:
       self.instance = firebase.get('/', None) or {}
       self.firebase = firebase
 
+  def strippedDatabaseContents(self, contents):
+    contents = copy.deepcopy(contents)
+    if 'chatRooms' in contents:
+      for chat_room_id, chat_room in contents['chatRooms'].iteritems():
+        if 'messages' in chat_room:
+          del chat_room['messages']
+    if 'privatePlayers' in contents:
+      for private_player_id, private_player in contents['privatePlayers'].iteritems():
+        if 'chatRoomMemberships' in private_player:
+          for chat_room_id, chat_room_membership in private_player['chatRoomMemberships'].iteritems():
+            if 'lastSeenTime' in chat_room_membership:
+              del chat_room_membership['lastSeenTime']
+    return contents
+
+  def databaseContentsEqual(self, contentsA, contentsB):
+    contentsA = self.strippedDatabaseContents(contentsA)
+    contentsB = self.strippedDatabaseContents(contentsB)
+    return contentsA == contentsB
+
   def setToNewInstance(self, other_instance):
     old_instance = self.instance
-    has_diff = old_instance != other_instance
+    has_diff = not self.databaseContentsEqual(old_instance, other_instance)
+
     self.instance = other_instance
     # If there is a difference, firebase is out of sync.
     # Clear pending mutations

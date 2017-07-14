@@ -84,7 +84,7 @@ currTime = countingDown(True, currTime)
 driver.DrawerMenuClick('stuntimer-card', 'Infect')
 driver.SendKeys(
     [[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-    'grobble forgbobbly') # Crashed here once (desktop)
+    'grobble-forgbobbly') # Crashed here once (desktop)
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.ExpectContains(
     [[By.NAME, 'infect-card'], [By.NAME, 'victimName']],

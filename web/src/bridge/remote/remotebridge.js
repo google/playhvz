@@ -20,8 +20,8 @@ class RemoteBridge {
     this.alertHandler = alertHandler;
 
     firebase.initializeApp(firebaseConfig);
-    this.firebaseListener =
-        new FirebaseListener(firebase.app().database().ref());
+    this.firebaseRoot = firebase.app().database().ref();
+    this.firebaseListener = new FirebaseListener(this.firebaseRoot);
 
     this.requester = new NormalRequester(serverUrl, alertHandler);
 
@@ -126,5 +126,20 @@ class RemoteBridge {
 
   setPlayerId(playerId) {
     this.requester.setRequestingPlayerId(playerId);
+  }
+
+  sendChatMessage(args) {
+    let {gameId, messageId, chatRoomId, playerId, message, location, image} = args;
+
+    let firebaseMessage = {
+      playerId: playerId,
+      message: message,
+      time: firebase.database.ServerValue.TIMESTAMP,
+    };
+    if (location)
+      firebaseMessage.location = location;
+    if (image)
+      firebaseMessage.image = image;
+    return this.firebaseRoot.child(`/chatRooms/${chatRoomId}/messages/${messageId}`).set(firebaseMessage);
   }
 }
