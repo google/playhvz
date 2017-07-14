@@ -33,11 +33,13 @@ window.FirebaseListener = (function () {
 
       window.firebaseListener = this;
 
+      this.firebaseObjectPaths = {};
+
       this.printMissingPathsInterval =
           setInterval(() => {
-            if (Object.keys(this.listenedToPaths)) {
+            if (Object.keys(this.firebaseObjectPaths)) {
               console.log('Waiting on paths:');
-              for (let path in this.listenedToPaths) {
+              for (let path in this.firebaseObjectPaths) {
                 console.log(path);
               }
             }
@@ -204,7 +206,6 @@ window.FirebaseListener = (function () {
     }
 
     listenToGame(listeningUserId, gameId, destination) {
-      this.firebaseObjectPaths = {};
       this.firebaseObjectsLoadedPromise = new Promise((resolve, reject) => {
         this.firebaseObjectsLoaded = resolve;
       });
