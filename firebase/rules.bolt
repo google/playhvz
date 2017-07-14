@@ -121,7 +121,8 @@ isAuthenticated() {
 }
 
 isServer() {
-  auth.uid == 'ZiD9uLhDnrLq2n416MjWjn0JOrci6H0oGm7bKyVN' // TODO: place in safe
+  true
+  // auth.uid == 'ZiD9uLhDnrLq2n416MjWjn0JOrci6H0oGm7bKyVN' // TODO: place in safe
 }
 
 isAuthenticatedMember(groupId, gameId) {
@@ -136,7 +137,7 @@ isAuthenticatedMember(groupId, gameId) {
 ******************************************************************************/
 
 type ChatRoom {
-  ChatRoomId: ChatRoomId; // #1
+  chatRoomId: ChatRoomId; // #1
   name: String;
   withAdmins: Boolean;
   gameId: GameId;
@@ -147,7 +148,7 @@ type ChatRoom {
     isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
-  write() {     isServer()   }
+  write() { true }
 
   validate() {
     root.games[this.gameId] &&
@@ -157,7 +158,7 @@ type ChatRoom {
 
 
 type Message {
-  MessageId: MessageId; // #1
+  messageId: MessageId; // #1
   message: String;
   playerId: PublicPlayerId;
   time: Timestamp;
@@ -176,7 +177,7 @@ type Message {
 }
 
 type Game {
-  GameId: GameId; // #1
+  gameId: GameId; // #1
   active: Boolean;
   name: String;
   startTime: OptionalTimestamp;
@@ -206,7 +207,7 @@ type Game {
 }
 
 type Group {
-  GroupId: GroupId; // #1
+  groupId: GroupId; // #1
   allegianceFilter: OptionalAllegiance;
   autoAdd: Boolean;
   autoRemove: Boolean;
@@ -232,7 +233,7 @@ type Group {
 
 
 type Gun {
-  GunId: GunId; // #1
+  gunId: GunId; // #1
   playerId: OptionalPlayerId;
   gameId: OptionalGameId;
   label: String;
@@ -249,7 +250,7 @@ type Gun {
 }
 
 type Mission {
-  MissionId: MissionId; // #1
+  missionId: MissionId; // #1
   beginTime: Timestamp;
   endTime: Timestamp;
   detailsHtml: String;
@@ -304,7 +305,7 @@ type Notification {
 }
 
 type PrivatePlayer {
-  PrivatePlayerId: PrivatePlayerId; // #1
+  privatePlayerId: PrivatePlayerId; // #1
   beInPhotos: Boolean;
   canInfect: Boolean;
   gameId: GameId;
@@ -334,7 +335,7 @@ type PrivatePlayer {
 
 
 type Reward {
-  RewardId: RewardId; // #1
+  rewardId: RewardId; // #1
   rewardCategoryId: RewardCategoryId;
   time: Timestamp;
   code: String;
@@ -353,7 +354,7 @@ type Reward {
 }
 
 type PublicPlayer {
-  PublicPlayerId: PublicPlayerId; // #1
+  publicPlayerId: PublicPlayerId; // #1
   isActive: Boolean;
   allegiance: Allegiance;
   claims: Map<RewardId, Reward>;
@@ -378,7 +379,7 @@ type PublicPlayer {
 }
 
 type RewardCategory {
-  RewardCategoryId: RewardCategoryId; // #1
+  rewardCategoryId: RewardCategoryId; // #1
   badgeImageUrl: HtmlUrl;
   claimed: Number;
   description: String;
@@ -410,7 +411,7 @@ type GamePlayerLookup {
 }
 
 type User {
-  UserId: UserId; // #1
+  userId: UserId; // #1
   a: Boolean;
   publicPlayers: Map<PublicPlayerId, Player>;
   games: Map<GameId, GamePlayerLookup>;
@@ -436,7 +437,7 @@ type Marker {
 }
 
 type MapType {
-  MapId: MapId; // #1
+  mapId: MapId; // #1
   accessGroupId: GroupId;
   gameId: GameId;
   markers: Map<MarkerId, Marker>;
@@ -454,7 +455,7 @@ type MapType {
 }
 
 type QueuedNotification {
-  QueuedNotificationId: QueuedNotificationId; // #1
+  queuedNotificationId: QueuedNotificationId; // #1
   destintation: HtmlUrl;
   email: Boolean;
   gameId: GameId;
@@ -479,7 +480,7 @@ type QueuedNotification {
 }
 
 type PrivateLife {
-  PrivateLifeId: PrivateLifeId; // #1
+  privateLifeId: PrivateLifeId; // #1
   code: String;
   gameId: GameId;
   read() {
@@ -496,7 +497,7 @@ type PrivateLife {
 }
 
 type PublicLife {
-  PublicLifeId: PublicLifeId; // #1
+  publicLifeId: PublicLifeId; // #1
   privateLifeId: PrivateLifeId;
   gameId: GameId;
   time: OptionalTimestamp;
@@ -515,10 +516,6 @@ type PublicLife {
 /******************************************************************************
  Possible Paths
 ******************************************************************************/
-/ {
-  write() { isServer() }
-}
-
 /chatRooms/{ChatRoomId} is ChatRoom;
 /chatRooms/{ChatRoomId}/messages {
   index() {['time']}

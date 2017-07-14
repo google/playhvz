@@ -34,7 +34,7 @@ driver = setup.MakeDriver(user="jack")
 
 # Jack self-infects
 driver.DrawerMenuClick('mobile-main-page', 'Infect')
-driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly') # Jack's code
+driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.ID, 'selfInfectedMessage']], 'Welcome to the horde!')
 
@@ -53,12 +53,12 @@ driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactl
 # Zeke records the kill
 driver.SwitchUser('zeke')
 driver.DrawerMenuClick('mobile-main-page', 'Infect')
-driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly') # Jack's code
+driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'done']])
 # Try to infect Jack again - shouldn't work this time (since life code is already claimed)
-driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly')
+driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly')
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.DismissAlert()
 
