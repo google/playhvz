@@ -27,6 +27,7 @@ if __name__ == '__main__':
     main(sys.argv)
 import setup
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import ElementNotVisibleException
 
 driver = setup.MakeDriver()
 driver.WaitForGameLoaded()
@@ -46,7 +47,7 @@ def testChat(player, chatName, shouldBeMember):
   
   try:
    driver.Click([[By.NAME, 'close-notification']])
-  except AssertionError:
+  except (AssertionError, ElementNotVisibleException):
     pass # This user didn't have a notification
 
   if shouldBeMember:
