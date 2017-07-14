@@ -57,10 +57,6 @@
         adminChatRoomId: String,
       },
 
-      listeners: {
-          'ghvz-change-to-new-chat': 'changeToNewChat_',
-        },
-
       observers: [
         'onChatRoomsUpdated_(game, player.private.chatRoomMemberships.*)',
       ],
@@ -82,6 +78,7 @@
 
        onChatRoomsUpdated_() {
           if (this.waitingToOpenChatRoomId && this.game.chatRoomsById[this.waitingToOpenChatRoomId]) {
+            this.fire('ghvz-close-drawer', {});
             this.fire('ghvz-set-path', {
               inGame: true,
               path: ['chat', this.waitingToOpenChatRoomId],
@@ -124,23 +121,9 @@
 
       createNewChat_() {
         return () => {
+          // Move the dialog outside of the drawer so it covers the whole screen
+          document.getElementById('drawer').parentElement.appendChild(this.$.settings);
           this.$.settings.openForCreate();
-        }
-      },
-
-      changeToNewChat_(e) {
-        let chatRoomId = e.detail.chatRoomId;
-        if (!chatRoomId) {
-          return;
-        }
-        if (this.game.chatRoomsById[chatRoomId]) {
-          this.fire('ghvz-set-path', {
-            inGame: true,
-            path: ['chat', chatRoomId],
-            replace: false,
-          });
-        } else {
-          this.waitingToOpenChatRoomId = chatRoomId;
         }
       },
 
@@ -302,11 +285,11 @@
       <div>Player Name: [[player.name]]</div>
     </div>
   </div>
-  
+
   <ghvz-chat-room-settings 
     id="settings" 
     bridge="[[bridge]]"
-    game-id="[[game.id]]"
+    game="[[game]]"
     player="[[player]]"
     is-admin="[[isAdmin]]">
   </ghvz-chat-room-settings>
