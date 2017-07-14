@@ -32,6 +32,18 @@ window.FirebaseListener = (function () {
       this.gameIdObj = {}; // a shortcut for models that need to know about the game
 
       window.firebaseListener = this;
+
+      this.firebaseObjectPaths = {};
+
+      this.printMissingPathsInterval =
+          setInterval(() => {
+            if (Object.keys(this.firebaseObjectPaths)) {
+              console.log('Waiting on paths:');
+              for (let path in this.firebaseObjectPaths) {
+                console.log(path);
+              }
+            }
+          }, 10000);
     }
 
     setupPrivateModelAndReaderAndWriter(privateModelGame) {
@@ -148,6 +160,7 @@ window.FirebaseListener = (function () {
       if (!anyLeft) {
         let endTime = new Date().getTime();
         console.log('All objects loaded in', (endTime - this.timeWhenLoadingStarted)/1000, 'seconds');
+        clearTimeout(this.printMissingPathsInterval);
         this.firebaseObjectsLoaded();
       }
     }
@@ -193,7 +206,6 @@ window.FirebaseListener = (function () {
     }
 
     listenToGame(listeningUserId, gameId, destination) {
-      this.firebaseObjectPaths = {};
       this.firebaseObjectsLoadedPromise = new Promise((resolve, reject) => {
         this.firebaseObjectsLoaded = resolve;
       });

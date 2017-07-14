@@ -85,6 +85,8 @@ driver.Click([[By.NAME, 'close-notification']])
 driver.TableMenuClick([[By.NAME, "mission-row-first zed mission!"]], 'Delete')
 
 # TODO(verdagon): take this back out, was added in because of a weird menu issue that deleted both the missions
+# New finding: i once saw it accidentally hit the first human mission (the first row) instead of the first zed
+# mission (the second row) and then i think delete them both with one tap.
 time.sleep(2)
 
 driver.TableMenuClick([[By.NAME, "mission-row-first human mission!"]], 'Delete')
