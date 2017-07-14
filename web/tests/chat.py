@@ -27,6 +27,7 @@ if __name__ == '__main__':
     main(sys.argv)
 import setup
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import ElementNotVisibleException
 
 driver = setup.MakeDriver()
 driver.WaitForGameLoaded()

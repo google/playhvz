@@ -45,7 +45,7 @@ driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'not a lifec
 driver.Click([[By.ID, 'infect']])
 driver.DismissAlert()
 # Other player's life code - throws error alert
-driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'zooble flipwoogly') # Moldavi's code
+driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'zooble-flipwoogly') # Moldavi's code
 driver.Click([[By.ID, 'infect']])
 driver.DismissAlert()
 
@@ -62,7 +62,7 @@ driver.DrawerMenuClick('profile-card', 'Resistance Comms Hub')
 
 # Zella infects Moldavi
 driver.DrawerMenuClick('chat-card', 'Infect')
-driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'zooble flipwoogly') # Moldavi's code
+driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'zooble-flipwoogly') # Moldavi's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'MoldaviTheMoldavish')
 
@@ -87,7 +87,7 @@ driver.FindElement([[By.NAME, 'infection-line-0']], should_exist=False)
 driver.SwitchUser('moldavi')
 driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
 driver.DrawerMenuClick('chat-card', 'Infect')
-driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble forgbobbly') # Jack's code
+driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
 
