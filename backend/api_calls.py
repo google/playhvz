@@ -334,6 +334,15 @@ def AddPlayer(request, game_state):
   private_player_id = request['privatePlayerId'] or ('privatePlayer-' + helpers.GetIdSuffix(public_player_id))
   user_id = request['userId']
 
+  # Ensure that there isn't already a player in this game with the same userId
+  all_players = game_state.get('/games', game_id)['players']
+
+  for player_id in all_players:
+    player = game_state.get('/publicPlayers', player_id)
+
+    if player['userId'] == user_id:
+      raise InvalidInputError('A user can only join a game once')
+
   number = helpers.GetNextPlayerNumber(game_state, game_id)
 
   user_player = {'gameId': game_id}
@@ -2229,11 +2238,9 @@ def UpdatePlayerMarkers(request, game_state):
   }
 
   results = []
-  print associated_maps
 
   for map_to_update in associated_maps:
     for marker in associated_maps[map_to_update]:
-      print "" + map_to_update + ": " + marker
       patch_result = game_state.patch(
         '/maps/%s/markers/%s' % (map_to_update, marker),
         location_data)

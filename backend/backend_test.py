@@ -28,7 +28,6 @@ import config
 
 import time
 
-
 class Requester:
   def __init__(self):
     self.requestingUserIdJwt = 'meh'
