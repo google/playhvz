@@ -27,6 +27,7 @@
           game: Object,
           currentPlayer: Object,
           chatRoom: String,
+          isAdmin: Boolean,
 
           isMobile: {
             type: Boolean,
@@ -56,12 +57,16 @@
           if (!this.$.messageInput.value) {
             return;
           }
+          let message = this.$.messageInput.value;
+
+          this.sendNotifications_(message);
+
           this.bridge.sendChatMessage({
             gameId: this.game.id,
             messageId: this.bridge.newMessageId(), 
             chatRoomId: this.chatRoom.id, 
             playerId: this.currentPlayer.id, 
-            message: this.$.messageInput.value
+            message: message,
           }).catch((e) => {
             this.fire('ghvz-alert', {message: e});
           });
@@ -76,6 +81,80 @@
          if (e.keyCode === 13 && !e.shiftKey) {
             e.preventDefault();
             this.$.messageSend.click();
+          }
+        },
+
+        getMessageTargets_(message, group, senderId) {
+          let notificationPlayerIds = [];
+          let ackRequestPlayerIds = [];
+          let textRequestPlayerIds = [];
+
+          let ackRequestRegex1 = /@(\?|!)?(\w+)\b\s*/;
+          console.log(message.match(ackRequestRegex1));
+            
+            while (true) {
+                let ackRequestRegex = /@(\?|!)?(\w+)\b\s*/;
+                let messageMatch = message.match(ackRequestRegex);
+                if (!messageMatch) {
+                  break;
+                }
+                message = message.replace(messageMatch[0], "");
+                        console.log(messageMatch);
+                        console.log(message);
+
+
+              let newTargetPlayerIds = [];
+              let playerName = messageMatch[2];
+              if (playerName == 'all') {
+                newTargetPlayerIds = group.players.slice();
+              } else {
+                let player = this.game.players.find(player => player.name.toLowerCase() == playerName.toLowerCase());
+                if (!player) {
+                  throw "Couldn't find a player by the name '" + playerName + "'!";
+                }
+                newTargetPlayerIds = [player.id];
+              }
+              notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
+              let senderIndex = notificationPlayerIds.indexOf(senderId);
+              if (senderIndex != -1) {
+                notificationPlayerIds.splice(senderIndex, 1);
+              }
+              if (messageMatch[1] == '!') {
+                ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
+              } else if (messageMatch[1] == '?') {
+                textRequestPlayerIds = textRequestPlayerIds.concat(newTargetPlayerIds);
+              }
+            }
+
+            console.log([message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds]);
+            return [message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds];
+        },
+
+        sendNotifications_(message) {
+          let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
+              this.getMessageTargets_(message, group, playerId);
+
+          if (notificationPlayerIds.length) {
+            for (let receiverPlayerId of notificationPlayerIds) {
+              let receiverPlayer = this.game.playersById[receiverPlayerId];
+              let messageForNotification = player.name + ": " + strippedMessage;
+              this.addNotification({
+                playerId: receiverPlayerId,
+                notificationId: this.idGenerator.newNotificationId(),
+                queuedNotificationId: null,
+                message: messageForNotification,
+                previewMessage: messageForNotification,
+                destination: 'chat/' + chatRoom.id,
+                time: this.getTime_(args),
+                icon: null,
+              });
+            }
+          }
+          if (ackRequestPlayerIds.length) {
+            this.sendRequests(chatRoomId, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
+          }
+          if (textRequestPlayerIds.length) {
+            this.sendRequests(chatRoomId, playerId, 'text', strippedMessage, textRequestPlayerIds);
           }
         },
       });
