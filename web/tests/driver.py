@@ -150,7 +150,6 @@ class RetryingDriver:
     if wait_long:
       sleep_durations = [1, 1, 1, 1, 1, 1, 2, 4, 8, 16, 32, 64]
     for i in range(0, len(sleep_durations) + 1):
-      #print ("sleep: ", sleep_durations[i-1])
       try:
         return callback()
       except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:

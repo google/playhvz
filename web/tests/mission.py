@@ -175,6 +175,7 @@ insertAndVerifyMissionInfo(
   groupName='Everyone')
 
 driver.SwitchUser('jack')
+driver.DrawerMenuClick('mobile-main-page', 'Dashboard')
 
 # On the dashboard the new mission shows up (since the end date is sooner than the other one)
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'Basically, we just run around in circles trying not to die.')
@@ -204,6 +205,7 @@ insertAndVerifyMissionInfo(
 
 # Log in as a human (Jack). Show that the new mission doesn't show up anymore
 driver.SwitchUser('jack')
+driver.DrawerMenuClick('mobile-main-page', 'Dashboard')
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
 
 driver.DrawerMenuClick('mobile-main-page', 'Missions')
