@@ -118,7 +118,7 @@
               let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
               console.log(membership);
               console.log(this.chatRoom.messages);
-              // if the message we just received is visible, 
+              // if the message we just received is visible
             });
           }
         },
@@ -574,7 +574,7 @@
 
     <div id="conversationContainer" class="conversation-container">
       <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
-        <div name$="message-[[chatRoom.name]]-[[item.message]]"
+        <div id$="[[item.id]]" name$="message-[[chatRoom.name]]-[[item.message]]"
           class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(index)]]">
           <div class="display-message">
             <div class="player-name">
