@@ -335,7 +335,8 @@ def AddPlayer(request, game_state):
   user_id = request['userId']
 
   # Ensure that there isn't already a player in this game with the same userId
-  all_players = game_state.get('/games', game_id)['players']
+  game = game_state.get('/games', game_id)
+  all_players = game['players'] if 'players' in game else []
 
   for player_id in all_players:
     player = game_state.get('/publicPlayers', player_id)
