@@ -45,6 +45,11 @@
           type: Number,
           computed: 'computeProgressPercent_(pageNumber)',
         },
+
+        submitEnabled: {
+          type: Boolean,
+          value: true,
+        },
       },
 
       onPlayerChanged_(newPlayer, oldPlayer) {
@@ -80,7 +85,7 @@
           android: false,
           ios: false,
         };
-        this.$.submit.disabled = true;
+        this.submitEnabled = false;
         this.bridge.createPlayer(
             Utils.merge(
                 {
@@ -304,6 +309,11 @@
   #gunOptions li {
     margin: 8px 0;
   }
+  paper-spinner {
+    z-index: 1;
+    transform: translate3d(0px, 0px, 0px);
+    position: relative;
+  }
 </style>
 <template>
   <paper-progress value="[[progressPercent]]"></paper-progress>
@@ -412,9 +422,10 @@
           You're ready! Hit the Submit button to join the game!
         </div>
         <div class="section">
-          <paper-button id="submit" raised name="submitJoinGame" raised on-click="done_">
+          <paper-button disabled="[[!submitEnabled]]" id="submit" raised name="submitJoinGame" raised on-click="done_">
             Submit
           </paper-button>
+          <div hidden$="[[submitEnabled]]">Creating player...</div>
         </div>
       </div>
     </neon-animatable>
