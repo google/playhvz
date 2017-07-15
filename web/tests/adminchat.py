@@ -107,7 +107,7 @@ xpathLeaveButton = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
 driver.FindElement([[By.XPATH, xpathLeaveButton]])
 driver.Click([[By.XPATH, xpathLeaveButton]])
 
-#if not driver.is_mobile: # TODO: make leave button work the same way on mobile as it does on web
+  # TODO: make leave button work the same way on mobile as it does on web
   # Chat should be hidden, verify chat with admin button is available after leaving admin chat
 driver.FindElement([[By.NAME, 'create-admin-chat-button']])
 
