@@ -137,6 +137,10 @@
           let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
               this.getMessageTargets_(message, group, senderPlayerId);
 
+          let sound = 'ping.wav';
+          if (ackRequestPlayerIds.length && textRequestPlayerIds.length)
+            sound = 'transmission.wav';
+
           if (notificationPlayerIds.length) {
             for (let receiverPlayerId of notificationPlayerIds) {
               let receiverPlayer = this.game.playersById[receiverPlayerId];
@@ -153,7 +157,7 @@
                 mobile: true,
                 previewMessage: messageForNotification,
                 site: true,
-                sound: 'ping.wav',
+                sound: sound,
                 vibrate: true,
               });
             }
