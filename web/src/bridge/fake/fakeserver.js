@@ -475,10 +475,7 @@ class FakeServer {
       this.writer.set(rewardCategoryPath.concat([argName]), args[argName]);
     }
   }
-  updateNotification(args) {
-    this.updateQueuedNotification(args);
-  }
-  sendNotification(args) {
+  queueNotification(args) {
     this.addQueuedNotification(args);
     let millisecondsUntilSend = args.sendTime - this.getTime_(args);
     if (millisecondsUntilSend > 0) {
@@ -504,7 +501,7 @@ class FakeServer {
           playerIds = new Set(group.players);
         }
         for (let playerId of playerIds) {
-          this.addNotification({
+          this.sendNotification({
             gameId: queuedNotification.gameId,
             playerId: playerId,
             notificationId: this.idGenerator.newNotificationId(),
@@ -524,7 +521,7 @@ class FakeServer {
       }
     }
   }
-  addQueuedNotification(args) {
+  queueNotification(args) {
     let {queuedNotificationId} = args;
     args.sent = false;
     this.writer.insert(
@@ -532,7 +529,7 @@ class FakeServer {
         null,
         new Model.QueuedNotification(queuedNotificationId, args));
   }
-  addNotification(args) {
+  sendNotification(args) {
     let {queuedNotificationId, notificationId, playerId} = args;
     let properties = Utils.copyOf(args);
     properties.seenTime = null;
@@ -550,7 +547,7 @@ class FakeServer {
       this.writer.set(queuedNotificationPath.concat([argName]), args[argName]);
     }
   }
-  markNotificationSeen(args) {
+  updateNotification(args) {
     let {playerId, notificationId} = args;
     this.writer.set(
         this.reader.getNotificationPath(playerId, notificationId).concat(["seenTime"]),

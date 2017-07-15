@@ -145,10 +145,9 @@
             for (let receiverPlayerId of notificationPlayerIds) {
               let receiverPlayer = this.game.playersById[receiverPlayerId];
               let messageForNotification = this.currentPlayer.name + ": " + strippedMessage;
-              this.bridge.addNotification({
+              this.bridge.sendNotification({
                 gameId: this.game.id,
                 notificationId: this.bridge.newNotificationId(),
-                queuedNotificationId: null,
                 playerId: receiverPlayerId,
                 email: false,
                 destination: 'game/' + this.game.id + '/chat/' + chatRoom.id,

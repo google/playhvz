@@ -170,7 +170,7 @@
               sendTime: Math.floor(new Date().getTime()),
             })
             .then((properties) => {
-              this.bridge.sendNotification({
+              this.bridge.queueNotification({
                 gameId: this.game.id,
                 queuedNotificationId: this.bridge.newQueuedNotificationId(),
                 playerId: null,
@@ -192,7 +192,7 @@
       startEditingCategory_: function(queuedNotification) {
         this.$.form.openForEditing(queuedNotification)
             .then((newProperties) => {
-              this.bridge.updateNotification({
+              this.bridge.updateQueuedNotification({
                 gameId: this.game.id,
                 queuedNotificationId: queuedNotification.id,
                 playerId: null,

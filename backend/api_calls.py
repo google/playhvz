@@ -33,11 +33,11 @@ from google.appengine.api import mail
 import cgi
 import copy
 import difflib
+import time
 import logging
 import pprint
 import random
 import textwrap
-import notifications
 import constants
 import db_helpers as helpers
 from db_helpers import Optional
@@ -2174,7 +2174,7 @@ def SyncFirebase(request, game_state):
       </body></html>""" % (diffs)).Send()
 
 
-def MarkNotificationSeen(request, game_state):
+def UpdateNotification(request, game_state):
   """Updates the notification's seenTime.
 
   Firebase entries:
@@ -2184,18 +2184,18 @@ def MarkNotificationSeen(request, game_state):
     'gameId': 'GameId', # Game ID
     'notificationId': 'NotificationId', # QueuedNotificationId to create.
     'playerId': 'PublicPlayerId', # Current player's id
+    'seenTime': '|Timestamp',
   })
   public_player_id = request['playerId']
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
+  notification_id = request['notificationId']
 
-  current_time = helpers.GetTime(request)
-  put_data = {
-    'seenTime': current_time
-  }
-  game_state.patch('/privatePlayers/%s/notifications/%s' % (
-      private_player_id, request['notificationId']), put_data)
+  put_data = {}
+  if 'seenTime' in request:
+    put_data['seenTime'] = request['seenTime']
+  game_state.patch('/privatePlayers/%s/notifications/%s' % (private_player_id, notification_id), put_data)
 
-def SendNotification(game_state, notification):
+def SendNotification(request, game_state):
   """Helper function to propogate a notification."""
 
   helpers.ValidateInputs(request, game_state, {
@@ -2213,61 +2213,32 @@ def SendNotification(game_state, notification):
     'icon': '?String', # An icon code to show. Null to show the default.
   })
 
-  game_id = notification['gameId']
-  public_player_id = notification['playerId']
+  SendNotificationInner(game_state, request)
+
+
+def SendNotificationInner(game_state, request):
+  game_id = request['gameId']
+  public_player_id = request['playerId']
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
 
-  if notification['site']:
-    game_state.put('/privatePlayers/%s/notifications' % private_player_id,
-                  notification_id, notification)
-
-  if notification['mobile']:
+  if request['mobile']:
     user_id = game_state.get('/publicPlayers/%s' % public_player_id, 'userId')
     user = game_state.get('/users', user_id)
-    if 'deviceToken' in user:
-      device_tokens.append(user['deviceToken'])
-  if config.FIREBASE_APIKEY:
-    fcm.notify_single_devices(registration_id=device_token,
-                              message_title=notification['previewMessage'],
-                              message_body=notification['message'],
-                              sound=notification['sound'],
-                              data_message=notification)
+    if config.FIREBASE_APIKEY:
+      if 'deviceToken' in user:
+        fcm.notify_single_devices(registration_id=user['deviceToken'],
+                                  message_title=request['previewMessage'],
+                                  message_body=request['message'],
+                                  sound=request['sound'],
+                                  data_message=request)
 
-def SendQueuedNotification(game_state, queued_notification_id, queued_notification):
-  """Helper function to propogate a notification."""
-  game_id = queued_notification['gameId']
+  if request['site']:
+    notification_id = request['notificationId']
+    del request['gameId']
+    del request['notificationId']
+    game_state.put('/privatePlayers/%s/notifications' % private_player_id, notification_id, request)
 
-  if 'playerId' in queued_notification and queued_notification['playerId'] is not None:
-    public_player_ids = [queued_notification['playerId']]
-  elif 'groupId' in queued_notification:
-    public_player_ids = game_state.get('/groups/%s' % queued_notification['groupId'], 'players')
-    if public_player_ids is None:
-      public_player_ids = []
-    else:
-      public_player_ids = sorted(public_player_ids)
-  else:
-    logging.error('Queued notification %s does not have a playerId or a groupId!' % (
-        queued_notification_id))
-    return
 
-  device_tokens = []
-
-  for index, public_player_id in enumerate(public_player_ids):
-    notification_id = queued_notification_id.replace('queuedNotification-', 'notification-', 1) + '-' + str(index)
-    notification = {
-      'queuedNotificationId': queued_notification_id,
-      'message': queued_notification['message'],
-      'previewMessage': queued_notification['previewMessage'],
-      'destination': queued_notification['destination'],
-      'time': int(time.time() * 1000),
-      'icon': queued_notification['icon'] if 'icon' in queued_notification else None,
-      'sound': queued_notification['sound'] if 'sound' in queued_notification else None,
-      'site': queued_notification['site'],
-      'mobile': queued_notification['mobile'],
-      'email': queued_notification['email'],
-      'vibrate': queued_notification['vibrate'],
-    }
-    SendNotification(game_state, notification)
 
 def QueueNotification(request, game_state):
   """Queue a notification to be sent.
@@ -2314,7 +2285,7 @@ def QueueNotification(request, game_state):
 
   game_state.put('/games/%s/queuedNotifications' % game_id, request['queuedNotificationId'], True)
   game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
-  ExecuteNotifications(None, game_state)
+  ExecuteNotifications(None, game_state, helpers.GetTime(request))
 
 
 def UpdateQueuedNotification(request, game_state):
@@ -2359,9 +2330,49 @@ def UpdateQueuedNotification(request, game_state):
       put_data[property] = request[property]
 
   game_state.patch('/queuedNotifications/%s' % request['queuedNotificationId'], put_data)
-  ExecuteNotifications(None, game_state)
+  ExecuteNotifications(None, game_state, helpers.GetTime(request))
 
-def ExecuteNotifications(request, game_state):
+
+def SendQueuedNotification(game_state, queued_notification_id, queued_notification):
+  """Helper function to propogate a notification."""
+  game_id = queued_notification['gameId']
+
+  if 'playerId' in queued_notification and queued_notification['playerId'] is not None:
+    public_player_ids = [queued_notification['playerId']]
+  elif 'groupId' in queued_notification:
+    public_player_ids = game_state.get('/groups/%s' % queued_notification['groupId'], 'players')
+    if public_player_ids is None:
+      public_player_ids = []
+    else:
+      public_player_ids = sorted(public_player_ids)
+  else:
+    logging.error('Queued notification %s does not have a playerId or a groupId!' % (
+        queued_notification_id))
+    return
+
+  device_tokens = []
+
+  for index, public_player_id in enumerate(public_player_ids):
+    notification_id = queued_notification_id.replace('queuedNotification-', 'notification-', 1) + '-' + str(index)
+    notification = {
+      'gameId': game_id,
+      'playerId': public_player_id,
+      'queuedNotificationId': queued_notification_id,
+      'notificationId': notification_id,
+      'message': queued_notification['message'],
+      'previewMessage': queued_notification['previewMessage'],
+      'destination': queued_notification['destination'],
+      'icon': queued_notification['icon'] if 'icon' in queued_notification else None,
+      'sound': queued_notification['sound'] if 'sound' in queued_notification else None,
+      'site': queued_notification['site'],
+      'mobile': queued_notification['mobile'],
+      'email': queued_notification['email'],
+      'vibrate': queued_notification['vibrate'],
+    }
+    SendNotificationInner(game_state, notification)
+
+
+def ExecuteNotifications(request, game_state, current_time=None):
   """Send the notifications.
 
   This method will execute queued notifications and send them to apps and add
@@ -2372,7 +2383,8 @@ def ExecuteNotifications(request, game_state):
   We iterate over the entire set of notifications in existence currently. Soon,
   we'll iterate over all notifications in the given game id.
   """
-  current_time = int(time.time() * 1000)
+  if current_time is None:
+    current_time = int(time.time() * 1000)
   while True:
     updates = False
     queued_notifications = game_state.get('/queuedNotifications', None)
@@ -2383,7 +2395,7 @@ def ExecuteNotifications(request, game_state):
       sent = queued_notification['sent']
       if not sent and (send_time is None or send_time < current_time):
         updates = True
-        HandleNotification(game_state, queued_notification_id, queued_notification)
+        SendQueuedNotification(game_state, queued_notification_id, queued_notification)
         game_state.patch('/queuedNotifications/%s' % queued_notification_id, {'sent': True})
     if not updates:
       return

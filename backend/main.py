@@ -46,7 +46,6 @@ import threading
 import api_calls
 import constants
 import in_memory_store as store
-import notifications
 import config
 
 logging.basicConfig(level=logging.DEBUG)
@@ -123,9 +122,9 @@ methods = {
   'claimReward': api_calls.ClaimReward,
   'sendNotification': api_calls.SendNotification,
   'queueNotification': api_calls.QueueNotification,
-  'updateQueueNotification': api_calls.UpdateQueueNotification,
+  'updateQueuedNotification': api_calls.UpdateQueuedNotification,
   'registerUserDevice': api_calls.RegisterUserDevice,
-  'markNotificationSeen': api_calls.MarkNotificationSeen,
+  'updateNotification': api_calls.UpdateNotification,
   'addLife': api_calls.AddLife,
   'infect': api_calls.Infect,
   'joinResistance': api_calls.JoinResistance,
@@ -147,7 +146,7 @@ methods = {
   'createMap': api_calls.CreateMap,
   'addMarker': api_calls.AddMarker,
   'updatePlayerMarkers': api_calls.UpdatePlayerMarkers,
-  'executeNotifications': notifications.ExecuteNotifications,
+  'executeNotifications': api_calls.ExecuteNotifications,
   'syncFirebase': api_calls.SyncFirebase,
 }
 
