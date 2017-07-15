@@ -54,7 +54,7 @@ def enqueue_patch(firebase, data):
   patch_mutex.release()
   print "getting accessor_mutex:", str(accessor_mutex)
   accessor_mutex.acquire()
-  deferred.defer(compact_and_send, firebase=firebase, _queue="extra-requests")
+  deferred.defer(compact_and_send, firebase=firebase, _queue="send-firebase-updates")
   accessor_mutex.release()
 
 def compact_and_send(firebase):
