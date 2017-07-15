@@ -109,7 +109,8 @@
           return senderId === myId ? 'message-from-me' : 'message-from-other';
         },
 
-        displaySenderInfo(messageIndex) {
+        displaySenderInfo(message) {
+          let messageIndex = this.chatRoom.messages.indexOf(message);
           if (messageIndex == 0) {
             return 'display-sender';
           }
@@ -545,7 +546,7 @@
     <div id="conversationContainer" class="conversation-container">
       <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
         <div name$="message-[[chatRoom.name]]-[[item.message]]"
-          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(index)]]">
+          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item)]]">
           <div class="display-message">
             <div class="player-name">
               [[getName_(item.playerId, game.players.length)]]
