@@ -7,6 +7,13 @@
       { "source": "/createGame**", "destination": "/index.html" },
       { "source": "/createPopulatedGame**", "destination": "/index.html" },
       { "source": "/devTools**", "destination": "/index.html" }
-    ]
+    ],
+    "headers": [{
+      "source" : "**",
+      "headers" : [{
+        "key" : "Cache-Control",
+        "value" : "max-age=3600"
+      }]
+    }]
   }
 }

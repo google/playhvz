@@ -58,13 +58,9 @@ newChatName = 'No hoomans allowed'
 driver = setup.MakeDriver()
 driver.WaitForGameLoaded()
 
-# Open chat page
-driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-
 # Open dialog for creating new chat room
-driver.FindElement([[By.ID, 'new-chat']]) # TODO(aliengirl): once failed here -m
-driver.Click([[By.ID, 'new-chat']])
+driver.SwitchUser(actingPlayer)
+driver.DrawerMenuClick('mobile-main-page', 'New chat')
 
 # Set chat room settings to be zombie only
 driver.FindElement([[By.ID, 'chatName']])

@@ -46,7 +46,6 @@ import threading
 import api_calls
 import constants
 import in_memory_store as store
-import notifications
 import config
 
 logging.basicConfig(level=logging.DEBUG)
@@ -111,7 +110,7 @@ methods = {
   'updateMission': api_calls.UpdateMission,
   'createChatRoom': api_calls.AddChatRoom,
   'updateChatRoom': api_calls.UpdateChatRoom,
-  'sendChatMessage': api_calls.SendChatMessage,
+  # 'sendChatMessage': api_calls.SendChatMessage,
   'addRequestCategory': api_calls.AddRequestCategory,
   'updateRequestCategory': api_calls.UpdateRequestCategory,
   'addRequest': api_calls.AddRequest,
@@ -122,9 +121,10 @@ methods = {
   'addRewards': api_calls.AddRewards,
   'claimReward': api_calls.ClaimReward,
   'sendNotification': api_calls.SendNotification,
+  'queueNotification': api_calls.QueueNotification,
+  'updateQueuedNotification': api_calls.UpdateQueuedNotification,
   'registerUserDevice': api_calls.RegisterUserDevice,
   'updateNotification': api_calls.UpdateNotification,
-  'markNotificationSeen': api_calls.MarkNotificationSeen,
   'addLife': api_calls.AddLife,
   'infect': api_calls.Infect,
   'joinResistance': api_calls.JoinResistance,
@@ -146,7 +146,7 @@ methods = {
   'createMap': api_calls.CreateMap,
   'addMarker': api_calls.AddMarker,
   'updatePlayerMarkers': api_calls.UpdatePlayerMarkers,
-  'executeNotifications': notifications.ExecuteNotifications,
+  'executeNotifications': api_calls.ExecuteNotifications,
   'syncFirebase': api_calls.SyncFirebase,
 }
 
@@ -211,12 +211,12 @@ def StressTestBatch():
   begin_time = time.time()
 
   requests = []
-  for i in range(0, 50):
+  for i in range(0, 300):
     requests.append({
       'method': 'register',
       'body': {
         'requestingUserId': None,
-        'requestingUserToken': 'blark',
+        'requestingUserIdJwt': 'blark',
         'requestingPlayerId': None,
         'userId': 'user-wat-%d' % random.randint(0, 2**52),
       }

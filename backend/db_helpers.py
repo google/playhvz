@@ -403,23 +403,5 @@ def GetTime(request):
     current_time = current_time + request['requestTimeOffset']
   return current_time
 
-def QueueNotification(game_state, request):
-  game_id = request['gameId']
-  put_data = {
-    'sent': False,
-  }
-  properties = ['message', 'site', 'email', 'mobile', 'vibrate', 'sound', 'destination', 'sendTime',
-                'groupId', 'playerId', 'icon', 'previewMessage', 'gameId']
-
-  for property in properties:
-    if property in request and request[property] is not None:
-      put_data[property] = request[property]
-
-  print 'request were putting:'
-  print put_data
-
-  game_state.put('/games/%s/queuedNotifications' % game_id, request['queuedNotificationId'], True)
-  game_state.put('/queuedNotifications', request['queuedNotificationId'], put_data)
-
 
 # vim:ts=2:sw=2:expandtab

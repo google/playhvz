@@ -14,6 +14,10 @@
 
 // TODO: High-level file comment.
 
+// ? means this value is nullable
+// | means this value is optional
+// ! means this value shouldn't exist already
+
 'use strict';
 
 class Bridge {
@@ -527,7 +531,7 @@ class FakeIdGenerator extends IdGenerator {
     victimPlayerId: '?PublicPlayerId',
   });
 
-  serverMethods.set('sendNotification', {
+  serverMethods.set('queueNotification', {
     gameId: 'GameId',
     queuedNotificationId: '!QueuedNotificationId',
     message: 'String',
@@ -544,7 +548,7 @@ class FakeIdGenerator extends IdGenerator {
     icon: '?String',
   });
 
-  serverMethods.set('updateNotification', {
+  serverMethods.set('updateQueuedNotification', {
     gameId: 'GameId',
     queuedNotificationId: 'QueuedNotificationId',
     message: '|String',
@@ -559,6 +563,21 @@ class FakeIdGenerator extends IdGenerator {
     playerId: '|?PublicPlayerId',
     groupId: '|?GroupId',
     icon: '|?String',
+  });
+
+  serverMethods.set('sendNotification', {
+    gameId: 'GameId',
+    notificationId: '!NotificationId',
+    message: 'String',
+    previewMessage: 'String',
+    site: 'Boolean',
+    mobile: 'Boolean',
+    vibrate: 'Boolean',
+    sound: '?String',
+    email: 'Boolean',
+    destination: '?String',
+    playerId: '?PublicPlayerId',
+    icon: '?String',
   });
 
   serverMethods.set('addQuizQuestion', {
@@ -594,10 +613,11 @@ class FakeIdGenerator extends IdGenerator {
     number: '|Number',
   });
 
-  serverMethods.set('markNotificationSeen', {
+  serverMethods.set('updateNotification', {
     gameId: 'GameId',
     playerId: 'PublicPlayerId',
     notificationId: 'NotificationId',
+    seenTime: '|Timestamp',
   });
 
   serverMethods.set('executeNotifications', {

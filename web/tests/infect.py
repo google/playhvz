@@ -42,7 +42,7 @@ driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 driver.DrawerMenuClick('profile-card', 'Dashboard')
 driver.SendKeys(
     [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
-    'grobble forgbobbly') # Crashed here once (desktop)
+    'grobble-forgbobbly') # Crashed here once (desktop)
 
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains(

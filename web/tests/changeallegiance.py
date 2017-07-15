@@ -56,7 +56,7 @@ driver.SwitchUser("jack")
 driver.DrawerMenuClick('mobile-main-page', 'Infect')
 driver.SendKeys(
       [[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']],
-      'glarple zerp wobbledob') # Zella's life code
+      'glarple-zerp-wobbledob') # Zella's life code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card']], "you've infected ZellaTheUltimate!")
 
@@ -71,7 +71,7 @@ driver.ExpectContains([[By.NAME, 'status']], "Alive")
 driver.DrawerMenuClick('profile-card', 'Infect')
 driver.SendKeys(
     [[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']],
-    'zooble flipwoogly') # Moldavi's life code
+    'zooble-flipwoogly') # Moldavi's life code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card']], "you've infected MoldaviTheMoldavish!")
 

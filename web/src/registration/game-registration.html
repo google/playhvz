@@ -25,6 +25,10 @@
       properties: {
         bridge: Object,
         game: Object,
+        player: {
+          type: Object,
+          observer: 'onPlayerChanged_',
+        },
         userId: String,
         email: String,
         newPlayerArgs: {
@@ -41,6 +45,21 @@
           type: Number,
           computed: 'computeProgressPercent_(pageNumber)',
         },
+
+        submitEnabled: {
+          type: Boolean,
+          value: true,
+        },
+      },
+
+      onPlayerChanged_(newPlayer, oldPlayer) {
+        if (newPlayer && !oldPlayer) {
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['main'],
+            replace: true,
+          });
+        }
       },
 
       computeProgressPercent_(pageNumber) {
@@ -66,6 +85,7 @@
           android: false,
           ios: false,
         };
+        this.submitEnabled = false;
         this.bridge.createPlayer(
             Utils.merge(
                 {
@@ -85,11 +105,7 @@
                   },
                 },
                 this.newPlayerArgs));
-        this.fire('ghvz-set-path', {
-          inGame: true,
-          path: ['main'],
-          replace: true,
-        });
+        // We observe player changing above, and when it does, we go to the dashboard
       },
 
       isMultipleChoice(type) {
@@ -293,6 +309,11 @@
   #gunOptions li {
     margin: 8px 0;
   }
+  paper-spinner {
+    z-index: 1;
+    transform: translate3d(0px, 0px, 0px);
+    position: relative;
+  }
 </style>
 <template>
   <paper-progress value="[[progressPercent]]"></paper-progress>
@@ -401,9 +422,10 @@
           You're ready! Hit the Submit button to join the game!
         </div>
         <div class="section">
-          <paper-button raised name="submitJoinGame" raised on-click="done_">
+          <paper-button disabled="[[!submitEnabled]]" id="submit" raised name="submitJoinGame" raised on-click="done_">
             Submit
           </paper-button>
+          <div hidden$="[[submitEnabled]]">Creating player...</div>
         </div>
       </div>
     </neon-animatable>

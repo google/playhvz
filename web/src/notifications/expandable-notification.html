@@ -67,9 +67,10 @@
       },
 
       close_(e) {
-        this.bridge.markNotificationSeen({
+        this.bridge.updateNotification({
           playerId: this.playerId,
           notificationId: this.notification.id,
+          seenTime: new Date().getTime(),
         });
         e.stopPropagation();
       },
