@@ -861,7 +861,8 @@ class FakeServer {
           code: lifeCode
         });
     this.writer.insert(this.reader.getPublicLifePath(playerId, null), null, publicLife);
-    if (player.lives.length > player.infections.length) {
+
+    if (player.lives.length > player.infections.length &&  player.allegiance == 'horde') {
       this.setPlayerAllegiance(playerId, "resistance", false);
     }
   }
