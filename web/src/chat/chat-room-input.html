@@ -102,9 +102,11 @@
             if (playerName == 'all') {
               newTargetPlayerIds = group.players.slice();
             } else {
-              let player = this.game.players.find(player => player.name.toLowerCase() == playerName.toLowerCase());
+              let player = this.game.players.find(player => {
+                player.name.toLowerCase() == playerName.toLowerCase() && group.playersById[player.id];
+              });
               if (!player) {
-                throw "Couldn't find a player by the name '" + playerName + "'!";
+                throw "Couldn't find a player by the name '" + playerName + "' in this chat room!";
               }
               newTargetPlayerIds = [player.id];
             }
@@ -125,6 +127,7 @@
         },
 
         sendNotifications_(message) {
+          let playerId = this.currentPlayer.id;
           let group = this.game.groupsById[this.chatRoom.accessGroupId];
           let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
               this.getMessageTargets_(message, group, this.currentPlayer.id);
@@ -135,30 +138,29 @@
               let messageForNotification = this.currentPlayer.name + ": " + strippedMessage;
 
 
-              this.bridge.sendNotification({
+              this.bridge.addNotification({
                 gameId: this.game.id,
-                queuedNotificationId: this.bridge.newQueuedNotificationId(),
+                notificationId: this.bridge.newNotificationId(),
+                queuedNotificationId: null,
                 playerId: receiverPlayerId,
                 email: false,
-                destination: 'chat/' + this.chatRoom.id,
-                groupId: null,
+                destination: 'game/' + this.game.id + '/chat/' + this.chatRoom.id,
                 icon: null,
                 message: messageForNotification,
                 mobile: true,
                 previewMessage: messageForNotification,
-                sendTime: null,
                 site: true,
                 sound: 'ping.wav',
                 vibrate: true,
               });
             }
           }
-          if (ackRequestPlayerIds.length) {
-            this.sendRequests(chatRoomId, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
+         /* if (ackRequestPlayerIds.length) {
+            this.sendRequests(this.chatRoom.id, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
           }
           if (textRequestPlayerIds.length) {
             this.sendRequests(chatRoomId, playerId, 'text', strippedMessage, textRequestPlayerIds);
-          }
+          }*/
         },
       });
     });

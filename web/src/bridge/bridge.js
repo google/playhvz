@@ -560,6 +560,22 @@ class FakeIdGenerator extends IdGenerator {
     icon: '|?String',
   });
 
+  serverMethods.set('addNotification', {
+    gameId: 'GameId',
+    notificationId: 'NotificationId',
+    queuedNotificationId: '|QueuedNotificationId',
+    message: 'String',
+    previewMessage: 'String',
+    site: 'Boolean',
+    mobile: 'Boolean',
+    vibrate: 'Boolean',
+    sound: '?String',
+    email: 'Boolean',
+    destination: '?String',
+    playerId: '?PublicPlayerId',
+    icon: '?String',
+  });
+
   serverMethods.set('addQuizQuestion', {
     quizQuestionId: '!QuizQuestionId',
     gameId: 'GameId',
