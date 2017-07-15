@@ -110,10 +110,8 @@
     .icon-button {
       color: dodgerblue;
     }
-    .map-container {
-      padding: 8px;
-      width: 200px;
-      height: 200px;
+    .map {
+      padding-top: 16px;
     }
   </style>
   <template>
@@ -131,6 +129,7 @@
         done-enabled="{{doneEnabled}}"
         on-ghvz-form-done="onConfirmSendLocation_">
       <ghvz-static-map 
+        class="map"
         latitude="[[latitude]]" 
         longitude="[[longitude]]" 
         error="[[geolocationError]]">
