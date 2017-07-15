@@ -329,32 +329,6 @@ class FakeServer {
     } else {
       throw 'Can\'t send message to chat room without membership';
     }
-    
-    let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-        this.getMessageTargets(message, group, playerId);
-
-    if (notificationPlayerIds.length) {
-      for (let receiverPlayerId of notificationPlayerIds) {
-        let receiverPlayer = this.game.playersById[receiverPlayerId];
-        let messageForNotification = player.name + ": " + strippedMessage;
-        this.addNotification({
-          playerId: receiverPlayerId,
-          notificationId: this.idGenerator.newNotificationId(),
-          queuedNotificationId: null,
-          message: messageForNotification,
-          previewMessage: messageForNotification,
-          destination: 'chat/' + chatRoom.id,
-          time: this.getTime_(args),
-          icon: null,
-        });
-      }
-    }
-    if (ackRequestPlayerIds.length) {
-      this.sendRequests(chatRoomId, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
-    }
-    if (textRequestPlayerIds.length) {
-      this.sendRequests(chatRoomId, playerId, 'text', strippedMessage, textRequestPlayerIds);
-    }
   }
 
   sendRequests(chatRoomId, senderPlayerId, type, message, playerIds) {
@@ -531,6 +505,7 @@ class FakeServer {
         }
         for (let playerId of playerIds) {
           this.addNotification({
+            gameId: queuedNotification.gameId,
             playerId: playerId,
             notificationId: this.idGenerator.newNotificationId(),
             queuedNotificationId: queuedNotification.id,
@@ -539,6 +514,11 @@ class FakeServer {
             destination: queuedNotification.destination,
             time: this.getTime_(args),
             icon: queuedNotification.icon,
+            site: queuedNotification.site,
+            mobile: queuedNotification.mobile,
+            vibrate: queuedNotification.vibrate,
+            sound: queuedNotification.sound,
+            email: queuedNotification.email,
           });
         }
       }
