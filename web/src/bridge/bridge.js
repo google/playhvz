@@ -14,6 +14,10 @@
 
 // TODO: High-level file comment.
 
+// ? means this value is nullable
+// | means this value is optional
+// ! means this value shouldn't exist already
+
 'use strict';
 
 class Bridge {
@@ -562,8 +566,8 @@ class FakeIdGenerator extends IdGenerator {
 
   serverMethods.set('addNotification', {
     gameId: 'GameId',
-    notificationId: 'NotificationId',
-    queuedNotificationId: '|QueuedNotificationId',
+    notificationId: '!NotificationId',
+    queuedNotificationId: '?QueuedNotificationId',
     message: 'String',
     previewMessage: 'String',
     site: 'Boolean',

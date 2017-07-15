@@ -59,7 +59,13 @@
           }
           let message = this.$.messageInput.value;
 
-          this.sendNotifications_(message);
+          try {
+            this.parseAndSendNotifications_(message);
+          }
+          catch (e) {
+            this.fire('ghvz-alert', {message: e});
+            return;
+          }
 
           this.bridge.sendChatMessage({
             gameId: this.game.id,
@@ -103,7 +109,7 @@
               newTargetPlayerIds = group.players.slice();
             } else {
               let player = this.game.players.find(player => {
-                player.name.toLowerCase() == playerName.toLowerCase() && group.playersById[player.id];
+                return player.name.toLowerCase() == playerName.toLowerCase() && group.playersById[player.id];
               });
               if (!player) {
                 throw "Couldn't find a player by the name '" + playerName + "' in this chat room!";
@@ -121,30 +127,27 @@
               textRequestPlayerIds = textRequestPlayerIds.concat(newTargetPlayerIds);
             }
           }
-
-          console.log([message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds]);
           return [message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds];
         },
 
-        sendNotifications_(message) {
-          let playerId = this.currentPlayer.id;
-          let group = this.game.groupsById[this.chatRoom.accessGroupId];
+        parseAndSendNotifications_(message) {
+          let chatRoom = this.chatRoom;
+          let senderPlayerId = this.currentPlayer.id;
+          let group = this.game.groupsById[chatRoom.accessGroupId];
           let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-              this.getMessageTargets_(message, group, this.currentPlayer.id);
+              this.getMessageTargets_(message, group, senderPlayerId);
 
           if (notificationPlayerIds.length) {
             for (let receiverPlayerId of notificationPlayerIds) {
               let receiverPlayer = this.game.playersById[receiverPlayerId];
               let messageForNotification = this.currentPlayer.name + ": " + strippedMessage;
-
-
               this.bridge.addNotification({
                 gameId: this.game.id,
                 notificationId: this.bridge.newNotificationId(),
                 queuedNotificationId: null,
                 playerId: receiverPlayerId,
                 email: false,
-                destination: 'game/' + this.game.id + '/chat/' + this.chatRoom.id,
+                destination: 'game/' + this.game.id + '/chat/' + chatRoom.id,
                 icon: null,
                 message: messageForNotification,
                 mobile: true,
@@ -155,12 +158,46 @@
               });
             }
           }
-         /* if (ackRequestPlayerIds.length) {
-            this.sendRequests(this.chatRoom.id, playerId, 'ack', strippedMessage, ackRequestPlayerIds);
+          if (ackRequestPlayerIds.length) {
+            let requestCategoryId = this.bridge.newRequestCategoryId();
+            this.bridge.addRequestCategory({
+              gameId: this.game.id,
+              requestCategoryId: requestCategoryId,
+              chatRoomId: chatRoom.id,
+              playerId: senderPlayerId,
+              text: strippedMessage,
+              type: 'ack',
+              dismissed: false,
+            });
+            for (let playerId of ackRequestPlayerIds) {
+              this.bridge.addRequest({
+                gameId: this.game.id,
+                requestCategoryId: requestCategoryId,
+                requestId: this.bridge.newRequestId(),
+                playerId: playerId,
+              });
+            }
           }
           if (textRequestPlayerIds.length) {
-            this.sendRequests(chatRoomId, playerId, 'text', strippedMessage, textRequestPlayerIds);
-          }*/
+            let requestCategoryId = this.bridge.newRequestCategoryId();
+            this.bridge.addRequestCategory({
+              gameId: this.game.id,
+              requestCategoryId: requestCategoryId,
+              chatRoomId: chatRoom.id,
+              playerId: senderPlayerId,
+              text: strippedMessage,
+              type: 'text',
+              dismissed: false,
+            });
+            for (let playerId of textRequestPlayerIds) {
+              this.bridge.addRequest({
+                gameId: this.game.id,
+                requestCategoryId: requestCategoryId,
+                requestId: this.bridge.newRequestId(),
+                playerId: playerId,
+              });
+            }
+          }
         },
       });
     });
