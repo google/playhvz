@@ -154,7 +154,7 @@ type ChatRoom {
 
 type Message {
   messageId: MessageId | Null; // #1
-  message: String;
+  message: String | Null;
   playerId: PublicPlayerId;
   time: Timestamp;
   image: ImageUrl | Null;
