@@ -43,6 +43,7 @@
       listeners: {
         'ghvz-open-drawer': 'openDrawer_',
         'ghvz-close-drawer': 'closeDrawer_',
+        'ghvz-open-dialog': 'openDialog_',
       },
 
       computeInnerPath_(path) {
@@ -67,6 +68,13 @@
         this.$$("#drawer").closeDrawer();
       },
 
+      openDialog_(e) {
+        // Move the dialog so it covers the whole screen
+        if (event.detail.dialog) {
+          this.appendChild(event.detail.dialog);
+          event.detail.dialog.openForCreate();
+        }
+      },
     });
   });
 </script>
