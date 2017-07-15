@@ -137,43 +137,35 @@ isAuthenticatedMember(groupId, gameId) {
 ******************************************************************************/
 
 type ChatRoom {
-  chatRoomId: ChatRoomId; // #1
+  chatRoomId: ChatRoomId | Null; // #1
   name: String;
   withAdmins: Boolean;
   gameId: GameId;
-  accessGroupId: GroupId;
-  messages: Map<MessageId, Message>;
+  accessGroupId: GroupId | Null;
+  messages: Map<MessageId, Message> | Null;
 
   read() {
     isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
-  write() { true }
+  write() { isAuthenticatedMember(this.accessGroupId, this.gameId) }
 
-  validate() {
-    root.games[this.gameId] &&
-    root.groups[this.accessGroupId]
-  }
 }
 
-
 type Message {
-  messageId: MessageId; // #1
+  messageId: MessageId | Null; // #1
   message: String;
   playerId: PublicPlayerId;
   time: Timestamp;
-  image: ImageUrl;
-  location: Location;
+  image: ImageUrl | Null;
+  location: Location | Null;
 
   read() {
     isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)
   }
 
-  write() {     isServer()   }
+  write() {  isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)   }
 
-  validate() {
-    root.chatRooms[this.parent().ChatRoomId]
-  }
 }
 
 type Game {
@@ -519,6 +511,7 @@ type PublicLife {
 /chatRooms/{ChatRoomId} is ChatRoom;
 /chatRooms/{ChatRoomId}/messages {
   index() {['time']}
+  write() {isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)}
 }
 /chatRooms/ChatRoomId/messages/{MessageId} is Message;
 /games/{GameId} is Game;
