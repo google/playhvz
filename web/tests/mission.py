@@ -85,6 +85,8 @@ driver.Click([[By.NAME, 'close-notification']])
 driver.TableMenuClick([[By.NAME, "mission-row-first zed mission!"]], 'Delete')
 
 # TODO(verdagon): take this back out, was added in because of a weird menu issue that deleted both the missions
+# New finding: i once saw it accidentally hit the first human mission (the first row) instead of the first zed
+# mission (the second row) and then i think delete them both with one tap.
 time.sleep(2)
 
 driver.TableMenuClick([[By.NAME, "mission-row-first human mission!"]], 'Delete')
@@ -175,6 +177,7 @@ insertAndVerifyMissionInfo(
   groupName='Everyone')
 
 driver.SwitchUser('jack')
+driver.DrawerMenuClick('mobile-main-page', 'Dashboard')
 
 # On the dashboard the new mission shows up (since the end date is sooner than the other one)
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'Basically, we just run around in circles trying not to die.')
@@ -204,6 +207,7 @@ insertAndVerifyMissionInfo(
 
 # Log in as a human (Jack). Show that the new mission doesn't show up anymore
 driver.SwitchUser('jack')
+driver.DrawerMenuClick('mobile-main-page', 'Dashboard')
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
 
 driver.DrawerMenuClick('mobile-main-page', 'Missions')

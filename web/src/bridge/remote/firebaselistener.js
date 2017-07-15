@@ -32,6 +32,18 @@ window.FirebaseListener = (function () {
       this.gameIdObj = {}; // a shortcut for models that need to know about the game
 
       window.firebaseListener = this;
+
+      this.firebaseObjectPaths = {};
+
+      this.printMissingPathsInterval =
+          setInterval(() => {
+            if (Object.keys(this.firebaseObjectPaths)) {
+              console.log('Waiting on paths:');
+              for (let path in this.firebaseObjectPaths) {
+                console.log(path);
+              }
+            }
+          }, 10000);
     }
 
     setupPrivateModelAndReaderAndWriter(privateModelGame) {
@@ -148,6 +160,7 @@ window.FirebaseListener = (function () {
       if (!anyLeft) {
         let endTime = new Date().getTime();
         console.log('All objects loaded in', (endTime - this.timeWhenLoadingStarted)/1000, 'seconds');
+        clearTimeout(this.printMissingPathsInterval);
         this.firebaseObjectsLoaded();
       }
     }
@@ -193,10 +206,15 @@ window.FirebaseListener = (function () {
     }
 
     listenToGame(listeningUserId, gameId, destination) {
-      this.firebaseObjectPaths = {};
       this.firebaseObjectsLoadedPromise = new Promise((resolve, reject) => {
         this.firebaseObjectsLoaded = resolve;
       });
+
+      let gameFoundResolve;
+      let gameFoundPromise = new Promise((resolve, reject) => {
+        gameFoundResolve = resolve;
+      });
+      
       this.timeWhenLoadingStarted = new Date().getTime();
       console.log('listening to a game!', this.timeWhenLoadingStarted, listeningUserId, gameId);
       this.destination.addDestination(destination);
@@ -209,6 +227,7 @@ window.FirebaseListener = (function () {
         this.game.initialize(gameSnap.val(), this.game, null, true);
         this.setupPrivateModelAndReaderAndWriter(this.game);
         this.writer.set([], this.game);
+        gameFoundResolve();
         this.listenForPropertyChanges_(
           gameSnap.ref, this.game._properties, this.game._collections,
           (property, value) => {
@@ -259,7 +278,8 @@ window.FirebaseListener = (function () {
           this.decrement('(special)');
         }, 500); // There is a min 500ms load time to give the above a chance
       });
-      return this.firebaseObjectsLoadedPromise;
+
+      return [gameFoundPromise, this.firebaseObjectsLoadedPromise];
     }
 
     listenToGun_(gunId) {

@@ -20,8 +20,8 @@ class RemoteBridge {
     this.alertHandler = alertHandler;
 
     firebase.initializeApp(firebaseConfig);
-    this.firebaseListener =
-        new FirebaseListener(firebase.app().database().ref());
+    this.firebaseRoot = firebase.app().database().ref();
+    this.firebaseListener = new FirebaseListener(this.firebaseRoot);
 
     this.requester = new NormalRequester(serverUrl, alertHandler);
 
@@ -39,7 +39,7 @@ class RemoteBridge {
     assert(signInMethod == 'google' || signInMethod == 'email' || signInMethod == 'accessToken', 'signInMethod must be "google" or "email" or "accessToken"!');
     if (signInMethod == 'email') {
       console.log("Since signInMethod is 'email', logging out first...");
-      firebase.auth().signOut();
+      this.signOut();
       let email = Utils.getParameterByName('email', null);
       let password = Utils.getParameterByName('password', null);
       if (!email || !password) {
@@ -50,7 +50,7 @@ class RemoteBridge {
       firebase.auth().signInWithEmailAndPassword(email, password);
     } else if (signInMethod == 'accessToken') {
       console.log("Since signInMethod is 'accessToken', logging out first...");
-      firebase.auth().signOut();
+      this.signOut();
       let accessToken = Utils.getParameterByName('accessToken', null);
       if (!accessToken) {
         this.alertHandler('If signInMethod=accessToken, then accessToken must be set!');
@@ -107,6 +107,7 @@ class RemoteBridge {
   }
 
   signOut() {
+    window.localStorage.clear();
     return firebase.auth().signOut();
   }
 
@@ -116,15 +117,42 @@ class RemoteBridge {
 
   register(args) {
     let {userId} = args;
-    return this.requester.sendRequest('register', {
-      userId: userId,
-      requestingUserId: null, // Overrides what the requester wants to do
-    }).then(() => {
-      return userId;
+    return new Promise((resolve, reject) => {
+      let cachedUserId = window.localStorage.getItem('userId');
+      if (userId == cachedUserId) {
+        setTimeout(() => resolve(cachedUserId), 0);
+      } else {
+        this.requester
+            .sendRequest('register', {
+              userId: userId,
+              requestingUserId: null, // Overrides what the requester wants to do
+            })
+            .then(
+                () => {
+                  window.localStorage.setItem('userId', userId);
+                  resolve(userId);
+                },
+                reject);
+      }
     });
   }
 
   setPlayerId(playerId) {
     this.requester.setRequestingPlayerId(playerId);
+  }
+
+  sendChatMessage(args) {
+    let {gameId, messageId, chatRoomId, playerId, message, location, image} = args;
+
+    let firebaseMessage = {
+      playerId: playerId,
+      message: message,
+      time: firebase.database.ServerValue.TIMESTAMP,
+    };
+    if (location)
+      firebaseMessage.location = location;
+    if (image)
+      firebaseMessage.image = image;
+    return this.firebaseRoot.child(`/chatRooms/${chatRoomId}/messages/${messageId}`).set(firebaseMessage);
   }
 }

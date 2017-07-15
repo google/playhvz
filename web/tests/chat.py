@@ -42,24 +42,15 @@ playerNames = {
     }
 
 def testChat(player, chatName, shouldBeMember):
-
   driver.SwitchUser(player)
   
-  try:
-   driver.Click([[By.NAME, 'close-notification']])
-  except (AssertionError, ElementNotVisibleException):
-    pass # This user didn't have a notification
-
   if shouldBeMember:
     driver.DrawerMenuClick('mobile-main-page', 'Chat')
     driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # aaah, crashed here too on mobile
 
     # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
     # This is probably because clicking the X on the notification didn't make it go away.
-    try:
-      driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
-    except WebDriverException:
-      pass
+    driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-%s' % chatName]])
     driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, 'num-players']])
     driver.FindElement(
       [[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-%s' % chatName], [By.NAME, playerNames[player]]])
@@ -92,6 +83,11 @@ def testChat(player, chatName, shouldBeMember):
     driver.DrawerMenuClick('mobile-main-page', 'Chat')
     driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], chatName, should_exist=False)
     driver.DrawerMenuClick('chat-card', 'Dashboard')
+
+
+driver.SwitchUser('jack')
+driver.Click([[By.NAME, 'close-notification']])
+
 
 # GLOBAL CHAT ROOM - all types of joined players + admins should view.
 testChat('jack', 'Global Chat', True) # Human

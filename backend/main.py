@@ -211,12 +211,12 @@ def StressTestBatch():
   begin_time = time.time()
 
   requests = []
-  for i in range(0, 50):
+  for i in range(0, 300):
     requests.append({
       'method': 'register',
       'body': {
         'requestingUserId': None,
-        'requestingUserToken': 'blark',
+        'requestingUserIdJwt': 'blark',
         'requestingPlayerId': None,
         'userId': 'user-wat-%d' % random.randint(0, 2**52),
       }

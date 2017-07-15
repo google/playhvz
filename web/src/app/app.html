@@ -63,6 +63,11 @@
           computed: 'computeIsAdmin_(userId, game.adminUsers.length)',
         },
 
+        showGameIdHint: {
+          type: Boolean,
+          value: false,
+        },
+
         showLoadingSpinner: {
           type: Boolean,
           value: false,
@@ -91,7 +96,7 @@
         this.bridge.getSignedInPromise({userId: this.userId})
             .then(({userId, email}) => {
               this.showSignInButton = false;
-              this.showLoadingSpinner = true;
+              this.showGameIdHint = true;
               this.userId = userId;
               this.email = email;
             });
@@ -144,11 +149,17 @@
 
           let temporaryGameObjectWriter = new SimpleWriter(null);
           let teeWriter = new TeeWriter(temporaryGameObjectWriter);
-          this.bridge.listenToGame(this.userId, this.gameId, teeWriter).then(() => {
+          let [foundGamePromise, doneLoadingGamePromise] =
+              this.bridge.listenToGame(this.userId, this.gameId, teeWriter);
+          foundGamePromise.then(() => {
+            this.showGameIdHint = false;
+            this.showLoadingSpinner = true;
+          });
+          doneLoadingGamePromise.then(() => {
+            this.showLoadingSpinner = false;
             teeWriter.removeDestination(temporaryGameObjectWriter);
             this.set('game', temporaryGameObjectWriter.destination);
             teeWriter.addDestination(new BatchedPolymerWriter(this, 'game'));
-            this.showLoadingSpinner = false;
           });
         }
       },
@@ -191,6 +202,10 @@
           this.setPath_(e.detail.path, e.detail.replace);
         }
       },
+
+      showGameIdHint(userId, gameId) {
+        return userId && !gameId;
+      }
     });
   });
 </script>
@@ -240,8 +255,8 @@
     </paper-button>
   </template>
 
-  <div id="gameIdHint" hidden$="[[gameId]]">
-    Specify a game ID in the url, for example http://playhvz.com/game/google2017
+  <div id="gameIdHint" hidden$="[[!showGameIdHint]]">
+    Specify a valid game ID in the url, for example http://playhvz.com/game/myCoolGame
   </div>
 
   <template is="dom-if" if="[[userId]]">

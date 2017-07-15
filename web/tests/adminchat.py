@@ -151,10 +151,18 @@ driver.Click([[By.XPATH, xpathSend]])
 actingPlayer = 'zeke'
 driver.SwitchUser(actingPlayer)
 
+<<<<<<< HEAD
 driver.DrawerMenuClick('mobile-main-page', chatName)
 
 driver.FindElement([
   [By.NAME, 'chat-card'], 
   [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
+=======
+# broken currently, see task V01
+# driver.DrawerMenuClick('mobile-main-page', chatName)
+# driver.FindElement([
+#   [By.NAME, 'chat-card'], 
+#   [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
+>>>>>>> 525bfa1f35cd24c260755831d90bcad8d5258069
 
 driver.Quit()

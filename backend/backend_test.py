@@ -26,6 +26,7 @@ import unittest
 import constants
 import config
 
+import time
 
 class Requester:
   def __init__(self):
@@ -596,7 +597,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertOk('joinResistance', {
       'gameId': self.Id('gameId', 1),
       'playerId': self.Id('publicPlayerId', 2),
-      'lifeCode': 'purple roller patrol',
+      'lifeCode': 'purple-roller-patrol',
       'lifeId': self.Id('publicLifeId', 1),
       'privateLifeId': self.Id('privateLifeId', 1),
     })
@@ -617,7 +618,7 @@ class EndToEndTest(unittest.TestCase):
     self.AssertOk('joinResistance', {
       'gameId': self.Id('gameId', 1),
       'playerId': self.Id('publicPlayerId', 4),
-      'lifeCode': 'sparkle board shorts',
+      'lifeCode': 'sparkle-board-shorts',
       'lifeId': self.Id('publicLifeId', 2),
       'privateLifeId': self.Id('privateLifeId', 2),
     })
@@ -663,6 +664,8 @@ class EndToEndTest(unittest.TestCase):
       'requestCategoryId': self.Id('requestCategory', 5) + "-text",
       'dismissed': True
     })
+
+    time.sleep(30)
 
     # Final keep last
     self.AssertDataMatches(True)
