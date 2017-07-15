@@ -51,6 +51,11 @@
           type: Boolean,
           value: true,
         },
+
+        submitOnEnter: {
+          type: Boolean,
+          value: false,
+        },
       },
 
       observers: [
@@ -221,6 +226,10 @@
       onInputFocused_(e) {
         e.target.$.input.select();
       },
+
+      enableSubmitOnEnter_(fields) {
+        return fields.submitOnEnter;
+      },
     });
   });
 </script>
@@ -237,7 +246,8 @@
       done-label="Done"
       done-enabled="[[doneEnabled]]"
       on-ghvz-form-done="done_"
-      type-name="[[typeName]]">
+      type-name="[[typeName]]"
+      submit-on-enter="[[submitOnEnter]]">
     <template is="dom-repeat" items="{{fields}}" as="field">
       <ghvz-form-section
           is-mobile$="[[isMobile]]"
