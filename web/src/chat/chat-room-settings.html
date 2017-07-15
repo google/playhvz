@@ -24,7 +24,7 @@
 
         properties: {
           bridge: Object,
-          gameId: String,
+          game: Object,
           player: Object,
           isAdmin: Boolean,
 
@@ -37,11 +37,26 @@
             type: String,
             value: "",
           },
+
+          waitingToOpenChatRoomId: String,
         },
 
         observers: [
           'updateDoneEnabled_(newName)',
+          'onChatRoomsUpdated_(game, player.private.chatRoomMemberships.*)',
         ],
+
+        onChatRoomsUpdated_() {
+          if (this.waitingToOpenChatRoomId && this.game.chatRoomsById[this.waitingToOpenChatRoomId]) {
+            this.fire('ghvz-close-drawer', {});
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['chat', this.waitingToOpenChatRoomId],
+              replace: false,
+            });
+            this.waitingToOpenChatRoomId = null;
+          }
+        },
 
         computeChatPage_: function(chatRoomId) {
           return "chat/" + chatRoomId;
@@ -64,7 +79,7 @@
           this.doneEnabled = true;
         },
 
-        createChatRoom_: function(bridge, player) {
+        createChatRoom_: function() {
           this.doneEnabled = false;
           let name = this.$.chatName.value;
           
@@ -86,10 +101,8 @@
             }
           }
 
-          let chatRoomId = ChatUtils.createChatRoom(this.bridge, this.gameId, this.player.id, name, properties);
-          this.fire('ghvz-change-to-new-chat', {
-            chatRoomId: chatRoomId,
-          });
+          let chatRoomId = ChatUtils.createChatRoom(this.bridge, this.game.id, this.player.id, name, properties);
+          this.waitingToOpenChatRoomId = chatRoomId;
         },
 
         getPlayerAllegiance_() {
