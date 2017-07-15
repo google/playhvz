@@ -1808,9 +1808,9 @@ def ClaimReward(request, game_state):
   if game_state.get('%s/claims/%s' % (player_path, reward_id), 'time'):
     raise InvalidInputError('Reward was already claimed by this player.')
   # Validate the reward was not yet claimed by another player.
-  already_claimed_by_player_id = game_state.get(reward_path, 'publicPlayerId')
+  already_claimed_by_player_id = game_state.get(reward_path, 'playerId')
   if already_claimed_by_player_id != "" and already_claimed_by_player_id != None:
-    raise InvalidInputError('Reward was already claimed.')
+    raise InvalidInputError('This reward has already been claimed!')
   # Check the limitPerPlayer
   if 'limitPerPlayer' in reward_category and int(reward_category['limitPerPlayer']) >= 1:
     limit = int(reward_category['limitPerPlayer'])
@@ -1819,7 +1819,7 @@ def ClaimReward(request, game_state):
     print claims
     if claims:
       num_rewards_in_category = 0
-      for reward_id, claim in claims.iteritems():
+      for unused, claim in claims.iteritems():
         if claim['rewardCategoryId'] == reward_category_id:
           num_rewards_in_category = num_rewards_in_category + 1
       if num_rewards_in_category >= limit:
