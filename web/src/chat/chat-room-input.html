@@ -27,6 +27,7 @@
           game: Object,
           currentPlayer: Object,
           chatRoom: String,
+          isAdmin: Boolean,
 
           isMobile: {
             type: Boolean,
@@ -56,12 +57,22 @@
           if (!this.$.messageInput.value) {
             return;
           }
+          let message = this.$.messageInput.value;
+
+          try {
+            this.parseAndSendNotifications_(message);
+          }
+          catch (e) {
+            this.fire('ghvz-alert', {message: e});
+            return;
+          }
+
           this.bridge.sendChatMessage({
             gameId: this.game.id,
             messageId: this.bridge.newMessageId(), 
             chatRoomId: this.chatRoom.id, 
             playerId: this.currentPlayer.id, 
-            message: this.$.messageInput.value
+            message: message,
           }).catch((e) => {
             this.fire('ghvz-alert', {message: e});
           });
@@ -76,6 +87,116 @@
          if (e.keyCode === 13 && !e.shiftKey) {
             e.preventDefault();
             this.$.messageSend.click();
+          }
+        },
+
+        getMessageTargets_(message, group, senderId) {
+          let notificationPlayerIds = [];
+          let ackRequestPlayerIds = [];
+          let textRequestPlayerIds = [];
+            
+          while (true) {
+            let ackRequestRegex = /@(\?|!)?(\w+)\b\s*/;
+            let messageMatch = message.match(ackRequestRegex);
+            if (!messageMatch) {
+              break;
+            }
+            message = message.replace(messageMatch[0], "");
+                  
+            let newTargetPlayerIds = [];
+            let playerName = messageMatch[2];
+            if (playerName == 'all') {
+              newTargetPlayerIds = group.players.slice();
+            } else {
+              let player = this.game.players.find(player => {
+                return player.name.toLowerCase() == playerName.toLowerCase() && group.playersById[player.id];
+              });
+              if (!player) {
+                throw "Couldn't find a player by the name '" + playerName + "' in this chat room!";
+              }
+              newTargetPlayerIds = [player.id];
+            }
+            notificationPlayerIds = notificationPlayerIds.concat(newTargetPlayerIds);
+            let senderIndex = notificationPlayerIds.indexOf(senderId);
+            if (senderIndex != -1) {
+              notificationPlayerIds.splice(senderIndex, 1);
+            }
+            if (messageMatch[1] == '!') {
+              ackRequestPlayerIds = ackRequestPlayerIds.concat(newTargetPlayerIds);
+            } else if (messageMatch[1] == '?') {
+              textRequestPlayerIds = textRequestPlayerIds.concat(newTargetPlayerIds);
+            }
+          }
+          return [message, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds];
+        },
+
+        parseAndSendNotifications_(message) {
+          let chatRoom = this.chatRoom;
+          let senderPlayerId = this.currentPlayer.id;
+          let group = this.game.groupsById[chatRoom.accessGroupId];
+          let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
+              this.getMessageTargets_(message, group, senderPlayerId);
+
+          if (notificationPlayerIds.length) {
+            for (let receiverPlayerId of notificationPlayerIds) {
+              let receiverPlayer = this.game.playersById[receiverPlayerId];
+              let messageForNotification = this.currentPlayer.name + ": " + strippedMessage;
+              this.bridge.addNotification({
+                gameId: this.game.id,
+                notificationId: this.bridge.newNotificationId(),
+                queuedNotificationId: null,
+                playerId: receiverPlayerId,
+                email: false,
+                destination: 'game/' + this.game.id + '/chat/' + chatRoom.id,
+                icon: null,
+                message: messageForNotification,
+                mobile: true,
+                previewMessage: messageForNotification,
+                site: true,
+                sound: 'ping.wav',
+                vibrate: true,
+              });
+            }
+          }
+          if (ackRequestPlayerIds.length) {
+            let requestCategoryId = this.bridge.newRequestCategoryId();
+            this.bridge.addRequestCategory({
+              gameId: this.game.id,
+              requestCategoryId: requestCategoryId,
+              chatRoomId: chatRoom.id,
+              playerId: senderPlayerId,
+              text: strippedMessage,
+              type: 'ack',
+              dismissed: false,
+            });
+            for (let playerId of ackRequestPlayerIds) {
+              this.bridge.addRequest({
+                gameId: this.game.id,
+                requestCategoryId: requestCategoryId,
+                requestId: this.bridge.newRequestId(),
+                playerId: playerId,
+              });
+            }
+          }
+          if (textRequestPlayerIds.length) {
+            let requestCategoryId = this.bridge.newRequestCategoryId();
+            this.bridge.addRequestCategory({
+              gameId: this.game.id,
+              requestCategoryId: requestCategoryId,
+              chatRoomId: chatRoom.id,
+              playerId: senderPlayerId,
+              text: strippedMessage,
+              type: 'text',
+              dismissed: false,
+            });
+            for (let playerId of textRequestPlayerIds) {
+              this.bridge.addRequest({
+                gameId: this.game.id,
+                requestCategoryId: requestCategoryId,
+                requestId: this.bridge.newRequestId(),
+                playerId: playerId,
+              });
+            }
           }
         },
       });

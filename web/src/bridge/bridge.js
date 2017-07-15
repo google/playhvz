@@ -14,6 +14,10 @@
 
 // TODO: High-level file comment.
 
+// ? means this value is nullable
+// | means this value is optional
+// ! means this value shouldn't exist already
+
 'use strict';
 
 class Bridge {
@@ -558,6 +562,22 @@ class FakeIdGenerator extends IdGenerator {
     playerId: '|?PublicPlayerId',
     groupId: '|?GroupId',
     icon: '|?String',
+  });
+
+  serverMethods.set('addNotification', {
+    gameId: 'GameId',
+    notificationId: '!NotificationId',
+    queuedNotificationId: '?QueuedNotificationId',
+    message: 'String',
+    previewMessage: 'String',
+    site: 'Boolean',
+    mobile: 'Boolean',
+    vibrate: 'Boolean',
+    sound: '?String',
+    email: 'Boolean',
+    destination: '?String',
+    playerId: '?PublicPlayerId',
+    icon: '?String',
   });
 
   serverMethods.set('addQuizQuestion', {
