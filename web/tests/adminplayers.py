@@ -87,6 +87,7 @@ driver.DrawerMenuClick('players-card', 'Admin Players')
 driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Set Notes')
 driver.SendKeys([[By.ID, 'notesInput'], [By.TAG_NAME, 'input']],'zapfinkle skaddleblaster') #TODO(aliengirl): failed 2x here
 driver.Click([[By.ID, 'notesForm'], [By.ID, 'done']])
+driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'extra']],'zapfinkle skaddleblaster')
 
 # Search by notes
 # Click this button just b/c otherwise the Extra icon is hidden under the scrollbar

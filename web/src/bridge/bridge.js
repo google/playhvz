@@ -530,7 +530,7 @@ class FakeIdGenerator extends IdGenerator {
     victimPlayerId: '?PublicPlayerId',
   });
 
-  serverMethods.set('sendNotification', {
+  serverMethods.set('queueNotification', {
     gameId: 'GameId',
     queuedNotificationId: '!QueuedNotificationId',
     message: 'String',
@@ -547,7 +547,7 @@ class FakeIdGenerator extends IdGenerator {
     icon: '?String',
   });
 
-  serverMethods.set('updateNotification', {
+  serverMethods.set('updateQueuedNotification', {
     gameId: 'GameId',
     queuedNotificationId: 'QueuedNotificationId',
     message: '|String',
@@ -564,10 +564,9 @@ class FakeIdGenerator extends IdGenerator {
     icon: '|?String',
   });
 
-  serverMethods.set('addNotification', {
+  serverMethods.set('sendNotification', {
     gameId: 'GameId',
     notificationId: '!NotificationId',
-    queuedNotificationId: '?QueuedNotificationId',
     message: 'String',
     previewMessage: 'String',
     site: 'Boolean',
@@ -613,10 +612,11 @@ class FakeIdGenerator extends IdGenerator {
     number: '|Number',
   });
 
-  serverMethods.set('markNotificationSeen', {
+  serverMethods.set('updateNotification', {
     gameId: 'GameId',
     playerId: 'PublicPlayerId',
     notificationId: 'NotificationId',
+    seenTime: '|Timestamp',
   });
 
   serverMethods.set('executeNotifications', {

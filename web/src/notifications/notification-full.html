@@ -38,10 +38,11 @@
       onNotificationChanged_() {
         this.$.contents.innerHTML = this.notification.message;
         if (!this.notification.seenTime) {
-          this.bridge.markNotificationSeen({
+          this.bridge.updateNotification({
             gameId: this.game.id,
             playerId: this.player.id,
-            notificationId: this.notification.id
+            notificationId: this.notification.id,
+            seenTime: new Date().getTime(),
           });
         }
       },

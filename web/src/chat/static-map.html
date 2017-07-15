@@ -26,6 +26,11 @@
           latitude: Number,
           longitude: Number,
 
+           doneLoading: {
+            type: Boolean,
+            value: false,
+          },
+
           error: {
             type: Boolean,
             value: false,
@@ -41,7 +46,6 @@
           let displayedImage = this.$.mapContainer.src;
           if (this.latitude && this.longitude) {
             var latlon = this.latitude + "," + this.longitude;
-
             var mapImageUrl = "https://maps.googleapis.com/maps/api/staticmap" 
               + "?center=" + latlon 
               + "&size=200x200&" 
@@ -50,16 +54,19 @@
 
             // Update the image element to show the map
             this.$.mapContainer.src = mapImageUrl;
+            this.doneLoading = true;
             this.$.mapContainer.name = 'map-ready';
           } else if (displayedImage != 'https://goo.gl/EJ3MGp') {
             // Update the image element to show the nerf loading screen
-            this.$.mapContainer.src = 'https://goo.gl/EJ3MGp';
+            this.$.mapContainer.src = 'http://i.imgur.com/hdhqAVR.gif';
+            this.doneLoading = false;
           }
         },
 
         onError_() {
           if (this.error) {
             this.$.mapContainer.src = 'https://goo.gl/S1y6tt';
+            this.doneLoading = true;
           }
         },
       });
@@ -76,6 +83,7 @@
     }
   </style>
   <template>
-    <img id="mapContainer" class="map-container" src="https://goo.gl/EJ3MGp"></img>
+    <img id="mapContainer" class="map-container" src="http://i.imgur.com/hdhqAVR.gif"></img>
+    <ghvz-loading-animation hidden$="[[doneLoading]]"></ghvz-loading-animation>
   </template>
 </dom-module>

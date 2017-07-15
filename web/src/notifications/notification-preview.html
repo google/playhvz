@@ -48,10 +48,11 @@
 
       handleTap_(e) {
         if (this.navigateOnTap) {
-          this.bridge.markNotificationSeen({
+          this.bridge.updateNotification({
             gameId: this.game.id,
             playerId: this.player.id,
             notificationId: this.notification.id,
+            seenTime: new Date().getTime(),
           });
           let destinationString = this.notification.destination || 'notifications/' + this.notification.id;
           let destinationPath = destinationString.split('/');
@@ -64,10 +65,11 @@
       },
 
       close_(e) {
-        this.bridge.markNotificationSeen({
+        this.bridge.updateNotification({
           gameId: this.game.id,
           playerId: this.player.id,
           notificationId: this.notification.id,
+          seenTime: new Date().getTime(),
         });
         e.stopPropagation();
       },
