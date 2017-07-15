@@ -151,9 +151,10 @@ class RemoteBridge {
         if (snap.getKey() == 'gameId') {
           let firebaseMessage = {
             playerId: playerId,
-            message: message,
             time: firebase.database.ServerValue.TIMESTAMP,
           };
+          if (message) 
+            firebaseMessage.message = message;
           if (location)
             firebaseMessage.location = location;
           if (image)
