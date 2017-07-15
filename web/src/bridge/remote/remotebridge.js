@@ -142,17 +142,28 @@ class RemoteBridge {
   }
 
   sendChatMessage(args) {
-    let {gameId, messageId, chatRoomId, playerId, message, location, image} = args;
+    return new Promise((resolve, reject) => {
+      let {gameId, messageId, chatRoomId, playerId, message, location, image} = args;
+      assert(playerId);
+      assert(messageId);
+      let chatRoomRef = this.firebaseRoot.child(`/chatRooms/${chatRoomId}`);
+      chatRoomRef.on('child_added', (snap) => {
+        if (snap.getKey() == 'gameId') {
+          let firebaseMessage = {
+            playerId: playerId,
+            time: firebase.database.ServerValue.TIMESTAMP,
+          };
+          if (message) 
+            firebaseMessage.message = message;
+          if (location)
+            firebaseMessage.location = location;
+          if (image)
+            firebaseMessage.image = image;
 
-    let firebaseMessage = {
-      playerId: playerId,
-      message: message,
-      time: firebase.database.ServerValue.TIMESTAMP,
-    };
-    if (location)
-      firebaseMessage.location = location;
-    if (image)
-      firebaseMessage.image = image;
-    return this.firebaseRoot.child(`/chatRooms/${chatRoomId}/messages/${messageId}`).set(firebaseMessage);
+          chatRoomRef.child('messages').child(messageId).set(firebaseMessage);
+          resolve();
+        }
+      });
+    });
   }
 }

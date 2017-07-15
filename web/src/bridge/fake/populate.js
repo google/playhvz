@@ -695,7 +695,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     bridge.addGun({gameId: gameId, gunId: bridge.idGenerator.newGunId(), label: "" + (1404 + i)});
   }
 
-  bridge.sendNotification({
+  bridge.queueNotification({
     gameId: gameId,
     queuedNotificationId: bridge.idGenerator.newQueuedNotificationId(),
     previewMessage: "Mission 1 Details: the zeds have invaded!",
