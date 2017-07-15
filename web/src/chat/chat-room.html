@@ -111,18 +111,11 @@
 
         displaySenderInfo(message) {
           let messageIndex = this.chatRoom.messages.indexOf(message);
-          if (messageIndex < 0) {
-            alert('wat');
-          }
           if (messageIndex == 0) {
             return 'display-sender';
           }
           let currentMessage = this.chatRoom.messages[messageIndex];
           let previousMessage = this.chatRoom.messages[messageIndex - 1];
-          console.log(this.chatRoom, this.chatRoom.messages, messageIndex, currentMessage, previousMessage);
-          if (!currentMessage || !previousMessage) {
-            alert('wat');
-          }
           if (currentMessage.playerId != previousMessage.playerId) {
             return 'display-sender';
           } else {
