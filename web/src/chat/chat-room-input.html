@@ -137,14 +137,17 @@
           let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
               this.getMessageTargets_(message, group, senderPlayerId);
 
+          let sound = 'ping.wav';
+          if (ackRequestPlayerIds.length && textRequestPlayerIds.length)
+            sound = 'transmission.wav';
+
           if (notificationPlayerIds.length) {
             for (let receiverPlayerId of notificationPlayerIds) {
               let receiverPlayer = this.game.playersById[receiverPlayerId];
               let messageForNotification = this.currentPlayer.name + ": " + strippedMessage;
-              this.bridge.addNotification({
+              this.bridge.sendNotification({
                 gameId: this.game.id,
                 notificationId: this.bridge.newNotificationId(),
-                queuedNotificationId: null,
                 playerId: receiverPlayerId,
                 email: false,
                 destination: 'game/' + this.game.id + '/chat/' + chatRoom.id,
@@ -153,7 +156,7 @@
                 mobile: true,
                 previewMessage: messageForNotification,
                 site: true,
-                sound: 'ping.wav',
+                sound: sound,
                 vibrate: true,
               });
             }
