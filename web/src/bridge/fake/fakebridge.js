@@ -81,11 +81,17 @@ class FakeBridge {
           gatedWriter.closeGate();
         }, 100);
 
-    return new Promise ((resolve, reject) => {
+    let foundGamePromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, 100);
+    });
+    let finishedLoadingGamePromise = new Promise ((resolve, reject) => {
       setTimeout(() => {
         resolve();        
       }, 2000);
     });
+    return [foundGamePromise, finishedLoadingGamePromise];
   }
 }
 
