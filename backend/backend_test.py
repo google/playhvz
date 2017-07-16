@@ -282,51 +282,67 @@ class EndToEndTest(unittest.TestCase):
     }
     self.AssertOk('addPlayerToGroup', update)
 
-    create = {
-      'gameId': self.Id('gameId'),
-      'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('publicPlayerId'),
-      'messageId': self.Id('messageId'),
-      'message': '@testEddy @testFreddy test single Message',
-    }
-    self.AssertOk('sendChatMessage', create)
+    # create = {
+    #   'gameId': self.Id('gameId'),
+    #   'chatRoomId': self.Id('chatRoomId'),
+    #   'playerId': self.Id('publicPlayerId'),
+    #   'messageId': self.Id('messageId'),
+    #   'message': '@testEddy @testFreddy test single Message',
+    # }
+    # self.AssertOk('sendChatMessage', create)
+
+    # create = {
+    #   'gameId': self.Id('gameId'),
+    #   'chatRoomId': self.Id('chatRoomId'),
+    #   'playerId': self.Id('publicPlayerId'),
+    #   'messageId': self.Id('messageId', 2),
+    #   'message': 'test Message',
+    #   'image': {
+    #     'url': 'google.com/image.png',
+    #   }
+    # }
+    # self.AssertOk('sendChatMessage', create)
+
+    # create = {
+    #   'gameId': self.Id('gameId'),
+    #   'chatRoomId': self.Id('chatRoomId'),
+    #   'playerId': self.Id('publicPlayerId'),
+    #   'messageId': self.Id('messageId', 3),
+    #   'message': 'test Message',
+    #   'location': {
+    #     'latitude': 34.5645654,
+    #     'longitude': -124.5345234,
+    #   }
+    # }
+    # self.AssertOk('sendChatMessage', create)
+
+    # create = {
+    #   'gameId': self.Id('gameId'),
+    #   'chatRoomId': self.Id('chatRoomId'),
+    #   'playerId': self.Id('publicPlayerId'),
+    #   'messageId': self.Id('messageId', 4),
+    #   'message': '@all test all Message',
+    #   'image': {
+    #     'url': 'google.com/image.png',
+    #   }
+    # }
+    # self.AssertOk('sendChatMessage', create)
 
     create = {
       'gameId': self.Id('gameId'),
-      'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('publicPlayerId'),
-      'messageId': self.Id('messageId', 2),
-      'message': 'test Message',
-      'image': {
-        'url': 'google.com/image.png',
-      }
+      "notificationId": self.Id("notification", 2),
+      "destination": "game/%s/chat/%s" % (self.Id("gameId")[len("game-"):], self.Id("chatRoomId")),
+      "icon": "communication:message",
+      "playerId": self.Id("publicPlayerId", 4),
+      "message": "testCharles: test single Message",
+      "previewMessage": "testCharles: test single Message",
+      "sound": "ping.wav",
+      'site': True,
+      'email': True,
+      'mobile': False,
+      'vibrate': False,
     }
-    self.AssertOk('sendChatMessage', create)
-
-    create = {
-      'gameId': self.Id('gameId'),
-      'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('publicPlayerId'),
-      'messageId': self.Id('messageId', 3),
-      'message': 'test Message',
-      'location': {
-        'latitude': 34.5645654,
-        'longitude': -124.5345234,
-      }
-    }
-    self.AssertOk('sendChatMessage', create)
-
-    create = {
-      'gameId': self.Id('gameId'),
-      'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('publicPlayerId'),
-      'messageId': self.Id('messageId', 4),
-      'message': '@all test all Message',
-      'image': {
-        'url': 'google.com/image.png',
-      }
-    }
-    self.AssertOk('sendChatMessage', create)
+    self.AssertOk('sendNotification', create)
 
     create = {
       'gameId': self.Id('gameId'),
@@ -344,7 +360,7 @@ class EndToEndTest(unittest.TestCase):
       'groupId': self.Id('groupId'),
       'icon': 'icons:close'
     }
-    self.AssertOk('sendNotification', create)
+    self.AssertOk('queueNotification', create)
 
     # Create missions
     create = {
@@ -639,33 +655,57 @@ class EndToEndTest(unittest.TestCase):
       'lifeCode': None, # Let it generate a deterministic one
     })
 
-    self.AssertOk('sendChatMessage', {
+    self.AssertOk('addRequestCategory', {
       'gameId': self.Id('gameId', 1),
-      'chatRoomId': self.Id('chatRoomId'),
-      'playerId': self.Id('publicPlayerId'),
-      'messageId': self.Id('messageId', 5),
-      'message': '@!testEddy @?testFreddy eddy and freddy get to the choppah, freddy whats your eta',
+      'requestCategoryId': self.Id('requestCategoryId', 1),
+      'chatRoomId': self.Id('chatRoomId', 1),
+      'playerId': self.Id('publicPlayerId', 1),
+      'text': 'eddy and freddy get to the choppah, freddy whats your eta',
+      'type': 'ack', # Either 'ack' for button or 'text' for a text input
+      'dismissed': False,
+    })
+
+    self.AssertOk('addRequest', {
+      'gameId': self.Id('gameId', 1),
+      'requestCategoryId': self.Id('requestCategoryId', 1),
+      'playerId': self.Id('publicPlayerId', 3),
+      'requestId': self.Id('requestId', 1)
     })
 
     self.AssertOk('addResponse', {
       'gameId': self.Id('gameId', 1),
-      'requestId': self.Id('request', 5) + "-ack-0",
+      'requestId': self.Id('requestId', 1),
       'text': None
     })
 
+    self.AssertOk('addRequestCategory', {
+      'gameId': self.Id('gameId', 1),
+      'requestCategoryId': self.Id('requestCategoryId', 2),
+      'chatRoomId': self.Id('chatRoomId', 1),
+      'playerId': self.Id('publicPlayerId', 1),
+      'text': 'eddy and freddy get to the choppah, freddy whats your eta',
+      'type': 'text', # Either 'ack' for button or 'text' for a text input
+      'dismissed': False,
+    })
+
+    self.AssertOk('addRequest', {
+      'gameId': self.Id('gameId', 1),
+      'requestCategoryId': self.Id('requestCategoryId', 2),
+      'playerId': self.Id('publicPlayerId', 4),
+      'requestId': self.Id('requestId', 2)
+    })
+
     self.AssertOk('addResponse', {
       'gameId': self.Id('gameId', 1),
-      'requestId': self.Id('request', 5) + "-text-0",
+      'requestId': self.Id('requestId', 2),
       'text': "5 mins or so",
     })
 
     self.AssertOk('updateRequestCategory', {
       'gameId': self.Id('gameId', 1),
-      'requestCategoryId': self.Id('requestCategory', 5) + "-text",
+      'requestCategoryId': self.Id('requestCategoryId', 2),
       'dismissed': True
     })
-
-    time.sleep(30)
 
     # Final keep last
     self.AssertDataMatches(True)

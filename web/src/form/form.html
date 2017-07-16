@@ -53,9 +53,8 @@
             type: Boolean,
             value: true,
           },
-          typeName: {
-            type: String,
-          },
+          typeName: String,
+          submitOnEnter: Boolean,
         },
 
         listeners: {
@@ -103,7 +102,8 @@
         },
 
         onKeyUp_(e) {
-          if (e.key == 'Enter' && !e.shiftKey && this.doneEnabled) {
+          let enterPressed = e.key == 'Enter' && !e.shiftKey;
+          if (this.submitOnEnter && enterPressed && this.doneEnabled) {
             this.$.dialog.close();
             this.finish_();
             this.async(() => this.reset());

@@ -38,14 +38,13 @@ def generateTest(url, password, files, useRemote, useMobile):
 		args += " -m"
 
 	testFiles = [
-		"stuntimer", # out of alphabetical order b/c this is long, so we want to run it in parallel with others
 		"adminchat",
 		"adminguns",
 		"adminplayers",
 		"changeallegiance",
 		"chat",
-		"chatownerleaves",
 		"chatlocation",
+		"chatownerleaves",
 		"chatpage",
 		"creategame",
 		"deactivate",
@@ -59,12 +58,12 @@ def generateTest(url, password, files, useRemote, useMobile):
 		"notifications1",
 		"othersleavingresistance",
 		"possession",
-		"declareregularzombie",
 		"requests",
 		"rewardcategories",
 		"selfinfect",
+		"signout",
 		"startgame",
-		"signout"
+		"stuntimer",
 	]
 
 	if len(files) > 0:

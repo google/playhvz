@@ -213,7 +213,7 @@ def RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect=True):
       if reward_category['shortName'] == reward_category_short_name:
         return reward_category_id
   if expect:
-    raise InvalidInputError('No reward category for shortName %s' % reward_category_short_name)
+    raise InvalidInputError('No reward with that code exists! %s' % reward_code)
   return None
 
 
@@ -231,7 +231,7 @@ def RewardCodeToRewardId(game_state, game_id, reward_code, expect=True):
       if reward['code'] == reward_code:
         return reward_id
   if expect:
-    raise InvalidInputError('No reward for code %s' % reward_code)
+    raise InvalidInputError('No reward with that code exists! %s' % reward_code)
   return None
 
 def GetNextPlayerNumber(game_state, game_id):

@@ -653,8 +653,8 @@ class FakeServer {
     let player = this.reader.get(this.reader.getPublicPlayerPath(playerId));
     assert(player.allegiance == 'undeclared');
 
-    this.addLife(args);
     this.setPlayerAllegiance(playerId, "resistance", false);
+    this.addLife(args);
   }
   joinHorde(args) {
     let {playerId} = args;
@@ -739,6 +739,9 @@ class FakeServer {
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId} = request;
     let victimPlayer = this.findPlayerByIdOrLifeCode_(victimPlayerId, victimLifeCode);
     victimPlayerId = victimPlayer.id;
+
+    if (victimPlayer.allegiance == 'undeclared')
+      throw 'Cannot infect someone that is undeclared!';
 
     if (victimLifeCode)
       victimLifeCode = victimLifeCode.trim().replace(/\s+/g, "-").toLowerCase();
@@ -841,6 +844,9 @@ class FakeServer {
     let player = this.reader.get(playerPath);
     let time = this.getTime_(request);
     lifeCode = lifeCode || "codefor-" + player.name;
+
+    if (player.allegiance == 'undeclared')
+      throw 'Cannot add life to someone that is undeclared!';
 
     let latestTime = 0;
     assert(player.lives);

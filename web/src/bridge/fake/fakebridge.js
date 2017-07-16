@@ -38,6 +38,7 @@ class FakeBridge {
               console.error(error);
               console.error(arguments);
               alertHandler(error)
+              throw error;
             });
     }
   }
@@ -84,7 +85,7 @@ class FakeBridge {
     let foundGamePromise = new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve();
-      }, 100);
+      }, 1000);
     });
     let finishedLoadingGamePromise = new Promise ((resolve, reject) => {
       setTimeout(() => {
