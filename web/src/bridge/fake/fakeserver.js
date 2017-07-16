@@ -476,13 +476,18 @@ class FakeServer {
     }
   }
   queueNotification(args) {
+    console.log("queue is a weird word");
     this.addQueuedNotification(args);
     let millisecondsUntilSend = args.sendTime - this.getTime_(args);
     if (millisecondsUntilSend > 0) {
+      console.log("setting timeout");
       setTimeout(
-          () => this.executeNotifications(args),
+          () => {this.executeNotifications(args);
+            console.log("blast off!");
+          },
           millisecondsUntilSend);
     } else {
+      console.log("right away");
       this.executeNotifications(args);
     }
   }

@@ -170,6 +170,7 @@
               sendTime: Math.floor(new Date().getTime()),
             })
             .then((properties) => {
+              console.log("gonna send it!")
               this.bridge.queueNotification({
                 gameId: this.game.id,
                 queuedNotificationId: this.bridge.newQueuedNotificationId(),

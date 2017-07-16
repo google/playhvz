@@ -31,11 +31,13 @@ class Bridge {
     for (let [method, expectations] of Bridge.METHODS_MAP) {
       this[method] =
           (args) => {
+            console.log("method called!!!")
             args = Utils.copyOf(args);
             if (this.requestTimeOffset != null)
               args.requestTimeOffset = this.requestTimeOffset;
             new Utils.Validator(expectations, this.check_.bind(this)).validate(args);
             assert(this.inner[method]);
+            console.log("validated!")
             return this.inner[method](args);
           };
     }
