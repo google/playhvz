@@ -1,0 +1,118 @@
+<!--
+  Copyright 2017 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<dom-module id="ghvz-admin-chat-list-item">
+<script>
+  // Not sure why this HTMLImports.whenReady is really needed.
+  // Something about polymer initialization order.
+  // I think we're not supposed to need this.
+  HTMLImports.whenReady(() => {
+    Polymer({
+      is: 'ghvz-admin-chat-list-item',
+
+      properties: {
+        game: Object,
+        player: Object,
+        chatRoom: Object,
+
+        membership: Object,
+      },
+
+      observers: [
+        'onChatRoomUpdated_(game, player, chatRoom)',
+      ],
+
+      onChatRoomUpdated_(game, player, chatRoom) {
+        let membership = this.player.private.chatRoomMembershipsById[this.chatRoom.id] || null;
+        this.$.membershipSelector.select(membership);
+      },
+
+      onChatRoomUpdated_() {
+        if (this.chatRoom.messages.length == 0) {
+          this.hasUnseenMessages = false;
+          return;
+        }
+        let lastMessage = this.chatRoom.messages[this.chatRoom.messages.length - 1];
+        this.hasUnseenMessages = lastMessage.time > this.chatRoomMembership.lastSeenTime;
+      },        
+    });
+  });
+</script>
+<style>
+  :host {
+    display: block;
+    overflow-y: auto;
+    position: relative;
+  }
+  .drawer-item {
+    display: flex;
+    align-items: center;
+    opacity: .6;
+    padding-left: 4px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+
+    --ghvz-chat-room-name-label-icon: {
+      margin: 8px;
+      opacity: .8;
+    }
+  }
+  #unseenIcon {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #03A9F4;
+    top: 50%;
+    margin-top: -4px;
+    right: 8px;
+    border-radius: 6px;
+  }
+  .drawer-item:active {
+    background-color: #e7e7e7;
+  }
+  .drawer-item:focus {
+    background-color: #e7e7e7;
+  }
+  .drawer-item iron-icon {
+    margin: 8px;
+    opacity: .8;
+  }
+</style>
+<template>
+  <array-selector id="membershipSelector" items="[[player.private.chatRoomMemberships]]" selected="{{membership}}"></array-selector>
+
+  <template is="dom-if" if="[[membership]]">
+    <ghvz-drawer-chat-item 
+        game="[[game]]"
+        chat-room-membership="[[membership]]"
+        ignore-hidden>
+    </ghvz-drawer-chat-item>
+  </template>
+  <template is="dom-if" if="[[!membership]]">
+    <ghvz-drawer-item 
+        text="[[chatRoom.name]]" 
+        page="chat"
+        chat-room-id="[[chatRoomMembership.chatRoomId]]" 
+        icon="communication:chat">
+    </ghvz-drawer-item>
+  </template>
+
+</template>
+</dom-module>
