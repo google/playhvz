@@ -31,6 +31,7 @@ var models = {
     summaryHtml: '',
     groups: [],
     guns: [],
+    infectPoints: 0,
     isActive: false,
     maps: [],
     missions: [],

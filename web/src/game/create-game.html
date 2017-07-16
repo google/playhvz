@@ -38,12 +38,12 @@
               property: "id",
               label: "Id",
               description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
-              width: "third",
+              width: "half",
             },
             {
               property: "name",
               label: "Name",
-              width: "third",
+              width: "half",
               description: "Full name for the game.",
             },
             {
@@ -51,7 +51,14 @@
               label: "Stun timer (in seconds)",
               description: "Stun timer, in seconds.",
               type: 'number',
-              width: "third",
+              width: "half",
+            },
+            {
+              property: "infectPoints",
+              label: "Infection Points",
+              description: "Points a zombie gets per infection.",
+              type: 'number',
+              width: "half",
             },
             {
               name:"reg-end-time",
@@ -59,7 +66,7 @@
               label: "Registration End Time",
               description: "Registration End Time",
               type: 'timestamp',
-              width: "third",
+              width: "half",
               description: "Registration end time",
             },
             {
@@ -122,6 +129,7 @@
                 gameId: gameId,
                 stunTimer: +properties.stunTimer,
                 adminUserId: this.userId,
+                infectPoints: properties.infectPoints,
                 isActive: true,
                 rulesHtml: '',
                 faqHtml: '',

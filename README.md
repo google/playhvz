@@ -229,7 +229,7 @@ python backend_test.py
 
 To launch a new version (once you have gcloud hooked in to the right app engine account):
 
-`gcloud app deploy app.yaml`
+`gcloud app deploy app.yaml cron.yaml queue.yaml`
 
 #### Set up Firebase
 

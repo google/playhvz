@@ -43,13 +43,13 @@
               name: "game-id",
               label: "Id",
               description: "Will appear in the url, keep it short.",
-              width: "third",
+              width: "half",
             },
             {
               property: "name",
               name: "game-name",
               label: "Name",
-              width: "third",
+              width: "half",
               description: "Full name for the game.",
             },
             {
@@ -58,14 +58,22 @@
               label: "Stun timer (in seconds)",
               description: "Stun timer, in seconds.",
               type: 'number',
-              width: "third",
+              width: "half",
+            },
+            {
+              property: "infectPoints",
+              name: "game-infectPoints",
+              label: "Infection Points",
+              description: "Points a zombie gets per infection.",
+              type: 'number',
+              width: "half",
             },
             {
               name:"reg-end-time",
               property: "registrationEndTime",
               label: "End Time",
               type: 'timestamp',
-              width: "third",
+              width: "half",
               description: "Registration cut-off time.",
             },
             {
@@ -73,7 +81,7 @@
               property: "startTime",
               label: "Start Time",
               type: 'timestamp',
-              width: "third",
+              width: "half",
               description: "Time the game starts.",
             },
             {
@@ -81,7 +89,7 @@
               property: "endTime",
               label: "End Time",
               type: 'timestamp',
-              width: "third",
+              width: "half",
               description: "Time the game ends.",
             },
             {
@@ -145,6 +153,7 @@
     <div name="game-id" id="number">ID: <b>[[game.id]]</b></div>
     <div name="game-name" id="name">Name: <b>[[game.name]]</b></div>
     <div name="game-stunTimer" id="stunTimer">Stun Timer: <b>[[game.stunTimer]]</b></div>
+    <div name="game-infectPoints" id="infectPoints">Infect Points: <b>[[game.infectPoints]]</b></div>
     <div name="game-registrationEndTime" id="registrationEndTime">
       Registration End Time: <b>[[formatTime_(game.registrationEndTime)]]</b>
     </div>
