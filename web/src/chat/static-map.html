@@ -56,7 +56,7 @@
             this.$.mapContainer.src = mapImageUrl;
             this.doneLoading = true;
             this.$.mapContainer.name = 'map-ready';
-          } else if (displayedImage != 'https://goo.gl/EJ3MGp') {
+          } else if (displayedImage != 'http://i.imgur.com/hdhqAVR.gif') {
             // Update the image element to show the nerf loading screen
             this.$.mapContainer.src = 'http://i.imgur.com/hdhqAVR.gif';
             this.doneLoading = false;
@@ -65,7 +65,7 @@
 
         onError_() {
           if (this.error) {
-            this.$.mapContainer.src = 'https://goo.gl/S1y6tt';
+            this.$.mapContainer.src = 'http://i.imgur.com/0Zul7Y4.png';
             this.doneLoading = true;
           }
         },
