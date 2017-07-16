@@ -153,18 +153,52 @@ Utils.getKeys = function(...objs) {
 Utils.formatTime = function(timestampInMs) {
   var date = new Date(timestampInMs);
   var result = "";
-  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  result += months[date.getMonth()] + ' ';
+  result += Utils.formatMonthTime(timestampInMs) + ' ';
   result += date.getDate() + ' ';
+  result += Utils.formatClockTime(timestampInMs)
+  return result;
+}
+
+Utils.formatMonthTime = function(timestampInMs) {
+  var date = new Date(timestampInMs);
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return months[date.getMonth()];
+}
+
+Utils.formatDayTime = function(timestampInMs) {
+  var date = new Date(timestampInMs);
+  var days = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+  return days[date.getDay()];
+}
+
+Utils.formatClockTime = function(timestampInMs) {
+  var date = new Date(timestampInMs);
   let hours = date.getHours();
   var pm = hours >= 12;
   if (pm)
     hours -= 12;
   if (hours == 0)
     hours += 12;
-  result += hours;
-  result += ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (pm ? 'pm' : 'am');
-  return result;
+  return hours + ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (pm ? 'pm' : 'am');
+}
+
+//If same day, just time.
+//If less than a week ago, the day + time
+//If longer than that, date + time
+Utils.formatShortTime = function(timestampInMs) {
+  var date = new Date(timestampInMs);
+  var now = new Date();
+  // Same Day
+  if (now.toDateString() == date.toDateString()) {
+    console.log(Utils.formatDayTime(timestampInMs));
+    return Utils.formatClockTime(timestampInMs);
+  }
+  // Same week
+  if (Math.abs(now.getTime() - timestampInMs) < 1000 * 60 * 60 * 24 * 7 /* ms in a week */) {
+    return Utils.formatDayTime(timestampInMs) + ' ' + Utils.formatClockTime(timestampInMs);
+  }
+  // Otherwise
+  return Utils.formatTime(timestampInMs)
 }
 
 function throwError(...message) {

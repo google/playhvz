@@ -28,6 +28,10 @@
         game: Object,
         player: Object,
       },
+
+      sort_(notification1, notification2) {
+        return notification2.time - notification1.time;
+      },
     });
   });
 </script>
@@ -41,7 +45,12 @@
   }
 </style>
 <template>
-  <template is="dom-repeat" items="[[player.private.notifications]]" as="notification">
+  <template 
+      id="allNotifications" 
+      is="dom-repeat" 
+      items="[[player.private.notifications]]"
+      sort="sort_"
+      as="notification">
     <template is="dom-if" if="[[!notification.seenTime]]">
       <paper-material class="notification" elevation="5">
         <ghvz-notification-preview
