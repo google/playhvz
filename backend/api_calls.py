@@ -1433,6 +1433,9 @@ def Infect(request, game_state):
   victim_private_player_id = helpers.GetPrivatePlayerId(game_state, victim_public_player_id)
   victim_private_player = game_state.get('/privatePlayers', victim_private_player_id)
 
+  if victim_public_player['allegiance'] == constants.UNDECLARED:
+    raise InvalidInputError('Cannot infect someone that is undeclared!')
+
   # Both players must be in the same game.
   if helpers.PlayerToGame(game_state, victim_public_player_id) != game_id:
     raise InvalidInputError('Those players are not part of the same game!')
@@ -1527,9 +1530,8 @@ def JoinResistance(request, game_state):
   if player['allegiance'] != 'undeclared':
     raise InvalidInputError('Already have an allegiance!')
 
-  AddLife(request, game_state)
-
   SetPlayerAllegiance(game_state, player_id, allegiance=constants.HUMAN, can_infect=False)
+  AddLife(request, game_state)
 
 
 def JoinHorde(request, game_state):
@@ -1904,6 +1906,9 @@ def AddLife(request, game_state):
 
   public_player = game_state.get('/publicPlayers', public_player_id)
   private_player = game_state.get('/privatePlayers', helpers.GetPrivatePlayerId(game_state, public_player_id))
+
+  if public_player['allegiance'] == constants.UNDECLARED:
+    raise InvalidInputError('Cannot add life to someone that is undeclared!')
 
   public_life_id = request['lifeId'] or ('publicLife-%s' % random.randint(0, 2**52))
   private_life_id = request['privateLifeId'] or ('privateLife-' + helpers.GetIdSuffix(public_life_id))

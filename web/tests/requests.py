@@ -57,6 +57,10 @@ driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.TAG_NAME, 'ghvz-player-dia
 driver.SendKeys([[By.TAG_NAME, 'ghvz-chat-page'], [By.TAG_NAME, 'ghvz-player-dialog'], [By.TAG_NAME, 'input']], Keys.RETURN)
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Expelliarmus']])
 
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Expelliarmus']])
+driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-page'], [By.NAME, 'num-players']], '3 members')
+driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Expelliarmus']])
+
 # Send an ack to everyone
 driver.SendKeys([
   [By.NAME, 'chat-card'], 
