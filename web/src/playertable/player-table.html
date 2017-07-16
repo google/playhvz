@@ -137,7 +137,7 @@
                       .then((properties) => {
                         this.bridge.addPlayerToGroup({
                           gameId: this.game.id,
-                          playerId: null,
+                          actingPlayerId: null,
                           playerToAddId: player.id,
                           groupId: properties.groupId,
                         });
@@ -190,7 +190,8 @@
         id="notesForm"
         type-name="Notes"
         is-mobile="[[isMobile]]"
-        blueprint='{"fields": [{"property": "notes", "type": "string"}]}'>
+        blueprint='{"fields": [{"property": "notes", "type": "string"}]}'
+        submit-on-enter>
     </ghvz-super-form>
 
     <ghvz-super-form
@@ -198,7 +199,8 @@
         game="[[game]]"
         type-name="Game"
         is-mobile="[[isMobile]]"
-        blueprint='{"fields": [{"property": "groupId", "type": "group"}]}'>
+        blueprint='{"fields": [{"property": "groupId", "type": "group"}]}'
+        submit-on-enter>
     </ghvz-super-form>
 
     <ghvz-table
