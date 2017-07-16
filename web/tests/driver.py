@@ -28,10 +28,12 @@ from selenium.webdriver.support import expected_conditions as EC # available sin
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
+import os
 
 class SimpleDriver:
   def __init__(self, selenium_driver):
     self.selenium_driver = selenium_driver
+    self.process = selenium_driver.service.process.pid
 
   def FindElement(self, path, should_exist=True, check_visible=True):
     element = None
@@ -109,6 +111,9 @@ class SimpleDriver:
   def Quit(self):
     self.selenium_driver.quit()
 
+  def Kill(self):
+    os.system("kill %d" % self.process)
+
 
 class RetryingDriver:
   def __init__(self, inner_driver):
@@ -145,6 +150,9 @@ class RetryingDriver:
   def Quit(self):
     self.inner_driver.Quit()
 
+  def Kill(self):
+    self.inner_driver.Kill()
+
   def Retry(self, callback, wait_long=False):
     sleep_durations = [.5, .5, .5, .5, 1, 1]
     if wait_long:
@@ -169,6 +177,7 @@ class RemoteDriver:
     self.password = password
     self.current_user = None
     self.game_id = 'game-webdriver-%d' % random.randint(0, 2**52)
+    self.process = None
     if populate:
       self.MakeDriver('zella', 'createPopulatedGame')
       self.Click([[By.ID, 'createPopulatedGame']])
@@ -200,6 +209,7 @@ class RemoteDriver:
         'mobile' if self.is_mobile else 'desktop')
 
     selenium_driver = webdriver.Chrome()
+    self.process = selenium_driver.service.process.pid
     if self.is_mobile:
       selenium_driver.set_window_size(480, 640);
     selenium_driver.get(url)
@@ -241,9 +251,15 @@ class RemoteDriver:
     for driver in self.drivers_by_user.values():
       driver.Quit()
 
+  def Kill(self):
+    for key in self.drivers_by_user:
+      self.drivers_by_user[key].Kill()
+
+
 class FakeDriver:
   def __init__(self, client_url, is_mobile, populate, user, page):
     selenium_driver = webdriver.Chrome()
+    self.process = selenium_driver.service.process.pid
     if is_mobile:
       selenium_driver.set_window_size(480, 640);
 
@@ -325,6 +341,9 @@ class FakeDriver:
   def Quit(self):
     self.inner_driver.Quit()
 
+  def Kill(self):
+    self.inner_driver.Kill()
+
 
 class WholeDriver:
   def __init__(self, client_url, is_mobile, use_remote, use_dashboards, user, password, page, populate):
@@ -395,7 +414,7 @@ class WholeDriver:
   def DrawerMenuClick(self, currPage, destinationPage):
     if self.is_mobile:
       self.RetryUntil(
-        lambda: self.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']]),
+        lambda: self.Click([[By.NAME, currPage], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
     self.Click([[By.NAME, 'drawer%s' % destinationPage]])
 
@@ -404,3 +423,6 @@ class WholeDriver:
       lambda: self.Click(pathToRow + [[By.ID, 'menu']]),
       lambda: self.FindElement(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]]))
     self.Click(pathToRow + [[By.NAME, 'menu-item-%s' % buttonName]])
+
+  def Kill(self):
+    self.inner_driver.Kill()

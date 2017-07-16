@@ -234,7 +234,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getPlayerChatRoomMembershipPath(playerId, null),
         null,
-        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId, isVisible: true}));
+        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId, isVisible: true, lastSeenTime: 0}));
   }
 
   addPlayerToMission_(missionId, playerId) {
@@ -773,7 +773,7 @@ class FakeServer {
       // Give the infector points
       this.writer.set(
         infectorPlayerPath.concat(["points"]),
-        this.reader.get(infectorPlayerPath.concat(["points"])) + 100);
+        this.reader.get(infectorPlayerPath.concat(["points"])) + this.game.infectPoints);
       let victimPrivatePlayerPath = this.reader.getPrivatePlayerPath(victimPlayer.id);
 
       if (infectorPlayer.allegiance == 'resistance') { //Possessed human infection
@@ -868,7 +868,8 @@ class FakeServer {
           code: lifeCode
         });
     this.writer.insert(this.reader.getPublicLifePath(playerId, null), null, publicLife);
-    if (player.lives.length > player.infections.length) {
+
+    if (player.lives.length > player.infections.length &&  player.allegiance != 'resistance') {
       this.setPlayerAllegiance(playerId, "resistance", false);
     }
   }

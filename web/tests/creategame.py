@@ -44,6 +44,9 @@ driver.SendKeys(
 driver.SendKeys(
     [[By.ID, 'stunTimerInput'], [By.TAG_NAME, 'input']],
     '60')
+driver.SendKeys(
+    [[By.ID, 'infectPointsInput'], [By.TAG_NAME, 'input']],
+    '42')
 driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
 
 driver.WaitForGameLoaded()
@@ -60,6 +63,11 @@ driver.ExpectContains(
 driver.ExpectContains(
     [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'stunTimer']],
     '60')
+driver.ExpectContains(
+    [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'infectPoints']],
+    '42')
+
+
 
 driver.Quit()
 

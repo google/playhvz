@@ -73,6 +73,11 @@
         });
         e.stopPropagation();
       },
+
+      formatShortTime_(time) {
+        var time = Utils.formatShortTime(time);
+        return time;
+      },
     });
   });
 </script>
@@ -106,11 +111,15 @@
     flex-shrink: 0;
     opacity: .75;
   }
+  #time {
+    margin-left: 10px;
+  }
 </style>
 <template>
   <div id="container" on-tap="handleTap_">
     <iron-icon icon="[[computeIcon_(notification.icon)]]" class="icon"></iron-icon>
     <div class="preview-message" name$="preview-[[notification.previewMessage]]">[[notification.previewMessage]]</div>
+    <div id="time">[[formatShortTime_(notification.time)]]</div>
     <paper-icon-button
       name="close-notification"
       hidden$="[[!withClose]]"

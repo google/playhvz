@@ -75,6 +75,7 @@ driver.Click([[By.NAME, 'game-icon'], [By.ID, 'icon']])
 driver.Clear([[By.ID, 'form-section-game-name'], [By.ID, 'input']])
 driver.SendKeys([[By.ID, 'form-section-game-name'], [By.ID, 'input']], 'Welcome to the Zombies-Have-Hunger Games')
 driver.SendKeys([[By.ID, 'form-section-game-stunTimer'], [By.TAG_NAME, 'input']], 42)
+driver.SendKeys([[By.ID, 'form-section-game-infectPoints'], [By.TAG_NAME, 'input']], 404)
 
 # Set game start time to sometime in the past
 driver.Clear([[By.ID, 'form-section-start-time'],[By.ID, 'year'],[By.TAG_NAME, 'input']])
@@ -119,10 +120,22 @@ driver.SendKeys([[By.ID, 'form-section-declare-horde-end-time'],[By.ID, 'time'],
 driver.Click([[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'gameForm'],[By.ID, 'done']])
 driver.ExpectContains([[By.NAME, 'game-name']], 'Welcome to the Zombies-Have-Hunger Games')
 driver.ExpectContains([[By.NAME, 'game-stunTimer']], "42")
+driver.ExpectContains([[By.NAME, 'game-infectPoints']], "404")
 driver.ExpectContains([[By.NAME, 'game-startTime']], "Jan 1 1:00am")
 driver.ExpectContains([[By.NAME, 'game-endTime']], "Dec 31 12:00am")
 driver.ExpectContains([[By.NAME, 'game-declareResistanceEndTime']], "Feb 29 4:15am")
 driver.ExpectContains([[By.NAME, 'game-declareHordeEndTime']], "Oct 12 12:34pm")
+
+# Check that zombies get the new number of points
+driver.SwitchUser('zeke')
+driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.SendKeys([[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
+driver.Click([ [By.NAME, 'infect-card'], [By.ID, 'infect']])
+driver.ExpectContains(
+    [[By.NAME, 'infect-card'], [By.NAME, 'victimName']],
+    'JackSlayerTheBeanSlasher')
+driver.DrawerMenuClick('infect-card', 'Leaderboard')
+
 
 # Have Deckerd try to declare and fail
 driver.SwitchUser('deckerd')
