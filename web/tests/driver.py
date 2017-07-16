@@ -414,7 +414,7 @@ class WholeDriver:
   def DrawerMenuClick(self, currPage, destinationPage):
     if self.is_mobile:
       self.RetryUntil(
-        lambda: self.Click([[By.NAME, currPage], [By.NAME, 'drawerButton']]),
+        lambda: self.Click([[By.NAME, currPage], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
     self.Click([[By.NAME, 'drawer%s' % destinationPage]])
 

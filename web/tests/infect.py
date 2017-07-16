@@ -85,7 +85,7 @@ driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
 # Check that Jack can't be infected again with the same code
 driver.SwitchUser('drake')
-driver.DrawerMenuClick('profile-card', 'Infect')
+driver.DrawerMenuClick('mobile-main-page', 'Infect')
 
 # Try to infect Jack again - shouldn't work this time (since life code is already claimed)
 driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly')

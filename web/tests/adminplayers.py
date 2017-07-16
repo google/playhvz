@@ -104,31 +104,61 @@ driver.ExpectContains([[By.NAME, 'player-table']], "Jack") # Jack should show up
 driver.ExpectContains([[By.NAME, 'player-table']], "Deckerd", False) # Deckerd shouldn't show up
 driver.Backspace([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_NAME, 'input']], 3)
 
-# Infect Jack
+# Infect Jack and check that he is now infecting
 driver.DrawerMenuClick('players-card', 'Admin Players')
 driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Infect')
-driver.DismissAlert()
+driver.DismissAlert("Successfully infected JackSlayerTheBeanSlasher")
 driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'allegiance']], "Horde")
+driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])
+driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
+driver.FindElement([[By.ID, 'unset-infect-button']])
+driver.FindElement([[By.ID, 'set-infect-button']], should_exist=False)
+driver.DrawerMenuClick('profile-card', 'Admin Players')
 
-# Revive Zeke
+# Revive Zeke and check that he's not infecting
 driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
-driver.DismissAlert()
+driver.DismissAlert("Successfully added a life to Zeke")
 driver.ExpectContains([[By.NAME, 'player-row-Zeke'], [By.ID, 'allegiance']], "Resistance")
+driver.Click([[By.NAME, 'player-row-Zeke'], [By.ID, 'name']])
+driver.ExpectContains([[By.NAME, 'status']], 'Alive')
+driver.FindElement([[By.ID, 'set-infect-button']])
+driver.FindElement([[By.ID, 'unset-infect-button']], should_exist=False)
+driver.DrawerMenuClick('profile-card', 'Admin Players')
 
 # Add Life to Zella (already a human, but that's fine, she just has an extra life)
 driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
-driver.DismissAlert()
+driver.DismissAlert("Successfully added a life to ZellaTheUltimate")
 driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 
-# Try to revive Deckerd
+# Infect Zella and check that she still stays human and non-infecting
+driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Infect')
+driver.DismissAlert("Successfully infected ZellaTheUltimate")
+driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
+driver.Click([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'name']])
+driver.ExpectContains([[By.NAME, 'status']], 'Alive')
+driver.FindElement([[By.ID, 'set-infect-button']])
+driver.FindElement([[By.ID, 'unset-infect-button']], should_exist=False)
+driver.DrawerMenuClick('profile-card', 'Admin Players')
+
+# Try to revive Deckerd and check that he's non-infecting
 driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Add Life')
 driver.DismissAlert("Cannot add life to someone that is undeclared!")
 driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "undeclared")
+driver.Click([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'name']])
+driver.ExpectContains([[By.NAME, 'status']], 'Alive')
+driver.FindElement([[By.ID, 'set-infect-button']])
+driver.FindElement([[By.ID, 'unset-infect-button']], should_exist=False)
+driver.DrawerMenuClick('profile-card', 'Admin Players')
 
-# Try to infect Deckerd
+# Try to infect Deckerd and check that he's non-infecting
 driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Infect')
 driver.DismissAlert("Cannot infect someone that is undeclared!")
 driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "undeclared")
+driver.Click([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'name']])
+driver.ExpectContains([[By.NAME, 'status']], 'Alive')
+driver.FindElement([[By.ID, 'set-infect-button']])
+driver.FindElement([[By.ID, 'unset-infect-button']], should_exist=False)
+driver.DrawerMenuClick('profile-card', 'Admin Players')
 
 # Make sure the infections/revivals are reflected on the players' pages
 driver.DrawerMenuClick('players-card', 'Dashboard')
