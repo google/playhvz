@@ -239,12 +239,10 @@
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
           <template is="dom-if" if="[[membership.isVisible]]">
-            <ghvz-drawer-item 
-              text="[[getChatName_(membership.chatRoomId)]]" 
-              page="chat" 
-              chat-room-id$="[[membership.chatRoomId]]" 
-              icon="communication:chat">
-            </ghvz-drawer-item>
+            <ghvz-drawer-chat-item 
+                game="[[game]]"
+                chat-room-membership="[[membership]]">
+            </ghvz-drawer-chat-item>
           </template>
         </template>
 

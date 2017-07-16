@@ -51,11 +51,14 @@
             value: false,
           },
 
+          pendingLastSeenTime: Number,
+
           isMemberOfChatRoom: Boolean,
         },
 
         listeners: {
           'ghvz-chat-info-action': 'executeAction_',
+          'tap': 'maybeUpdateLastSeenTime_',
         },
 
         observers: [
@@ -68,25 +71,14 @@
         attached: function() {
           this.isAttached = true;
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
-          
-          this.$.conversationContainer.addEventListener('scroll', function(e) {
-            let ticking;
-            last_known_scroll_position = this.$.conversationContainer.scrollTop;
-            if (!ticking) {
-              window.requestAnimationFrame(() => {
-                console.log(last_known_scroll_position);
-                //doSomething(last_known_scroll_position);
-                ticking = false;
-              });
-            }
-            ticking = true;
-          }.bind(this));
+          this.trackScrolling_();
         },
 
         onChatRoomIdChange_(chatRoomId) {
           assert(this.game.chatRoomsById[chatRoomId]);
           this.$.chatRoomSelector.select(this.game.chatRoomsById[chatRoomId]);
           this.hideChatInfo();
+          this.pendingLastSeenTime = null;
         },
 
         onChatRoomNameChange_: function() {
@@ -115,24 +107,69 @@
               this.$.conversationContainer.scrollTop =
                   this.$.conversationContainer.scrollHeight;
 
-              let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
-              console.log(membership);
-              console.log(this.chatRoom.messages);
-              // if the message we just received is visible
+              this.maybeUpdateLastSeenTime_();
             });
           }
         },
 
-        isElementInView(element, container) {
-          let containerTop = container.scrollTop;
-          let containerBottom = containerTop + container.height();
-          let offsetHeight = container.offsetHeight;
-          
-          var elementTop = element.offset().top;
-          var elementBottom = elementTop + element.height();
+        trackScrolling_() {
+          this.$.conversationContainer.addEventListener('scroll', function(e) {
+            let ticking;
+            lastKnownScrollPosition = this.$.conversationContainer.scrollTop;
+            if (!ticking) {
+              window.requestAnimationFrame(() => {
+                this.maybeUpdateLastSeenTime_();
+                ticking = false;
+              });
+            }
+            ticking = true;
+          }.bind(this));
+        },
 
-          // Returns true if any part of the message is visible
-          return ((elementTop <= containerBottom) && (elementBottom >= containerTop));
+        maybeUpdateLastSeenTime_() {
+          if (this.chatRoom.messages.length <= 0) {
+            // No messages to check
+            return;
+          }
+          let lastMessage = this.chatRoom.messages[this.chatRoom.messages.length - 1];
+          let chatRoomMembership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
+          if (lastMessage.time <= chatRoomMembership.lastSeenTime) {
+            // We've already seen the newest message and don't need to check visibility
+            return;
+          }
+          let lastMessageElement = this.$$('#' + lastMessage.id);
+          let messageVisible = this.isElementInView(lastMessageElement, this.$.conversationContainer);
+          if (messageVisible) {
+            if (!this.pendingLastSeenTime || this.pendingLastSeenTime < lastMessage.time) {
+              this.pendingLastSeenTime = lastMessage.time;
+              this.bridge.updateChatRoomMembership({
+                gameId: this.game.id,
+                chatRoomId: this.chatRoom.id,
+                actingPlayerId: this.currentPlayer.id,
+                lastSeenTime: lastMessage.time,
+              });
+            }
+          }
+        },
+
+        /* Returns true if any part of the message is visible in the container. */
+        isElementInView(element, container) {
+          let containerScrollTop = container.scrollTop; // number of pixels scrolled vertically
+          let containerVisibleBottom = containerScrollTop + container.offsetHeight; // + height of visible box
+          let elementOffsetTop = element.offsetTop; // distance from the top of the container
+          let elementOffsetBottom = elementOffsetTop + element.offsetHeight; // + height of element
+          let isVisibleInContainer =
+              (elementOffsetTop <= containerVisibleBottom) && (elementOffsetBottom >= containerScrollTop);
+          if (!isVisibleInContainer)
+            return false;
+          // Element is visible in container, see if it's also visible on the screen (like on dashboard)
+          let rect = element.getBoundingClientRect();
+          if (rect.top == 0 && rect.bottom == 0) {
+            // Element is off screen
+            return false;
+          }
+          return (rect.top <= window.innerHeight) && (rect.bottom >= 0);
+
         },
 
         computeMessageDisplayClass_(senderId, myId) {
@@ -321,6 +358,7 @@
       flex-grow: 1;
       overflow-y: scroll;
       padding: 8px;
+      position: relative;
     }
     .ack-container {
       flex-grow: 0;
@@ -575,7 +613,7 @@
 
     <div id="conversationContainer" class="conversation-container">
       <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
-        <div name$="message-[[chatRoom.name]]-[[item.message]]"
+        <div id$="[[item.id]]" name$="message-[[chatRoom.name]]-[[item.message]]"
           class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item)]]">
           <div class="display-message">
             <div class="player-name">
