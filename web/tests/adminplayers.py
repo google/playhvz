@@ -179,4 +179,3 @@ driver.DrawerMenuClick('mobile-main-page', 'Chat')
 driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
 
 driver.Quit()
-

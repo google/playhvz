@@ -504,7 +504,7 @@
                     </paper-material>
                   </template>
                   <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category request-category-with-answer">
+                    <paper-material class="request-category request-category-with-answer" name$="received-request-ack-[[requestCategory.text]]">
                       <div class="request-category-text-column">
                         <p hidden>[[request.time]]</p>
                         <ghvz-player-label
@@ -525,6 +525,7 @@
                               label="Answer">
                           </paper-input>
                           <paper-button
+                              name="ack-request-button" 
                               raised
                               class="request"
                               id="textRequestSend"

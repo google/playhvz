@@ -56,6 +56,7 @@ actingPlayer = 'zeke' # non-admin human
 actingPlayerName = playerNames[actingPlayer]
 newChatName = 'No hoomans allowed'
 driver = setup.MakeDriver()
+
 driver.WaitForGameLoaded()
 
 # Open dialog for creating new chat room
