@@ -17,6 +17,8 @@
 """TODO: High-level file comment."""
 
 import sys
+import pdb
+import time
 
 
 def main(argv):
@@ -44,8 +46,10 @@ driver.DrawerMenuClick('profile-card', 'Admin Players')
 driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Set Got Equipment')
 driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "Yes") # Menu still open here
 
+time.sleep(1) # Without this, the page thinks we're infecting jack?
+
 # Unset Jack's equipment
-driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.NAME, 'menu-item-Unset Got Equipment']]) 
+driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Unset Got Equipment')
 driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'gotEquipment']], "No")
 
 # Check Jack's profile, make sure the change showed up
@@ -111,24 +115,23 @@ driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
 driver.DismissAlert()
 driver.ExpectContains([[By.NAME, 'player-row-Zeke'], [By.ID, 'allegiance']], "Resistance")
 
-# Revive Deckerd
-driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Add Life')
-driver.DismissAlert()
-driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
-
 # Add Life to Zella (already a human, but that's fine, she just has an extra life)
 driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
 driver.DismissAlert()
 driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 
+# Try to revive Deckerd
+driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Add Life')
+driver.DismissAlert("Cannot add life to someone that is undeclared!")
+driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "undeclared")
+
+# Try to infect Deckerd
+driver.TableMenuClick([[By.NAME, 'player-row-DeckerdTheHesitant']], 'Infect')
+driver.DismissAlert("Cannot infect someone that is undeclared!")
+driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "undeclared")
+
 # Make sure the infections/revivals are reflected on the players' pages
 driver.DrawerMenuClick('players-card', 'Dashboard')
-driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
-
-# Check that Deckerd is a human (sees human chat and no infect widget)
-driver.SwitchUser('deckerd')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
 driver.DrawerMenuClick('mobile-main-page', 'Chat')
 driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
