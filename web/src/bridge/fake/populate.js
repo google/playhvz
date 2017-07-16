@@ -187,6 +187,7 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     faqHtml: FAQ_HTML,
     summaryHtml: SUMMARY_HTML,
     stunTimer: 60,
+    infectPoints: 100,
     isActive: true,
     registrationEndTime: 1483286400000,
     startTime: 1483344000000,

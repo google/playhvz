@@ -167,10 +167,11 @@
           <span name="victimName">[[infectedPlayer.name]]</span>!
           <div>Glory to the horde!</div>
         </div>
+        <div id="selfInfectedMessage" hidden$="[[!infectedSelf]]">
+          Congratulations, <b>[[player.name]]</b>, you are now a zombie. Welcome to the horde!
+        </div>
       </div>
-      <div id="selfInfectedMessage" hidden$="[[!infectedSelf]]">
-        Congratulations, <b>[[player.name]]</b>, you are now a zombie. Welcome to the horde!
-      </div>
+      <br/>
       <div id="doneContainer">
         <paper-button
             id="done"

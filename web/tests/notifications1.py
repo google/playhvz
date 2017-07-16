@@ -50,7 +50,7 @@ driver.ExpectContains([[By.NAME, 'row-The Horde is coming']], 'Everyone')
 # Check that a player can see it
 driver.SwitchUser('jack')
 #Close the Mission 1 notification
-driver.Click([[By.NAME, 'close-notification']])
+driver.Click([[By.NAME, 'notification-preview-Mission 1 Details: the zeds have invaded!'], [By.NAME, 'close-notification']])
 driver.FindElement([[By.NAME, 'preview-Mission 1 Details: the zeds have invaded!']], should_exist=False)
 driver.ExpectContains([[By.NAME, 'preview-The Horde is coming']], 'The Horde is coming') 
 driver.Click([[By.NAME, 'preview-The Horde is coming']])
