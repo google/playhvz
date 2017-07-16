@@ -150,7 +150,7 @@
                 notificationId: this.bridge.newNotificationId(),
                 playerId: receiverPlayerId,
                 email: false,
-                destination: 'game/' + this.game.id + '/chat/' + chatRoom.id,
+                destination: 'game/' + this.game.id.slice('game-'.length) + '/chat/' + chatRoom.id,
                 icon: null,
                 message: messageForNotification,
                 mobile: true,
