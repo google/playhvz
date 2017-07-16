@@ -92,7 +92,7 @@
             let chatRoom = this.game.chatRoomsById[chatRoomId];
             if (chatRoom.withAdmins) {
               this.adminChatRoomId = chatRoomId;
-              if (chatRoomMembership.isVisible) {
+              if (!ChatUtils.chatIsHidden(chatRoom, chatRoomMembership)) {
                 this.adminChatExists = true;
                 return;
               }
@@ -110,7 +110,7 @@
                 gameId: this.game.id, 
                 chatRoomId: this.adminChatRoomId,
                 actingPlayerId: this.player.id,
-                isVisible: true,
+                lastHiddenTime: null,
               });
               return;
             }
@@ -235,15 +235,12 @@
         <ghvz-drawer-item text="Leaderboard" page="leaderboard" icon="social:group"></ghvz-drawer-item>
         <ghvz-drawer-item text="Game Stats" page="stats" icon="editor:pie-chart"></ghvz-drawer-item>
         <ghvz-drawer-item text="Notifications" page="notifications" icon="notification:sms"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Chat" page="chat" icon="communication:chat"></ghvz-drawer-item>
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
-          <template is="dom-if" if="[[membership.isVisible]]">
-            <ghvz-drawer-chat-item 
-                game="[[game]]"
-                chat-room-membership="[[membership]]">
-            </ghvz-drawer-chat-item>
-          </template>
+          <ghvz-drawer-chat-item 
+              game="[[game]]"
+              chat-room-membership="[[membership]]">
+          </ghvz-drawer-chat-item>
         </template>
 
         <template is="dom-if" if="[[!adminChatExists]]">
@@ -257,7 +254,6 @@
         </template>
 
         <ghvz-drawer-item 
-          style="padding-top: 8px;" 
           id="new-chat" 
           text="New chat" 
           action="[[createNewChat_()]]" 

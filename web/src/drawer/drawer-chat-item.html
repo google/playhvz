@@ -25,12 +25,20 @@
 
       properties: {
         game: Object,
-        icon: String,
-        text: String,
-        action: Object,
-        page: String,
         chatRoomMembership: Object,
+        ignoreHidden: {
+          type: Boolean,
+          value: false,
+        },
+
         hasUnseenMessages: Boolean,
+
+        chatRoom: Object, // Set by array-selector
+
+        show: {
+          type: Boolean,
+          computed: 'computeShow_(chatRoom.messages.length, chatRoomMembership.lastHiddenTime)',
+        }
       },
 
       observers: [
@@ -50,7 +58,11 @@
         }
         let lastMessage = this.chatRoom.messages[this.chatRoom.messages.length - 1];
         this.hasUnseenMessages = lastMessage.time > this.chatRoomMembership.lastSeenTime;
-      },        
+      },    
+
+      computeShow_() {
+        return this.ignoreHidden || !ChatUtils.chatIsHidden(this.chatRoom, this.chatRoomMembership);
+      }    
     });
   });
 </script>
@@ -100,15 +112,16 @@
 </style>
 <template>
   <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
-
-  <template is="dom-if" if="[[hasUnseenMessages]]">
-    <div id="unseenIcon"></div>
-  </template>
-  <ghvz-drawer-item 
-    text="[[chatRoom.name]]" 
-    page="chat"
-    chat-room-id="[[chatRoomMembership.chatRoomId]]" 
-    icon="communication:chat">
-  </ghvz-drawer-item>
+  <div hidden$="[[!show]]">
+    <template is="dom-if" if="[[hasUnseenMessages]]">
+      <div id="unseenIcon"></div>
+    </template>
+    <ghvz-drawer-item 
+        text="[[chatRoom.name]]" 
+        page="chat"
+        chat-room-id="[[chatRoomMembership.chatRoomId]]" 
+        icon="communication:chat">
+    </ghvz-drawer-item>
+  </div>
 </template>
 </dom-module>

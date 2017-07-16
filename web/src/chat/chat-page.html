@@ -39,16 +39,6 @@
             type: Object,
             value: null,
           },
-
-          showChatRoom: {
-            type: Boolean,
-            computed: 'computeShowChatRoom_(isMobile, path)',
-          },
-
-          showChatRoomList: {
-            type: Boolean,
-            computed: 'computeShowChatRoomList_(isMobile, path)',
-          },
         },
 
         observers: [
@@ -56,84 +46,46 @@
           'onChatRoomsUpdated_(game, currentChatRoom, player.private.chatRoomMemberships.*)',
         ],
 
-        computeShowChatRoomList_(isMobile, path) {
-          if (isMobile) {
-            return !this.computeShowChatRoom_(isMobile, path);
-          } else {
-            return true;
-          }
-        },
-
-        computeShowChatRoom_(isMobile, path) {
-          if (!isMobile) {
-            return true;
-          }
-          let indexOfChatString = path.indexOf("chat");
-          if (indexOfChatString >= 0) {
-            // If there's something after "chat" in the path
-            if (indexOfChatString < path.length - 1) {
-              return true;
-            }
-          }
-          return false;
-        },
-
         onPathChanged_() {
           if (this.path[0] != 'chat') {
             return;
           }
           var chatRoomId = this.path[1];
           if (chatRoomId) {
-            this.$.chatRoomSelector.select(
-                this.game.chatRooms.find(chatRoom => {
-                  let isVisible;
-                  let memberSetting = this.player.private.chatRoomMembershipsById[chatRoomId];
-                  
-                  if (memberSetting) {
-                    isVisible = memberSetting.isVisible;
+            let chatRoom = this.game.chatRoomsById[chatRoomId];
+            if (chatRoom) {
+              if (this.isAdmin) {
+                // Let any admin see any chat room
+                this.$.chatRoomSelector.select(chatRoom);
+                return;
+              } else {
+                // If youre not an admin, then you can only see it if you have a membership
+                // (though, firebase should prevent us from having it in memory if we dont have a membership anyway)
+                let membership = this.player.private.chatRoomMembershipsById[chatRoomId];
+                if (membership) {
+                  // Dont go to it if it's hidden
+                  if (!ChatUtils.chatIsHidden(chatRoom, membership)) {
+                    this.$.chatRoomSelector.select(chatRoom);
+                    return;
                   }
-                  if (this.isAdmin) {
-                    isVisible = true;
-                  }
-                  return chatRoom.id == chatRoomId && isVisible;
-                }));
-            if (this.$.chatRoomSelector.selected != null) {
-              return;
+                }
+              }
             }
-            // If we get here we tried to view a chat room we no longer have access to, 
-            // redirect to chat/ for mobile (desktop takes care of this by setting a new chat room id below)
-            if (this.isMobile) {
-              this.async(() => {
-                this.fire('ghvz-set-card-header-text', { headerText: "Your Chats" });
-                this.fire('ghvz-set-path', {
-                  inGame: true,
-                  path: ['chat'],
-                  replace: true,
-                });
-              });
-            }
+            // If we get here we tried to view a chat room we no longer have access to, or we hid it.
           }
-          // If we get here, then there wasn't a chat room, it was just /chat in the url
-          // (or there was a chat room id but we couldnt find that chat room)
-          if (this.isMobile) {
-            // If we get here, that means we're at /chat and on mobile. In this case
-            // we just want to show the chat list and set the title bar.
-             this.async(() => {
-                this.fire('ghvz-set-card-header-text', { headerText: "Your Chats" });
+          // If we get here, then there wasn't a chat room, it was just /chat in the url,
+          // or there was a chat room id but we couldnt find that chat room, or they didn't have
+          // access to the chat room, or they had already hidden it.
+          // In this case we want to just pick a random chat room and show it.
+          if (this.player.private.chatRoomMemberships.length > 0) {
+            this.async(() => {
+              chatRoomId = this.player.private.chatRoomMemberships[0].id;
+              this.fire('ghvz-set-path', {
+                inGame: true,
+                path: ['chat', chatRoomId],
+                replace: true,
               });
-          } else {
-            // If we get here, that means we're at /chat and on desktop. In this case
-            // we want to just pick a chat room and show it.
-            if (this.player.private.chatRoomMemberships.length > 0) {
-              this.async(() => {
-                chatRoomId = this.player.private.chatRoomMemberships[0].id;
-                this.fire('ghvz-set-path', {
-                  inGame: true,
-                  path: ['chat', chatRoomId],
-                  replace: true,
-                });
-              });
-            }
+            });
           }
         },
 
@@ -181,27 +133,18 @@
   <template>
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{currentChatRoom}}"></array-selector>
     <div id="container" is-mobile$="[[isMobile]]" class="flex layout horizontal">
-      <template is="dom-if" if="[[showChatRoomList]]">
-        <ghvz-chat-room-list 
-            class="chat-room-list" 
+      <!-- This dom-if is just in case there are no chat rooms that we have access to / can see -->
+      <template is="dom-if" if="[[currentChatRoom]]">
+        <ghvz-chat-room
+            name$="chat-room-[[currentChatRoom.name]]"
             bridge="[[bridge]]"
             game="[[game]]"
-            player="[[player]]"
-            is-admin="[[isAdmin]]">
-        </ghvz-chat-room-list>
-      </template>
-      <template is="dom-if" if="[[showChatRoom]]">
-        <div class="vertical-separator"></div>
-          <ghvz-chat-room
-              name$="chat-room-[[currentChatRoom.name]]"
-              bridge="[[bridge]]"
-              game="[[game]]"
-              is-admin="[[isAdmin]]"
-              current-player="[[player]]"
-              chat-room-id="[[currentChatRoom.id]]"
-              is-mobile="[[isMobile]]"
-              class="chat-window">
-          </ghvz-chat-room>
+            is-admin="[[isAdmin]]"
+            current-player="[[player]]"
+            chat-room-id="[[currentChatRoom.id]]"
+            is-mobile="[[isMobile]]"
+            class="chat-window">
+        </ghvz-chat-room>
       </template>
     </div>
   </template>
