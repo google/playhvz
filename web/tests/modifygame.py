@@ -128,12 +128,13 @@ driver.ExpectContains([[By.NAME, 'game-declareHordeEndTime']], "Oct 12 12:34pm")
 
 # Check that zombies get the new number of points
 driver.SwitchUser('zeke')
-driver.SendKeys([[By.TAG_NAME, 'ghvz-mobile-main-page'], [By.NAME, 'infect-box'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
-driver.Click([[By.TAG_NAME, 'ghvz-mobile-main-page'], [By.NAME, 'infect-box'], [By.ID, 'infect']])
+driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.SendKeys([[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
+driver.Click([ [By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.ExpectContains(
-    [[By.TAG_NAME, 'ghvz-mobile-main-page'], [By.NAME, 'infect-box'], [By.NAME, 'victimName']],
+    [[By.NAME, 'infect-card'], [By.NAME, 'victimName']],
     'JackSlayerTheBeanSlasher')
-driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
+driver.DrawerMenuClick('infect-card', 'Leaderboard')
 
 
 # Have Deckerd try to declare and fail

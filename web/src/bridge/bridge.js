@@ -532,7 +532,7 @@ class FakeIdGenerator extends IdGenerator {
     victimPlayerId: '?PublicPlayerId',
   });
 
-serverMethods.set('queueNotification', {
+  serverMethods.set('queueNotification', {
     gameId: 'GameId',
     queuedNotificationId: '!QueuedNotificationId',
     message: 'String',

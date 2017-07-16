@@ -34,7 +34,6 @@ PLAYER_VOLUNTEER_ARGS = (
     'advertising', 'logistics', 'communications', 'moderator',
     'cleric', 'sorcerer', 'admin', 'photographer', 'chronicler',
     'server', 'client', 'android', 'ios')
-POINTS_INFECT = 100
 
 ACCESS_USER = 'user'
 ACCESS_ADMIN = 'admin'

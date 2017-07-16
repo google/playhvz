@@ -92,6 +92,7 @@ def Register(request, game_state):
 
 
 def AddGame(request, game_state):
+
   """Add a new game.
 
   Validation:
@@ -103,6 +104,7 @@ def AddGame(request, game_state):
     name:
     rulesHtml: static HTML containing the rule doc.
     stunTimer:
+    infectPoints:
 
   Firebase entries:
     /games/%(gameId)
@@ -116,6 +118,7 @@ def AddGame(request, game_state):
     'faqHtml': 'String',
     'summaryHtml': 'String',
     'stunTimer': 'Number',
+    'infectPoints': 'Number',
     'startTime': 'Timestamp',
     'endTime': 'Timestamp',
     'registrationEndTime': 'Timestamp',
@@ -130,6 +133,7 @@ def AddGame(request, game_state):
     'faqHtml': request['faqHtml'],
     'summaryHtml': request['summaryHtml'],
     'stunTimer': request['stunTimer'],
+    'infectPoints': request['infectPoints'],
     'startTime': request['startTime'],
     'endTime': request['endTime'],
     'registrationEndTime': request['registrationEndTime'],
@@ -170,6 +174,7 @@ def UpdateGame(request, game_state):
     'faqHtml': '|String',
     'summaryHtml': '|String',
     'stunTimer': '|Number',
+    'infectPoints': '|Number',
     'startTime': '|Timestamp',
     'endTime': '|Timestamp',
     'registrationEndTime': '|Timestamp',
@@ -178,7 +183,7 @@ def UpdateGame(request, game_state):
   })
 
   put_data = {}
-  for property in ['name', 'rulesHtml', 'faqHtml', 'summaryHtml', 'stunTimer', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
+  for property in ['name', 'rulesHtml', 'faqHtml', 'summaryHtml', 'stunTimer', 'infectPoints', 'isActive', 'startTime', 'endTime', 'registrationEndTime', 'declareHordeEndTime', 'declareResistanceEndTime']:
     if property in request:
       put_data[property] = request[property]
 
@@ -1460,10 +1465,11 @@ def Infect(request, game_state):
     raise InvalidInputError('You cannot infect another player at the present time.')
 
   # Add points and an infection entry for a successful infection
-  helpers.AddPoints(game_state, infector_public_player_id, constants.POINTS_INFECT)
+  infect_points = game_state.get('/games/' + game_id, "infectPoints")
+  helpers.AddPoints(game_state, infector_public_player_id, infect_points)
 
   # If secret zombie, set the victim to secret zombie and the infector to zombie
-  # Else set the victom to zombie
+  # Else set the victim to zombie
   if infector_public_player_id != victim_public_player_id and infector_public_player['allegiance'] == constants.HUMAN:
     logging.warn('Possession')
     AddInfection(game_state, time, infection_id, infector_public_player_id, infector_public_player_id)

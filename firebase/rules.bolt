@@ -176,6 +176,7 @@ type Game {
   endTime: OptionalTimestamp
   registrationEndTime: OptionalTimestamp;
   stunTimer: Number;
+  infectPoints: Number;
   faqHtml: String;
   rulesHtml: String;
 
