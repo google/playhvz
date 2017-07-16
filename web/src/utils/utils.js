@@ -190,7 +190,6 @@ Utils.formatShortTime = function(timestampInMs) {
   var now = new Date();
   // Same Day
   if (now.toDateString() == date.toDateString()) {
-    console.log(Utils.formatDayTime(timestampInMs));
     return Utils.formatClockTime(timestampInMs);
   }
   // Same week

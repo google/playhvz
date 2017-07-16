@@ -54,6 +54,7 @@
     <template is="dom-if" if="[[!notification.seenTime]]">
       <paper-material class="notification" elevation="5">
         <ghvz-notification-preview
+            name$="notification-preview-[[notification.previewMessage]]""
             bridge="[[bridge]]"
             player="[[player]]"
             game="[[game]]"
