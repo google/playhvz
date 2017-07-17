@@ -31,8 +31,7 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="jack")
 
 # Make sure Jack starts out human
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
 
 # Drake infects Jack
 driver.SwitchUser("drake")
@@ -78,8 +77,8 @@ driver.ExpectContains([[By.NAME, 'profilePoints']], '208')
 # See that Jack is now a zombie
 driver.SwitchUser("jack")
 
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub', should_exist=False)
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']], should_exist=False)
 driver.DrawerMenuClick('chat-card', 'Dashboard')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 

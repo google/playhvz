@@ -174,7 +174,6 @@
       width: 100%;
     }
     .chat-room-list {
-      max-width: 15%;
       overflow-y: auto;
     }
     #container[is-mobile] .chat-room-list {
@@ -182,6 +181,15 @@
     }
     .vertical-separator {
       border-right: 1px solid darkgray;
+    }
+    #container {
+      display: flex;
+    }
+    ghvz-admin-chat-room-list {
+      flex-grow: 1;
+    }
+    ghvz-chat-room {
+      flex-grow: 3;
     }
   </style>
   <template>
@@ -197,7 +205,8 @@
         </ghvz-admin-chat-room-list>
       </template>
       <template is="dom-if" if="[[showChatRoom]]">
-        <div class="vertical-separator"></div>
+        <template is="dom-if" if="[[currentChatRoom]]">
+          <div class="vertical-separator"></div>
           <ghvz-chat-room
               name$="chat-room-[[currentChatRoom.name]]"
               bridge="[[bridge]]"
@@ -208,6 +217,7 @@
               is-mobile="[[isMobile]]"
               class="chat-window">
           </ghvz-chat-room>
+        </template>
       </template>
     </div>
   </template>

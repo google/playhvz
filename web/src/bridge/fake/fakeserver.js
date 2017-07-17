@@ -234,7 +234,11 @@ class FakeServer {
     this.writer.insert(
         this.reader.getPlayerChatRoomMembershipPath(playerId, null),
         null,
-        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId, isVisible: true, lastSeenTime: 0}));
+        new Model.PlayerChatRoomMembership(chatRoomId, {
+          chatRoomId: chatRoomId,
+          lastHiddenTime: null,
+          lastSeenTime: null,
+        }));
   }
 
   addPlayerToMission_(missionId, playerId) {
@@ -315,7 +319,12 @@ class FakeServer {
       let member = game.playersById[publicPlayerId];
       let chatRoomMembership = player.private.chatRoomMemberships.find(m => m.chatRoomId = chatRoomId);
       // Change the chat room to visible
-      this.updateChatRoomMembership({gameId: gameId, chatRoomId: chatRoomId, actingPlayerId: publicPlayerId, isVisible: true});
+      this.updateChatRoomMembership({
+        gameId: gameId,
+        chatRoomId: chatRoomId,
+        actingPlayerId: publicPlayerId,
+        lastHiddenTime: null,
+      });
     }
 
     if (group.playersById[player.id]) {

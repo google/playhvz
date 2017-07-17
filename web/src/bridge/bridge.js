@@ -415,8 +415,8 @@ class FakeIdGenerator extends IdGenerator {
     gameId: 'GameId',
     chatRoomId: 'ChatRoomId',
     actingPlayerId: 'PublicPlayerId',
-    isVisible: '|Boolean',
-    lastSeenTime: '|Timestamp',
+    lastHiddenTime: '|?Timestamp',
+    lastSeenTime: '|?Timestamp',
   });
 
   serverMethods.set('createMap', {

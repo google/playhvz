@@ -34,9 +34,6 @@ driver = setup.MakeDriver(user="zella")
 
 driver.Click([[By.NAME, 'close-notification']])
 
-# Open chat page
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-
 # Create a new chat room
 driver.FindElement([[By.ID, 'new-chat']]) # TODO(aliengirl): once failed here -m
 driver.Click([[By.ID, 'new-chat']])

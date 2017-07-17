@@ -64,11 +64,11 @@
             actions: [
               {
                 name: "Show Rewards",
-                handler: (category) => this.$.selector.select(category),
+                handler: ([category]) => this.$.selector.select(category),
               },
               {
                 name: "Export Rewards",
-                handler: (category) => this.showRewardsDialog_(category),
+                handler: ([category]) => this.showRewardsDialog_(category),
               },
               {
                 name: "Edit",
@@ -132,7 +132,7 @@
               });
         },
 
-        startEditingCategory_: function(category) {
+        startEditingCategory_: function([category]) {
           this.$.categoryForm.openForEditing(category)
               .then((newProperties) => {
                 this.bridge.updateRewardCategory(Utils.merge(newProperties, {

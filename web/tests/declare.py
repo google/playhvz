@@ -156,10 +156,8 @@ if not driver.is_mobile:
 
 
 
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Resistance Comms Hub']])
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Global Chat']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
 driver.DrawerMenuClick('chat-card', 'Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],

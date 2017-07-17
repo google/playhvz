@@ -61,18 +61,15 @@ driver.WaitForGameLoaded()
 
 # Open chat page
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.FindElement([[By.TAG_NAME, 'ghvz-chat-room-list']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.TAG_NAME, 'ghvz-chat-page']])
 
 # Check zombie player is in global chat, 2 zombie chats, and no human-only chats
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Global Chat']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Horde ZedLink']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Zeds Internal Secret Police']])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Resistance Comms Hub']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Zeds Internal Secret Police']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']], should_exist=False)
 
 # Open Global Chat
-driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Global Chat']])
+driver.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
 
 # Open chat drawer
 openChatDrawer(driver, actingPlayerName, 'Global Chat')
