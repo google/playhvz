@@ -189,7 +189,7 @@
             });
       },
 
-      startEditingCategory_: function(queuedNotification) {
+      startEditingCategory_: function([queuedNotification]) {
         this.$.form.openForEditing(queuedNotification)
             .then((newProperties) => {
               this.bridge.updateQueuedNotification({

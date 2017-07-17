@@ -80,7 +80,7 @@ type Location {
 
 type PublicEntity {
   read() { isAuthenticated() }
-  write() { isServer() }
+  write() { !writeLocked() && isServer() }
   validate() { true; }
 }
 
@@ -121,8 +121,11 @@ isAuthenticated() {
 }
 
 isServer() {
-  true
-  // auth.uid == 'ZiD9uLhDnrLq2n416MjWjn0JOrci6H0oGm7bKyVN' // TODO: place in safe
+  false // Write rules are ignored by the server since it's running as an admin / with a database secret
+}
+
+writeLocked() {
+  root.writeLocked !== true
 }
 
 isAuthenticatedMember(groupId, gameId) {
@@ -148,7 +151,7 @@ type ChatRoom {
     isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
-  write() { isAuthenticatedMember(this.accessGroupId, this.gameId) }
+  write() { !writeLocked() && isAuthenticatedMember(this.accessGroupId, this.gameId) }
 
 }
 
@@ -164,7 +167,7 @@ type Message {
     isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)
   }
 
-  write() {  isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)   }
+  write() { !writeLocked() && isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)   }
 
 }
 
@@ -192,7 +195,7 @@ type Game {
     isAuthenticated() 
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
   
   validate() {
     true;
@@ -217,7 +220,7 @@ type Group {
     isAuthenticatedMember(key(), this.gameId)
   }
   
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     root.games[this.gameId] != null
@@ -235,7 +238,7 @@ type Gun {
     isAuthenticated()
   }  
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     this.label.length > 0
@@ -256,7 +259,7 @@ type Mission {
     isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     root.games[this.gameId] != null
@@ -319,7 +322,7 @@ type PrivatePlayer {
     getUserId() == this.userId || isAdmin(this.gameId))
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     root.users[this.userId] != null
@@ -338,7 +341,7 @@ type Reward {
     isAuthenticated()
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() { // #2
     this.playerId == "" ||
@@ -364,7 +367,7 @@ type PublicPlayer {
     isAuthenticated()
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     root.users[this.userId] != null
@@ -387,7 +390,7 @@ type RewardCategory {
     isAuthenticated()
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     root.games[this.gameId] != null
@@ -414,7 +417,7 @@ type User {
     key() == getUserId()
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     true;
@@ -440,7 +443,7 @@ type MapType {
     isAuthenticated()
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     true;
@@ -465,7 +468,7 @@ type QueuedNotification {
     isAdmin(this.gameId)
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     true;
@@ -482,7 +485,7 @@ type PrivateLife {
     isAdmin(this.gameId)
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     true;
@@ -498,7 +501,7 @@ type PublicLife {
     isAuthenticated()
   }
 
-  write() {     isServer()   }
+  write() { !writeLocked() && isServer() }
 
   validate() {
     true;
@@ -512,7 +515,7 @@ type PublicLife {
 /chatRooms/{ChatRoomId} is ChatRoom;
 /chatRooms/{ChatRoomId}/messages {
   index() {['time']}
-  write() {isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)}
+  write() { !writeLocked() && isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)}
 }
 /chatRooms/ChatRoomId/messages/{MessageId} is Message;
 /games/{GameId} is Game;
