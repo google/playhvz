@@ -39,7 +39,7 @@ def generateTest(url, password, files, useRemote, useMobile):
 
 	testFiles = [
 		"acks",
-		"ackRequests"
+		"ackrequests",
 		"adminchat",
 		"adminguns",
 		"adminplayers",
