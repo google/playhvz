@@ -86,7 +86,7 @@
           e.preventDefault();
           e.stopPropagation();
           if (action == 'ping' || action == 'kick') {
-            e.srcElement.closest("paper-menu-button").close();
+            //e.srcElement.closest("paper-menu-button").close();
           }
         },
       });
@@ -152,6 +152,17 @@
       padding-left: 12px;
       font-size: 14px;
     }
+    .kick {
+      padding: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      opacity: .5;
+    }
+    .kick:active {
+      background-color: darkkhaki;
+      border-radius: 50%;
+      transform: translateY(4px);
+    }
   </style>
   <template>
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
@@ -197,21 +208,28 @@
                 </div>
               </div>
               <template is="dom-if" if="[[showPlayerDropdown]]">
-                <paper-menu-button restore-focus-on-close="[[booleanFalse]]">
+                <i class="material-icons kick" 
+                    id$="kick-[[getPlayerName_(playerId)]]"
+                    on-tap='captureTap_' 
+                    data-action="kick" 
+                    data-player-id$="[[playerId]]">
+                  clear
+                </i>
+                <!-- <paper-menu-button restore-focus-on-close="[[booleanFalse]]">
                   <paper-icon-button
                     class="dropdown-trigger" 
                     icon="icons:more-vert">
                   </paper-icon-button>
                   <paper-menu 
                     class="dropdown-content" 
-                    selected="{{selectedMenuItem}}">
+                    selected="{{selectedMenuItem}}"> -->
                     <!-- <paper-item 
                       on-tap="captureTap_" 
                       data-action="ping" 
                       data-player-id$="[[item.id]]">
                       ping
                     </paper-item> -->
-                    <template is="dom-if" if="[[canRemoveOthers]]">
+                  <!--  <template is="dom-if" if="[[canRemoveOthers]]">
                       <paper-item 
                         id$="kick-[[getPlayerName_(playerId)]]"
                         on-tap="captureTap_" 
@@ -221,7 +239,7 @@
                       </paper-item>
                     </template>
                   </paper-menu>
-                </paper-menu-button>
+                </paper-menu-button> -->
               </template>
             </div>
           </div>
