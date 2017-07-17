@@ -139,6 +139,8 @@
   <template>
     <ghvz-dashboard>
 
+      <ghvz-help-page name="help-box" right></ghvz-help-page>
+
       <template is="dom-if" if="[[canJoinGame]]">
         <ghvz-card spaced full padded name="join-box">
           <div class="header">Join Game!</div>
@@ -168,16 +170,6 @@
             </ghvz-infect>
           </ghvz-card>
         </template>
-
-        <ghvz-card spaced right padded name="rules-box">
-          <div class="header" name="Rules">Rules</div>
-          <ghvz-rules game="[[game]]"></ghvz-rules>
-        </ghvz-card>
-
-        <ghvz-card spaced right padded name="faq-box">
-          <div class="header">FAQ</div>
-          <ghvz-game-faq game="[[game]]" is-mobile="[[isMobile]]"></ghvz-game-faq>
-        </ghvz-card>
 
         <ghvz-card spaced left padded name="summary-box">
             <div class="header">Game Summary</div>
