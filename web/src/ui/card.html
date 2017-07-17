@@ -43,14 +43,34 @@
       listeners: {
         'ghvz-add-toolbar-button': 'addToolbarButton_',
         'ghvz-set-card-header-text': 'setCardHeaderText_',
+        'ghvz-set-card-header': 'setCardHeader_',
       },
 
       addToolbarButton_: function(event) {
         this.$.buttons.appendChild(event.detail.button);
+        event.stopPropagation();
+      },
+
+      deleteHeaders_() {
+        while (this.$.headerElement.firstElementChild) {
+          this.$.headerElement.removeChild(this.$.headerElement.firstElementChild);
+        }
+        this.$.headerText.innerText = "";
+        while (this.$.headerContent.firstElementChild) {
+          this.$.headerContent.removeChild(this.$.headerContent.firstElementChild);
+        }
       },
 
       setCardHeaderText_: function(event) {
-        this.$.header.innerText = event.detail.headerText;
+        this.deleteHeaders_();
+        this.$.headerText.innerText = event.detail.headerText;
+        event.stopPropagation();
+      },
+
+      setCardHeader_: function(event) {
+        this.deleteHeaders_();
+        this.$.headerElement.appendChild(event.detail.headerElement);
+        event.stopPropagation();
       },
 
       openFullscreen_() {
@@ -161,7 +181,11 @@
         <paper-icon-button name="drawerButton" class="menu" icon="icons:menu" raised on-tap="openDrawer_">
         </paper-icon-button>
       </template>
-      <div id="header" class="text" pad-left$="[[!withBack]]"><content select=".header"></div>
+      <div id="header" class="text" pad-left$="[[!withBack]]">
+        <div id="headerText"></div>
+        <div id="headerContent"><content select=".header"></div>
+        <div id="headerElement"></div>
+      </div>
       <!-- <paper-icon-button class="button" icon="icons:chevron-left"></paper-icon-button>
       <paper-icon-button class="button" icon="icons:chevron-right"></paper-icon-button> -->
       <!-- <paper-icon-button class="header-button" icon="icons:refresh">

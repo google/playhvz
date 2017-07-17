@@ -1252,27 +1252,6 @@ def RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_g
     for public_player_id in group['players'].keys():
       RemoveMissionMembership(game_state, public_player_id, mission_id)
 
-# def UpdateChatRoomMembership(request, game_state):
-#   helpers.ValidateInputs(request, game_state, {
-#     'gameId': 'GameId',
-#     'chatRoomId': 'ChatRoomId',
-#     'actingPlayerId': 'PublicPlayerId',
-#     'lastSeenTime': '|?Timestamp',
-#     'lastHiddenTime': '|?Timestamp',
-#   })
-
-#   acting_public_player_id = request['actingPlayerId']
-#   acting_private_player_id = helpers.GetPrivatePlayerId(game_state, acting_public_player_id)
-#   chat_room_id = request['chatRoomId']
-
-#   patch_data = {}
-#   if 'lastSeenTime' in request:
-#     patch_data['lastSeenTime'] = request['lastSeenTime']
-#   if 'lastHiddenTime' in request:
-#     patch_data['lastHiddenTime'] = request['lastHiddenTime']
-
-#   game_state.patch('/privatePlayers/%s/chatRoomMemberships/%s' % (acting_private_player_id, chat_room_id), patch_data)
-
 
 def RemovePlayerFromGroup(request, game_state):
   """Remove a player from a group.
@@ -1427,6 +1406,7 @@ def GetLivesAndInfections(game_state, public_player_id):
     for infection_id, infection in public_player['infections'].iteritems():
       infections.append({
         'id': infection_id,
+        'infectorId': infection['infectorId'] if 'infectorId' in infection else None,
         'time': infection['time']
       })
   infections.sort(key = lambda infection : infection['time'])
@@ -1473,6 +1453,8 @@ def Infect(request, game_state):
   infector_public_player_id = request['infectorPlayerId']
   infection_id = request['infectionId']
 
+  existing_infection = None
+
   victim_life_code = request['victimLifeCode']
   if victim_life_code is not None:
     victim_life_code = victim_life_code.strip().replace(" ", "-").lower()
@@ -1482,8 +1464,13 @@ def Infect(request, game_state):
 
     lives, infections = GetLivesAndInfections(game_state, victim_public_player_id)
     for i in range(0, len(lives)):
-      if lives[i]['id'] == victim_public_life_id:
-        if i < len(infections):
+      life = lives[i]
+      if i < len(infections):
+        infection = infections[i]
+        if infection['infectorId'] is None:
+          existing_infection = infection
+          break
+        if life['id'] == victim_public_life_id:
           raise InvalidInputError('This lifecode was already zombified!')
 
   elif 'victimPlayerId' in request:
@@ -1518,7 +1505,7 @@ def Infect(request, game_state):
   if victim_public_player_id == infector_public_player_id:
     if victim_public_player['allegiance'] != constants.HUMAN:
       raise InvalidInputError('You can only self-infect if you are a human.')
-    AddInfection(game_state, time, infection_id, victim_public_player_id, infector_public_player_id)
+    AddInfection(game_state, time, infection_id, victim_public_player_id, None)
     return "self-infection"
 
   if not infector_private_player['canInfect']:
@@ -1538,8 +1525,12 @@ def Infect(request, game_state):
     SetPlayerAllegiance(game_state, victim_public_player_id, allegiance=constants.HUMAN, can_infect=True)
   else:
     logging.warn('Normal infection')
-    AddInfection(game_state, time, infection_id, victim_public_player_id, infector_public_player_id)
-    SetPlayerAllegiance(game_state, victim_public_player_id, allegiance=constants.ZOMBIE, can_infect=True)
+    if existing_infection is None:
+      AddInfection(game_state, time, infection_id, victim_public_player_id, infector_public_player_id)
+    else:
+      game_state.patch(
+          '/publicPlayers/%s/infections/%s' % (victim_public_player_id, existing_infection['id']),
+          {'infectorId': infector_public_player_id})
 
   # DO NOT BLINDLY COPY THIS
   # Returning game data from the server (other than an error message or a success boolean)
