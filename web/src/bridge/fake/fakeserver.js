@@ -234,7 +234,7 @@ class FakeServer {
     this.writer.insert(
         this.reader.getPlayerChatRoomMembershipPath(playerId, null),
         null,
-        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId, isVisible: true}));
+        new Model.PlayerChatRoomMembership(chatRoomId, {chatRoomId: chatRoomId, isVisible: true, lastSeenTime: 0}));
   }
 
   addPlayerToMission_(missionId, playerId) {

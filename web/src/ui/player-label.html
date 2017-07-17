@@ -67,6 +67,6 @@
       items="[[game.players]]"
       selected="{{player}}">
   </array-selector>
-  <a href="#" on-tap="goToProfile_">[[player.name]]</a>
+  <a href="#" on-tap="goToProfile_" name$="player-label-[[player.name]]">[[player.name]]</a>
 </template>
 </dom-module>

@@ -38,6 +38,8 @@ def generateTest(url, password, files, useRemote, useMobile):
 		args += " -m"
 
 	testFiles = [
+		"acks",
+		"ackRequests"
 		"adminchat",
 		"adminguns",
 		"adminplayers",
@@ -58,7 +60,6 @@ def generateTest(url, password, files, useRemote, useMobile):
 		"notifications1",
 		"othersleavingresistance",
 		"possession",
-		"requests",
 		"rewardcategories",
 		"selfinfect",
 		"signout",

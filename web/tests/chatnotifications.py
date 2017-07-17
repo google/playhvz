@@ -83,7 +83,7 @@ SendMessage(
   'ZellaTheUltimate')
 
 # Zella sends empty @ message in private chat with Jack
-driver.Click([[By.NAME, 'drawerNew chat']])
+driver.DrawerMenuClick('chat-card', 'New chat')
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], "Legendary Humans")
 driver.Click([[By.ID, 'settingsForm'], [By.ID, 'done']])
 driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, "chat-room-Legendary Humans"]])
@@ -147,12 +147,11 @@ driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Legendary Humans"]])
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-leave']])
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-room-Legendary Humans"], [By.ID, 'leaveForm'], [By.ID, 'done']])
 
-# Jack clicks on the other notification to the private chat - should take him to the global chat instead
-driver.DrawerMenuClick('chat-card', 'Notifications')
-driver.DrawerMenuClick('chat-card', 'Notifications')
+# Jack clicks on the other notification to the private chat - should not take him there (since he's not in the group)
 driver.DrawerMenuClick('chat-card', 'Notifications')
 driver.Click([[By.NAME, 'notifications-card'], [By.NAME, "preview-ZellaTheUltimate: Pronounced as one letter, And written with three, Two letters there are, And two only in me. I'm double, I'm single, I'm black, blue, and gray, I'm read from both ends, And the same either way. What am I? src=http://www.doriddles.com/riddle-664#show"]])
-driver.FindElement([[By.NAME, 'chat-room-Global Chat']])
+driver.FindElement([[By.NAME, 'chat-room-Legendary-Humans']], should_exist=False)
+driver.DrawerMenuClick('chat-card', 'Global Chat')
 
 # Jack sends a message back to Zella, using weird capitalization
 SendMessage(
