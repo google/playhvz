@@ -128,7 +128,7 @@ driver.DontFindElement([
   [By.NAME, 'chat-card'], 
   [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
 
-
+# Admin messages chat after player left
 actingPlayer = 'moldavi'
 driver.SwitchUser(actingPlayer)
 
@@ -142,13 +142,11 @@ driver.SendKeys([[By.XPATH, xpathTextarea]],
   'Mere player, did you just leave the chat room!?')
 driver.Click([[By.XPATH, xpathSend]])
 
+# Make sure admin chat is visible again since there was a new message
 actingPlayer = 'zeke'
 driver.SwitchUser(actingPlayer)
 
-# broken currently, see task V01
-# driver.DrawerMenuClick(chatName)
-# driver.FindElement([
-#   [By.NAME, 'chat-card'], 
-#   [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
+driver.DrawerMenuClick(chatName)
+driver.FindDrawerItem('Zeke & HvZ CDC')
 
 driver.Quit()

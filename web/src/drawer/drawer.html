@@ -107,7 +107,7 @@
             let chatRoom = this.game.chatRoomsById[chatRoomId];
             if (chatRoom.withAdmins) {
               this.adminChatRoomId = chatRoomId;
-              if (!ChatUtils.chatIsHidden(chatRoom, chatRoomMembership)) {
+              if (ChatUtils.chatIsVisible(chatRoom, chatRoomMembership)) {
                 this.adminChatExists = true;
                 return;
               }
