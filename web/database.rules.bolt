@@ -125,7 +125,7 @@ isServer() {
 }
 
 writeLocked() {
-  root.writeLocked !== true
+  root.writeLocked
 }
 
 isAuthenticatedMember(groupId, gameId) {

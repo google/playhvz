@@ -187,6 +187,7 @@ class RemoteBridge {
   }
 
   updateChatRoomMembership(args) {
+    console.log('Updating chat room membership!', args);
     let {chatRoomId, actingPlayerId, lastHiddenTime, lastSeenTime} = args;
     let actingPrivatePlayerId = this.game.playersById[actingPlayerId].privatePlayerId;
     assert(chatRoomId, actingPlayerId);
