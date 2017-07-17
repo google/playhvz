@@ -109,7 +109,7 @@ driver.DrawerMenuClick(newChatName)
 toggleChatDrawer(driver, actingPlayerName, newChatName)
 
 # Kick player from chat
-driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'trigger']])
+#driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'trigger']])
 driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.ID, 'kick-' + playerNames['drake']]])
 driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.ID, 'kickForm'], [By.ID, 'done']])
 
