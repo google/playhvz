@@ -116,9 +116,12 @@ ChatUtils.createAdminChat = function(bridge, game, player, chatRoomName) {
 };
 
 /**
-* Given a chat room and the lastHiddenTime from the membership of that chat room, return true
+* Given a chat room and the players membership status, see if that chat room is visible
 */ 
 ChatUtils.chatIsHidden = function(chatRoom, membership) {
+  if (!membership) {
+    return true;
+  }
   let lastHiddenTime = membership.lastHiddenTime;
   if (!lastHiddenTime)
     return false;

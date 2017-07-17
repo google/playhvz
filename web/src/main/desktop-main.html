@@ -226,18 +226,20 @@
         </template>
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
-          <template is="dom-if" if="[[chatIsVisible_(membership, membership.lastHiddenTime)]]">
-            <ghvz-card spaced left>
-              <ghvz-chat-room
-                  small
-                  bridge="[[bridge]]"
-                  game="[[game]]"
-                  is-admin="[[isAdmin]]"
-                  current-player="[[player]]"
-                  chat-room-id="[[membership.chatRoomId]]">
-              </ghvz-chat-room>
-            </ghvz-card>
-          </template>
+          <div spaced left>
+            <template is="dom-if" if="[[chatIsVisible_(membership, membership.lastHiddenTime)]]">
+              <ghvz-card spaced left>
+                <ghvz-chat-room
+                    small
+                    bridge="[[bridge]]"
+                    game="[[game]]"
+                    is-admin="[[isAdmin]]"
+                    current-player="[[player]]"
+                    chat-room-id="[[membership.chatRoomId]]">
+                </ghvz-chat-room>
+              </ghvz-card>
+            </template>
+          </div>
         </template>
       </template>
 
