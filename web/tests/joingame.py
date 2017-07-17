@@ -68,7 +68,7 @@ driver.Click([[By.TAG_NAME, 'ghvz-game-registration'], [By.NAME, 'submitJoinGame
 #TODO(aliengirl): Figure out why it's failing here on mobile and stop that!
 driver.FindElement([[By.TAG_NAME, 'ghvz-rules']])
 
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
+driver.FindDrawerItem('Global Chat')
 
 driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(

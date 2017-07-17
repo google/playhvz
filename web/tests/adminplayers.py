@@ -163,7 +163,7 @@ driver.DrawerMenuClick('Admin Players')
 # Make sure the infections/revivals are reflected on the players' pages
 driver.DrawerMenuClick('Dashboard')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
+driver.FindDrawerItem('Resistance Comms Hub')
 
 # Check that Zeke is a human (sees human chat and no infect widget)
 driver.SwitchUser('zeke')

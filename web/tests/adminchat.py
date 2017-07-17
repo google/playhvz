@@ -59,15 +59,11 @@ chatName = actingPlayerName + ' & HvZ CDC'
 driver.SwitchUser(actingPlayer)
 
 # Create chat with admin
-driver.FindElement([[By.NAME, 'create-admin-chat-button']])
+driver.FindDrawerItem('Chat with Admins')
 driver.RetryUntil(
-  lambda: driver.Click([[By.NAME, 'create-admin-chat-button']]),
+  lambda: driver.DrawerMenuClick('Chat with Admins'),
   lambda: driver.FindElement([[By.NAME, "chat-room-%s" % chatName]])
 )
-
-# TODO(aliengirl): make this line work consistently on mobile
-# driver.FindElement([[By.NAME, "chat-room-%s" % chatName]]) 
-# driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
 # Type a message into the chat
 xpathTextarea = getPathToElement(actingPlayerName, 'textarea', 'input-' + chatName)
@@ -107,10 +103,10 @@ driver.Click([[By.XPATH, xpathLeaveButton]])
 
   # TODO: make leave button work the same way on mobile as it does on web
   # Chat should be hidden, verify chat with admin button is available after leaving admin chat
-driver.FindElement([[By.NAME, 'create-admin-chat-button']])
+driver.FindDrawerItem('Chat with Admins')
 
 # Reopen admin chat
-driver.Click([[By.NAME, 'create-admin-chat-button']]) 
+driver.DrawerMenuClick('Chat with Admins')
 
 # Verify original message is still in chat room
 driver.ExpectContains([

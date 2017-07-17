@@ -79,7 +79,7 @@ def testChat(player, chatName, shouldBeMember):
     driver.DrawerMenuClick('Dashboard')
 
   else:
-    driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % chatName]], should_exist=False)
+    driver.FindDrawerItem(chatName, should_exist=False)
     driver.DrawerMenuClick('Dashboard')
 
 

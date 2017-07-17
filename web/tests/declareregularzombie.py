@@ -151,9 +151,9 @@ if not driver.is_mobile:
 
 
 
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Zeds Internal Secret Police']])
+driver.FindDrawerItem('Global Chat')
+driver.FindDrawerItem('Horde ZedLink')
+driver.FindDrawerItem('Zeds Internal Secret Police')
 
 driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(

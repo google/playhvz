@@ -115,7 +115,7 @@
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminMain, mostRecentPage)]]">
     <ghvz-admin-page
-        class="expand [[computePageClass_(showPage.adminMain, mostRecentPage)]]"
+        class$="expand [[computePageClass_(showPage.adminMain, mostRecentPage)]]"
         bridge="[[bridge]]"
         database="[[database]]"
         game="[[game]]"
@@ -129,7 +129,7 @@
   <template is="dom-if" if="[[!isMobile]]">
     <template is="dom-if" if="[[computeShowPage_(showPage.main, mostRecentPage)]]">
       <ghvz-main-page
-          class="expand [[computePageClass_(showPage.main, mostRecentPage)]]"
+          class$="expand [[computePageClass_(showPage.main, mostRecentPage)]]"
           name="main-page-card"
           bridge="[[bridge]]"
           database="[[database]]"
@@ -145,7 +145,7 @@
   <template is="dom-if" if="[[computeShowPage_(showPage.chat, mostRecentPage)]]">
     <ghvz-card
       id$="chat-page-[[player.name]]"
-      class="expand [[computePageClass_(showPage.chat, mostRecentPage)]]"
+      class$="expand [[computePageClass_(showPage.chat, mostRecentPage)]]"
       name="chat-card"
       spaced$="[[!isMobile]]"
       with-back="[[isMobile]]"
@@ -411,7 +411,7 @@
   <template is="dom-if" if="[[computeShowPage_(showPage.adminChats, mostRecentPage)]]">
     <ghvz-card
       id$="admin-chat-page-[[player.name]]"
-      class="expand [[computePageClass_(showPage.adminChats, mostRecentPage)]]"
+      class$="expand [[computePageClass_(showPage.adminChats, mostRecentPage)]]"
       name="chat-card"
       spaced$="[[!isMobile]]"
       with-back="[[isMobile]]"

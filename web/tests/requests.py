@@ -35,7 +35,7 @@ driver = setup.MakeDriver(user="zella")
 driver.Click([[By.NAME, 'close-notification']])
 
 # Create a new chat room
-driver.FindElement([[By.ID, 'new-chat']]) # TODO(aliengirl): once failed here -m
+driver.DrawerMenuClick('New chat') # TODO(aliengirl): once failed here -m
 driver.Click([[By.ID, 'new-chat']])
 driver.FindElement([[By.ID, 'chatName']])
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], "Expelliarmus")

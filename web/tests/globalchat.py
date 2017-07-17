@@ -63,13 +63,13 @@ driver.WaitForGameLoaded()
 driver.SwitchUser(actingPlayer)
 
 # Check zombie player is in global chat, 2 zombie chats, and no human-only chats
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Zeds Internal Secret Police']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']], should_exist=False)
+driver.FindDrawerItem('Global Chat')
+driver.FindDrawerItem('Horde ZedLink')
+driver.FindDrawerItem('Zeds Internal Secret Police')
+driver.FindDrawerItem('Resistance Comms Hub', should_exist=False)
 
 # Open Global Chat
-driver.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
+driver.DrawerMenuClick('Global Chat')
 
 # Open chat drawer
 openChatDrawer(driver, actingPlayerName, 'Global Chat')

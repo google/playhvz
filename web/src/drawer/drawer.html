@@ -57,9 +57,24 @@
         adminChatRoomId: String,
       },
 
+      listeners: {
+        'keydown': 'onKeyPress_',
+      },
+
       observers: [
         'onChatRoomsUpdated_(game, player.private.chatRoomMemberships.*)',
       ],
+
+      onKeyPress_(e) {
+        if (e.keyCode == 27) {
+          debugger;
+          this.fire('ghvz-close-drawer');
+        }
+      },
+
+      attached() {
+        this.setAttribute('tabindex', 0); // So we can receive key events
+      },
 
       computeCanRegister_(game, player) {
         return game && !player;

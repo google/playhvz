@@ -31,7 +31,7 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="jack")
 
 # Make sure Jack starts out human
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
+driver.FindDrawerItem('Resistance Comms Hub')
 
 # Drake infects Jack
 driver.SwitchUser("drake")
@@ -77,8 +77,8 @@ driver.ExpectContains([[By.NAME, 'profilePoints']], '208')
 # See that Jack is now a zombie
 driver.SwitchUser("jack")
 
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']], should_exist=False)
+driver.FindDrawerItem('Horde ZedLink')
+driver.FindDrawerItem('Resistance Comms Hub', should_exist=False)
 driver.DrawerMenuClick('Dashboard')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 

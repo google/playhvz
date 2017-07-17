@@ -156,8 +156,8 @@ if not driver.is_mobile:
 
 
 
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
+driver.FindDrawerItem('Global Chat')
+driver.FindDrawerItem('Resistance Comms Hub')
 driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],
