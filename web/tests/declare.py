@@ -147,7 +147,7 @@ driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
 # Make sure that deckerd is in the human chat and sees all the correct widgets
 
-driver.FindElement([[By.NAME, 'info-box']])
+driver.FindElement([[By.NAME, 'help-box']])
 driver.FindElement([[By.NAME, 'next-mission-box']])
 
 if not driver.is_mobile:
