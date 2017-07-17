@@ -33,7 +33,7 @@ from selenium.webdriver.common.by import By
 
 driver = setup.MakeDriver(user="zella")
 
-driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 # Go to Jack's profile, deactivate him
 driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']]) 
 driver.Click([[By.NAME, 'deactivate-button']])
@@ -41,7 +41,7 @@ driver.FindElement([[By.NAME, 'activate-button']])
 driver.ExpectContains([[By.NAME, 'active']], "No")
 
 # See that the players list shows Jack isn't active
-driver.DrawerMenuClick('profile-card', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 driver.FindElement([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'extra']], '!Active')
 # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
 nameDiv = driver.FindElement([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])

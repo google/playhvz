@@ -168,12 +168,12 @@ driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resist
 # Check that Zeke is a human (sees human chat and no infect widget)
 driver.SwitchUser('zeke')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
-drawer.FindDrawerItem('Resistance Comms Hub')
+driver.FindDrawerItem('Resistance Comms Hub')
 
 # Check that Jack is a zombie (sees human chat and no infect widget)
 driver.SwitchUser('jack')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=True)
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
+driver.FindDrawerItem('Horde ZedLink')
 
 driver.Quit()
 

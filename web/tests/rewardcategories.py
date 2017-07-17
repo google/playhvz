@@ -33,7 +33,7 @@ driver = setup.MakeDriver(user="zella")
 driver.Click([[By.NAME, 'close-notification']])
 
 # Check that Drake has 3 rewards on the leaderboard and 4 on his profile page
-driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 driver.FindElement([
     [By.NAME, 'leaderboard-card'], 
     [By.NAME, 'Leaderboard Name Cell Drackan'], 
@@ -59,7 +59,7 @@ driver.FindElement([[By.NAME, 'profile-card'], [By.NAME, 'reward-i know geno!']]
 
 
 # Go to the admin rewards section
-driver.DrawerMenuClick('profile-card', 'Admin Rewards')
+driver.DrawerMenuClick('Admin Rewards')
 driver.Click([[By.NAME, 'admin-rewards-card'], [By.ID, 'add']])
 
 # Make reward category.
@@ -113,11 +113,11 @@ driver.Click([[By.ID, 'codesDialog'],[By.NAME, 'done']])
 driver.SwitchUser('zeke')
 
 # Before claiming the reward, Zeke has 0 points
-driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell Zeke']], "0")
 
 # Zeke claims the reward
-driver.DrawerMenuClick('leaderboard-card', 'Rewards')
+driver.DrawerMenuClick('Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward1)
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
@@ -125,7 +125,7 @@ driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'done']])
 driver.FindElement([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']])
 
-driver.DrawerMenuClick('rewards-card', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 
 # After claiming the reward, Zeke has 3 points, and the badge shows up in the Leaderboard
 # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
@@ -138,7 +138,7 @@ pic = driver.FindElement([
 assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Zombie-156055.svg/2000px-Zombie-156055.svg.png"
 
 # Badge also shows up on his profile
-driver.DrawerMenuClick('leaderboard-card', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flosser Badge']], 'Good Flosser Badge')
 driver.ExpectContains(
   [[By.NAME, 'profile-card'], [By.NAME, 'reward-Good Flosser Badge']], 
@@ -149,7 +149,7 @@ assert pic.get_attribute('src') == "https://upload.wikimedia.org/wikipedia/commo
 
 
 # Zeke tries to claim another reward in the same category - it works!
-driver.DrawerMenuClick('profile-card', 'Rewards')
+driver.DrawerMenuClick('Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward2)
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.ExpectContains([[By.NAME, 'rewards-card']], "Congratulations, you've claimed the reward")
@@ -163,7 +163,7 @@ driver.ExpectContains([[By.NAME, 'rewards-card']], "Flosser")
 
 # Another player tries to claim the reward Zeke just claimed
 driver.SwitchUser('drake')
-driver.DrawerMenuClick('mobile-main-page', 'Rewards')
+driver.DrawerMenuClick('Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward1)
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.DismissAlert('This reward has already been claimed!')
@@ -177,7 +177,7 @@ driver.DismissAlert('No reward with that code exists!')
 # TODO(aliengirl): Once the site updates the claimer in real time, uncomment this
 # # Zella (admin) sees that the code has been claimed by Zeke
 # driver.SwitchUser('zella')
-# driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
+# driver.DrawerMenuClick('Admin Rewards')
 # driver.TableMenuClick([[By.NAME, 'row-Flosser']], 'Show Rewards')
 # driver.ExpectContains([[By.NAME, 'row-Flosser 0']], "Zeke")
 

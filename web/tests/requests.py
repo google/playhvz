@@ -87,7 +87,7 @@ driver.FindElement(
 driver.SwitchUser('jack')
 driver.Click([[By.TAG_NAME, 'ghvz-notification-preview'], [By.NAME, 'close-notification']]) # Close "first mission" notification
 driver.FindElement([[By.NAME, 'preview-ZellaTheUltimate: Why are we sorcerers? What does this have to do with zombies?']])
-driver.DrawerMenuClick('mobile-main-page', 'Expelliarmus')
+driver.DrawerMenuClick('Expelliarmus')
 driver.ExpectContains([[By.NAME, 'chat-card'], [By.CLASS_NAME, 'message-from-other']], 
 		'@!all Why are we sorcerers? What does this have to do with zombies?')
 driver.ExpectContains([[By.NAME, 'chat-card'], 
@@ -99,7 +99,7 @@ driver.Click([[By.NAME, 'chat-card'],
 	[By.NAME, 'received-ack-Why are we sorcerers? What does this have to do with zombies?'],
 	[By.TAG_NAME, 'a']])
 driver.ExpectContains([[By.NAME, 'player-name']], 'ZellaTheUltimate')
-driver.DrawerMenuClick('profile-card', 'Expelliarmus')
+driver.DrawerMenuClick('Expelliarmus')
 
 # Acks the message
 driver.Click([[By.NAME, 'chat-card'], 
@@ -122,7 +122,7 @@ driver.ExpectContains([
 
 # Drake clicks the ack button too
 driver.SwitchUser('drake')
-driver.DrawerMenuClick('mobile-main-page', 'Expelliarmus')
+driver.DrawerMenuClick('Expelliarmus')
 driver.Click([[By.NAME, 'chat-card'], 
 	[By.NAME, 'received-ack-Why are we sorcerers? What does this have to do with zombies?'],
 	[By.NAME, 'ack-button']])
@@ -155,7 +155,7 @@ driver.FindElement([[By.NAME, 'chat-card'],
 
 ################### Jack's turn to send a message (just to one person this time) ###################
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('mobile-main-page', 'Expelliarmus')
+driver.DrawerMenuClick('Expelliarmus')
 driver.SendKeys([
   [By.NAME, 'chat-card'], 
   [By.NAME, 'input-Expelliarmus'], 
@@ -180,7 +180,7 @@ driver.ExpectContains([
 # Zella sees the ack
 driver.SwitchUser('zella')
 driver.FindElement([[By.NAME, 'preview-JackSlayerTheBeanSlasher: We should totally do wizard duels with zombies!']])
-driver.DrawerMenuClick('mobile-main-page', 'Expelliarmus')
+driver.DrawerMenuClick('Expelliarmus')
 driver.ExpectContains([[By.NAME, 'chat-card'], [By.CLASS_NAME, 'message-from-other']], 
 		'@!ZellaTheUltimate We should totally do wizard duels with zombies!')
 driver.ExpectContains([[By.NAME, 'chat-card'], 
@@ -197,7 +197,7 @@ driver.FindElement([[By.NAME, 'chat-card'],
 
 # Jack sees the response
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('mobile-main-page', 'Expelliarmus')
+driver.DrawerMenuClick('Expelliarmus')
 driver.ExpectContains([[By.NAME, 'chat-card'], 
 	[By.NAME, 'request-message-We should totally do wizard duels with zombies!']], 
 	"1/1")

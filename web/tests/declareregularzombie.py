@@ -155,7 +155,7 @@ driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde 
 driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
 driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Zeds Internal Secret Police']])
 
-driver.DrawerMenuClick('chat-card', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],
      [By.NAME, 'Leaderboard Allegiance Cell DeckerdTheHesitant']],
@@ -168,10 +168,10 @@ driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],
      [By.NAME, 'Leaderboard Name Cell DeckerdTheHesitant']],
     'DeckerdTheHesitant')
-driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 
 driver.SwitchUser('zella')
-driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Horde")
 
 

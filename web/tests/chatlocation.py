@@ -32,7 +32,7 @@ driver = setup.MakeDriver(user="moldavi")
 
 if driver.is_mobile:
   # Moldavi shares his location
-  driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
+  driver.DrawerMenuClick('Global Chat')
   driver.Click([[By.TAG_NAME, 'ghvz-chat-location'], [By.TAG_NAME, 'paper-icon-button']])
   driver.RetryUntil(
     lambda : True,
@@ -45,7 +45,7 @@ if driver.is_mobile:
 
   # Jack can see it
   driver.SwitchUser('jack')
-  driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
+  driver.DrawerMenuClick('Global Chat')
   # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
   location = driver.FindElement([[By.NAME, 'message-Global Chat-'], [By.ID, 'mapContainer']])
   location = location.get_attribute('src')

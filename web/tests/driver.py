@@ -411,17 +411,17 @@ class WholeDriver:
           time.sleep(0.5)
           print("A retry action failed %d times" % (i + 1))
 
-  def FindDrawerItem(self, currPage, name):
+  def FindDrawerItem(self, name):
     if self.is_mobile:
       self.RetryUntil(
-        lambda: self.Click([[By.CLASS_NAME, 'top-view'], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
+        lambda: self.Click([[By.CLASS_NAME, 'visible-page'], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % name]]))
     self.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % name]])
 
   def DrawerMenuClick(self, destinationPage):
     if self.is_mobile:
       self.RetryUntil(
-        lambda: self.Click([[By.CLASS_NAME, 'top-view'], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
+        lambda: self.Click([[By.CLASS_NAME, 'visible-page'], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
     self.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % destinationPage]])
 

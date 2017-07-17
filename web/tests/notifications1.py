@@ -33,7 +33,7 @@ driver = setup.MakeDriver(user="zella")
 driver.Click([[By.NAME, 'close-notification']])
 
 # Check that an admin can send a notification blast to everyone
-driver.DrawerMenuClick('mobile-main-page', 'Admin Notifications')
+driver.DrawerMenuClick('Admin Notifications')
 driver.Click([[By.NAME, 'admin-notifications-card'], [By.ID, 'add']])
 driver.Click([[By.ID, 'form-section-recievers-group'], [By.ID, 'name']])
 driver.Click([[By.NAME, 'group-name-Everyone']])

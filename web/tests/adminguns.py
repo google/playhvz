@@ -40,7 +40,7 @@ driver = setup.MakeDriver(user="zella")
 driver.Click([[By.NAME, 'close-notification']])
 
 # Admin adds gun
-driver.DrawerMenuClick('mobile-main-page', 'Admin Guns')
+driver.DrawerMenuClick('Admin Guns')
 
 driver.Click([[By.ID, 'add']])
 driver.SendKeys(

@@ -52,7 +52,7 @@ driver.Click([[By.ID, 'gameForm'], [By.ID, 'done']])
 driver.WaitForGameLoaded()
 
 # Log in as an Admin
-driver.DrawerMenuClick('mobile-main-page', 'Admin Game Details')
+driver.DrawerMenuClick('Admin Game Details')
 
 driver.ExpectContains(
     [[By.TAG_NAME, 'ghvz-game-details'], [By.ID, 'number']],

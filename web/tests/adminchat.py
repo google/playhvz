@@ -81,7 +81,7 @@ driver.Click([[By.NAME, 'submit-%s' % chatName], [By.XPATH, xpathSend]])
 def CheckAdminSeesMessage(admin, chatName):
   driver.SwitchUser(admin)
   closeNotifications(driver)
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Chats')
+  driver.DrawerMenuClick('Admin Chats')
   driver.Click([[By.TAG_NAME, 'ghvz-admin-chat-page'], [By.NAME, 'drawer' + chatName]])  
   driver.ExpectContains([
       [By.TAG_NAME, 'ghvz-admin-chat-page'],
@@ -94,7 +94,7 @@ CheckAdminSeesMessage('moldavi', chatName)
 
 # Non-Admin should leave admin chat
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', chatName)
+driver.DrawerMenuClick(chatName)
 
 driver.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer' + chatName]])
 driver.Click([[By.TAG_NAME, 'ghvz-display-page'], [By.NAME, 'chat-card'], [By.NAME, 'chat-info-' + chatName]])
@@ -136,7 +136,7 @@ driver.DontFindElement([
 actingPlayer = 'moldavi'
 driver.SwitchUser(actingPlayer)
 
-driver.DrawerMenuClick('mobile-main-page', chatName)
+driver.DrawerMenuClick(chatName)
 
 actingPlayerName = playerNames[actingPlayer]
 xpathTextarea = getPathToElement(actingPlayerName, 'textarea', 'input-' + chatName)
@@ -150,7 +150,7 @@ actingPlayer = 'zeke'
 driver.SwitchUser(actingPlayer)
 
 # broken currently, see task V01
-# driver.DrawerMenuClick('mobile-main-page', chatName)
+# driver.DrawerMenuClick(chatName)
 # driver.FindElement([
 #   [By.NAME, 'chat-card'], 
 #   [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
