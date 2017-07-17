@@ -174,7 +174,7 @@
               });
         },
 
-        editMission_: function(mission) {
+        editMission_: function([mission]) {
           this.$.missionForm.openForEditing(mission)
               .then((properties) => {
                 this.bridge.updateMission({
@@ -189,11 +189,13 @@
               });
         },
 
-        deleteMission_(mission) {
-          this.bridge.deleteMission({
-            gameId: this.game.id,
-            missionId: mission.id,
-          });
+        deleteMission_(missions) {
+          for (let mission of missions) {
+            this.bridge.deleteMission({
+              gameId: this.game.id,
+              missionId: mission.id,
+            });
+          }
         },
 
         formatTime_: function(time) {

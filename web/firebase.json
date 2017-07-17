@@ -15,5 +15,8 @@
         "value" : "max-age=3600"
       }]
     }]
+  },
+  "database": {
+    "rules": "database.rules.json"
   }
 }

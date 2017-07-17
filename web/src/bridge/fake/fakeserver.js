@@ -732,14 +732,15 @@ class FakeServer {
   }
   infect(request) {
     let {infectionId, infectorPlayerId, victimLifeCode, victimPlayerId} = request;
+
+    if (victimLifeCode)
+      victimLifeCode = victimLifeCode.trim().replace(/\s+/g, "-").toLowerCase();
+
     let victimPlayer = this.findPlayerByIdOrLifeCode_(victimPlayerId, victimLifeCode);
     victimPlayerId = victimPlayer.id;
 
     if (victimPlayer.allegiance == 'undeclared')
       throw 'Cannot infect someone that is undeclared!';
-
-    if (victimLifeCode)
-      victimLifeCode = victimLifeCode.trim().replace(/\s+/g, "-").toLowerCase();
 
     // Admin infection
     if (infectorPlayerId == null) {
@@ -768,7 +769,7 @@ class FakeServer {
       selfInfectedValidCode = true;
     }
 
-    if  (normalValidCode || selfInfectedValidCode) {
+    if (normalValidCode || selfInfectedValidCode) {
       // Give the infector points
       this.writer.set(
         infectorPlayerPath.concat(["points"]),
@@ -781,7 +782,7 @@ class FakeServer {
         // Oddity: if the possessed human has some extra lives, they just become regular human. weird!
         // The victim can now infect
         this.writer.set(victimPrivatePlayerPath.concat(["canInfect"]), true);
-    } else { // Normal zombie infection
+      } else { // Normal zombie infection
         if (selfInfectedValidCode) {
           this.updateNullInfector_(victimPlayer.id, infectorPlayerId)
         } else {
@@ -790,7 +791,7 @@ class FakeServer {
         }
       }
     } else {
-     throw 'The player with this lifecode was already zombified.';
+     throw 'This lifecode was already zombified!';
     }
     return victimPlayer.id;
   }

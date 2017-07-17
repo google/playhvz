@@ -93,7 +93,7 @@
               });
         },
 
-        editGun_: function(gun) {
+        editGun_: function([gun]) {
           this.$.gunForm.openForEditing(gun)
               .then((properties) => {
                 this.bridge.updateGun({

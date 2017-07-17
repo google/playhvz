@@ -107,7 +107,7 @@ driver.Backspace([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.TAG_
 # Infect Jack and check that he is now infecting
 driver.DrawerMenuClick('players-card', 'Admin Players')
 driver.TableMenuClick([[By.NAME, 'player-row-JackSlayerTheBeanSlasher']], 'Infect')
-driver.DismissAlert("Successfully infected JackSlayerTheBeanSlasher")
+driver.DismissAlert("Successfully infected these players: JackSlayerTheBeanSlasher")
 driver.ExpectContains([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'allegiance']], "Horde")
 driver.Click([[By.NAME, 'player-row-JackSlayerTheBeanSlasher'], [By.ID, 'name']])
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
@@ -117,7 +117,7 @@ driver.DrawerMenuClick('profile-card', 'Admin Players')
 
 # Revive Zeke and check that he's not infecting
 driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
-driver.DismissAlert("Successfully added a life to Zeke")
+driver.DismissAlert("Successfully added one life each to these players: Zeke")
 driver.ExpectContains([[By.NAME, 'player-row-Zeke'], [By.ID, 'allegiance']], "Resistance")
 driver.Click([[By.NAME, 'player-row-Zeke'], [By.ID, 'name']])
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')
@@ -127,12 +127,12 @@ driver.DrawerMenuClick('profile-card', 'Admin Players')
 
 # Add Life to Zella (already a human, but that's fine, she just has an extra life)
 driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Add Life')
-driver.DismissAlert("Successfully added a life to ZellaTheUltimate")
+driver.DismissAlert("Successfully added one life each to these players: ZellaTheUltimate")
 driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 
 # Infect Zella and check that she still stays human and non-infecting
 driver.TableMenuClick([[By.NAME, 'player-row-ZellaTheUltimate']], 'Infect')
-driver.DismissAlert("Successfully infected ZellaTheUltimate")
+driver.DismissAlert("Successfully infected these players: ZellaTheUltimate")
 driver.ExpectContains([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'allegiance']], "Resistance")
 driver.Click([[By.NAME, 'player-row-ZellaTheUltimate'], [By.ID, 'name']])
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')
