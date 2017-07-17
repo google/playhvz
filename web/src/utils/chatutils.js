@@ -114,3 +114,23 @@ ChatUtils.createAdminChat = function(bridge, game, player, chatRoomName) {
   });
   return chatRoomId;
 };
+
+ChatUtils.chatIsHidden = function(chatRoom, membership) {
+  let lastHiddenTime = membership.lastHiddenTime;
+  if (!lastHiddenTime)
+    return false;
+  // If we get here, then it was at some point in the past hidden
+  if (!chatRoom.messages.length) {
+    // It was hidden at some point in the past, but there are no messages. Weird. Hide it.
+    return true;
+  }
+  let lastMessage = chatRoom.messages.slice(-1)[0];
+  if (lastHiddenTime > lastMessage.time) {
+    // If we get here, we hid it after the last message, so we shouldnt show it
+    return true;
+  } else {
+    // If we get here, we hid it before the last message, so we should show it
+    return false;
+  }
+}
+

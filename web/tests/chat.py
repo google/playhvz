@@ -45,8 +45,7 @@ def testChat(player, chatName, shouldBeMember):
   driver.SwitchUser(player)
   
   if shouldBeMember:
-    driver.DrawerMenuClick('mobile-main-page', 'Chat')
-    driver.Click([[By.NAME, 'chat-card'], [By.NAME, chatName]]) # aaah, crashed here too on mobile
+    driver.DrawerMenuClick('mobile-main-page', chatName)
 
     # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
     # This is probably because clicking the X on the notification didn't make it go away.
@@ -80,8 +79,7 @@ def testChat(player, chatName, shouldBeMember):
     driver.DrawerMenuClick('chat-card', 'Dashboard')
 
   else:
-    driver.DrawerMenuClick('mobile-main-page', 'Chat')
-    driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], chatName, should_exist=False)
+    driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % chatName]], should_exist=False)
     driver.DrawerMenuClick('chat-card', 'Dashboard')
 
 

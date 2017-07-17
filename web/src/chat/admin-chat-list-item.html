@@ -14,63 +14,35 @@
   limitations under the License.
 -->
 
-<dom-module id="ghvz-drawer-chat-item">
+<dom-module id="ghvz-admin-chat-list-item">
 <script>
   // Not sure why this HTMLImports.whenReady is really needed.
   // Something about polymer initialization order.
   // I think we're not supposed to need this.
   HTMLImports.whenReady(() => {
     Polymer({
-      is: 'ghvz-drawer-chat-item',
+      is: 'ghvz-admin-chat-list-item',
 
       properties: {
         game: Object,
-        chatRoomMembership: Object,
-        openInAdminChats: {
-          type: Boolean,
-          value: false,
-        },
-        ignoreHidden: {
-          type: Boolean,
-          value: false,
-        },
+        player: Object,
+        chatRoom: Object,
 
-        hasUnseenMessages: Boolean,
-
-        chatRoom: Object, // Set by array-selector
-
-        show: {
-          type: Boolean,
-          computed: 'computeShow_(chatRoom.messages.length, chatRoomMembership.lastHiddenTime)',
-        }
+        membership: Object,
       },
 
       observers: [
-        'onChatRoomMembershipUpdated_(game, chatRoomMembership.chatRoomId)',
-        'onChatRoomUpdated_(game, chatRoom.messages.*, chatRoomMembership.lastSeenTime)',
+        'onChatRoomUpdated_(game, player, chatRoom)',
       ],
 
-      onChatRoomMembershipUpdated_() {
-        assert(this.game.chatRoomsById[this.chatRoomMembership.chatRoomId]);
-        this.$.chatRoomSelector.select(this.game.chatRoomsById[this.chatRoomMembership.chatRoomId]);
+      onChatRoomUpdated_(game, player, chatRoom) {
+        let membership = this.player.private.chatRoomMembershipsById[this.chatRoom.id] || null;
+        this.$.membershipSelector.select(membership);
       },
 
-      onChatRoomUpdated_() {
-        if (this.chatRoom.messages.length == 0) {
-          this.hasUnseenMessages = false;
-          return;
-        }
-        let lastMessage = this.chatRoom.messages[this.chatRoom.messages.length - 1];
-        this.hasUnseenMessages = lastMessage.time > this.chatRoomMembership.lastSeenTime;
-      },    
-
-      computeShow_() {
-        return this.ignoreHidden || !ChatUtils.chatIsHidden(this.chatRoom, this.chatRoomMembership);
-      },
-
-      computePath_(openInAdminChats, chatRoomId) {
-        return [openInAdminChats ? "adminChats" : "chat", chatRoomId];
-      },
+      computePath_(chatRoomId) {
+        return ["adminChats", chatRoomId];
+      }, 
     });
   });
 </script>
@@ -119,17 +91,24 @@
   }
 </style>
 <template>
-  <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
-  <div hidden$="[[!show]]">
-    <template is="dom-if" if="[[hasUnseenMessages]]">
-      <div id="unseenIcon"></div>
-    </template>
-    <ghvz-drawer-item 
+  <array-selector id="membershipSelector" items="[[player.private.chatRoomMemberships]]" selected="{{membership}}"></array-selector>
+
+  <template is="dom-if" if="[[membership]]">
+    <ghvz-drawer-chat-item 
+        game="[[game]]"
+        open-in-admin-chats
+        chat-room-membership="[[membership]]"
+        ignore-hidden>
+    </ghvz-drawer-chat-item>
+  </template>
+  <template is="dom-if" if="[[!membership]]">
+    <ghvz-drawer-item
         text="[[chatRoom.name]]" 
-        path="[[computePath_(openInAdminChats, chatRoom.id)]]"
+        path="[[computePath_(chatRoom.id)]]"
         chat-room-id="[[chatRoomMembership.chatRoomId]]" 
         icon="communication:chat">
     </ghvz-drawer-item>
-  </div>
+  </template>
+
 </template>
 </dom-module>

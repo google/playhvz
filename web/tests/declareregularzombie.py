@@ -151,11 +151,10 @@ if not driver.is_mobile:
 
 
 
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Zeds Internal Secret Police']])
 
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Horde ZedLink']])
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Global Chat']])
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Zeds Internal Secret Police']])
 driver.DrawerMenuClick('chat-card', 'Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],

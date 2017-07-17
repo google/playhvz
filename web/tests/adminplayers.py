@@ -163,20 +163,17 @@ driver.DrawerMenuClick('profile-card', 'Admin Players')
 # Make sure the infections/revivals are reflected on the players' pages
 driver.DrawerMenuClick('players-card', 'Dashboard')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
 
 # Check that Zeke is a human (sees human chat and no infect widget)
 driver.SwitchUser('zeke')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=False)
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Resistance Comms Hub')
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
 
 # Check that Jack is a zombie (sees human chat and no infect widget)
 driver.SwitchUser('jack')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=True)
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Horde ZedLink')
+driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
 
 driver.Quit()
 

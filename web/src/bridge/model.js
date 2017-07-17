@@ -201,8 +201,10 @@ var models = {
     publicPlayerId: '',
     privatePlayerId: '',
     gameId: '',
-    isVisible: false,
-    lastSeenTime: 0,
+    a: [],
+    isVisible: false, // Leaving this in because it's in some of the prod data already
+    lastHiddenTime: null,
+    lastSeenTime: null,
   },
   playerMissionMembership: {
     link: ['privatePlayers', 'privatePlayerId', 'missionMemberships', 'missionId'],

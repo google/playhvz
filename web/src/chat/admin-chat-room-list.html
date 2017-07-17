@@ -29,20 +29,14 @@
           game: String,
           player: Object,
           isAdmin: Boolean,
-
-          adminChats: Array,
         },
 
-        listeners: {
-          'tap': 'captureTap_',
+        isAdminChat_(chatRoom) {
+          return chatRoom.withAdmins;
         },
 
-        observers: [
-          'getAdminChats_(game.chatRooms.*)',
-        ],
-
-        captureTap_(e) {
-          let chatRoomId = e.target.dataset.chatRoomId;
+        onTap_(e) {
+          let chatRoomId = e.model.chatRoom.id;
           if (chatRoomId) {
             this.fire('ghvz-set-path', {
               inGame: true,
@@ -52,16 +46,6 @@
           }
           e.preventDefault();
           e.stopPropagation();
-        },
-
-        getAdminChats_() {
-          let adminChats = [];
-          for (chatRoom of this.game.chatRooms) {
-            if (chatRoom.withAdmins) {
-              adminChats.push(chatRoom);
-            }
-          }
-          this.adminChats = adminChats;
         },
       });
     });
@@ -83,7 +67,6 @@
       text-decoration: none;
     }
     .frame {
-      padding-left: 8px;
       padding-right: 8px;
     }
     .list-item {
@@ -115,17 +98,14 @@
     }
   </style>
   <template>
-    <div class="frame" on-tap="captureTap_">
-      <template is="dom-repeat" items="[[adminChats]]" as="chatRoom">
-        <ghvz-chat-room-name-label
-            name$="[[chatRoom.name]]"
-            class="layout horizontal list-item name-label"
-            with-icon
+    <div class="frame">
+      <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom" filter="isAdminChat_">
+        <ghvz-admin-chat-list-item
             game="[[game]]"
-            name$="[[chatRoom.name]]"
-            chat-room-id="[[chatRoom.id]]"
-            data-chat-room-id$="[[chatRoom.id]]">
-        </ghvz-chat-room-name-label>
+            player="[[player]]"
+            chat-room="[[chatRoom]]"
+            on-tap="onTap_">
+        </ghvz-admin-chat-list-item>
       </template>
     </div>    
   </template>

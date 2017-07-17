@@ -1221,7 +1221,9 @@ def AddPlayerToGroupInner(game_state, group_id, public_player_to_add_id):
 def AddChatRoomMembership(game_state, public_player_id, chat_room_id, is_visible):
   private_player_id = helpers.GetPrivatePlayerId(game_state, public_player_id)
   game_state.put('/privatePlayers/%s/chatRoomMemberships' % private_player_id, chat_room_id, {
-    'isVisible': is_visible,
+    'a': True,
+    'lastSeenTime': None,
+    'lastHiddenTime': None,
   })
 
 
@@ -1255,7 +1257,8 @@ def UpdateChatRoomMembership(request, game_state):
     'gameId': 'GameId',
     'chatRoomId': 'ChatRoomId',
     'actingPlayerId': 'PublicPlayerId',
-    'isVisible': '|Boolean',
+    'lastSeenTime': '|?Timestamp',
+    'lastHiddenTime': '|?Timestamp',
   })
 
   acting_public_player_id = request['actingPlayerId']
@@ -1263,8 +1266,10 @@ def UpdateChatRoomMembership(request, game_state):
   chat_room_id = request['chatRoomId']
 
   patch_data = {}
-  if 'isVisible' in request:
-    patch_data['isVisible'] = request['isVisible']
+  if 'lastSeenTime' in request:
+    patch_data['lastSeenTime'] = request['lastSeenTime']
+  if 'lastHiddenTime' in request:
+    patch_data['lastHiddenTime'] = request['lastHiddenTime']
 
   game_state.patch('/privatePlayers/%s/chatRoomMemberships/%s' % (acting_private_player_id, chat_room_id), patch_data)
 
