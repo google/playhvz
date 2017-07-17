@@ -136,6 +136,7 @@ class EndToEndTest(unittest.TestCase):
       'rulesHtml': 'test rules',
       'faqHtml': 'test faq',
       'summaryHtml': 'test summary',
+      'infectPoints': 100,
       'stunTimer': 10,
       'registrationEndTime': 1506884521000,
       'startTime': 1606884521000,
