@@ -94,6 +94,10 @@
             replace: false,
           });
         },
+
+        chatIsVisible_(membership) {
+          return !ChatUtils.chatIsHidden(this.game.chatRoomsById[membership.chatRoomId], membership);
+        },
       });
     });
   </script>
@@ -222,7 +226,7 @@
         </template>
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
-          <template is="dom-if" if="[[membership.isVisible]]">
+          <template is="dom-if" if="[[chatIsVisible_(membership, membership.lastHiddenTime)]]">
             <ghvz-card spaced left>
               <ghvz-chat-room
                   small

@@ -108,7 +108,7 @@
               return;
             }
             // If we get here we tried to view a chat room we no longer have access to, 
-            // redirect to chat/ for mobile (desktop takes care of this by setting a new chat room id below)
+            // redirect to /adminChat/ for mobile (desktop takes care of this by setting a new chat room id below)
             if (this.isMobile) {
               this.async(() => {
                 this.fire('ghvz-set-card-header-text', { headerText: "Admin Chats" });
@@ -120,7 +120,7 @@
               });
             }
           }
-          // If we get here, then there wasn't a chat room, it was just /gameChats in the url
+          // If we get here, then there wasn't a chat room, it was just /adminChats in the url
           // (or there was a chat room id but we couldnt find that chat room)
           if (this.isMobile) {
             // If we get here, that means we're at /adminChats and on mobile. In this case
