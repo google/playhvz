@@ -172,17 +172,18 @@
         onBulkActionTapped_: function(e) {
           let action = e.target.dataHost.dataHost.itemForElement(e.target);
           this.$.travelingMenu.close();
-          var matchingItems = this.items.filter((item) => this.isItemSelected(item));
-          for (var i = 0; i < matchingItems.length; i++) {
-            action.handler(matchingItems[i]);
-          }
+          var matchingItems =
+              this.items
+                  .filter((item) => this.isItemSelected(item))
+                  .filter(this.filter_.bind(this));
+          action.handler(matchingItems);
         },
 
         onActionTapped_: function(e) {
           let action = e.model.dataHost.itemForElement(e.target);
           let item = this.itemsRepeater.itemForElement(e.target);
           this.$.travelingMenu.close();
-          action.handler(item);
+          action.handler([item]);
         },
 
         computeSortIcon_: function(sorting, ascending) {

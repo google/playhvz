@@ -102,79 +102,111 @@
               {
                 action: "infect",
                 name: "Infect",
-                handler: (player) => {
-                  this.bridge.infect({
-                    gameId: this.game.id,
-                    infectorPlayerId: null,
-                    infectionId: this.bridge.newInfectionId(),
-                    victimLifeCode: null,
-                    victimPlayerId: player.id,
-                  }).then(() => {
-                    this.fire('ghvz-alert', {message: "Successfully infected " + player.name});
-                  });
+                handler: (players) => {
+                  Promise.all(
+                      players.map((player) => {
+                        this.bridge.infect({
+                          gameId: this.game.id,
+                          infectorPlayerId: null,
+                          infectionId: this.bridge.newInfectionId(),
+                          victimLifeCode: null,
+                          victimPlayerId: player.id,
+                        });
+                      }))
+                      .then(() => {
+                        this.fire(
+                            'ghvz-alert',
+                            {
+                              message:
+                                  "Successfully infected these players: " +
+                                  players.map(p => p.name).join(" ")
+                            });
+                      });
                 },
               },
               {
                 action: "revive",
                 name: "Add Life",
-                handler: (player) => {
-                  this.bridge.addLife({
-                    gameId: this.game.id,
-                    playerId: player.id,
-                    lifeId: this.bridge.newPublicLifeId(),
-                    privateLifeId: null,
-                    lifeCode: null,
-                  }).then(() => {
-                    this.fire('ghvz-alert', {message: "Successfully added a life to " + player.name});
-                  });
+                handler: (players) => {
+                  Promise.all(
+                      players.map((player) => {
+                        return this.bridge.addLife({
+                          gameId: this.game.id,
+                          playerId: player.id,
+                          lifeId: this.bridge.newPublicLifeId(),
+                          privateLifeId: null,
+                          lifeCode: null,
+                        });
+                      }))
+                      .then(() => {
+                        this.fire(
+                            'ghvz-alert',
+                            {
+                              message:
+                                  "Successfully added one life each to these players: " +
+                                  players.map(p => p.name).join(" ")
+                            });
+                      });
                 },
               },
               {
                 action: "addToGroup",
                 name: "Add to Group",
-                handler: (player) => {
-                  this.$.addToGroupForm.openForAdding()
-                      .then((properties) => {
-                        this.bridge.addPlayerToGroup({
-                          gameId: this.game.id,
-                          actingPlayerId: null,
-                          playerToAddId: player.id,
-                          groupId: properties.groupId,
-                        });
+                handler: (players) => {
+                  Promise.all(
+                      players.map((player) => {
+                        this.$.addToGroupForm.openForAdding()
+                            .then((properties) => {
+                              this.bridge.addPlayerToGroup({
+                                gameId: this.game.id,
+                                actingPlayerId: null,
+                                playerToAddId: player.id,
+                                groupId: properties.groupId,
+                              });
+                            });
+                      }))
+                      .then(() => {
+                        this.fire('ghvz-alert', {message: "Successfully added to group these players: " + players.map(p => p.name).join(" ")});
                       });
                 },
               },
               {
                 name: "Set Got Equipment",
-                handler: (player) => {
-                  this.bridge.updatePlayer({
-                    gameId: this.game.id,
-                    playerId: player.id,
-                    gotEquipment: true,
-                  });
+                handler: (players) => {
+                  for (let player of players) {
+                    this.bridge.updatePlayer({
+                      gameId: this.game.id,
+                      playerId: player.id,
+                      gotEquipment: true,
+                    });
+                  }
                 }
               },
               {
                 name: "Unset Got Equipment",
-                handler: (player) => {
-                  this.bridge.updatePlayer({
-                    gameId: this.game.id,
-                    playerId: player.id,
-                    gotEquipment: false,
-                  });
+                handler: (players) => {
+                  for (let player of players) {
+                    this.bridge.updatePlayer({
+                      gameId: this.game.id,
+                      playerId: player.id,
+                      gotEquipment: false,
+                    });
+                  }
                 }
               },
               {
                 name: "Set Notes",
-                handler: (player) => {
-                  this.$.notesForm.openForAdding()
-                      .then((properties) => {
-                        this.bridge.updatePlayer({
-                          gameId: this.game.id,
-                          playerId: player.id,
-                          notes: properties.notes,
+                handler: (players) => {
+                  for (let player of players) {
+                    this.$.notesForm.openForAdding()
+                        .then((properties) => {
+                          this.bridge.updatePlayer({
+                            gameId: this.game.id,
+                            playerId: player.id,
+                            notes: properties.notes,
+                          });
                         });
-                      });
+                  }
                 }
               },
             ],

@@ -95,7 +95,7 @@
             {
               action: "view",
               name: "View",
-              handler: (player) => {
+              handler: ([player]) => {
                 this.fire('ghvz-set-path', {
                   inGame: true,
                   path: ['profile', player.id],

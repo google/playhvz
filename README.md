@@ -74,6 +74,7 @@ Run `bower install paper-button` under web directory
 These are one time firebase setup instructions along with backend configuration
 
 #### Front End (/web)
+1. Change config.json's backendUrl to be "http://localhost:8080/"
 1. [Create a firebase project](https://console.firebase.google.com/?pli=1)
 1. Open authentication using the left hand pane and enable (1) Google and (2) Email/Password
 1. Open the users tab, create 8 users listed below
