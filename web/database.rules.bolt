@@ -288,13 +288,13 @@ type NotificationSettings {
 }
 
 type ChatRoomMembership {
-  a: Boolean;
+  a: Boolean | Null;
   isVisible: Boolean | Null;
   lastSeenTime: OptionalTimestamp;
   lastHiddenTime: OptionalTimestamp;
 
   validate() {
-    this.a // this membership has to exist
+    this.a || this.isVisible != null // this membership has to exist. old data has isVisible, new data has a
   }
 }
 
