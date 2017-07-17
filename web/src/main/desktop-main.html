@@ -96,7 +96,7 @@
         },
 
         chatIsVisible_(membership) {
-          return !ChatUtils.chatIsHidden(this.game.chatRoomsById[membership.chatRoomId], membership);
+          return ChatUtils.chatIsVisible(this.game.chatRoomsById[membership.chatRoomId], membership);
         },
       });
     });

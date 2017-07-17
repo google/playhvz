@@ -65,7 +65,7 @@
       },    
 
       computeShow_() {
-        return this.ignoreHidden || !ChatUtils.chatIsHidden(this.chatRoom, this.chatRoomMembership);
+        return this.ignoreHidden || ChatUtils.chatIsVisible(this.chatRoom, this.chatRoomMembership);
       },
 
       computePath_(openInAdminChats, chatRoomId) {

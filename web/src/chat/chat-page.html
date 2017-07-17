@@ -63,8 +63,8 @@
                 // (though, firebase should prevent us from having it in memory if we dont have a membership anyway)
                 let membership = this.player.private.chatRoomMembershipsById[chatRoomId];
                 if (membership) {
-                  // Dont go to it if it's hidden
-                  if (!ChatUtils.chatIsHidden(chatRoom, membership)) {
+                  // Only open the room if it's visible
+                  if (ChatUtils.chatIsVisible(chatRoom, membership)) {
                     this.$.chatRoomSelector.select(chatRoom);
                     return;
                   }
@@ -90,16 +90,19 @@
         },
 
         onChatRoomsUpdated_() {
-          if (!this.currentChatRoom || this.isAdmin ||
-             this.player.private.chatRoomMembershipsById[this.currentChatRoom.id]) {
+          if (!this.currentChatRoom) {
+            return;
+          }
+          let membership = this.player.private.chatRoomMembershipsById[this.currentChatRoom.id];
+          if (membership && ChatUtils.chatIsVisible(this.currentChatRoom, membership)) {
             // We are viewing a chat room we still have access to, do nothing
             return;
           }
           // Change to chat/ which will redirect us to a chat room we have access to
           this.fire('ghvz-set-path', {
-                  inGame: true,
-                  path: ['chat'],
-                  replace: true,
+            inGame: true,
+            path: ['chat'],
+            replace: true,
           });
         },
       });
