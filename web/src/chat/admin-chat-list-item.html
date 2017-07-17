@@ -40,14 +40,9 @@
         this.$.membershipSelector.select(membership);
       },
 
-      onChatRoomUpdated_() {
-        if (this.chatRoom.messages.length == 0) {
-          this.hasUnseenMessages = false;
-          return;
-        }
-        let lastMessage = this.chatRoom.messages[this.chatRoom.messages.length - 1];
-        this.hasUnseenMessages = lastMessage.time > this.chatRoomMembership.lastSeenTime;
-      },        
+      computePath_(chatRoomId) {
+        return ["adminChats", chatRoomId];
+      }, 
     });
   });
 </script>
@@ -101,14 +96,15 @@
   <template is="dom-if" if="[[membership]]">
     <ghvz-drawer-chat-item 
         game="[[game]]"
+        open-in-admin-chats
         chat-room-membership="[[membership]]"
         ignore-hidden>
     </ghvz-drawer-chat-item>
   </template>
   <template is="dom-if" if="[[!membership]]">
-    <ghvz-drawer-item 
+    <ghvz-drawer-item
         text="[[chatRoom.name]]" 
-        page="chat"
+        path="[[computePath_(chatRoom.id)]]"
         chat-room-id="[[chatRoomMembership.chatRoomId]]" 
         icon="communication:chat">
     </ghvz-drawer-item>

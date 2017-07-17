@@ -198,43 +198,43 @@
     </div>
 
     <template is="dom-if" if="[[canUseDevTools]]">
-      <ghvz-drawer-item text="Dev Tools" page="devTools" icon="icons:dashboard"></ghvz-drawer-item>
+      <ghvz-drawer-item text="Dev Tools" path="devTools" icon="icons:dashboard"></ghvz-drawer-item>
     </template>
 
     <template is="dom-if" if="[[isAdmin]]">   
       <div id="adminPages" class="drawer-section">
-        <ghvz-drawer-item text="Admin Dashboard" page="adminMain" icon="icons:dashboard"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Game Details" page="adminGame" icon="icons:group-work"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Game Summary" page="adminGameSummary" icon="icons:language"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Missions" page="adminMissions" icon="icons:group-work"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Players" page="adminPlayers" icon="social:group"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Dev Tools" page="adminDevTools" icon="icons:build"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Guns" page="adminGuns" icon="icons:favorite"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Rewards" page="adminRewards" icon="icons:stars"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Notifications" page="adminNotifications" icon="notification:sms"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Admin Chats" page="adminChats" icon="communication:chat"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Dashboard" path='["adminMain"]' icon="icons:dashboard"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Game Details" path='["adminGame"]' icon="icons:group-work"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Game Summary" path='["adminGameSummary"]' icon="icons:language"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Missions" path='["adminMissions"]' icon="icons:group-work"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Players" path='["adminPlayers"]' icon="social:group"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Dev Tools" path='["adminDevTools"]' icon="icons:build"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Guns" path='["adminGuns"]' icon="icons:favorite"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Rewards" path='["adminRewards"]' icon="icons:stars"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Notifications" path='["adminNotifications"]' icon="notification:sms"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Admin Chats" path='["adminChats"]' icon="communication:chat"></ghvz-drawer-item>
       </div>
     </template>
 
     <template is="dom-if" if="[[canRegister]]">
       <div id="playerPages" class="drawer-section">
-        <ghvz-drawer-item text="Register" page="joinGame" icon="social:person-add"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Register" path="joinGame" icon="social:person-add"></ghvz-drawer-item>
       </div>
     </template>
 
     <template is="dom-if" if="[[isPlayer]]">
       <div name="playerPagesJoined" id="playerPages" class="drawer-section">
-        <ghvz-drawer-item text="Dashboard" page="main" icon="icons:dashboard"></ghvz-drawer-item>
-        <ghvz-drawer-item text="My Profile" page="profile" icon="icons:account-box"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Infect" page="infect" icon="social:whatshot"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Rewards" page="rewards" icon="icons:stars"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Stun Timer" page="stuntimer" icon="icons:hourglass-full"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Rules" page="rules" icon="editor:format-list-numbered"></ghvz-drawer-item>
-        <ghvz-drawer-item text="FAQ" page="faq" icon="icons:question-answer"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Missions" page="missions" icon="icons:group-work"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Leaderboard" page="leaderboard" icon="social:group"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Game Stats" page="stats" icon="editor:pie-chart"></ghvz-drawer-item>
-        <ghvz-drawer-item text="Notifications" page="notifications" icon="notification:sms"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Dashboard" path='["main"]' icon="icons:dashboard"></ghvz-drawer-item>
+        <ghvz-drawer-item text="My Profile" path='["profile"]' icon="icons:account-box"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Infect" path='["infect"]' icon="social:whatshot"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Rewards" path='["rewards"]' icon="icons:stars"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Stun Timer" path='["stuntimer"]' icon="icons:hourglass-full"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Rules" path='["rules"]' icon="editor:format-list-numbered"></ghvz-drawer-item>
+        <ghvz-drawer-item text="FAQ" path='["faq"]' icon="icons:question-answer"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Missions" path='["missions"]' icon="icons:group-work"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Leaderboard" path='["leaderboard"]' icon="social:group"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Game Stats" path='["stats"]' icon="editor:pie-chart"></ghvz-drawer-item>
+        <ghvz-drawer-item text="Notifications" path='["notifications"]' icon="notification:sms"></ghvz-drawer-item>
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
           <ghvz-drawer-chat-item 
@@ -245,19 +245,18 @@
 
         <template is="dom-if" if="[[!adminChatExists]]">
           <ghvz-drawer-item 
-            name="create-admin-chat-button" 
-            text="Chat with Admins" 
-            action="[[createAdminChat_()]]" 
-            page="chat"
-            icon="social:group">
+              name="create-admin-chat-button" 
+              text="Chat with Admins" 
+              action="[[createAdminChat_()]]" 
+              icon="social:group">
           </ghvz-drawer-item>
         </template>
 
         <ghvz-drawer-item 
-          id="new-chat" 
-          text="New chat" 
-          action="[[createNewChat_()]]" 
-          icon="icons:add">
+            id="new-chat" 
+            text="New chat" 
+            action="[[createNewChat_()]]" 
+            icon="icons:add">
         </ghvz-drawer-item>
 
       </div>

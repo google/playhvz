@@ -67,7 +67,6 @@
       text-decoration: none;
     }
     .frame {
-      padding-left: 8px;
       padding-right: 8px;
     }
     .list-item {
@@ -103,6 +102,7 @@
       <template is="dom-repeat" items="[[game.chatRooms]]" as="chatRoom" filter="isAdminChat_">
         <ghvz-admin-chat-list-item
             game="[[game]]"
+            player="[[player]]"
             chat-room="[[chatRoom]]"
             on-tap="onTap_">
         </ghvz-admin-chat-list-item>

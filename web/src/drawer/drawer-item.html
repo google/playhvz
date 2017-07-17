@@ -27,7 +27,7 @@
         icon: String,
         text: String,
         action: Object,
-        page: String,
+        path: Array,
         chatRoomId: String,
 
         // Optionally add a dash to the element name
@@ -46,18 +46,10 @@
       },
 
       openPage_(e) {
-        let page = this.page;
-        assert(page);
-        let path = [page];
-        if (page == "chat" && this.chatRoomId) {
-          let chatRoomId = this.chatRoomId;
-          assert(chatRoomId);
-          path = path.concat(chatRoomId);
-        }
         this.fire('ghvz-close-drawer');
         this.fire('ghvz-set-path', {
           inGame: true,
-          path: path,
+          path: this.path,
           replace: false,
         });
         e.preventDefault();
@@ -101,6 +93,9 @@
   .drawer-item iron-icon {
     margin: 8px;
     opacity: .8;
+  }
+  iron-icon {
+    flex-shrink: 0;
   }
 </style>
 <template>

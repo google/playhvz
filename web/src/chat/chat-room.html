@@ -133,6 +133,10 @@
           }
           let lastMessage = this.chatRoom.messages[this.chatRoom.messages.length - 1];
           let chatRoomMembership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
+          if (!chatRoomMembership) {
+            // This might happen if we're an admin looking at a chat we aren't in
+            return;
+          }
           if (lastMessage.time <= chatRoomMembership.lastSeenTime) {
             // We've already seen the newest message and don't need to check visibility
             return;

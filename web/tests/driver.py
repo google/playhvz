@@ -416,7 +416,7 @@ class WholeDriver:
       self.RetryUntil(
         lambda: self.Click([[By.NAME, currPage], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
-    self.Click([[By.NAME, 'drawer%s' % destinationPage]])
+    self.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % destinationPage]])
 
   def TableMenuClick(self, pathToRow, buttonName):
     self.RetryUntil(
