@@ -202,6 +202,7 @@ var models = {
     privatePlayerId: '',
     gameId: '',
     a: [],
+    isVisible: false, // Leaving this in because it's in some of the prod data already
     lastHiddenTime: null,
     lastSeenTime: null,
   },
