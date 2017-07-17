@@ -16,8 +16,9 @@
 
 
 class RemoteBridge {
-  constructor(serverUrl, firebaseConfig, alertHandler) {
+  constructor(serverUrl, firebaseConfig, alertHandler, getGame) {
     this.alertHandler = alertHandler;
+    this.getGame = getGame;
 
     firebase.initializeApp(firebaseConfig);
     this.firebaseRoot = firebase.app().database().ref();
@@ -26,6 +27,8 @@ class RemoteBridge {
     this.requester = new NormalRequester(serverUrl, alertHandler);
 
     this.userId = null;
+
+    this.game = null;
 
     for (let methodName of Bridge.METHODS) {
       if (!this[methodName]) {
@@ -112,7 +115,17 @@ class RemoteBridge {
   }
 
   listenToGame(userId, gameId, destination) {
-    return this.firebaseListener.listenToGame(userId, gameId, destination);
+    return this.firebaseListener.listenToGame(
+        userId,
+        gameId,
+        new ObservableWriter(
+            destination,
+            (operation) => {
+              if (operation.type == 'set' && operation.path.length == 0) {
+                // The game object has come, store it for later use
+                this.game = operation.value;
+              }
+            }));
   }
 
   register(args) {
@@ -141,14 +154,23 @@ class RemoteBridge {
     this.requester.setRequestingPlayerId(playerId);
   }
 
-  sendChatMessage(args) {
+  waitUntilExists(ref) {
     return new Promise((resolve, reject) => {
-      let {gameId, messageId, chatRoomId, playerId, message, location, image} = args;
-      assert(playerId);
-      assert(messageId);
-      let chatRoomRef = this.firebaseRoot.child(`/chatRooms/${chatRoomId}`);
-      chatRoomRef.on('child_added', (snap) => {
-        if (snap.getKey() == 'gameId') {
+      function listener() {
+        ref.off('value', listener);
+        resolve();
+      };
+      ref.on('value', listener);
+    });
+  }
+
+  sendChatMessage(args) {
+    let {gameId, messageId, chatRoomId, playerId, message, location, image} = args;
+    assert(playerId);
+    assert(messageId);
+    let chatRoomRef = this.firebaseRoot.child(`/chatRooms/${chatRoomId}`);
+    return this.waitUntilExists(chatRoomRef)
+        .then(() => {
           let firebaseMessage = {
             playerId: playerId,
             time: firebase.database.ServerValue.TIMESTAMP,
@@ -160,10 +182,23 @@ class RemoteBridge {
           if (image)
             firebaseMessage.image = image;
 
-          chatRoomRef.child('messages').child(messageId).set(firebaseMessage);
-          resolve();
-        }
-      });
-    });
+          return chatRoomRef.child('messages').child(messageId).set(firebaseMessage);
+        });
+  }
+
+  updateChatRoomMembership(args) {
+    let {chatRoomId, actingPlayerId, lastHiddenTime, lastSeenTime} = args;
+    let actingPrivatePlayerId = this.game.playersById[actingPlayerId].privatePlayerId;
+    assert(chatRoomId, actingPlayerId);
+    let membershipRef = this.firebaseRoot.child(`/privatePlayers/${actingPrivatePlayerId}/chatRoomMemberships/${chatRoomId}`);
+    return this.waitUntilExists(membershipRef)
+        .then(() => {
+          let promises = [];
+          if (lastHiddenTime !== undefined)
+            promises.push(membershipRef.child('lastHiddenTime').set(lastHiddenTime));
+          if (lastSeenTime !== undefined)
+            promises.push(membershipRef.child('lastSeenTime').set(lastSeenTime));
+          return Promise.all(promises);
+        });
   }
 }

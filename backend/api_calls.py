@@ -1252,26 +1252,26 @@ def RemoveMissionMembershipsForAllGroupMembers_(game_state, mission_id, access_g
     for public_player_id in group['players'].keys():
       RemoveMissionMembership(game_state, public_player_id, mission_id)
 
-def UpdateChatRoomMembership(request, game_state):
-  helpers.ValidateInputs(request, game_state, {
-    'gameId': 'GameId',
-    'chatRoomId': 'ChatRoomId',
-    'actingPlayerId': 'PublicPlayerId',
-    'lastSeenTime': '|?Timestamp',
-    'lastHiddenTime': '|?Timestamp',
-  })
+# def UpdateChatRoomMembership(request, game_state):
+#   helpers.ValidateInputs(request, game_state, {
+#     'gameId': 'GameId',
+#     'chatRoomId': 'ChatRoomId',
+#     'actingPlayerId': 'PublicPlayerId',
+#     'lastSeenTime': '|?Timestamp',
+#     'lastHiddenTime': '|?Timestamp',
+#   })
 
-  acting_public_player_id = request['actingPlayerId']
-  acting_private_player_id = helpers.GetPrivatePlayerId(game_state, acting_public_player_id)
-  chat_room_id = request['chatRoomId']
+#   acting_public_player_id = request['actingPlayerId']
+#   acting_private_player_id = helpers.GetPrivatePlayerId(game_state, acting_public_player_id)
+#   chat_room_id = request['chatRoomId']
 
-  patch_data = {}
-  if 'lastSeenTime' in request:
-    patch_data['lastSeenTime'] = request['lastSeenTime']
-  if 'lastHiddenTime' in request:
-    patch_data['lastHiddenTime'] = request['lastHiddenTime']
+#   patch_data = {}
+#   if 'lastSeenTime' in request:
+#     patch_data['lastSeenTime'] = request['lastSeenTime']
+#   if 'lastHiddenTime' in request:
+#     patch_data['lastHiddenTime'] = request['lastHiddenTime']
 
-  game_state.patch('/privatePlayers/%s/chatRoomMemberships/%s' % (acting_private_player_id, chat_room_id), patch_data)
+#   game_state.patch('/privatePlayers/%s/chatRoomMemberships/%s' % (acting_private_player_id, chat_room_id), patch_data)
 
 
 def RemovePlayerFromGroup(request, game_state):

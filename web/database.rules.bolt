@@ -54,9 +54,9 @@ type Timestamp extends Number {
   }
 }
 
-type OptionalTimestamp extends Number {
+type OptionalTimestamp extends Number | Null {
   validate() {
-    this == 0 || this > 1490000000000 // March 2017, milliseconds
+    this == null || this > 1490000000000 // March 2017, milliseconds
   }
 }
 
@@ -288,7 +288,14 @@ type NotificationSettings {
 }
 
 type ChatRoomMembership {
-  isVisible: Boolean;
+  a: Boolean;
+  isVisible: Boolean | Null;
+  lastSeenTime: OptionalTimestamp;
+  lastHiddenTime: OptionalTimestamp;
+
+  validate() {
+    this.a // this membership has to exist
+  }
 }
 
 type Notification {
@@ -301,7 +308,6 @@ type Notification {
 }
 
 type PrivatePlayer {
-  privatePlayerId: PrivatePlayerId; // #1
   beInPhotos: Boolean;
   canInfect: Boolean;
   gameId: GameId;
@@ -322,7 +328,9 @@ type PrivatePlayer {
     getUserId() == this.userId || isAdmin(this.gameId))
   }
 
-  write() { !writeLocked() && isServer() }
+  write() {
+    !writeLocked() && (isServer() || getUserId() == this.userId)
+  }
 
   validate() {
     root.users[this.userId] != null
