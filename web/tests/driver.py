@@ -399,11 +399,12 @@ class WholeDriver:
   def ExpectAttributeEqual(self, path, attribute_name, value, wait_long=False):
     return self.inner_driver.ExpectAttributeEqual(path, attribute_name, value, wait_long)
 
-  def RetryUntil(self, action, result, num_times=4):
+  def RetryUntil(self, action, check, num_times=4):
     for i in range(num_times):
       try:
         action()
-        return result()
+        check()
+        return
       except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:
         if i == num_times - 1:
           raise e
@@ -416,15 +417,18 @@ class WholeDriver:
       self.RetryUntil(
         lambda: self.Click([[By.CLASS_NAME, 'visible-page'], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
         lambda: self.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % name]]))
+      time.sleep(.2)
     self.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % name]], should_exist=should_exist)
     if self.is_mobile:
       self.SendKeys([[By.TAG_NAME, 'ghvz-drawer']], Keys.ESCAPE)
+      time.sleep(.2)
 
   def DrawerMenuClick(self, destinationPage):
     if self.is_mobile:
       self.RetryUntil(
         lambda: self.Click([[By.CLASS_NAME, 'visible-page'], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
-        lambda: self.FindElement([[By.NAME, 'drawer%s' % destinationPage]]))
+        lambda: self.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % destinationPage]]))
+      time.sleep(.2)
     self.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % destinationPage]])
 
   def TableMenuClick(self, pathToRow, buttonName):

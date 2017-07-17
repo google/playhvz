@@ -46,7 +46,7 @@ driver.SwitchUser('jack')
 driver.Click([[By.NAME, 'close-notification']])
 
 # Jack creates his own personal chatroom with no other player
-driver.Click([[By.ID, 'new-chat']])
+driver.DrawerMenuClick('New chat')
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], 'Secret Stuff')
 driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
 driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
@@ -54,7 +54,7 @@ driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
 driver.DrawerMenuClick('Secret Stuff')
 
 # Jack creates a chatroom with other players
-driver.Click([[By.ID, 'new-chat']])
+driver.DrawerMenuClick('New chat')
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], "Humanity's Last Hope")
 driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
 driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])

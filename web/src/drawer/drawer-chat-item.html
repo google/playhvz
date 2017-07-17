@@ -41,12 +41,12 @@
 
         show: {
           type: Boolean,
-          computed: 'computeShow_(chatRoom.messages.length, chatRoomMembership.lastHiddenTime)',
+          computed: 'computeShow_(chatRoom.messages.*, chatRoomMembership.lastHiddenTime)',
         }
       },
 
       observers: [
-        'onChatRoomMembershipUpdated_(game, chatRoomMembership.chatRoomId)',
+        'onChatRoomMembershipUpdated_(game, game.chatRooms.length, chatRoomMembership.chatRoomId)',
         'onChatRoomUpdated_(game, chatRoom.messages.*, chatRoomMembership.lastSeenTime)',
       ],
 
