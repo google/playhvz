@@ -83,6 +83,10 @@
         }
         return false;
       },
+
+      computePageClass_(desiredPage, mostRecentPage) {
+        return desiredPage == mostRecentPage ? "visible-page" : null;
+      },
     });
   });
 </script>
@@ -111,7 +115,7 @@
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminMain, mostRecentPage)]]">
     <ghvz-admin-page
-        class="expand"
+        class$="expand [[computePageClass_(showPage.adminMain, mostRecentPage)]]"
         bridge="[[bridge]]"
         database="[[database]]"
         game="[[game]]"
@@ -122,24 +126,26 @@
     </ghvz-admin-page>
   </template>
 
-  <template is="dom-if" if="[[computeShowPage_(showPage.main, mostRecentPage)]]">
-    <ghvz-main-page
-        class="expand"
-        name="main-page-card"
-        bridge="[[bridge]]"
-        database="[[database]]"
-        game="[[game]]"
-        user-id="[[userId]]"
-        is-mobile="[[isMobile]]"
-        is-admin="[[isAdmin]]"
-        player="[[player]]">
-    </ghvz-main-page>
+  <template is="dom-if" if="[[!isMobile]]">
+    <template is="dom-if" if="[[computeShowPage_(showPage.main, mostRecentPage)]]">
+      <ghvz-main-page
+          class$="expand [[computePageClass_(showPage.main, mostRecentPage)]]"
+          name="main-page-card"
+          bridge="[[bridge]]"
+          database="[[database]]"
+          game="[[game]]"
+          user-id="[[userId]]"
+          is-mobile="[[isMobile]]"
+          is-admin="[[isAdmin]]"
+          player="[[player]]">
+      </ghvz-main-page>
+    </template>
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.chat, mostRecentPage)]]">
     <ghvz-card
       id$="chat-page-[[player.name]]"
-      class="expand"
+      class$="expand [[computePageClass_(showPage.chat, mostRecentPage)]]"
       name="chat-card"
       spaced$="[[!isMobile]]"
       with-back="[[isMobile]]"
@@ -158,7 +164,11 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.declare, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card
+        class$="[[computePageClass_(showPage.declare, mostRecentPage)]]"
+        spaced$="[[!isMobile]]"
+        with-back="[[isMobile]]"
+        with-menu="[[isMobile]]">
       <div class="header">Declare Allegiance</div>
       <ghvz-declare-page
           class="expand"
@@ -171,7 +181,9 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.joinGame, mostRecentPage)]]">
-    <ghvz-card spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card
+        class$="[[computePageClass_(showPage.joinGame, mostRecentPage)]]"
+        spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Join Game</div>
       <ghvz-game-registration
           class="expand"
@@ -185,7 +197,9 @@
   </template>
 
   <template is="dom-if"  if="[[computeShowPage_(showPage.infect, mostRecentPage)]]">
-    <ghvz-card name="infect-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card
+        class$="[[computePageClass_(showPage.infect, mostRecentPage)]]"
+        name="infect-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Infect</div>
       <ghvz-infect
           class="expand"
@@ -197,7 +211,9 @@
   </template>
 
   <template is="dom-if"  if="[[computeShowPage_(showPage.rewards, mostRecentPage)]]">
-    <ghvz-card name="rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card
+        class$="[[computePageClass_(showPage.rewards, mostRecentPage)]]"
+        name="rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Rewards</div>
       <ghvz-claim-reward
           class="expand"
@@ -209,7 +225,9 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.notifications, mostRecentPage)]]">
-    <ghvz-card name="notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card
+        class$="[[computePageClass_(showPage.notifications, mostRecentPage)]]"
+        name="notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications-page
           class="expand"
@@ -223,7 +241,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminGuns, mostRecentPage)]]">
-    <ghvz-card name="guns-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.adminGuns, mostRecentPage)]]" name="guns-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Guns</div>
       <ghvz-guns
           class="expand"
@@ -235,7 +253,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminGameSummary, mostRecentPage)]]">
-    <ghvz-card name="summary-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.adminGameSummary, mostRecentPage)]]" name="summary-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Game Summary</div>
       <ghvz-game-summary
           is-admin
@@ -247,7 +265,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminPlayers, mostRecentPage)]]">
-    <ghvz-card name="players-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.adminPlayers, mostRecentPage)]]" name="players-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Players</div>
       <ghvz-player-table
           class="expand"
@@ -262,7 +280,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminRewards, mostRecentPage)]]">
-    <ghvz-card name="admin-rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.adminRewards, mostRecentPage)]]" name="admin-rewards-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Rewards</div>
       <ghvz-rewards
           class="expand"
@@ -274,7 +292,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminMissions, mostRecentPage)]]">
-    <ghvz-card name="admin-missions-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.adminMissions, mostRecentPage)]]" name="admin-missions-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Missions</div>
       <ghvz-missions
           is-mobile="[[isMobile]]"
@@ -287,7 +305,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminGame, mostRecentPage)]]">
-    <ghvz-card padded name="game-details-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.adminGame, mostRecentPage)]]" padded name="game-details-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Game</div>
       <ghvz-game-details
           class="expand"
@@ -300,7 +318,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.adminNotifications, mostRecentPage)]]">
-    <ghvz-card name="admin-notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.adminNotifications, mostRecentPage)]]" name="admin-notifications-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Notifications</div>
       <ghvz-notifications
           class="expand"
@@ -312,7 +330,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.rules, mostRecentPage)]]">
-    <ghvz-card name="rules-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
+    <ghvz-card class$="[[computePageClass_(showPage.rules, mostRecentPage)]]" name="rules-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">Rules</div>
       <ghvz-rules
           class="expand"
@@ -325,23 +343,24 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.faq, mostRecentPage)]]">
-    <ghvz-card name="faq-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
+    <ghvz-card class$="[[computePageClass_(showPage.faq, mostRecentPage)]]" name="faq-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">FAQ</div>
       <ghvz-faq-page class="expand" bridge="[[bridge]]" game="[[game]]" is-mobile="[[isMobile]]" is-admin="[[isAdmin]]"></ghvz-faq-page>
     </ghvz-card>
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.stuntimer, mostRecentPage)]]">
-    <ghvz-card name="stuntimer-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
+    <ghvz-card class$="[[computePageClass_(showPage.stuntimer, mostRecentPage)]]" name="stuntimer-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">Stun Timer</div>
       <ghvz-stun-timer
+          class="expand"
           game="[[game]]">
       </ghvz-stun-timer>
     </ghvz-card>
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.missions, mostRecentPage)]]">
-    <ghvz-card name="missions-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
+    <ghvz-card class$="[[computePageClass_(showPage.missions, mostRecentPage)]]" name="missions-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]" padded>
       <div class="header">Missions</div>
       <ghvz-missions-page
           is-mobile="[[isMobile]]"
@@ -354,7 +373,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.leaderboard, mostRecentPage)]]">
-    <ghvz-card name="leaderboard-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.leaderboard, mostRecentPage)]]" name="leaderboard-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Leaderboard</div>
       <ghvz-leaderboard-summary
           class="expand"
@@ -364,7 +383,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.profile, mostRecentPage)]]">
-    <ghvz-card padded name="profile-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.profile, mostRecentPage)]]" padded name="profile-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <ghvz-profile-page
           class="expand"
           bridge="[[bridge]]"
@@ -377,7 +396,7 @@
   </template>
 
   <template is="dom-if" if="[[computeShowPage_(showPage.stats, mostRecentPage)]]">
-    <ghvz-card name="stats-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
+    <ghvz-card class$="[[computePageClass_(showPage.stats, mostRecentPage)]]" name="stats-card" spaced$="[[!isMobile]]" with-back="[[isMobile]]" with-menu="[[isMobile]]">
       <div class="header">Game Stats</div>
       <ghvz-stats-page
           class="expand"
@@ -392,7 +411,7 @@
   <template is="dom-if" if="[[computeShowPage_(showPage.adminChats, mostRecentPage)]]">
     <ghvz-card
       id$="admin-chat-page-[[player.name]]"
-      class="expand"
+      class$="expand [[computePageClass_(showPage.adminChats, mostRecentPage)]]"
       name="chat-card"
       spaced$="[[!isMobile]]"
       with-back="[[isMobile]]"

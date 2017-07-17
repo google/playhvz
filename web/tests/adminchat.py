@@ -59,15 +59,11 @@ chatName = actingPlayerName + ' & HvZ CDC'
 driver.SwitchUser(actingPlayer)
 
 # Create chat with admin
-driver.FindElement([[By.NAME, 'create-admin-chat-button']])
+driver.FindDrawerItem('Chat with Admins')
 driver.RetryUntil(
-  lambda: driver.Click([[By.NAME, 'create-admin-chat-button']]),
+  lambda: driver.DrawerMenuClick('Chat with Admins'),
   lambda: driver.FindElement([[By.NAME, "chat-room-%s" % chatName]])
 )
-
-# TODO(aliengirl): make this line work consistently on mobile
-# driver.FindElement([[By.NAME, "chat-room-%s" % chatName]]) 
-# driver.DontFindElement([[By.NAME, 'create-admin-chat-button']])
 
 # Type a message into the chat
 xpathTextarea = getPathToElement(actingPlayerName, 'textarea', 'input-' + chatName)
@@ -81,7 +77,7 @@ driver.Click([[By.NAME, 'submit-%s' % chatName], [By.XPATH, xpathSend]])
 def CheckAdminSeesMessage(admin, chatName):
   driver.SwitchUser(admin)
   closeNotifications(driver)
-  driver.DrawerMenuClick('mobile-main-page', 'Admin Chats')
+  driver.DrawerMenuClick('Admin Chats')
   driver.Click([[By.TAG_NAME, 'ghvz-admin-chat-page'], [By.NAME, 'drawer' + chatName]])  
   driver.ExpectContains([
       [By.TAG_NAME, 'ghvz-admin-chat-page'],
@@ -94,7 +90,7 @@ CheckAdminSeesMessage('moldavi', chatName)
 
 # Non-Admin should leave admin chat
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', chatName)
+driver.DrawerMenuClick(chatName)
 
 driver.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer' + chatName]])
 driver.Click([[By.TAG_NAME, 'ghvz-display-page'], [By.NAME, 'chat-card'], [By.NAME, 'chat-info-' + chatName]])
@@ -107,10 +103,10 @@ driver.Click([[By.XPATH, xpathLeaveButton]])
 
   # TODO: make leave button work the same way on mobile as it does on web
   # Chat should be hidden, verify chat with admin button is available after leaving admin chat
-driver.FindElement([[By.NAME, 'create-admin-chat-button']])
+driver.FindDrawerItem('Chat with Admins')
 
 # Reopen admin chat
-driver.Click([[By.NAME, 'create-admin-chat-button']]) 
+driver.DrawerMenuClick('Chat with Admins')
 
 # Verify original message is still in chat room
 driver.ExpectContains([
@@ -136,7 +132,7 @@ driver.DontFindElement([
 actingPlayer = 'moldavi'
 driver.SwitchUser(actingPlayer)
 
-driver.DrawerMenuClick('mobile-main-page', chatName)
+driver.DrawerMenuClick(chatName)
 
 actingPlayerName = playerNames[actingPlayer]
 xpathTextarea = getPathToElement(actingPlayerName, 'textarea', 'input-' + chatName)
@@ -150,9 +146,7 @@ driver.Click([[By.XPATH, xpathSend]])
 actingPlayer = 'zeke'
 driver.SwitchUser(actingPlayer)
 
-driver.DrawerMenuClick('mobile-main-page', chatName)
-driver.FindElement([
-  [By.NAME, 'chat-card'], 
-  [By.NAME, 'ChatRoom: Zeke & HvZ CDC']])
+driver.DrawerMenuClick(chatName)
+driver.FindDrawerItem('Zeke & HvZ CDC')
 
 driver.Quit()

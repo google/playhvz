@@ -45,7 +45,7 @@ def testChat(player, chatName, shouldBeMember):
   driver.SwitchUser(player)
   
   if shouldBeMember:
-    driver.DrawerMenuClick('mobile-main-page', chatName)
+    driver.DrawerMenuClick(chatName)
 
     # # TODO(verdagon): known flake (on remote only? ... nope :( I'm having this trouble locally too. -aliengirl)
     # This is probably because clicking the X on the notification didn't make it go away.
@@ -76,11 +76,11 @@ def testChat(player, chatName, shouldBeMember):
     # Make sure the element shows up
     driver.FindElement([[By.NAME, 'chat-card'], [By.CLASS_NAME, 'message-from-me']])
     driver.ExpectContains([[By.NAME, 'chat-card']], 'Brains for %s' % player)
-    driver.DrawerMenuClick('chat-card', 'Dashboard')
+    driver.DrawerMenuClick('Dashboard')
 
   else:
-    driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % chatName]], should_exist=False)
-    driver.DrawerMenuClick('chat-card', 'Dashboard')
+    driver.FindDrawerItem(chatName, should_exist=False)
+    driver.DrawerMenuClick('Dashboard')
 
 
 driver.SwitchUser('jack')

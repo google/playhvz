@@ -5,13 +5,13 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="zella")
 
 # Make Zeke a human (just b/c we need more humans than we currently have)
-driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 driver.TableMenuClick([[By.NAME, 'player-row-Zeke']], 'Add Life')
 driver.DismissAlert()
 
 driver.SwitchUser('zeke')
 # Zeke is in the Resistance Comms Hub
-driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
+driver.DrawerMenuClick('Resistance Comms Hub')
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Resistance Comms Hub']])
 driver.FindElement(
         [[By.NAME, 'chat-card'], 
@@ -28,13 +28,13 @@ INFECTABLES = [ # these names seem to have collapsed in the last pull
 # switch to drake. We'll come back to jack in a bit
 driver.SwitchUser("drake")
 
-driver.DrawerMenuClick('mobile-main-page', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 
 driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
 # get initial counts of zombies from our stats pages
 
-driver.DrawerMenuClick('profile-card', 'Game Stats')
+driver.DrawerMenuClick('Game Stats')
 
 driver.FindElement([[By.NAME, 'stats-card'],
                           [By.ID, 'current_population_meta'],
@@ -56,7 +56,7 @@ driver.ExpectContains([[By.NAME, 'stats-card'],
                         str(initial_zombie_end_count),
                         check_visible=False)
 
-driver.DrawerMenuClick('stats-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 
 # start infecting humans
 for target in INFECTABLES:
@@ -73,7 +73,7 @@ for target in INFECTABLES:
 
 # make sure drake's profile has updated points
 
-driver.DrawerMenuClick('mobile-main-page', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 
 driver.ExpectContains([[By.NAME, 'profilePoints']], '408')
 
@@ -86,7 +86,7 @@ driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
 
 # double check our stats
-driver.DrawerMenuClick('mobile-main-page', 'Game Stats')
+driver.DrawerMenuClick('Game Stats')
 
 current_zombie_count = initial_zombie_end_count + len(INFECTABLES)
 

@@ -36,10 +36,10 @@ driver = setup.MakeDriver(user="jack")
 driver.FindElement([[By.NAME, 'infect-box']], should_exist=False)
 
 # See the resistance chat
-driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
+driver.DrawerMenuClick('Resistance Comms Hub')
 
 # Normal human tries to infect people
-driver.DrawerMenuClick('chat-card', 'Infect')
+driver.DrawerMenuClick('Infect')
 # Invalid input - throws error alert
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'not a lifecode')
 driver.Click([[By.ID, 'infect']])
@@ -53,31 +53,31 @@ driver.DismissAlert()
 driver.SwitchUser('zella')
 
 # Make Zella a possessed human
-driver.DrawerMenuClick('mobile-main-page', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.Click([[By.ID, 'set-infect-button']])
 driver.ExpectContains([[By.NAME, 'can-infect']], 'Yes')
 
 # Check that Zella is still in the human chat
-driver.DrawerMenuClick('profile-card', 'Resistance Comms Hub')
+driver.DrawerMenuClick('Resistance Comms Hub')
 
 # Zella infects Moldavi
-driver.DrawerMenuClick('chat-card', 'Infect')
+driver.DrawerMenuClick('Infect')
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'zooble-flipwoogly') # Moldavi's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'MoldaviTheMoldavish')
 
 # Zella is now a zombie
-driver.DrawerMenuClick('infect-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 driver.FindElement([[By.NAME, 'infect-box']])
-driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
-driver.DrawerMenuClick('chat-card', 'My Profile')
+driver.DrawerMenuClick('Horde ZedLink')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100') # Points from infecting Moldavi
 driver.FindElement([[By.NAME, 'infection-line-0']])
 driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactly 1 infections
 
 # Check that Moldavi is now a possessed human
-driver.DrawerMenuClick('profile-card', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 driver.Click([[By.NAME, 'player-row-MoldaviTheMoldavish'], [By.ID, 'name']])
 driver.ExpectContains([[By.NAME, 'can-infect']], 'Yes')
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')
@@ -85,17 +85,17 @@ driver.FindElement([[By.NAME, 'infection-line-0']], should_exist=False)
 
 # Moldavi now can secret-zombie infects Jack
 driver.SwitchUser('moldavi')
-driver.DrawerMenuClick('mobile-main-page', 'Resistance Comms Hub')
-driver.DrawerMenuClick('chat-card', 'Infect')
+driver.DrawerMenuClick('Resistance Comms Hub')
+driver.DrawerMenuClick('Infect')
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
 
 # Moldavi is now a zombie
-driver.DrawerMenuClick('infect-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 driver.FindElement([[By.NAME, 'infect-box']])
-driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
-driver.DrawerMenuClick('chat-card', 'My Profile')
+driver.DrawerMenuClick('Horde ZedLink')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100') # Points from infecting Jack
 driver.FindElement([[By.NAME, 'infection-line-0']])
@@ -103,7 +103,7 @@ driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactl
 
 # Jack is still human
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('infect-card', 'Resistance Comms Hub')
+driver.DrawerMenuClick('Resistance Comms Hub')
 
 driver.Quit()
 

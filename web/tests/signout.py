@@ -32,7 +32,7 @@ import setup
 driver = setup.MakeDriver(user="zella")
 
 try:
-  driver.DrawerMenuClick('mobile-main-page', 'Sign Out')
+  driver.DrawerMenuClick('Sign Out')
 
   # Switch to signout alert & accept
   driver.DismissAlert('Signed out!')

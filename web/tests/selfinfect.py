@@ -33,7 +33,7 @@ driver = setup.MakeDriver(user="jack")
 # the sly zombie Zeke leaps from a bush and tears out his brain!
 
 # Jack self-infects
-driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.DrawerMenuClick('Infect')
 driver.SendKeys([[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
 driver.Click([[By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.ID, 'selfInfectedMessage']], 'Welcome to the horde!')
@@ -41,10 +41,10 @@ driver.ExpectContains([[By.NAME, 'infect-card'], [By.ID, 'selfInfectedMessage']]
 # TODO(aliengirl): Do we want/need an "are you sure" popup?
 
 # Check Jack is now a zombie (infect widget, profile)
-driver.DrawerMenuClick('infect-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 driver.FindElement([[By.NAME, 'infect-box']])
-driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
-driver.DrawerMenuClick('chat-card', 'My Profile')
+driver.DrawerMenuClick('Horde ZedLink')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '0') # Self-infecting doesn't give you points
 driver.FindElement([[By.NAME, 'infection-line-0']])
@@ -52,7 +52,7 @@ driver.FindElement([[By.NAME, 'infection-line-1']], should_exist=False) # Exactl
 
 # Zeke records the kill
 driver.SwitchUser('zeke')
-driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.DrawerMenuClick('Infect')
 driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly') # Jack's code
 driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.ExpectContains([[By.NAME, 'infect-card'], [By.NAME, 'victimName']],'JackSlayerTheBeanSlasher')
@@ -63,7 +63,7 @@ driver.Click([[By.NAME, 'infect-card'], [By.ID, 'infect']])
 driver.DismissAlert()
 
 # Check that Zeke got points
-driver.DrawerMenuClick('infect-card', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '100')
 
 # Check that Jack only has 1 infection on his profile

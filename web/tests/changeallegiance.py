@@ -31,7 +31,7 @@ from selenium.webdriver.common.by import By
 # Sign in as an admin
 driver = setup.MakeDriver(user="zella")
 
-driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 
 # Search for people interested in being possessed humans
 driver.Click([[By.NAME, 'player-table'], [By.NAME, 'header-Extra'], [By.NAME, 'icon-search']])
@@ -53,7 +53,7 @@ driver.ExpectContains([[By.NAME, 'can-infect']], "Yes")
 
 # Sign in as Jack, confirm that he can infect
 driver.SwitchUser("jack")
-driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.DrawerMenuClick('Infect')
 driver.SendKeys(
       [[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']],
       'glarple-zerp-wobbledob') # Zella's life code
@@ -64,11 +64,11 @@ driver.ExpectContains([[By.NAME, 'infect-card']], "you've infected ZellaTheUltim
 driver.SwitchUser("zella")
 
 # Check her profile, see that she's still a human (now a possessed human)
-driver.DrawerMenuClick('profile-card', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'status']], "Alive")
 
 # Confirm that she can infect people now
-driver.DrawerMenuClick('profile-card', 'Infect')
+driver.DrawerMenuClick('Infect')
 driver.SendKeys(
     [[By.NAME, 'infect-card'], [By.TAG_NAME, 'input']],
     'zooble-flipwoogly') # Moldavi's life code
@@ -77,7 +77,7 @@ driver.ExpectContains([[By.NAME, 'infect-card']], "you've infected MoldaviTheMol
 
 
 # Unset Can Infect for Zella
-driver.DrawerMenuClick('infect-card', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.Click([[By.ID, 'unset-infect-button']])
 driver.FindElement([[By.ID, 'set-infect-button']])
 driver.ExpectContains([[By.NAME, 'can-infect']], "No")

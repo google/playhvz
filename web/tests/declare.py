@@ -34,10 +34,10 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="deckerd")
 
 # Make sure that an undeclared person can see rules, global chat, no missions: TODO(aliengirl): add this (and update declarezombie.py:35 if necessary)
-driver.DrawerMenuClick('mobile-main-page', 'Rules')
+driver.DrawerMenuClick('Rules')
 driver.FindElement([[By.NAME, 'rules-card']])
-driver.DrawerMenuClick('rules-card', 'Global Chat')
-driver.DrawerMenuClick('chat-card', 'Dashboard')
+driver.DrawerMenuClick('Global Chat')
+driver.DrawerMenuClick('Dashboard')
 
 # Time for Deckerd to choose a side
 driver.RetryUntil( 
@@ -156,9 +156,9 @@ if not driver.is_mobile:
 
 
 
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Global Chat']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
-driver.DrawerMenuClick('chat-card', 'Leaderboard')
+driver.FindDrawerItem('Global Chat')
+driver.FindDrawerItem('Resistance Comms Hub')
+driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],
      [By.NAME, 'Leaderboard Allegiance Cell DeckerdTheHesitant']],
@@ -171,10 +171,10 @@ driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],
      [By.NAME, 'Leaderboard Name Cell DeckerdTheHesitant']],
     'DeckerdTheHesitant')
-driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 
 driver.SwitchUser('zella')
-driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Resistance")
 
 

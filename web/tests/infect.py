@@ -31,14 +31,14 @@ from selenium.webdriver.common.by import By
 driver = setup.MakeDriver(user="jack")
 
 # Make sure Jack starts out human
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
+driver.FindDrawerItem('Resistance Comms Hub')
 
 # Drake infects Jack
 driver.SwitchUser("drake")
-driver.DrawerMenuClick('mobile-main-page', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '108')
 
-driver.DrawerMenuClick('profile-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 driver.SendKeys(
     [[By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']],
     'grobble-forgbobbly') # Crashed here once (desktop)
@@ -50,7 +50,7 @@ driver.ExpectContains(
 
 # Check that Jack is now in the zombie chat
 
-driver.DrawerMenuClick('mobile-main-page', 'Horde ZedLink')
+driver.DrawerMenuClick('Horde ZedLink')
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Horde ZedLink']])
 driver.FindElement([
     [By.NAME, 'chat-card'], 
@@ -58,11 +58,11 @@ driver.FindElement([
     [By.NAME, 'JackSlayerTheBeanSlasher']], should_exist=True)
 
 # Jack shows up as a zed on the leaderboard
-driver.DrawerMenuClick('chat-card', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains([[By.NAME, 'leaderboard-card'], [By.NAME,'Leaderboard Allegiance Cell JackSlayerTheBeanSlasher']], 'horde')
 
 # Jack's alive status changes
-driver.DrawerMenuClick('leaderboard-card', 'Global Chat')
+driver.DrawerMenuClick('Global Chat')
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-info-Global Chat']])
 driver.Click([
     [By.NAME, 'chat-card'], 
@@ -71,20 +71,20 @@ driver.Click([
 driver.ExpectContains([[By.NAME, 'status']], 'Living Dead')
 
 # Check that Drake has been given points for the kill
-driver.DrawerMenuClick('profile-card', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '208')
 
 # See that Jack is now a zombie
 driver.SwitchUser("jack")
 
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Horde ZedLink']])
-driver.FindElement([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']], should_exist=False)
-driver.DrawerMenuClick('chat-card', 'Dashboard')
+driver.FindDrawerItem('Horde ZedLink')
+driver.FindDrawerItem('Resistance Comms Hub', should_exist=False)
+driver.DrawerMenuClick('Dashboard')
 driver.FindElement([[By.TAG_NAME, 'ghvz-infect']])
 
 # Check that Jack can't be infected again with the same code
 driver.SwitchUser('drake')
-driver.DrawerMenuClick('mobile-main-page', 'Infect')
+driver.DrawerMenuClick('Infect')
 
 # Try to infect Jack again - shouldn't work this time (since life code is already claimed)
 driver.SendKeys([[By.NAME, 'infect-card'], [By.ID, 'lifeCodeInput'], [By.TAG_NAME, 'input']], 'grobble-forgbobbly')
