@@ -19,10 +19,6 @@ api_version: 1
 threadsafe: true
 service: default
 
-libraries:
-- name: ssl
-  version: 2.7
-
 builtins:
 - deferred: on
 
