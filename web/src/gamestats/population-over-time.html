@@ -160,11 +160,13 @@
         };
 
         DataForEachBin.prototype.arrayToDataTable = function() {
+          var days = ['Sun','Mon','Tues','Wed','Thurs','Fri','Sat'];
           var niceArray = [];
           for (var i = 0; i < this.typesForEachBin_.length; i++) {
-            niceArray.push(
-              [(new Date(
-                  this.typesForEachBin_[i][DataForEachBin.INDEX.TIME])).toString(),
+            // Format the date to just show the day
+            var date = new Date(this.typesForEachBin_[i][DataForEachBin.INDEX.TIME]);
+            niceArray.push([
+                days[date.getDay()],
                 this.typesForEachBin_[i][DataForEachBin.INDEX.HUMAN],
                 this.typesForEachBin_[i][DataForEachBin.INDEX.ZOMBIE]
               ]);

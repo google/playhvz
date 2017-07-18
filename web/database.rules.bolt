@@ -79,7 +79,9 @@ type Location {
 }
 
 type PublicEntity {
-  read() { true // isAuthenticated() }
+  read() {
+    true // isAuthenticated()
+  }
   write() { !writeLocked() && isServer() }
   validate() { true; }
 }
