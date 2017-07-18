@@ -149,6 +149,7 @@ driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-room-Legendary Humans"], [
 
 # Jack clicks on the other notification to the private chat - should not take him there (since he's not in the group)
 driver.DrawerMenuClick('Notifications')
+driver.DrawerMenuClick('Notifications') #TODO(aliengirl): Weirdly, no remote sometimes this doesn't open the notifications page
 driver.Click([[By.NAME, 'notifications-card'], [By.NAME, "preview-ZellaTheUltimate: Pronounced as one letter, And written with three, Two letters there are, And two only in me. I'm double, I'm single, I'm black, blue, and gray, I'm read from both ends, And the same either way. What am I? src=http://www.doriddles.com/riddle-664#show"]])
 driver.FindElement([[By.NAME, 'chat-room-Legendary-Humans']], should_exist=False)
 driver.DrawerMenuClick('Global Chat')

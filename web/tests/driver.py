@@ -439,3 +439,9 @@ class WholeDriver:
 
   def Kill(self):
     self.inner_driver.Kill()
+
+  def Optional(self, action):
+    try:
+      action()
+    except (NoSuchElementException, AssertionError, WebDriverException, ElementNotVisibleException) as e:
+      pass

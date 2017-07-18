@@ -104,7 +104,8 @@ driver.DrawerMenuClick('Expelliarmus')
 driver.Click([[By.NAME, 'chat-card'], 
 	[By.NAME, 'received-request-ack-Why are we sorcerers? What does this have to do with zombies?'],
 	[By.NAME, 'ack-request-button']])
-driver.DismissAlert()
+# TODO(aliengirl): Come back and change this once fake & remote deal w. empty mesages the same way
+driver.Optional(lambda: driver.DismissAlert()) 
 
 # Reply
 driver.SendKeys([[By.NAME, 'chat-card'], 

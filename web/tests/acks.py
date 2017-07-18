@@ -36,6 +36,7 @@ driver.Click([[By.NAME, 'close-notification']])
 
 # Create a new chat room
 driver.DrawerMenuClick('New chat') # TODO(aliengirl): once failed here -m
+driver.FindElement([[By.ID, 'chatName']])
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], "Expelliarmus")
 driver.Click([[By.ID, 'settingsForm'], [By.ID, 'done']])
 
@@ -76,7 +77,12 @@ driver.ExpectContains([
 	[By.NAME, 'chat-card'], 
 	[By.NAME, 'request-message-Why are we sorcerers? What does this have to do with zombies?'],
 	[By.NAME, 'not-responded']], 
-	"JackSlayerTheBeanSlasher, Drackan")
+	"JackSlayerTheBeanSlasher")
+driver.ExpectContains([
+	[By.NAME, 'chat-card'], 
+	[By.NAME, 'request-message-Why are we sorcerers? What does this have to do with zombies?'],
+	[By.NAME, 'not-responded']], 
+	"Drackan")
 driver.FindElement(
 	[[By.NAME, 'preview-ZellaTheUltimate: Why are we sorcerers? What does this have to do with zombies?']],
 	should_exist=False) #Shouldn't see your own notification
