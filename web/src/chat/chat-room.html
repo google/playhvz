@@ -616,7 +616,7 @@
       </template>
     </div>
 
-    <div id="conversationContainer" class="conversation-container">
+    <div id="conversationContainer" name$="conversationContainer: [[chatRoom.name]]" class="conversation-container">
       <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
         <div id$="[[item.id]]" name$="message-[[chatRoom.name]]-[[item.message]]"
           class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item)]]">
