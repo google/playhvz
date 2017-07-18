@@ -116,7 +116,8 @@ driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "player-nam
 
 # Zella can't add/remove anymore since Moldavi's the owenr
 driver.SwitchUser('zella')
-driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
+driver.DrawerMenuClick("Humanity's Last Hope")
+driver.DrawerMenuClick([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
 driver.FindElement([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-add"]], should_exist=False)
 driver.FindElement([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-leave"]], should_exist=False)
 
