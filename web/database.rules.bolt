@@ -79,7 +79,9 @@ type Location {
 }
 
 type PublicEntity {
-  read() { isAuthenticated() }
+  read() {
+    true // isAuthenticated()
+  }
   write() { !writeLocked() && isServer() }
   validate() { true; }
 }
@@ -148,7 +150,7 @@ type ChatRoom {
   messages: Map<MessageId, Message> | Null;
 
   read() {
-    isAuthenticatedMember(this.accessGroupId, this.gameId)
+    true // isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
   write() { !writeLocked() && isAuthenticatedMember(this.accessGroupId, this.gameId) }
@@ -164,7 +166,7 @@ type Message {
   location: Location | Null;
 
   read() {
-    isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)
+    true // isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)
   }
 
   write() { !writeLocked() && isAuthenticatedMember(this.parent().accessGroupId, this.parent().gameId)   }
@@ -192,7 +194,7 @@ type Game {
 
   // Everyone can read a game so they can add themselves
   read() {
-    isAuthenticated() 
+    true // isAuthenticated() 
   }
 
   write() { !writeLocked() && isServer() }
@@ -217,7 +219,7 @@ type Group {
   players: Map<PublicPlayerId, Boolean>;
 
   read() {
-    isAuthenticatedMember(key(), this.gameId)
+    true // isAuthenticatedMember(key(), this.gameId)
   }
   
   write() { !writeLocked() && isServer() }
@@ -235,7 +237,7 @@ type Gun {
   label: String;
 
   read() {
-    isAuthenticated()
+    true // isAuthenticated()
   }  
 
   write() { !writeLocked() && isServer() }
@@ -256,7 +258,7 @@ type Mission {
   rsvpersGroupId: GroupId;
 
   read() {
-    isAuthenticatedMember(this.accessGroupId, this.gameId)
+    true // isAuthenticatedMember(this.accessGroupId, this.gameId)
   }
 
   write() { !writeLocked() && isServer() }
@@ -324,8 +326,7 @@ type PrivatePlayer {
   associatedMaps: Map<MapId, Map<MarkerId, Boolean>>;
 
   read() {
-    isAuthenticated() && (isServer() ||
-    getUserId() == this.userId || isAdmin(this.gameId))
+    true // isAuthenticated() && (isServer() || getUserId() == this.userId || isAdmin(this.gameId))
   }
 
   write() {
@@ -346,7 +347,7 @@ type Reward {
   playerId: OptionalPlayerId;
 
   read() {
-    isAuthenticated()
+    true // isAuthenticated()
   }
 
   write() { !writeLocked() && isServer() }
@@ -372,7 +373,7 @@ type PublicPlayer {
 
   // Public players can be seen by all
   read() {
-    isAuthenticated()
+    true // isAuthenticated()
   }
 
   write() { !writeLocked() && isServer() }
@@ -395,7 +396,7 @@ type RewardCategory {
   shortName: String;
 
   read() {
-    isAuthenticated()
+    true // isAuthenticated()
   }
 
   write() { !writeLocked() && isServer() }
@@ -421,8 +422,7 @@ type User {
   games: Map<GameId, GamePlayerLookup>;
 
   read() {
-    isServer() ||
-    key() == getUserId()
+    true // isServer() || key() == getUserId()
   }
 
   write() { !writeLocked() && isServer() }
@@ -448,7 +448,7 @@ type MapType {
   name: String; 
 
   read() {
-    isAuthenticated()
+    true // isAuthenticated()
   }
 
   write() { !writeLocked() && isServer() }
@@ -473,7 +473,7 @@ type QueuedNotification {
   vibrate: Boolean;
   
   read() {
-    isAdmin(this.gameId)
+    true // isAdmin(this.gameId)
   }
 
   write() { !writeLocked() && isServer() }
@@ -488,9 +488,7 @@ type PrivateLife {
   code: String;
   gameId: GameId;
   read() {
-    isServer() ||
-    isPrivatePlayer(this.gameId) ||
-    isAdmin(this.gameId)
+    true // isServer() || isPrivatePlayer(this.gameId) || isAdmin(this.gameId)
   }
 
   write() { !writeLocked() && isServer() }
@@ -506,7 +504,7 @@ type PublicLife {
   gameId: GameId;
   time: OptionalTimestamp;
   read() {
-    isAuthenticated()
+    true // isAuthenticated()
   }
 
   write() { !writeLocked() && isServer() }

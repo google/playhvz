@@ -66,7 +66,7 @@ driver.Click([[By.NAME, 'joinGameBlasterInfoPageNext']])
 driver.Click([[By.TAG_NAME, 'ghvz-game-registration'], [By.NAME, 'submitJoinGame']])
 
 #TODO(aliengirl): Figure out why it's failing here on mobile and stop that!
-driver.FindElement([[By.TAG_NAME, 'ghvz-rules']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-help-page']])
 
 driver.FindDrawerItem('Global Chat')
 

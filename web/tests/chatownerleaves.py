@@ -92,10 +92,6 @@ driver.Click([[By.TAG_NAME, 'ghvz-display-page'], [By.NAME, 'chat-card'], [By.NA
 driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], 
   [By.NAME, "chat-drawer-Humanity's Last Hope"], 
   [By.NAME, 'MoldaviTheMoldavish'], 
-  [By.TAG_NAME, 'paper-icon-button']])
-driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], 
-  [By.NAME, "chat-drawer-Humanity's Last Hope"], 
-  [By.NAME, 'MoldaviTheMoldavish'], 
   [By.ID, 'kick-MoldaviTheMoldavish']])
 driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.ID, 'kickForm'], [By.ID, 'done']])
 
