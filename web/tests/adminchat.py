@@ -49,7 +49,6 @@ def closeNotifications(driver):
 
 ## Run admin chat test
 driver = setup.MakeDriver()
-
 driver.WaitForGameLoaded()
 
 actingPlayer = 'zeke'

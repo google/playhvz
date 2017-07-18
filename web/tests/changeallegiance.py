@@ -86,3 +86,6 @@ driver.ExpectContains([[By.NAME, 'can-infect']], "No")
 # driver.FindElement([[By.NAME, "infect-card"]], should_exist=False)
 
 driver.Quit()
+
+
+

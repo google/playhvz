@@ -176,3 +176,4 @@ driver.FindElement([[By.TAG_NAME, 'ghvz-infect']], should_exist=True)
 driver.FindDrawerItem('Horde ZedLink')
 
 driver.Quit()
+

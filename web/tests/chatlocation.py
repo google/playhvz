@@ -52,4 +52,3 @@ if driver.is_mobile:
   assert "https://maps.googleapis.com/maps/api/staticmap" in location;
 
 driver.Quit()
-
