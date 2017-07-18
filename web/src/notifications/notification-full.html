@@ -37,14 +37,16 @@
 
       onNotificationChanged_() {
         this.$.contents.innerHTML = this.notification.message;
-        if (!this.notification.seenTime) {
-          this.bridge.updateNotification({
-            gameId: this.game.id,
-            playerId: this.player.id,
-            notificationId: this.notification.id,
-            seenTime: new Date().getTime(),
-          });
-        }
+
+        // Taken out because it was causing some notifications to disappear right after appearing
+        // if (!this.notification.seenTime) {
+        //   this.bridge.updateNotification({
+        //     gameId: this.game.id,
+        //     playerId: this.player.id,
+        //     notificationId: this.notification.id,
+        //     seenTime: new Date().getTime(),
+        //   });
+        // }
       },
     });
   });
