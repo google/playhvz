@@ -171,14 +171,6 @@
           </ghvz-card>
         </template>
 
-        <ghvz-card spaced left padded name="summary-box">
-            <div class="header">Game Summary</div>
-            <ghvz-game-summary
-                is-mobile="[[isMobile]]"
-                game="[[game]]">
-            </ghvz-game-summary>
-        </ghvz-card>
-
         <template is="dom-if" if="[[isDeclared]]">
           <ghvz-card spaced left padded name="next-mission-box">
             <div class="header">Next Mission</div>
@@ -190,7 +182,15 @@
           </ghvz-card>
         </template>
 
-        <ghvz-card spaced scrolling right name="leaderboard-box">
+        <ghvz-card spaced left padded name="summary-box">
+            <div class="header">Game Summary</div>
+            <ghvz-game-summary
+                is-mobile="[[isMobile]]"
+                game="[[game]]">
+            </ghvz-game-summary>
+        </ghvz-card>
+
+        <ghvz-card spaced scrolling left name="leaderboard-box">
           <div class="header">Leaderboard</div>
           <ghvz-leaderboard-summary
               game="[[game]]"
@@ -199,7 +199,7 @@
         </ghvz-card>
 
         <template is="dom-if" if="[[isDeclared]]">
-          <ghvz-card spaced right fullscreen-page="stats" name="stats-box">
+          <ghvz-card spaced left fullscreen-page="stats" name="stats-box">
             <div class="header">Game Stats</div>
             <ghvz-game-stat-summary game="[[game]]">
             </ghvz-game-stat-summary>
@@ -218,9 +218,9 @@
         </template>
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
-          <div spaced left>
+          <div right>
             <template is="dom-if" if="[[chatIsVisible_(membership, membership.lastHiddenTime)]]">
-              <ghvz-card spaced left>
+              <ghvz-card spaced>
                 <ghvz-chat-room
                     small
                     bridge="[[bridge]]"

@@ -44,11 +44,15 @@
 
       handleTap_(e) {
         if (this.notification.destination) {
-          this.fire('ghvz-set-path', {
-            inGame: false,
-            path: this.notification.destination.split('/'),
-            replace: false,
-          });
+          if (this.notification.destination.includes('http')) {
+            window.location = this.notification.destination;
+          } else {
+            this.fire('ghvz-set-path', {
+              inGame: false,
+              path: this.notification.destination.split('/'),
+              replace: false,
+            });
+          }
         } else {
           if (this.expanded) {
             this.fire('ghvz-set-path', {

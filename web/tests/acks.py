@@ -77,7 +77,12 @@ driver.ExpectContains([
 	[By.NAME, 'chat-card'], 
 	[By.NAME, 'request-message-Why are we sorcerers? What does this have to do with zombies?'],
 	[By.NAME, 'not-responded']], 
-	"JackSlayerTheBeanSlasher, Drackan")
+	"JackSlayerTheBeanSlasher")
+driver.ExpectContains([
+	[By.NAME, 'chat-card'], 
+	[By.NAME, 'request-message-Why are we sorcerers? What does this have to do with zombies?'],
+	[By.NAME, 'not-responded']], 
+	"Drackan")
 driver.FindElement(
 	[[By.NAME, 'preview-ZellaTheUltimate: Why are we sorcerers? What does this have to do with zombies?']],
 	should_exist=False) #Shouldn't see your own notification
@@ -149,7 +154,6 @@ driver.Click([
 driver.FindElement([[By.NAME, 'chat-card'], 
 	[By.NAME, 'request-message-Why are we sorcerers? What does this have to do with zombies?']], 
 	should_exist=False)
-# driver.Click([[By.TAG_NAME, 'ghvz-notification-preview'], [By.NAME, 'close-notification']]) # Close the most recent notification #TODO(aliengirl): take this out soon
 
 
 ################### Jack's turn to send a message (just to one person this time) ###################

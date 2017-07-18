@@ -124,6 +124,8 @@ class InMemoryStore:
           for chat_room_id, chat_room_membership in private_player['chatRoomMemberships'].iteritems():
             if 'lastSeenTime' in chat_room_membership:
               del chat_room_membership['lastSeenTime']
+            if 'lastHiddenTime' in chat_room_membership:
+              del chat_room_membership['lastHiddenTime']
     return contents
 
   def databaseContentsEqual(self, contentsA, contentsB):

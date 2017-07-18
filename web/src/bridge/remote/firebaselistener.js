@@ -292,7 +292,8 @@ window.FirebaseListener = (function () {
 
     listenToPlayer_(publicPlayerId, listeningUserId, listeningAsAdmin) {
       this.listenToModel(new Model.PublicPlayer(publicPlayerId, this.gameIdObj), (obj, snapVal) => {
-        let listenToPrivate = listeningAsAdmin || (obj.userId == listeningUserId);
+        let userId = obj.userId;
+        let listenToPrivate = listeningAsAdmin || (userId == listeningUserId);
 
         this.firebaseRoot.child(obj.link + '/claims')
           .on('child_added', (publicSnap) => this.listenToClaim_(publicPlayerId, publicSnap.getKey()));
@@ -320,32 +321,36 @@ window.FirebaseListener = (function () {
                 this.writer.set(privatePlayerPath.concat([property]), value);
               });
 
-            let v_props = []; // hack around existing solution which combines objects
-            for (var vkey in models.volunteer) {
-              v_props.push(vkey);
-            }
-            let n_props = [];
-            for (var nkey in models.notificationSettings) {
-              n_props.push(nkey);
-            }
-            this.listenForPropertyChanges_(
-              privateSnap.ref.child('volunteer'),
-              v_props, [],
-              (property, value) => {
-                this.writer.set(privatePlayerPath.concat(['volunteer', property]), value);
-              });
-            this.listenForPropertyChanges_(
-              privateSnap.ref.child('notificationSettings'),
-              n_props, [],
-              (property, value) => {
-                this.writer.set(privatePlayerPath.concat(['notificationSettings', property]), value);
-              });
+            // Optimization: these werent used this year
+            // let v_props = []; // hack around existing solution which combines objects
+            // for (var vkey in models.volunteer) {
+            //   v_props.push(vkey);
+            // }
+            // let n_props = [];
+            // for (var nkey in models.notificationSettings) {
+            //   n_props.push(nkey);
+            // }
+            // this.listenForPropertyChanges_(
+            //   privateSnap.ref.child('volunteer'),
+            //   v_props, [],
+            //   (property, value) => {
+            //     this.writer.set(privatePlayerPath.concat(['volunteer', property]), value);
+            //   });
+            // this.listenForPropertyChanges_(
+            //   privateSnap.ref.child('notificationSettings'),
+            //   n_props, [],
+            //   (property, value) => {
+            //     this.writer.set(privatePlayerPath.concat(['notificationSettings', property]), value);
+            //   });
 
-            this.firebaseRoot.child(privatePlayer.link + '/notifications')
-              .on('child_added', (snap) => {
-                let notificationId = snap.getKey();
-                this.listenToNotification_(publicPlayerId, privatePlayerId, notificationId);
-              });
+            // Optimization: even admins dont see another user's notifications
+            if (listeningUserId == userId) {
+              this.firebaseRoot.child(privatePlayer.link + '/notifications')
+                .on('child_added', (snap) => {
+                  let notificationId = snap.getKey();
+                  this.listenToNotification_(publicPlayerId, privatePlayerId, notificationId);
+                });
+            }
             this.firebaseRoot.child(privatePlayer.link + '/chatRoomMemberships')
               .on('child_added', (snap) => {
                 let chatRoomId = snap.getKey();
