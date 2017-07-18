@@ -138,7 +138,6 @@ class EndToEndTest(unittest.TestCase):
       'summaryHtml': 'test summary',
       'infectPoints': 100,
       'stunTimer': 10,
-      'infectPoints': 30,
       'registrationEndTime': 1506884521000,
       'startTime': 1606884521000,
       'endTime': 1706884521000,
@@ -151,7 +150,6 @@ class EndToEndTest(unittest.TestCase):
       'faqHtml': 'test faq 2',
       'summaryHtml': 'test summary 2',
       'stunTimer': 5,
-      'infectPoints': 40,
     }
     self.AssertCreateUpdateSequence('createGame', create, 'updateGame', update)
 
