@@ -542,7 +542,7 @@
                 <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
                   <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
                     <template is="dom-if" if="[[request.response]]">
-                      <div class="request-container">
+                      <div class="request-container" name$="request-response-[[request.response.text]]">
                         <ghvz-player-label
                             game="[[game]]"
                             player-id="[[request.playerId]]">
@@ -577,7 +577,7 @@
                     </paper-material>
                   </template>
                   <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category request-category-with-answer">
+                    <paper-material class="request-category request-category-with-answer" name$="received-request-ack-[[requestCategory.text]]">
                       <div class="request-category-text-column">
                         <p hidden>[[request.time]]</p>
                         <ghvz-player-label
