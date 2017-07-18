@@ -40,6 +40,11 @@
           type: String,
           value: null,
         },
+
+        selected: {
+          type: Number,
+          value: 0,
+        },
       },
 
       onPathChanged_: function(newPath, oldPath) {
@@ -54,10 +59,18 @@
           }
         }
         if (newPath == 'main') {
-          this.$.pages.selected = 0;
+          this.selected = 0;
         } else {
-          this.$.pages.selected = 1;
+          this.selected = 1;
         }
+      },
+
+      computeMainClass_(selected) {
+        return selected == 0 ? "top-view visible-page" : null;
+      },
+
+      computeSecondClass_(selected) {
+        return selected == 1 ? "top-view" : null;
       },
     });
   });
@@ -91,9 +104,10 @@
       player="[[player]]">
   </ghvz-unseen-notifications>
 
-  <neon-animated-pages id="pages" class="flex" selected="0">
+  <neon-animated-pages id="pages" class="flex" selected="[[selected]]">
     <neon-animatable>
       <ghvz-mobile-main-page
+          class$="[[computeMainClass_(selected)]]"
           name="mobile-main-page"
           bridge="[[bridge]]"
           database="[[database]]"
@@ -104,6 +118,7 @@
     </neon-animatable>
     <neon-animatable>
       <ghvz-display-game-page
+          class$="[[computeSecondClass_(selected)]]"
           bridge="[[bridge]]"
           is-admin="[[isAdmin]]"
           database="[[database]]"

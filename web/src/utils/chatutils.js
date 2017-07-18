@@ -114,3 +114,30 @@ ChatUtils.createAdminChat = function(bridge, game, player, chatRoomName) {
   });
   return chatRoomId;
 };
+
+/**
+* Check that a chat room isn't hidden, or if it is hidden, show the room again if there are new 
+* messages since the time we hid it.
+*/ 
+ChatUtils.chatIsVisible = function(chatRoom, membership) {
+  if (!membership || !chatRoom) {
+    return false;
+  }
+  let lastHiddenTime = membership.lastHiddenTime;
+  if (!lastHiddenTime)
+    return true;
+  // If we get here, then it was at some point in the past hidden
+  if (!chatRoom.messages.length) {
+    // It was hidden at some point in the past, but there are no messages. Weird. Hide it.
+    return false;
+  }
+  let lastMessage = chatRoom.messages.slice(-1)[0];
+  if (lastHiddenTime > lastMessage.time) {
+    // If we get here, we hid the room after the last message, so we should hide the room
+    return false;
+  } else {
+    // If we get here, we hid it before the last message, so we should show the room
+    return true;
+  }
+}
+

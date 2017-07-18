@@ -142,7 +142,7 @@ driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
 # Make sure that deckerd is in the zombie chat and sees all the correct widgets
 
-driver.FindElement([[By.NAME, 'rules-box']])
+driver.FindElement([[By.NAME, 'help-box']])
 driver.FindElement([[By.NAME, 'next-mission-box']])
 
 if not driver.is_mobile:
@@ -151,12 +151,11 @@ if not driver.is_mobile:
 
 
 
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
+driver.FindDrawerItem('Global Chat')
+driver.FindDrawerItem('Horde ZedLink')
+driver.FindDrawerItem('Zeds Internal Secret Police')
 
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Horde ZedLink']])
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Global Chat']])
-driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, 'Zeds Internal Secret Police']])
-driver.DrawerMenuClick('chat-card', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],
      [By.NAME, 'Leaderboard Allegiance Cell DeckerdTheHesitant']],
@@ -169,10 +168,10 @@ driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'],
      [By.NAME, 'Leaderboard Name Cell DeckerdTheHesitant']],
     'DeckerdTheHesitant')
-driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 
 driver.SwitchUser('zella')
-driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 driver.ExpectContains([[By.NAME, 'player-row-DeckerdTheHesitant'], [By.ID, 'allegiance']], "Horde")
 
 

@@ -405,18 +405,12 @@ class FakeIdGenerator extends IdGenerator {
     name: '|String',
     withAdmins: '|Boolean',
   });
-  serverMethods.set('setLastSeenChatTime', {
-    gameId: 'GameId',
-    chatRoomId: 'ChatRoomId',
-    playerId: 'PublicPlayerId',
-    timestamp: 'Timestamp',
-  });
   serverMethods.set('updateChatRoomMembership', {
     gameId: 'GameId',
     chatRoomId: 'ChatRoomId',
     actingPlayerId: 'PublicPlayerId',
-    isVisible: '|Boolean',
-    lastSeenTime: '|Timestamp',
+    lastHiddenTime: '|?Timestamp',
+    lastSeenTime: '|?Timestamp',
   });
 
   serverMethods.set('createMap', {

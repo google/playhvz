@@ -805,6 +805,50 @@ function populateGame(bridge, gameId, config, populateLotsOfPlayers) {
     text: "responseText",
   });
 
+
+  var withAdminsChatRoomGroupId = bridge.idGenerator.newGroupId();
+  var withAdminsChatRoomId = bridge.idGenerator.newChatRoomId();
+  bridge.createGroup({
+    groupId: withAdminsChatRoomGroupId,
+    name: "Group for " + withAdminsChatRoomId,
+    gameId: gameId,
+    ownerPlayerId: jackPlayerId,
+    allegianceFilter: 'none',
+    autoAdd: false,
+    autoRemove: false,
+    canAddOthers: false,
+    canRemoveOthers: false,
+    canAddSelf: true,
+    canRemoveSelf: true,
+  });
+  bridge.createChatRoom({
+    gameId: gameId,
+    chatRoomId: withAdminsChatRoomId,
+    accessGroupId: withAdminsChatRoomGroupId,
+    name: "JackSlayerTheBeanSlasher & HvZ CDC",
+    withAdmins: true,
+  });
+
+  bridge.addPlayerToGroup({
+    gameId: gameId,
+    groupId: withAdminsChatRoomGroupId,
+    playerToAddId: jackPlayerId,
+    actingPlayerId: jackPlayerId,
+  });
+  bridge.addPlayerToGroup({
+    gameId: gameId,
+    groupId: withAdminsChatRoomGroupId,
+    playerToAddId: moldaviPlayerId,
+    actingPlayerId: jackPlayerId,
+  });
+  bridge.sendChatMessage({
+    gameId: gameId,
+    messageId: bridge.idGenerator.newMessageId(),
+    chatRoomId: withAdminsChatRoomId,
+    playerId: jackPlayerId,
+    message: 'hey how do i know if im the possessed human'
+  });
+
   populateQuiz(bridge, gameId);
 }
 

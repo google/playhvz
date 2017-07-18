@@ -245,29 +245,6 @@ def GetNextPlayerNumber(game_state, game_id):
 def GetPrivatePlayerId(game_state, public_player_id):
   return game_state.get('/publicPlayers/%s' % public_player_id, 'privatePlayerId')
 
-def LifeCodeToPlayerId(game_state, game_id, life_code, expect=True):
-  public_players = GetValueWithPropertyEqualTo(
-      game_state,
-      'publicPlayers',
-      'gameId',
-      game_id)
-  if public_players is not None:
-    print 'lizard'
-    for public_player_id, public_player in public_players.iteritems():
-      print 'ostrich'
-      if 'lives' in public_player:
-        print 'lemur'
-        for public_life_id in public_player['lives'].keys():
-          print 'bizork' + public_life_id
-          public_life = game_state.get('/publicLives', public_life_id)
-          private_life = game_state.get('/privateLives', public_life['privateLifeId'])
-          if private_life['code'] == life_code:
-            print 'shrorp'
-            return public_player_id
-  if expect:
-    raise InvalidInputError('No player for life code %s' % life_code)
-  return None
-
 
 def GetIdSuffix(id):
   index = id.find('-')

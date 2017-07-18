@@ -54,13 +54,17 @@
             notificationId: this.notification.id,
             seenTime: new Date().getTime(),
           });
-          let destinationString = this.notification.destination || 'notifications/' + this.notification.id;
-          let destinationPath = destinationString.split('/');
-          this.fire('ghvz-set-path', {
-            inGame: !destinationString.startsWith('game/'),
-            path: destinationPath,
-            replace: false,
-          });
+          if (this.notification.destination.includes('http')) {
+            window.location = this.notification.destination;
+          } else {
+            let destinationString = this.notification.destination || 'notifications/' + this.notification.id;
+            let destinationPath = destinationString.split('/');
+            this.fire('ghvz-set-path', {
+              inGame: !destinationString.startsWith('game/'),
+              path: destinationPath,
+              replace: false,
+            });
+          }
         }
       },
 
@@ -121,11 +125,11 @@
     <div class="preview-message" name$="preview-[[notification.previewMessage]]">[[notification.previewMessage]]</div>
     <div id="time">[[formatShortTime_(notification.time)]]</div>
     <paper-icon-button
-      name="close-notification"
-      hidden$="[[!withClose]]"
-      class="close"
-      icon="icons:close"
-      on-tap="close_">
+        name="close-notification"
+        hidden$="[[!withClose]]"
+        class="close"
+        icon="icons:close"
+        on-tap="close_">
     </paper-icon-button>
   </div>
 </template>

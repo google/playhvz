@@ -61,7 +61,7 @@ driver.WaitForGameLoaded()
 
 # Open dialog for creating new chat room
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', 'New chat')
+driver.DrawerMenuClick('New chat')
 
 # Set chat room settings to be zombie only
 driver.FindElement([[By.ID, 'chatName']])
@@ -100,17 +100,17 @@ driver.Click([[By.NAME, 'submit-%s' % newChatName], [By.XPATH, xpathSend]])
 
 # Check that other player can see the message
 driver.SwitchUser('drake')
-driver.DrawerMenuClick('mobile-main-page', newChatName)
+driver.DrawerMenuClick(newChatName)
 driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-page'], [By.NAME, 'message-%s-Whats our plan?' % newChatName], [By.CLASS_NAME, 'message-bubble']], 
 'Whats our plan?')
 
 # Switch back to original player
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('chat-card', newChatName)
+driver.DrawerMenuClick(newChatName)
 toggleChatDrawer(driver, actingPlayerName, newChatName)
 
 # Kick player from chat
-driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'trigger']])
+#driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'trigger']])
 driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.ID, 'kick-' + playerNames['drake']]])
 driver.Click([[By.ID, 'chat-page-' + actingPlayerName], [By.ID, 'kickForm'], [By.ID, 'done']])
 

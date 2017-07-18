@@ -26,7 +26,7 @@ driver = setup.MakeDriver(user="zella")
 driver.Click([[By.NAME, 'close-notification']])
 
 # Give Zella a reward (just so that she has more points than Moldavi)
-driver.DrawerMenuClick('mobile-main-page', 'Admin Rewards')
+driver.DrawerMenuClick('Admin Rewards')
 driver.TableMenuClick([[By.NAME, 'row-signed']], 'Show Rewards')
 driver.Click([[By.NAME, 'header-Claimer'], [By.NAME, 'icon-search']])
 driver.SendKeys(
@@ -35,7 +35,7 @@ driver.SendKeys(
 # NOTE: don't blindly copy this, it's very risky to use FindElement's return value.
 reward = driver.FindElement([[By.ID, 'rewardsTable'], [By.NAME, 'reward-name-0']]).get_attribute('val')
 
-driver.DrawerMenuClick('admin-rewards-card', 'Rewards')
+driver.DrawerMenuClick('Rewards')
 driver.SendKeys([[By.NAME, 'rewards-card'], [By.TAG_NAME, 'input']], reward)
 driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 
@@ -44,19 +44,17 @@ driver.Click([[By.NAME, 'rewards-card'], [By.ID, 'claim']])
 driver.SwitchUser('jack')
 
 driver.Click([[By.NAME, 'close-notification']])
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
 
 # Jack creates his own personal chatroom with no other player
-driver.Click([[By.ID, 'new-chat']])
+driver.DrawerMenuClick('New chat')
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], 'Secret Stuff')
 driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
 driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
 driver.Click([[By.ID, 'settingsForm'], [By.ID, 'dialog'], [By.ID, 'done']])
-driver.DrawerMenuClick('chat-card', 'Secret Stuff')
+driver.DrawerMenuClick('Secret Stuff')
 
 # Jack creates a chatroom with other players
-driver.DrawerMenuClick('chat-card', 'Chat')
-driver.Click([[By.ID, 'new-chat']])
+driver.DrawerMenuClick('New chat')
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], "Humanity's Last Hope")
 driver.Click([[By.ID, 'allegianceFilter'], [By.ID, 'checkboxContainer']])
 driver.Click([[By.ID, 'canAddOthers'], [By.ID, 'checkboxContainer']])
@@ -86,17 +84,11 @@ driver.FindElement([[By.NAME, "drawerHumanity's Last Hope"]], should_exist=False
 
 # Sign in as Zella, make sure she's the owner
 driver.SwitchUser('zella')
-driver.DrawerMenuClick('rewards-card', 'Chat')
 
-# Open the drawer of each to check that Zella can add/bump people (i.e. is the owner)
-driver.Click([[By.TAG_NAME, 'ghvz-chat-room-list'], [By.NAME, "Humanity's Last Hope"]])
-driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
+driver.DrawerMenuClick("Humanity's Last Hope")
+driver.Click([[By.TAG_NAME, 'ghvz-display-page'], [By.NAME, 'chat-card'], [By.NAME, 'chat-info-Humanity\'s Last Hope']])
 
 # Bump Moldavi
-driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], 
-  [By.NAME, "chat-drawer-Humanity's Last Hope"], 
-  [By.NAME, 'MoldaviTheMoldavish'], 
-  [By.TAG_NAME, 'paper-icon-button']])
 driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], 
   [By.NAME, "chat-drawer-Humanity's Last Hope"], 
   [By.NAME, 'MoldaviTheMoldavish'], 
@@ -114,7 +106,7 @@ driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-room-Humanity's Last Hope"
 # Moldavi checks he's the owner
 driver.SwitchUser('moldavi')
 driver.Click([[By.NAME, 'close-notification']])
-driver.DrawerMenuClick('mobile-main-page', "Humanity's Last Hope")
+driver.DrawerMenuClick("Humanity's Last Hope")
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
 driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, "chat-drawer-Humanity's Last Hope"], [By.NAME, 'ZellaTheUltimate']], should_exist=False)
 
@@ -124,7 +116,8 @@ driver.Click([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "player-nam
 
 # Zella can't add/remove anymore since Moldavi's the owenr
 driver.SwitchUser('zella')
-driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
+driver.DrawerMenuClick("Humanity's Last Hope")
+driver.DrawerMenuClick([[By.NAME, 'chat-card'], [By.NAME, "chat-info-Humanity's Last Hope"]])
 driver.FindElement([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-add"]], should_exist=False)
 driver.FindElement([[By.NAME, "chat-room-Humanity's Last Hope"], [By.NAME, "chat-drawer-leave"]], should_exist=False)
 

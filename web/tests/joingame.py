@@ -66,12 +66,11 @@ driver.Click([[By.NAME, 'joinGameBlasterInfoPageNext']])
 driver.Click([[By.TAG_NAME, 'ghvz-game-registration'], [By.NAME, 'submitJoinGame']])
 
 #TODO(aliengirl): Figure out why it's failing here on mobile and stop that!
-driver.FindElement([[By.TAG_NAME, 'ghvz-rules']])
+driver.FindElement([[By.TAG_NAME, 'ghvz-help-page']])
 
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.ExpectContains([[By.TAG_NAME, 'ghvz-chat-room-list']], 'Global Chat')
+driver.FindDrawerItem('Global Chat')
 
-driver.DrawerMenuClick('chat-card', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Name Cell ReggieTheRavager']],
     'ReggieTheRavager')
@@ -82,7 +81,7 @@ driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell ReggieTheRavager']],
     '0')
 
-driver.DrawerMenuClick('leaderboard-card', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'player-name']], 'ReggieTheRavager')
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')
 driver.ExpectContains([[By.NAME, 'profilePoints']], '0')
@@ -91,7 +90,7 @@ driver.ExpectContains([[By.NAME, 'notifications-vibration']], "No")
 
 
 driver.SwitchUser('zella')
-driver.DrawerMenuClick('mobile-main-page', 'Admin Players')
+driver.DrawerMenuClick('Admin Players')
 driver.Click([[By.NAME, 'player-row-ReggieTheRavager'], [By.ID, 'name']])
 driver.ExpectContains([[By.NAME, 'player-name']], "ReggieTheRavager")
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')

@@ -68,7 +68,7 @@ driver.Click([[By.NAME, 'joinGameBlasterPage'], [By.NAME, 'option0']])
 driver.Click([[By.TAG_NAME, 'ghvz-game-registration'], [By.NAME, 'submitJoinGame']])
 
 # Check that the leaderboard has the person show up with 0 points
-driver.DrawerMenuClick('mobile-main-page', 'Leaderboard')
+driver.DrawerMenuClick('Leaderboard')
 driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Name Cell ReggieTheRavager']], 'ReggieTheRavager')
 driver.ExpectContains(
@@ -77,7 +77,7 @@ driver.ExpectContains(
     [[By.NAME, 'leaderboard-card'], [By.NAME, 'Leaderboard Points Cell ReggieTheRavager']], '0')
 
 # Declare allegiance as a human
-driver.DrawerMenuClick('leaderboard-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 driver.Click([[By.NAME, 'declareAllegiance']])
 driver.Click([[By.NAME, 'joinGameStartingZombiePage'], [By.NAME, 'option0']])
 driver.Click([[By.NAME, 'joinGameSecretZombiePage'], [By.NAME, 'option1']])
@@ -86,7 +86,7 @@ driver.Click([[By.NAME, 'startQuizPage'], [By.NAME, 'offWeGo']])
 driver.Click([[By.TAG_NAME, 'ghvz-declare-page'], [By.NAME, 'submitJoinGame']])
 
 # Player sees their lifecode and allegiance
-driver.DrawerMenuClick('mobile-main-page', 'My Profile')
+driver.DrawerMenuClick('My Profile')
 driver.ExpectContains([[By.NAME, 'status']], 'Alive')
 driver.ExpectContains([[By.NAME, 'lifecode']], 'watch-alone-belkin' if driver.use_remote else 'codefor-ReggieTheRavager')
 

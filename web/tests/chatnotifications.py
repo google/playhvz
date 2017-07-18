@@ -51,7 +51,7 @@ driver = setup.MakeDriver(user="zella")
 driver.Click([[By.NAME, 'close-notification']])
 
 # Zella send @message to person who doesn't exit - should give an error
-driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
+driver.DrawerMenuClick('Global Chat')
 SendMessage(
   'I have a new upgrade Im gonna try!', 
   'Global Chat', 
@@ -68,7 +68,7 @@ SendMessage(
   'ZellaTheUltimate')
 
 # Zella sends @JackSlayerTheBeanSlasher message in resistance chat
-driver.DrawerMenuClick('chat-card', 'Resistance Comms Hub')
+driver.DrawerMenuClick('Resistance Comms Hub')
 SendMessage(
   'Wanna be our crabwalk zombie?',
   'Resistance Comms Hub',
@@ -83,7 +83,7 @@ SendMessage(
   'ZellaTheUltimate')
 
 # Zella sends empty @ message in private chat with Jack
-driver.DrawerMenuClick('chat-card', 'New chat')
+driver.DrawerMenuClick('New chat')
 driver.SendKeys([[By.ID, 'chatName'], [By.TAG_NAME, 'input']], "Legendary Humans")
 driver.Click([[By.ID, 'settingsForm'], [By.ID, 'done']])
 driver.FindElement([[By.NAME, 'chat-card'], [By.NAME, "chat-room-Legendary Humans"]])
@@ -122,7 +122,7 @@ driver.FindElement([[By.NAME, 'chat-room-Global Chat']])
 # driver.FindElement([[By.NAME, 'message-@all New upgrade available - the Crabwalk!']])
 
 # Check the notifications page, make sure they're all there
-driver.DrawerMenuClick('chat-card', 'Notifications')
+driver.DrawerMenuClick('Notifications')
 driver.FindElement([[By.NAME, 'notifications-card']])
 # TODO(aliengirl): Check that the side ones disappeared.
 driver.FindElement([[By.NAME, 'notifications-card'], [By.NAME, 'preview-ZellaTheUltimate: New upgrade available - the Crabwalk!']])
@@ -148,10 +148,10 @@ driver.Click([[By.NAME, 'chat-card'], [By.NAME, 'chat-drawer-leave']])
 driver.Click([[By.NAME, 'chat-card'], [By.NAME, "chat-room-Legendary Humans"], [By.ID, 'leaveForm'], [By.ID, 'done']])
 
 # Jack clicks on the other notification to the private chat - should not take him there (since he's not in the group)
-driver.DrawerMenuClick('chat-card', 'Notifications')
+driver.DrawerMenuClick('Notifications')
 driver.Click([[By.NAME, 'notifications-card'], [By.NAME, "preview-ZellaTheUltimate: Pronounced as one letter, And written with three, Two letters there are, And two only in me. I'm double, I'm single, I'm black, blue, and gray, I'm read from both ends, And the same either way. What am I? src=http://www.doriddles.com/riddle-664#show"]])
 driver.FindElement([[By.NAME, 'chat-room-Legendary-Humans']], should_exist=False)
-driver.DrawerMenuClick('chat-card', 'Global Chat')
+driver.DrawerMenuClick('Global Chat')
 
 # Jack sends a message back to Zella, using weird capitalization
 SendMessage(

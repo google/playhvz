@@ -57,6 +57,7 @@
         },
 
         listeners: {
+          'ghvz-hide-chat-drawer': 'hideChatInfo',
           'ghvz-chat-info-action': 'executeAction_',
           'tap': 'maybeUpdateLastSeenTime_',
         },
@@ -65,7 +66,7 @@
           'onChatRoomIdChange_(chatRoomId, game.chatRooms, game.chatRoomsById)',
           'onChatRoomMembershipChange_(chatRoomId, currentPlayer.private.chatRoomMembershipsById.*)',
           'onChatRoomNameChange_(chatRoom.name, isAttached)',
-          'onMessageReceived_(chatRoom.messages.length)',
+          'onMessageReceived_(chatRoom.messages.*)',
         ],
 
         attached: function() {
@@ -133,6 +134,10 @@
           }
           let lastMessage = this.chatRoom.messages[this.chatRoom.messages.length - 1];
           let chatRoomMembership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
+          if (!chatRoomMembership) {
+            // This might happen if we're an admin looking at a chat we aren't in
+            return;
+          }
           if (lastMessage.time <= chatRoomMembership.lastSeenTime) {
             // We've already seen the newest message and don't need to check visibility
             return;

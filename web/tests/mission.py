@@ -78,7 +78,7 @@ def insertAndVerifyMissionInfo(
 
 driver = setup.MakeDriver(user="zella")
 
-driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
+driver.DrawerMenuClick('Admin Missions')
 driver.Click([[By.NAME, 'close-notification']])
 
 # Delete the two missions which start out there
@@ -92,7 +92,7 @@ time.sleep(2)
 driver.TableMenuClick([[By.NAME, "mission-row-first human mission!"]], 'Delete')
 
 # Make sure both humans and zombies get a default message when no missions are posted.
-driver.DrawerMenuClick('admin-missions-card', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's details will be posted here.")
 
 driver.SwitchUser('zeke') # He's a zombie
@@ -100,7 +100,7 @@ driver.ExpectContains([[By.NAME, 'next-mission-box']], "The next mission's detai
 
 # Log back in as an admin.
 driver.SwitchUser('zella')
-driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
+driver.DrawerMenuClick('Admin Missions')
 
 # Create a human mission
 driver.Click([[By.ID, 'add']])
@@ -141,7 +141,7 @@ driver.ExpectContains([[By.NAME, 'next-mission-box']], "Apr 2 10:15pm") # end ti
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans', should_exist=False)
 
 # Find the mission in the drawer as well
-driver.DrawerMenuClick('mobile-main-page', 'Missions')
+driver.DrawerMenuClick('Missions')
 driver.FindElement([[By.NAME, 'missions-card'], [By.NAME, 'mission-insert witty and entertaining name here']])
 driver.ExpectContains([[By.NAME, 'missions-card'], [By.NAME, 'mission-text-insert witty and entertaining name here']], "take over the world")
 driver.ExpectContains([[By.NAME, 'missions-card'], [By.NAME, 'mission-controls-insert witty and entertaining name here']], "Oct 20 3:00am") # start time
@@ -153,7 +153,7 @@ driver.ExpectContains([[By.NAME, 'next-mission-box']], 'eat humans')
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world', should_exist=False)
 
 # Find the missions in the drawer as well
-driver.DrawerMenuClick('mobile-main-page', 'Missions')
+driver.DrawerMenuClick('Missions')
 driver.FindElement([[By.NAME, 'missions-card'], [By.NAME, 'mission-zed mission']])
 driver.ExpectContains([[By.NAME, 'missions-card'], [By.NAME, 'mission-text-zed mission']], "eat humans")
 driver.ExpectContains([[By.NAME, 'missions-card'], [By.NAME, 'mission-controls-zed mission']], "Jan 2 12:34am") # start time
@@ -177,19 +177,19 @@ insertAndVerifyMissionInfo(
   groupName='Everyone')
 
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('mobile-main-page', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 
 # On the dashboard the new mission shows up (since the end date is sooner than the other one)
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'Basically, we just run around in circles trying not to die.')
 
 # On the missions page, both should show up
-driver.DrawerMenuClick('mobile-main-page', 'Missions')
+driver.DrawerMenuClick('Missions')
 driver.FindElement([[By.NAME, 'missions-card'], [By.NAME, 'mission-insert witty and entertaining name here']])
 driver.FindElement([[By.NAME, 'missions-card'], [By.NAME, 'mission-Defeat the dread zombie boss Gnashable the Zeebweeble']])
 
 # As an admin, change the mission end date to later than the other human mission
 driver.SwitchUser('zella')
-driver.DrawerMenuClick('mobile-main-page', 'Admin Missions')
+driver.DrawerMenuClick('Admin Missions')
 
 driver.TableMenuClick([[By.NAME, 'mission-row-Defeat the dread zombie boss Gnashable the Zeebweeble']], 'Edit')
 insertAndVerifyMissionInfo(
@@ -207,10 +207,10 @@ insertAndVerifyMissionInfo(
 
 # Log in as a human (Jack). Show that the new mission doesn't show up anymore
 driver.SwitchUser('jack')
-driver.DrawerMenuClick('mobile-main-page', 'Dashboard')
+driver.DrawerMenuClick('Dashboard')
 driver.ExpectContains([[By.NAME, 'next-mission-box']], 'take over the world')
 
-driver.DrawerMenuClick('mobile-main-page', 'Missions')
+driver.DrawerMenuClick('Missions')
 
 # On the missions page, both should show up
 driver.FindElement([[By.NAME, 'missions-card'], [By.NAME, 'mission-insert witty and entertaining name here']])

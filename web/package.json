@@ -8,7 +8,9 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "firebase serve"
+    "start": "firebase serve",
+    "deploy": "firebase-bolt database.rules.bolt && firebase deploy",
+    "deploy-rules": "firebase-bolt database.rules.bolt && firebase deploy --only database"
   },
   "repository": {
     "type": "git",

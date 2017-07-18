@@ -61,18 +61,15 @@ driver.WaitForGameLoaded()
 
 # Open chat page
 driver.SwitchUser(actingPlayer)
-driver.DrawerMenuClick('mobile-main-page', 'Chat')
-driver.FindElement([[By.TAG_NAME, 'ghvz-chat-room-list']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.TAG_NAME, 'ghvz-chat-page']])
 
 # Check zombie player is in global chat, 2 zombie chats, and no human-only chats
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Global Chat']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Horde ZedLink']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Zeds Internal Secret Police']])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Resistance Comms Hub']])
+driver.FindDrawerItem('Global Chat')
+driver.FindDrawerItem('Horde ZedLink')
+driver.FindDrawerItem('Zeds Internal Secret Police')
+driver.FindDrawerItem('Resistance Comms Hub', should_exist=False)
 
 # Open Global Chat
-driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, 'Global Chat']])
+driver.DrawerMenuClick('Global Chat')
 
 # Open chat drawer
 openChatDrawer(driver, actingPlayerName, 'Global Chat')
@@ -87,17 +84,17 @@ driver.DontFindElement([[By.XPATH, xpathLeave]])
 
 ## Check 6 players are in global chat and non-admin can't kick players
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zella']]])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zella']], [By.ID, 'trigger']])
+driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zella']], [By.ID, 'kick-' + playerNames['zella']]])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']]])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']], [By.ID, 'trigger']])
+driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']], [By.ID, 'kick-' + playerNames['deckerd']]])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']]])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']], [By.ID, 'trigger']])
+driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']], [By.ID, 'kick-' + playerNames['moldavi']]])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['drake']]])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'trigger']])
+driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'kick-' + playerNames['drake']]])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zeke']]])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zeke']], [By.ID, 'trigger']])
+driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zeke']], [By.ID, 'kick-' + playerNames['zeke']]])
 driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['jack']]])
-driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['jack']], [By.ID, 'trigger']])
+driver.DontFindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['jack']], [By.ID, 'kick-' + playerNames['jack']]])
 
 ## Test admins can add, leave, and kick from global chat
 actingPlayer = 'zella' # admin human
@@ -106,7 +103,7 @@ actingPlayerName = playerNames[actingPlayer]
 # Switch to chat page and open drawer
 driver.SwitchUser(actingPlayer)
 closeNotifications(driver)
-driver.DrawerMenuClick('mobile-main-page', 'Global Chat')
+driver.DrawerMenuClick('Global Chat')
 openChatDrawer(driver, actingPlayerName, 'Global Chat')
 
 # Check admin can add players
@@ -118,17 +115,17 @@ xpathLeave = getPathToElement(actingPlayerName, 'a', 'chat-drawer-leave')
 driver.FindElement([[By.XPATH, xpathLeave]])
 
 # Check admin can kick all 6 players
-driver.DontFindElement([[By.NAME, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zella']], [By.ID, 'trigger']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']], [By.ID, 'trigger']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']], [By.ID, 'trigger']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'trigger']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zeke']], [By.ID, 'trigger']])
-driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['jack']], [By.ID, 'trigger']])
+driver.DontFindElement([[By.NAME, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zella']], [By.ID, 'kick-' + playerNames['zella']]])
+driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']], [By.ID, 'kick-' + playerNames['deckerd']]])
+driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']], [By.ID, 'kick-' + playerNames['moldavi']]])
+driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['drake']], [By.ID, 'kick-' + playerNames['drake']]])
+driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['zeke']], [By.ID, 'kick-' + playerNames['zeke']]])
+driver.FindElement([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['jack']], [By.ID, 'kick-' + playerNames['jack']]])
 
 # Make sure you can click through drawer to people's profiles
 driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['deckerd']]])
 driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'player-name']], 'DeckerdTheHesitant')
-driver.DrawerMenuClick('profile-card', 'Global Chat')
+driver.DrawerMenuClick('Global Chat')
 driver.Click([[By.ID, 'chat-page-%s' % actingPlayerName], [By.NAME, playerNames['moldavi']]])
 driver.ExpectContains([[By.NAME, 'profile-card'], [By.NAME, 'player-name']], 'MoldaviTheMoldavish')
 

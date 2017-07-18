@@ -94,6 +94,10 @@
             replace: false,
           });
         },
+
+        chatIsVisible_(membership) {
+          return ChatUtils.chatIsVisible(this.game.chatRoomsById[membership.chatRoomId], membership);
+        },
       });
     });
   </script>
@@ -135,6 +139,8 @@
   <template>
     <ghvz-dashboard>
 
+      <ghvz-help-page name="help-box" right></ghvz-help-page>
+
       <template is="dom-if" if="[[canJoinGame]]">
         <ghvz-card spaced full padded name="join-box">
           <div class="header">Join Game!</div>
@@ -164,16 +170,6 @@
             </ghvz-infect>
           </ghvz-card>
         </template>
-
-        <ghvz-card spaced right padded name="rules-box">
-          <div class="header" name="Rules">Rules</div>
-          <ghvz-rules game="[[game]]"></ghvz-rules>
-        </ghvz-card>
-
-        <ghvz-card spaced right padded name="faq-box">
-          <div class="header">FAQ</div>
-          <ghvz-game-faq game="[[game]]" is-mobile="[[isMobile]]"></ghvz-game-faq>
-        </ghvz-card>
 
         <ghvz-card spaced left padded name="summary-box">
             <div class="header">Game Summary</div>
@@ -222,18 +218,20 @@
         </template>
 
         <template is="dom-repeat" items="[[player.private.chatRoomMemberships]]" as="membership">
-          <template is="dom-if" if="[[membership.isVisible]]">
-            <ghvz-card spaced left>
-              <ghvz-chat-room
-                  small
-                  bridge="[[bridge]]"
-                  game="[[game]]"
-                  is-admin="[[isAdmin]]"
-                  current-player="[[player]]"
-                  chat-room-id="[[membership.chatRoomId]]">
-              </ghvz-chat-room>
-            </ghvz-card>
-          </template>
+          <div spaced left>
+            <template is="dom-if" if="[[chatIsVisible_(membership, membership.lastHiddenTime)]]">
+              <ghvz-card spaced left>
+                <ghvz-chat-room
+                    small
+                    bridge="[[bridge]]"
+                    game="[[game]]"
+                    is-admin="[[isAdmin]]"
+                    current-player="[[player]]"
+                    chat-room-id="[[membership.chatRoomId]]">
+                </ghvz-chat-room>
+              </ghvz-card>
+            </template>
+          </div>
         </template>
       </template>
 

@@ -135,7 +135,7 @@
               property: "destination",
               label: "Destination",
               name: "destination",
-              description: "When clicked, will go to this url. Leave blank to open this notification fullscreen.",
+              description: "When clicked, will go to this url. Leave blank to open this notification fullscreen. This is mutually exclusive with Full Message",
               width: "half",
               required: false,
             },
@@ -149,16 +149,16 @@
             },
             {
               property: "previewMessage",
-              label: "Preview Message",
+              label: "Title",
               name: "preview-message",
-              description: "The small message that will appear in the notification box.",
+              description: "The title of the message.",
             },
             {
               property: "message",
               label: "Full Message",
               name: "detailed-message",
               type: 'text',
-              description: "The full message text that the user sees when they click on the notification.",
+              description: "The full message text that the user sees when they click on the notification. This is mutually exclusive with Destination",
               required: false,
             },
           ],
@@ -189,7 +189,7 @@
             });
       },
 
-      startEditingCategory_: function(queuedNotification) {
+      startEditingCategory_: function([queuedNotification]) {
         this.$.form.openForEditing(queuedNotification)
             .then((newProperties) => {
               this.bridge.updateQueuedNotification({
