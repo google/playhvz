@@ -48,6 +48,10 @@ actingPlayerName = playerNames[actingPlayer]
 driver = setup.MakeDriver()
 driver.WaitForGameLoaded()
 
+# Open the drawer if we need to
+if driver.is_mobile:
+  driver.Click([[By.CLASS_NAME, 'visible-page'], [By.CLASS_NAME, 'header'], [By.NAME, 'drawerButton']]),
+
 # Empty chat shouldn't have an unseen badge
 driver.DontFindElement([[By.XPATH, xpathToUnseen % 'Global Chat']])
 
@@ -55,13 +59,15 @@ driver.DontFindElement([[By.XPATH, xpathToUnseen % 'Global Chat']])
 driver.FindElement([[By.XPATH, xpathToUnseen % 'Resistance Comms Hub']])
 driver.FindElement([[By.XPATH, xpathToUnseen % 'My Chat Room!']])
 
-# Clicking on the chat room on the dashboard should count as seeing the message
-driver.Click([[By.NAME, 'conversationContainer: My Chat Room!']])
-driver.DontFindElement([[By.XPATH, xpathToUnseen % 'My Chat Room!']])
+# Only desktop has chats on the dashboard
+if not driver.is_mobile:
+  # Clicking on the chat room on the dashboard should count as seeing the message
+  driver.Click([[By.NAME, 'conversationContainer: My Chat Room!']])
+  driver.DontFindElement([[By.XPATH, xpathToUnseen % 'My Chat Room!']])
 
 # Opening the chat room should count as seeing the message 
 # (since it's already scrolled to the bottom)
-driver.DrawerMenuClick('Resistance Comms Hub')
+driver.Click([[By.TAG_NAME, 'ghvz-drawer'], [By.NAME, 'drawer%s' % 'Resistance Comms Hub']])
 driver.DontFindElement([[By.XPATH, xpathToUnseen % 'Resistance Comms Hub']])
 
 driver.Quit()
