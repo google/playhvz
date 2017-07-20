@@ -203,7 +203,7 @@ def GroupToGame(game_state, group):
 
 def RewardCodeToRewardCategoryId(game_state, game_id, reward_code, expect=True):
   parts = reward_code.split('-')
-  reward_category_short_name = "-".join(parts[(len(parts)-2):])
+  reward_category_short_name = "-".join(parts[0:(len(parts)-2)])
   reward_categories = GetValueWithPropertyEqualTo(
       game_state,
       'rewardCategories',
