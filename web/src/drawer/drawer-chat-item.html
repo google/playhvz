@@ -97,7 +97,7 @@
       opacity: .8;
     }
   }
-  #unseenIcon {
+  .unseenIcon {
     position: absolute;
     width: 8px;
     height: 8px;
@@ -120,9 +120,9 @@
 </style>
 <template>
   <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
-  <div hidden$="[[!show]]">
+  <div hidden$="[[!show]]" id$="drawerChatItem-[[chatRoom.name]]">
     <template is="dom-if" if="[[hasUnseenMessages]]">
-      <div id="unseenIcon"></div>
+      <div name="unseenIcon" class="unseenIcon"></div>
     </template>
     <ghvz-drawer-item 
         text="[[chatRoom.name]]" 
