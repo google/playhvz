@@ -51,7 +51,8 @@
       },
 
       sort_(playerA, playerB) {
-        return playerB.points - playerA.points;
+        return (playerB.points - playerA.points) ||
+            (playerA.id > playerB.id ? 1 : -1);
       },
 
       // filter_(player) {
