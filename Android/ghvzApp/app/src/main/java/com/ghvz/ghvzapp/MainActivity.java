@@ -16,39 +16,27 @@
 
 package com.ghvz.ghvzapp;
 
-import android.accounts.NetworkErrorException;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.StrictMode;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -57,10 +45,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
-
 import java.io.IOException;
-import java.util.logging.Logger;
-
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -72,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "HVZ";
     private static final int RC_SIGN_IN = 9001;
-    private static final String APP_URL = "https://playhvz.com/game/google2017";
+  private static final String APP_URL = "https://playhvz.com/game/google2018";
     private static final String APP_SERVICE_URL = "http://playhvz-170604.appspot.com/api";
     private static final String TOKEN_KEY = "GOOGLE_SIGN_IN_IDTOKEN";
     private static final MediaType APPLICATION_JSON
@@ -94,9 +79,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
 
-        registerButton = (Button) findViewById(R.id.register_device_button);
+      registerButton = findViewById(R.id.register_device_button);
         registerButton.setOnClickListener(this);
-        mWebView = (WebView) findViewById(R.id.content_webview);
+      mWebView = findViewById(R.id.content_webview);
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
@@ -108,13 +93,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setLoadsImagesAutomatically(true);
 
-
-
-      mHandler = new Handler(new Handler.Callback(){
-          Log.d(TAG, "Starting Handler ");
+      mHandler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg){
-                switch(msg.what){
+              Log.d(TAG, "Starting Handler");
+              switch (msg.what) {
                     case REGISTER_SUCCESS:
                         RegisterUserDeviceThread regUsrDevThread = new RegisterUserDeviceThread();
                         regUsrDevThread.start();
@@ -137,13 +120,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "Got gso " + gso.toString());
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        Log.d(TAG, "Got user " + currentUser.toString());
         if(sharedPreferences.getString(TOKEN_KEY, null) == null || currentUser == null) {
-            signIn();
-        }
-        else{
-            try {
-              currentUser.getToken(true)
+          Log.d(TAG, "Signing in");
+          signIn();
+        } else {
+          Log.d(TAG, "Got user " + currentUser.toString());
+          try {
+            currentUser.getIdToken(true)
                   .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                       if (task.isSuccessful()) {
@@ -201,13 +184,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                           Log.i(TAG, "SIGN IN SUCCESSFULLY");
                           Toast.makeText(MainActivity.this, "Authentication success.",
                               Toast.LENGTH_SHORT).show();
-                          user.getToken(true)
+                          user.getIdToken(true)
                               .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                                 public void onComplete(@NonNull Task<GetTokenResult> task) {
                                   if (task.isSuccessful()) {
                                     String url = String.format(
                                         APP_URL + "?bridge=remote&signInMethod=accessToken&accessToken=%s",
-                                        //task.getResult().getToken());
                                         sharedPreferences.getString(TOKEN_KEY, ""));
                                     // Send token to your backend via HTTPS
                                     Log.d(TAG, "opening webview to " + url);
@@ -263,16 +245,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             client = new OkHttpClient();
             try{
                 FirebaseUser user = mAuth.getCurrentUser();
+              // TODO: handle the case that user is null.
 
                 String json = String.format(
                         "{" +
-                                //" \"requestingUserToken\": \"%s\"," +
                                 " \"requestingUserId\": null," +
                                 " \"requestingUserIdJwt\": null," +
                                 " \"requestingPlayerId\": null," +
                                 " \"userId\": \"user-%s\"" +
                                 "}",
-                        //sharedPreferences.getString(TOKEN_KEY, ""),
                         user.getUid()
                 );
                 Log.d(ThreadTAG, "[SENT JSON]: " + json);
