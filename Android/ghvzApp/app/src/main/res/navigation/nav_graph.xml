@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/nav_graph"
+  app:startDestination="@id/nav_game_list_fragment">
+
+  <action
+    android:id="@+id/action_global_nav_game_dashboard_fragment"
+    app:destination="@id/nav_game_dashboard_fragment"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true" />
+
+  <action
+    android:id="@+id/action_global_nav_game_settings_fragment"
+    app:destination="@id/nav_game_settings_fragment"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true" />
+
+  <action
+    android:id="@+id/action_global_nav_game_list_fragment"
+    app:destination="@id/nav_game_list_fragment"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true" />
+
+  <action
+    android:id="@+id/action_global_nav_player_profile_fragment"
+    app:destination="@id/nav_player_profile_fragment" />
+
+  <fragment
+    android:id="@+id/nav_game_dashboard_fragment"
+    android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
+    android:label="@string/navigation_drawer_game_dashboard">
+    <argument
+      android:name="gameId"
+      app:argType="string"
+      app:nullable="true" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/nav_game_settings_fragment"
+    android:name="com.app.playhvz.screens.gamesettings.GameSettingsFragment"
+    android:label="@string/navigation_drawer_create_game"
+    tools:layout="@layout/fragment_game_settings">
+    <argument
+      android:name="gameId"
+      app:argType="string"
+      app:nullable="true" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/nav_create_game_fragment"
+    android:name="com.app.playhvz.screens.gamesettings.GameSettingsFragment"
+    android:label="@string/navigation_drawer_create_game"
+    tools:layout="@layout/fragment_game_settings">
+    <argument
+      android:name="gameId"
+      app:argType="string"
+      app:nullable="true" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/nav_game_list_fragment"
+    android:name="com.app.playhvz.screens.gamelist.GameListFragment"
+    android:label="@string/navigation_drawer_game_list"
+    tools:layout="@layout/fragment_game_list" />
+
+  <fragment
+    android:id="@+id/nav_player_profile_fragment"
+    android:name="com.app.playhvz.screens.player.ProfileFragment"
+    tools:layout="@layout/fragment_player_profile">
+    <argument
+      android:name="gameId"
+      app:argType="string"
+      app:nullable="true" />
+    <argument
+      android:name="playerId"
+      app:argType="string"
+      app:nullable="true" />
+  </fragment>
+
+</navigation>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:layout_marginStart="@dimen/screen_margin_horizontal"
+  android:layout_marginEnd="@dimen/screen_margin_horizontal"
+  android:gravity="center"
+  android:orientation="vertical"
+  tools:context=".screens.gamelist.GameListFragment">
+
+  <LinearLayout
+    android:id="@+id/empty_game_list_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <TextView
+      android:id="@+id/empty_game_header"
+      style="@style/HeaderText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:text="@string/game_list_empty"
+      android:textAlignment="center" />
+
+    <Button
+      android:id="@+id/join_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_horizontal"
+      android:layout_marginTop="16dp"
+      android:text="@string/game_list_join_game_button" />
+  </LinearLayout>
+
+  <ProgressBar
+    android:id="@+id/game_list_loading_spinner"
+    style="@android:style/Widget.ProgressBar.Large"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:indeterminate="true"
+    android:visibility="visible" />
+
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/game_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone">
+
+  </androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>

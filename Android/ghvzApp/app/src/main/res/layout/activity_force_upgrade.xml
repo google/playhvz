@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".screens.forceupgrade.ForceUpgradeActivity">
+
+  <androidx.emoji.widget.EmojiTextView
+      style="@style/HeaderText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="5dp"
+      android:text="@string/force_upgrade_header"/>
+
+  <ImageView
+      android:id="@+id/force_upgrade_image"
+      android:layout_width="200dp"
+      android:layout_height="200dp"
+      android:contentDescription="@string/force_upgrade_image_content_description"
+      android:src="@mipmap/ic_force_upgrade"/>
+
+  <androidx.emoji.widget.EmojiTextView
+      android:id="@+id/force_upgrade_message"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="40dp"
+      android:layout_marginBottom="8dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      android:gravity="center"
+      android:text="@string/force_upgrade_message"
+      android:textSize="24sp"/>
+
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/force_upgrade_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="40dp"
+      android:layout_marginBottom="36dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      android:text="@string/force_upgrade_button"/>
+</LinearLayout>

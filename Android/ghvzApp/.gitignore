@@ -2,8 +2,12 @@
 .gradle
 /local.properties
 /.idea/workspace.xml
+/.idea/usage.statistics.xml
+/.idea/tasks.xml
+/.idea/shelf
 /.idea/libraries
 .DS_Store
 /build
 /captures
 .externalNativeBuild
+/app/google-services.json

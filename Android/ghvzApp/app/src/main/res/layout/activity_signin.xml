@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/app_bar_height"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".screens.signin.SignInActivity">
+
+  <androidx.emoji.widget.EmojiTextView
+      android:id="@+id/sign_in_header"
+      style="@style/HeaderText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/sign_in_header"/>
+
+  <ImageView
+      android:id="@+id/sign_in_image"
+      android:layout_width="200dp"
+      android:layout_height="200dp"
+      android:importantForAccessibility="no"
+      android:src="@mipmap/ic_soldier"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"/>
+
+
+  <com.google.android.gms.common.SignInButton
+      android:id="@+id/sign_in_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="36dp"
+      android:layout_marginBottom="8dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginEnd="8dp"
+      android:padding="8dp"/>
+
+  <ProgressBar
+      android:id="@+id/sign_in_loading_spinner"
+      style="@android:style/Widget.ProgressBar.Large"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:indeterminate="true"
+      android:visibility="gone"/>
+</LinearLayout>
