@@ -1,0 +1,79 @@
+Welcome to the Automated Testing directory!
+
+Chances are you're here because you want to change something. Great! I've been here *days*. Let me
+catch you up to speed on some things before you dive in, also give you some good debugging tips.
+
+
+Okay so first off, Mockito vs MockK, what are we using and why? I tried Mockito. Oh how I tried
+Mockito. That led to nothing but sadness and tears (or maybe I had another bug unrelated to
+Mockito...), _anyway_ Mockito isn't great for static classes that aren't using Dagger injection.
+Also side note, I tried really hard to avoid Dagger since this is an open code base and being able
+to trace through code and rely on full IDE support and sensical stack traces meant more to me than
+introducing injection. Cool, now that question is out of the way so we can carry on with mocking a
+static class.
+
+Turns out Kotlin has this really cool library called MockK that allows you to mock static classes.
+It's pretty cool in other ways too, namely it also automatically clears static mocks between tests,
+etc. If you're like me you're going to hate it at first since it's different than Mockito. Here's a
+quick guide to conversion:
+
+Mockito:
+  when(myMock.method(any())).thenReturn(coolAnswerBro)
+MockK:
+  every { myMock.method(any()) } returns coolAnswerBro
+
+
+Mockito:
+  doAnswer({innvocation ->
+    val firstArg = innvocation[0] as String
+    // do something with firstArg
+    return@doAnswer myResult
+  }).when(myMock).method(any<String>())
+MockK:
+  every {
+    myMock.method(any<String>()
+  } answers {
+    val firstArg = args[0] as String
+    // do something with firstArg
+    return@answers myResult
+  }
+
+Mockito:
+  verify(myMock).method()
+MockK:
+  verify { myMock.method() }
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                //
+// DEBUGGING                                                                                      //
+//                                                                                                //
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+- Process crashed?
+
+Try running the test again, sometimes the first time you run it it will crash. Idk and running again
+is simple enough that I'm not going to investigate further... If you want a better answer then:
+"Something something jvmstatic overrides & gradle statically merging classes messed up or something"
+
+
+- Old mocks seem to be reused, or test saying something like "no answer not set" when you definitely set one?
+
+You're probably caching something in your own code. Use the Android Studio debugger to step through
+to the method that's not behaving right. Do you cache any firestore responses? If so, use the
+'isTestEnvironment' flag so that you *don't* cache during testing.
+
+That wasn't it? Maybe you didn't mock a static class correctly. Before your test you need to use
+MockK's mockkStatic() to mock your class and specify that mocked values should be returned. You can
+see PlayHvzTestHelper for an example of how we do this for the FirebaseProvider class. Special note,
+I'm not 100% sure if this works for non-Kotlin classes. Worst case you can wrap the external
+static class in your own Kotlin companion object since those definitely work with mockkStatic.
+
+
+- Answer returning Unit instead of x type?
+
+You need to return@answers at the end of your answer block. If you leave it blank then by default
+Kotlin returns Unit and you'll see this weirdness and be super confused. Huge thanks to
+https://stackoverflow.com/a/49007245/12094056 for helping me figure this out.
