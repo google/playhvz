@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.app.playhvz.screens.gamelist
 
 import android.os.Bundle
@@ -7,21 +23,16 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.app.EspressoIdlingResource
-import com.app.playhvz.common.TextInputDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.firebase.classmodels.Game
-import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameListViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import kotlinx.coroutines.runBlocking
 
 
 /** Fragment for showing a list of Games the user is registered for.*/
@@ -125,25 +136,25 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
 
     private fun joinGame() {
         val joinGameDialog = JoinGameDialog()
-       /* joinGameDialog.setPositiveButtonCallback {
-            val gameName = joinGameDialog.getGameNameProposal()
+        /* joinGameDialog.setPositiveButtonCallback {
+             val gameName = joinGameDialog.getGameNameProposal()
 
-            val gameJoinedListener = {
-                Toast.makeText(context, "Joined the game!", Toast.LENGTH_LONG).show()
-            }
-            val gameDoesNotExistsListener = {
-                Toast.makeText(context, "$gameName does not exist!", Toast.LENGTH_LONG).show()
-            }
-            runBlocking {
-                EspressoIdlingResource.increment()
-                GameDatabaseOperations.asyncTryToJoinGame(
-                    gameName,
-                    gameJoinedListener,
-                    gameDoesNotExistsListener
-                )
-                EspressoIdlingResource.decrement()
-            }
-        }*/
+             val gameJoinedListener = {
+                 Toast.makeText(context, "Joined the game!", Toast.LENGTH_LONG).show()
+             }
+             val gameDoesNotExistsListener = {
+                 Toast.makeText(context, "$gameName does not exist!", Toast.LENGTH_LONG).show()
+             }
+             runBlocking {
+                 EspressoIdlingResource.increment()
+                 GameDatabaseOperations.asyncTryToJoinGame(
+                     gameName,
+                     gameJoinedListener,
+                     gameDoesNotExistsListener
+                 )
+                 EspressoIdlingResource.decrement()
+             }
+         }*/
         activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }
     }
 

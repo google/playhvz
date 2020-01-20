@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.app.playhvz.firebase.viewmodels
 
 import android.util.Log
@@ -63,32 +79,33 @@ class PlayerViewModel : ViewModel() {
                     updatePlayerData(DataConverterUtil.convertSnapshotToPlayer(snapshot.documents[0]!!))
 
                     PlayerPath.PLAYERS_PUBLIC_COLLECTION(gameId, player.value?.id!!)
-                    .addSnapshotListener { snapshot2, e2 ->
-                        if (e2 != null) {
-                            Log.w(TAG, "Listen failed.", e)
-                            return@addSnapshotListener
+                        .addSnapshotListener { snapshot2, e2 ->
+                            if (e2 != null) {
+                                Log.w(TAG, "Listen failed.", e)
+                                return@addSnapshotListener
+                            }
+                            println("lizard - public collection got snapshot")
+                            if (snapshot2 != null && snapshot2.size() == 1) {
+                                println("lizard - public collection got snapshot and it wasn't null!")
+                                var updatedPlayer =
+                                    DataConverterUtil.convertSnapshotToPlayerPublicData(snapshot2.documents[0])
+                                println("lizard - updated player public " + updatedPlayer.name)
+                                updatePlayerData(updatedPlayer)
+                            }
                         }
-                        println("lizard - public collection got snapshot")
-                        if (snapshot2 != null && snapshot2.size() == 1) {
-                            println("lizard - public collection got snapshot and it wasn't null!")
-                            var updatedPlayer= DataConverterUtil.convertSnapshotToPlayerPublicData(snapshot2.documents[0])
-                            println("lizard - updated player public " + updatedPlayer.name)
-                            updatePlayerData(updatedPlayer)
-                        }
-                    }
                 }
             }
-       /* PlayerPath.PLAYERS_PRIVATE_COLLECTION(gameId, playerId)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && snapshot.size() == 1) {
-                    println("lizard - private collection got snapshot")
-                    (player.value as Player).private = DataConverterUtil.convertSnapshotToPlayerPrivateData(snapshot.documents[0])
-                }
-            }*/
+        /* PlayerPath.PLAYERS_PRIVATE_COLLECTION(gameId, playerId)
+             .addSnapshotListener { snapshot, e ->
+                 if (e != null) {
+                     Log.w(TAG, "Listen failed.", e)
+                     return@addSnapshotListener
+                 }
+                 if (snapshot != null && snapshot.size() == 1) {
+                     println("lizard - private collection got snapshot")
+                     (player.value as Player).private = DataConverterUtil.convertSnapshotToPlayerPrivateData(snapshot.documents[0])
+                 }
+             }*/
 
         return player
     }
