@@ -37,6 +37,7 @@ class UserDatabaseOperations() {
         ) =
             withContext(Dispatchers.Default) {
                 val currentUserDocRef = getCurrentUserDocRef()
+
                 val createUserAndExitWithSuccess = { document: DocumentSnapshot? ->
                     if (document != null && !document.exists()) {
                         // This user isn't in Firebase yet, add them
@@ -64,10 +65,21 @@ class UserDatabaseOperations() {
         /** Registers this device to the current account for notifications. */
         fun registerDeviceToCurrentUser(token: String?) {
             Log.d(TAG, "Registering device to current user")
-            getCurrentUserDocRef()?.update(PathConstants.USER_FIELD__USER_DEVICE_TOKEN, token)
+            val data = hashMapOf(
+                "deviceToken" to token
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("registerDevice")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to register device token!")
+                        return@continueWith
+                    }
+                }
         }
 
-        /** Registers this device from the current account for notifications. */
+        /** Unregisters this device from the current account for notifications. */
         fun unregisterDeviceFromCurrentUser() {
             getCurrentUserDocRef()?.update(PathConstants.USER_FIELD__USER_DEVICE_TOKEN, null)
         }
@@ -75,9 +87,9 @@ class UserDatabaseOperations() {
         /** Returns a DocRef to the current user's User document. */
         fun getCurrentUserDocRef(): DocumentReference? {
             val currentUserId = FirebaseProvider.getFirebaseAuth().uid
-            return if (currentUserId != null) PathConstants.USERS_COLLECTION().document(
-                currentUserId
-            ) else null
+            return if (currentUserId != null)
+                PathConstants.USERS_COLLECTION().document(currentUserId)
+            else null
         }
     }
 }

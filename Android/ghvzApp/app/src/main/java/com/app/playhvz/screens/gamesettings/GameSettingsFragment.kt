@@ -40,7 +40,6 @@ import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtil
 import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.firestore.DocumentReference
 import kotlinx.android.synthetic.main.fragment_game_settings.*
 import kotlinx.coroutines.runBlocking
 
@@ -64,8 +63,6 @@ class GameSettingsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         gameId = args.gameId
         firestoreViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
-
-        println("lizard - game id " + gameId)
         setupObservers()
     }
 
@@ -111,37 +108,33 @@ class GameSettingsFragment : Fragment() {
         if (gameId != null) {
             // Disable changing name of already created game
             nameView?.setText(game?.name)
-            nameView?.setEnabled(false)
-            nameView?.setFocusable(false)
+            nameView?.isEnabled = false
+            nameView?.isFocusable = false
         } else {
             // Setup UI for creating a new game
             nameView?.doOnTextChanged { text, _, _, _ ->
-                if (text.isNullOrEmpty()) {
-                    submit_button.setEnabled(false)
-                } else {
-                    submit_button.setEnabled(true)
-                }
+                submit_button.isEnabled = !text.isNullOrEmpty()
             }
         }
     }
 
     private fun createGame() {
         val name = nameView?.text
-        val gameCreatedListener = OnSuccessListener<DocumentReference> {
+        val gameCreatedListener = OnSuccessListener<String> {
             Toast.makeText(
                 context,
                 getString(R.string.create_game_success_toast, name),
                 Toast.LENGTH_LONG
             ).show()
             SystemUtil.hideKeyboard(context!!)
-            if (it == null) {
+            if (it.isNullOrEmpty()) {
                 NavigationUtil.navigateToGameList(findNavController(), activity!!)
             }
             val editor =
                 activity?.getSharedPreferences(SharedPreferencesConstants.PREFS_FILENAME, 0)!!.edit()
-            editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, it.id)
+            editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, it)
             editor.apply()
-            NavigationUtil.navigateToGameDashboard(findNavController(), it.id)
+            NavigationUtil.navigateToGameDashboard(findNavController(), it)
         }
         val gameExistsListener = {
             Toast.makeText(context, "$name already exists!", Toast.LENGTH_LONG).show()

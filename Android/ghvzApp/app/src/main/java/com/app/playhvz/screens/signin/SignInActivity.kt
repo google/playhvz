@@ -26,9 +26,9 @@ import android.widget.Toast
 import com.app.playhvz.R
 import com.app.playhvz.app.BaseActivity
 import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.operations.GlobalDatabaseOperations
-import com.app.playhvz.firebase.operations.UserDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.notifications.NotificationUtil
 import com.app.playhvz.screens.MainActivity
@@ -42,6 +42,10 @@ import kotlinx.android.synthetic.main.activity_signin.*
 import kotlinx.coroutines.runBlocking
 
 
+/**
+ * Activity for handling signing into and out of the app and ensuring there is an account set up
+ * before releasing the user to the rest of the app.
+ */
 class SignInActivity : BaseActivity() {
 
     // All static methods or variables go inside this companion object.
@@ -110,20 +114,20 @@ class SignInActivity : BaseActivity() {
         startActivityForResult(signInIntent, GOOGLE_SIGN_IN_REQUEST_CODE)
     }
 
-    fun signOut() {
+    private fun signOut() {
         EspressoIdlingResource.increment()
         NotificationUtil.unregisterDeviceFromCurrentUser()
         // Sign out of both Firebase & Google. If we only sign out of Firebase, then when we try to
         // sign back in, Google uses the same account and we can't see the account picker.
         FirebaseProvider.getFirebaseAuth().signOut()
         mGoogleSignInClient.signOut()
+        getSharedPreferences(SharedPreferencesConstants.PREFS_FILENAME, 0).edit().clear().commit()
         EspressoIdlingResource.decrement()
     }
 
     /** Listens for results from Google signing in. */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "lizard got result")
         EspressoIdlingResource.increment()
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
@@ -169,18 +173,16 @@ class SignInActivity : BaseActivity() {
             }
     }
 
+    /**
+     * Ensures that the user is fully set up before navigating to their home page. This includes
+     * registering the users's device for notifications.
+     */
     private fun ensureUserSetUpBeforeNavigatingToHomePage() {
         val context = this
-        // Active coroutine counter
         runBlocking {
-            EspressoIdlingResource.increment()
-            UserDatabaseOperations.asyncEnsureUserInDatabase() {
-                // Now that we have a valid user, try registering the device for notifications.
-                NotificationUtil.registerDeviceForNotifications()
-                startActivity(MainActivity.getLaunchIntent(context))
-                finish()
-                EspressoIdlingResource.decrement()
-            }
+            NotificationUtil.registerDeviceForNotifications()
+            startActivity(MainActivity.getLaunchIntent(context))
+            finish()
         }
     }
 
