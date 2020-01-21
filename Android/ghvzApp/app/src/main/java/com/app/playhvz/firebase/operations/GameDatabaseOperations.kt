@@ -17,7 +17,6 @@
 package com.app.playhvz.firebase.operations
 
 import android.util.Log
-import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAMES_COLLECTION
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__CREATOR_ID
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__NAME
@@ -26,7 +25,6 @@ import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.operations.PlayerDatabaseOperations.Companion.joinGame
 import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -75,20 +73,28 @@ class GameDatabaseOperations {
             }
         }
 
-        /** Check if game name already exists. */
+        /** Calls the firebase endpoint for creating a game or handling errors if the game exists. */
         suspend fun asyncTryToCreateGame(
             name: String,
-            successListener: OnSuccessListener<DocumentReference>,
+            successListener: OnSuccessListener<String>,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            val gameQuery = getGameByNameQuery(name)
-            gameQuery?.get()?.addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    failureListener.invoke()
-                } else {
-                    createNewGame(name, successListener)
+            val data = hashMapOf(
+                "name" to name
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("createGame")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to create game $name")
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    val result = task.result?.data as String
+                    successListener.onSuccess(result)
                 }
-            }
         }
 
         /** Check if game name already exists. */
@@ -114,21 +120,6 @@ class GameDatabaseOperations {
                 UNIVERSAL_FIELD__USER_ID,
                 FirebaseProvider.getFirebaseAuth().uid
             )
-        }
-
-        /** Creates a new game. */
-        private fun createNewGame(
-            name: String,
-            successListener: OnSuccessListener<DocumentReference>
-        ) {
-            val game = Game()
-            game.name = name
-            game.creatorUserId = FirebaseProvider.getFirebaseAuth().uid
-            GAMES_COLLECTION.add(game)
-                .addOnSuccessListener(successListener)
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Failed to create game $e")
-                }
         }
 
         /** Returns a Query listing all Games with the given name. */

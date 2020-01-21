@@ -18,6 +18,7 @@ package com.app.playhvz.firebase.firebaseprovider
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 
 /**
  * This class is overridden in tests! If you change the directory path you must change the
@@ -27,6 +28,7 @@ class FirebaseProvider {
     companion object {
         private var firebaseAuth: FirebaseAuth? = null
         private var firebaseFirestore: FirebaseFirestore? = null
+        private var firebaseFunctions: FirebaseFunctions? = null
 
         /** Returns a valid firebaseAuth instance. */
         fun getFirebaseAuth(): FirebaseAuth {
@@ -44,5 +46,12 @@ class FirebaseProvider {
             return firebaseFirestore!!
         }
 
+        /** Returns a valid firebaseFunctions instance. */
+        fun getFirebaseFunctions(): FirebaseFunctions {
+            if (firebaseFunctions == null) {
+                firebaseFunctions = FirebaseFunctions.getInstance()
+            }
+            return firebaseFunctions!!
+        }
     }
 }

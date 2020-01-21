@@ -23,6 +23,7 @@ import android.media.RingtoneManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.firebase.operations.UserDatabaseOperations
 import com.app.playhvz.screens.signin.SignInActivity
 import com.app.playhvz.utils.CompatUtil
@@ -35,6 +36,7 @@ class NotificationUtil {
         private val TAG = NotificationUtil::class.qualifiedName
 
         fun registerDeviceForNotifications() {
+            EspressoIdlingResource.increment()
             FirebaseInstanceId.getInstance().instanceId
                 .addOnCompleteListener(OnCompleteListener { task ->
                     if (!task.isSuccessful) {
@@ -43,7 +45,6 @@ class NotificationUtil {
                     }
                     // Log new InstanceID token
                     val token = task.result?.token
-                    Log.d(TAG, "Got token: $token")
                     registerDeviceToCurrentUser(token)
                 })
         }
@@ -53,6 +54,7 @@ class NotificationUtil {
          */
         fun registerDeviceToCurrentUser(token: String?) {
             UserDatabaseOperations.registerDeviceToCurrentUser(token)
+            EspressoIdlingResource.decrement()
         }
 
         /**
