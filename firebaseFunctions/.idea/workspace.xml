@@ -2,23 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="de1ecf9f-6710-4b4a-bc67-1af9ce728ffd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/copyright/playhvz.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/kshook.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/firebaseFunctions.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/.idea/caches/build_file_checksums.ser" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/firebase/firebaseprovider/FirebaseProvider.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/firebase/firebaseprovider/FirebaseProvider.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/firebase/operations/GameDatabaseOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/firebase/operations/GameDatabaseOperations.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/firebase/operations/UserDatabaseOperations.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/firebase/operations/UserDatabaseOperations.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/notifications/NotificationUtil.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/notifications/NotificationUtil.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/screens/gamesettings/GameSettingsFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/screens/gamesettings/GameSettingsFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/screens/signin/SignInActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Android/ghvzApp/app/src/main/java/com/app/playhvz/screens/signin/SignInActivity.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,40 +17,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/functions/src/index.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="87" lean-forward="true" selection-start-line="25" selection-start-column="87" selection-end-line="25" selection-end-column="87" />
+            <state relative-caret-position="285">
+              <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/firebase-debug.log">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/firebase.json">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/functions/tsconfig.json">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/functions/package.json">
+        <entry file="file://$PROJECT_DIR$/README">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="14" selection-start-line="11" selection-start-column="14" selection-end-line="11" selection-end-column="14" />
+            <state relative-caret-position="90">
+              <caret line="6" column="71" selection-start-line="6" selection-start-column="71" selection-end-line="6" selection-end-column="71" />
             </state>
           </provider>
         </entry>
@@ -78,14 +43,15 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/README" />
         <option value="$PROJECT_DIR$/functions/src/index.ts" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="397" />
+    <option name="x" value="332" />
     <option name="y" value="23" />
-    <option name="width" value="1168" />
+    <option name="width" value="1126" />
     <option name="height" value="998" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -96,6 +62,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -118,7 +85,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -202,23 +168,24 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="397" y="23" width="1168" height="998" extended-state="0" />
+    <frame x="332" y="23" width="1126" height="998" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Captures" order="0" weight="0.25" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.20052311" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.2081448" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
       <window_info id="Designer" order="4" />
       <window_info id="Resources Explorer" order="5" />
       <window_info id="Capture Tool" order="6" />
       <window_info id="Favorites" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Run" />
-      <window_info anchor="bottom" id="Debug" />
-      <window_info anchor="bottom" id="Find" />
       <window_info anchor="bottom" id="Version Control" order="0" />
       <window_info anchor="bottom" id="TODO" order="1" />
       <window_info anchor="bottom" id="Terminal" order="2" />
       <window_info anchor="bottom" id="Event Log" order="3" side_tool="true" />
+      <window_info anchor="bottom" id="Run" order="4" />
+      <window_info anchor="bottom" id="Debug" order="5" />
+      <window_info anchor="bottom" id="Find" order="6" />
       <window_info anchor="right" id="Capture Analysis" order="0" />
       <window_info anchor="right" id="Theme Preview" order="1" />
       <window_info anchor="right" id="Palette&#9;" order="2" />
@@ -229,34 +196,35 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/functions/src/game_functions.ts" />
-    <entry file="file://$PROJECT_DIR$/functions/tsconfig.json">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/functions/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="14" selection-start-line="11" selection-start-column="14" selection-end-line="11" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/functions/tsconfig.json" />
     <entry file="file://$PROJECT_DIR$/functions/database-debug.log">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/functions/src/index.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="87" lean-forward="true" selection-start-line="25" selection-start-column="87" selection-end-line="25" selection-end-column="87" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/firebase.json" />
+    <entry file="file://$PROJECT_DIR$/.gitignore" />
     <entry file="file://$PROJECT_DIR$/firebase-debug.log">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/firebase.json">
-      <provider selected="true" editor-type-id="text-editor" />
+    <entry file="file://$PROJECT_DIR$/README">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="71" selection-start-line="6" selection-start-column="71" selection-end-line="6" selection-end-column="71" />
+        </state>
+      </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor" />
+    <entry file="file://$PROJECT_DIR$/functions/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="17" lean-forward="true" selection-start-line="24" selection-start-column="17" selection-end-line="24" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/functions/src/index.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
+        </state>
+      </provider>
     </entry>
   </component>
   <component name="masterDetails">
