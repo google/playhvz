@@ -1,0 +1,7 @@
+From within the functions directory
+
+Build functions locally using: npm run build
+
+Deploy just the function you're working on to firebase using: firebase deploy --only functions:functionName
+
+Deploy *everything* to firebase using: firebase deploy --only functions
