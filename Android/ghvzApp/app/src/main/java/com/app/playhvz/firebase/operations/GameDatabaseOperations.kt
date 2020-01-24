@@ -40,20 +40,21 @@ class GameDatabaseOperations {
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            val gameQuery = getGameByNameQuery(name)
-            gameQuery?.get()?.addOnSuccessListener { snapshot ->
-                if (snapshot.isEmpty || snapshot.size() > 1) {
-                    failureListener.invoke()
-                } else {
-                    runBlocking {
-                        PlayerDatabaseOperations.asyncCheckUserNotPlayerOfGame(
-                            snapshot.documents[0].id,
-                            successListener,
-                            failureListener
-                        )
+            val data = hashMapOf(
+                "name" to name
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("checkGameExists")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Game $name isn't valid for the user to join.")
+                        failureListener.invoke()
+                        return@continueWith
                     }
+                    successListener.invoke()
                 }
-            }
         }
 
         /** Check if game exists and tries to add player to game if so. */
@@ -63,14 +64,21 @@ class GameDatabaseOperations {
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            val gameQuery = getGameByNameQuery(gameName)
-            gameQuery?.get()?.addOnSuccessListener { documents ->
-                if (documents.isEmpty || documents.size() > 1) {
-                    failureListener.invoke()
-                } else {
-                    joinGame(documents.elementAt(0).id, playerName, successListener)
+            val data = hashMapOf(
+                "gameName" to gameName,
+                "playerName" to playerName
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("joinGame")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
                 }
-            }
         }
 
         /** Calls the firebase endpoint for creating a game or handling errors if the game exists. */
@@ -119,14 +127,6 @@ class GameDatabaseOperations {
             return PlayerPath.PLAYERS_QUERY.whereEqualTo(
                 UNIVERSAL_FIELD__USER_ID,
                 FirebaseProvider.getFirebaseAuth().uid
-            )
-        }
-
-        /** Returns a Query listing all Games with the given name. */
-        private fun getGameByNameQuery(name: String): Query? {
-            return if (name.isEmpty()) null else GAMES_COLLECTION.whereEqualTo(
-                GAME_FIELD__NAME,
-                name
             )
         }
     }

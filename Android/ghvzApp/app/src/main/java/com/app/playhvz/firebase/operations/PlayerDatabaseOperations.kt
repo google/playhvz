@@ -29,22 +29,6 @@ class PlayerDatabaseOperations {
     companion object {
         private val TAG = PlayerDatabaseOperations::class.qualifiedName
 
-        /** Check if game exists and tries to add player to game if so. */
-        suspend fun asyncCheckUserNotPlayerOfGame(
-            gameId: String,
-            successListener: () -> Unit,
-            failureListener: () -> Unit
-        ) = withContext(Dispatchers.Default) {
-            val playerQuery = getUsersPlayersQuery(gameId)
-            playerQuery?.get()?.addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    failureListener.invoke()
-                } else {
-                    successListener.invoke()
-                }
-            }
-        }
-
         /** Check if user already has a player for game and create one if needed. */
         fun joinGame(gameId: String, playerName: String, successListener: () -> Unit) {
             getUsersPlayersQuery(gameId)?.get()?.addOnSuccessListener { documents ->
