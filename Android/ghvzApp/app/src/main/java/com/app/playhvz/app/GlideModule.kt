@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.firebase.classmodels
+package com.app.playhvz.app
 
-/** Android data model representing Firebase Player documents. */
-class Player {
-    var id: String? = null
+import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.module.AppGlideModule
 
-    // UserId for the User that owns this player account
-    lateinit var userId: String
 
-    // Name of the player
-    var name: String? = null
+@GlideModule
+class GlideModule : AppGlideModule()
 
-    // Url of the player's avatar image
-    var avatarUrl: String = ""
-
-    var private : Private? = null
-
-    /** Fields visible only to the current player. */
-    class Private {
-        // Player's life code
-        var lifeCode: String? = null
-    }
-}
