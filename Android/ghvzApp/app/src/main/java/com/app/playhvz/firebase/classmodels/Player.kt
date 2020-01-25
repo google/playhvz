@@ -29,6 +29,9 @@ class Player {
     // Url of the player's avatar image
     var avatarUrl: String = ""
 
+    // Current faction the player is fighting for
+    var allegiance: String = ""
+
     var private : Private? = null
 
     /** Fields visible only to the current player. */

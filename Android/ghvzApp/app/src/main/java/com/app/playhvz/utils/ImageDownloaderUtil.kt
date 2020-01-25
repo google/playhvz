@@ -21,17 +21,20 @@ import com.app.playhvz.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
 class ImageDownloaderUtil {
     companion object {
         /** Function that handles async downloading an image from a url.
          * @param imageView the view to show the image in once downloaded
          * @param imageUrl the image url to download
+         * @param radius the radius of how rounded the corners should be
          */
-        fun downloadImage(imageView: ImageView, imageUrl: String) {
+        fun downloadImage(imageView: ImageView, imageUrl: String, radius: Int) {
             Glide.with(imageView.context)
                 .load(imageUrl)
-                .centerCrop()
+                .transform(CenterCrop(), RoundedCorners(radius))
                 .placeholder(R.drawable.ic_person)
                 .error(R.drawable.ic_error)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

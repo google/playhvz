@@ -20,21 +20,26 @@
  * Player
  *    UserId - [private] user associated with this player
  *    Name - [public] nickname
+ *    AvatarUrl - [public] image url
+ *    Allegiance - [public] player's allegiance/team
  *
  ************************************************************/
 
 import * as Universal from './universal';
+import * as Defaults from './defaults';
 
 export const COLLECTION_PATH = "players";
 export const FIELD__USER_ID = Universal.FIELD__USER_ID;
 export const FIELD__NAME = "name";
 export const FIELD__AVATAR_URL = "avatarUrl";
+export const FIELD__ALLEGIANCE = "allegiance";
 
 export function create(userId: string, name: string): { [key: string]: string; } {
   return {
     [FIELD__USER_ID]: userId,
     [FIELD__NAME]: name,
-    [FIELD__AVATAR_URL]: getDefaultProfilePic(name)
+    [FIELD__AVATAR_URL]: getDefaultProfilePic(name),
+    [FIELD__ALLEGIANCE]: Defaults.allegiance
   };
 }
 

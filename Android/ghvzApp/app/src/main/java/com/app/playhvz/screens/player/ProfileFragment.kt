@@ -20,18 +20,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
+import com.app.playhvz.common.UserAvatarPresenter
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerViewModel
-import com.app.playhvz.utils.ImageDownloaderUtil
 
 
 /** Fragment for showing a list of Games the user is registered for.*/
@@ -45,13 +44,14 @@ class ProfileFragment : Fragment() {
 
     lateinit var playerViewModel: PlayerViewModel
     lateinit var gameViewModel: GameViewModel
+    lateinit var userAvatarPresenter: UserAvatarPresenter
 
     var gameId: String? = null
     var playerId: String? = null
     var game: Game? = null
 
     var nameView: EmojiTextView? = null
-    var avatarView: ImageView? = null
+    var avatarView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +70,8 @@ class ProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_player_profile, container, false)
         nameView = view.findViewById(R.id.player_name)
         avatarView = view.findViewById(R.id.player_avatar)
+
+        userAvatarPresenter = UserAvatarPresenter(avatarView!!, R.dimen.avatar_large)
 
         setupObservers()
         setupToolbar()
@@ -106,6 +108,6 @@ class ProfileFragment : Fragment() {
 
     private fun updatePlayer(serverPlayer: Player?) {
         nameView?.setText(serverPlayer?.name)
-        ImageDownloaderUtil.downloadImage(avatarView!!, serverPlayer!!.avatarUrl)
+        userAvatarPresenter.renderAvatar(serverPlayer!!)
     }
 }
