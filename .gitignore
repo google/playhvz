@@ -9,3 +9,5 @@ geckodriver.log
 node_modules
 npm-debug.log
 firebaseFuncitons/.idea/workspace.xml
+.idea/workspace.xml
+.idea

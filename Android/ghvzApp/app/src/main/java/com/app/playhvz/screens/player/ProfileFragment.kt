@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
@@ -30,6 +31,7 @@ import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerViewModel
+import com.app.playhvz.utils.ImageDownloaderUtil
 
 
 /** Fragment for showing a list of Games the user is registered for.*/
@@ -49,6 +51,7 @@ class ProfileFragment : Fragment() {
     var game: Game? = null
 
     var nameView: EmojiTextView? = null
+    var avatarView: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +69,7 @@ class ProfileFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_player_profile, container, false)
         nameView = view.findViewById(R.id.player_name)
+        avatarView = view.findViewById(R.id.player_avatar)
 
         setupObservers()
         setupToolbar()
@@ -102,5 +106,6 @@ class ProfileFragment : Fragment() {
 
     private fun updatePlayer(serverPlayer: Player?) {
         nameView?.setText(serverPlayer?.name)
+        ImageDownloaderUtil.downloadImage(avatarView!!, serverPlayer!!.avatarUrl)
     }
 }

@@ -19,6 +19,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -74,6 +75,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:20.2.0'
     implementation 'com.google.firebase:firebase-messaging:19.0.1'
     implementation 'com.google.firebase:firebase-functions-ktx:19.0.1'
+
+    //glide library
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    kapt 'androidx.annotation:annotation:1.1.0'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
 
     //Google Play services (GMS)

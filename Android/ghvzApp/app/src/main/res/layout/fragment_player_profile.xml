@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
@@ -22,15 +22,7 @@
   android:orientation="vertical"
   android:padding="@dimen/screen_margin_horizontal">
 
-  <ImageView
-    android:id="@+id/player_avatar"
-    android:layout_width="@dimen/avatar_large"
-    android:layout_height="@dimen/avatar_large"
-    android:importantForAccessibility="no"
-    android:src="@drawable/ic_person"
-    android:tint="@color/colorPrimaryDark"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+  <include layout="@layout/player_avatar" />
 
   <androidx.emoji.widget.EmojiTextView
     android:id="@+id/player_name"
@@ -44,4 +36,4 @@
     app:layout_constraintTop_toTopOf="@id/player_avatar"
     tools:ignore="RtlSymmetry" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
