@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ Copyright 2020 Google Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +14,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-  <!-- General app dimens -->
-  <dimen name="app_bar_height">48dp</dimen>
-  <dimen name="app_primary_text">16sp</dimen>
-  <dimen name="app_secondary_text">14sp</dimen>
-  <dimen name="app_minimum_dialog_height">200dp</dimen>
-  <dimen name="app_minimum_dialog_width">250dp</dimen>
-  <dimen name="horizontal_progress_bar_height">10dp</dimen>
-  <dimen name="screen_margin_horizontal">16dp</dimen>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+  android:shape="oval">
+  <solid android:color="@android:color/transparent" />
 
-  <dimen name="avatar_small">32dp</dimen>
-  <dimen name="avatar_large">56dp</dimen>
-  <dimen name="avatar_border_width">3dp</dimen>
-
-</resources>
+  <stroke
+    android:width="@dimen/avatar_border_width"
+    android:color="@android:color/white" />
+</shape>

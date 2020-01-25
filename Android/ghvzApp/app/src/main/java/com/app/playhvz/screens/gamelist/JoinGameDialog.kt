@@ -48,9 +48,6 @@ class JoinGameDialog : DialogFragment() {
 
     private var gameName: String? = null
 
-    var onOk: (() -> Unit)? = null
-    var onCancel: (() -> Unit)? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -67,6 +64,11 @@ class JoinGameDialog : DialogFragment() {
         inputText.doOnTextChanged { text, _, _, _ ->
             if (text.isNullOrEmpty()) {
                 positiveButton.setEnabled(false)
+            } else if (text.contains(Regex("\\s"))) {
+                positiveButton.setEnabled(false)
+                errorLabel.setText(R.string.error_whitespace)
+                errorLabel.visibility = View.VISIBLE
+                return@doOnTextChanged
             } else {
                 positiveButton.setEnabled(true)
             }
@@ -77,25 +79,6 @@ class JoinGameDialog : DialogFragment() {
 
         return customView
     }
-
-    /* override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-         val dialog = super.onCreateDialog(savedInstanceState)
-         // customView = activity!!.layoutInflater.inflate(R.layout.dialog_join_game, null)
-
-
-         /* val builder = AlertDialog.Builder(context!!)
-              .setView(customView)
-              .setPositiveButton(android.R.string.ok) { _, _ ->
-                  onOk?.invoke()
-              }
-              .setNegativeButton(android.R.string.cancel) { _, _ ->
-                  onCancel?.invoke()
-              }
-          val dialog = builder.create()
-          dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-          */
-         return dialog
-     }*/
 
     private fun initGameScreen() {
         inputLabel.setText(getString(R.string.join_game_game_label))

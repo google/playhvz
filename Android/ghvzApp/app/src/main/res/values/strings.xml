@@ -27,6 +27,14 @@
 
   <!-- String definitions, alphabetized. -->
 
+  <string name="allegiance_status_alive" definition="Status indicating the player is alive.">
+    Alive
+  </string>
+
+  <string name="allegiance_status_dead" definition="Status indicating the player is a zombie.">
+    Living dead
+  </string>
+
   <string name="create_game_success_toast" definition="Toast shown when a game is successfully created.">
     Created: %1$s
   </string>
@@ -45,6 +53,10 @@
 
   <string name="button_submit" definition="Button to select when saving changes.">
     Submit
+  </string>
+
+  <string name="error_whitespace" definition="Error text for input containing whitespace.">
+    No spaces allowed
   </string>
 
   <string name="force_upgrade_button" definition="Button for upgrading the app to a newer version.">
@@ -170,7 +182,6 @@
   <string name="sign_out_button" definition="Sign out button.">
     Sign out
   </string>
-
 
   <!-- Accessibility strings -->
   <string name="force_upgrade_image_content_description" definition="Content description for force upgrade image.">
