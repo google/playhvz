@@ -14,20 +14,17 @@
   ~ limitations under the License.
   -->
 
-<resources>
-  <!-- General app dimens -->
-  <dimen name="app_bar_height">48dp</dimen>
-  <dimen name="app_primary_text">16sp</dimen>
-  <dimen name="app_secondary_text">14sp</dimen>
-  <dimen name="app_minimum_dialog_height">200dp</dimen>
-  <dimen name="app_minimum_dialog_width">250dp</dimen>
-  <dimen name="horizontal_progress_bar_height">10dp</dimen>
-  <dimen name="screen_margin_horizontal">16dp</dimen>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:paddingTop="12dp"
+  android:paddingBottom="12dp">
 
-  <dimen name="avatar_small">32dp</dimen>
-  <dimen name="avatar_large">56dp</dimen>
-  <dimen name="avatar_border_width">3dp</dimen>
+  <androidx.emoji.widget.EmojiTextView
+    android:id="@+id/chatroom_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textColor="@color/app_primary_text"
+    android:textSize="@dimen/list_item_title_text" />
 
-  <dimen name="list_item_title_text">20sp</dimen>
-
-</resources>
+</LinearLayout>

@@ -16,18 +16,19 @@
 
 package com.app.playhvz.firebase.operations
 
+import android.content.SharedPreferences
 import android.util.Log
+import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAMES_COLLECTION
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__CREATOR_ID
-import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__NAME
 import com.app.playhvz.firebase.constants.PathConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
-import com.app.playhvz.firebase.operations.PlayerDatabaseOperations.Companion.joinGame
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.Source
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class GameDatabaseOperations {
@@ -121,13 +122,44 @@ class GameDatabaseOperations {
             )
         }
 
-
         /** Returns a Query listing all Games in which the current user is a player. */
         fun getGameByPlayerQuery(): Query? {
             return PlayerPath.PLAYERS_QUERY.whereEqualTo(
                 UNIVERSAL_FIELD__USER_ID,
                 FirebaseProvider.getFirebaseAuth().uid
             )
+        }
+
+        /** Returns the user's playerId for the given Games. */
+        suspend fun getPlayerIdForGame(gameId: String, editor: SharedPreferences.Editor) =
+            withContext(Dispatchers.Default) {
+                val playerQuery = PlayerPath.PLAYERS_COLLECTION(gameId).whereEqualTo(
+                    UNIVERSAL_FIELD__USER_ID,
+                    FirebaseProvider.getFirebaseAuth().uid
+                )
+                playerQuery.get(Source.CACHE).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d(TAG, "PlayerId fetched from local cache")
+                        updatePlayerIdPref(task.result, editor)
+                    } else {
+                        Log.d(TAG, "Failed to get playerId from cache, trying server")
+                        playerQuery.get().addOnSuccessListener { querySnapshot ->
+                            updatePlayerIdPref(querySnapshot, editor)
+                        }
+                    }
+                }
+            }
+
+        private fun updatePlayerIdPref(
+            querySnapshot: QuerySnapshot?,
+            editor: SharedPreferences.Editor
+        ) {
+            var playerId: String? = null
+            if (querySnapshot != null && !querySnapshot.isEmpty && querySnapshot.documents.size == 1) {
+                playerId = querySnapshot.documents[0].id
+            }
+            editor.putString(SharedPreferencesConstants.CURRENT_PLAYER_ID, playerId)
+            editor.apply()
         }
     }
 }

@@ -35,6 +35,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.app.playhvz.R
 import com.app.playhvz.app.BaseActivity
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
+import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
@@ -119,6 +120,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_game_list_fragment -> {
                 val editor = getSharedPreferences(PREFS_FILENAME, 0)!!.edit()
                 editor.putString(CURRENT_GAME_ID, null)
+                editor.putString(CURRENT_PLAYER_ID, null)
                 editor.apply()
                 drawer_layout.closeDrawer(GravityCompat.START)
                 findNavController(R.id.nav_host_fragment).navigate(R.id.nav_game_list_fragment)
@@ -201,6 +203,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         when (item.itemId) {
             R.id.action_home -> {
                 NavigationUtil.navigateToGameDashboard(getNavController(), getCurrentGameId())
+            }
+            R.id.action_chat -> {
+                NavigationUtil.navigateToChatList(getNavController())
             }
             R.id.action_profile -> {
                 NavigationUtil.navigateToPlayerProfile(getNavController(), getCurrentGameId(), null)

@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.common.globals
+package com.app.playhvz.firebase.operations
 
-class SharedPreferencesConstants {
+import com.app.playhvz.firebase.constants.ChatPath
+import com.app.playhvz.firebase.constants.PlayerPath
+import com.google.firebase.firestore.DocumentReference
+
+class ChatDatabaseOperations {
     companion object {
-        val PREFS_FILENAME = "com.app.playhvz.prefs"
+        private val TAG = ChatDatabaseOperations::class.qualifiedName
 
-        val CURRENT_GAME_ID = "current_game_id"
-        val CURRENT_PLAYER_ID = "current_player_id"
+        /** Returns a document reference to the given chatRoomId. */
+        fun getChatRoomDocumentReference(
+            gameId: String,
+            chatRoomId: String
+        ): DocumentReference {
+            return ChatPath.CHAT_DOCUMENT_REFERENCE(gameId, chatRoomId)
+        }
     }
 }

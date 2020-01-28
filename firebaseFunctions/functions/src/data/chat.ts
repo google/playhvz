@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.common.globals
+export const COLLECTION_PATH = "chatRooms";
+export const FIELD__GROUP_ID = "associatedGroupId";
+export const FIELD__NAME = "name";
 
-class SharedPreferencesConstants {
-    companion object {
-        val PREFS_FILENAME = "com.app.playhvz.prefs"
-
-        val CURRENT_GAME_ID = "current_game_id"
-        val CURRENT_PLAYER_ID = "current_player_id"
-    }
+export function create(groupId: string, name: string): { [key: string]: any; } {
+  return {
+    [FIELD__GROUP_ID]: groupId,
+    [FIELD__NAME]: name
+  };
 }
+
+
+

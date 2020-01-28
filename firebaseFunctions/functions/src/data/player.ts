@@ -33,13 +33,16 @@ export const FIELD__USER_ID = Universal.FIELD__USER_ID;
 export const FIELD__NAME = "name";
 export const FIELD__AVATAR_URL = "avatarUrl";
 export const FIELD__ALLEGIANCE = "allegiance";
+export const FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships";
+export const FIELD__CHAT_VISIBILITY = "isVisible";
 
-export function create(userId: string, name: string): { [key: string]: string; } {
+export function create(userId: string, name: string): { [key: string]: any; } {
   return {
     [FIELD__USER_ID]: userId,
     [FIELD__NAME]: name,
     [FIELD__AVATAR_URL]: getDefaultProfilePic(name),
-    [FIELD__ALLEGIANCE]: Defaults.allegiance
+    [FIELD__ALLEGIANCE]: Defaults.allegiance,
+    [FIELD__CHAT_MEMBERSHIPS]: {}
   };
 }
 
@@ -86,8 +89,8 @@ function getDefaultProfilePic(name: string) {
 
 
 function hashName(name: string): number {
-    var hash: number = 0;
-    if (name.length == 0) return hash;
+    let hash: number = 0;
+    if (name.length === 0) return hash;
     for (let i= 0; i < name.length; i++) {
         const char = name.charCodeAt(i);
         hash = ((hash<<5)-hash)+char;

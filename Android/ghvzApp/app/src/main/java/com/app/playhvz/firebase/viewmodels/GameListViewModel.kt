@@ -61,7 +61,6 @@ class GameListViewModel : ViewModel() {
         return ownedGames
     }
 
-    //fun getParticipantGames(): LiveData<List<Game>> {
     fun getParticipantGames(): MutableLiveData<List<Game>> {
         getGameByPlayerQuery()?.addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
             if (e != null) {

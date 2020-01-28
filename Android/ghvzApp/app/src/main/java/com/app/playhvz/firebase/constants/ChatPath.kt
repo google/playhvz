@@ -17,49 +17,45 @@
 package com.app.playhvz.firebase.constants
 
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
-import com.google.firebase.firestore.DocumentReference
 
-class PlayerPath {
+class ChatPath {
     companion object {
-        /*******************************************************************************************
-         * String definitions for collection names. Alphabetize.
-         ******************************************************************************************/
-
         /**
-         * Top level collection name for Players.
+         * Top level collection name for Chat.
          */
-        const val PLAYER_COLLECTION_PATH = "players"
+        const val CHAT_COLLECTION_PATH = "chatRooms"
 
         /*******************************************************************************************
          * Begin string definitions for field names in Firebase documents. Alphabetize.
          ******************************************************************************************/
 
         /**
-         * Field inside Player's Public document that contains the name of the player.
+         * Field inside Chat document that contains the group id associated with the game.
          */
-        const val PLAYER_FIELD__NAME = "name"
-
-        const val PLAYER_FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships"
-
+        const val CHAT_FIELD__GROUP_ID = "associatedGroupId"
 
         /*******************************************************************************************
          * End string definitions for field names in Firebase documents.
          ******************************************************************************************/
+
 
         /*******************************************************************************************
          * Begin path definitions to documents. Alphabetize.
          ******************************************************************************************/
 
         /**
-         * DocRef that navigates to a Game's Player collection documents.
+         * DocRef that navigates to Chat documents.
          */
-        val PLAYERS_COLLECTION = { gameId: String ->
-            GamePath.GAMES_COLLECTION.document(gameId).collection(PLAYER_COLLECTION_PATH)
+        val CHAT_COLLECTION = { gameId: String ->
+            GamePath.GAMES_COLLECTION.document(gameId).collection(CHAT_COLLECTION_PATH)
         }
 
-        val PLAYERS_QUERY =
-            FirebaseProvider.getFirebaseFirestore().collectionGroup(PLAYER_COLLECTION_PATH)
+        val CHAT_QUERY =
+            FirebaseProvider.getFirebaseFirestore().collectionGroup(CHAT_COLLECTION_PATH)
 
+        val CHAT_DOCUMENT_REFERENCE = { gameId: String, chatRoomId: String ->
+            CHAT_COLLECTION(gameId).document(chatRoomId)
+        }
 
         /*******************************************************************************************
          * End path definitions to documents
