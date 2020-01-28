@@ -39,6 +39,10 @@
     Created: %1$s
   </string>
 
+  <string name="create_game_error_exists" definition="Error message shown when a game name already exists.">
+    %1$s already exists!
+  </string>
+
   <string name="button_back" definition="Button to select to go back to previous screen.">
     Back
   </string>
@@ -104,7 +108,7 @@
   </string>
 
   <string name="game_settings_game_name_hint_text" definition="Hint text for game title text input.">
-    HvZ 2020
+    HvZ
   </string>
 
   <string name="join_game_game_hint" definition="Hint text for the game name text input.">

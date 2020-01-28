@@ -17,48 +17,49 @@
 package com.app.playhvz.firebase.constants
 
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
-import com.google.firebase.firestore.DocumentReference
 
-class PlayerPath {
+class GroupPath {
     companion object {
-        /*******************************************************************************************
-         * String definitions for collection names. Alphabetize.
-         ******************************************************************************************/
-
         /**
-         * Top level collection name for Players.
+         * Top level collection name for Chat.
          */
-        const val PLAYER_COLLECTION_PATH = "players"
+        const val GROUP_COLLECTION_PATH = "groups"
 
         /*******************************************************************************************
          * Begin string definitions for field names in Firebase documents. Alphabetize.
          ******************************************************************************************/
 
-        /**
-         * Field inside Player's Public document that contains the name of the player.
-         */
-        const val PLAYER_FIELD__NAME = "name"
-
-        const val PLAYER_FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships"
-
+        const val GROUP_FIELD__NAME = "name";
+        const val GROUP_FIELD__MANAGED = "managed";
+        const val GROUP_FIELD__OWNERS = "owners";
+        const val GROUP_FIELD__SETTINGS = "settings";
+        const val GROUP_FIELD__MEMBERS = "members";
+        const val GROUP_FIELD__SETTINGS_ADD_SELF = "canAddSelf";
+        const val GROUP_FIELD__SETTINGS_ADD_OTHERS = "canAddOthers";
+        const val GROUP_FIELD__SETTINGS_REMOVE_SELF = "canRemoveSelf";
+        const val GROUP_FIELD__SETTINGS_REMOVE_OTHERS = "canRemoveOthers";
+        const val GROUP_FIELD__SETTINGS_AUTO_ADD = "autoAdd";
+        const val GROUP_FIELD__SETTINGS_AUTO_REMOVE = "autoRemove";
+        const val GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER = "allegianceFilter";
 
         /*******************************************************************************************
          * End string definitions for field names in Firebase documents.
          ******************************************************************************************/
+
 
         /*******************************************************************************************
          * Begin path definitions to documents. Alphabetize.
          ******************************************************************************************/
 
         /**
-         * DocRef that navigates to a Game's Player collection documents.
+         * DocRef that navigates to Chat documents.
          */
-        val PLAYERS_COLLECTION = { gameId: String ->
-            GamePath.GAMES_COLLECTION.document(gameId).collection(PLAYER_COLLECTION_PATH)
+        val GROUP_COLLECTION = { gameId: String ->
+            GamePath.GAMES_COLLECTION.document(gameId).collection(GROUP_COLLECTION_PATH)
         }
 
-        val PLAYERS_QUERY =
-            FirebaseProvider.getFirebaseFirestore().collectionGroup(PLAYER_COLLECTION_PATH)
+        val GROUP_QUERY =
+            FirebaseProvider.getFirebaseFirestore().collectionGroup(GROUP_COLLECTION_PATH)
 
 
         /*******************************************************************************************

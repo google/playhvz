@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.gamelist
+package com.app.playhvz.screens.chat
 
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.ChatRoom
 
-class GameViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+class ChatroomViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
-    private var game: Game? = null
-    private val gameNameTextView = view.findViewById<TextView>(R.id.game_name)!!
+    private var chatRoom: ChatRoom? = null
+    private val chatNameTextView = view.findViewById<TextView>(R.id.chatroom_name)!!
 
-    fun onBind(game: Game?, navigator: GameListAdapter.IFragmentNavigator) {
-        this.game = game
-        gameNameTextView.text = game?.name
+    fun onBind(chatRoom: ChatRoom, navigator: ChatListAdapter.IFragmentNavigator) {
+        this.chatRoom = chatRoom
+        chatNameTextView.text = chatRoom.name
         itemView.setOnClickListener {
-            navigator.onGameClicked(game?.id!!)
+            navigator.onChatroomClicked(chatRoom.id!!)
         }
     }
 }

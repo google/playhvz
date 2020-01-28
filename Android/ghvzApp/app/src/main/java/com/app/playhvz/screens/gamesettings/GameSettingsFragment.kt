@@ -21,11 +21,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
+import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -40,7 +43,6 @@ import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtil
 import com.google.android.gms.tasks.OnSuccessListener
-import kotlinx.android.synthetic.main.fragment_game_settings.*
 import kotlinx.coroutines.runBlocking
 
 
@@ -56,8 +58,10 @@ class GameSettingsFragment : Fragment() {
     var gameId: String? = null
     var game: Game? = null
 
-    var nameView: EmojiEditText? = null
-    var submitButton: Button? = null
+    private lateinit var nameView: EmojiEditText
+    private lateinit var submitButton: Button
+    private lateinit var gameNameErrorLabel: TextView
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,8 +78,10 @@ class GameSettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_game_settings, container, false)
         nameView = view.findViewById(R.id.game_name)
         submitButton = view.findViewById(R.id.submit_button)
+        gameNameErrorLabel = view.findViewById(R.id.game_name_error_label)
+        progressBar = view.findViewById(R.id.progress_bar)
 
-        submitButton?.setOnClickListener { _ ->
+        submitButton.setOnClickListener { _ ->
             if (gameId == null) {
                 createGame()
             } else {
@@ -107,19 +113,33 @@ class GameSettingsFragment : Fragment() {
     fun initializeFields() {
         if (gameId != null) {
             // Disable changing name of already created game
-            nameView?.setText(game?.name)
-            nameView?.isEnabled = false
-            nameView?.isFocusable = false
+            nameView.setText(game?.name)
+            nameView.isEnabled = false
+            nameView.isFocusable = false
         } else {
             // Setup UI for creating a new game
-            nameView?.doOnTextChanged { text, _, _, _ ->
-                submit_button.isEnabled = !text.isNullOrEmpty()
+            nameView.doOnTextChanged { text, _, _, _ ->
+                when {
+                    text.isNullOrEmpty() -> {
+                        submitButton.isEnabled = false
+                    }
+                    text.contains(Regex("\\s")) -> {
+                        submitButton.isEnabled = false
+                        gameNameErrorLabel.setText(R.string.error_whitespace)
+                        gameNameErrorLabel.visibility = View.VISIBLE
+                        return@doOnTextChanged
+                    }
+                    else -> {
+                        submitButton.setEnabled(true)
+                    }
+                }
+                gameNameErrorLabel.visibility = View.GONE
             }
         }
     }
 
     private fun createGame() {
-        val name = nameView?.text
+        val name = nameView.text
         val gameCreatedListener = OnSuccessListener<String> {
             Toast.makeText(
                 context,
@@ -131,16 +151,23 @@ class GameSettingsFragment : Fragment() {
                 NavigationUtil.navigateToGameList(findNavController(), activity!!)
             }
             val editor =
-                activity?.getSharedPreferences(SharedPreferencesConstants.PREFS_FILENAME, 0)!!.edit()
+                activity?.getSharedPreferences(
+                    SharedPreferencesConstants.PREFS_FILENAME,
+                    0
+                )!!.edit()
             editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, it)
             editor.apply()
             NavigationUtil.navigateToGameDashboard(findNavController(), it)
         }
         val gameExistsListener = {
             Toast.makeText(context, "$name already exists!", Toast.LENGTH_LONG).show()
+            progressBar.visibility = View.INVISIBLE
+            gameNameErrorLabel.setText(resources.getString(R.string.create_game_error_exists, name))
+            gameNameErrorLabel.visibility = View.VISIBLE
         }
         runBlocking {
             EspressoIdlingResource.increment()
+            progressBar.visibility = View.VISIBLE
             GameDatabaseOperations.asyncTryToCreateGame(
                 name.toString(),
                 gameCreatedListener,

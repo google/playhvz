@@ -45,6 +45,10 @@
     android:id="@+id/action_global_nav_player_profile_fragment"
     app:destination="@id/nav_player_profile_fragment" />
 
+  <action
+    android:id="@+id/action_global_nav_chat_list_fragment"
+    app:destination="@id/nav_chat_list_fragment" />
+
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
@@ -84,6 +88,11 @@
     tools:layout="@layout/fragment_game_list" />
 
   <fragment
+    android:id="@+id/nav_chat_list_fragment"
+    android:name="com.app.playhvz.screens.chat.ChatListFragment"
+    tools:layout="@layout/fragment_chat_list" />
+
+  <fragment
     android:id="@+id/nav_player_profile_fragment"
     android:name="com.app.playhvz.screens.player.ProfileFragment"
     tools:layout="@layout/fragment_player_profile">
@@ -95,6 +104,7 @@
       android:name="playerId"
       app:argType="string"
       app:nullable="true" />
+
   </fragment>
 
 </navigation>

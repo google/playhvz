@@ -16,8 +16,11 @@
 
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import * as Defaults from './data/defaults';
 import * as Player from './data/player';
 import * as Universal from './data/universal';
+import * as Group from './data/group';
+import * as Chat from './data/chat';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -79,7 +82,9 @@ exports.createGame = functions.https.onCall(async (data, context) => {
     "creatorUserId": context.auth.uid,
   }
 
-  return (await db.collection(GAME_COLLECTION_PATH).add(gameData)).id;
+  const gameId = (await db.collection(GAME_COLLECTION_PATH).add(gameData)).id;
+  await createGlobalGroup(context.auth.uid, gameId);
+  return gameId;
 });
 
 
@@ -131,23 +136,23 @@ exports.joinGame = functions.https.onCall(async (data, context) => {
      throw new functions.https.HttpsError('failed-precondition', 'No game with given name exists.');
   }
   const game = gameQuerySnapshot.docs[0];
-
-  const userPlayerQuerySnapshot = await getUsersPlayersQuery(uid, game.id).get();
+  const gameId = game.id;
+  const userPlayerQuerySnapshot = await getUsersPlayersQuery(uid, gameId).get();
   if (!userPlayerQuerySnapshot.empty) {
     throw new functions.https.HttpsError('failed-precondition', 'User is already a player in this game.');
   }
 
-  const playerNameQuerySnapshot = await getPlayersWithNameQuery(game.id, playerName).get();
+  const playerNameQuerySnapshot = await getPlayersWithNameQuery(gameId, playerName).get();
   if (!playerNameQuerySnapshot.empty) {
       throw new functions.https.HttpsError('failed-precondition', 'Player name already taken.');
   }
 
   const player = Player.create(uid, playerName);
-  for(var item in player) {
-    console.log("player " + item + " " + player[item]);
-  }
+  const playerDocument = (await db.collection(GAME_COLLECTION_PATH).doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .add(player));
 
-  await db.collection(GAME_COLLECTION_PATH).doc(game.id).collection(Player.COLLECTION_PATH).add(player);
+  await addNewPlayerToGroups(gameId, playerDocument)
 });
 
 
@@ -168,6 +173,46 @@ function getPlayersWithNameQuery(gameId: string, playerName: string) {
       .where(Player.FIELD__NAME, "==", playerName);
 }
 
+/*******************************************************
+* GROUP functions
+********************************************************/
+
+// Creates a group
+async function createGlobalGroup(uid: any, gameId: string) {
+  const group = Group.create(
+    /* name= */ Defaults.globalChatName,
+    /* managed= */ true,
+    /* settings= */ Group.getGlobalGroupSettings(),
+  )
+  const createdGroup = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
+  const chat = Chat.create(createdGroup.id, Defaults.globalChatName)
+  await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
+}
+
+// Add player to global chatroom
+async function addNewPlayerToGroups(gameId: string, player: any) {
+  const groupQuery = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH)
+  .where(Group.FIELD__MANAGED, "==", true)
+  .where(Group.FIELD__NAME, "==", Defaults.globalChatName).get()
+
+  if (groupQuery.empty || groupQuery.docs.length > 1) {
+    throw new functions.https.HttpsError('failed-precondition', 'Cannot find global chat.');
+  }
+  const group = groupQuery.docs[0];
+  const chatQuery = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH)
+    .where(Chat.FIELD__GROUP_ID, "==", group.id).get()
+  if (chatQuery.empty || chatQuery.docs.length > 1) {
+    throw new functions.https.HttpsError('failed-precondition', 'Cannot find chatroom associated with group.');
+  }
+
+  const chatId = chatQuery.docs[0].id;
+  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
+  const membership = {[chatId]: chatVisibility}
+  await group.ref.update({
+      [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
+  });
+  await player.update({[Player.FIELD__CHAT_MEMBERSHIPS]: membership})
+}
 
 /*******************************************************
 * Util functions

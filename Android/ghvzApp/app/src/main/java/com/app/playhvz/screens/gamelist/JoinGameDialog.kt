@@ -62,15 +62,19 @@ class JoinGameDialog : DialogFragment() {
         progressBar = customView.findViewById(R.id.progress_bar)
 
         inputText.doOnTextChanged { text, _, _, _ ->
-            if (text.isNullOrEmpty()) {
-                positiveButton.setEnabled(false)
-            } else if (text.contains(Regex("\\s"))) {
-                positiveButton.setEnabled(false)
-                errorLabel.setText(R.string.error_whitespace)
-                errorLabel.visibility = View.VISIBLE
-                return@doOnTextChanged
-            } else {
-                positiveButton.setEnabled(true)
+            when {
+                text.isNullOrEmpty() -> {
+                    positiveButton.isEnabled = false
+                }
+                text.contains(Regex("\\s")) -> {
+                    positiveButton.isEnabled = false
+                    errorLabel.setText(R.string.error_whitespace)
+                    errorLabel.visibility = View.VISIBLE
+                    return@doOnTextChanged
+                }
+                else -> {
+                    positiveButton.isEnabled = true
+                }
             }
             errorLabel.visibility = View.GONE
         }

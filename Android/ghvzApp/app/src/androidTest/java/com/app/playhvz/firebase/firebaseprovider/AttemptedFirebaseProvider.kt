@@ -28,20 +28,16 @@ class AttemptedFirebaseProvider {
         /** Returns a valid firebaseAuth instance. */
         fun getFirebaseAuth(): FirebaseAuth {
             if (firebaseAuth == null) {
-                println("lizard - mocking firebase auth")
                 firebaseAuth = mockkClass(FirebaseAuth::class)
             }
-            println("lizard - reusing firebase auth")
             return firebaseAuth!!
         }
 
         /** Returns a valid firebaseFirestore instance. */
         fun getFirebaseFirestore(): FirebaseFirestore {
             if (firebaseFirestore == null) {
-                println("lizard - mocking firebase firestore")
                 firebaseFirestore = mockkClass(FirebaseFirestore::class)
             }
-            println("lizard - reusing firebase firestore")
             return firebaseFirestore!!
         }
 

@@ -16,21 +16,25 @@
 
 package com.app.playhvz.firebase.classmodels
 
-/** Android data model representing Firebase Player documents. */
-class Player {
+/** Android data model representing Firebase Group documents. */
+class Group {
     var id: String? = null
 
-    // UserId for the User that owns this player account
-    lateinit var userId: String
-
-    // Name of the player
+    // Name of group
     var name: String? = null
 
-    // Url of the player's avatar image
-    var avatarUrl: String = ""
+    var managed: Boolean = false
+    var owners = arrayOf<String>()
+    var settings: Settings? = null
+    var members = arrayOf<String>()
 
-    // Current faction the player is fighting for
-    var allegiance: String = ""
-
-    var chatRoomMemberships: Map<String, Map<String, Boolean>> = mapOf()
+    class Settings {
+        var canAddSelf: Boolean = true
+        var canAddOthers: Boolean = true
+        var canRemoveSelf: Boolean = true
+        var canRemoveOthers: Boolean = true
+        var autoAdd: Boolean = false
+        var autoRemove: Boolean = false
+        var allegianceFilter: String = ""
+    }
 }

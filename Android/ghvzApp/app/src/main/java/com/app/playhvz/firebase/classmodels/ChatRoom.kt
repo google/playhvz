@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.common.globals
+package com.app.playhvz.firebase.classmodels
 
-class SharedPreferencesConstants {
+/** Android data model representing Firebase Chatroom documents. */
+class ChatRoom {
     companion object {
-        val PREFS_FILENAME = "com.app.playhvz.prefs"
-
-        val CURRENT_GAME_ID = "current_game_id"
-        val CURRENT_PLAYER_ID = "current_player_id"
+        val FIELD__IS_VISIBLE = "isVisible"
     }
+
+    var id: String? = null
+
+    // Group id
+    var groupId: String? = null
+
+    var name: String = ""
+
+    var isVisible: Boolean = true
 }

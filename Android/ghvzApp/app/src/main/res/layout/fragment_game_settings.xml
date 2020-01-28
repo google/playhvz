@@ -21,6 +21,16 @@
   android:paddingStart="@dimen/screen_margin_horizontal"
   android:paddingEnd="@dimen/screen_margin_horizontal">
 
+  <ProgressBar
+    android:id="@+id/progress_bar"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/horizontal_progress_bar_height"
+    android:indeterminate="true"
+    android:visibility="invisible"
+    android:paddingStart="@dimen/screen_margin_horizontal"
+    android:paddingEnd="@dimen/screen_margin_horizontal"/>
+
   <TextView
     style="@style/TextInputLabel"
     android:layout_width="match_parent"
@@ -34,6 +44,13 @@
     android:hint="@string/game_settings_game_name_hint_text"
     android:maxLength="40"
     android:maxLines="1" />
+
+  <TextView
+    android:id="@+id/game_name_error_label"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:textColor="@color/red"
+    android:visibility="gone" />
 
   <TextView
     style="@style/TextInputSubLabel"

@@ -19,6 +19,7 @@ package com.app.playhvz.navigation
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.screens.chat.ChatListFragmentDirections
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
@@ -73,5 +74,15 @@ class NavigationUtil {
             editor.apply()
             navController.navigate(GameListFragmentDirections.actionGlobalNavGameListFragment())
         }
+
+        /**
+         * Opens the chatroom.
+         */
+        fun navigateToChatList(navController: NavController) {
+            navController.navigate(
+                ChatListFragmentDirections.actionGlobalNavChatListFragment()
+            )
+        }
+
     }
 }

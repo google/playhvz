@@ -15,3 +15,5 @@
  */
 
 export const allegiance = "undeclared";
+export const globalChatName = "Global Chat";
+export const allegianceFilter = "none";

@@ -91,7 +91,6 @@ class ProfileFragment : Fragment() {
         if (gameId.isNullOrEmpty()) {
             return
         }
-        println("lizard getting player model")
         if (playerId.isNullOrEmpty()) {
             // Get current user's player for this game
             playerViewModel.getPlayer(gameId!!)

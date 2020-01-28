@@ -31,8 +31,10 @@ import com.app.playhvz.R
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameListViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import kotlinx.coroutines.runBlocking
 
 
 /** Fragment for showing a list of Games the user is registered for.*/
@@ -72,6 +74,9 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
             activity?.getSharedPreferences(SharedPreferencesConstants.PREFS_FILENAME, 0)!!.edit()
         editor.putString(CURRENT_GAME_ID, gameId)
         editor.apply()
+        runBlocking {
+            GameDatabaseOperations.getPlayerIdForGame(gameId, editor)
+        }
         NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
     }
 

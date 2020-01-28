@@ -46,17 +46,6 @@ class PlayerViewModel : ViewModel() {
 
                 }
             }
-        PlayerPath.PLAYERS_PUBLIC_COLLECTION(gameId, playerId)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && snapshot.size() == 1) {
-                    println("lizard - public collection got snapshot")
-                    player.value = DataConverterUtil.convertSnapshotToPlayerPublicData(snapshot.documents[0])
-                }
-            }
         return player
     }
 
@@ -77,36 +66,8 @@ class PlayerViewModel : ViewModel() {
                 }
                 if (snapshot != null && snapshot.size() == 1) {
                     updatePlayerData(DataConverterUtil.convertSnapshotToPlayer(snapshot.documents[0]!!))
-
-                    PlayerPath.PLAYERS_PUBLIC_COLLECTION(gameId, player.value?.id!!)
-                        .addSnapshotListener { snapshot2, e2 ->
-                            if (e2 != null) {
-                                Log.w(TAG, "Listen failed.", e)
-                                return@addSnapshotListener
-                            }
-                            println("lizard - public collection got snapshot")
-                            if (snapshot2 != null && snapshot2.size() == 1) {
-                                println("lizard - public collection got snapshot and it wasn't null!")
-                                var updatedPlayer =
-                                    DataConverterUtil.convertSnapshotToPlayerPublicData(snapshot2.documents[0])
-                                println("lizard - updated player public " + updatedPlayer.name)
-                                updatePlayerData(updatedPlayer)
-                            }
-                        }
                 }
             }
-        /* PlayerPath.PLAYERS_PRIVATE_COLLECTION(gameId, playerId)
-             .addSnapshotListener { snapshot, e ->
-                 if (e != null) {
-                     Log.w(TAG, "Listen failed.", e)
-                     return@addSnapshotListener
-                 }
-                 if (snapshot != null && snapshot.size() == 1) {
-                     println("lizard - private collection got snapshot")
-                     (player.value as Player).private = DataConverterUtil.convertSnapshotToPlayerPrivateData(snapshot.documents[0])
-                 }
-             }*/
-
         return player
     }
 
