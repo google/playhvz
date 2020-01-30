@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.chat
+package com.app.playhvz.screens.chatRoom
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -22,8 +22,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.ChatRoom
+import com.app.playhvz.screens.chatlist.ChatRoomViewHolder
 
-class ChatListAdapter(
+class MessageAdapter(
     private var items: List<ChatRoom>,
     val context: Context,
     val navigator: IFragmentNavigator
@@ -35,7 +36,7 @@ class ChatListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ChatroomViewHolder(
+        return ChatRoomViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.list_item_chat_list_chatroom,
                 parent,
@@ -45,7 +46,7 @@ class ChatListAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as ChatroomViewHolder).onBind(items[position], navigator)
+        //(holder as ChatRoomViewHolder).onBind(items[position], navigator)
     }
 
     override fun getItemCount(): Int {

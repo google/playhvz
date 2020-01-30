@@ -59,6 +59,18 @@
     Submit
   </string>
 
+  <string name="chat_list_toolbar" definition="Toolbar title for the chat list view.">
+    Chats
+  </string>
+
+  <string name="chat_room_toolbar" definition="Toolbar title for the chat room view if the room name won't load.">
+    Chat
+  </string>
+
+  <string name="chat_input_hint" definition="Hint text for chat room message input.">
+    Message %1$s
+  </string>
+
   <string name="error_whitespace" definition="Error text for input containing whitespace.">
     No spaces allowed
   </string>

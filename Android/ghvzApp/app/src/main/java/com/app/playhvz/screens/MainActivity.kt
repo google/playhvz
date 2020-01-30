@@ -66,6 +66,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private var gameViewModel = GameViewModel()
     private var isAdmin: Boolean = false
 
+    private var fragmentsWithoutBottomNav = arrayOf(
+        R.id.nav_game_list_fragment,
+        R.id.nav_game_settings_fragment,
+        R.id.nav_chat_room_fragment
+    )
+
     // This must NOT be a lambda! https://stackoverflow.com/a/3104265/12094056
     private val gameIdPreferenceListener =
         SharedPreferences.OnSharedPreferenceChangeListener { prefs: SharedPreferences?, key: String? ->
@@ -144,7 +150,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         destination: NavDestination,
         arguments: Bundle?
     ) {
-        if (destination.id == R.id.nav_game_list_fragment) {
+        if (destination.id in fragmentsWithoutBottomNav) {
             fab.visibility = View.GONE
             bottomNavView.visibility = View.GONE
         } else {

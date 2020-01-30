@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 Google Inc.
  *
@@ -15,27 +14,17 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext.kotlin_version = '1.3.41'
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.3.2'
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.1.0"
-    }
+export const COLLECTION_PATH = "messages";
+export const FIELD__SENDER_ID = "senderId";
+export const FIELD__TIMESTAMP = "timestamp";
+export const FIELD__MESSAGE = "message";
+
+export function create(senderId: string, timestamp: any, message: string): { [key: string]: any; } {
+  return {
+    [FIELD__SENDER_ID]: senderId,
+    [FIELD__TIMESTAMP]: timestamp,
+    [FIELD__MESSAGE]: message
+  };
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}

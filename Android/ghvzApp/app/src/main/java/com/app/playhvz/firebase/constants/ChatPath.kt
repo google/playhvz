@@ -25,6 +25,11 @@ class ChatPath {
          */
         const val CHAT_COLLECTION_PATH = "chatRooms"
 
+        /**
+         * Top level collection name for chat messages.
+         */
+        const val MESSAGE_COLLECTION_PATH = "messages"
+
         /*******************************************************************************************
          * Begin string definitions for field names in Firebase documents. Alphabetize.
          ******************************************************************************************/
@@ -55,6 +60,14 @@ class ChatPath {
 
         val CHAT_DOCUMENT_REFERENCE = { gameId: String, chatRoomId: String ->
             CHAT_COLLECTION(gameId).document(chatRoomId)
+        }
+
+        /**
+         * DocRef that navigates to Chat documents.
+         */
+        val MESSAGE_COLLECTION = { gameId: String, chatRoomId: String ->
+            GamePath.GAMES_COLLECTION.document(gameId).collection(CHAT_COLLECTION_PATH)
+                .document(chatRoomId).collection(MESSAGE_COLLECTION_PATH)
         }
 
         /*******************************************************************************************

@@ -21,6 +21,7 @@
   <dimen name="app_secondary_text">14sp</dimen>
   <dimen name="app_minimum_dialog_height">200dp</dimen>
   <dimen name="app_minimum_dialog_width">250dp</dimen>
+  <dimen name="divider_height">1dp</dimen>
   <dimen name="horizontal_progress_bar_height">10dp</dimen>
   <dimen name="screen_margin_horizontal">16dp</dimen>
 

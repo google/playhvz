@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.chat
+package com.app.playhvz.screens.chatlist
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
@@ -30,6 +33,7 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRE
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.viewmodels.ChatListViewModel
+import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
@@ -47,6 +51,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
     private var fab: FloatingActionButton? = null
     private var gameId: String? = null
     private var playerId: String? = null
+    private var toolbar: ActionBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +64,8 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
         )!!
         gameId = sharedPrefs.getString(CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(CURRENT_PLAYER_ID, null)
+        toolbar = (activity as AppCompatActivity).supportActionBar
 
-        setupObservers()
     }
 
     override fun onCreateView(
@@ -68,6 +73,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setupObservers()
         val view = inflater.inflate(R.layout.fragment_chat_list, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
         fab = activity?.findViewById(R.id.floating_action_button)
@@ -75,12 +81,17 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
         chatListRecyclerView.layoutManager = LinearLayoutManager(context)
         chatListRecyclerView.adapter = chatListAdapter
         setupFab()
+        setupToolbar()
         return view
     }
 
-    override fun onChatroomClicked(chatroomId: String) {
-        // TODO: implement opening chat room
-        //NavigationUtil.navigateToChat(findNavController(), gameId)
+    override fun onChatroomClicked(chatRoomId: String) {
+        NavigationUtil.navigateToChatRoom(findNavController(), chatRoomId)
+    }
+
+    fun setupToolbar() {
+        toolbar?.title = getString(R.string.chat_list_toolbar)
+        toolbar?.setDisplayHomeAsUpEnabled(false)
     }
 
     private fun setupObservers() {

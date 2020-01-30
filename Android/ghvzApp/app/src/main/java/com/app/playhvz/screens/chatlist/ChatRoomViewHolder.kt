@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.chat
+package com.app.playhvz.screens.chatlist
 
 import android.view.View
 import android.widget.TextView
@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.ChatRoom
 
-class ChatroomViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+class ChatRoomViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
     private var chatRoom: ChatRoom? = null
     private val chatNameTextView = view.findViewById<TextView>(R.id.chatroom_name)!!
