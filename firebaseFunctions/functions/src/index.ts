@@ -21,6 +21,7 @@ import * as Player from './data/player';
 import * as Universal from './data/universal';
 import * as Group from './data/group';
 import * as Chat from './data/chat';
+import * as Message from './data/message';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -215,11 +216,73 @@ async function addNewPlayerToGroups(gameId: string, player: any) {
 }
 
 /*******************************************************
+* CHAT functions
+********************************************************/
+
+// Sends a chat message
+// TODO: make this happen as a single transaction
+exports.sendChatMessage = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  const chatRoomId = data.chatRoomId;
+  const senderId = data.senderId;
+  const message = data.message;
+  if (!(typeof gameId === 'string')
+        || !(typeof chatRoomId === 'string')
+        || !(typeof senderId === 'string')
+        || !(typeof message === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String and not empty.");
+  }
+  if (gameId.length === 0 || chatRoomId.length === 0 || senderId.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            '4 arguments.');
+  }
+  if (message.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'Message was empty, not sending it.');
+  }
+
+  // Make sure player is still a member of chat room
+  const chatRoom = await db.collection(GAME_COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .doc(chatRoomId)
+    .get()
+  const group = await db.collection(GAME_COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(chatRoom.get(Chat.FIELD__GROUP_ID))
+    .get()
+  if (group.get(Group.FIELD__MEMBERS).indexOf(senderId) < 0) {
+    throw new functions.https.HttpsError('failed-precondition', 'Player is not a member of chat.');
+  }
+
+  const messageDocument = Message.create(
+    senderId,
+    getTimestamp(),
+    message
+  );
+  await db.collection(GAME_COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .doc(chatRoomId)
+    .collection(Message.COLLECTION_PATH)
+    .add(messageDocument)
+})
+
+/*******************************************************
 * Util functions
 ********************************************************/
 
 function trimmedString(rawText: any): string {
   return rawText.trim();
+}
+
+function getTimestamp(): any {
+  return admin.firestore.Timestamp.now()
 }
 
 

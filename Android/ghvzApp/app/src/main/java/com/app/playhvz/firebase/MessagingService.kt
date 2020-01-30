@@ -35,7 +35,7 @@ class MessagingService : FirebaseMessagingService() {
      * the previous token had been compromised. Note that this is called when the InstanceID token
      * is initially generated so this is where you would retrieve the token.
      */
-    override fun onNewToken(token: String?) {
+    override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
 
         // If you want to send messages to this application instance or
@@ -44,7 +44,7 @@ class MessagingService : FirebaseMessagingService() {
         NotificationUtil.registerDeviceToCurrentUser(token)
     }
 
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
         // traditionally used with GCM. Notification messages are only received here in onMessageReceived when the app

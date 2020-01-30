@@ -39,7 +39,7 @@ class DataConverterUtil {
             return document.toObject(Player::class.java)!!
         }
 
-        fun convertSnapshotToChatroom(document: DocumentSnapshot): ChatRoom {
+        fun convertSnapshotToChatRoom(document: DocumentSnapshot): ChatRoom {
             val chatRoom = document.toObject(ChatRoom::class.java)!!
             chatRoom.id = document.id
             return chatRoom

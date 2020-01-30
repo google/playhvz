@@ -16,9 +16,13 @@
 
 package com.app.playhvz.firebase.operations
 
+import android.util.Log
 import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.PlayerPath
+import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.DocumentReference
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class ChatDatabaseOperations {
     companion object {
@@ -30,6 +34,35 @@ class ChatDatabaseOperations {
             chatRoomId: String
         ): DocumentReference {
             return ChatPath.CHAT_DOCUMENT_REFERENCE(gameId, chatRoomId)
+        }
+
+        /** Check if game exists and tries to add player to game if so. */
+        suspend fun sendChatMessage(
+            gameId: String,
+            chatRoomId: String,
+            playerId: String,
+            message: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "chatRoomId" to chatRoomId,
+                "senderId" to playerId,
+                "message" to message
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("sendChatMessage")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Could not send message: ${task.exception}")
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
         }
     }
 }

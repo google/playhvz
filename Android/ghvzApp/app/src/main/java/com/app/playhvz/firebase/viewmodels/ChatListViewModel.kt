@@ -99,7 +99,7 @@ class ChatListViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val snapshot = task.result
                     if (snapshot != null && snapshot.exists()) {
-                        updatedList.add(DataConverterUtil.convertSnapshotToChatroom(snapshot))
+                        updatedList.add(DataConverterUtil.convertSnapshotToChatRoom(snapshot))
                     }
                 } else {
                     Log.d(TAG, "Failed to get ChatRoom, ${task.exception}")
