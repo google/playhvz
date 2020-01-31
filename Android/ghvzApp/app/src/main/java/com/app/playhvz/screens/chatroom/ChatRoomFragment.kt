@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.chatRoom
+package com.app.playhvz.screens.chatroom
 
 import android.app.Activity
 import android.os.Bundle
@@ -29,12 +29,15 @@ import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.firebase.classmodels.ChatRoom
+import com.app.playhvz.firebase.classmodels.Message
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
 import com.google.android.material.button.MaterialButton
@@ -47,6 +50,8 @@ class ChatRoomFragment : Fragment() {
     }
 
     lateinit var chatViewModel: ChatRoomViewModel
+    lateinit var messageAdapter: MessageAdapter
+
 
     private lateinit var chatRoomId: String
     private lateinit var progressBar: ProgressBar
@@ -62,6 +67,7 @@ class ChatRoomFragment : Fragment() {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
         chatViewModel = ChatRoomViewModel()
+        messageAdapter = MessageAdapter(listOf(), context!!)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -98,9 +104,9 @@ class ChatRoomFragment : Fragment() {
         sendButton.setOnClickListener {
             sendMessage()
         }
-        /*val chatListRecyclerView = view.findViewById<RecyclerView>(R.id.chatroom_list)
-        chatListRecyclerView.layoutManager = LinearLayoutManager(context)
-        chatListRecyclerView.adapter = chatListAdapter */
+        val messageRecyclerView = view.findViewById<RecyclerView>(R.id.message_list)
+        messageRecyclerView.layoutManager = LinearLayoutManager(context)
+        messageRecyclerView.adapter = messageAdapter
         progressBar.visibility = View.GONE
         setupToolbar()
         return view
@@ -126,6 +132,10 @@ class ChatRoomFragment : Fragment() {
             .observe(this, androidx.lifecycle.Observer { serverChatRoom ->
                 onChatRoomUpdated(serverChatRoom)
             })
+        chatViewModel.getMessagesObserver(this, gameId!!, chatRoomId)
+            .observe(this, androidx.lifecycle.Observer { serverMessageList ->
+                onMessagesUpdated(serverMessageList)
+            })
     }
 
     /** Update data and notify view and adapter of change. */
@@ -134,6 +144,11 @@ class ChatRoomFragment : Fragment() {
             toolbar?.title = updatedChatRoom.name
             messageInputView.hint = getString(R.string.chat_input_hint, updatedChatRoom.name)
         }
+    }
+
+    private fun onMessagesUpdated(updatedMessageList: List<Message>) {
+        messageAdapter.setData(updatedMessageList)
+        messageAdapter.notifyDataSetChanged()
     }
 
     private fun updateView() {

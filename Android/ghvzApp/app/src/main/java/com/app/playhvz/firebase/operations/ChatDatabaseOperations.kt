@@ -20,6 +20,7 @@ import android.util.Log
 import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,6 +35,14 @@ class ChatDatabaseOperations {
             chatRoomId: String
         ): DocumentReference {
             return ChatPath.CHAT_DOCUMENT_REFERENCE(gameId, chatRoomId)
+        }
+
+        /** Returns a collection reference to the given chatRoomId. */
+        fun getChatRoomMessagesReference(
+            gameId: String,
+            chatRoomId: String
+        ): CollectionReference {
+            return ChatPath.MESSAGE_COLLECTION(gameId, chatRoomId)
         }
 
         /** Check if game exists and tries to add player to game if so. */
