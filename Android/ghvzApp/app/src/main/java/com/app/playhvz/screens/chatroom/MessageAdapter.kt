@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.chatRoom
+package com.app.playhvz.screens.chatroom
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.ChatRoom
-import com.app.playhvz.screens.chatlist.ChatRoomViewHolder
+import com.app.playhvz.firebase.classmodels.Message
 
 class MessageAdapter(
-    private var items: List<ChatRoom>,
-    val context: Context,
-    val navigator: IFragmentNavigator
+    private var items: List<Message>,
+    val context: Context
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    interface IFragmentNavigator {
-        fun onChatroomClicked(chatroomId: String)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ChatRoomViewHolder(
+        return MessageViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.list_item_chat_list_chatroom,
+                R.layout.list_item_chat_room_message,
                 parent,
                 false
             )
@@ -46,15 +40,14 @@ class MessageAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        //(holder as ChatRoomViewHolder).onBind(items[position], navigator)
+        (holder as MessageViewHolder).onBind(items[position])
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun setData(data: List<ChatRoom>) {
-
+    fun setData(data: List<Message>) {
         items = data
     }
 }

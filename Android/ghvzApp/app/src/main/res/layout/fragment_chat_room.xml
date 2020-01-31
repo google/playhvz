@@ -19,7 +19,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  tools:context=".screens.chatRoom.ChatRoomFragment">
+  tools:context=".screens.chatroom.ChatRoomFragment">
 
   <ProgressBar
     android:id="@+id/progress_bar"
@@ -36,16 +36,16 @@
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/message_list"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/screen_margin_horizontal"
     android:layout_marginEnd="@dimen/screen_margin_horizontal"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
     app:layout_constraintBottom_toTopOf="@+id/divider"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="1.0"
+    app:layout_constraintHeight_default="spread"
+    app:layout_constraintHorizontal_bias="0.0"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0.843" />
+    app:layout_constraintTop_toBottomOf="@id/progress_bar" />
 
   <View
     android:id="@+id/divider"

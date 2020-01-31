@@ -22,10 +22,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.app.playhvz.firebase.classmodels.ChatRoom
+import com.app.playhvz.firebase.classmodels.Message
+import com.app.playhvz.firebase.classmodels.Message.Companion.FIELD__TIMESTAMP
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations.Companion.getChatRoomDocumentReference
+import com.app.playhvz.firebase.operations.ChatDatabaseOperations.Companion.getChatRoomMessagesReference
 import com.app.playhvz.firebase.utils.DataConverterUtil
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 
 class ChatRoomViewModel : ViewModel() {
     companion object {
@@ -33,6 +38,7 @@ class ChatRoomViewModel : ViewModel() {
     }
 
     private var chatRoom: MutableLiveData<ChatRoom> = MutableLiveData()
+    private var messageList: MutableLiveData<List<Message>> = MutableLiveData()
 
     /** Listens to a player's chat room membership updates and returns a LiveData object listing
      * the ids of the chat rooms the player is currently in. */
@@ -53,5 +59,32 @@ class ChatRoomViewModel : ViewModel() {
                 chatRoom.value = DataConverterUtil.convertSnapshotToChatRoom(snapshot)
             })
         return chatRoom
+    }
+
+    /** Listens to a chat room's messages and returns a LiveData object listing them. */
+    fun getMessagesObserver(
+        lifecycleOwner: LifecycleOwner,
+        gameId: String,
+        chatRoomId: String
+    ): LiveData<List<Message>> {
+        getChatRoomMessagesReference(gameId, chatRoomId).orderBy(
+            FIELD__TIMESTAMP,
+            Query.Direction.ASCENDING
+        ).addSnapshotListener(
+            EventListener<QuerySnapshot> { snapshot, e ->
+                if (e != null) {
+                    Log.w(TAG, "Message collection listen failed. ", e)
+                    return@EventListener
+                }
+                if (snapshot == null) {
+                    return@EventListener
+                }
+                val updatedList: MutableList<Message> = mutableListOf()
+                for (doc in snapshot.documents) {
+                    updatedList.add(DataConverterUtil.convertSnapshotToMessage(doc))
+                }
+                messageList.value = updatedList
+            })
+        return messageList
     }
 }

@@ -113,7 +113,7 @@
 
   <fragment
     android:id="@+id/nav_chat_room_fragment"
-    android:name="com.app.playhvz.screens.chatRoom.ChatRoomFragment">
+    android:name="com.app.playhvz.screens.chatroom.ChatRoomFragment">
     <argument
       android:name="chatRoomId"
       app:argType="string"

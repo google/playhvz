@@ -18,6 +18,7 @@ package com.app.playhvz.firebase.utils
 
 import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.Message
 import com.app.playhvz.firebase.classmodels.Player
 import com.google.firebase.firestore.DocumentSnapshot
 
@@ -35,14 +36,16 @@ class DataConverterUtil {
             return player
         }
 
-        fun convertSnapshotToPlayerPublicData(document: DocumentSnapshot): Player {
-            return document.toObject(Player::class.java)!!
-        }
-
         fun convertSnapshotToChatRoom(document: DocumentSnapshot): ChatRoom {
             val chatRoom = document.toObject(ChatRoom::class.java)!!
             chatRoom.id = document.id
             return chatRoom
+        }
+
+        fun convertSnapshotToMessage(document: DocumentSnapshot): Message {
+            val message = document.toObject(Message::class.java)!!
+            message.id = document.id
+            return message
         }
     }
 }
