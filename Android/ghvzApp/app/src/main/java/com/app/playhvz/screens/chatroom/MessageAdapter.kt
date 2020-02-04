@@ -19,15 +19,21 @@ package com.app.playhvz.screens.chatroom
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Message
+import com.app.playhvz.firebase.classmodels.Player
 
 class MessageAdapter(
     private var items: List<Message>,
-    val context: Context
+    val context: Context,
+    val lifecycleOwner: LifecycleOwner
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var players: Map<String, LiveData<Player>> = mapOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MessageViewHolder(
@@ -40,14 +46,16 @@ class MessageAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as MessageViewHolder).onBind(items[position])
+        val message = items[position]
+        (holder as MessageViewHolder).onBind(items[position], players[message.senderId], lifecycleOwner)
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun setData(data: List<Message>) {
+    fun setData(data: List<Message>, players: Map<String, LiveData<Player>>) {
         items = data
+        this.players = players
     }
 }

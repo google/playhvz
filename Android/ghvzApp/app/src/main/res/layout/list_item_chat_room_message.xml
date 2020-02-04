@@ -14,17 +14,54 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
+  android:orientation="horizontal"
   android:paddingTop="12dp"
   android:paddingBottom="12dp">
+
+  <include
+    android:id="@+id/player_avatar"
+    layout="@layout/player_avatar"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.emoji.widget.EmojiTextView
+    android:id="@+id/player_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:ellipsize="end"
+    android:maxLines="1"
+    android:paddingStart="16dp"
+    android:textColor="@color/app_primary_text"
+    android:textSize="14sp"
+    app:layout_constraintStart_toEndOf="@id/player_avatar"
+    app:layout_constraintTop_toTopOf="@id/player_avatar"
+    tools:text="ZellaTheZombieQueen" />
+
+  <TextView
+    android:id="@+id/timestamp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="8dp"
+    android:textColor="@color/grey500"
+    android:textSize="12sp"
+    app:layout_constraintBottom_toBottomOf="@id/player_name"
+    app:layout_constraintStart_toEndOf="@id/player_name"
+    tools:text="July 8th" />
 
   <androidx.emoji.widget.EmojiTextView
     android:id="@+id/message"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="@dimen/screen_margin_horizontal"
     android:textColor="@color/app_primary_text"
-    android:textSize="@dimen/list_item_title_text" />
+    android:textSize="@dimen/list_item_title_text"
+    app:layout_constraintStart_toStartOf="@id/player_name"
+    app:layout_constraintTop_toBottomOf="@id/player_name" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

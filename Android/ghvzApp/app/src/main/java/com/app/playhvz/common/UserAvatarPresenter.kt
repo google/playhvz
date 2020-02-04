@@ -20,6 +20,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.lifecycle.LiveData
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.ALIVE_COLOR
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEAD_COLOR
@@ -47,6 +48,11 @@ class UserAvatarPresenter(avatarView: View, sizeDimenRes: Int) {
     fun renderAvatar(player: Player) {
         ImageDownloaderUtil.downloadImage(avatarImageView, player.avatarUrl, radius)
         renderAllegiance(player)
+    }
+
+    fun renderAvatar(player: LiveData<Player>) {
+        ImageDownloaderUtil.downloadImage(avatarImageView, player.value!!.avatarUrl, radius)
+        renderAllegiance(player.value!!)
     }
 
     private fun renderAllegiance(player: Player) {
