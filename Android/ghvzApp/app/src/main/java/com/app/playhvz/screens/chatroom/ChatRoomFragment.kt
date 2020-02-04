@@ -22,12 +22,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
 import android.widget.ProgressBar
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,8 +40,10 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRE
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.classmodels.Message
+import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
+import com.app.playhvz.utils.PlayerUtil
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
 
@@ -67,7 +71,7 @@ class ChatRoomFragment : Fragment() {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
         chatViewModel = ChatRoomViewModel()
-        messageAdapter = MessageAdapter(listOf(), context!!)
+        messageAdapter = MessageAdapter(listOf(), context!!, this)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -90,7 +94,6 @@ class ChatRoomFragment : Fragment() {
         sendButton = view.findViewById(R.id.send_button)
         messageInputView = view.findViewById(R.id.message_input)
         messageInputView.requestFocus()
-        showKeyboard()
         messageInputView.doOnTextChanged { text, start, count, after ->
             when {
                 text.isNullOrEmpty() || text.isBlank() -> {
@@ -105,11 +108,19 @@ class ChatRoomFragment : Fragment() {
             sendMessage()
         }
         val messageRecyclerView = view.findViewById<RecyclerView>(R.id.message_list)
-        messageRecyclerView.layoutManager = LinearLayoutManager(context)
+        val layoutManager = LinearLayoutManager(context)
+        layoutManager.stackFromEnd = true
+        messageRecyclerView.layoutManager = layoutManager
         messageRecyclerView.adapter = messageAdapter
         progressBar.visibility = View.GONE
         setupToolbar()
         return view
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Must wait to show keyboard until the Fragment is started
+        showKeyboard()
     }
 
     override fun onPause() {
@@ -147,7 +158,14 @@ class ChatRoomFragment : Fragment() {
     }
 
     private fun onMessagesUpdated(updatedMessageList: List<Message>) {
-        messageAdapter.setData(updatedMessageList)
+        val players = mutableMapOf<String, LiveData<Player>>()
+        for (message in updatedMessageList) {
+            if (!players.containsKey(message.senderId)) {
+                players[message.senderId] = PlayerUtil.getPlayer(gameId!!, message.senderId)
+            }
+
+        }
+        messageAdapter.setData(updatedMessageList, players)
         messageAdapter.notifyDataSetChanged()
     }
 
@@ -187,11 +205,11 @@ class ChatRoomFragment : Fragment() {
 
     private fun showKeyboard() {
         val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager?
-        imm?.toggleSoftInput(InputMethodManager.RESULT_SHOWN, 0)
+        imm?.showSoftInput(messageInputView, SHOW_IMPLICIT)
     }
 
     private fun hideKeyboard() {
         val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager?
-        imm?.toggleSoftInput(InputMethodManager.RESULT_HIDDEN, 0)
+        imm?.hideSoftInputFromWindow(messageInputView.windowToken, 0)
     }
 }
