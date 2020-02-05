@@ -17,8 +17,10 @@
 package com.app.playhvz.firebase.viewmodels
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.constants.GamePath
 import com.app.playhvz.firebase.utils.DataConverterUtil
@@ -28,11 +30,11 @@ class GameViewModel : ViewModel() {
         private val TAG = GameViewModel::class.qualifiedName
     }
 
-    private var game: MutableLiveData<Game> = MutableLiveData()
+    private var game: HvzData<Game> = HvzData()
 
     /** Returns a Game LiveData object for the given id. */
-    fun getGame(gameId: String): MutableLiveData<Game> {
-        GamePath.GAMES_COLLECTION.document(gameId)
+    fun getGame(gameId: String): LiveData<Game> {
+        val listener = GamePath.GAMES_COLLECTION.document(gameId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
@@ -42,6 +44,9 @@ class GameViewModel : ViewModel() {
                     game.value = DataConverterUtil.convertSnapshotToGame(snapshot)
                 }
             }
+        game.onDestroyed = {
+            listener.remove()
+        }
         return game
     }
 

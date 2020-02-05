@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations.Companion.getGameByCreatorQuery
 import com.app.playhvz.firebase.operations.GameDatabaseOperations.Companion.getGameByPlayerQuery
@@ -39,12 +40,12 @@ class GameListViewModel : ViewModel() {
         private val TAG = GameListViewModel::class.qualifiedName
     }
 
-    private var ownedGames: MutableLiveData<List<Game>> = MutableLiveData()
-    private var participantGames: MutableLiveData<List<Game>> = MutableLiveData()
+    private var ownedGames: HvzData<List<Game>> = HvzData()
+    private var participantGames: HvzData<List<Game>> = HvzData()
 
 
     fun getOwnedGames(): LiveData<List<Game>> {
-        getGameByCreatorQuery()?.addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
+        val listener = getGameByCreatorQuery()?.addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
             if (e != null) {
                 Log.w(TAG, "Listen failed. ", e)
                 ownedGames.value = emptyList()
@@ -57,12 +58,14 @@ class GameListViewModel : ViewModel() {
             }
             ownedGames.value = ownedGamesList
         })
-
+        ownedGames.onDestroyed = {
+            listener?.remove()
+        }
         return ownedGames
     }
 
     fun getParticipantGames(): MutableLiveData<List<Game>> {
-        getGameByPlayerQuery()?.addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
+        val listener = getGameByPlayerQuery()?.addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
             if (e != null) {
                 Log.w(TAG, "Listen failed. ", e)
                 participantGames.value = emptyList()
@@ -92,7 +95,9 @@ class GameListViewModel : ViewModel() {
                 participantGames.value = asyncParticipantGamesList
             }
         })
-
+        participantGames.onDestroyed = {
+            listener?.remove()
+        }
         return participantGames
     }
 }

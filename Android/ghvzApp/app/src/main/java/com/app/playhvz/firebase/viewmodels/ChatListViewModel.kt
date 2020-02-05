@@ -19,8 +19,8 @@ package com.app.playhvz.firebase.viewmodels
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.classmodels.ChatRoom.Companion.FIELD__IS_VISIBLE
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations.Companion.getChatRoomDocumentReference
@@ -29,42 +29,61 @@ import com.app.playhvz.firebase.utils.DataConverterUtil
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.ListenerRegistration
 
 class ChatListViewModel : ViewModel() {
     companion object {
         private val TAG = ChatListViewModel::class.qualifiedName
     }
 
-    private var chatRoomIdList: MutableLiveData<List<String>> = MutableLiveData()
-    private var chatRoomList: MutableLiveData<List<ChatRoom>> = MutableLiveData()
+    private var chatRoomIdList: HvzData<List<String>> = HvzData()
+    private var chatRoomList: HvzData<List<ChatRoom>> = HvzData()
 
     /** Listens to a player's chat room membership updates and returns a LiveData object listing
      * the ids of the chat rooms the player is currently in. */
-    fun getChatRoomList(lifecycleOwner: LifecycleOwner, gameId: String, playerId: String): LiveData<List<ChatRoom>> {
-        getPlayerDocumentReference(gameId, playerId).addSnapshotListener(
+    fun getChatRoomList(
+        lifecycleOwner: LifecycleOwner,
+        gameId: String,
+        playerId: String
+    ): LiveData<List<ChatRoom>> {
+        val listener = getPlayerDocumentReference(gameId, playerId).addSnapshotListener(
             listenToChatRoomMembershipChanges()
         )
         chatRoomIdList.observe(lifecycleOwner, androidx.lifecycle.Observer { serverChatRoomIdList ->
             observeChatRooms(gameId, serverChatRoomIdList)
         })
+        chatRoomIdList.onDestroyed = {
+            listener.remove()
+        }
         return chatRoomList
     }
 
     /** Should be called after {@link: getChatRoomIds}. Listens to updates on every chat room the
      * player is a member of. */
-    private fun observeChatRooms(gameId: String, chatRoomIdList: List<String>): LiveData<List<ChatRoom>> {
+    private fun observeChatRooms(
+        gameId: String,
+        chatRoomIdList: List<String>
+    ): LiveData<List<ChatRoom>> {
+        val chatRoomListenerList = mutableListOf<ListenerRegistration>()
         for (id in chatRoomIdList) {
-            getChatRoomDocumentReference(gameId, id).addSnapshotListener(
-                EventListener<DocumentSnapshot> { snapshot, e ->
-                    if (e != null) {
-                        Log.w(TAG, "ChatRoom listen failed. ", e)
-                        return@EventListener
-                    }
-                    if (snapshot == null) {
-                        return@EventListener
-                    }
-                    refreshChatRooms(gameId)
-                })
+            chatRoomListenerList.add(
+                getChatRoomDocumentReference(gameId, id).addSnapshotListener(
+                    EventListener<DocumentSnapshot> { snapshot, e ->
+                        if (e != null) {
+                            Log.w(TAG, "ChatRoom listen failed. ", e)
+                            return@EventListener
+                        }
+                        if (snapshot == null) {
+                            return@EventListener
+                        }
+                        refreshChatRooms(gameId)
+                    })
+            )
+        }
+        chatRoomList.onDestroyed = {
+            for (listener in chatRoomListenerList) {
+                listener.remove()
+            }
         }
         return chatRoomList
     }
