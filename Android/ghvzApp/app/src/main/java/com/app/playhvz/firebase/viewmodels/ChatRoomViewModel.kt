@@ -19,8 +19,8 @@ package com.app.playhvz.firebase.viewmodels
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.classmodels.Message
 import com.app.playhvz.firebase.classmodels.Message.Companion.FIELD__TIMESTAMP
@@ -37,8 +37,8 @@ class ChatRoomViewModel : ViewModel() {
         private val TAG = ChatRoomViewModel::class.qualifiedName
     }
 
-    private var chatRoom: MutableLiveData<ChatRoom> = MutableLiveData()
-    private var messageList: MutableLiveData<List<Message>> = MutableLiveData()
+    private var chatRoom: HvzData<ChatRoom> = HvzData()
+    private var messageList: HvzData<List<Message>> = HvzData()
 
     /** Listens to a player's chat room membership updates and returns a LiveData object listing
      * the ids of the chat rooms the player is currently in. */
@@ -47,7 +47,7 @@ class ChatRoomViewModel : ViewModel() {
         gameId: String,
         chatRoomId: String
     ): LiveData<ChatRoom> {
-        getChatRoomDocumentReference(gameId, chatRoomId).addSnapshotListener(
+        val listener = getChatRoomDocumentReference(gameId, chatRoomId).addSnapshotListener(
             EventListener<DocumentSnapshot> { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "ChatRoom listen failed. ", e)
@@ -58,6 +58,9 @@ class ChatRoomViewModel : ViewModel() {
                 }
                 chatRoom.value = DataConverterUtil.convertSnapshotToChatRoom(snapshot)
             })
+        chatRoom.onDestroyed = {
+            listener.remove()
+        }
         return chatRoom
     }
 
@@ -67,7 +70,7 @@ class ChatRoomViewModel : ViewModel() {
         gameId: String,
         chatRoomId: String
     ): LiveData<List<Message>> {
-        getChatRoomMessagesReference(gameId, chatRoomId).orderBy(
+        val listener = getChatRoomMessagesReference(gameId, chatRoomId).orderBy(
             FIELD__TIMESTAMP,
             Query.Direction.ASCENDING
         ).addSnapshotListener(
@@ -85,6 +88,9 @@ class ChatRoomViewModel : ViewModel() {
                 }
                 messageList.value = updatedList
             })
+        messageList.onDestroyed = {
+            listener.remove()
+        }
         return messageList
     }
 }

@@ -17,17 +17,18 @@
 package com.app.playhvz.utils
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEAD_ALLEGIANCES
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.utils.DataConverterUtil
-import com.app.playhvz.firebase.viewmodels.PlayerViewModel
 
 
 class PlayerUtil {
     companion object {
         val TAG = PlayerUtil::class.qualifiedName
+
         enum class AliveStatus { ALIVE, DEAD }
 
         /** Returns whether the current player allegiance is considered Alive or Dead. */
@@ -40,10 +41,10 @@ class PlayerUtil {
         }
 
         /** Returns a Player LiveData object for the given id. */
-        fun getPlayer(gameId: String, playerId: String): MutableLiveData<Player> {
-            val player: MutableLiveData<Player> = MutableLiveData()
+        fun getPlayer(gameId: String, playerId: String): LiveData<Player> {
+            val player: HvzData<Player> = HvzData()
             player.value = Player()
-            PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
+            val listener = PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
                 .addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         Log.w(TAG, "Listen failed.", e)
@@ -54,6 +55,9 @@ class PlayerUtil {
 
                     }
                 }
+            player.onDestroyed = {
+                listener.remove()
+            }
             return player
         }
     }

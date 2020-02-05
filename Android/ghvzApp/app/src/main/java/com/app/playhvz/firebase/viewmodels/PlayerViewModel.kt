@@ -17,8 +17,10 @@
 package com.app.playhvz.firebase.viewmodels
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.constants.PathConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.constants.PlayerPath
@@ -30,12 +32,12 @@ class PlayerViewModel : ViewModel() {
         private val TAG = PlayerViewModel::class.qualifiedName
     }
 
-    private var player: MutableLiveData<Player> = MutableLiveData()
+    private var player: HvzData<Player> = HvzData()
 
     /** Returns a Player LiveData object for the given id. */
-    fun getPlayer(gameId: String, playerId: String): MutableLiveData<Player> {
+    fun getPlayer(gameId: String, playerId: String): LiveData<Player> {
         player.value = Player()
-        PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
+        val listener = PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
@@ -46,6 +48,9 @@ class PlayerViewModel : ViewModel() {
 
                 }
             }
+        player.onDestroyed = {
+            listener.remove()
+        }
         return player
     }
 
@@ -57,7 +62,7 @@ class PlayerViewModel : ViewModel() {
             Log.w(TAG, "Player Id was empty and shouldn't be, not listening to data updates.")
             return player
         }
-        PlayerPath.PLAYERS_COLLECTION(gameId)
+        val listener = PlayerPath.PLAYERS_COLLECTION(gameId)
             .whereEqualTo(UNIVERSAL_FIELD__USER_ID, playerId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -68,6 +73,9 @@ class PlayerViewModel : ViewModel() {
                     updatePlayerData(DataConverterUtil.convertSnapshotToPlayer(snapshot.documents[0]!!))
                 }
             }
+        player.onDestroyed = {
+            listener.remove()
+        }
         return player
     }
 
