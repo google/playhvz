@@ -85,7 +85,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
         return view
     }
 
-    override fun onChatroomClicked(chatRoomId: String) {
+    override fun onChatRoomClicked(chatRoomId: String) {
         NavigationUtil.navigateToChatRoom(findNavController(), chatRoomId)
     }
 
@@ -112,7 +112,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
     }
 
     /** Update data and notify view and adapter of change. */
-    private fun onChatRoomUpdated(updatedChatRoomList: List<ChatRoom>) {
+    private fun onChatRoomUpdated(updatedChatRoomList: Map<String, ChatRoom?>) {
         updateView()
         chatListAdapter.setData(updatedChatRoomList)
         chatListAdapter.notifyDataSetChanged()

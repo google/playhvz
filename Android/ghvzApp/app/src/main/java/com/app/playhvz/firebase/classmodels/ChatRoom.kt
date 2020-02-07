@@ -25,7 +25,7 @@ class ChatRoom {
     var id: String? = null
 
     // Group id
-    var groupId: String? = null
+    var associatedGroupId: String? = null
 
     var name: String = ""
 

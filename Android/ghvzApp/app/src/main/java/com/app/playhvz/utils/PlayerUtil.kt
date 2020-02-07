@@ -44,20 +44,18 @@ class PlayerUtil {
         fun getPlayer(gameId: String, playerId: String): LiveData<Player> {
             val player: HvzData<Player> = HvzData()
             player.value = Player()
-            val listener = PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
-                .addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        Log.w(TAG, "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
-                    if (snapshot != null && snapshot.exists()) {
-                        player.value = DataConverterUtil.convertSnapshotToPlayer(snapshot)
+            player.docIdListeners[playerId] =
+                PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
+                    .addSnapshotListener { snapshot, e ->
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e)
+                            return@addSnapshotListener
+                        }
+                        if (snapshot != null && snapshot.exists()) {
+                            player.value = DataConverterUtil.convertSnapshotToPlayer(snapshot)
 
+                        }
                     }
-                }
-            player.onDestroyed = {
-                listener.remove()
-            }
             return player
         }
     }

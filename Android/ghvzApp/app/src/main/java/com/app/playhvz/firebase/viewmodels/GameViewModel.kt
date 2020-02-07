@@ -34,7 +34,7 @@ class GameViewModel : ViewModel() {
 
     /** Returns a Game LiveData object for the given id. */
     fun getGame(gameId: String): LiveData<Game> {
-        val listener = GamePath.GAMES_COLLECTION.document(gameId)
+        game.docIdListeners[gameId] = GamePath.GAMES_COLLECTION.document(gameId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
@@ -44,9 +44,6 @@ class GameViewModel : ViewModel() {
                     game.value = DataConverterUtil.convertSnapshotToGame(snapshot)
                 }
             }
-        game.onDestroyed = {
-            listener.remove()
-        }
         return game
     }
 

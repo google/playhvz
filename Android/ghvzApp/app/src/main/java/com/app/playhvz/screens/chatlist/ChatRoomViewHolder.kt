@@ -31,7 +31,7 @@ class ChatRoomViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         this.chatRoom = chatRoom
         chatNameTextView.text = chatRoom.name
         itemView.setOnClickListener {
-            navigator.onChatroomClicked(chatRoom.id!!)
+            navigator.onChatRoomClicked(chatRoom.id!!)
         }
     }
 }

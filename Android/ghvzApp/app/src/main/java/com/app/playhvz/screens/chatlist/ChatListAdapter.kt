@@ -31,7 +31,7 @@ class ChatListAdapter(
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     interface IFragmentNavigator {
-        fun onChatroomClicked(chatroomId: String)
+        fun onChatRoomClicked(chatRoomId: String)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -52,8 +52,13 @@ class ChatListAdapter(
         return items.size
     }
 
-    fun setData(data: List<ChatRoom>) {
-
-        items = data
+    fun setData(data: Map<String, ChatRoom?>) {
+        val cleansedList = mutableListOf<ChatRoom>()
+        for ((_, value) in data) {
+            if (value != null) {
+                cleansedList.add(value)
+            }
+        }
+        items = cleansedList
     }
 }

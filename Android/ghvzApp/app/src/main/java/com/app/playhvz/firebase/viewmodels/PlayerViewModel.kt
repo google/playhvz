@@ -37,7 +37,7 @@ class PlayerViewModel : ViewModel() {
     /** Returns a Player LiveData object for the given id. */
     fun getPlayer(gameId: String, playerId: String): LiveData<Player> {
         player.value = Player()
-        val listener = PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
+        player.docIdListeners[playerId] = PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
@@ -48,9 +48,6 @@ class PlayerViewModel : ViewModel() {
 
                 }
             }
-        player.onDestroyed = {
-            listener.remove()
-        }
         return player
     }
 
@@ -62,7 +59,7 @@ class PlayerViewModel : ViewModel() {
             Log.w(TAG, "Player Id was empty and shouldn't be, not listening to data updates.")
             return player
         }
-        val listener = PlayerPath.PLAYERS_COLLECTION(gameId)
+        player.docIdListeners["query"] = PlayerPath.PLAYERS_COLLECTION(gameId)
             .whereEqualTo(UNIVERSAL_FIELD__USER_ID, playerId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -73,9 +70,6 @@ class PlayerViewModel : ViewModel() {
                     updatePlayerData(DataConverterUtil.convertSnapshotToPlayer(snapshot.documents[0]!!))
                 }
             }
-        player.onDestroyed = {
-            listener.remove()
-        }
         return player
     }
 
