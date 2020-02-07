@@ -43,61 +43,56 @@ class GameListViewModel : ViewModel() {
     private var ownedGames: HvzData<List<Game>> = HvzData()
     private var participantGames: HvzData<List<Game>> = HvzData()
 
-
     fun getOwnedGames(): LiveData<List<Game>> {
-        val listener = getGameByCreatorQuery()?.addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed. ", e)
-                ownedGames.value = emptyList()
-                return@EventListener
-            }
+        ownedGames.docIdListeners["query"] =
+            getGameByCreatorQuery().addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed. ", e)
+                    ownedGames.value = emptyList()
+                    return@EventListener
+                }
 
-            val ownedGamesList: MutableList<Game> = mutableListOf()
-            for (doc in snapshot!!) {
-                ownedGamesList.add(DataConverterUtil.convertSnapshotToGame(doc))
-            }
-            ownedGames.value = ownedGamesList
-        })
-        ownedGames.onDestroyed = {
-            listener?.remove()
-        }
+                val ownedGamesList: MutableList<Game> = mutableListOf()
+                for (doc in snapshot!!) {
+                    ownedGamesList.add(DataConverterUtil.convertSnapshotToGame(doc))
+                }
+                ownedGames.value = ownedGamesList
+            })
         return ownedGames
     }
 
     fun getParticipantGames(): MutableLiveData<List<Game>> {
-        val listener = getGameByPlayerQuery()?.addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed. ", e)
-                participantGames.value = emptyList()
-                return@EventListener
-            }
-
-            val asyncParticipantGamesList: MutableList<Game> = mutableListOf()
-            GlobalScope.launch(Dispatchers.Main) {
-                EspressoIdlingResource.increment()
-                /* Asynchronously fetch every Game for each Player returned by our query. */
-                // Launch children requests that are all controlled by a single parent request.
-                for (doc in snapshot!!) {
-                    async {
-                        FirebaseDatabaseUtil.asyncGet(
-                            doc.reference.parent.parent, OnSuccessListener { document ->
-                                if (document != null && document.exists()) {
-                                    asyncParticipantGamesList.add(
-                                        DataConverterUtil.convertSnapshotToGame(
-                                            document
-                                        )
-                                    )
-                                }
-                            })
-                    }.await()
+        participantGames.docIdListeners["query"] =
+            getGameByPlayerQuery().addSnapshotListener(EventListener<QuerySnapshot> { snapshot, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed. ", e)
+                    participantGames.value = emptyList()
+                    return@EventListener
                 }
-                EspressoIdlingResource.decrement()
-                participantGames.value = asyncParticipantGamesList
-            }
-        })
-        participantGames.onDestroyed = {
-            listener?.remove()
-        }
+
+                val asyncParticipantGamesList: MutableList<Game> = mutableListOf()
+                GlobalScope.launch(Dispatchers.Main) {
+                    EspressoIdlingResource.increment()
+                    /* Asynchronously fetch every Game for each Player returned by our query. */
+                    // Launch children requests that are all controlled by a single parent request.
+                    for (doc in snapshot!!) {
+                        async {
+                            FirebaseDatabaseUtil.asyncGet(
+                                doc.reference.parent.parent, OnSuccessListener { document ->
+                                    if (document != null && document.exists()) {
+                                        asyncParticipantGamesList.add(
+                                            DataConverterUtil.convertSnapshotToGame(
+                                                document
+                                            )
+                                        )
+                                    }
+                                })
+                        }.await()
+                    }
+                    EspressoIdlingResource.decrement()
+                    participantGames.value = asyncParticipantGamesList
+                }
+            })
         return participantGames
     }
 }

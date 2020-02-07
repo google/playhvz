@@ -47,20 +47,18 @@ class ChatRoomViewModel : ViewModel() {
         gameId: String,
         chatRoomId: String
     ): LiveData<ChatRoom> {
-        val listener = getChatRoomDocumentReference(gameId, chatRoomId).addSnapshotListener(
-            EventListener<DocumentSnapshot> { snapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "ChatRoom listen failed. ", e)
-                    return@EventListener
-                }
-                if (snapshot == null) {
-                    return@EventListener
-                }
-                chatRoom.value = DataConverterUtil.convertSnapshotToChatRoom(snapshot)
-            })
-        chatRoom.onDestroyed = {
-            listener.remove()
-        }
+        chatRoom.docIdListeners[chatRoomId] =
+            getChatRoomDocumentReference(gameId, chatRoomId).addSnapshotListener(
+                EventListener<DocumentSnapshot> { snapshot, e ->
+                    if (e != null) {
+                        Log.w(TAG, "ChatRoom listen failed. ", e)
+                        return@EventListener
+                    }
+                    if (snapshot == null) {
+                        return@EventListener
+                    }
+                    chatRoom.value = DataConverterUtil.convertSnapshotToChatRoom(snapshot)
+                })
         return chatRoom
     }
 
@@ -70,27 +68,25 @@ class ChatRoomViewModel : ViewModel() {
         gameId: String,
         chatRoomId: String
     ): LiveData<List<Message>> {
-        val listener = getChatRoomMessagesReference(gameId, chatRoomId).orderBy(
-            FIELD__TIMESTAMP,
-            Query.Direction.ASCENDING
-        ).addSnapshotListener(
-            EventListener<QuerySnapshot> { snapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Message collection listen failed. ", e)
-                    return@EventListener
-                }
-                if (snapshot == null) {
-                    return@EventListener
-                }
-                val updatedList: MutableList<Message> = mutableListOf()
-                for (doc in snapshot.documents) {
-                    updatedList.add(DataConverterUtil.convertSnapshotToMessage(doc))
-                }
-                messageList.value = updatedList
-            })
-        messageList.onDestroyed = {
-            listener.remove()
-        }
+        messageList.docIdListeners[chatRoomId] =
+            getChatRoomMessagesReference(gameId, chatRoomId).orderBy(
+                FIELD__TIMESTAMP,
+                Query.Direction.ASCENDING
+            ).addSnapshotListener(
+                EventListener<QuerySnapshot> { snapshot, e ->
+                    if (e != null) {
+                        Log.w(TAG, "Message collection listen failed. ", e)
+                        return@EventListener
+                    }
+                    if (snapshot == null) {
+                        return@EventListener
+                    }
+                    val updatedList: MutableList<Message> = mutableListOf()
+                    for (doc in snapshot.documents) {
+                        updatedList.add(DataConverterUtil.convertSnapshotToMessage(doc))
+                    }
+                    messageList.value = updatedList
+                })
         return messageList
     }
 }

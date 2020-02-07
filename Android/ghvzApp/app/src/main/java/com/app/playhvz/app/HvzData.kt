@@ -17,13 +17,17 @@
 package com.app.playhvz.app
 
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.firestore.ListenerRegistration
 
 
 class HvzData<T>() : MutableLiveData<T>() {
-    var onDestroyed = {}
+    val docIdListeners = mutableMapOf<String, ListenerRegistration>()
 
     override fun onInactive() {
-        onDestroyed
+        for (id in docIdListeners.keys) {
+            docIdListeners[id]?.remove()
+        }
+        docIdListeners.clear()
         super.onInactive()
     }
 }

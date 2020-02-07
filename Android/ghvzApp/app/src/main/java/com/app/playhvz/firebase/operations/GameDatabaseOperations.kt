@@ -115,7 +115,7 @@ class GameDatabaseOperations {
             }
 
         /** Returns a Query listing all Games created by the current user. */
-        fun getGameByCreatorQuery(): Query? {
+        fun getGameByCreatorQuery(): Query {
             return GAMES_COLLECTION.whereEqualTo(
                 GAME_FIELD__CREATOR_ID,
                 FirebaseProvider.getFirebaseAuth().uid
@@ -123,7 +123,7 @@ class GameDatabaseOperations {
         }
 
         /** Returns a Query listing all Games in which the current user is a player. */
-        fun getGameByPlayerQuery(): Query? {
+        fun getGameByPlayerQuery(): Query {
             return PlayerPath.PLAYERS_QUERY.whereEqualTo(
                 UNIVERSAL_FIELD__USER_ID,
                 FirebaseProvider.getFirebaseAuth().uid
