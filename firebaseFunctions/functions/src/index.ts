@@ -205,14 +205,17 @@ async function addNewPlayerToGroups(gameId: string, player: any) {
     throw new functions.https.HttpsError('failed-precondition', 'Cannot find chatroom associated with group.');
   }
 
-  const chatId = chatQuery.docs[0].id;
-  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
+
   const membership = {[chatId]: chatVisibility}
   await group.ref.update({
       [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
   });
+  const chatId = chatQuery.docs[0].id;
+  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
+  // We have to use dot-notation or firebase will overwrite the entire field.
+  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId
   await player.update({
-    [Player.FIELD__CHAT_MEMBERSHIPS]: membership
+    [membershipField]: chatVisibility
   })
 }
 
@@ -224,14 +227,13 @@ async function addPlayerToGroup(gameId: string, playerId: string, group: any, ch
   .doc(playerId)
   .get()
 
-  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
-  //const membership = {[chatRoom.id]: chatVisibility}
-  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoom.id
-  console.log("before updating group")
   await group.update({
       [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
   });
-  console.log("after group update, before player chat update")
+
+  // We have to use dot-notation or firebase will overwrite the entire field.
+  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoom.id
+  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
   await player.ref.update({
     [membershipField]: chatVisibility
   })
