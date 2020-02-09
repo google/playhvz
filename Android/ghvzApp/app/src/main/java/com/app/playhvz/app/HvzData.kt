@@ -20,7 +20,10 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.ListenerRegistration
 
 
-class HvzData<T>() : MutableLiveData<T>() {
+class HvzData<T> : MutableLiveData<T> {
+    constructor(): super()
+    constructor(value: T): super(value)
+
     val docIdListeners = mutableMapOf<String, ListenerRegistration>()
 
     override fun onInactive() {

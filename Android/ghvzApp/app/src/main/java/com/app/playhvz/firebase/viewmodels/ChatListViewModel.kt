@@ -35,8 +35,8 @@ class ChatListViewModel : ViewModel() {
         private val TAG = ChatListViewModel::class.qualifiedName
     }
 
-    private var chatRoomIdList: HvzData<List<String>> = HvzData()
-    private var chatRoomList: HvzData<Map<String, ChatRoom?>> = HvzData()
+    private var chatRoomIdList: HvzData<List<String>> = HvzData(listOf())
+    private var chatRoomList: HvzData<Map<String, ChatRoom?>> = HvzData(mapOf())
 
     /** Listens to a player's chat room membership updates and returns a LiveData object listing
      * the chat rooms the player is currently in. */
@@ -49,9 +49,11 @@ class ChatListViewModel : ViewModel() {
             // We've already started observing
             return chatRoomList
         }
-        chatRoomIdList.observe(lifecycleOwner, androidx.lifecycle.Observer { serverChatRoomIdList ->
-            observeChatRooms(gameId, serverChatRoomIdList)
-        })
+        chatRoomIdList.observe(
+            lifecycleOwner,
+            androidx.lifecycle.Observer { updatedChatRoomIdList ->
+                observeChatRooms(gameId, updatedChatRoomIdList)
+            })
         listenToPlayerChatRoomIds(gameId, playerId)
         return chatRoomList
     }
@@ -66,18 +68,19 @@ class ChatListViewModel : ViewModel() {
                     return@EventListener
                 }
                 val player = DataConverterUtil.convertSnapshotToPlayer(snapshot!!)
-                val chatRoomIds: MutableList<String> = mutableListOf()
+                val updatedChatRoomIds: MutableList<String> = mutableListOf()
                 for ((key, value) in player.chatRoomMemberships) {
                     if (value.getOrElse(FIELD__IS_VISIBLE) { false }) {
-                        chatRoomIds.add(key)
+                        updatedChatRoomIds.add(key)
                     }
                 }
                 if (chatRoomList.value != null) {
                     // Remove chat room listeners for rooms the user isn't a member of anymore.
-                    val removedRooms = chatRoomIds.toSet().minus(chatRoomIdList.value!!.toSet())
+                    val removedRooms =
+                        chatRoomIdList.value!!.toSet().minus(updatedChatRoomIds.toSet())
                     stopListening(removedRooms)
                 }
-                chatRoomIdList.value = chatRoomIds
+                chatRoomIdList.value = updatedChatRoomIds
             }
         )
         chatRoomIdList.docIdListeners[playerId] = chatRoomIdListener
@@ -86,35 +89,29 @@ class ChatListViewModel : ViewModel() {
     /** Listens to updates on every chat room the player is a member of. */
     private fun observeChatRooms(
         gameId: String,
-        chatRoomIdList: List<String>
+        updatedChatRoomIdList: List<String>
     ): LiveData<Map<String, ChatRoom?>> {
-        val firstPass = chatRoomList.value == null
-        val initialList = mutableMapOf<String, ChatRoom?>()
-
-        for (id in chatRoomIdList) {
+        for (id in updatedChatRoomIdList) {
             if (id in chatRoomList.docIdListeners) {
                 // We're already listening to this room
                 continue
             }
-            if (firstPass) {
-                initialList[id] = null
-            }
-            chatRoomList.docIdListeners[id] = getChatRoomDocumentReference(gameId, id).addSnapshotListener(
-                EventListener<DocumentSnapshot> { snapshot, e ->
-                    if (e != null) {
-                        Log.w(TAG, "ChatRoom listen failed. ", e)
-                        return@EventListener
-                    }
-                    if (snapshot == null) {
-                        return@EventListener
-                    }
-                    val updatedChatRoom = DataConverterUtil.convertSnapshotToChatRoom(snapshot)
-                    val updatedRoomList = chatRoomList.value!!.toMutableMap()
-                    updatedRoomList[id] = updatedChatRoom
-                    chatRoomList.value = updatedRoomList
-                })
+            chatRoomList.docIdListeners[id] =
+                getChatRoomDocumentReference(gameId, id).addSnapshotListener(
+                    EventListener<DocumentSnapshot> { snapshot, e ->
+                        if (e != null) {
+                            Log.w(TAG, "ChatRoom listen failed. ", e)
+                            return@EventListener
+                        }
+                        if (snapshot == null) {
+                            return@EventListener
+                        }
+                        val updatedChatRoom = DataConverterUtil.convertSnapshotToChatRoom(snapshot)
+                        val updatedRoomList = chatRoomList.value!!.toMutableMap()
+                        updatedRoomList[id] = updatedChatRoom
+                        chatRoomList.value = updatedRoomList
+                    })
         }
-        chatRoomList.value = initialList
         return chatRoomList
     }
 

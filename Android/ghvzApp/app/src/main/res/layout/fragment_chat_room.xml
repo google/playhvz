@@ -52,7 +52,6 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/screen_margin_horizontal"
     android:layout_marginEnd="@dimen/screen_margin_horizontal"
-    android:layout_marginBottom="16dp"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
@@ -60,9 +59,10 @@
       android:id="@+id/message_input"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
+      android:layout_marginBottom="8dp"
       android:layout_weight="1"
       android:maxHeight="124dp"
-      android:minHeight="64dp"
+      android:minHeight="52dp"
       android:orientation="vertical" />
 
     <com.google.android.material.button.MaterialButton
@@ -72,7 +72,8 @@
       android:layout_height="48dp"
       android:enabled="false"
       app:cornerRadius="24dp"
-      app:icon="@drawable/ic_send" />
+      app:icon="@drawable/ic_send"
+      app:iconGravity="end" />
   </LinearLayout>
 
 </LinearLayout>

@@ -73,5 +73,34 @@ class ChatDatabaseOperations {
                     successListener.invoke()
                 }
         }
+
+        /** Create Chat Room. */
+        suspend fun asyncCreateChatRoom(
+            gameId: String,
+            playerId: String,
+            chatName: String,
+            allegianceFilter: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "ownerId" to playerId,
+                "chatName" to chatName,
+                "allegianceFilter" to allegianceFilter
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("createChatRoom")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
+        }
+
     }
 }
