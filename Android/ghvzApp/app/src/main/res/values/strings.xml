@@ -51,12 +51,36 @@
     Cancel
   </string>
 
+  <string name="button_create" definition="Create button.">
+    Create
+  </string>
+
   <string name="button_next" definition="Button to select when saving changes and going to the next screen.">
     Next
   </string>
 
   <string name="button_submit" definition="Button to select when saving changes.">
     Submit
+  </string>
+
+  <string name="chat_creation_checkbox_allegiance" definition="Label for the checkbox indicating if the room has an allegiance filter.">
+    Enforce members are only:
+  </string>
+
+  <string name="chat_creation_radio_human" definition="Label for the radio button indicating human allegiance.">
+    Human
+  </string>
+
+  <string name="chat_creation_radio_zombie" definition="Label for the radio button indicating zombie allegiance.">
+    Zombie
+  </string>
+
+  <string name="chat_creation_name_label" definition="Label for the chat room name input textview.">
+    Chat name
+  </string>
+
+  <string name="chat_creation_name_hint" definition="Hint text for the chat room name text input.">
+    Nerf Friends
   </string>
 
   <string name="chat_list_toolbar" definition="Toolbar title for the chat list view.">

@@ -24,6 +24,3 @@ export function create(groupId: string, name: string): { [key: string]: any; } {
     [FIELD__NAME]: name
   };
 }
-
-
-

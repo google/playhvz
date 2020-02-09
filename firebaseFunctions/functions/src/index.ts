@@ -180,9 +180,8 @@ function getPlayersWithNameQuery(gameId: string, playerName: string) {
 
 // Creates a group
 async function createGlobalGroup(uid: any, gameId: string) {
-  const group = Group.create(
+  const group = Group.createManagedGroup(
     /* name= */ Defaults.globalChatName,
-    /* managed= */ true,
     /* settings= */ Group.getGlobalGroupSettings(),
   )
   const createdGroup = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
@@ -206,13 +205,51 @@ async function addNewPlayerToGroups(gameId: string, player: any) {
     throw new functions.https.HttpsError('failed-precondition', 'Cannot find chatroom associated with group.');
   }
 
-  const chatId = chatQuery.docs[0].id;
-  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
+
   const membership = {[chatId]: chatVisibility}
   await group.ref.update({
       [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
   });
-  await player.update({[Player.FIELD__CHAT_MEMBERSHIPS]: membership})
+  const chatId = chatQuery.docs[0].id;
+  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
+  // We have to use dot-notation or firebase will overwrite the entire field.
+  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId
+  await player.update({
+    [membershipField]: chatVisibility
+  })
+}
+
+// Add player to specified group
+async function addPlayerToGroup(gameId: string, playerId: string, group: any, chatRoom: any) {
+  const player = await db.collection(GAME_COLLECTION_PATH)
+  .doc(gameId)
+  .collection(Player.COLLECTION_PATH)
+  .doc(playerId)
+  .get()
+
+  await group.update({
+      [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
+  });
+
+  // We have to use dot-notation or firebase will overwrite the entire field.
+  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoom.id
+  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
+  await player.ref.update({
+    [membershipField]: chatVisibility
+  })
+}
+
+// Creates a group
+async function createGroupAndChat(uid: any, gameId: string, playerId: string, chatName: string, settings: any) {
+  const group = Group.createPlayerOwnedGroup(
+    playerId,
+    chatName,
+    /* settings= */ settings,
+  )
+  const createdGroup = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
+  const chat = Chat.create(createdGroup.id, chatName)
+  const createdChat = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
+  await addPlayerToGroup(gameId, playerId, createdGroup, createdChat)
 }
 
 /*******************************************************
@@ -271,6 +308,45 @@ exports.sendChatMessage = functions.https.onCall(async (data, context) => {
     .doc(chatRoomId)
     .collection(Message.COLLECTION_PATH)
     .add(messageDocument)
+})
+
+// Creates a chat room
+// TODO: make this happen as a single transaction
+exports.createChatRoom = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  const ownerId = data.ownerId;
+  const chatName = data.chatName;
+  const allegianceFilter = data.allegianceFilter
+
+  if (!(typeof gameId === 'string')
+        || !(typeof ownerId === 'string')
+        || !(typeof chatName === 'string')
+        || !(typeof allegianceFilter === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String and not empty.");
+  }
+  if (gameId.length === 0 || ownerId.length === 0 || chatName.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            '4 arguments.');
+  }
+  if (allegianceFilter.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'AllegianceFilter was empty, should be ${EMPTY_ALLEGIANCE_FILTER} or race.');
+  }
+
+  const settings = Group.createSettings(
+    /* addSelf= */ true,
+    /* addOthers= */ true,
+    /* removeSelf= */ true,
+    /* removeOthers= */ false,
+    /* autoAdd= */ false,
+    /* autoRemove= */ allegianceFilter != Group.EMPTY_ALLEGIANCE_FILTER,
+    allegianceFilter);
+
+    await createGroupAndChat(context.auth.uid, gameId, ownerId, chatName, settings);
 })
 
 /*******************************************************

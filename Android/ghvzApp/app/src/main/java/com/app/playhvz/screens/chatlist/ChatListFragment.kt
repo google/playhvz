@@ -126,27 +126,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
     }
 
     private fun createChat() {
-        // TODO: implement creating a new chat
-        /*val joinGameDialog = JoinGameDialog()
-         joinGameDialog.setPositiveButtonCallback {
-             val gameName = joinGameDialog.getGameNameProposal()
-
-             val gameJoinedListener = {
-                 Toast.makeText(context, "Joined the game!", Toast.LENGTH_LONG).show()
-             }
-             val gameDoesNotExistsListener = {
-                 Toast.makeText(context, "$gameName does not exist!", Toast.LENGTH_LONG).show()
-             }
-             runBlocking {
-                 EspressoIdlingResource.increment()
-                 GameDatabaseOperations.asyncTryToJoinGame(
-                     gameName,
-                     gameJoinedListener,
-                     gameDoesNotExistsListener
-                 )
-                 EspressoIdlingResource.decrement()
-             }
-         }
-        activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }*/
+        val createChatDialog = CreateChatDialog(gameId!!, playerId!!)
+        activity?.supportFragmentManager?.let { createChatDialog.show(it, TAG) }
     }
 }

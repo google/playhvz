@@ -16,6 +16,8 @@
 
 import * as Defaults from './defaults';
 
+export const EMPTY_ALLEGIANCE_FILTER = "none";
+
 export const COLLECTION_PATH = "groups";
 export const FIELD__NAME = "name";
 export const FIELD__MANAGED = "managed";
@@ -30,11 +32,23 @@ export const FIELD__SETTINGS_AUTO_ADD = "autoAdd";
 export const FIELD__SETTINGS_AUTO_REMOVE = "autoRemove";
 export const FIELD__SETTINGS_ALLEGIANCE_FILTER = "allegianceFilter";
 
-export function create(name: string, managed: boolean, settings: any): { [key: string]: any; } {
+/* Creates a group with no owners because the server is the manager. */
+export function createManagedGroup(name: string, settings: any): { [key: string]: any; } {
   return {
     [FIELD__NAME]: name,
-    [FIELD__MANAGED]: managed,
+    [FIELD__MANAGED]: true,
     [FIELD__OWNERS]: [],
+    [FIELD__SETTINGS]: settings,
+    [FIELD__MEMBERS]: []
+  };
+}
+
+/* Creates a group with the specified player as the owner. */
+export function createPlayerOwnedGroup(ownerId: string, name: string, settings: any): { [key: string]: any; } {
+  return {
+    [FIELD__NAME]: name,
+    [FIELD__MANAGED]: false,
+    [FIELD__OWNERS]: [ownerId],
     [FIELD__SETTINGS]: settings,
     [FIELD__MEMBERS]: []
   };
@@ -49,6 +63,25 @@ export function getGlobalGroupSettings() {
     [FIELD__SETTINGS_AUTO_ADD]: true,
     [FIELD__SETTINGS_AUTO_REMOVE]: false,
     [FIELD__SETTINGS_ALLEGIANCE_FILTER]: Defaults.allegianceFilter
+  }
+}
+
+export function createSettings(
+  addSelf: boolean,
+  addOthers: boolean,
+  removeSelf: boolean,
+  removeOthers: boolean,
+  autoAdd: boolean,
+  autoRemove: boolean,
+  allegianceFilter: string) {
+  return {
+    [FIELD__SETTINGS_ADD_SELF]: addSelf,
+    [FIELD__SETTINGS_ADD_OTHERS]: addOthers,
+    [FIELD__SETTINGS_REMOVE_SELF]: removeSelf,
+    [FIELD__SETTINGS_REMOVE_OTHERS]: removeOthers,
+    [FIELD__SETTINGS_AUTO_ADD]: autoAdd,
+    [FIELD__SETTINGS_AUTO_REMOVE]: autoRemove,
+    [FIELD__SETTINGS_ALLEGIANCE_FILTER]: allegianceFilter
   }
 }
 
