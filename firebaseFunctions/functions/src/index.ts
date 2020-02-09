@@ -205,11 +205,10 @@ async function addNewPlayerToGroups(gameId: string, player: any) {
     throw new functions.https.HttpsError('failed-precondition', 'Cannot find chatroom associated with group.');
   }
 
-
-  const membership = {[chatId]: chatVisibility}
   await group.ref.update({
       [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
   });
+
   const chatId = chatQuery.docs[0].id;
   const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
   // We have to use dot-notation or firebase will overwrite the entire field.
