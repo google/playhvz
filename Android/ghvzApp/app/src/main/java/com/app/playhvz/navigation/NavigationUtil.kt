@@ -19,8 +19,9 @@ package com.app.playhvz.navigation
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants
-import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
 import com.app.playhvz.screens.chatlist.ChatListFragmentDirections
+import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
+import com.app.playhvz.screens.chatroom.chatinfo.ChatInfoFragmentDirections
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
@@ -94,5 +95,13 @@ class NavigationUtil {
             )
         }
 
+        /**
+         * Opens the chat's info screen.
+         */
+        fun navigateToChatInfo(navController: NavController, chatRoomId: String) {
+            navController.navigate(
+                ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(chatRoomId)
+            )
+        }
     }
 }

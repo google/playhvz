@@ -40,6 +40,10 @@ class ChatRoomViewModel : ViewModel() {
     private var chatRoom: HvzData<ChatRoom> = HvzData()
     private var messageList: HvzData<List<Message>> = HvzData()
 
+    fun getChatName(): String? {
+        return chatRoom.value?.name
+    }
+
     /** Listens to a player's chat room membership updates and returns a LiveData object listing
      * the ids of the chat rooms the player is currently in. */
     fun getChatRoomObserver(

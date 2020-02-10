@@ -18,9 +18,7 @@ package com.app.playhvz.screens.chatroom
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
 import android.widget.ProgressBar
@@ -30,6 +28,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,6 +42,7 @@ import com.app.playhvz.firebase.classmodels.Message
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.PlayerUtil
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
@@ -128,11 +128,29 @@ class ChatRoomFragment : Fragment() {
         hideKeyboard()
     }
 
+    override fun onResume() {
+        super.onResume()
+        val name = chatViewModel.getChatName()
+        if (name != null && name != toolbar?.title) {
+            toolbar?.title = name
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_chat, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.chat_info) {
+            NavigationUtil.navigateToChatInfo(findNavController(), chatRoomId)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     fun setupToolbar() {
-        toolbar?.title = getString(R.string.chat_list_toolbar)
-        /*if (game == null || game?.name.isNullOrEmpty()) context!!.getString(R.string.game_settings_create_game_toolbar_title)
-        else game?.name */
+        toolbar?.title = ""
         toolbar?.setDisplayHomeAsUpEnabled(false)
+        setHasOptionsMenu(true)
     }
 
     private fun setupObservers() {
@@ -174,10 +192,6 @@ class ChatRoomFragment : Fragment() {
             return
         }
         progressBar.visibility = View.GONE
-    }
-
-    private fun createChat() {
-        // TODO: implement creating a new chat
     }
 
     private fun sendMessage() {

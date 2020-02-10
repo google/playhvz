@@ -53,6 +53,9 @@
     android:id="@+id/action_global_nav_chat_room_fragment"
     app:destination="@id/nav_chat_room_fragment" />
 
+  <action
+    android:id="@+id/action_global_nav_chat_info_fragment"
+    app:destination="@id/nav_chat_info_fragment" />
 
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
@@ -120,4 +123,12 @@
       app:nullable="false" />
   </fragment>
 
+  <fragment
+    android:id="@+id/nav_chat_info_fragment"
+    android:name="com.app.playhvz.screens.chatroom.chatinfo.ChatInfoFragment">
+    <argument
+      android:name="chatRoomId"
+      app:argType="string"
+      app:nullable="false" />
+  </fragment>
 </navigation>
