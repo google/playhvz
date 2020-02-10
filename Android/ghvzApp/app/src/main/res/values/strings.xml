@@ -91,6 +91,10 @@
     Chat
   </string>
 
+  <string name="chat_info_title" definition="Title for the chat info page.">
+    Options
+  </string>
+
   <string name="chat_input_hint" definition="Hint text for chat room message input.">
     Message %1$s
   </string>
@@ -224,6 +228,10 @@
   </string>
 
   <!-- Accessibility strings -->
+  <string name="chat_info_content_description" definition="Content description for the icon to open chat info page.">
+    See chat info
+  </string>
+
   <string name="force_upgrade_image_content_description" definition="Content description for force upgrade image.">
     poo
   </string>
