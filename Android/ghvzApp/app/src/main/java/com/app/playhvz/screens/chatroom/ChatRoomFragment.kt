@@ -43,7 +43,7 @@ import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.utils.PlayerUtil
+import com.app.playhvz.utils.PlayerUtils
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
 
@@ -179,7 +179,7 @@ class ChatRoomFragment : Fragment() {
         val players = mutableMapOf<String, LiveData<Player>>()
         for (message in updatedMessageList) {
             if (!players.containsKey(message.senderId)) {
-                players[message.senderId] = PlayerUtil.getPlayer(gameId!!, message.senderId)
+                players[message.senderId] = PlayerUtils.getPlayer(gameId!!, message.senderId)
             }
 
         }

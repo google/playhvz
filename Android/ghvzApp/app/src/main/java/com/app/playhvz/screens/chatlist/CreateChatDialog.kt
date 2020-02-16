@@ -27,7 +27,7 @@ import androidx.fragment.app.DialogFragment
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
-import com.app.playhvz.utils.SystemUtil
+import com.app.playhvz.utils.SystemUtils
 import kotlinx.coroutines.runBlocking
 
 class CreateChatDialog(val gameId: String, val playerId: String) : DialogFragment() {
@@ -106,7 +106,7 @@ class CreateChatDialog(val gameId: String, val playerId: String) : DialogFragmen
         val onSuccess = {
             progressBar.visibility = View.INVISIBLE
             dismiss()
-            SystemUtil.hideKeyboard(context!!)
+            SystemUtils.hideKeyboard(context!!)
             // TODO: open newly created chat room
         }
         val onFailure = {

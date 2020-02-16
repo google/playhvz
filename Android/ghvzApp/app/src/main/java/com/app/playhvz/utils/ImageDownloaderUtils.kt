@@ -24,7 +24,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
-class ImageDownloaderUtil {
+class ImageDownloaderUtils {
     companion object {
         /** Function that handles async downloading an image from a url.
          * @param imageView the view to show the image in once downloaded

@@ -41,16 +41,29 @@
     tools:text="Chat" />
 
   <View
-    android:id="@+id/divider_top"
+    android:id="@+id/divider_below_title"
     android:layout_width="match_parent"
     android:layout_height="@dimen/divider_height"
     android:background="@color/divider" />
 
+  <TextView
+    android:id="@+id/add_people_option"
+    style="@style/ChatInfoOption"
+    android:drawableStart="@drawable/ic_plus"
+    android:text="@string/chat_info_add_player" />
+
+  <TextView
+    android:id="@+id/leave_option"
+    style="@style/ChatInfoOption"
+    android:drawableStart="@drawable/ic_exit"
+    android:text="@string/chat_info_leave" />
+
   <View
-    android:id="@+id/divider"
+    android:id="@+id/divider_below_options"
     android:layout_width="match_parent"
     android:layout_height="@dimen/divider_height"
-    android:background="@color/divider" />
+    android:background="@color/divider"
+    android:visibility="gone" />
 
   <TextView
     android:id="@+id/member_count"
@@ -58,8 +71,10 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:paddingStart="@dimen/screen_margin_horizontal"
+    android:paddingTop="4dp"
     android:paddingEnd="@dimen/screen_margin_horizontal"
-    android:text="0 members" />
+    android:paddingBottom="4dp"
+    tools:text="0 members" />
 
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/member_list"

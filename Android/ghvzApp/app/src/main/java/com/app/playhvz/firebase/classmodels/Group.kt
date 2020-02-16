@@ -24,9 +24,9 @@ class Group {
     var name: String? = null
 
     var managed: Boolean = false
-    var owners = arrayOf<String>()
-    var settings: Settings? = null
-    var members = arrayOf<String>()
+    var owners = listOf<String>()
+    var settings: Settings = Settings()
+    var members = listOf<String>()
 
     class Settings {
         var canAddSelf: Boolean = true

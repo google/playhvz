@@ -26,6 +26,7 @@ import com.app.playhvz.firebase.classmodels.ChatRoom.Companion.FIELD__IS_VISIBLE
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations.Companion.getChatRoomDocumentReference
 import com.app.playhvz.firebase.operations.PlayerDatabaseOperations.Companion.getPlayerDocumentReference
 import com.app.playhvz.firebase.utils.DataConverterUtil
+import com.app.playhvz.utils.ObserverUtils
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener

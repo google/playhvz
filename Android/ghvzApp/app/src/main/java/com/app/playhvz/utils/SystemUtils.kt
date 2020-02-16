@@ -21,10 +21,10 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.pm.PackageInfoCompat
 
 /** Util for common system functions. */
-class SystemUtil {
+class SystemUtils {
 
     companion object {
-        private val TAG = SystemUtil::class.qualifiedName
+        private val TAG = SystemUtils::class.qualifiedName
 
         /** Returns the app version code as a Long. */
         fun getAppVersion(context: Context): Long {

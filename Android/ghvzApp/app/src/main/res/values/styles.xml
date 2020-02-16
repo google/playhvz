@@ -44,4 +44,18 @@
     <item name="android:paddingBottom">2dp</item>
   </style>
 
+  <style name="ChatInfoOption" parent="TextAppearance.MaterialComponents.Subtitle2">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:drawablePadding">12dp</item>
+    <item name="android:gravity">center_vertical</item>
+    <item name="android:paddingBottom">20dp</item>
+    <item name="android:visibility">gone</item>
+    <item name="android:paddingTop">20dp</item>
+    <item name="android:paddingStart">@dimen/screen_margin_horizontal</item>
+    <item name="android:paddingEnd">@dimen/screen_margin_horizontal</item>
+    <item name="android:textColor">@color/app_secondary_text</item>
+    <item name="drawableTint">@color/app_secondary_text</item>
+  </style>
+
 </resources>

@@ -61,6 +61,10 @@ class GroupPath {
         val GROUP_QUERY =
             FirebaseProvider.getFirebaseFirestore().collectionGroup(GROUP_COLLECTION_PATH)
 
+        val GROUP_DOCUMENT_REFERENCE = { gameId: String, groupId: String ->
+            GROUP_COLLECTION(gameId).document(groupId)
+        }
+
 
         /*******************************************************************************************
          * End path definitions to documents

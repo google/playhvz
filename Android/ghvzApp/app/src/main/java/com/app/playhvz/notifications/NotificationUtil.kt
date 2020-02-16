@@ -26,7 +26,7 @@ import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.firebase.operations.UserDatabaseOperations
 import com.app.playhvz.screens.signin.SignInActivity
-import com.app.playhvz.utils.CompatUtil
+import com.app.playhvz.utils.CompatUtils
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.iid.FirebaseInstanceId
 
@@ -89,7 +89,7 @@ class NotificationUtil {
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            CompatUtil.buildNotificationChannel(context, notificationManager, channelId)
+            CompatUtils.buildNotificationChannel(context, notificationManager, channelId)
 
             notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
         }

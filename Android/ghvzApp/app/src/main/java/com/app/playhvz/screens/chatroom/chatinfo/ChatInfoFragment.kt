@@ -19,19 +19,26 @@ package com.app.playhvz.screens.chatroom.chatinfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
-import com.app.playhvz.firebase.classmodels.ChatRoom
+import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
+import com.app.playhvz.utils.PlayerHelper
 
 /** Fragment for showing a list of Chatrooms the user is a member of.*/
 class ChatInfoFragment : Fragment() {
@@ -41,12 +48,19 @@ class ChatInfoFragment : Fragment() {
 
     lateinit var chatViewModel: ChatRoomViewModel
 
-    private lateinit var chatRoomId: String
-    private lateinit var progressBar: ProgressBar
+    private lateinit var addPeopleOption: TextView
     private lateinit var chatNameView: EmojiTextView
+    private lateinit var chatRoomId: String
+    private lateinit var divider: View
+    private lateinit var leaveOption: TextView
+    private lateinit var memberCountView: TextView
+    private lateinit var memberAdapter: MemberAdapter
+    private lateinit var progressBar: ProgressBar
+
 
     private val args: ChatInfoFragmentArgs by navArgs()
     private var gameId: String? = null
+    private var playerHelper: PlayerHelper = PlayerHelper()
     private var playerId: String? = null
     private var toolbar: ActionBar? = null
 
@@ -54,6 +68,8 @@ class ChatInfoFragment : Fragment() {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
         chatViewModel = ChatRoomViewModel()
+        memberAdapter = MemberAdapter(listOf(), context!!, this)
+
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -74,8 +90,22 @@ class ChatInfoFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_chat_info, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
         chatNameView = view.findViewById(R.id.chat_name)
+        divider = view.findViewById(R.id.divider_below_options)
+        addPeopleOption = view.findViewById(R.id.add_people_option)
+        leaveOption = view.findViewById(R.id.leave_option)
+        memberCountView = view.findViewById(R.id.member_count)
+
         progressBar.visibility = View.GONE
         setupToolbar()
+
+        addPeopleOption.setOnClickListener { v -> onAddPeopleClicked(v) }
+        leaveOption.setOnClickListener { v -> onLeaveClicked(v) }
+
+        val memberRecyclerView = view.findViewById<RecyclerView>(R.id.member_list)
+        val layoutManager = LinearLayoutManager(context)
+        memberRecyclerView.layoutManager = layoutManager
+        memberRecyclerView.adapter = memberAdapter
+
         return view
     }
 
@@ -88,20 +118,30 @@ class ChatInfoFragment : Fragment() {
         if (gameId.isNullOrEmpty() || playerId.isNullOrEmpty()) {
             return
         }
-        chatViewModel.getChatRoomObserver(this, gameId!!, chatRoomId)
-            .observe(this, androidx.lifecycle.Observer { serverChatRoom ->
-                onChatRoomUpdated(serverChatRoom)
+        chatViewModel.getGroupObserver(this, gameId!!, chatRoomId)
+            .observe(this, androidx.lifecycle.Observer { serverGroup ->
+                onGroupUpdated(serverGroup)
             })
-        /*
-        chatViewModel.getMessagesObserver(this, gameId!!, chatRoomId)
-            .observe(this, androidx.lifecycle.Observer { serverMessageList ->
-                onMessagesUpdated(serverMessageList)
-            }) */
     }
 
     /** Update data and notify view and adapter of change. */
-    private fun onChatRoomUpdated(updatedChatRoom: ChatRoom) {
-        chatNameView.text = updatedChatRoom.name
+    private fun onGroupUpdated(updatedGroup: Group) {
+        chatNameView.text = updatedGroup.name
+        val count = updatedGroup.members.size
+        memberCountView.text =
+            resources.getQuantityString(R.plurals.chat_info_member_count, count, count)
+
+        addPeopleOption.visibility = if (updatedGroup.settings.canAddOthers) VISIBLE else GONE
+        leaveOption.visibility = if (updatedGroup.settings.canRemoveSelf) VISIBLE else GONE
+
+        divider.visibility =
+            if (addPeopleOption.isVisible || leaveOption.isVisible) VISIBLE else GONE
+
+        playerHelper.getListOfPlayers(gameId!!, updatedGroup.members)
+            .observe(this, androidx.lifecycle.Observer { playerMap ->
+                memberAdapter.setData(playerMap)
+                memberAdapter.notifyDataSetChanged()
+            })
     }
 
     private fun updateView() {
@@ -109,5 +149,13 @@ class ChatInfoFragment : Fragment() {
             return
         }
         progressBar.visibility = View.GONE
+    }
+
+    private fun onAddPeopleClicked(view: View) {
+        // TODO: implement adding people
+    }
+
+    private fun onLeaveClicked(view: View) {
+        // TODO: implement leaving
     }
 }

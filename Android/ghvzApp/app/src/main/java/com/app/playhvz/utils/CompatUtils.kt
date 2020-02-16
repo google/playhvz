@@ -23,11 +23,11 @@ import android.os.Build
 import com.app.playhvz.R
 
 /** Util for handling logic based on Android version. */
-class CompatUtil {
+class CompatUtils {
 
     // All static methods or variables go inside this companion object.
     companion object {
-        private val TAG = CompatUtil::class.qualifiedName
+        private val TAG = CompatUtils::class.qualifiedName
 
         fun buildNotificationChannel(context: Context, notificationManager: NotificationManager, channelId: String) {
             // Android Oreo and later supports notification channels.

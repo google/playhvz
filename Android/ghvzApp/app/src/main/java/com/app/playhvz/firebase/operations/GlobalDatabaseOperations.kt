@@ -23,7 +23,7 @@ import com.app.playhvz.firebase.constants.PathConstants
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.screens.forceupgrade.ForceUpgradeActivity
 import com.app.playhvz.screens.signin.SignInActivity
-import com.app.playhvz.utils.SystemUtil
+import com.app.playhvz.utils.SystemUtils
 
 
 class GlobalDatabaseOperations {
@@ -40,7 +40,7 @@ class GlobalDatabaseOperations {
                     if (snapshot != null && snapshot.exists()) {
                         val supportedAppVersionCode =
                             snapshot.getLong(PathConstants.GLOBAL_DATA_FIELD__ANDROID_APP_VERSION_CODE)
-                        if (supportedAppVersionCode != null && SystemUtil.getAppVersion(context) < supportedAppVersionCode) {
+                        if (supportedAppVersionCode != null && SystemUtils.getAppVersion(context) < supportedAppVersionCode) {
                             Log.w(TAG, "App version out of date, opening force upgrade activity")
                             context.startActivity(ForceUpgradeActivity.getLaunchIntent(context))
                         } else if ((context as PlayHvzApplication).currentActivity is ForceUpgradeActivity) {

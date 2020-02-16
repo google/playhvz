@@ -28,7 +28,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
-import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -41,7 +40,7 @@ import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.utils.SystemUtil
+import com.app.playhvz.utils.SystemUtils
 import com.google.android.gms.tasks.OnSuccessListener
 import kotlinx.coroutines.runBlocking
 
@@ -146,7 +145,7 @@ class GameSettingsFragment : Fragment() {
                 getString(R.string.create_game_success_toast, name),
                 Toast.LENGTH_LONG
             ).show()
-            SystemUtil.hideKeyboard(context!!)
+            SystemUtils.hideKeyboard(context!!)
             if (it.isNullOrEmpty()) {
                 NavigationUtil.navigateToGameList(findNavController(), activity!!)
             }

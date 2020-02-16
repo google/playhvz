@@ -30,7 +30,7 @@ import androidx.fragment.app.DialogFragment
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
-import com.app.playhvz.utils.SystemUtil
+import com.app.playhvz.utils.SystemUtils
 import kotlinx.coroutines.runBlocking
 
 class JoinGameDialog : DialogFragment() {
@@ -143,7 +143,7 @@ class JoinGameDialog : DialogFragment() {
         val onSuccess = {
             progressBar.visibility = View.INVISIBLE
             dismiss()
-            SystemUtil.hideKeyboard(context!!)
+            SystemUtils.hideKeyboard(context!!)
             Toast.makeText(
                 context,
                 getString(R.string.join_game_success_message),

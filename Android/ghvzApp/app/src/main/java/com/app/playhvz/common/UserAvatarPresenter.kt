@@ -25,9 +25,9 @@ import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.ALIVE_COLOR
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEAD_COLOR
 import com.app.playhvz.firebase.classmodels.Player
-import com.app.playhvz.utils.ImageDownloaderUtil
-import com.app.playhvz.utils.PlayerUtil
-import com.app.playhvz.utils.PlayerUtil.Companion.AliveStatus
+import com.app.playhvz.utils.ImageDownloaderUtils
+import com.app.playhvz.utils.PlayerUtils
+import com.app.playhvz.utils.PlayerUtils.Companion.AliveStatus
 
 
 class UserAvatarPresenter(avatarView: View, sizeDimenRes: Int) {
@@ -46,17 +46,17 @@ class UserAvatarPresenter(avatarView: View, sizeDimenRes: Int) {
     }
 
     fun renderAvatar(player: Player) {
-        ImageDownloaderUtil.downloadImage(avatarImageView, player.avatarUrl, radius)
+        ImageDownloaderUtils.downloadImage(avatarImageView, player.avatarUrl, radius)
         renderAllegiance(player)
     }
 
     fun renderAvatar(player: LiveData<Player>) {
-        ImageDownloaderUtil.downloadImage(avatarImageView, player.value!!.avatarUrl, radius)
+        ImageDownloaderUtils.downloadImage(avatarImageView, player.value!!.avatarUrl, radius)
         renderAllegiance(player.value!!)
     }
 
     private fun renderAllegiance(player: Player) {
-        val aliveStatus: AliveStatus = PlayerUtil.getAliveStatus(player.allegiance)
+        val aliveStatus: AliveStatus = PlayerUtils.getAliveStatus(player.allegiance)
         val unwrappedDrawable =
             AppCompatResources.getDrawable(avatarBorderView.context, R.drawable.circular_border)
         val wrappedDrawable =

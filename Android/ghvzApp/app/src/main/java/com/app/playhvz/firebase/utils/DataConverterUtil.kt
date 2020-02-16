@@ -16,10 +16,7 @@
 
 package com.app.playhvz.firebase.utils
 
-import com.app.playhvz.firebase.classmodels.ChatRoom
-import com.app.playhvz.firebase.classmodels.Game
-import com.app.playhvz.firebase.classmodels.Message
-import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.classmodels.*
 import com.google.firebase.firestore.DocumentSnapshot
 
 class DataConverterUtil {
@@ -46,6 +43,12 @@ class DataConverterUtil {
             val message = document.toObject(Message::class.java)!!
             message.id = document.id
             return message
+        }
+
+        fun convertSnapshotToGroup(document: DocumentSnapshot): Group {
+            val group = document.toObject(Group::class.java)!!
+            group.id = document.id
+            return group
         }
     }
 }
