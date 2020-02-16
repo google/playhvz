@@ -91,9 +91,22 @@
     Chat
   </string>
 
+  <string name="chat_info_add_player" definition="Option to add a player to the chat room.">
+    Add player
+  </string>
+
   <string name="chat_info_title" definition="Title for the chat info page.">
     Options
   </string>
+
+  <string name="chat_info_leave" definition="Option to leave the chat room.">
+    Leave
+  </string>
+
+  <plurals name="chat_info_member_count" definition="String expressing the number of members in the chat room.">
+    <item quantity="one">%1$s member</item>
+    <item quantity="other">%1$s members</item>
+  </plurals>
 
   <string name="chat_input_hint" definition="Hint text for chat room message input.">
     Message %1$s

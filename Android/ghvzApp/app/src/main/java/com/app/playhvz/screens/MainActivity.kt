@@ -69,7 +69,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private var fragmentsWithoutBottomNav = arrayOf(
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
-        R.id.nav_chat_room_fragment
+        R.id.nav_chat_room_fragment,
+        R.id.nav_chat_info_fragment
     )
 
     // This must NOT be a lambda! https://stackoverflow.com/a/3104265/12094056

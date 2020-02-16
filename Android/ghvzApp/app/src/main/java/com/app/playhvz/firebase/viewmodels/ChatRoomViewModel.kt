@@ -22,10 +22,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.ChatRoom
+import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Message
 import com.app.playhvz.firebase.classmodels.Message.Companion.FIELD__TIMESTAMP
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations.Companion.getChatRoomDocumentReference
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations.Companion.getChatRoomMessagesReference
+import com.app.playhvz.firebase.operations.GroupDatabaseOperations.Companion.getGroupDocumentReference
 import com.app.playhvz.firebase.utils.DataConverterUtil
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
@@ -39,13 +41,13 @@ class ChatRoomViewModel : ViewModel() {
 
     private var chatRoom: HvzData<ChatRoom> = HvzData()
     private var messageList: HvzData<List<Message>> = HvzData()
+    private var group: HvzData<Group> = HvzData()
 
     fun getChatName(): String? {
         return chatRoom.value?.name
     }
 
-    /** Listens to a player's chat room membership updates and returns a LiveData object listing
-     * the ids of the chat rooms the player is currently in. */
+    /** Listens to a chat room's updates and returns a LiveData object of the chat room. */
     fun getChatRoomObserver(
         lifecycleOwner: LifecycleOwner,
         gameId: String,
@@ -92,5 +94,37 @@ class ChatRoomViewModel : ViewModel() {
                     messageList.value = updatedList
                 })
         return messageList
+    }
+
+    /** Listens to a chat room's members and returns a LiveData object listing them. */
+    fun getGroupObserver(
+        lifecycleOwner: LifecycleOwner,
+        gameId: String,
+        chatRoomId: String
+    ): LiveData<Group> {
+        getChatRoomDocumentReference(gameId, chatRoomId).get()
+            .addOnSuccessListener { chatSnapshot ->
+                if (chatSnapshot == null) {
+                    return@addOnSuccessListener
+                }
+                val chatRoom = DataConverterUtil.convertSnapshotToChatRoom(chatSnapshot)
+                // Listen to the chat room's associated group.
+                group.docIdListeners[chatRoom.associatedGroupId!!] =
+                    getGroupDocumentReference(
+                        gameId,
+                        chatRoom.associatedGroupId!!
+                    ).addSnapshotListener(
+                        EventListener<DocumentSnapshot> { snapshot, e ->
+                            if (e != null) {
+                                Log.w(TAG, "Group listen failed. ", e)
+                                return@EventListener
+                            }
+                            if (snapshot == null) {
+                                return@EventListener
+                            }
+                            group.value = DataConverterUtil.convertSnapshotToGroup(snapshot)
+                        })
+            }
+        return group
     }
 }
