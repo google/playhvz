@@ -58,5 +58,19 @@ class PlayerUtils {
                     }
             return player
         }
+
+        /** Returns a paginated list of Players in the game with the given filter. */
+        fun getPlayerList(gameId: String, allegianceFilter: String?): LiveData<List<Player>> {
+            val playerList: HvzData<List<Player>> = HvzData(listOf())
+            PlayerPath.PLAYERS_COLLECTION(gameId).orderBy(PlayerPath.PLAYER_FIELD__NAME).limit(25)
+                .get().addOnSuccessListener { querySnapshot ->
+                    val mutableList = mutableListOf<Player>()
+                    for (playerSnapshot in querySnapshot.documents) {
+                        mutableList.add(DataConverterUtil.convertSnapshotToPlayer(playerSnapshot))
+                    }
+                    playerList.value = mutableList.toList()
+                }
+            return playerList
+        }
     }
 }

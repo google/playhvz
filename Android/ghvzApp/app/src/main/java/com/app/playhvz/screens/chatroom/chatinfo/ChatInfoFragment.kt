@@ -36,6 +36,7 @@ import com.app.playhvz.R
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
+import com.app.playhvz.common.playersearch.PlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
 import com.app.playhvz.utils.PlayerHelper
@@ -60,6 +61,7 @@ class ChatInfoFragment : Fragment() {
 
     private val args: ChatInfoFragmentArgs by navArgs()
     private var gameId: String? = null
+    private var group: Group? = null
     private var playerHelper: PlayerHelper = PlayerHelper()
     private var playerId: String? = null
     private var toolbar: ActionBar? = null
@@ -126,6 +128,7 @@ class ChatInfoFragment : Fragment() {
 
     /** Update data and notify view and adapter of change. */
     private fun onGroupUpdated(updatedGroup: Group) {
+        group = updatedGroup
         chatNameView.text = updatedGroup.name
         val count = updatedGroup.members.size
         memberCountView.text =
@@ -152,7 +155,8 @@ class ChatInfoFragment : Fragment() {
     }
 
     private fun onAddPeopleClicked(view: View) {
-        // TODO: implement adding people
+        val addPeopleDialog = PlayerSearchDialog(gameId!!, group)
+        activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
     }
 
     private fun onLeaveClicked(view: View) {
