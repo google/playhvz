@@ -14,36 +14,37 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.chatroom.chatinfo
+package com.app.playhvz.common.playersearch
 
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.UserAvatarPresenter
 import com.app.playhvz.firebase.classmodels.Player
+import com.google.android.material.button.MaterialButton
 
 
-class MemberViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+class PlayerViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
-    private val avatarView = view.findViewById<ConstraintLayout>(R.id.player_avatar_container)!!
-    private val overflowView = view.findViewById<TextView>(R.id.additional_icon)!!
-    private val nameView = view.findViewById<TextView>(R.id.player_name)!!
-
-    fun onBind(player: Player?, lifecycleOwner: LifecycleOwner) {
-        updateDisplayedPlayerData(player!!)
+    interface PlayerClickListener {
+        fun onPlayerClicked(checkIcon: MaterialButton, player: Player)
     }
 
-    /* fun onBind(player: LiveData<Player>?, lifecycleOwner: LifecycleOwner) {
-        player?.observe(lifecycleOwner) { updatedPlayer ->
-            updateDisplayedPlayerData(updatedPlayer)
-        }
-    } */
-    private fun updateDisplayedPlayerData(player: Player) {
+    private val avatarView = view.findViewById<ConstraintLayout>(R.id.player_avatar_container)!!
+    private val nameView = view.findViewById<TextView>(R.id.player_name)!!
+    private val checkIcon = view.findViewById<MaterialButton>(R.id.additional_icon)
+
+    fun onBind(player: Player, playerClickListener: PlayerClickListener) {
+        checkIcon.visibility = View.INVISIBLE
+        checkIcon.isEnabled = false
         val userAvatarPresenter = UserAvatarPresenter(avatarView, R.dimen.avatar_small)
         userAvatarPresenter.renderAvatar(player)
         nameView.text = player.name
+
+        itemView.setOnClickListener {
+            playerClickListener.onPlayerClicked(checkIcon, player)
+        }
     }
 }

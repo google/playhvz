@@ -43,6 +43,10 @@
     %1$s already exists!
   </string>
 
+  <string name="button_add" definition="Button to add selected item to a list or group.">
+    Add
+  </string>
+
   <string name="button_back" definition="Button to select to go back to previous screen.">
     Back
   </string>
@@ -164,6 +168,10 @@
     HvZ
   </string>
 
+  <string name="generic_success_toast" definition="Toast shown when a user action successfully finished.">
+    Success!
+  </string>
+
   <string name="join_game_game_hint" definition="Hint text for the game name text input.">
     HvZ
   </string>
@@ -226,6 +234,14 @@
 
   <string name="navigation_drawer_home" definition="Navigation drawer menu item for opening the home screen.">
     Home
+  </string>
+
+  <string name="player_search_input_label" definition="Label for the input textview for filtering players.">
+    Search for player:
+  </string>
+
+  <string name="player_search_error_label" definition="Error label shown when an operation fails in the player search dialog.">
+    Failed, try again
   </string>
 
   <string name="sign_in_failed_toast">
