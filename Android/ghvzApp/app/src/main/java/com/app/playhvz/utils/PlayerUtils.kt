@@ -21,8 +21,11 @@ import androidx.lifecycle.LiveData
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEAD_ALLEGIANCES
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.constants.GroupPath.Companion.GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.utils.DataConverterUtil
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.QuerySnapshot
 
 
 class PlayerUtils {
@@ -30,6 +33,8 @@ class PlayerUtils {
         val TAG = PlayerUtils::class.qualifiedName
 
         enum class AliveStatus { ALIVE, DEAD }
+
+        private val PAGINATION_LIMIT: Long = 25
 
         /** Returns whether the current player allegiance is considered Alive or Dead. */
         fun getAliveStatus(allegiance: String): AliveStatus {
@@ -60,17 +65,66 @@ class PlayerUtils {
         }
 
         /** Returns a paginated list of Players in the game with the given filter. */
-        fun getPlayerList(gameId: String, allegianceFilter: String?): LiveData<List<Player>> {
-            val playerList: HvzData<List<Player>> = HvzData(listOf())
-            PlayerPath.PLAYERS_COLLECTION(gameId).orderBy(PlayerPath.PLAYER_FIELD__NAME).limit(25)
-                .get().addOnSuccessListener { querySnapshot ->
+        fun getPlayerList(
+            liveData: HvzData<List<Player>>,
+            gameId: String,
+            nameFilter: String?,
+            allegianceFilter: String?
+        ) {
+            // Logic for filtering on start string is courtesy of:
+            // https://firebase.google.com/docs/database/admin/retrieve-data#range-queries
+
+            val updatePlayerList: OnSuccessListener<in QuerySnapshot> =
+                OnSuccessListener { querySnapshot ->
+                    if (querySnapshot.isEmpty || querySnapshot.documents.isEmpty()) {
+                        liveData.value = listOf()
+                        return@OnSuccessListener
+                    }
                     val mutableList = mutableListOf<Player>()
                     for (playerSnapshot in querySnapshot.documents) {
                         mutableList.add(DataConverterUtil.convertSnapshotToPlayer(playerSnapshot))
                     }
-                    playerList.value = mutableList.toList()
+                    liveData.value = mutableList.toList()
                 }
-            return playerList
+
+            // Special note, due to weirdness with Firebase we must directly call .get() on the
+            // chain of commands. If we create a query object and call .get() on the object then
+            // the orderBy().startAt().endAt() logic fails for some reason.
+            if (nameFilter.isNullOrEmpty() && allegianceFilter.isNullOrEmpty()) {
+                PlayerPath.PLAYERS_COLLECTION(gameId)
+                    .orderBy(PlayerPath.PLAYER_FIELD__NAME)
+                    .limit(PAGINATION_LIMIT)
+                    .get()
+                    .addOnSuccessListener(updatePlayerList)
+                return
+            } else if (nameFilter.isNullOrEmpty() && !allegianceFilter.isNullOrEmpty()) {
+                PlayerPath.PLAYERS_COLLECTION(gameId)
+                    .whereEqualTo(GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER, allegianceFilter)
+                    .orderBy(PlayerPath.PLAYER_FIELD__NAME)
+                    .limit(PAGINATION_LIMIT)
+                    .get()
+                    .addOnSuccessListener(updatePlayerList)
+                return
+            } else if (!nameFilter.isNullOrEmpty() && allegianceFilter.isNullOrEmpty()) {
+                PlayerPath.PLAYERS_COLLECTION(gameId)
+                    .orderBy(PlayerPath.PLAYER_FIELD__NAME)
+                    .startAt(nameFilter)
+                    .endAt(nameFilter + "\uf8ff") // '\uf8ff' is super large char val
+                    .limit(PAGINATION_LIMIT)
+                    .get()
+                    .addOnSuccessListener(updatePlayerList)
+                return
+            } else if (!nameFilter.isNullOrEmpty() && !allegianceFilter.isNullOrEmpty()) {
+                PlayerPath.PLAYERS_COLLECTION(gameId)
+                    .whereEqualTo(GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER, allegianceFilter)
+                    .orderBy(PlayerPath.PLAYER_FIELD__NAME)
+                    .startAt(nameFilter)
+                    .endAt(nameFilter + "\uf8ff") // '\uf8ff' is super large char val
+                    .limit(PAGINATION_LIMIT)
+                    .get()
+                    .addOnSuccessListener(updatePlayerList)
+                return
+            }
         }
     }
 }

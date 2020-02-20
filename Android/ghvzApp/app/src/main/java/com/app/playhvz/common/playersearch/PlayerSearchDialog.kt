@@ -16,6 +16,7 @@
 
 package com.app.playhvz.common.playersearch
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,10 +28,13 @@ import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Group
+import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.utils.PlayerUtils
 
 class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment(),
@@ -47,10 +51,16 @@ class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment
     private lateinit var negativeButton: Button
     private lateinit var positiveButton: Button
     private lateinit var playerAdapter: PlayerAdapter
-
     private lateinit var progressBar: ProgressBar
 
+    private lateinit var playerListLiveData: HvzData<List<Player>>
+
     private var playerFilter: String? = null
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        playerListLiveData = HvzData(listOf())
+        return super.onCreateDialog(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,17 +83,23 @@ class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment
         inputText.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() -> {
-                    positiveButton.isEnabled = false
+                    queryPlayers(null)
                 }
                 else -> {
-                    positiveButton.isEnabled = true
+                    queryPlayers(text.toString())
                 }
             }
             errorLabel.visibility = View.GONE
         }
 
-        setupObservers()
+        queryPlayers(null)
         initDialogViews()
+
+        playerListLiveData.observe(this, Observer { updatedList ->
+            playerAdapter.setData(updatedList)
+            playerAdapter.notifyDataSetChanged()
+        })
+
         return dialogView
     }
 
@@ -91,15 +107,11 @@ class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment
         positiveButton.isEnabled = anyPlayerSelected
     }
 
-    private fun setupObservers() {
+    private fun queryPlayers(nameFilter: String?) {
         if (group == null) {
             return
         }
-        PlayerUtils.getPlayerList(gameId, null)
-            .observe(this, androidx.lifecycle.Observer { updatedList ->
-                playerAdapter.setData(updatedList)
-                playerAdapter.notifyDataSetChanged()
-            })
+        PlayerUtils.getPlayerList(playerListLiveData, gameId, nameFilter, null)
     }
 
     private fun initDialogViews() {
