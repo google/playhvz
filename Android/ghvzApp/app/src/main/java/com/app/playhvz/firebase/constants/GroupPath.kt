@@ -29,18 +29,18 @@ class GroupPath {
          * Begin string definitions for field names in Firebase documents. Alphabetize.
          ******************************************************************************************/
 
-        const val GROUP_FIELD__NAME = "name";
-        const val GROUP_FIELD__MANAGED = "managed";
-        const val GROUP_FIELD__OWNERS = "owners";
-        const val GROUP_FIELD__SETTINGS = "settings";
-        const val GROUP_FIELD__MEMBERS = "members";
-        const val GROUP_FIELD__SETTINGS_ADD_SELF = "canAddSelf";
-        const val GROUP_FIELD__SETTINGS_ADD_OTHERS = "canAddOthers";
-        const val GROUP_FIELD__SETTINGS_REMOVE_SELF = "canRemoveSelf";
-        const val GROUP_FIELD__SETTINGS_REMOVE_OTHERS = "canRemoveOthers";
-        const val GROUP_FIELD__SETTINGS_AUTO_ADD = "autoAdd";
-        const val GROUP_FIELD__SETTINGS_AUTO_REMOVE = "autoRemove";
-        const val GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER = "allegianceFilter";
+        const val GROUP_FIELD__NAME = "name"
+        const val GROUP_FIELD__MANAGED = "managed"
+        const val GROUP_FIELD__OWNERS = "owners"
+        const val GROUP_FIELD__SETTINGS = "settings"
+        const val GROUP_FIELD__MEMBERS = "members"
+        const val GROUP_FIELD__SETTINGS_ADD_SELF = "canAddSelf"
+        const val GROUP_FIELD__SETTINGS_ADD_OTHERS = "canAddOthers"
+        const val GROUP_FIELD__SETTINGS_REMOVE_SELF = "canRemoveSelf"
+        const val GROUP_FIELD__SETTINGS_REMOVE_OTHERS = "canRemoveOthers"
+        const val GROUP_FIELD__SETTINGS_AUTO_ADD = "autoAdd"
+        const val GROUP_FIELD__SETTINGS_AUTO_REMOVE = "autoRemove"
+        const val GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER = "allegianceFilter"
 
         /*******************************************************************************************
          * End string definitions for field names in Firebase documents.
