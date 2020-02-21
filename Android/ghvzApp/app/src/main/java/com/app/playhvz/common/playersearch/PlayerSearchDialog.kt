@@ -96,8 +96,7 @@ class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment
         initDialogViews()
 
         playerListLiveData.observe(this, Observer { updatedList ->
-            playerAdapter.setData(updatedList)
-            playerAdapter.notifyDataSetChanged()
+            onPlayerListUpdated(updatedList)
         })
 
         return dialogView
@@ -108,10 +107,21 @@ class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment
     }
 
     private fun queryPlayers(nameFilter: String?) {
-        if (group == null) {
-            return
-        }
         PlayerUtils.getPlayerList(playerListLiveData, gameId, nameFilter, null)
+    }
+
+    private fun onPlayerListUpdated(updatedList: List<Player>) {
+        val filteredList = updatedList.toMutableList()
+        if (group != null) {
+            // Filter out players that are already members
+            for (player in updatedList) {
+                if (group.members.contains(player.id)) {
+                    filteredList.remove(player)
+                }
+            }
+        }
+        playerAdapter.setData(filteredList)
+        playerAdapter.notifyDataSetChanged()
     }
 
     private fun initDialogViews() {
