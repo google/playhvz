@@ -155,7 +155,7 @@ class ChatInfoFragment : Fragment() {
     }
 
     private fun onAddPeopleClicked(view: View) {
-        val addPeopleDialog = PlayerSearchDialog(gameId!!, group)
+        val addPeopleDialog = PlayerSearchDialog(gameId!!, group, chatRoomId)
         activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
     }
 

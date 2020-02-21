@@ -32,17 +32,21 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.HvzData
+import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.utils.PlayerUtils
+import kotlinx.coroutines.runBlocking
 
-class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment(),
+class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: String?) :
+    DialogFragment(),
     PlayerAdapter.PlayerSearchClickHandler {
     companion object {
         private val TAG = PlayerSearchDialog::class.qualifiedName
     }
-
 
     private lateinit var dialogView: View
     private lateinit var errorLabel: TextView
@@ -160,19 +164,19 @@ class PlayerSearchDialog(val gameId: String, val group: Group?) : DialogFragment
             positiveButton.isEnabled = false
         }
         onSuccess.invoke()
-        /*
-            // TODO: call firebase and add all the selected players to the group.
-          runBlocking {
-              EspressoIdlingResource.increment()
-              /*ChatDatabaseOperations.asyncCreateChatRoom(
-                  gameId,
-                  playerId,
-                  chatName,
-                  allegianceFilter,
-                  onSuccess,
-                  onFailure
-              ) */
-              EspressoIdlingResource.decrement()
-          }*/
+
+        runBlocking {
+            EspressoIdlingResource.increment()
+            ChatDatabaseOperations.asyncAddPlayersToChat(
+                gameId,
+                selectedPlayers.toList(),
+                group?.id!!,
+                chatRoomId!!,
+                onSuccess,
+                onFailure
+            )
+            EspressoIdlingResource.decrement()
+        }
+
     }
 }
