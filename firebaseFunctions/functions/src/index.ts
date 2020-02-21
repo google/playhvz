@@ -219,24 +219,54 @@ async function addNewPlayerToGroups(gameId: string, player: any) {
 }
 
 // Add player to specified group
-async function addPlayerToGroup(gameId: string, playerId: string, group: any, chatRoom: any) {
+async function addPlayerToGroup(gameId: string, playerId: string, group: any, chatRoomId: string) {
   const player = await db.collection(GAME_COLLECTION_PATH)
   .doc(gameId)
   .collection(Player.COLLECTION_PATH)
   .doc(playerId)
   .get()
 
-  await group.update({
+  await group.ref.update({
       [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
   });
 
   // We have to use dot-notation or firebase will overwrite the entire field.
-  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoom.id
+  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId
   const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
   await player.ref.update({
     [membershipField]: chatVisibility
   })
 }
+
+exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const groupId = data.groupId;
+  const chatRoomId = data.chatRoomId;
+  const playerIdList = data.playerIdList
+  if (!(typeof gameId === 'string') || !(typeof groupId === 'string') || !(typeof chatRoomId === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0 || groupId.length === 0 || chatRoomId.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId and groupId and chatRoomId.');
+  }
+
+  const group = await db.collection(GAME_COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(groupId)
+    .get();
+
+  for (let playerId of playerIdList) {
+    await addPlayerToGroup(gameId, playerId, group, chatRoomId)
+  }
+});
 
 // Creates a group
 async function createGroupAndChat(uid: any, gameId: string, playerId: string, chatName: string, settings: any) {
@@ -248,7 +278,7 @@ async function createGroupAndChat(uid: any, gameId: string, playerId: string, ch
   const createdGroup = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
   const chat = Chat.create(createdGroup.id, chatName)
   const createdChat = await db.collection(GAME_COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
-  await addPlayerToGroup(gameId, playerId, createdGroup, createdChat)
+  await addPlayerToGroup(gameId, playerId, createdGroup, createdChat.id)
 }
 
 /*******************************************************
