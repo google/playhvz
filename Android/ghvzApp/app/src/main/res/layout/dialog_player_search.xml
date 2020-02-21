@@ -85,11 +85,18 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@id/player_list" />
 
+  <Space
+    android:layout_width="16dp"
+    android:layout_height="wrap_content"
+    app:layout_constraintEnd_toStartOf="@id/positive_button"
+    app:layout_constraintStart_toEndOf="@id/negative_button"
+    app:layout_constraintTop_toTopOf="@id/negative_button" />
 
   <com.google.android.material.button.MaterialButton
     android:id="@+id/positive_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/player_list" />
 </androidx.constraintlayout.widget.ConstraintLayout>
