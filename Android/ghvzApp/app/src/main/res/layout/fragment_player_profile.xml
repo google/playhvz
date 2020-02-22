@@ -22,18 +22,73 @@
   android:orientation="vertical"
   android:padding="@dimen/screen_margin_horizontal">
 
-  <include layout="@layout/player_avatar" />
+  <LinearLayout
+    android:id="@+id/header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
-  <androidx.emoji.widget.EmojiTextView
-    android:id="@+id/player_name"
+    <include layout="@layout/player_avatar" />
+
+    <androidx.emoji.widget.EmojiTextView
+      android:id="@+id/player_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:paddingStart="16dp"
+      android:textColor="@color/app_primary_text"
+      android:textSize="24sp"
+      tools:ignore="RtlSymmetry"
+      tools:text="BabyYoda" />
+  </LinearLayout>
+
+  <View
+    android:id="@+id/divider"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/divider_height"
+    android:layout_marginTop="16dp"
+    android:layout_marginBottom="16dp"
+    android:background="@color/divider"
+    app:layout_constraintTop_toBottomOf="@id/header" />
+
+  <Space
+    android:id="@+id/spacer"
+    android:layout_width="match_parent"
+    android:layout_height="16dp"
+    app:layout_constraintTop_toBottomOf="@id/divider" />
+
+  <ImageView
+    android:id="@+id/player_allegiance_icon"
+    android:layout_width="20dp"
+    android:layout_height="20dp"
+    android:importantForAccessibility="no"
+    android:src="@drawable/ic_flag"
+    android:tint="@color/grey700"
+    app:layout_constraintBottom_toBottomOf="@id/player_allegiance_label"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@id/player_allegiance" />
+
+  <TextView
+    android:id="@+id/player_allegiance"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingStart="16dp"
-    android:textColor="@color/app_primary_text"
-    android:textSize="24sp"
-    app:layout_constraintBottom_toBottomOf="@id/player_avatar"
-    app:layout_constraintStart_toEndOf="@id/player_avatar"
-    app:layout_constraintTop_toTopOf="@id/player_avatar"
-    tools:ignore="RtlSymmetry" />
+    android:layout_marginStart="40dp"
+    android:textColor="@color/grey800"
+    android:textSize="20sp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/spacer"
+    tools:text="undeclared" />
+
+  <TextView
+    android:id="@+id/player_allegiance_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/player_profile_allegiance_label"
+    android:textColor="@color/grey700"
+    android:textSize="14sp"
+    app:layout_constraintStart_toStartOf="@id/player_allegiance"
+    app:layout_constraintTop_toBottomOf="@id/player_allegiance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

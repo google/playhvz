@@ -236,6 +236,10 @@
     Home
   </string>
 
+  <string name="player_profile_allegiance_label" definition="Label for the player's allegiance.">
+    Allegiance
+  </string>
+
   <string name="player_search_input_label" definition="Label for the input textview for filtering players.">
     Search for player:
   </string>

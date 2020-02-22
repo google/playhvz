@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
@@ -46,12 +47,13 @@ class ProfileFragment : Fragment() {
     lateinit var gameViewModel: GameViewModel
     lateinit var userAvatarPresenter: UserAvatarPresenter
 
+    private lateinit var allegianceView: TextView
+    private lateinit var avatarView: View
+    private lateinit var nameView: EmojiTextView
+
     var gameId: String? = null
     var playerId: String? = null
     var game: Game? = null
-
-    var nameView: EmojiTextView? = null
-    var avatarView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +72,7 @@ class ProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_player_profile, container, false)
         nameView = view.findViewById(R.id.player_name)
         avatarView = view.findViewById(R.id.player_avatar)
+        allegianceView = view.findViewById(R.id.player_allegiance)
 
         userAvatarPresenter = UserAvatarPresenter(avatarView!!, R.dimen.avatar_large)
 
@@ -106,7 +109,11 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updatePlayer(serverPlayer: Player?) {
-        nameView?.setText(serverPlayer?.name)
-        userAvatarPresenter.renderAvatar(serverPlayer!!)
+        if (serverPlayer == null) {
+            return
+        }
+        nameView.setText(serverPlayer.name)
+        userAvatarPresenter.renderAvatar(serverPlayer)
+        allegianceView.setText(serverPlayer.allegiance)
     }
 }
