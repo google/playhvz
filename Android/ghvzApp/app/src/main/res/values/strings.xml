@@ -116,6 +116,18 @@
     Message %1$s
   </string>
 
+  <string name="declare_allegiance_card_title" definition="Card title for the declare allegiance widget.">
+    Declare Allegiance
+  </string>
+
+  <string name="declare_allegiance_card_description" definition="Description for the declare allegiance widget.">
+    Click below to declare your allegiance and start playing the game!
+  </string>
+
+  <string name="declare_allegiance_card_button" definition="Button to trigger declaring allegiance.">
+    Declare
+  </string>
+
   <string name="error_whitespace" definition="Error text for input containing whitespace.">
     No spaces allowed
   </string>
