@@ -43,11 +43,17 @@
 
   <action
     android:id="@+id/action_global_nav_player_profile_fragment"
-    app:destination="@id/nav_player_profile_fragment" />
+    app:destination="@id/nav_player_profile_fragment"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true" />
 
   <action
     android:id="@+id/action_global_nav_chat_list_fragment"
-    app:destination="@id/nav_chat_list_fragment" />
+    app:destination="@id/nav_chat_list_fragment"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true" />
 
   <action
     android:id="@+id/action_global_nav_chat_room_fragment"
@@ -60,7 +66,10 @@
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
-    android:label="@string/navigation_drawer_game_dashboard">
+    android:label="@string/navigation_drawer_game_dashboard"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true">
     <argument
       android:name="gameId"
       app:argType="string"
