@@ -73,6 +73,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_chat_info_fragment
     )
 
+    private var fragmentsWithoutBackNavigation = setOf(
+        R.id.nav_sign_out,
+        R.id.nav_game_list_fragment,
+        R.id.nav_game_dashboard_fragment,
+        R.id.nav_chat_list_fragment,
+        R.id.nav_player_profile_fragment
+    )
+
     // This must NOT be a lambda! https://stackoverflow.com/a/3104265/12094056
     private val gameIdPreferenceListener =
         SharedPreferences.OnSharedPreferenceChangeListener { prefs: SharedPreferences?, key: String? ->
@@ -179,13 +187,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val navController = findNavController(R.id.nav_host_fragment)
         setSupportActionBar(toolbar)
         appBarConfiguration =
-            AppBarConfiguration(
-                setOf(
-                    R.id.nav_sign_out,
-                    R.id.nav_game_list_fragment,
-                    R.id.nav_game_dashboard_fragment
-                ), findViewById(R.id.drawer_layout)
-            )
+            AppBarConfiguration(fragmentsWithoutBackNavigation, findViewById(R.id.drawer_layout))
         toolbar.setupWithNavController(navController, appBarConfiguration)
 
         navDrawerView.setupWithNavController(navController)
