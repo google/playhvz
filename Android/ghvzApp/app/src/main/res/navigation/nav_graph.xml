@@ -63,6 +63,12 @@
     android:id="@+id/action_global_nav_chat_info_fragment"
     app:destination="@id/nav_chat_info_fragment" />
 
+  <action
+    android:id="@+id/action_global_nav_declare_allegiance_fragment"
+    app:destination="@id/nav_declare_allegiance_fragment"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true" />
+
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
@@ -140,4 +146,8 @@
       app:argType="string"
       app:nullable="false" />
   </fragment>
+
+  <fragment
+    android:id="@+id/nav_declare_allegiance_fragment"
+    android:name="com.app.playhvz.screens.declareallegiance.DeclareAllegianceFragment" />
 </navigation>

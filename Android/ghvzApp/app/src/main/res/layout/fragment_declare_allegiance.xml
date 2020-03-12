@@ -16,10 +16,23 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="match_parent"
+  android:orientation="vertical">
 
-  <include
-    android:id="@+id/declare_allegiance"
-    layout="@layout/card_declare_allegiance" />
+  <com.google.android.material.button.MaterialButton
+    android:id="@+id/declare_human_button"
+    android:layout_width="wrap_content"
+    android:layout_height="48dp"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginBottom="8dp"
+    android:text="@string/declare_allegiance_human_button" />
+
+  <com.google.android.material.button.MaterialButton
+    android:id="@+id/declare_zombie_button"
+    android:layout_width="wrap_content"
+    android:layout_height="48dp"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginBottom="8dp"
+    android:text="@string/declare_allegiance_zombie_button" />
 
 </LinearLayout>

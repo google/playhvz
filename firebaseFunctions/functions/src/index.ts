@@ -160,6 +160,45 @@ exports.joinGame = functions.https.onCall(async (data, context) => {
 * PLAYER functions
 ********************************************************/
 
+exports.changePlayerAllegiance = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const playerId = data.playerId;
+  const newAllegiance = data.allegiance;
+  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof newAllegiance === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0 || playerId.length === 0 || newAllegiance.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId, playerId, and allegiance.');
+  }
+
+  const player = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+    .get()
+  const playerData = player.data()
+
+  if (playerData !== undefined && playerData.allegiance === newAllegiance) {
+    console.log("Not changing allegiance, it's already set to " + newAllegiance)
+    return
+  }
+
+  // Update player allegiance
+  await player.ref.update({
+    [Player.FIELD__ALLEGIANCE]: newAllegiance
+  })
+
+  // Update chat room memberships
+
+});
+
 
 /*******************************************************
 * GROUP functions
