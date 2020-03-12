@@ -124,8 +124,20 @@
     Click below to declare your allegiance and start playing the game!
   </string>
 
+  <string name="declare_allegiance_card_button_undeclare" definition="Button to undeclare allegiance.">
+    Undeclare
+  </string>
+
   <string name="declare_allegiance_card_button" definition="Button to trigger declaring allegiance.">
     Declare
+  </string>
+
+  <string name="declare_allegiance_human_button" definition="Button to declare human allegiance.">
+    Resistance
+  </string>
+
+  <string name="declare_allegiance_zombie_button" definition="Button to declare zombie allegiance.">
+    Horde
   </string>
 
   <string name="error_whitespace" definition="Error text for input containing whitespace.">

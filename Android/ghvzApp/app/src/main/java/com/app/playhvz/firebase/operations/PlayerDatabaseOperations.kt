@@ -16,11 +16,14 @@
 
 package com.app.playhvz.firebase.operations
 
+import android.util.Log
 import com.app.playhvz.firebase.constants.PathConstants
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class PlayerDatabaseOperations {
     companion object {
@@ -29,6 +32,33 @@ class PlayerDatabaseOperations {
         /** Returns a DocumentReference for a Player. */
         fun getPlayerDocumentReference(gameId: String, playerId: String): DocumentReference {
             return PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
+        }
+
+        /** Update a player's allegiance. */
+        suspend fun setPlayerAllegiance(
+            gameId: String,
+            playerId: String,
+            allegiance: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "playerId" to playerId,
+                "allegiance" to allegiance
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("changePlayerAllegiance")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Could not change allegiance: ${task.exception}")
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
         }
 
         /** Returns a Query listing all players in the given game that are owned by this user. */

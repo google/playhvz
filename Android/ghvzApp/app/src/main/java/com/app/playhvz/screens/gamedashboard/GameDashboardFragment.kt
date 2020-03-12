@@ -23,10 +23,21 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.navArgs
+import androidx.navigation.fragment.findNavController
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.app.debug.DebugFlags
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.UNDECLARED
+import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.utils.PlayerUtils
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of Games the user is registered for.*/
 class GameDashboardFragment : Fragment() {
@@ -35,15 +46,24 @@ class GameDashboardFragment : Fragment() {
     }
 
     lateinit var firestoreViewModel: GameViewModel
-    val args: GameDashboardFragmentArgs by navArgs()
+    lateinit var declareAllegianceCard: MaterialCardView
+    lateinit var declareButton: MaterialButton
 
     var gameId: String? = null
+    var playerId: String? = null
     var game: Game? = null
+    var player: Player? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        gameId = args.gameId
         firestoreViewModel = ViewModelProvider(activity!!).get(GameViewModel::class.java)
+
+        val sharedPrefs = activity?.getSharedPreferences(
+            SharedPreferencesConstants.PREFS_FILENAME,
+            0
+        )!!
+        gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
+        playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
 
         setupObservers()
         setupToolbar()
@@ -55,6 +75,10 @@ class GameDashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
+
+        declareAllegianceCard = view.findViewById(R.id.declare_allegiance)
+        declareButton = declareAllegianceCard.findViewById(R.id.declare_button)
+
         return view
     }
 
@@ -69,17 +93,70 @@ class GameDashboardFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        if (gameId == null) {
+        if (gameId == null || playerId == null) {
             return
         }
         firestoreViewModel.getGame(gameId!!)
             .observe(this, androidx.lifecycle.Observer { serverGame ->
                 updateGame(serverGame)
             })
+        PlayerUtils.getPlayer(gameId!!, playerId!!)
+            .observe(this, androidx.lifecycle.Observer { serverPlayer ->
+                updatePlayer(serverPlayer)
+            })
     }
 
     private fun updateGame(serverGame: Game?) {
         game = serverGame
         setupToolbar()
+    }
+
+    private fun updatePlayer(serverPlayer: Player?) {
+        if (player == null || serverPlayer == null) {
+            player = serverPlayer
+            handleAllegiance()
+            return
+        }
+        val previousAllegiance = player?.allegiance
+        if (previousAllegiance.equals(serverPlayer.allegiance)) {
+            // Allegiance wasn't updated so we don't care what changed.
+            return
+        }
+        player = serverPlayer
+        handleAllegiance()
+    }
+
+    private fun handleAllegiance() {
+        if (player?.allegiance.isNullOrEmpty()) {
+            // We don't have accurate player data, don't change the current state.
+            return
+        }
+        if (player?.allegiance != UNDECLARED) {
+            // Allegiance is declared already.
+            if (DebugFlags.isDevEnvironment) {
+                declareButton.setText(R.string.declare_allegiance_card_button_undeclare)
+                declareButton.setOnClickListener {
+                    runBlocking {
+                        EspressoIdlingResource.increment()
+                        PlayerDatabaseOperations.setPlayerAllegiance(
+                            gameId!!,
+                            playerId!!,
+                            UNDECLARED,
+                            {},
+                            {})
+                        EspressoIdlingResource.decrement()
+                    }
+                }
+            } else {
+                declareAllegianceCard.visibility = View.GONE
+            }
+        } else {
+            // Allegiance isn't declared.
+            declareButton.setText(R.string.declare_allegiance_card_button)
+            declareButton.setOnClickListener {
+                NavigationUtil.navigateToDeclareAllegiance(findNavController())
+            }
+            declareAllegianceCard.visibility = View.VISIBLE
+        }
     }
 }

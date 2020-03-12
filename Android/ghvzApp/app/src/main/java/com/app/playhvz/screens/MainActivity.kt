@@ -70,7 +70,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
         R.id.nav_chat_room_fragment,
-        R.id.nav_chat_info_fragment
+        R.id.nav_chat_info_fragment,
+        R.id.nav_declare_allegiance_fragment
     )
 
     private var fragmentsWithoutBackNavigation = setOf(

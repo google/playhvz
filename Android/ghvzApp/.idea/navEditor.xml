@@ -23,6 +23,11 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_global_nav_declare_allegiance_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="action_global_nav_game_dashboard_fragment">
                     <value>
                       <LayoutPositions />
@@ -80,6 +85,18 @@
                     </value>
                   </entry>
                   <entry key="nav_create_game_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="nav_declare_allegiance_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">

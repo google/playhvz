@@ -22,6 +22,7 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.screens.chatlist.ChatListFragmentDirections
 import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
 import com.app.playhvz.screens.chatroom.chatinfo.ChatInfoFragmentDirections
+import com.app.playhvz.screens.declareallegiance.DeclareAllegianceFragmentDirections
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
@@ -101,6 +102,15 @@ class NavigationUtil {
         fun navigateToChatInfo(navController: NavController, chatRoomId: String) {
             navController.navigate(
                 ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(chatRoomId)
+            )
+        }
+
+        /**
+         * Opens a quiz for declaring allegiance.
+         */
+        fun navigateToDeclareAllegiance(navController: NavController) {
+            navController.navigate(
+                DeclareAllegianceFragmentDirections.actionGlobalNavDeclareAllegianceFragment()
             )
         }
     }
