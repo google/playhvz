@@ -43,12 +43,29 @@ export async function addPlayerToChat(
             });
     }
 
-    console.log("Updated group")
-
     // We have to use dot-notation or firebase will overwrite the entire field.
     const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId
     const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
     await player.ref.update({
       [membershipField]: chatVisibility
     })
+}
+
+// Remove player from specified chat room and group
+export async function removePlayerFromChat(
+  db: any,
+  gameId: string,
+  player: any,
+  group: any,
+  chatRoomId: string
+) {
+  await group.ref.update({
+    [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayRemove(player.id)
+  });
+
+  // We have to use dot-notation or firebase will overwrite the entire field.
+  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId
+  await player.ref.update({
+    [membershipField]: admin.firestore.FieldValue.delete()
+  })
 }

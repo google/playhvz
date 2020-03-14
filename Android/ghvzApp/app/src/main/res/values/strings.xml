@@ -72,11 +72,11 @@
   </string>
 
   <string name="chat_creation_radio_human" definition="Label for the radio button indicating human allegiance.">
-    Human
+    Resistance
   </string>
 
   <string name="chat_creation_radio_zombie" definition="Label for the radio button indicating zombie allegiance.">
-    Zombie
+    Horde
   </string>
 
   <string name="chat_creation_name_label" definition="Label for the chat room name input textview.">
