@@ -185,7 +185,12 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
     .get()
   const playerData = player.data()
 
-  if (playerData !== undefined && playerData.allegiance === newAllegiance) {
+  if (playerData === undefined) {
+    console.log("Player data is undefined, not updating allegiance")
+    return
+  }
+
+  if (playerData[Player.FIELD__ALLEGIANCE] === newAllegiance) {
     console.log("Not changing allegiance, it's already set to " + newAllegiance)
     return
   }
@@ -196,7 +201,36 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
   })
 
   // Update chat room memberships
+  for (const chatRoomId in playerData[Player.FIELD__CHAT_MEMBERSHIPS]) {
+    const chatRoom = (await db.collection(Game.COLLECTION_PATH)
+       .doc(gameId)
+       .collection(Chat.COLLECTION_PATH)
+       .doc(chatRoomId)
+       .get())
+       .data();
 
+    if (chatRoom === undefined) {
+      continue
+    }
+
+    const group = await db.collection(Game.COLLECTION_PATH)
+        .doc(gameId)
+        .collection(Group.COLLECTION_PATH)
+        .doc(chatRoom[Chat.FIELD__GROUP_ID])
+        .get()
+
+    const groupData = group.data()
+
+    if (groupData === undefined) {
+      continue
+    }
+
+    if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_REMOVE] === true) {
+      if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER] !== newAllegiance) {
+        await ChatUtils.removePlayerFromChat(db, gameId, player, group, chatRoomId)
+      }
+    }
+  }
 });
 
 
@@ -269,7 +303,7 @@ exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
     .doc(groupId)
     .get();
 
-  for (let playerId of playerIdList) {
+  for (const playerId of playerIdList) {
     await ChatUtils.addPlayerToChat(db, gameId, playerId, group, chatRoomId, /* isNewGroup= */ false)
   }
 });
@@ -378,7 +412,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     /* removeSelf= */ true,
     /* removeOthers= */ false,
     /* autoAdd= */ false,
-    /* autoRemove= */ allegianceFilter != Group.EMPTY_ALLEGIANCE_FILTER,
+    /* autoRemove= */ allegianceFilter !== Group.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
     await createGroupAndChat(context.auth.uid, gameId, ownerId, chatName, settings);

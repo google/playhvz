@@ -26,6 +26,8 @@ import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.utils.SystemUtils
 import kotlinx.coroutines.runBlocking
@@ -118,9 +120,9 @@ class CreateChatDialog(val gameId: String, val playerId: String) : DialogFragmen
         var allegianceFilter = "none"
         if (allegianceFilterCheckbox.isChecked) {
             allegianceFilter = if (allegianceHuman.isChecked) {
-                "human"
+                HUMAN
             } else {
-                "zombie"
+                ZOMBIE
             }
         }
         runBlocking {
