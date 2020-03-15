@@ -29,17 +29,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.playersearch.PlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Group
+import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.PlayerHelper
+import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of Chatrooms the user is a member of.*/
 class ChatInfoFragment : Fragment() {
@@ -100,8 +106,8 @@ class ChatInfoFragment : Fragment() {
         progressBar.visibility = View.GONE
         setupToolbar()
 
-        addPeopleOption.setOnClickListener { v -> onAddPeopleClicked(v) }
-        leaveOption.setOnClickListener { v -> onLeaveClicked(v) }
+        addPeopleOption.setOnClickListener { v -> onAddPeopleClicked() }
+        leaveOption.setOnClickListener { v -> onLeaveClicked() }
 
         val memberRecyclerView = view.findViewById<RecyclerView>(R.id.member_list)
         val layoutManager = LinearLayoutManager(context)
@@ -154,12 +160,31 @@ class ChatInfoFragment : Fragment() {
         progressBar.visibility = View.GONE
     }
 
-    private fun onAddPeopleClicked(view: View) {
+    private fun onAddPeopleClicked() {
         val addPeopleDialog = PlayerSearchDialog(gameId!!, group, chatRoomId)
         activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
     }
 
-    private fun onLeaveClicked(view: View) {
-        // TODO: implement leaving
+    private fun onLeaveClicked() {
+        val leaveConfirmationDialog = ConfirmationDialog(
+            getString(R.string.chat_info_leave_dialog_title, chatViewModel.getChatName()),
+            R.string.chat_info_leave_dialog_description,
+            R.string.chat_info_leave_dialog_confirmation
+        )
+        leaveConfirmationDialog.setPositiveButtonCallback {
+            runBlocking {
+                EspressoIdlingResource.increment()
+                ChatDatabaseOperations.asyncRemovePlayerFromChatRoom(
+                    gameId!!,
+                    playerId!!,
+                    chatRoomId,
+                    {
+                        NavigationUtil.navigateToChatList(findNavController())
+                    },
+                    {})
+                EspressoIdlingResource.decrement()
+            }
+        }
+        activity?.supportFragmentManager?.let { leaveConfirmationDialog.show(it, TAG) }
     }
 }

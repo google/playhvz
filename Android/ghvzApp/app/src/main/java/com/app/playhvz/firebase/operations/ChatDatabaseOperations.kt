@@ -130,5 +130,32 @@ class ChatDatabaseOperations {
                 }
         }
 
+        /** Remove player from Chat Room. */
+        suspend fun asyncRemovePlayerFromChatRoom(
+            gameId: String,
+            playerId: String,
+            chatRoomId: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "playerId" to playerId,
+                "chatRoomId" to chatRoomId
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("removePlayerFromChat")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Could not remove player from chat: ${task.exception}")
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
+        }
+
     }
 }

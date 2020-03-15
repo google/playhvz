@@ -218,9 +218,7 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
         .collection(Group.COLLECTION_PATH)
         .doc(chatRoom[Chat.FIELD__GROUP_ID])
         .get()
-
     const groupData = group.data()
-
     if (groupData === undefined) {
       continue
     }
@@ -320,6 +318,50 @@ async function createGroupAndChat(uid: any, gameId: string, playerId: string, ch
   const createdChat = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
   await ChatUtils.addPlayerToChat(db, gameId, playerId, createdGroup, createdChat.id, /* isNewGroup= */ true)
 }
+
+exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const playerId = data.playerId;
+  const chatRoomId = data.chatRoomId;
+  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof chatRoomId === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0 || playerId.length === 0 || chatRoomId.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId, playerId, and chatRoomId.');
+  }
+
+  const player = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+    .get()
+
+  const chatRoom = (await db.collection(Game.COLLECTION_PATH)
+     .doc(gameId)
+     .collection(Chat.COLLECTION_PATH)
+     .doc(chatRoomId)
+     .get())
+     .data();
+  if (chatRoom === undefined) {
+    console.log("Chat room was undefined, not removing player.")
+    return
+  }
+
+  const group = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Group.COLLECTION_PATH)
+      .doc(chatRoom[Chat.FIELD__GROUP_ID])
+      .get()
+
+  await ChatUtils.removePlayerFromChat(db, gameId, player, group, chatRoomId)
+});
 
 /*******************************************************
 * CHAT functions
