@@ -51,12 +51,6 @@ class TextInputDialog(title: String? = null, hint: String? = null, draftText: St
         this.supportsMultiline = isMultiline
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Return already inflated custom view
-        return customView
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         customView = activity!!.layoutInflater.inflate(R.layout.dialog_text_input, null)
 
@@ -84,6 +78,12 @@ class TextInputDialog(title: String? = null, hint: String? = null, draftText: St
         val dialog = builder.create()
         dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         return dialog
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        // Return already inflated custom view
+        return customView
     }
 
     fun setPositiveButtonCallback(okayCallback: () -> Unit) {

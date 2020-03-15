@@ -107,6 +107,18 @@
     Leave
   </string>
 
+  <string name="chat_info_leave_dialog_title" definition="Title for dialog confirming user wants to leave chat room.">
+    Really leave \'%1$s\'?
+  </string>
+
+  <string name="chat_info_leave_dialog_description" definition="Dialog message informing user they can't rejoin chat room after leaving.">
+    This can\'t be undone, you\'ll have to ask someone else to add you back.
+  </string>
+
+  <string name="chat_info_leave_dialog_confirmation" definition="Confirmation button for leave chat dialog.">
+    Yep, leave
+  </string>
+
   <plurals name="chat_info_member_count" definition="String expressing the number of members in the chat room.">
     <item quantity="one">%1$s member</item>
     <item quantity="other">%1$s members</item>
@@ -178,6 +190,22 @@
 
   <string name="game_settings_create_game_toolbar_title" definition="Title for the create game screen.">
     New Game
+  </string>
+
+  <string name="game_settings_delete_dialog_title" definition="Title for delete game dialog.">
+    Really delete \'%1$s\'?
+  </string>
+
+  <string name="game_settings_delete_dialog_description" definition="Description for delete game dialog.">
+    This action can\'t be undone…
+  </string>
+
+  <string name="game_settings_delete_dialog_confirmation" definition="Confirmation button for delete game dialog.">
+    Delete
+  </string>
+
+  <string name="game_settings_delete_dialog_cancel" definition="Cancel button for delete game dialog.">
+    Oops, keep the game!
   </string>
 
   <string name="game_settings_game_name_label" definition="Label for game title text input.">

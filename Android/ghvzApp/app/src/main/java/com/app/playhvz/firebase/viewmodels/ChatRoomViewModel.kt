@@ -44,7 +44,11 @@ class ChatRoomViewModel : ViewModel() {
     private var group: HvzData<Group> = HvzData()
 
     fun getChatName(): String? {
-        return chatRoom.value?.name
+        return if (chatRoom.value == null) {
+            group.value?.name
+        } else {
+            chatRoom.value?.name
+        }
     }
 
     /** Listens to a chat room's updates and returns a LiveData object of the chat room. */

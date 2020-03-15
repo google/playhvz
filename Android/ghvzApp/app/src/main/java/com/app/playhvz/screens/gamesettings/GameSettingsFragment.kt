@@ -24,7 +24,6 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
@@ -35,6 +34,7 @@ import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.debug.DebugFlags
+import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
@@ -197,10 +197,13 @@ class GameSettingsFragment : Fragment() {
     }
 
     private fun showDeleteDialog() {
-        val confirmationDialog = AlertDialog.Builder(context!!)
-        confirmationDialog.setTitle("Really delete ${game?.name}?")
-        confirmationDialog.setMessage("This action can't be undone...")
-        confirmationDialog.setPositiveButton("Delete") { _, _ ->
+        val deleteDialog = ConfirmationDialog(
+            getString(R.string.game_settings_delete_dialog_title, game?.name),
+            R.string.game_settings_delete_dialog_description,
+            R.string.game_settings_delete_dialog_confirmation,
+            R.string.game_settings_delete_dialog_cancel
+        )
+        deleteDialog.setPositiveButtonCallback {
             if (gameId != null) {
                 runBlocking {
                     EspressoIdlingResource.increment()
@@ -219,7 +222,6 @@ class GameSettingsFragment : Fragment() {
                 }
             }
         }
-        confirmationDialog.setNegativeButton("Ooops, keep the game!", { _, _ -> })
-        confirmationDialog.show()
+        activity?.supportFragmentManager?.let { deleteDialog.show(it, TAG) }
     }
 }
