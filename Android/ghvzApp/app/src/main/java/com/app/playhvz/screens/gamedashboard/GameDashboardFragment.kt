@@ -34,6 +34,7 @@ import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.screens.gamedashboard.cards.DeclareAllegianceCard
 import com.app.playhvz.utils.PlayerUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -46,8 +47,9 @@ class GameDashboardFragment : Fragment() {
     }
 
     lateinit var firestoreViewModel: GameViewModel
-    lateinit var declareAllegianceCard: MaterialCardView
     lateinit var declareButton: MaterialButton
+    lateinit var debugIcon: MaterialButton
+    lateinit var declareAllegianceCard: DeclareAllegianceCard
 
     var gameId: String? = null
     var playerId: String? = null
@@ -65,6 +67,8 @@ class GameDashboardFragment : Fragment() {
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
 
+        declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
+
         setupObservers()
         setupToolbar()
     }
@@ -75,10 +79,7 @@ class GameDashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
-
-        declareAllegianceCard = view.findViewById(R.id.declare_allegiance)
-        declareButton = declareAllegianceCard.findViewById(R.id.declare_button)
-
+        declareAllegianceCard.onCreateView(view)
         return view
     }
 
@@ -112,51 +113,6 @@ class GameDashboardFragment : Fragment() {
     }
 
     private fun updatePlayer(serverPlayer: Player?) {
-        if (player == null || serverPlayer == null) {
-            player = serverPlayer
-            handleAllegiance()
-            return
-        }
-        val previousAllegiance = player?.allegiance
-        if (previousAllegiance.equals(serverPlayer.allegiance)) {
-            // Allegiance wasn't updated so we don't care what changed.
-            return
-        }
-        player = serverPlayer
-        handleAllegiance()
-    }
-
-    private fun handleAllegiance() {
-        if (player?.allegiance.isNullOrEmpty()) {
-            // We don't have accurate player data, don't change the current state.
-            return
-        }
-        if (player?.allegiance != UNDECLARED) {
-            // Allegiance is declared already.
-            if (DebugFlags.isDevEnvironment) {
-                declareButton.setText(R.string.declare_allegiance_card_button_undeclare)
-                declareButton.setOnClickListener {
-                    runBlocking {
-                        EspressoIdlingResource.increment()
-                        PlayerDatabaseOperations.setPlayerAllegiance(
-                            gameId!!,
-                            playerId!!,
-                            UNDECLARED,
-                            {},
-                            {})
-                        EspressoIdlingResource.decrement()
-                    }
-                }
-            } else {
-                declareAllegianceCard.visibility = View.GONE
-            }
-        } else {
-            // Allegiance isn't declared.
-            declareButton.setText(R.string.declare_allegiance_card_button)
-            declareButton.setOnClickListener {
-                NavigationUtil.navigateToDeclareAllegiance(findNavController())
-            }
-            declareAllegianceCard.visibility = View.VISIBLE
-        }
+        declareAllegianceCard.onPlayerUpdated(serverPlayer)
     }
 }
