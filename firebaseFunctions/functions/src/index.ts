@@ -166,7 +166,6 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
       throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
           'while authenticated.');
   }
-
   const gameId = data.gameId;
   const playerId = data.playerId;
   const newAllegiance = data.allegiance;
@@ -184,12 +183,10 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
     .doc(playerId)
     .get()
   const playerData = player.data()
-
   if (playerData === undefined) {
     console.log("Player data is undefined, not updating allegiance")
     return
   }
-
   if (playerData[Player.FIELD__ALLEGIANCE] === newAllegiance) {
     console.log("Not changing allegiance, it's already set to " + newAllegiance)
     return
@@ -208,11 +205,9 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
        .doc(chatRoomId)
        .get())
        .data();
-
     if (chatRoom === undefined) {
       continue
     }
-
     const group = await db.collection(Game.COLLECTION_PATH)
         .doc(gameId)
         .collection(Group.COLLECTION_PATH)
@@ -222,7 +217,6 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
     if (groupData === undefined) {
       continue
     }
-
     if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_REMOVE] === true) {
       if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER] !== newAllegiance) {
         await ChatUtils.removePlayerFromChat(db, gameId, player, group, chatRoomId)

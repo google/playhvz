@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 Google Inc.
  *
@@ -15,27 +14,13 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext.kotlin_version = '1.3.41'
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.3.2'
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.1.0"
-    }
-}
+package com.app.playhvz.screens.gamedashboard.cards
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
+import android.view.View
+import com.app.playhvz.firebase.classmodels.Player
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+/** Interface for cards that appear on the game dashboard. */
+interface DashboardCardInterface {
+    fun onCreateView(view: View)
+    fun onPlayerUpdated(updatedPlayer: Player?)
 }

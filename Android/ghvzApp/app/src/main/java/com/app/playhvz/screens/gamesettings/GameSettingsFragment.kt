@@ -42,6 +42,7 @@ import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
 
 
@@ -89,7 +90,8 @@ class GameSettingsFragment : Fragment() {
         }
 
         if (DebugFlags.isDevEnvironment && gameId != null) {
-            val deleteButton = view.findViewById<Button>(R.id.delete_button)
+            val deleteButton = view.findViewById<MaterialButton>(R.id.delete_button)
+            deleteButton.icon = resources.getDrawable(R.drawable.ic_debug)
             deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener { showDeleteDialog() }
         }
