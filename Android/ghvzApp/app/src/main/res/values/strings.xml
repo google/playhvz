@@ -224,6 +224,18 @@
     Success!
   </string>
 
+  <string name="infect_card_title" definition="Card title for the infect widget.">
+    Infect a human
+  </string>
+
+  <string name="infect_card_hint_text" definition="Hint text for the infect widget.">
+    Enter player lifecode
+  </string>
+
+  <string name="infect_card_button" definition="Button text for the infect widget.">
+    Infect
+  </string>
+
   <string name="join_game_game_hint" definition="Hint text for the game name text input.">
     HvZ
   </string>

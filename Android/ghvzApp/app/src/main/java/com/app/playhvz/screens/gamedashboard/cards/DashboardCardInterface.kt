@@ -22,5 +22,5 @@ import com.app.playhvz.firebase.classmodels.Player
 /** Interface for cards that appear on the game dashboard. */
 interface DashboardCardInterface {
     fun onCreateView(view: View)
-    fun onPlayerUpdated(updatedPlayer: Player?)
+    fun onPlayerUpdated(updatedPlayer: Player)
 }
