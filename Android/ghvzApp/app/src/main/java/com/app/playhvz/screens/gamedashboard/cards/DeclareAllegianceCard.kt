@@ -44,7 +44,7 @@ class DeclareAllegianceCard(
     private var player: Player? = null
 
     override fun onCreateView(view: View) {
-        declareAllegianceCard = view.findViewById(R.id.declare_allegiance)
+        declareAllegianceCard = view.findViewById(R.id.declare_allegiance_card)
         val content = declareAllegianceCard.findViewById<TextView>(R.id.content)
         declareButton = declareAllegianceCard.findViewById(R.id.declare_button)
         debugIcon = declareAllegianceCard.findViewById(R.id.card_button)
@@ -61,13 +61,10 @@ class DeclareAllegianceCard(
         }
     }
 
-    override fun onPlayerUpdated(updatedPlayer: Player?) {
-        if (updatedPlayer == null) {
-            NavigationUtil.navigateToGameList(findNavController(fragment), fragment.activity!!)
-        }
+    override fun onPlayerUpdated(updatedPlayer: Player) {
         if (player != null) {
             val previousAllegiance = player?.allegiance
-            if (previousAllegiance.equals(updatedPlayer?.allegiance)) {
+            if (previousAllegiance.equals(updatedPlayer.allegiance)) {
                 // Allegiance wasn't updated so we don't care what changed.
                 return
             }

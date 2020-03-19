@@ -25,20 +25,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.app.playhvz.R
-import com.app.playhvz.app.EspressoIdlingResource
-import com.app.playhvz.app.debug.DebugFlags
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.UNDECLARED
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
-import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.cards.DeclareAllegianceCard
+import com.app.playhvz.screens.gamedashboard.cards.InfectCard
 import com.app.playhvz.utils.PlayerUtils
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
-import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of Games the user is registered for.*/
 class GameDashboardFragment : Fragment() {
@@ -47,9 +41,8 @@ class GameDashboardFragment : Fragment() {
     }
 
     lateinit var firestoreViewModel: GameViewModel
-    lateinit var declareButton: MaterialButton
-    lateinit var debugIcon: MaterialButton
     lateinit var declareAllegianceCard: DeclareAllegianceCard
+    lateinit var infectCard: InfectCard
 
     var gameId: String? = null
     var playerId: String? = null
@@ -68,6 +61,7 @@ class GameDashboardFragment : Fragment() {
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
 
         declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
+        infectCard = InfectCard(this, gameId!!, playerId!!)
 
         setupObservers()
         setupToolbar()
@@ -80,6 +74,7 @@ class GameDashboardFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
         declareAllegianceCard.onCreateView(view)
+        infectCard.onCreateView(view)
         return view
     }
 
@@ -113,6 +108,10 @@ class GameDashboardFragment : Fragment() {
     }
 
     private fun updatePlayer(serverPlayer: Player?) {
-        declareAllegianceCard.onPlayerUpdated(serverPlayer)
+        if (serverPlayer == null) {
+            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+        }
+        declareAllegianceCard.onPlayerUpdated(serverPlayer!!)
+        infectCard.onPlayerUpdated(serverPlayer)
     }
 }
