@@ -14,22 +14,7 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <item
-      android:id="@+id/action_home"
-      android:icon="@drawable/ic_home"
-      android:title="@string/menu_bottom_nav_home"/>
-  <item
-    android:id="@+id/action_missions"
-    android:icon="@drawable/ic_calendar"
-    android:title="@string/menu_bottom_nav_missions"/>
-  <item
-      android:id="@+id/action_chat"
-      android:icon="@drawable/ic_chat"
-      android:title="@string/menu_bottom_nav_chat"/>
-  <item
-      android:id="@+id/action_profile"
-      android:icon="@drawable/ic_person"
-      android:title="@string/menu_bottom_nav_profile"/>
-
-</menu>
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/mission_list"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent" />

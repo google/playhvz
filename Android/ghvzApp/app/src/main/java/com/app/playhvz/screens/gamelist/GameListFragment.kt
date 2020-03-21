@@ -75,9 +75,10 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
         editor.putString(CURRENT_GAME_ID, gameId)
         editor.apply()
         runBlocking {
-            GameDatabaseOperations.getPlayerIdForGame(gameId, editor)
+            GameDatabaseOperations.getPlayerIdForGame(gameId, editor) {
+                NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
+            }
         }
-        NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
     }
 
     private fun setupObservers() {

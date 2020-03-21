@@ -131,7 +131,7 @@ class GameDatabaseOperations {
         }
 
         /** Returns the user's playerId for the given Games. */
-        suspend fun getPlayerIdForGame(gameId: String, editor: SharedPreferences.Editor) =
+        suspend fun getPlayerIdForGame(gameId: String, editor: SharedPreferences.Editor, successListener: () -> Unit) =
             withContext(Dispatchers.Default) {
                 val playerQuery = PlayerPath.PLAYERS_COLLECTION(gameId).whereEqualTo(
                     UNIVERSAL_FIELD__USER_ID,
@@ -141,6 +141,7 @@ class GameDatabaseOperations {
                     if (task.isSuccessful) {
                         Log.d(TAG, "PlayerId fetched from local cache")
                         updatePlayerIdPref(task.result, editor)
+                        successListener.invoke()
                     } else {
                         Log.d(TAG, "Failed to get playerId from cache, trying server")
                         playerQuery.get().addOnSuccessListener { querySnapshot ->

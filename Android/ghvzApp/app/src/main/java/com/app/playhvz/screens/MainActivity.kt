@@ -42,6 +42,7 @@ import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.signin.SignInActivity
+import com.app.playhvz.utils.GameUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -67,19 +68,20 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private var isAdmin: Boolean = false
 
     private var fragmentsWithoutBottomNav = arrayOf(
-        R.id.nav_game_list_fragment,
-        R.id.nav_game_settings_fragment,
         R.id.nav_chat_room_fragment,
         R.id.nav_chat_info_fragment,
-        R.id.nav_declare_allegiance_fragment
+        R.id.nav_declare_allegiance_fragment,
+        R.id.nav_game_list_fragment,
+        R.id.nav_game_settings_fragment
     )
 
     private var fragmentsWithoutBackNavigation = setOf(
-        R.id.nav_sign_out,
-        R.id.nav_game_list_fragment,
-        R.id.nav_game_dashboard_fragment,
         R.id.nav_chat_list_fragment,
-        R.id.nav_player_profile_fragment
+        R.id.nav_game_dashboard_fragment,
+        R.id.nav_game_list_fragment,
+        R.id.nav_mission_dashboard_fragment,
+        R.id.nav_player_profile_fragment,
+        R.id.nav_sign_out
     )
 
     // This must NOT be a lambda! https://stackoverflow.com/a/3104265/12094056
@@ -214,6 +216,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.action_home -> {
                 NavigationUtil.navigateToGameDashboard(getNavController(), getCurrentGameId())
             }
+            R.id.action_missions -> {
+                NavigationUtil.navigateToMissionDashboard(getNavController())
+            }
             R.id.action_chat -> {
                 NavigationUtil.navigateToChatList(getNavController())
             }
@@ -240,8 +245,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         } else {
             gameViewModel.getGame(gameId)
                 .observe(this, androidx.lifecycle.Observer { serverGame ->
-                    val newIsAdmin =
-                        serverGame.creatorUserId == FirebaseProvider.getFirebaseAuth().uid
+                    val newIsAdmin = GameUtils.isAdmin(serverGame)
                     if (newIsAdmin != isAdmin) {
                         isAdmin = newIsAdmin
                         updateNavDrawerItems()

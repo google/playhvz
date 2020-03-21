@@ -56,6 +56,14 @@
     app:popUpToInclusive="true" />
 
   <action
+    android:id="@+id/action_global_nav_mission_dashboard_fragment"
+    app:destination="@id/nav_mission_dashboard_fragment"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_graph"
+    app:popUpToInclusive="true" />
+
+
+  <action
     android:id="@+id/action_global_nav_chat_room_fragment"
     app:destination="@id/nav_chat_room_fragment" />
 
@@ -150,4 +158,9 @@
   <fragment
     android:id="@+id/nav_declare_allegiance_fragment"
     android:name="com.app.playhvz.screens.declareallegiance.DeclareAllegianceFragment" />
+
+  <fragment
+    android:id="@+id/nav_mission_dashboard_fragment"
+    android:name="com.app.playhvz.screens.missions.MissionDashboardFragment"
+    tools:layout="@layout/fragment_mission_dashboard" />
 </navigation>
