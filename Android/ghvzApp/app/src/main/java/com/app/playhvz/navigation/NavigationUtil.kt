@@ -26,6 +26,7 @@ import com.app.playhvz.screens.declareallegiance.DeclareAllegianceFragmentDirect
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
+import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
 
 class NavigationUtil {
@@ -111,6 +112,15 @@ class NavigationUtil {
         fun navigateToDeclareAllegiance(navController: NavController) {
             navController.navigate(
                 DeclareAllegianceFragmentDirections.actionGlobalNavDeclareAllegianceFragment()
+            )
+        }
+
+        /**
+         * Opens the list of missions.
+         */
+        fun navigateToMissionDashboard(navController: NavController) {
+            navController.navigate(
+                MissionDashboardFragmentDirections.actionGlobalNavMissionDashboardFragment()
             )
         }
     }

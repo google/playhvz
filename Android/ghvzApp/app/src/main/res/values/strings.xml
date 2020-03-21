@@ -272,12 +272,20 @@
     Home
   </string>
 
+  <string name="menu_bottom_nav_missions" definition="Bottom navigation menu item for opening list of missions.">
+    Missions
+  </string>
+
   <string name="menu_bottom_nav_settings" definition="Bottom navigation menu item for opening settings.">
     Settings
   </string>
 
   <string name="menu_bottom_nav_profile" definition="Bottom navigation menu item for opening profile page.">
     Profile
+  </string>
+
+  <string name="mission_title" definition="Title of the action bar for the missions screen.">
+    Missions
   </string>
 
   <string name="navigation_drawer_game_dashboard" definition="Navigation drawer menu item for opening the dashboard of a game.">
