@@ -16,8 +16,14 @@
 
 package com.app.playhvz.utils
 
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
+import com.app.playhvz.firebase.operations.GameDatabaseOperations
+import com.app.playhvz.navigation.NavigationUtil
+import kotlinx.coroutines.runBlocking
 
 class GameUtils {
     companion object {
@@ -26,6 +32,21 @@ class GameUtils {
         /** Returns whether the current player is a game admin or not. */
         fun isAdmin(game: Game): Boolean {
             return game.creatorUserId == FirebaseProvider.getFirebaseAuth().uid
+        }
+
+        fun openGameDashboard(fragment: Fragment, gameId: String) {
+            val editor =
+                fragment.activity?.getSharedPreferences(
+                    SharedPreferencesConstants.PREFS_FILENAME,
+                    0
+                )!!.edit()
+            editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, gameId)
+            editor.apply()
+            runBlocking {
+                GameDatabaseOperations.getPlayerIdForGame(gameId, editor) {
+                    NavigationUtil.navigateToGameDashboard(fragment.findNavController(), gameId)
+                }
+            }
         }
     }
 }

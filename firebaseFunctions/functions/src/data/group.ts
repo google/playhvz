@@ -16,8 +16,6 @@
 
 import * as Defaults from './defaults';
 
-export const EMPTY_ALLEGIANCE_FILTER = "none";
-
 export const COLLECTION_PATH = "groups";
 export const FIELD__NAME = "name";
 export const FIELD__MANAGED = "managed";
@@ -55,6 +53,7 @@ export function createPlayerOwnedGroup(ownerId: string, name: string, settings: 
 }
 
 export function getGlobalGroupSettings() {
+  console.log(" default allegiance filter " + Defaults.allegianceFilter)
   return {
     [FIELD__SETTINGS_ADD_SELF]: false,
     [FIELD__SETTINGS_ADD_OTHERS]: false,

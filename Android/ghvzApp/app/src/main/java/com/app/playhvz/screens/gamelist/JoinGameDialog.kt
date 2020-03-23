@@ -23,17 +23,18 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
+import com.app.playhvz.utils.GameUtils
 import com.app.playhvz.utils.SystemUtils
 import kotlinx.coroutines.runBlocking
 
-class JoinGameDialog : DialogFragment() {
+class JoinGameDialog(private val callingFragment: Fragment) : DialogFragment() {
     companion object {
         private val TAG = JoinGameDialog::class.qualifiedName
     }
@@ -49,7 +50,8 @@ class JoinGameDialog : DialogFragment() {
     private var gameName: String? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         customView = inflater.inflate(R.layout.dialog_join_game, null)
@@ -79,9 +81,18 @@ class JoinGameDialog : DialogFragment() {
             errorLabel.visibility = View.GONE
         }
 
-        initGameScreen()
+        if (gameName == null) {
+            initGameScreen()
+        } else {
+            initPlayerScreen(/* canGoBack= */ false)
+        }
 
         return customView
+    }
+
+    // For use when we don't need to verify if the game exists.
+    fun setGameName(gameName: String) {
+        this.gameName = gameName
     }
 
     private fun initGameScreen() {
@@ -98,7 +109,7 @@ class JoinGameDialog : DialogFragment() {
         }
     }
 
-    private fun initPlayerScreen() {
+    private fun initPlayerScreen(canGoBack: Boolean) {
         errorLabel.visibility = View.GONE
         inputLabel.setText(getString(R.string.join_game_player_label))
         inputText.text.clear()
@@ -107,6 +118,7 @@ class JoinGameDialog : DialogFragment() {
         positiveButton.setOnClickListener {
             checkPlayerValid()
         }
+        negativeButton.isEnabled = canGoBack
         negativeButton.setText(getString(R.string.button_back))
         negativeButton.setOnClickListener {
             initGameScreen()
@@ -119,7 +131,7 @@ class JoinGameDialog : DialogFragment() {
         gameName = inputText.text.toString()
         val onSuccess = {
             progressBar.visibility = View.INVISIBLE
-            initPlayerScreen()
+            initPlayerScreen(/* canGoBack= */ true)
         }
         val onFailure = {
             progressBar.visibility = View.INVISIBLE
@@ -140,15 +152,12 @@ class JoinGameDialog : DialogFragment() {
     private fun checkPlayerValid() {
         progressBar.visibility = View.VISIBLE
         val playerName = inputText.text.toString()
-        val onSuccess = {
+        val onSuccess = { gameId: String ->
             progressBar.visibility = View.INVISIBLE
             dismiss()
             SystemUtils.hideKeyboard(context!!)
-            Toast.makeText(
-                context,
-                getString(R.string.join_game_success_message),
-                Toast.LENGTH_LONG
-            ).show()
+            SystemUtils.showToast(context, getString(R.string.join_game_success_message))
+            GameUtils.openGameDashboard(callingFragment, gameId)
         }
         val onFailure = {
             progressBar.visibility = View.INVISIBLE

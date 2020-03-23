@@ -37,12 +37,12 @@ import com.app.playhvz.app.BaseActivity
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
-import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.signin.SignInActivity
 import com.app.playhvz.utils.GameUtils
+import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -105,12 +105,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setupUI()
 
         val currentGameId: String? = getCurrentGameId()
-        if (currentGameId != null) {
+        val currentPlayerId: String? = getCurrentPlayerId()
+        if (currentGameId != null && currentPlayerId != null) {
             listenToGameUpdates(currentGameId)
             NavigationUtil.navigateToGameDashboard(
                 findNavController(R.id.nav_host_fragment),
                 currentGameId
             )
+        } else {
+            SystemUtils.clearSharedPrefs(this)
         }
     }
 
@@ -136,10 +139,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 )
             }
             R.id.nav_game_list_fragment -> {
-                val editor = getSharedPreferences(PREFS_FILENAME, 0)!!.edit()
-                editor.putString(CURRENT_GAME_ID, null)
-                editor.putString(CURRENT_PLAYER_ID, null)
-                editor.apply()
+                SystemUtils.clearSharedPrefs(this)
                 drawer_layout.closeDrawer(GravityCompat.START)
                 findNavController(R.id.nav_host_fragment).navigate(R.id.nav_game_list_fragment)
             }
@@ -174,6 +174,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun getCurrentGameId(): String? {
         return prefs!!.getString(CURRENT_GAME_ID, null)
+    }
+
+    private fun getCurrentPlayerId(): String? {
+        return prefs!!.getString(CURRENT_PLAYER_ID, null)
     }
 
     private fun setupUI() {
@@ -228,7 +232,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
         return true
     }
-
 
     private fun setupFab() {
         fab.setColorFilter(Color.WHITE)

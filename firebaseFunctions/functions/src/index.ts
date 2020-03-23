@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+
 import * as Chat from './data/chat';
 import * as ChatUtils from './utils/chatutils';
 import * as Defaults from './data/defaults';
@@ -147,14 +148,79 @@ exports.joinGame = functions.https.onCall(async (data, context) => {
   }
 
   const player = Player.create(uid, playerName);
-  const playerDocument = (await db.collection(Game.COLLECTION_PATH).doc(gameId)
+  const playerDocument = (await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
     .collection(Player.COLLECTION_PATH)
     .add(player));
 
   await addNewPlayerToGroups(gameId, playerDocument)
+  return gameId
 });
 
 
+/**
+ * Initiate a recursive delete of documents at a given path.
+ *
+ * The calling user must be authenticated and have the custom "admin" attribute
+ * set to true on the auth token.
+ *
+ * This delete is NOT an atomic operation and it's possible
+ * that it may fail after only deleting some documents.
+ *
+ * @param {string} data.path the document or collection path to delete.
+ */
+exports.deleteGame = functions.runWith({
+    timeoutSeconds: 540,
+    memory: '2GB'
+}).https.onCall(async (data, context) => {
+    // Only allow admin users to execute this function.
+    if (!(context.auth)) {
+    /* TODO: only allow for admins once we launch game (&& context.auth.token && context.auth.token.admin) */
+      throw new functions.https.HttpsError('permission-denied', 'Must be an administrative user to initiate delete.');
+    }
+
+    const gameId = data.gameId;
+    console.log(
+      `User ${context.auth.uid} has requested to delete game ${gameId}`
+    );
+
+    // Run a recursive delete on the game document path.
+    const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
+    await gameRef.listCollections().then(async (collections: any) => {
+      for (const collection of collections) {
+        console.log(`Found subcollection with id: ${collection.id}`);
+        await deleteCollection(collection)
+      }
+      await gameRef.delete()
+    });
+});
+
+async function deleteCollection(collection: any) {
+  const collectionRef = db.collection(collection.path)
+  await collectionRef.listDocuments().then((docRefs: any) => {
+    return db.getAll(...docRefs)
+  }).then(async (documentSnapshots: any) => {
+    for (const documentSnapshot of documentSnapshots) {
+       if (documentSnapshot.exists) {
+          console.log(`Found document with data: ${documentSnapshot.id}`);
+       } else {
+          console.log(`Found missing document: ${documentSnapshot.id}`);
+       }
+       await deleteDocument(documentSnapshot.ref)
+    }
+  })
+}
+
+async function deleteDocument(documentRef: any) {
+  await documentRef.listCollections().then(async (collections: any) => {
+        for (const collection of collections) {
+          console.log(`Found subcollection with id: ${collection.id}`);
+          await deleteCollection(collection)
+        }
+        // Done deleting all children, can delete this doc now.
+        await documentRef.delete()
+  })
+}
 
 /*******************************************************
 * PLAYER functions
@@ -439,7 +505,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
             '4 arguments.');
   }
   if (allegianceFilter.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'AllegianceFilter was empty, should be ${EMPTY_ALLEGIANCE_FILTER} or race.');
+      throw new functions.https.HttpsError('invalid-argument', 'AllegianceFilter was empty, should be ${Defaults.EMPTY_ALLEGIANCE_FILTER} or race.');
   }
 
   const settings = Group.createSettings(
@@ -448,7 +514,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     /* removeSelf= */ true,
     /* removeOthers= */ false,
     /* autoAdd= */ false,
-    /* autoRemove= */ allegianceFilter !== Group.EMPTY_ALLEGIANCE_FILTER,
+    /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
     await createGroupAndChat(context.auth.uid, gameId, ownerId, chatName, settings);

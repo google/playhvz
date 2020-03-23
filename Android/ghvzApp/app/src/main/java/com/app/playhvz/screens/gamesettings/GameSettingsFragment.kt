@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
@@ -35,11 +34,11 @@ import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.ConfirmationDialog
-import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.screens.gamelist.JoinGameDialog
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.button.MaterialButton
@@ -141,27 +140,13 @@ class GameSettingsFragment : Fragment() {
 
     private fun createGame() {
         val name = nameView.text
-        val gameCreatedListener = OnSuccessListener<String> {
-            Toast.makeText(
-                context,
-                getString(R.string.create_game_success_toast, name),
-                Toast.LENGTH_LONG
-            ).show()
-            SystemUtils.hideKeyboard(context!!)
-            if (it.isNullOrEmpty()) {
-                NavigationUtil.navigateToGameList(findNavController(), activity!!)
-            }
-            val editor =
-                activity?.getSharedPreferences(
-                    SharedPreferencesConstants.PREFS_FILENAME,
-                    0
-                )!!.edit()
-            editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, it)
-            editor.apply()
-            NavigationUtil.navigateToGameDashboard(findNavController(), it)
+        val gameCreatedListener = OnSuccessListener<String> { gameId ->
+            SystemUtils.showToast(context, getString(R.string.create_game_success_toast, name))
+            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            haveAdminCreatePlayer(gameId, name.toString())
         }
         val gameExistsListener = {
-            Toast.makeText(context, "$name already exists!", Toast.LENGTH_LONG).show()
+            SystemUtils.showToast(context, "$name already exists!")
             progressBar.visibility = View.INVISIBLE
             gameNameErrorLabel.setText(resources.getString(R.string.create_game_error_exists, name))
             gameNameErrorLabel.visibility = View.VISIBLE
@@ -212,18 +197,20 @@ class GameSettingsFragment : Fragment() {
                     GameDatabaseOperations.asyncDeleteGame(
                         gameId!!
                     ) {
-                        Toast.makeText(
-                            context, "Deleted game",
-                            Toast.LENGTH_LONG
-                        ).show()
-
+                        SystemUtils.showToast(context, "Deleted game")
+                        SystemUtils.clearSharedPrefs(activity!!)
                         NavigationUtil.navigateToGameList(findNavController(), activity!!)
-
                     }
                     EspressoIdlingResource.decrement()
                 }
             }
         }
         activity?.supportFragmentManager?.let { deleteDialog.show(it, TAG) }
+    }
+
+    private fun haveAdminCreatePlayer(gameId: String, gameName: String) {
+        val joinGameDialog = JoinGameDialog(this)
+        joinGameDialog.setGameName(gameName)
+        activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }
     }
 }

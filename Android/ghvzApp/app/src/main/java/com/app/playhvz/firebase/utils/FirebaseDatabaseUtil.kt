@@ -19,10 +19,7 @@ package com.app.playhvz.firebase.utils
 import android.util.Log
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -54,6 +51,23 @@ class FirebaseDatabaseUtil {
             }
         }
 
+        fun optimizedGet(
+            queryRef: Query?,
+            successListener: OnSuccessListener<QuerySnapshot>
+        ) {
+            queryRef?.get(Source.CACHE)?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.i(TAG, "Got data from local cache.")
+                    successListener.onSuccess(task.result)
+                } else {
+                    Log.i(TAG, "Failed to get data from cache, trying server.")
+                    queryRef.get(Source.SERVER).addOnSuccessListener { snapshot ->
+                        successListener.onSuccess(snapshot)
+                    }
+                }
+            }
+        }
+
         suspend fun asyncGet(
             docRef: DocumentReference?,
             successListener: OnSuccessListener<DocumentSnapshot>
@@ -67,6 +81,27 @@ class FirebaseDatabaseUtil {
                     } else {
                         Log.i(TAG, "Failed to get data from cache, trying server.")
                         docRef.get(Source.SERVER).addOnSuccessListener { snapshot ->
+                            successListener.onSuccess(snapshot)
+                            continuation.resume(snapshot)
+                        }
+                    }
+                }
+            }
+        }
+
+        suspend fun asyncGet(
+            queryRef: Query?,
+            successListener: OnSuccessListener<QuerySnapshot>
+        ) {
+            suspendCoroutine<QuerySnapshot?> { continuation ->
+                queryRef?.get(Source.CACHE)?.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i(TAG, "Got data from local cache.")
+                        successListener.onSuccess(task.result)
+                        continuation.resume(task.result)
+                    } else {
+                        Log.i(TAG, "Failed to get data from cache, trying server.")
+                        queryRef.get(Source.SERVER).addOnSuccessListener { snapshot ->
                             successListener.onSuccess(snapshot)
                             continuation.resume(snapshot)
                         }
