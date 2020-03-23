@@ -16,9 +16,14 @@
 
 package com.app.playhvz.utils
 
+import android.app.Activity
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.content.pm.PackageInfoCompat
+import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
+import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
+import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
 
 /** Util for common system functions. */
 class SystemUtils {
@@ -36,6 +41,21 @@ class SystemUtils {
             val inputManager =
                 context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+        }
+
+        fun showToast(context: Context?, message: String) {
+            Toast.makeText(
+                context,
+                message,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        fun clearSharedPrefs(activity: Activity) {
+            val editor = activity.getSharedPreferences(PREFS_FILENAME, 0)!!.edit()
+            editor.putString(CURRENT_GAME_ID, null)
+            editor.putString(CURRENT_PLAYER_ID, null)
+            editor.apply()
         }
     }
 }

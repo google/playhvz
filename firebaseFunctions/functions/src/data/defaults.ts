@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Group from './group';
+
+export const EMPTY_ALLEGIANCE_FILTER = "none";
 
 export const allegiance = "undeclared";
 export const globalChatName = "Global Chat";
-export const allegianceFilter = Group.EMPTY_ALLEGIANCE_FILTER;
+export const allegianceFilter = EMPTY_ALLEGIANCE_FILTER;

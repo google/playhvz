@@ -33,6 +33,7 @@ import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.cards.DeclareAllegianceCard
 import com.app.playhvz.screens.gamedashboard.cards.InfectCard
 import com.app.playhvz.utils.PlayerUtils
+import com.app.playhvz.utils.SystemUtils
 
 /** Fragment for showing a list of Games the user is registered for.*/
 class GameDashboardFragment : Fragment() {
@@ -59,6 +60,11 @@ class GameDashboardFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+
+        if (gameId == null || playerId == null) {
+            SystemUtils.clearSharedPrefs(activity!!)
+            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+        }
 
         declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
         infectCard = InfectCard(this, gameId!!, playerId!!)

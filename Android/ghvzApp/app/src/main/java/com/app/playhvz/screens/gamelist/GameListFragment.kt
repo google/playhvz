@@ -65,7 +65,6 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
         val gameListRecyclerView = view.findViewById<RecyclerView>(R.id.game_list)
         gameListRecyclerView.layoutManager = LinearLayoutManager(context)
         gameListRecyclerView.adapter = gameListAdapter
-        setupFab()
         return view
     }
 
@@ -91,15 +90,6 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
             .observe(this, androidx.lifecycle.Observer { serverGameList ->
                 updateOwnedGameList(serverGameList)
             })
-    }
-
-    private fun setupFab() {
-        /*val floatingActionButton =
-            activity?.findViewById<FloatingActionButton>(R.id.floating_action_button)
-
-        floatingActionButton?.setOnClickListener {
-            joinGame()
-        }*/
     }
 
     /** Update data and notify view and adapter of change. */
@@ -141,26 +131,7 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
     }
 
     private fun joinGame() {
-        val joinGameDialog = JoinGameDialog()
-        /* joinGameDialog.setPositiveButtonCallback {
-             val gameName = joinGameDialog.getGameNameProposal()
-
-             val gameJoinedListener = {
-                 Toast.makeText(context, "Joined the game!", Toast.LENGTH_LONG).show()
-             }
-             val gameDoesNotExistsListener = {
-                 Toast.makeText(context, "$gameName does not exist!", Toast.LENGTH_LONG).show()
-             }
-             runBlocking {
-                 EspressoIdlingResource.increment()
-                 GameDatabaseOperations.asyncTryToJoinGame(
-                     gameName,
-                     gameJoinedListener,
-                     gameDoesNotExistsListener
-                 )
-                 EspressoIdlingResource.decrement()
-             }
-         }*/
+        val joinGameDialog = JoinGameDialog(this)
         activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }
     }
 

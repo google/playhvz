@@ -18,16 +18,17 @@ package com.app.playhvz.firebase.operations
 
 import android.content.SharedPreferences
 import android.util.Log
+import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAMES_COLLECTION
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__CREATOR_ID
 import com.app.playhvz.firebase.constants.PathConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
+import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.Source
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -62,7 +63,7 @@ class GameDatabaseOperations {
         suspend fun asyncTryToJoinGame(
             gameName: String,
             playerName: String,
-            successListener: () -> Unit,
+            successListener: (gameId: String) -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
             val data = hashMapOf(
@@ -78,7 +79,9 @@ class GameDatabaseOperations {
                         failureListener.invoke()
                         return@continueWith
                     }
-                    successListener.invoke()
+                    // gameId is returned.
+                    val result = task.result?.data as String
+                    successListener.invoke(result)
                 }
         }
 
@@ -97,7 +100,7 @@ class GameDatabaseOperations {
                 .call(data)
                 .continueWith { task ->
                     if (!task.isSuccessful) {
-                        Log.e(TAG, "Failed to create game $name")
+                        Log.e(TAG, "Failed to create game $name " + task.exception)
                         failureListener.invoke()
                         return@continueWith
                     }
@@ -109,9 +112,23 @@ class GameDatabaseOperations {
         /** Check if game name already exists. */
         suspend fun asyncDeleteGame(gameId: String, successListener: () -> Unit) =
             withContext(Dispatchers.Default) {
-                GAMES_COLLECTION.document(gameId).delete().addOnSuccessListener {
-                    successListener.invoke()
+                if (!DebugFlags.isDevEnvironment && !DebugFlags.isTestingEnvironment) {
+                    // Only allow deleting from the dev & test environments
+                    return@withContext
                 }
+                val data = hashMapOf(
+                    "gameId" to gameId
+                )
+                FirebaseProvider.getFirebaseFunctions()
+                    .getHttpsCallable("deleteGame")
+                    .call(data)
+                    .continueWith { task ->
+                        if (!task.isSuccessful) {
+                            Log.e(TAG, "Failed to delete game, " + task.exception)
+                            return@continueWith
+                        }
+                        successListener.invoke()
+                    }
             }
 
         /** Returns a Query listing all Games created by the current user. */
@@ -131,24 +148,22 @@ class GameDatabaseOperations {
         }
 
         /** Returns the user's playerId for the given Games. */
-        suspend fun getPlayerIdForGame(gameId: String, editor: SharedPreferences.Editor, successListener: () -> Unit) =
+        suspend fun getPlayerIdForGame(
+            gameId: String,
+            editor: SharedPreferences.Editor,
+            successListener: () -> Unit
+        ) =
             withContext(Dispatchers.Default) {
                 val playerQuery = PlayerPath.PLAYERS_COLLECTION(gameId).whereEqualTo(
                     UNIVERSAL_FIELD__USER_ID,
                     FirebaseProvider.getFirebaseAuth().uid
                 )
-                playerQuery.get(Source.CACHE).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "PlayerId fetched from local cache")
-                        updatePlayerIdPref(task.result, editor)
+                val onSuccess: OnSuccessListener<QuerySnapshot> =
+                    OnSuccessListener { querySnapshot ->
+                        updatePlayerIdPref(querySnapshot, editor)
                         successListener.invoke()
-                    } else {
-                        Log.d(TAG, "Failed to get playerId from cache, trying server")
-                        playerQuery.get().addOnSuccessListener { querySnapshot ->
-                            updatePlayerIdPref(querySnapshot, editor)
-                        }
                     }
-                }
+                FirebaseDatabaseUtil.optimizedGet(playerQuery, onSuccess)
             }
 
         private fun updatePlayerIdPref(
