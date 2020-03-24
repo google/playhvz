@@ -123,6 +123,6 @@ class MissionDashboardFragment : Fragment() {
     }
 
     private fun createMission() {
-        // TODO: intent to create mission fragment
+        NavigationUtil.navigateToMissionSettings(findNavController(), null)
     }
 }

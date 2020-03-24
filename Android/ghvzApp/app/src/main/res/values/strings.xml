@@ -288,6 +288,30 @@
     Missions
   </string>
 
+  <string name="mission_settings_title" definition="Action bar title for the mission settings screen.">
+    Mission settings
+  </string>
+
+  <string name="mission_settings_create_mission_title" definition="Action bar title for creating a mission screen.">
+    Create mission
+  </string>
+
+  <string name="mission_settings_name_hint_text" definition="Hint text for mission title text input.">
+    Mission 1 - Protect the Scientist
+  </string>
+
+  <string name="mission_settings_time" definition="Label for mission duration.">
+    Time
+  </string>
+
+  <string name="mission_settings_time_hint_text" definition="Hint text for setting mission start/end time.">
+    &lt;set&gt;
+  </string>
+
+  <string name="mission_settings_details_label" definition="Label for mission details.">
+    Details
+  </string>
+
   <string name="navigation_drawer_game_dashboard" definition="Navigation drawer menu item for opening the dashboard of a game.">
     Dashboard
   </string>

@@ -27,6 +27,8 @@ import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
+import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragment
+import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
 
 class NavigationUtil {
@@ -121,6 +123,16 @@ class NavigationUtil {
         fun navigateToMissionDashboard(navController: NavController) {
             navController.navigate(
                 MissionDashboardFragmentDirections.actionGlobalNavMissionDashboardFragment()
+            )
+        }
+
+        /**
+         * Navigates to the mission setting page for the provided missionId. Passing a null mission
+         * id will open the "Create Mission" flow.
+         */
+        fun navigateToMissionSettings(navController: NavController, missionId: String?) {
+            navController.navigate(
+                MissionSettingsFragmentDirections.actionGlobalNavMissionSettingsFragment(missionId)
             )
         }
     }
