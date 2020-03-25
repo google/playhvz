@@ -20,6 +20,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.widget.TimePicker
 import com.app.playhvz.R
 
 /** Util for handling logic based on Android version. */
@@ -29,14 +30,35 @@ class CompatUtils {
     companion object {
         private val TAG = CompatUtils::class.qualifiedName
 
-        fun buildNotificationChannel(context: Context, notificationManager: NotificationManager, channelId: String) {
+        fun buildNotificationChannel(
+            context: Context,
+            notificationManager: NotificationManager,
+            channelId: String
+        ) {
             // Android Oreo and later supports notification channels.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(channelId,
+                val channel = NotificationChannel(
+                    channelId,
                     context.getString(R.string.default_notification_channel_name),
                     NotificationManager.IMPORTANCE_DEFAULT
                 )
                 notificationManager.createNotificationChannel(channel)
+            }
+        }
+
+        fun getHour(timePicker: TimePicker): Int {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                timePicker.hour
+            } else {
+                timePicker.currentHour
+            }
+        }
+
+        fun getMinute(timePicker: TimePicker): Int {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                timePicker.minute
+            } else {
+                timePicker.currentMinute
             }
         }
     }
