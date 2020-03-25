@@ -20,15 +20,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
+import com.app.playhvz.common.DateTimePickerDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Mission
 import com.google.android.material.button.MaterialButton
+import java.text.SimpleDateFormat
 
 /** Fragment for showing a list of missions.*/
 class MissionSettingsFragment : Fragment() {
@@ -38,6 +41,8 @@ class MissionSettingsFragment : Fragment() {
 
     lateinit var nameText: EmojiEditText
     lateinit var submitButton: MaterialButton
+    lateinit var startTime: TextView
+    lateinit var endTime: TextView
 
     val args: MissionSettingsFragmentArgs by navArgs()
     var gameId: String? = null
@@ -62,11 +67,13 @@ class MissionSettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_mission_settings, container, false)
+        nameText = view.findViewById(R.id.mission_name)
         submitButton = view.findViewById(R.id.submit_button)
+        startTime = view.findViewById(R.id.mission_start_time)
+        endTime = view.findViewById(R.id.mission_end_time)
         submitButton.setOnClickListener {
             submitMission()
         }
-        nameText = view.findViewById(R.id.mission_name)
         nameText.doOnTextChanged { text, start, count, after ->
             when {
                 text.isNullOrEmpty() || text.isBlank() -> {
@@ -76,6 +83,12 @@ class MissionSettingsFragment : Fragment() {
                     submitButton.isEnabled = true
                 }
             }
+        }
+        startTime.setOnClickListener { v ->
+            openTimePicker(v as TextView)
+        }
+        endTime.setOnClickListener { v ->
+            openTimePicker(v as TextView)
         }
         return view
     }
@@ -100,5 +113,13 @@ class MissionSettingsFragment : Fragment() {
 
     private fun submitMission() {
         val name = nameText.text
+    }
+
+    private fun openTimePicker(clickedView: TextView) {
+        val dateTimeDialog = DateTimePickerDialog { timestamp ->
+            val dateTimeFormatter = SimpleDateFormat.getDateTimeInstance()
+            clickedView.text = dateTimeFormatter.format(timestamp)
+        }
+        activity?.supportFragmentManager?.let { dateTimeDialog.show(it, TAG) }
     }
 }

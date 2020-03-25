@@ -128,6 +128,14 @@
     Message %1$s
   </string>
 
+  <string name="datetime_dialog_title" definition="Title for the date time selection dialog.">
+    Set date and time
+  </string>
+
+  <string name="datetime_dialog_selected_date" definition="Label for the selected date.">
+    Date: %1$s
+  </string>
+
   <string name="declare_allegiance_card_title" definition="Card title for the declare allegiance widget.">
     Declare Allegiance
   </string>
