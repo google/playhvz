@@ -32,6 +32,7 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Mission
 import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
+import java.util.*
 
 /** Fragment for showing a list of missions.*/
 class MissionSettingsFragment : Fragment() {
@@ -43,11 +44,11 @@ class MissionSettingsFragment : Fragment() {
     lateinit var submitButton: MaterialButton
     lateinit var startTime: TextView
     lateinit var endTime: TextView
+    lateinit var missionDraft: Mission
 
     val args: MissionSettingsFragmentArgs by navArgs()
     var gameId: String? = null
     var missionId: String? = null
-    var missionDraft: Mission? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +58,7 @@ class MissionSettingsFragment : Fragment() {
             0
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
+        missionDraft = Mission()
         setupObservers()
         setupToolbar()
     }
@@ -117,8 +119,22 @@ class MissionSettingsFragment : Fragment() {
 
     private fun openTimePicker(clickedView: TextView) {
         val dateTimeDialog = DateTimePickerDialog { timestamp ->
-            val dateTimeFormatter = SimpleDateFormat.getDateTimeInstance()
+            val dateTimeFormatter = SimpleDateFormat("MMM dd, YYYY\nhh:mm  a", Locale.getDefault())
             clickedView.text = dateTimeFormatter.format(timestamp)
+            if (clickedView.tag == getString(R.string.mission_settings_start_time_tag)) {
+                missionDraft.startTime = timestamp
+            } else {
+                missionDraft.endTime = timestamp
+            }
+        }
+        if (clickedView.tag == getString(R.string.mission_settings_start_time_tag)) {
+            if (missionDraft.startTime != Mission.EMPTY_TIMESTAMP) {
+                dateTimeDialog.setDateTime(missionDraft.startTime)
+            }
+        } else {
+            if (missionDraft.endTime != Mission.EMPTY_TIMESTAMP) {
+                dateTimeDialog.setDateTime(missionDraft.endTime)
+            }
         }
         activity?.supportFragmentManager?.let { dateTimeDialog.show(it, TAG) }
     }

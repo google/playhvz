@@ -372,4 +372,13 @@
   <string name="force_upgrade_image_content_description" definition="Content description for force upgrade image.">
     poo
   </string>
+
+  <!-- Non-translatable strings -->
+  <string name="mission_settings_start_time_tag" definition="Tag for the start time view." translatable="false">
+    starttime
+  </string>
+
+  <string name="mission_settings_end_time_tag" definition="Tag for the end time view." translatable="false">
+    endtime
+  </string>
 </resources>
