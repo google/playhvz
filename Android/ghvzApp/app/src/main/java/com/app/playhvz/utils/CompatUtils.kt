@@ -54,11 +54,27 @@ class CompatUtils {
             }
         }
 
+        fun setHour(timePicker: TimePicker, hour: Int) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                timePicker.hour = hour
+            } else {
+                timePicker.currentHour = hour
+            }
+        }
+
         fun getMinute(timePicker: TimePicker): Int {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 timePicker.minute
             } else {
                 timePicker.currentMinute
+            }
+        }
+
+        fun setMinute(timePicker: TimePicker, minute: Int) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                timePicker.minute = minute
+            } else {
+                timePicker.currentMinute = minute
             }
         }
     }

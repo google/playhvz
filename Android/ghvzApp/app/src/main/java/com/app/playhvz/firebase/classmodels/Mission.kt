@@ -18,8 +18,15 @@ package com.app.playhvz.firebase.classmodels
 
 /** Android data model representing Firebase Mission documents. */
 class Mission {
+    companion object {
+        val EMPTY_TIMESTAMP = 0L
+    }
+
     var id: String? = null
 
     // Name of the mission
     var name: String? = null
+
+    var startTime: Long = EMPTY_TIMESTAMP
+    var endTime: Long = EMPTY_TIMESTAMP
 }

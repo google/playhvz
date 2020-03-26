@@ -46,6 +46,8 @@ class DateTimePickerDialog(private val onSubmit: (timestamp: Long) -> Unit) : Di
     private lateinit var positiveButton: MaterialButton
     private lateinit var negativeButton: MaterialButton
 
+    private var existingTimestamp = 0L
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         customView = activity!!.layoutInflater.inflate(R.layout.dialog_datetime_picker, null)
         datePicker = customView.findViewById(R.id.date_picker)
@@ -53,6 +55,8 @@ class DateTimePickerDialog(private val onSubmit: (timestamp: Long) -> Unit) : Di
         currentlySelectedDate = customView.findViewById(R.id.current_date)
         positiveButton = customView.findViewById<MaterialButton>(R.id.positive_button)
         negativeButton = customView.findViewById<MaterialButton>(R.id.negative_button)
+
+        setTimeInUi()
 
         val dialog = AlertDialog.Builder(context!!)
             .setTitle(R.string.datetime_dialog_title)
@@ -69,6 +73,31 @@ class DateTimePickerDialog(private val onSubmit: (timestamp: Long) -> Unit) : Di
     ): View? {
         // Return already inflated custom view
         return customView
+    }
+
+    /**
+     * Specifies what day and time the picker should display. You don't need to set this
+     * to set the picker to the current date and time, that happens automatically.
+     */
+    fun setDateTime(timestamp: Long) {
+        existingTimestamp = timestamp
+    }
+
+    private fun setTimeInUi() {
+        val calendar: Calendar = GregorianCalendar()
+        if (existingTimestamp == 0L) {
+            return
+        }
+        calendar.timeInMillis = existingTimestamp
+
+        datePicker.init(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DATE),
+            /* onDateChangeListener= */ null
+        )
+        CompatUtils.setHour(timePicker, calendar.get(Calendar.HOUR_OF_DAY))
+        CompatUtils.setMinute(timePicker, calendar.get(Calendar.MINUTE))
     }
 
     private fun showDatePicker() {
