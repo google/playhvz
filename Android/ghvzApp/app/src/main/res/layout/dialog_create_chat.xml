@@ -90,14 +90,14 @@
       android:layout_height="wrap_content"
       android:checked="true"
       android:enabled="false"
-      android:text="@string/chat_creation_radio_human" />
+      android:text="@string/allegiance_option_human" />
 
     <RadioButton
       android:id="@+id/radio_zombie"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:enabled="false"
-      android:text="@string/chat_creation_radio_zombie" />
+      android:text="@string/allegiance_option_zombie" />
   </RadioGroup>
 
   <com.google.android.material.button.MaterialButton
