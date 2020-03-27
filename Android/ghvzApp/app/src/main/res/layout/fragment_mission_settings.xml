@@ -100,6 +100,46 @@
       style="@style/TextInputLabel"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:text="@string/mission_settings_allegiance_label" />
+
+    <RadioGroup
+      android:id="@+id/radio_button_group"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="24dp"
+      android:orientation="vertical"
+      android:paddingBottom="16dp">
+
+      <RadioButton
+        android:id="@+id/radio_human"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/allegiance_option_human" />
+
+      <RadioButton
+        android:id="@+id/radio_zombie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/allegiance_option_zombie" />
+
+      <RadioButton
+        android:id="@+id/radio_undeclared"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/allegiance_option_undeclared" />
+
+      <RadioButton
+        android:id="@+id/radio_everyone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/allegiance_option_everyone" />
+    </RadioGroup>
+
+    <TextView
+      style="@style/TextInputLabel"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
       android:text="@string/mission_settings_details_label" />
 
     <androidx.emoji.widget.EmojiEditText

@@ -29,4 +29,6 @@ class Mission {
 
     var startTime: Long = EMPTY_TIMESTAMP
     var endTime: Long = EMPTY_TIMESTAMP
+
+    var associatedGroupId: String? = null
 }

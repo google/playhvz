@@ -26,6 +26,21 @@
   <string name="default_notification_title">From HvZ CDC</string>
 
   <!-- String definitions, alphabetized. -->
+  <string name="allegiance_option_human" definition="Label for the radio button indicating human allegiance.">
+    Resistance
+  </string>
+
+  <string name="allegiance_option_zombie" definition="Label for the radio button indicating zombie allegiance.">
+    Horde
+  </string>
+
+  <string name="allegiance_option_undeclared" definition="Label for the radio button indicating undeclared allegiance.">
+    Undeclared
+  </string>
+
+  <string name="allegiance_option_everyone" definition="Label for the radio button indicating no allegiance filter.">
+    Everyone
+  </string>
 
   <string name="allegiance_status_alive" definition="Status indicating the player is alive.">
     Alive
@@ -69,14 +84,6 @@
 
   <string name="chat_creation_checkbox_allegiance" definition="Label for the checkbox indicating if the room has an allegiance filter.">
     Enforce members are only:
-  </string>
-
-  <string name="chat_creation_radio_human" definition="Label for the radio button indicating human allegiance.">
-    Resistance
-  </string>
-
-  <string name="chat_creation_radio_zombie" definition="Label for the radio button indicating zombie allegiance.">
-    Horde
   </string>
 
   <string name="chat_creation_name_label" definition="Label for the chat room name input textview.">
@@ -318,6 +325,10 @@
 
   <string name="mission_settings_details_label" definition="Label for mission details.">
     Details
+  </string>
+
+  <string name="mission_settings_allegiance_label" definition="Label for mission allegiance filter.">
+    Allegiance
   </string>
 
   <string name="navigation_drawer_game_dashboard" definition="Navigation drawer menu item for opening the dashboard of a game.">

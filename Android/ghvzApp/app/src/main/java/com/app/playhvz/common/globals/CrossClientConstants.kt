@@ -23,6 +23,7 @@ class CrossClientConstants {
         const val HUMAN = "resistance"
         const val ZOMBIE = "horde"
         const val UNDECLARED = "undeclared"
+        const val BLANK_ALLEGIANCE_FILTER = "none"
         val DEAD_ALLEGIANCES = arrayOf(ZOMBIE)
         const val ALIVE_COLOR: Int = Color.MAGENTA
         const val DEAD_COLOR: Int = Color.GREEN

@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
@@ -28,6 +29,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
 import com.app.playhvz.common.DateTimePickerDialog
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.BLANK_ALLEGIANCE_FILTER
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.UNDECLARED
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Mission
 import com.google.android.material.button.MaterialButton
@@ -40,11 +45,12 @@ class MissionSettingsFragment : Fragment() {
         private val TAG = MissionSettingsFragment::class.qualifiedName
     }
 
-    lateinit var nameText: EmojiEditText
-    lateinit var submitButton: MaterialButton
-    lateinit var startTime: TextView
-    lateinit var endTime: TextView
-    lateinit var missionDraft: Mission
+    private lateinit var nameText: EmojiEditText
+    private lateinit var submitButton: MaterialButton
+    private lateinit var startTime: TextView
+    private lateinit var endTime: TextView
+    private lateinit var missionDraft: Mission
+    private lateinit var allegianceRadioGroup: RadioGroup
 
     val args: MissionSettingsFragmentArgs by navArgs()
     var gameId: String? = null
@@ -73,6 +79,8 @@ class MissionSettingsFragment : Fragment() {
         submitButton = view.findViewById(R.id.submit_button)
         startTime = view.findViewById(R.id.mission_start_time)
         endTime = view.findViewById(R.id.mission_end_time)
+        allegianceRadioGroup = view!!.findViewById(R.id.radio_button_group)
+
         submitButton.setOnClickListener {
             submitMission()
         }
@@ -92,6 +100,8 @@ class MissionSettingsFragment : Fragment() {
         endTime.setOnClickListener { v ->
             openTimePicker(v as TextView)
         }
+
+        setupAllegianceButtons()
         return view
     }
 
@@ -113,8 +123,26 @@ class MissionSettingsFragment : Fragment() {
         }
     }
 
+    private fun setupAllegianceButtons() {
+        if (missionId != null) {
+            allegianceRadioGroup.isEnabled = false
+        }
+    }
+
     private fun submitMission() {
         val name = nameText.text
+
+        val selectedFilter = allegianceRadioGroup.checkedRadioButtonId
+
+        val allegianceFilter: String = if (selectedFilter == R.id.radio_human) {
+            HUMAN
+        } else if (selectedFilter == R.id.radio_zombie) {
+            ZOMBIE
+        } else if (selectedFilter == R.id.radio_undeclared) {
+            UNDECLARED
+        } else {
+            BLANK_ALLEGIANCE_FILTER
+        }
     }
 
     private fun openTimePicker(clickedView: TextView) {
