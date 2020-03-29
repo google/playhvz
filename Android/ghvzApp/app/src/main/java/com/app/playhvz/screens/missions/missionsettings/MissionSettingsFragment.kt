@@ -28,6 +28,7 @@ import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.DateTimePickerDialog
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.BLANK_ALLEGIANCE_FILTER
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
@@ -35,7 +36,10 @@ import com.app.playhvz.common.globals.CrossClientConstants.Companion.UNDECLARED
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Mission
+import com.app.playhvz.firebase.operations.MissionDatabaseOperations
+import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -46,6 +50,7 @@ class MissionSettingsFragment : Fragment() {
     }
 
     private lateinit var nameText: EmojiEditText
+    private lateinit var detailText: EmojiEditText
     private lateinit var submitButton: MaterialButton
     private lateinit var startTime: TextView
     private lateinit var endTime: TextView
@@ -76,6 +81,7 @@ class MissionSettingsFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_mission_settings, container, false)
         nameText = view.findViewById(R.id.mission_name)
+        detailText = view.findViewById(R.id.mission_details)
         submitButton = view.findViewById(R.id.submit_button)
         startTime = view.findViewById(R.id.mission_start_time)
         endTime = view.findViewById(R.id.mission_end_time)
@@ -130,7 +136,8 @@ class MissionSettingsFragment : Fragment() {
     }
 
     private fun submitMission() {
-        val name = nameText.text
+        val name: String = nameText.text.toString()
+        val details: String = detailText.text.toString()
 
         val selectedFilter = allegianceRadioGroup.checkedRadioButtonId
 
@@ -142,6 +149,25 @@ class MissionSettingsFragment : Fragment() {
             UNDECLARED
         } else {
             BLANK_ALLEGIANCE_FILTER
+        }
+
+        runBlocking {
+            EspressoIdlingResource.increment()
+            MissionDatabaseOperations.asyncCreateMission(
+                gameId!!,
+                name,
+                details,
+                missionDraft.startTime,
+                missionDraft.endTime,
+                allegianceFilter,
+                {
+                    SystemUtils.showToast(context, "Created mission.")
+                },
+                {
+                    SystemUtils.showToast(context, "Couldn't create mission.")
+                }
+            )
+            EspressoIdlingResource.decrement()
         }
     }
 

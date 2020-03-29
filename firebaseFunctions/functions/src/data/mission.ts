@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.firebase.classmodels
+export const COLLECTION_PATH = "missions";
+export const FIELD__GROUP_ID = "associatedGroupId";
+export const FIELD__NAME = "name";
+export const FIELD__START_TIME = "startTime";
+export const FIELD__END_TIME = "endTime";
+export const FIELD__DETAILS = "details";
 
-/** Android data model representing Firebase Mission documents. */
-class Mission {
-    companion object {
-        val EMPTY_TIMESTAMP = 0L
-    }
-
-    var id: String? = null
-
-    // Name of the mission
-    var name: String? = null
-    var details: String? = null
-
-    var startTime: Long = EMPTY_TIMESTAMP
-    var endTime: Long = EMPTY_TIMESTAMP
-
-    var associatedGroupId: String? = null
+export function create(
+  groupId: string,
+  name: string,
+  startTime: number,
+  endTime: number,
+  details: string)
+: { [key: string]: any; } {
+  return {
+    [FIELD__GROUP_ID]: groupId,
+    [FIELD__NAME]: name,
+    [FIELD__START_TIME]: startTime,
+    [FIELD__END_TIME]: endTime,
+    [FIELD__DETAILS]: details
+  };
 }
