@@ -25,6 +25,7 @@ import * as Group from './data/group';
 import * as Player from './data/player';
 import * as PlayerUtils from './utils/playerutils';
 import * as Message from './data/message';
+import * as Mission from './data/mission';
 import * as User from './data/user';
 
 admin.initializeApp();
@@ -188,39 +189,11 @@ exports.deleteGame = functions.runWith({
     const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
     await gameRef.listCollections().then(async (collections: any) => {
       for (const collection of collections) {
-        console.log(`Found subcollection with id: ${collection.id}`);
         await deleteCollection(collection)
       }
       await gameRef.delete()
     });
 });
-
-async function deleteCollection(collection: any) {
-  const collectionRef = db.collection(collection.path)
-  await collectionRef.listDocuments().then((docRefs: any) => {
-    return db.getAll(...docRefs)
-  }).then(async (documentSnapshots: any) => {
-    for (const documentSnapshot of documentSnapshots) {
-       if (documentSnapshot.exists) {
-          console.log(`Found document with data: ${documentSnapshot.id}`);
-       } else {
-          console.log(`Found missing document: ${documentSnapshot.id}`);
-       }
-       await deleteDocument(documentSnapshot.ref)
-    }
-  })
-}
-
-async function deleteDocument(documentRef: any) {
-  await documentRef.listCollections().then(async (collections: any) => {
-        for (const collection of collections) {
-          console.log(`Found subcollection with id: ${collection.id}`);
-          await deleteCollection(collection)
-        }
-        // Done deleting all children, can delete this doc now.
-        await documentRef.delete()
-  })
-}
 
 /*******************************************************
 * PLAYER functions
@@ -379,6 +352,32 @@ async function createGroupAndChat(uid: any, gameId: string, playerId: string, ch
   await ChatUtils.addPlayerToChat(db, gameId, playerId, createdGroup, createdChat.id, /* isNewGroup= */ true)
 }
 
+// Creates a group and mission
+async function createGroupAndMission(
+  gameId: string,
+  settings: any,
+  missionName: string,
+  startTime: number,
+  endTime: number,
+  details: string
+) {
+  const group = Group.createManagedGroup(missionName, settings)
+  const createdGroup = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .add(group);
+  const mission = Mission.create(
+    createdGroup.id,
+    missionName,
+    startTime,
+    endTime,
+    details
+  )
+  await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Mission.COLLECTION_PATH).add(mission)
+  // TODO: automatically add all correct players to group
+}
+
+
 exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
       // Throwing an HttpsError so that the client gets the error details.
@@ -521,6 +520,110 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
 })
 
 /*******************************************************
+* MISSION functions
+********************************************************/
+
+exports.createMission = functions.https.onCall(async (data, context) => {
+if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  const missionName = data.name;
+  const startTime = data.startTime;
+  const endTime = data.endTime;
+  const details = data.details;
+  const allegianceFilter = data.allegianceFilter
+
+  if (!(typeof gameId === 'string')
+        || !(typeof missionName === 'string')
+        || !(typeof details === 'string')
+        || !(typeof allegianceFilter === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+
+  if (!(typeof startTime === 'number') || !(typeof endTime === 'number')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
+  }
+
+  if (gameId.length === 0 || missionName.length === 0 || allegianceFilter.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'valid string arguments.');
+  }
+
+  const settings = Group.createSettings(
+    /* addSelf= */ false,
+    /* addOthers= */ false,
+    /* removeSelf= */ false,
+    /* removeOthers= */ false,
+    /* autoAdd= */ true,
+    /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
+    allegianceFilter);
+
+    await createGroupAndMission(
+      gameId,
+      settings,
+      missionName,
+      startTime,
+      endTime,
+      details
+    )
+})
+
+exports.deleteMission = functions.https.onCall(async (data, context) => {
+if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  const missionId = data.missionId;
+
+  if (!(typeof gameId === 'string') || !(typeof missionId === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+
+  if (gameId.length === 0 || missionId.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'valid id arguments.');
+  }
+
+  // Delete the mission document recursively
+  const missionRef = db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Mission.COLLECTION_PATH)
+    .doc(missionId);
+    const missionData = (await missionRef.get()).data()
+    if (missionData === undefined) {
+      return
+    }
+  const associatedGroupId = missionData[Mission.FIELD__GROUP_ID]
+  console.log(`Found group id ${associatedGroupId}`)
+  /*
+  // TODO: uncomment after testing.
+  await missionRef.listCollections().then(async (collections: any) => {
+    for (const collection of collections) {
+      await deleteCollection(collection)
+    }
+    await missionRef.delete()
+  }); */
+
+  // Delete the associated group recursively
+  /*const groupRef = db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(associatedGroupId); */
+  /*await missionRef.listCollections().then(async (collections: any) => {
+    for (const collection of collections) {
+      await deleteCollection(collection)
+    }
+    await missionRef.delete()
+  }); */
+
+})
+
+/*******************************************************
 * Util functions
 ********************************************************/
 
@@ -532,8 +635,32 @@ function getTimestamp(): any {
   return admin.firestore.Timestamp.now()
 }
 
+async function deleteCollection(collection: any) {
+  const collectionRef = db.collection(collection.path)
+  await collectionRef.listDocuments().then((docRefs: any) => {
+    return db.getAll(...docRefs)
+  }).then(async (documentSnapshots: any) => {
+    for (const documentSnapshot of documentSnapshots) {
+       if (documentSnapshot.exists) {
+          console.log(`Found document with data: ${documentSnapshot.id}`);
+       } else {
+          console.log(`Found missing document: ${documentSnapshot.id}`);
+       }
+       await deleteDocument(documentSnapshot.ref)
+    }
+  })
+}
 
-
+async function deleteDocument(documentRef: any) {
+  await documentRef.listCollections().then(async (collections: any) => {
+        for (const collection of collections) {
+          console.log(`Found subcollection with id: ${collection.id}`);
+          await deleteCollection(collection)
+        }
+        // Done deleting all children, can delete this doc now.
+        await documentRef.delete()
+  })
+}
 
 
 
