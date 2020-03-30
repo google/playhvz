@@ -17,7 +17,9 @@
 package com.app.playhvz.screens.missions
 
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
@@ -32,6 +34,20 @@ class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     private var startTimeView: TextView = missionCard.findViewById(R.id.mission_start_time)
     private var endTimeView: TextView = missionCard.findViewById(R.id.mission_end_time)
     private var detailsView: EmojiTextView = missionCard.findViewById(R.id.mission_details)
+    private var cardHeader: LinearLayout = missionCard.findViewById(R.id.card_header)
+    private var cardContent: ConstraintLayout = missionCard.findViewById(R.id.card_content)
+
+    init {
+        cardHeader.setOnClickListener {
+            if (cardContent.visibility == View.VISIBLE) {
+                // Collapse the card content
+                cardContent.visibility = View.GONE
+            } else {
+                // Display the card content
+                cardContent.visibility = View.VISIBLE
+            }
+        }
+    }
 
     fun onBind(mission: Mission) {
         cardTitle.text = mission.name
