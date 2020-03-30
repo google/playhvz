@@ -22,8 +22,8 @@ import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAMES_COLLECTION
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__CREATOR_ID
-import com.app.playhvz.firebase.constants.PathConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.constants.PlayerPath
+import com.app.playhvz.firebase.constants.UniversalConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.google.android.gms.tasks.OnSuccessListener

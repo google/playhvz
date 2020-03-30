@@ -19,10 +19,12 @@ package com.app.playhvz.firebase.operations
 import android.util.Log
 import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.MissionPath
+import com.app.playhvz.firebase.constants.MissionPath.Companion.MISSION_BY_GROUP_QUERY
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -68,6 +70,16 @@ class MissionDatabaseOperations {
                     }
                     successListener.invoke()
                 }
+        }
+
+        /** Returns a query for all the missions in a given game. */
+        fun getGroupsAssociatedWithMissons(gameId: String): Query {
+            return MissionPath.MISSION_COLLECTION(gameId)
+        }
+
+        /** Returns a query for missions associated with the given group ids. */
+        fun getMissionsAssociatedWithGroups(gameId: String, groupIds: List<String>): Query {
+            return MISSION_BY_GROUP_QUERY(gameId, groupIds)
         }
     }
 }

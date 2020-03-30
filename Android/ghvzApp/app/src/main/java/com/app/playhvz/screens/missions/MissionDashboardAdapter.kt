@@ -18,14 +18,13 @@ package com.app.playhvz.screens.missions
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.Mission
 
 class MissionDashboardAdapter(
-    private var items: List<Any>,
+    private var items: List<Mission>,
     val context: Context
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -41,14 +40,20 @@ class MissionDashboardAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as MissionViewHolder).onBind()
+        (holder as MissionViewHolder).onBind(items[position])
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun setData(data: List<Any>) {
-        items = data
+    fun setData(data: Map<String, Mission?>) {
+        val cleansedList = mutableListOf<Mission>()
+        for ((_, value) in data) {
+            if (value != null) {
+                cleansedList.add(value)
+            }
+        }
+        items = cleansedList
     }
 }

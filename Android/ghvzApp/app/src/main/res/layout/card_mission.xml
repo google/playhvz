@@ -16,6 +16,7 @@
 
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/mission_card"
   style="@style/Widget.MaterialComponents.CardView"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
@@ -35,37 +36,7 @@
       android:background="@color/colorPrimary"
       android:minHeight="48dp"
       android:padding="8dp"
-      android:text="@string/infect_card_title"
       android:textColor="@color/white" />
-
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="horizontal">
-
-      <EditText
-        android:id="@+id/lifecode_input"
-        style="@style/TextAppearance.MaterialComponents.Body2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:hint="@string/infect_card_hint_text"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:lines="1"
-        android:minHeight="48dp"
-        android:padding="8dp" />
-
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/send_button"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:enabled="false"
-        app:cornerRadius="24dp"
-        app:icon="@drawable/ic_send"
-        app:iconGravity="end" />
-    </LinearLayout>
 
   </LinearLayout>
 

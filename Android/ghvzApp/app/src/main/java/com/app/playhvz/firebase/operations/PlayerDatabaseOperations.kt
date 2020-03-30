@@ -17,8 +17,8 @@
 package com.app.playhvz.firebase.operations
 
 import android.util.Log
-import com.app.playhvz.firebase.constants.PathConstants
 import com.app.playhvz.firebase.constants.PlayerPath
+import com.app.playhvz.firebase.constants.UniversalConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
@@ -65,7 +65,7 @@ class PlayerDatabaseOperations {
         private fun getUsersPlayersQuery(gameId: String): Query? {
             val userId = FirebaseProvider.getFirebaseAuth().uid ?: return null
             return PlayerPath.PLAYERS_COLLECTION(gameId)
-                .whereEqualTo(PathConstants.UNIVERSAL_FIELD__USER_ID, userId)
+                .whereEqualTo(UNIVERSAL_FIELD__USER_ID, userId)
         }
     }
 }

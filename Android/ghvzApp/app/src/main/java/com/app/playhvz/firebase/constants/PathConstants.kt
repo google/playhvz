@@ -56,11 +56,6 @@ class PathConstants {
         val GLOBAL_DATA_FIELD__VERSION_CODE = "versionCodes"
 
         /**
-         * Field inside any document that contains the id of the user that owns that document.
-         */
-        val UNIVERSAL_FIELD__USER_ID = "userId"
-
-        /**
          * Field inside User document that contains the latest registered device token for
          * notifications.
          */

@@ -45,6 +45,12 @@ class DataConverterUtil {
             return message
         }
 
+        fun convertSnapshotToMission(document: DocumentSnapshot): Mission {
+            val mission = document.toObject(Mission::class.java)!!
+            mission.id = document.id
+            return mission
+        }
+
         fun convertSnapshotToGroup(document: DocumentSnapshot): Group {
             val group = document.toObject(Group::class.java)!!
             group.id = document.id

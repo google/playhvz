@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
@@ -37,6 +38,7 @@ import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.operations.MissionDatabaseOperations
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
@@ -162,6 +164,7 @@ class MissionSettingsFragment : Fragment() {
                 allegianceFilter,
                 {
                     SystemUtils.showToast(context, "Created mission.")
+                    NavigationUtil.navigateToMissionDashboard(findNavController())
                 },
                 {
                     SystemUtils.showToast(context, "Couldn't create mission.")
