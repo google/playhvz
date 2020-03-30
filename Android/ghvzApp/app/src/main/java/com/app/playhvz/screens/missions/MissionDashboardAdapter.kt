@@ -19,13 +19,15 @@ package com.app.playhvz.screens.missions
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Mission
 
 class MissionDashboardAdapter(
     private var items: List<Mission>,
-    val context: Context
+    val context: Context,
+    private val navController: NavController
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -37,7 +39,8 @@ class MissionDashboardAdapter(
                 R.layout.card_mission,
                 parent,
                 false
-            )
+            ),
+            navController
         )
     }
 

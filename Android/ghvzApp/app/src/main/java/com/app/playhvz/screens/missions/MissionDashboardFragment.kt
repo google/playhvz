@@ -76,7 +76,7 @@ class MissionDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_mission_dashboard, container, false)
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.mission_list)
-        adapter = MissionDashboardAdapter(listOf(), context!!)
+        adapter = MissionDashboardAdapter(listOf(), context!!, findNavController())
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         return view

@@ -359,7 +359,8 @@ async function createGroupAndMission(
   missionName: string,
   startTime: number,
   endTime: number,
-  details: string
+  details: string,
+  allegianceFilter: string
 ) {
   const group = Group.createManagedGroup(missionName, settings)
   const createdGroup = await db.collection(Game.COLLECTION_PATH)
@@ -371,7 +372,8 @@ async function createGroupAndMission(
     missionName,
     startTime,
     endTime,
-    details
+    details,
+    allegianceFilter
   )
   await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Mission.COLLECTION_PATH).add(mission)
   // TODO: automatically add all correct players to group
@@ -567,8 +569,75 @@ if (!context.auth) {
       missionName,
       startTime,
       endTime,
-      details
+      details,
+      allegianceFilter
     )
+})
+
+// TODO: run this as a transaction
+exports.updateMission = functions.https.onCall(async (data, context) => {
+if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  const missionId = data.missionId;
+  const missionName = data.name;
+  const startTime = data.startTime;
+  const endTime = data.endTime;
+  const details = data.details;
+  const allegianceFilter = data.allegianceFilter
+
+  if (!(typeof gameId === 'string')
+        || !(typeof missionId === 'string')
+        || !(typeof missionName === 'string')
+        || !(typeof details === 'string')
+        || !(typeof allegianceFilter === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+
+  if (!(typeof startTime === 'number') || !(typeof endTime === 'number')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
+  }
+
+  if (gameId.length === 0
+      || missionId.length === 0
+      || missionName.length === 0
+      || allegianceFilter.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'valid string arguments.');
+  }
+
+  const missionRef = db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Mission.COLLECTION_PATH)
+    .doc(missionId)
+
+  const missionData = (await missionRef.get()).data()
+  if (missionData === undefined) {
+    return
+  }
+  const associatedGroupId = missionData[Mission.FIELD__GROUP_ID]
+
+  await missionRef.update({
+    [Mission.FIELD__NAME]: missionName,
+    [Mission.FIELD__START_TIME]: startTime,
+    [Mission.FIELD__END_TIME]: endTime,
+    [Mission.FIELD__DETAILS]: details,
+    [Mission.FIELD__ALLEGIANCE_FILTER]: allegianceFilter
+  });
+
+  const groupRef = db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Group.COLLECTION_PATH)
+      .doc(associatedGroupId);
+  // We have to use dot-notation or firebase will overwrite the entire field.
+  const allegianceField = Group.FIELD__SETTINGS + "." + Group.FIELD__SETTINGS_ALLEGIANCE_FILTER
+  await groupRef.update({
+    [Group.FIELD__NAME]: missionName,
+    [allegianceField]: allegianceFilter
+  })
 })
 
 exports.deleteMission = functions.https.onCall(async (data, context) => {
@@ -594,33 +663,30 @@ if (!context.auth) {
     .doc(gameId)
     .collection(Mission.COLLECTION_PATH)
     .doc(missionId);
-    const missionData = (await missionRef.get()).data()
-    if (missionData === undefined) {
-      return
-    }
+  const missionData = (await missionRef.get()).data()
+  if (missionData === undefined) {
+    return
+  }
   const associatedGroupId = missionData[Mission.FIELD__GROUP_ID]
-  console.log(`Found group id ${associatedGroupId}`)
-  /*
-  // TODO: uncomment after testing.
   await missionRef.listCollections().then(async (collections: any) => {
     for (const collection of collections) {
       await deleteCollection(collection)
     }
     await missionRef.delete()
-  }); */
+  });
 
-  // Delete the associated group recursively
-  /*const groupRef = db.collection(Game.COLLECTION_PATH)
+  // Delete the associated group document recursively
+  console.log(`Deleting associated group id: ${associatedGroupId}`)
+  const groupRef = db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Group.COLLECTION_PATH)
-    .doc(associatedGroupId); */
-  /*await missionRef.listCollections().then(async (collections: any) => {
+    .doc(associatedGroupId);
+  await groupRef.listCollections().then(async (collections: any) => {
     for (const collection of collections) {
       await deleteCollection(collection)
     }
-    await missionRef.delete()
-  }); */
-
+    await groupRef.delete()
+  });
 })
 
 /*******************************************************

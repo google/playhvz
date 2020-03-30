@@ -47,7 +47,7 @@ class PlayerAdapter(
             )
         )
         val checkIcon = playerViewHolder.view.findViewById<MaterialButton>(R.id.additional_icon)
-        checkIcon.setIconResource(R.drawable.ic_check)
+        checkIcon.setIconResource(R.drawable.ic_circle_check)
         checkIcon.isClickable = false
         checkIcon.background = null
         return playerViewHolder

@@ -21,14 +21,16 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Mission
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.TimeUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
-class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class MissionViewHolder(view: View, private val navController: NavController) : RecyclerView.ViewHolder(view) {
 
     private var missionCard: MaterialCardView = view.findViewById(R.id.mission_card)
     private var cardTitle: EmojiTextView = missionCard.findViewById(R.id.title)
@@ -56,6 +58,9 @@ class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     fun onBind(mission: Mission, isAdmin: Boolean) {
         if (isAdmin) {
             cardHeaderIcon.visibility = View.VISIBLE
+            cardHeaderIcon.setOnClickListener {
+                NavigationUtil.navigateToMissionSettings(navController, mission.id)
+            }
         } else {
             cardHeaderIcon.visibility = View.GONE
         }

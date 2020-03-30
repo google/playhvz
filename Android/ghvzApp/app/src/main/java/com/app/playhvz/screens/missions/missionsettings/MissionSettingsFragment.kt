@@ -17,9 +17,7 @@
 package com.app.playhvz.screens.missions.missionsettings
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +28,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.DateTimePickerDialog
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.BLANK_ALLEGIANCE_FILTER
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
@@ -38,13 +37,13 @@ import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.operations.MissionDatabaseOperations
+import com.app.playhvz.firebase.utils.DataConverterUtil
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
 import com.app.playhvz.utils.TimeUtils
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
-import java.text.SimpleDateFormat
-import java.util.*
 
 /** Fragment for showing a list of missions.*/
 class MissionSettingsFragment : Fragment() {
@@ -73,6 +72,15 @@ class MissionSettingsFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         missionDraft = Mission()
+        if (missionId != null) {
+            MissionDatabaseOperations.getMissionDocument(
+                gameId!!,
+                missionId!!,
+                OnSuccessListener { document ->
+                    missionDraft = DataConverterUtil.convertSnapshotToMission(document)
+                    initializeData()
+                })
+        }
         setupObservers()
         setupToolbar()
     }
@@ -93,7 +101,7 @@ class MissionSettingsFragment : Fragment() {
         submitButton.setOnClickListener {
             submitMission()
         }
-        nameText.doOnTextChanged { text, start, count, after ->
+        nameText.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() || text.isBlank() -> {
                     submitButton.isEnabled = false
@@ -116,14 +124,25 @@ class MissionSettingsFragment : Fragment() {
 
     fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
+        setHasOptionsMenu(true)
         if (toolbar != null) {
             if (missionId == null) {
                 toolbar.title = context!!.getString(R.string.mission_settings_create_mission_title)
                 return
             }
             toolbar.title = context!!.getString(R.string.mission_settings_title)
-            toolbar.setDisplayHomeAsUpEnabled(false)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_mission_settings, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.save_mission) {
+            submitMission()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun setupObservers() {
@@ -135,6 +154,23 @@ class MissionSettingsFragment : Fragment() {
     private fun setupAllegianceButtons() {
         if (missionId != null) {
             allegianceRadioGroup.isEnabled = false
+        }
+    }
+
+    private fun initializeData() {
+        nameText.setText(missionDraft.name)
+        detailText.setText(missionDraft.details)
+        startTime.text = TimeUtils.getFormattedTime(missionDraft.startTime, /* singleLine= */ false)
+        endTime.text = TimeUtils.getFormattedTime(missionDraft.endTime, /* singleLine= */ false)
+        when (missionDraft.allegianceFilter) {
+            HUMAN -> allegianceRadioGroup.check(R.id.radio_human)
+            ZOMBIE -> allegianceRadioGroup.check(R.id.radio_zombie)
+            UNDECLARED -> allegianceRadioGroup.check(R.id.radio_undeclared)
+            else -> allegianceRadioGroup.check(R.id.radio_everyone)
+        }
+        submitButton.text = getString(R.string.mission_settings_delete)
+        submitButton.setOnClickListener {
+            showDeleteDialog()
         }
     }
 
@@ -154,24 +190,47 @@ class MissionSettingsFragment : Fragment() {
             BLANK_ALLEGIANCE_FILTER
         }
 
-        runBlocking {
-            EspressoIdlingResource.increment()
-            MissionDatabaseOperations.asyncCreateMission(
-                gameId!!,
-                name,
-                details,
-                missionDraft.startTime,
-                missionDraft.endTime,
-                allegianceFilter,
-                {
-                    SystemUtils.showToast(context, "Created mission.")
-                    NavigationUtil.navigateToMissionDashboard(findNavController())
-                },
-                {
-                    SystemUtils.showToast(context, "Couldn't create mission.")
-                }
-            )
-            EspressoIdlingResource.decrement()
+        if (missionId == null) {
+            runBlocking {
+                EspressoIdlingResource.increment()
+                MissionDatabaseOperations.asyncCreateMission(
+                    gameId!!,
+                    name,
+                    details,
+                    missionDraft.startTime,
+                    missionDraft.endTime,
+                    allegianceFilter,
+                    {
+                        SystemUtils.showToast(context, "Created mission.")
+                        NavigationUtil.navigateToMissionDashboard(findNavController())
+                    },
+                    {
+                        SystemUtils.showToast(context, "Couldn't create mission.")
+                    }
+                )
+                EspressoIdlingResource.decrement()
+            }
+        } else {
+            runBlocking {
+                EspressoIdlingResource.increment()
+                MissionDatabaseOperations.asyncUpdateMission(
+                    gameId!!,
+                    missionId!!,
+                    name,
+                    details,
+                    missionDraft.startTime,
+                    missionDraft.endTime,
+                    allegianceFilter,
+                    {
+                        SystemUtils.showToast(context, "Updated mission.")
+                        NavigationUtil.navigateToMissionDashboard(findNavController())
+                    },
+                    {
+                        SystemUtils.showToast(context, "Couldn't update mission.")
+                    }
+                )
+                EspressoIdlingResource.decrement()
+            }
         }
     }
 
@@ -194,5 +253,35 @@ class MissionSettingsFragment : Fragment() {
             }
         }
         activity?.supportFragmentManager?.let { dateTimeDialog.show(it, TAG) }
+    }
+
+    private fun showDeleteDialog() {
+        val deleteDialog = ConfirmationDialog(
+            getString(R.string.game_settings_delete_dialog_title, missionDraft.name),
+            R.string.game_settings_delete_dialog_description,
+            R.string.game_settings_delete_dialog_confirmation,
+            R.string.button_cancel
+        )
+        deleteDialog.setPositiveButtonCallback {
+            if (missionId != null) {
+                runBlocking {
+                    EspressoIdlingResource.increment()
+                    MissionDatabaseOperations.asyncDeleteMission(
+                        gameId!!,
+                        missionId!!,
+                        {
+                            SystemUtils.showToast(context, "Deleted mission")
+                            NavigationUtil.navigateToMissionDashboard(findNavController())
+                            EspressoIdlingResource.decrement()
+                        },
+                        {
+                            SystemUtils.showToast(context, "Failed to mission")
+                            EspressoIdlingResource.decrement()
+                        }
+                    )
+                }
+            }
+        }
+        activity?.supportFragmentManager?.let { deleteDialog.show(it, TAG) }
     }
 }
