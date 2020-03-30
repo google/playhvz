@@ -307,6 +307,10 @@
     Mission settings
   </string>
 
+  <string name="mission_time_separator" definition="Separator between mission start and end times.">
+    to
+  </string>
+
   <string name="mission_settings_create_mission_title" definition="Action bar title for creating a mission screen.">
     Create mission
   </string>

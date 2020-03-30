@@ -16,6 +16,7 @@
 
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/mission_card"
   style="@style/Widget.MaterialComponents.CardView"
   android:layout_width="match_parent"
@@ -28,7 +29,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
+    <androidx.emoji.widget.EmojiTextView
       android:id="@+id/title"
       style="@style/TextAppearance.MaterialComponents.Headline6"
       android:layout_width="match_parent"
@@ -37,6 +38,52 @@
       android:minHeight="48dp"
       android:padding="8dp"
       android:textColor="@color/white" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/card_content"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="8dp">
+
+      <TextView
+        android:id="@+id/mission_start_time"
+        style="@style/CardMissionTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Jun 06\n3:00 PM" />
+
+      <TextView
+        android:id="@+id/time_separator"
+        style="@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/mission_time_separator"
+        app:layout_constraintStart_toEndOf="@id/mission_start_time"
+        app:layout_constraintTop_toTopOf="@id/mission_start_time" />
+
+      <TextView
+        android:id="@+id/mission_end_time"
+        style="@style/CardMissionTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/time_separator"
+        app:layout_constraintTop_toTopOf="@id/mission_start_time"
+        tools:text="Jun 06\n4:00 PM" />
+
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/mission_details"
+        style="@style/TextAppearance.AppCompat.Body2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mission_start_time" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
   </LinearLayout>
 

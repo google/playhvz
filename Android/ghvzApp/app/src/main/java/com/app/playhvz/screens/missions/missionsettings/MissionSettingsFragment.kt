@@ -40,6 +40,7 @@ import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.operations.MissionDatabaseOperations
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
+import com.app.playhvz.utils.TimeUtils
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
@@ -176,8 +177,7 @@ class MissionSettingsFragment : Fragment() {
 
     private fun openTimePicker(clickedView: TextView) {
         val dateTimeDialog = DateTimePickerDialog { timestamp ->
-            val dateTimeFormatter = SimpleDateFormat("MMM dd, YYYY\nhh:mm  a", Locale.getDefault())
-            clickedView.text = dateTimeFormatter.format(timestamp)
+            clickedView.text = TimeUtils.getFormattedTime(timestamp, /* singleLine= */ false)
             if (clickedView.tag == getString(R.string.mission_settings_start_time_tag)) {
                 missionDraft.startTime = timestamp
             } else {

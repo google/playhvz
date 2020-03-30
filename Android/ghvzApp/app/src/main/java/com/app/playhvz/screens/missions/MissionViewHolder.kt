@@ -18,17 +18,25 @@ package com.app.playhvz.screens.missions
 
 import android.view.View
 import android.widget.TextView
+import androidx.emoji.widget.EmojiTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Mission
+import com.app.playhvz.utils.TimeUtils
 import com.google.android.material.card.MaterialCardView
 
 class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     private var missionCard: MaterialCardView = view.findViewById(R.id.mission_card)
-    private var cardTitle: TextView = missionCard.findViewById(R.id.title)
+    private var cardTitle: EmojiTextView = missionCard.findViewById(R.id.title)
+    private var startTimeView: TextView = missionCard.findViewById(R.id.mission_start_time)
+    private var endTimeView: TextView = missionCard.findViewById(R.id.mission_end_time)
+    private var detailsView: EmojiTextView = missionCard.findViewById(R.id.mission_details)
 
     fun onBind(mission: Mission) {
         cardTitle.text = mission.name
+        startTimeView.text = TimeUtils.getFormattedTime(mission.startTime, true)
+        endTimeView.text = TimeUtils.getFormattedTime(mission.endTime, true)
+        detailsView.text = mission.details
     }
 }
