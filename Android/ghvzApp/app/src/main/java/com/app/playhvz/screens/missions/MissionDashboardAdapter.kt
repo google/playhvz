@@ -29,6 +29,8 @@ class MissionDashboardAdapter(
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    var isAdmin: Boolean = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MissionViewHolder(
             LayoutInflater.from(context).inflate(
@@ -40,7 +42,7 @@ class MissionDashboardAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as MissionViewHolder).onBind(items[position])
+        (holder as MissionViewHolder).onBind(items[position], isAdmin)
     }
 
     override fun getItemCount(): Int {
@@ -55,5 +57,9 @@ class MissionDashboardAdapter(
             }
         }
         items = cleansedList
+    }
+
+    fun setIsAdmin(isAdmin: Boolean) {
+        this.isAdmin = isAdmin
     }
 }

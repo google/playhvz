@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.utils.TimeUtils
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -35,6 +36,7 @@ class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     private var endTimeView: TextView = missionCard.findViewById(R.id.mission_end_time)
     private var detailsView: EmojiTextView = missionCard.findViewById(R.id.mission_details)
     private var cardHeader: LinearLayout = missionCard.findViewById(R.id.card_header)
+    private var cardHeaderIcon: MaterialButton = missionCard.findViewById(R.id.card_header_icon)
     private var cardContent: ConstraintLayout = missionCard.findViewById(R.id.card_content)
 
     init {
@@ -47,9 +49,17 @@ class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
                 cardContent.visibility = View.VISIBLE
             }
         }
+
+
     }
 
-    fun onBind(mission: Mission) {
+    fun onBind(mission: Mission, isAdmin: Boolean) {
+        if (isAdmin) {
+            cardHeaderIcon.visibility = View.VISIBLE
+        } else {
+            cardHeaderIcon.visibility = View.GONE
+        }
+
         cardTitle.text = mission.name
         startTimeView.text = TimeUtils.getFormattedTime(mission.startTime, true)
         endTimeView.text = TimeUtils.getFormattedTime(mission.endTime, true)

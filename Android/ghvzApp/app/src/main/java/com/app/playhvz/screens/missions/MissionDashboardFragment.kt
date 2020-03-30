@@ -123,6 +123,8 @@ class MissionDashboardFragment : Fragment() {
     private fun updateGame(serverGame: Game?) {
         game = serverGame
         setupFab(GameUtils.isAdmin(game!!))
+        adapter.setIsAdmin(GameUtils.isAdmin(game!!))
+        adapter.notifyDataSetChanged()
     }
 
     private fun updatePlayer(serverPlayer: Player?) {

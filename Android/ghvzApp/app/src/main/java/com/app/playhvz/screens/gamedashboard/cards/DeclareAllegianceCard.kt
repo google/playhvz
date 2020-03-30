@@ -47,7 +47,7 @@ class DeclareAllegianceCard(
         declareAllegianceCard = view.findViewById(R.id.declare_allegiance_card)
         val content = declareAllegianceCard.findViewById<TextView>(R.id.content)
         declareButton = declareAllegianceCard.findViewById(R.id.declare_button)
-        debugIcon = declareAllegianceCard.findViewById(R.id.card_button)
+        debugIcon = declareAllegianceCard.findViewById(R.id.card_header_icon)
         debugIcon.setOnClickListener {
             if (content.visibility == View.VISIBLE) {
                 // Collapse the card content

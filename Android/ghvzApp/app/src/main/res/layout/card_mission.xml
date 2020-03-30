@@ -49,14 +49,15 @@
         android:textColor="@color/white" />
 
       <com.google.android.material.button.MaterialButton
-        android:id="@+id/card_button"
+        android:id="@+id/card_header_icon"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:visibility="gone"
         app:icon="@drawable/ic_edit"
         app:iconGravity="end"
-        app:iconTint="@color/white" />
+        app:iconTint="@color/white"
+        tools:visibility="visible" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

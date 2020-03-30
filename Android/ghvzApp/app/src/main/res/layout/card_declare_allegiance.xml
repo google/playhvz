@@ -45,7 +45,7 @@
         android:textColor="@color/white" />
 
       <com.google.android.material.button.MaterialButton
-        android:id="@+id/card_button"
+        android:id="@+id/card_header_icon"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
