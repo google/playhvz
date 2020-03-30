@@ -17,18 +17,57 @@
 package com.app.playhvz.screens.missions
 
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.emoji.widget.EmojiTextView
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Mission
+import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.utils.TimeUtils
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
-class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class MissionViewHolder(view: View, private val navController: NavController) : RecyclerView.ViewHolder(view) {
 
     private var missionCard: MaterialCardView = view.findViewById(R.id.mission_card)
-    private var cardTitle: TextView = missionCard.findViewById(R.id.title)
+    private var cardTitle: EmojiTextView = missionCard.findViewById(R.id.title)
+    private var startTimeView: TextView = missionCard.findViewById(R.id.mission_start_time)
+    private var endTimeView: TextView = missionCard.findViewById(R.id.mission_end_time)
+    private var detailsView: EmojiTextView = missionCard.findViewById(R.id.mission_details)
+    private var cardHeader: LinearLayout = missionCard.findViewById(R.id.card_header)
+    private var cardHeaderIcon: MaterialButton = missionCard.findViewById(R.id.card_header_icon)
+    private var cardContent: ConstraintLayout = missionCard.findViewById(R.id.card_content)
 
-    fun onBind(mission: Mission) {
+    init {
+        cardHeader.setOnClickListener {
+            if (cardContent.visibility == View.VISIBLE) {
+                // Collapse the card content
+                cardContent.visibility = View.GONE
+            } else {
+                // Display the card content
+                cardContent.visibility = View.VISIBLE
+            }
+        }
+
+
+    }
+
+    fun onBind(mission: Mission, isAdmin: Boolean) {
+        if (isAdmin) {
+            cardHeaderIcon.visibility = View.VISIBLE
+            cardHeaderIcon.setOnClickListener {
+                NavigationUtil.navigateToMissionSettings(navController, mission.id)
+            }
+        } else {
+            cardHeaderIcon.visibility = View.GONE
+        }
+
         cardTitle.text = mission.name
+        startTimeView.text = TimeUtils.getFormattedTime(mission.startTime, true)
+        endTimeView.text = TimeUtils.getFormattedTime(mission.endTime, true)
+        detailsView.text = mission.details
     }
 }

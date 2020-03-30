@@ -53,7 +53,6 @@ export function createPlayerOwnedGroup(ownerId: string, name: string, settings: 
 }
 
 export function getGlobalGroupSettings() {
-  console.log(" default allegiance filter " + Defaults.allegianceFilter)
   return {
     [FIELD__SETTINGS_ADD_SELF]: false,
     [FIELD__SETTINGS_ADD_OTHERS]: false,

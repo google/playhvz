@@ -76,7 +76,7 @@ class MissionPath {
         val MISSION_BY_GROUP_QUERY = { gameId: String, groupIdList: List<String> ->
             GamePath.GAMES_COLLECTION.document(gameId).collection(MISSION_COLLECTION_PATH)
                 .whereIn(MISSION_FIELD__GROUP_ID, groupIdList)
-                .orderBy(MISSION_FIELD__END_TIME, Query.Direction.ASCENDING)
+                .orderBy(MISSION_FIELD__END_TIME, Query.Direction.DESCENDING)
         }
 
         /*******************************************************************************************

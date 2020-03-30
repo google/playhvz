@@ -16,6 +16,8 @@
 
 package com.app.playhvz.firebase.classmodels
 
+import com.app.playhvz.common.globals.CrossClientConstants
+
 /** Android data model representing Firebase Mission documents. */
 class Mission {
     companion object {
@@ -27,6 +29,7 @@ class Mission {
     // Name of the mission
     var name: String? = null
     var details: String? = null
+    var allegianceFilter: String = CrossClientConstants.BLANK_ALLEGIANCE_FILTER
 
     var startTime: Long = EMPTY_TIMESTAMP
     var endTime: Long = EMPTY_TIMESTAMP

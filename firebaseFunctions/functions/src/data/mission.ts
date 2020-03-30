@@ -20,19 +20,22 @@ export const FIELD__NAME = "name";
 export const FIELD__START_TIME = "startTime";
 export const FIELD__END_TIME = "endTime";
 export const FIELD__DETAILS = "details";
+export const FIELD__ALLEGIANCE_FILTER = "allegianceFilter";
 
 export function create(
   groupId: string,
   name: string,
   startTime: number,
   endTime: number,
-  details: string)
+  details: string,
+  allegianceFilter: string)
 : { [key: string]: any; } {
   return {
     [FIELD__GROUP_ID]: groupId,
     [FIELD__NAME]: name,
     [FIELD__START_TIME]: startTime,
     [FIELD__END_TIME]: endTime,
-    [FIELD__DETAILS]: details
+    [FIELD__DETAILS]: details,
+    [FIELD__ALLEGIANCE_FILTER]: allegianceFilter
   };
 }

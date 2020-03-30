@@ -16,14 +16,13 @@
 
 package com.app.playhvz.firebase.operations
 
-import android.util.Log
-import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.MissionPath
 import com.app.playhvz.firebase.constants.MissionPath.Companion.MISSION_BY_GROUP_QUERY
-import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
-import com.google.firebase.firestore.CollectionReference
+import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,6 +37,19 @@ class MissionDatabaseOperations {
             missionId: String
         ): DocumentReference {
             return MissionPath.MISSION_DOCUMENT_REFERENCE(gameId, missionId)
+        }
+
+        fun getMissionDocument(
+            gameId: String,
+            missionId: String,
+            onSuccessListener: OnSuccessListener<DocumentSnapshot>
+        ) {
+            FirebaseDatabaseUtil.optimizedGet(
+                MissionPath.MISSION_DOCUMENT_REFERENCE(
+                    gameId,
+                    missionId
+                ), onSuccessListener
+            )
         }
 
         /** Create Mission. */
@@ -72,6 +84,40 @@ class MissionDatabaseOperations {
                 }
         }
 
+        /** Create Mission. */
+        suspend fun asyncUpdateMission(
+            gameId: String,
+            missionId: String,
+            missionName: String,
+            missionDetails: String,
+            startTime: Long,
+            endTime: Long,
+            allegianceFilter: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "missionId" to missionId,
+                "name" to missionName,
+                "details" to missionDetails,
+                "startTime" to startTime,
+                "endTime" to endTime,
+                "allegianceFilter" to allegianceFilter
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("updateMission")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
+        }
+
         /** Returns a query for all the missions in a given game. */
         fun getGroupsAssociatedWithMissons(gameId: String): Query {
             return MissionPath.MISSION_COLLECTION(gameId)
@@ -80,6 +126,29 @@ class MissionDatabaseOperations {
         /** Returns a query for missions associated with the given group ids. */
         fun getMissionsAssociatedWithGroups(gameId: String, groupIds: List<String>): Query {
             return MISSION_BY_GROUP_QUERY(gameId, groupIds)
+        }
+
+        /** Permanently deletes mission. */
+        suspend fun asyncDeleteMission(
+            gameId: String,
+            missionId: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "missionId" to missionId
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("deleteMission")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
         }
     }
 }

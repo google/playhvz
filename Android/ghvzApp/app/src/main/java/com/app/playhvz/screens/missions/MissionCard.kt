@@ -17,19 +17,16 @@
 package com.app.playhvz.screens.missions
 
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.emoji.widget.EmojiTextView
 import com.app.playhvz.R
-import com.app.playhvz.app.EspressoIdlingResource
-import com.app.playhvz.app.debug.DebugFlags
-import com.app.playhvz.common.globals.CrossClientConstants
+import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.classmodels.Player
-import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
-import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
-import com.google.android.material.button.MaterialButton
+import com.app.playhvz.utils.TimeUtils
 import com.google.android.material.card.MaterialCardView
-import kotlinx.coroutines.runBlocking
 
 class MissionCard(
     val fragment: GameDashboardFragment,
@@ -37,78 +34,40 @@ class MissionCard(
     val playerId: String
 ) {
 
-    lateinit var declareAllegianceCard: MaterialCardView
-    lateinit var declareButton: MaterialButton
-    lateinit var debugIcon: MaterialButton
+    lateinit var missionCard: MaterialCardView
+    lateinit var cardTitle: EmojiTextView
+    lateinit var startTimeView: TextView
+    lateinit var endTimeView: TextView
+    lateinit var detailsView: EmojiTextView
+    lateinit var cardHeader: LinearLayout
+    lateinit var cardContent: ConstraintLayout
 
     private var player: Player? = null
 
     fun onCreateView(view: View) {
-        declareAllegianceCard = view.findViewById(R.id.declare_allegiance_card)
-        val content = declareAllegianceCard.findViewById<TextView>(R.id.content)
-        declareButton = declareAllegianceCard.findViewById(R.id.declare_button)
-        debugIcon = declareAllegianceCard.findViewById(R.id.card_button)
-        debugIcon.setOnClickListener {
-            if (content.visibility == View.VISIBLE) {
+        missionCard = view.findViewById(R.id.mission_card)
+        cardTitle = missionCard.findViewById(R.id.title)
+        startTimeView = missionCard.findViewById(R.id.mission_start_time)
+        endTimeView = missionCard.findViewById(R.id.mission_end_time)
+        detailsView = missionCard.findViewById(R.id.mission_details)
+        cardHeader = missionCard.findViewById(R.id.card_header)
+        cardContent = missionCard.findViewById(R.id.card_content)
+
+        cardHeader.setOnClickListener {
+            if (cardContent.visibility == View.VISIBLE) {
                 // Collapse the card content
-                content.visibility = View.GONE
-                declareButton.visibility = View.GONE
+                cardContent.visibility = View.GONE
             } else {
                 // Display the card content
-                content.visibility = View.VISIBLE
-                declareButton.visibility = View.VISIBLE
+                cardContent.visibility = View.VISIBLE
             }
         }
     }
 
-    fun onPlayerUpdated(updatedPlayer: Player) {
-        if (player != null) {
-            val previousAllegiance = player?.allegiance
-            if (previousAllegiance.equals(updatedPlayer.allegiance)) {
-                // Allegiance wasn't updated so we don't care what changed.
-                return
-            }
-        }
-        player = updatedPlayer
-        updateAllegiance()
-    }
-
-
-    private fun updateAllegiance() {
-        if (player?.allegiance.isNullOrEmpty()) {
-            // We don't have accurate player data, don't change the current state.
-            return
-        }
-        if (player?.allegiance != CrossClientConstants.UNDECLARED) {
-            // Allegiance is declared already.
-            if (!DebugFlags.isDevEnvironment) {
-                declareAllegianceCard.visibility = View.GONE
-            } else {
-                debugIcon.visibility = View.VISIBLE
-                declareButton.setText(R.string.declare_allegiance_card_button_undeclare)
-                declareButton.setOnClickListener {
-                    runBlocking {
-                        EspressoIdlingResource.increment()
-                        PlayerDatabaseOperations.setPlayerAllegiance(
-                            gameId,
-                            playerId,
-                            CrossClientConstants.UNDECLARED,
-                            {},
-                            {})
-                        EspressoIdlingResource.decrement()
-                    }
-                }
-            }
-        } else {
-            // Allegiance isn't declared.
-            if (DebugFlags.isDevEnvironment) {
-                debugIcon.visibility = View.GONE
-            }
-            declareButton.setText(R.string.declare_allegiance_card_button)
-            declareButton.setOnClickListener {
-                NavigationUtil.navigateToDeclareAllegiance(findNavController(fragment))
-            }
-            declareAllegianceCard.visibility = View.VISIBLE
-        }
+    fun onBind(mission: Mission) {
+        cardTitle.text = mission.name
+        startTimeView.text = TimeUtils.getFormattedTime(mission.startTime, true)
+        endTimeView.text = TimeUtils.getFormattedTime(mission.endTime, true)
+        detailsView.text = mission.details
     }
 }

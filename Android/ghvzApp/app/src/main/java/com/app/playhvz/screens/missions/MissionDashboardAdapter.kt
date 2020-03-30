@@ -19,15 +19,19 @@ package com.app.playhvz.screens.missions
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Mission
 
 class MissionDashboardAdapter(
     private var items: List<Mission>,
-    val context: Context
+    val context: Context,
+    private val navController: NavController
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    var isAdmin: Boolean = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MissionViewHolder(
@@ -35,12 +39,13 @@ class MissionDashboardAdapter(
                 R.layout.card_mission,
                 parent,
                 false
-            )
+            ),
+            navController
         )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as MissionViewHolder).onBind(items[position])
+        (holder as MissionViewHolder).onBind(items[position], isAdmin)
     }
 
     override fun getItemCount(): Int {
@@ -55,5 +60,9 @@ class MissionDashboardAdapter(
             }
         }
         items = cleansedList
+    }
+
+    fun setIsAdmin(isAdmin: Boolean) {
+        this.isAdmin = isAdmin
     }
 }

@@ -216,7 +216,7 @@
   </string>
 
   <string name="game_settings_delete_dialog_confirmation" definition="Confirmation button for delete game dialog.">
-    Delete
+    Delete forever
   </string>
 
   <string name="game_settings_delete_dialog_cancel" definition="Cancel button for delete game dialog.">
@@ -307,6 +307,10 @@
     Mission settings
   </string>
 
+  <string name="mission_time_separator" definition="Separator between mission start and end times.">
+    to
+  </string>
+
   <string name="mission_settings_create_mission_title" definition="Action bar title for creating a mission screen.">
     Create mission
   </string>
@@ -317,6 +321,10 @@
 
   <string name="mission_settings_time" definition="Label for mission duration.">
     Time
+  </string>
+
+  <string name="mission_settings_delete" definition="Menu option to delete the mission.">
+    Permanently delete mission
   </string>
 
   <string name="mission_settings_time_hint_text" definition="Hint text for setting mission start/end time.">
