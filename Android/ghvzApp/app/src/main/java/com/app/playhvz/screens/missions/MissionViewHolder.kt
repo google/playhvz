@@ -20,12 +20,15 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.firebase.classmodels.Mission
+import com.google.android.material.card.MaterialCardView
 
 class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-   // val gameHeaderTextView = view.findViewById<TextView>(R.id.game_list_header_text)
+    private var missionCard: MaterialCardView = view.findViewById(R.id.mission_card)
+    private var cardTitle: TextView = missionCard.findViewById(R.id.title)
 
-    fun onBind() {
-        //gameHeaderTextView.text = category
+    fun onBind(mission: Mission) {
+        cardTitle.text = mission.name
     }
 }

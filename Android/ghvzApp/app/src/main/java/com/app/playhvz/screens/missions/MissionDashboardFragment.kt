@@ -28,8 +28,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.GameUtils
 import com.app.playhvz.utils.PlayerUtils
@@ -42,8 +44,10 @@ class MissionDashboardFragment : Fragment() {
     }
 
     lateinit var gameViewModel: GameViewModel
+    lateinit var missionViewModel: MissionListViewModel
     lateinit var fab: FloatingActionButton
     lateinit var recyclerView: RecyclerView
+    lateinit var adapter: MissionDashboardAdapter
 
     var gameId: String? = null
     var playerId: String? = null
@@ -57,6 +61,7 @@ class MissionDashboardFragment : Fragment() {
             0
         )!!
         gameViewModel = GameViewModel()
+        missionViewModel = MissionListViewModel()
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
         setupObservers()
@@ -71,7 +76,7 @@ class MissionDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_mission_dashboard, container, false)
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.mission_list)
-        val adapter = MissionDashboardAdapter(listOf<String>(), context!!)
+        adapter = MissionDashboardAdapter(listOf(), context!!)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         return view
@@ -109,6 +114,10 @@ class MissionDashboardFragment : Fragment() {
             .observe(this, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
             })
+        missionViewModel.getMissionListOfMissionsPlayerIsIn(this, gameId!!, playerId!!)
+            .observe(this, androidx.lifecycle.Observer { serverMissionList ->
+                updateMissionList(serverMissionList)
+            })
     }
 
     private fun updateGame(serverGame: Game?) {
@@ -120,6 +129,11 @@ class MissionDashboardFragment : Fragment() {
         if (serverPlayer == null) {
             NavigationUtil.navigateToGameList(findNavController(), activity!!)
         }
+    }
+
+    private fun updateMissionList(updatedMissionList: Map<String, Mission?>) {
+        adapter.setData(updatedMissionList)
+        adapter.notifyDataSetChanged()
     }
 
     private fun createMission() {

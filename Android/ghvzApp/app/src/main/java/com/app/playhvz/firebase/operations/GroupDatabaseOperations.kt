@@ -17,10 +17,8 @@
 package com.app.playhvz.firebase.operations
 
 import com.app.playhvz.firebase.constants.GroupPath
-import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.DocumentReference
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.google.firebase.firestore.Query
 
 class GroupDatabaseOperations {
     companion object {
@@ -32,6 +30,19 @@ class GroupDatabaseOperations {
             groupId: String
         ): DocumentReference {
             return GroupPath.GROUP_DOCUMENT_REFERENCE(gameId, groupId)
+        }
+
+        /** Returns a query for groups that contain the player id. */
+        fun getMissionGroupsPlayerIsIn(
+            gameId: String,
+            playerId: String,
+            listOfGroupIdsAssociatedWithMissions: List<String>
+        ): Query {
+            return GroupPath.GROUP_MISSION_MEMBERSHIP_QUERY(
+                gameId,
+                playerId,
+                listOfGroupIdsAssociatedWithMissions
+            )
         }
     }
 }

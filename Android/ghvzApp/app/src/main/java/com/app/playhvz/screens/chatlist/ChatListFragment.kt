@@ -99,7 +99,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
             return
         }
         chatListViewModel.getChatRoomList(this, gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverChatRoomList ->
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverChatRoomList ->
                 onChatRoomUpdated(serverChatRoomList)
             })
     }

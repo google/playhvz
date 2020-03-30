@@ -17,6 +17,7 @@
 package com.app.playhvz.firebase.constants
 
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
+import com.google.firebase.firestore.FieldPath
 
 class GroupPath {
     companion object {
@@ -61,10 +62,16 @@ class GroupPath {
         val GROUP_QUERY =
             FirebaseProvider.getFirebaseFirestore().collectionGroup(GROUP_COLLECTION_PATH)
 
+        val GROUP_MISSION_MEMBERSHIP_QUERY =
+            { gameId: String, playerId: String, groupIdsAssociatedWithMissions: List<String> ->
+                GamePath.GAMES_COLLECTION.document(gameId).collection(GROUP_COLLECTION_PATH)
+                    .whereIn(FieldPath.documentId(), groupIdsAssociatedWithMissions)
+                    .whereArrayContains(GROUP_FIELD__MEMBERS, playerId)
+            }
+
         val GROUP_DOCUMENT_REFERENCE = { gameId: String, groupId: String ->
             GROUP_COLLECTION(gameId).document(groupId)
         }
-
 
         /*******************************************************************************************
          * End path definitions to documents

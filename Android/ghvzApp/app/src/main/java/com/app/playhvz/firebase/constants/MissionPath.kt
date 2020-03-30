@@ -16,7 +16,7 @@
 
 package com.app.playhvz.firebase.constants
 
-import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
+import com.google.firebase.firestore.Query
 
 class MissionPath {
     companion object {
@@ -31,27 +31,27 @@ class MissionPath {
         /**
          * Field inside Mission document that contains the mission details.
          */
-        const val CHAT_FIELD__DETAILS = "details"
+        const val MISSION_FIELD__DETAILS = "details"
 
         /**
          * Field inside Mission document that contains the mission ending time.
          */
-        const val CHAT_FIELD__END_TIME = "endTime"
+        const val MISSION_FIELD__END_TIME = "endTime"
 
         /**
          * Field inside Mission document that contains the group id associated with the mission.
          */
-        const val CHAT_FIELD__GROUP_ID = "associatedGroupId"
+        const val MISSION_FIELD__GROUP_ID = "associatedGroupId"
 
         /**
          * Field inside Mission document that contains the mission name.
          */
-        const val CHAT_FIELD__NAME = "name"
+        const val MISSION_FIELD__NAME = "name"
 
         /**
          * Field inside Mission document that contains the mission starting time.
          */
-        const val CHAT_FIELD__START_TIME = "startTime"
+        const val MISSION_FIELD__START_TIME = "startTime"
 
         /*******************************************************************************************
          * End string definitions for field names in Firebase documents.
@@ -71,6 +71,12 @@ class MissionPath {
 
         val MISSION_DOCUMENT_REFERENCE = { gameId: String, missionId: String ->
             MISSION_COLLECTION(gameId).document(missionId)
+        }
+
+        val MISSION_BY_GROUP_QUERY = { gameId: String, groupIdList: List<String> ->
+            GamePath.GAMES_COLLECTION.document(gameId).collection(MISSION_COLLECTION_PATH)
+                .whereIn(MISSION_FIELD__GROUP_ID, groupIdList)
+                .orderBy(MISSION_FIELD__END_TIME, Query.Direction.ASCENDING)
         }
 
         /*******************************************************************************************
