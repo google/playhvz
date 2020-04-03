@@ -114,10 +114,7 @@ class MissionDashboardFragment : Fragment() {
             .observe(this, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
             })
-        missionViewModel.getMissionListOfMissionsPlayerIsIn(this, gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverMissionList ->
-                updateMissionList(serverMissionList)
-            })
+
     }
 
     private fun updateGame(serverGame: Game?) {
@@ -125,6 +122,18 @@ class MissionDashboardFragment : Fragment() {
         setupFab(GameUtils.isAdmin(game!!))
         adapter.setIsAdmin(GameUtils.isAdmin(game!!))
         adapter.notifyDataSetChanged()
+
+        if (GameUtils.isAdmin(game!!)) {
+            missionViewModel.getAllMissionsInGame(this, gameId!!)
+                .observe(this, androidx.lifecycle.Observer { serverMissionList ->
+                    updateMissionList(serverMissionList)
+                })
+        } else {
+            missionViewModel.getMissionListOfMissionsPlayerIsIn(this, gameId!!, playerId!!)
+                .observe(this, androidx.lifecycle.Observer { serverMissionList ->
+                    updateMissionList(serverMissionList)
+                })
+        }
     }
 
     private fun updatePlayer(serverPlayer: Player?) {

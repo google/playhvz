@@ -376,16 +376,21 @@ async function createGroupAndMission(
     allegianceFilter
   )
   await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Mission.COLLECTION_PATH).add(mission)
-  await autoAddMembers(gameId, createdGroup.id)
+  await updateGroupMembership(gameId, createdGroup.id)
+}
+
+// Handles Auto-adding and Auto-removing members
+async function updateGroupMembership(gameId: string, groupId: string) {
+  const group = await db.collection(Game.COLLECTION_PATH)
+          .doc(gameId)
+          .collection(Group.COLLECTION_PATH)
+          .doc(groupId)
+          .get()
+  await autoAddMembers(gameId, group)
 }
 
 // Adds members if appropriate
-async function autoAddMembers(gameId: string, groupId: string) {
-  const group = await db.collection(Game.COLLECTION_PATH)
-        .doc(gameId)
-        .collection(Group.COLLECTION_PATH)
-        .doc(groupId)
-        .get()
+async function autoAddMembers(gameId: string, group: any) {
   const groupData = group.data()
   if (groupData === undefined) {
     return
@@ -420,7 +425,7 @@ async function autoAddMembers(gameId: string, groupId: string) {
   });
   if (playerIdArray.length > 0) {
     await group.ref.update({
-        [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(...playerIdArray)
+        [Group.FIELD__MEMBERS]: playerIdArray
       })
   }
 }
@@ -684,6 +689,7 @@ if (!context.auth) {
     [Group.FIELD__NAME]: missionName,
     [allegianceField]: allegianceFilter
   })
+  await updateGroupMembership(gameId, associatedGroupId)
 })
 
 exports.deleteMission = functions.https.onCall(async (data, context) => {

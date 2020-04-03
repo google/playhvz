@@ -36,9 +36,29 @@ class MissionListViewModel : ViewModel() {
     private var groupIdsPlayerIsInList: HvzData<List<String>> = HvzData(listOf())
     private var missionList: HvzData<Map<String, Mission?>> = HvzData(mapOf())
 
+    /** Listens to all mission updates and returns a LiveData object list in the missions. */
+    fun getAllMissionsInGame(
+        lifecycleOwner: LifecycleOwner,
+        gameId: String
+    ): LiveData<Map<String, Mission?>> {
+        if (associatedGroupIdList.hasObservers()) {
+            // We've already started observing
+            return missionList
+        }
+        associatedGroupIdList.observe(
+            lifecycleOwner,
+            androidx.lifecycle.Observer { updatedGroupsAssociatedWithMissions ->
+                observeMissionsPlayerIsIn(
+                    gameId,
+                    updatedGroupsAssociatedWithMissions
+                )
+            })
+        extractListOfGroupIdsAssociatedWithMissions(gameId)
+        return missionList
+    }
 
-    /** Listens to a player's chat room membership updates and returns a LiveData object listing
-     * the chat rooms the player is currently in. */
+    /** Listens to mission group membership and returns a LiveData object listing
+     * the missions the player is currently in. */
     fun getMissionListOfMissionsPlayerIsIn(
         lifecycleOwner: LifecycleOwner,
         gameId: String,
@@ -171,6 +191,7 @@ class MissionListViewModel : ViewModel() {
                     maybeListenToMission(gameId, missionSnapshot)
                 }
             }
+        missionList.docIdListeners[gameId] = missionListener
         return missionList
     }
 
@@ -187,7 +208,10 @@ class MissionListViewModel : ViewModel() {
                         Log.w(TAG, "Mission listen failed. ", e)
                         return@addSnapshotListener
                     }
-                    if (snapshot == null) {
+                    if (snapshot == null || !snapshot.exists()) {
+                        val updatedMissionList = missionList.value!!.toMutableMap()
+                        updatedMissionList.remove(mission.id!!)
+                        missionList.value = updatedMissionList
                         return@addSnapshotListener
                     }
                     val updatedMission = DataConverterUtil.convertSnapshotToMission(snapshot)
