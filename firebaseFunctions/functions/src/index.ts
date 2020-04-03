@@ -376,7 +376,53 @@ async function createGroupAndMission(
     allegianceFilter
   )
   await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Mission.COLLECTION_PATH).add(mission)
-  // TODO: automatically add all correct players to group
+  await autoAddMembers(gameId, createdGroup.id)
+}
+
+// Adds members if appropriate
+async function autoAddMembers(gameId: string, groupId: string) {
+  const group = await db.collection(Game.COLLECTION_PATH)
+        .doc(gameId)
+        .collection(Group.COLLECTION_PATH)
+        .doc(groupId)
+        .get()
+  const groupData = group.data()
+  if (groupData === undefined) {
+    return
+  }
+  if (groupData[Group.FIELD__MANAGED] !== true
+      && groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_ADD] !== true) {
+    return
+  }
+
+  let playerQuerySnapshot = null
+  if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER] === Defaults.EMPTY_ALLEGIANCE_FILTER) {
+    // Add all players to the group
+    playerQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Player.COLLECTION_PATH)
+      .get()
+  } else {
+    // Add all players of the correct allegiance to the group
+    playerQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Player.COLLECTION_PATH)
+      .where(Player.FIELD__ALLEGIANCE, "==", groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER])
+      .get()
+  }
+
+  if (playerQuerySnapshot === null) {
+    return
+  }
+  const playerIdArray = new Array();
+  playerQuerySnapshot.forEach(playerDoc => {
+    playerIdArray.push(playerDoc.id)
+  });
+  if (playerIdArray.length > 0) {
+    await group.ref.update({
+        [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(...playerIdArray)
+      })
+  }
 }
 
 
