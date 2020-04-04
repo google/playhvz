@@ -59,6 +59,8 @@ class MissionDashboardAdapter(
                 cleansedList.add(value)
             }
         }
+        cleansedList.sortBy { mission -> mission.endTime }
+        cleansedList.reverse()
         items = cleansedList
     }
 
