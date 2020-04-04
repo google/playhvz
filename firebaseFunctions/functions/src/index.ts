@@ -22,6 +22,7 @@ import * as ChatUtils from './utils/chatutils';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
 import * as Group from './data/group';
+import * as GroupUtils from './utils/grouputils';
 import * as Player from './data/player';
 import * as PlayerUtils from './utils/playerutils';
 import * as Message from './data/message';
@@ -84,7 +85,7 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   }
 
   const gameId = (await db.collection(Game.COLLECTION_PATH).add(gameData)).id;
-  await createGlobalGroup(context.auth.uid, gameId);
+  await GroupUtils.createGlobalGroup(db, context.auth.uid, gameId);
   return gameId;
 });
 
@@ -154,7 +155,7 @@ exports.joinGame = functions.https.onCall(async (data, context) => {
     .collection(Player.COLLECTION_PATH)
     .add(player));
 
-  await addNewPlayerToGroups(gameId, playerDocument)
+  await GroupUtils.addNewPlayerToGroups(db, gameId, playerDocument)
   return gameId
 });
 
@@ -269,46 +270,6 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
 * GROUP functions
 ********************************************************/
 
-// Creates a group
-async function createGlobalGroup(uid: any, gameId: string) {
-  const group = Group.createManagedGroup(
-    /* name= */ Defaults.globalChatName,
-    /* settings= */ Group.getGlobalGroupSettings(),
-  )
-  const createdGroup = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
-  const chat = Chat.create(createdGroup.id, Defaults.globalChatName)
-  await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
-}
-
-// Add player to global chatroom
-async function addNewPlayerToGroups(gameId: string, player: any) {
-  const groupQuery = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH)
-  .where(Group.FIELD__MANAGED, "==", true)
-  .where(Group.FIELD__NAME, "==", Defaults.globalChatName).get()
-
-  if (groupQuery.empty || groupQuery.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'Cannot find global chat.');
-  }
-  const group = groupQuery.docs[0];
-  const chatQuery = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH)
-    .where(Chat.FIELD__GROUP_ID, "==", group.id).get()
-  if (chatQuery.empty || chatQuery.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'Cannot find chatroom associated with group.');
-  }
-
-  await group.ref.update({
-      [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
-  });
-
-  const chatId = chatQuery.docs[0].id;
-  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
-  // We have to use dot-notation or firebase will overwrite the entire field.
-  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId
-  await player.update({
-    [membershipField]: chatVisibility
-  })
-}
-
 exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
       // Throwing an HttpsError so that the client gets the error details.
@@ -338,98 +299,6 @@ exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
     await ChatUtils.addPlayerToChat(db, gameId, playerId, group, chatRoomId, /* isNewGroup= */ false)
   }
 });
-
-// Creates a group
-async function createGroupAndChat(uid: any, gameId: string, playerId: string, chatName: string, settings: any) {
-  const group = Group.createPlayerOwnedGroup(
-    playerId,
-    chatName,
-    /* settings= */ settings,
-  )
-  const createdGroup = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
-  const chat = Chat.create(createdGroup.id, chatName)
-  const createdChat = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
-  await ChatUtils.addPlayerToChat(db, gameId, playerId, createdGroup, createdChat.id, /* isNewGroup= */ true)
-}
-
-// Creates a group and mission
-async function createGroupAndMission(
-  gameId: string,
-  settings: any,
-  missionName: string,
-  startTime: number,
-  endTime: number,
-  details: string,
-  allegianceFilter: string
-) {
-  const group = Group.createManagedGroup(missionName, settings)
-  const createdGroup = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Group.COLLECTION_PATH)
-    .add(group);
-  const mission = Mission.create(
-    createdGroup.id,
-    missionName,
-    startTime,
-    endTime,
-    details,
-    allegianceFilter
-  )
-  await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Mission.COLLECTION_PATH).add(mission)
-  await updateGroupMembership(gameId, createdGroup.id)
-}
-
-// Handles Auto-adding and Auto-removing members
-async function updateGroupMembership(gameId: string, groupId: string) {
-  const group = await db.collection(Game.COLLECTION_PATH)
-          .doc(gameId)
-          .collection(Group.COLLECTION_PATH)
-          .doc(groupId)
-          .get()
-  await autoAddMembers(gameId, group)
-}
-
-// Adds members if appropriate
-async function autoAddMembers(gameId: string, group: any) {
-  const groupData = group.data()
-  if (groupData === undefined) {
-    return
-  }
-  if (groupData[Group.FIELD__MANAGED] !== true
-      && groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_ADD] !== true) {
-    return
-  }
-
-  let playerQuerySnapshot = null
-  if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER] === Defaults.EMPTY_ALLEGIANCE_FILTER) {
-    // Add all players to the group
-    playerQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Player.COLLECTION_PATH)
-      .get()
-  } else {
-    // Add all players of the correct allegiance to the group
-    playerQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Player.COLLECTION_PATH)
-      .where(Player.FIELD__ALLEGIANCE, "==", groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER])
-      .get()
-  }
-
-  if (playerQuerySnapshot === null) {
-    return
-  }
-  const playerIdArray = new Array();
-  playerQuerySnapshot.forEach(playerDoc => {
-    playerIdArray.push(playerDoc.id)
-  });
-  if (playerIdArray.length > 0) {
-    await group.ref.update({
-        [Group.FIELD__MEMBERS]: playerIdArray
-      })
-  }
-}
-
 
 exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
@@ -569,7 +438,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
-    await createGroupAndChat(context.auth.uid, gameId, ownerId, chatName, settings);
+    await GroupUtils.createGroupAndChat(db, context.auth.uid, gameId, ownerId, chatName, settings);
 })
 
 /*******************************************************
@@ -614,7 +483,8 @@ if (!context.auth) {
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
-    await createGroupAndMission(
+    await GroupUtils.createGroupAndMission(
+      db,
       gameId,
       settings,
       missionName,
@@ -689,7 +559,7 @@ if (!context.auth) {
     [Group.FIELD__NAME]: missionName,
     [allegianceField]: allegianceFilter
   })
-  await updateGroupMembership(gameId, associatedGroupId)
+  await GroupUtils.updateMissionMembership(db, gameId, associatedGroupId)
 })
 
 exports.deleteMission = functions.https.onCall(async (data, context) => {
