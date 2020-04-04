@@ -91,16 +91,6 @@ class MissionListViewModel : ViewModel() {
         extractListOfGroupIdsAssociatedWithMissions(gameId)
     }
 
-    private fun stopListening(removedIds: Set<String>) {
-        for (removedId in removedIds) {
-            if (!missionList.docIdListeners.containsKey(removedId)) {
-                continue
-            }
-            missionList.docIdListeners[removedId]?.remove()
-            missionList.docIdListeners.remove(removedId)
-        }
-    }
-
     private fun extractListOfGroupIdsAssociatedWithMissions(gameId: String) {
         val missionCollectionListener =
             MissionDatabaseOperations.getGroupsAssociatedWithMissons(gameId)
@@ -178,19 +168,25 @@ class MissionListViewModel : ViewModel() {
         val missionListener = MissionDatabaseOperations.getMissionsAssociatedWithGroups(
             gameId,
             missionGroupsPlayerIsIn
-        )
-            .addSnapshotListener { querySnapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Getting mission list failed. ", e)
-                    return@addSnapshotListener
-                }
-                if (querySnapshot == null) {
-                    return@addSnapshotListener
-                }
-                for (missionSnapshot in querySnapshot.documents) {
-                    maybeListenToMission(gameId, missionSnapshot)
-                }
+        ).addSnapshotListener { querySnapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Getting mission list failed. ", e)
+                return@addSnapshotListener
             }
+            if (querySnapshot == null) {
+                return@addSnapshotListener
+            }
+            val updatedMissionIds = mutableSetOf<String>()
+            for (missionSnapshot in querySnapshot.documents) {
+                updatedMissionIds.add(missionSnapshot.id)
+                maybeListenToMission(gameId, missionSnapshot)
+            }
+
+            // Remove mission listeners for missions the user isn't a member of anymore.
+            val removedMissions =
+                missionList.docIdListeners.keys.toSet().minus(updatedMissionIds.toSet())
+            stopListening(removedMissions)
+        }
         missionList.docIdListeners[gameId] = missionListener
         return missionList
     }
@@ -219,5 +215,19 @@ class MissionListViewModel : ViewModel() {
                     updatedMissionList[mission.id!!] = updatedMission
                     missionList.value = updatedMissionList
                 }
+    }
+
+
+    private fun stopListening(removedIds: Set<String>) {
+        for (removedId in removedIds) {
+            if (!missionList.docIdListeners.containsKey(removedId)) {
+                continue
+            }
+            val updatableMissionList = missionList.value!!.toMutableMap()
+            updatableMissionList.remove(removedId)
+            missionList.value = updatableMissionList
+            missionList.docIdListeners[removedId]?.remove()
+            missionList.docIdListeners.remove(removedId)
+        }
     }
 }
