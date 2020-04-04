@@ -58,6 +58,7 @@ class MissionSettingsFragment : Fragment() {
     private lateinit var endTime: TextView
     private lateinit var missionDraft: Mission
     private lateinit var allegianceRadioGroup: RadioGroup
+    private lateinit var toolbarMenu: Menu
 
     val args: MissionSettingsFragmentArgs by navArgs()
     var gameId: String? = null
@@ -79,6 +80,7 @@ class MissionSettingsFragment : Fragment() {
                 OnSuccessListener { document ->
                     missionDraft = DataConverterUtil.convertSnapshotToMission(document)
                     initializeData()
+                    enableActions()
                 })
         }
         setupObservers()
@@ -104,10 +106,10 @@ class MissionSettingsFragment : Fragment() {
         nameText.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() || text.isBlank() -> {
-                    submitButton.isEnabled = false
+                    disableActions()
                 }
                 else -> {
-                    submitButton.isEnabled = true
+                    enableActions()
                 }
             }
         }
@@ -136,6 +138,8 @@ class MissionSettingsFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_mission_settings, menu)
+        toolbarMenu = menu
+        disableActions()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -175,6 +179,7 @@ class MissionSettingsFragment : Fragment() {
     }
 
     private fun submitMission() {
+        disableActions()
         val name: String = nameText.text.toString()
         val details: String = detailText.text.toString()
 
@@ -205,6 +210,7 @@ class MissionSettingsFragment : Fragment() {
                         NavigationUtil.navigateToMissionDashboard(findNavController())
                     },
                     {
+                        enableActions()
                         SystemUtils.showToast(context, "Couldn't create mission.")
                     }
                 )
@@ -226,6 +232,7 @@ class MissionSettingsFragment : Fragment() {
                         NavigationUtil.navigateToMissionDashboard(findNavController())
                     },
                     {
+                        enableActions()
                         SystemUtils.showToast(context, "Couldn't update mission.")
                     }
                 )
@@ -256,6 +263,7 @@ class MissionSettingsFragment : Fragment() {
     }
 
     private fun showDeleteDialog() {
+        disableActions()
         val deleteDialog = ConfirmationDialog(
             getString(R.string.game_settings_delete_dialog_title, missionDraft.name),
             R.string.game_settings_delete_dialog_description,
@@ -275,6 +283,7 @@ class MissionSettingsFragment : Fragment() {
                             EspressoIdlingResource.decrement()
                         },
                         {
+                            enableActions()
                             SystemUtils.showToast(context, "Failed to mission")
                             EspressoIdlingResource.decrement()
                         }
@@ -282,6 +291,23 @@ class MissionSettingsFragment : Fragment() {
                 }
             }
         }
+        deleteDialog.setNegativeButtonCallback {
+            enableActions()
+        }
         activity?.supportFragmentManager?.let { deleteDialog.show(it, TAG) }
+    }
+
+    private fun disableActions() {
+        val menuItem = toolbarMenu.findItem(R.id.save_mission)
+        menuItem.icon.mutate().alpha = 130
+        menuItem.isEnabled = false
+        submitButton.isEnabled = false
+    }
+
+    private fun enableActions() {
+        val menuItem = toolbarMenu.findItem(R.id.save_mission)
+        menuItem.icon.mutate().alpha = 255
+        menuItem.isEnabled = true
+        submitButton.isEnabled = true
     }
 }
