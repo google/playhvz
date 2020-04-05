@@ -18,6 +18,8 @@ package com.app.playhvz.screens.gamedashboard.cards
 
 import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants
@@ -32,29 +34,47 @@ class InfectCard(
     val playerId: String
 ) : DashboardCardInterface {
 
-    lateinit var cardView: MaterialCardView
-    lateinit var inputView: EditText
-    lateinit var sendButton: MaterialButton
+
+    lateinit var infectCard: MaterialCardView
+    lateinit var lifecodeInputView: EditText
+    lateinit var lifecodeSubmitButton: MaterialButton
+    lateinit var cardHeader: LinearLayout
+    lateinit var cardHeaderIcon: MaterialButton
+    lateinit var cardContent: ConstraintLayout
 
     private var player: Player? = null
 
     override fun onCreateView(view: View) {
-        cardView = view.findViewById(R.id.infect_card)
-        inputView = cardView.findViewById(R.id.lifecode_input)
-        sendButton = cardView.findViewById(R.id.send_button)
+        infectCard = view.findViewById(R.id.infect_card)
+        lifecodeInputView = infectCard.findViewById(R.id.lifecode_input)
+        lifecodeSubmitButton = infectCard.findViewById(R.id.send_button)
+        cardHeader = infectCard.findViewById(R.id.card_header)
+        cardHeaderIcon = infectCard.findViewById(R.id.card_header_icon)
+        cardContent = infectCard.findViewById(R.id.card_content)
 
-        inputView.doOnTextChanged { text, _, _, _ ->
+
+        cardHeader.setOnClickListener {
+            if (cardContent.visibility == View.VISIBLE) {
+                // Collapse the card content
+                cardContent.visibility = View.GONE
+            } else {
+                // Display the card content
+                cardContent.visibility = View.VISIBLE
+            }
+        }
+
+        lifecodeInputView.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() || text.isBlank() -> {
-                    sendButton.isEnabled = false
+                    lifecodeSubmitButton.isEnabled = false
                 }
                 else -> {
-                    sendButton.isEnabled = true
+                    lifecodeSubmitButton.isEnabled = true
                 }
             }
         }
-        sendButton.setOnClickListener {
-
+        lifecodeSubmitButton.setOnClickListener {
+            // TODO: process lifecode and infect player.
         }
     }
 
@@ -70,15 +90,24 @@ class InfectCard(
         updateAllegiance()
     }
 
+    fun hide() {
+        infectCard.visibility = View.GONE
+    }
+
+    fun show() {
+        infectCard.visibility = View.VISIBLE
+    }
+
     private fun updateAllegiance() {
         if (player?.allegiance.isNullOrEmpty()) {
-            // We don't have accurate player data, don't change the current state.
+            // We don't have accurate player data, default to hiding infect human.
+            hide()
             return
         }
-        cardView.visibility = if (player?.allegiance !in CrossClientConstants.DEAD_ALLEGIANCES) {
-            View.GONE
+        if (player?.allegiance !in CrossClientConstants.DEAD_ALLEGIANCES) {
+            hide()
         } else {
-            View.VISIBLE
+            show()
         }
     }
 }
