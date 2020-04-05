@@ -17,7 +17,9 @@
 package com.app.playhvz.screens.gamedashboard.cards
 
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
@@ -39,24 +41,26 @@ class DeclareAllegianceCard(
 
     lateinit var declareAllegianceCard: MaterialCardView
     lateinit var declareButton: MaterialButton
-    lateinit var debugIcon: MaterialButton
+    lateinit var cardHeader: LinearLayout
+    lateinit var cardHeaderIcon: MaterialButton
+    lateinit var cardContent: ConstraintLayout
 
     private var player: Player? = null
 
     override fun onCreateView(view: View) {
         declareAllegianceCard = view.findViewById(R.id.declare_allegiance_card)
-        val content = declareAllegianceCard.findViewById<TextView>(R.id.content)
         declareButton = declareAllegianceCard.findViewById(R.id.declare_button)
-        debugIcon = declareAllegianceCard.findViewById(R.id.card_header_icon)
-        debugIcon.setOnClickListener {
-            if (content.visibility == View.VISIBLE) {
+        cardHeader = declareAllegianceCard.findViewById(R.id.card_header)
+        cardHeaderIcon = declareAllegianceCard.findViewById(R.id.card_header_icon)
+        cardContent = declareAllegianceCard.findViewById(R.id.card_content)
+
+        cardHeader.setOnClickListener {
+            if (cardContent.visibility == View.VISIBLE) {
                 // Collapse the card content
-                content.visibility = View.GONE
-                declareButton.visibility = View.GONE
+                cardContent.visibility = View.GONE
             } else {
                 // Display the card content
-                content.visibility = View.VISIBLE
-                declareButton.visibility = View.VISIBLE
+                cardContent.visibility = View.VISIBLE
             }
         }
     }
@@ -73,7 +77,6 @@ class DeclareAllegianceCard(
         updateAllegiance()
     }
 
-
     private fun updateAllegiance() {
         if (player?.allegiance.isNullOrEmpty()) {
             // We don't have accurate player data, don't change the current state.
@@ -84,7 +87,7 @@ class DeclareAllegianceCard(
             if (!DebugFlags.isDevEnvironment) {
                 declareAllegianceCard.visibility = View.GONE
             } else {
-                debugIcon.visibility = View.VISIBLE
+                cardHeaderIcon.visibility = View.VISIBLE
                 declareButton.setText(R.string.declare_allegiance_card_button_undeclare)
                 declareButton.setOnClickListener {
                     runBlocking {
@@ -102,7 +105,7 @@ class DeclareAllegianceCard(
         } else {
             // Allegiance isn't declared.
             if (DebugFlags.isDevEnvironment) {
-                debugIcon.visibility = View.GONE
+                cardHeaderIcon.visibility = View.GONE
             }
             declareButton.setText(R.string.declare_allegiance_card_button)
             declareButton.setOnClickListener {
