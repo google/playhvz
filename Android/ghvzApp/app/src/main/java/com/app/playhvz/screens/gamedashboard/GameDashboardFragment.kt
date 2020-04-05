@@ -29,9 +29,11 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.cards.DeclareAllegianceCard
 import com.app.playhvz.screens.gamedashboard.cards.InfectCard
+import com.app.playhvz.screens.gamedashboard.cards.MissionCard
 import com.app.playhvz.utils.PlayerUtils
 import com.app.playhvz.utils.SystemUtils
 
@@ -41,9 +43,11 @@ class GameDashboardFragment : Fragment() {
         private val TAG = GameDashboardFragment::class.qualifiedName
     }
 
-    lateinit var firestoreViewModel: GameViewModel
-    lateinit var declareAllegianceCard: DeclareAllegianceCard
-    lateinit var infectCard: InfectCard
+    private lateinit var firestoreViewModel: GameViewModel
+    private lateinit var missionViewModel: MissionListViewModel
+    private lateinit var declareAllegianceCard: DeclareAllegianceCard
+    private lateinit var infectCard: InfectCard
+    private lateinit var missionCard: MissionCard
 
     var gameId: String? = null
     var playerId: String? = null
@@ -53,6 +57,7 @@ class GameDashboardFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firestoreViewModel = ViewModelProvider(activity!!).get(GameViewModel::class.java)
+        missionViewModel = ViewModelProvider(activity!!).get(MissionListViewModel::class.java)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -68,6 +73,7 @@ class GameDashboardFragment : Fragment() {
 
         declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
         infectCard = InfectCard(this, gameId!!, playerId!!)
+        missionCard = MissionCard(this, findNavController(), gameId!!, playerId!!)
 
         setupObservers()
         setupToolbar()
@@ -81,6 +87,7 @@ class GameDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
         declareAllegianceCard.onCreateView(view)
         infectCard.onCreateView(view)
+        missionCard.onCreateView(view)
         return view
     }
 
@@ -105,6 +112,16 @@ class GameDashboardFragment : Fragment() {
         PlayerUtils.getPlayer(gameId!!, playerId!!)
             .observe(this, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
+            })
+        missionViewModel.getLatestMissionPlayerIsIn(this, gameId!!, playerId!!)
+            .observe(this, androidx.lifecycle.Observer { missionMap ->
+                if (missionMap.isEmpty()) {
+                    missionCard.hide()
+                    return@Observer
+                }
+                missionCard.show()
+                // Always hide the admin options on the game dashboard fragment.
+                missionCard.onBind(missionMap.values.first()!!, /* isAdmin= */false)
             })
     }
 

@@ -86,6 +86,35 @@ class MissionListViewModel : ViewModel() {
         return missionList
     }
 
+    /** Listens to mission group membership and returns a LiveData object listing
+     * the missions the player is currently in. */
+    fun getLatestMissionPlayerIsIn(
+        lifecycleOwner: LifecycleOwner,
+        gameId: String,
+        playerId: String
+    ): LiveData<Map<String, Mission?>> {
+        if (associatedGroupIdList.hasObservers()) {
+            // We've already started observing
+            return missionList
+        }
+        associatedGroupIdList.observe(
+            lifecycleOwner,
+            androidx.lifecycle.Observer { updatedGroupsAssociatedWithMissions ->
+                observeGroupsAssociatedWithMissions(
+                    gameId,
+                    playerId,
+                    updatedGroupsAssociatedWithMissions
+                )
+            })
+        groupIdsPlayerIsInList.observe(
+            lifecycleOwner,
+            androidx.lifecycle.Observer { missionGroupsPlayerIsIn ->
+                observeLatestMissionPlayerIsIn(gameId, missionGroupsPlayerIsIn)
+            })
+        listenToGroupPlayerIds(gameId, playerId)
+        return missionList
+    }
+
     /** Registers an event listener that watches for group membership changes. */
     private fun listenToGroupPlayerIds(gameId: String, playerId: String) {
         extractListOfGroupIdsAssociatedWithMissions(gameId)
@@ -217,7 +246,6 @@ class MissionListViewModel : ViewModel() {
                 }
     }
 
-
     private fun stopListening(removedIds: Set<String>) {
         for (removedId in removedIds) {
             if (!missionList.docIdListeners.containsKey(removedId)) {
@@ -229,5 +257,39 @@ class MissionListViewModel : ViewModel() {
             missionList.docIdListeners[removedId]?.remove()
             missionList.docIdListeners.remove(removedId)
         }
+    }
+
+    /** Listens to updates on every chat room the player is a member of. */
+    private fun observeLatestMissionPlayerIsIn(
+        gameId: String,
+        missionGroupsPlayerIsIn: List<String>
+    ): LiveData<Map<String, Mission?>> {
+        if (missionGroupsPlayerIsIn.isEmpty()) {
+            return missionList
+        }
+        val missionListener = MissionDatabaseOperations.getLatestMission(
+            gameId,
+            missionGroupsPlayerIsIn
+        ).addSnapshotListener { querySnapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Getting mission list failed. ", e)
+                return@addSnapshotListener
+            }
+            if (querySnapshot == null) {
+                return@addSnapshotListener
+            }
+            val updatedMissionIds = mutableSetOf<String>()
+            for (missionSnapshot in querySnapshot.documents) {
+                updatedMissionIds.add(missionSnapshot.id)
+                maybeListenToMission(gameId, missionSnapshot)
+            }
+
+            // Remove mission listeners for missions the user isn't a member of anymore.
+            val removedMissions =
+                missionList.docIdListeners.keys.toSet().minus(updatedMissionIds.toSet())
+            stopListening(removedMissions)
+        }
+        missionList.docIdListeners[gameId] = missionListener
+        return missionList
     }
 }

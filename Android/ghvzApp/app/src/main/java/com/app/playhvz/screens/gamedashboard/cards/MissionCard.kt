@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.missions
+package com.app.playhvz.screens.gamedashboard.cards
 
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
+import androidx.navigation.NavController
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Mission
-import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
 import com.app.playhvz.utils.TimeUtils
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class MissionCard(
     val fragment: GameDashboardFragment,
+    private val navController: NavController,
     val gameId: String,
     val playerId: String
 ) {
@@ -40,9 +43,10 @@ class MissionCard(
     lateinit var endTimeView: TextView
     lateinit var detailsView: EmojiTextView
     lateinit var cardHeader: LinearLayout
+    lateinit var cardHeaderIcon: MaterialButton
     lateinit var cardContent: ConstraintLayout
 
-    private var player: Player? = null
+    private var mission: Mission? = null
 
     fun onCreateView(view: View) {
         missionCard = view.findViewById(R.id.mission_card)
@@ -51,7 +55,9 @@ class MissionCard(
         endTimeView = missionCard.findViewById(R.id.mission_end_time)
         detailsView = missionCard.findViewById(R.id.mission_details)
         cardHeader = missionCard.findViewById(R.id.card_header)
+        cardHeaderIcon = missionCard.findViewById(R.id.card_header_icon)
         cardContent = missionCard.findViewById(R.id.card_content)
+
 
         cardHeader.setOnClickListener {
             if (cardContent.visibility == View.VISIBLE) {
@@ -64,7 +70,24 @@ class MissionCard(
         }
     }
 
-    fun onBind(mission: Mission) {
+    fun hide() {
+        missionCard.visibility = View.GONE
+    }
+
+    fun show() {
+        missionCard.visibility = View.VISIBLE
+    }
+
+    fun onBind(mission: Mission, isAdmin: Boolean) {
+        if (isAdmin) {
+            cardHeaderIcon.visibility = View.VISIBLE
+            cardHeaderIcon.setOnClickListener {
+                NavigationUtil.navigateToMissionSettings(navController, mission.id)
+            }
+        } else {
+            cardHeaderIcon.visibility = View.GONE
+        }
+
         cardTitle.text = mission.name
         startTimeView.text = TimeUtils.getFormattedTime(mission.startTime, true)
         endTimeView.text = TimeUtils.getFormattedTime(mission.endTime, true)

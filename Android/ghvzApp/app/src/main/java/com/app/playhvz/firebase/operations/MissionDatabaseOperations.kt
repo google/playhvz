@@ -17,6 +17,7 @@
 package com.app.playhvz.firebase.operations
 
 import com.app.playhvz.firebase.constants.MissionPath
+import com.app.playhvz.firebase.constants.MissionPath.Companion.LATEST_MISSION_QUERY
 import com.app.playhvz.firebase.constants.MissionPath.Companion.MISSION_BY_GROUP_QUERY
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
@@ -126,6 +127,11 @@ class MissionDatabaseOperations {
         /** Returns a query for missions associated with the given group ids. */
         fun getMissionsAssociatedWithGroups(gameId: String, groupIds: List<String>): Query {
             return MISSION_BY_GROUP_QUERY(gameId, groupIds)
+        }
+
+        /** Returns a query for the latest mission associated with the given group ids. */
+        fun getLatestMission(gameId: String, groupIds: List<String>): Query {
+            return LATEST_MISSION_QUERY(gameId, groupIds)
         }
 
         /** Permanently deletes mission. */
