@@ -43,10 +43,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center_horizontal"
         android:minHeight="48dp"
         android:padding="8dp"
-        android:text="@string/declare_allegiance_card_title"
         android:textColor="@color/white" />
 
       <com.google.android.material.button.MaterialButton

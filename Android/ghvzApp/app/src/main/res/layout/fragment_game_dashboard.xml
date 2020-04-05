@@ -14,17 +14,25 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
+  android:layout_height="match_parent">
 
-  <include
-    android:id="@+id/declare_allegiance_card"
-    layout="@layout/card_declare_allegiance" />
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-  <include
-    android:id="@+id/infect_card"
-    layout="@layout/card_infect" />
+    <include
+      android:id="@+id/declare_allegiance_card"
+      layout="@layout/card_declare_allegiance" />
 
-</LinearLayout>
+    <include
+      android:id="@+id/infect_card"
+      layout="@layout/card_infect" />
+
+    <include
+      android:id="@+id/mission_card"
+      layout="@layout/card_mission" />
+  </LinearLayout>
+</ScrollView>

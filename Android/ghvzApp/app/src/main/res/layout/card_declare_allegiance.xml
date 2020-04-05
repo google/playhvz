@@ -16,6 +16,7 @@
 
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   style="@style/Widget.MaterialComponents.CardView"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
@@ -28,18 +29,20 @@
     android:orientation="vertical">
 
     <LinearLayout
+      android:id="@+id/card_header"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/colorPrimary"
       android:gravity="center_vertical"
       android:orientation="horizontal">
 
-      <TextView
+      <androidx.emoji.widget.EmojiTextView
         android:id="@+id/title"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:minHeight="48dp"
         android:padding="8dp"
         android:text="@string/declare_allegiance_card_title"
         android:textColor="@color/white" />
@@ -49,26 +52,40 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:visibility="gone"
         app:icon="@drawable/ic_debug"
         app:iconGravity="end"
-        app:iconTint="@color/white" />
+        app:iconTint="@color/white"
+        tools:visibility="visible" />
     </LinearLayout>
 
-    <TextView
-      android:id="@+id/content"
-      style="@style/TextAppearance.MaterialComponents.Body2"
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/card_content"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:padding="8dp"
-      android:text="@string/declare_allegiance_card_description" />
+      android:layout_margin="8dp">
 
-    <com.google.android.material.button.MaterialButton
-      android:id="@+id/declare_button"
-      android:layout_width="wrap_content"
-      android:layout_height="48dp"
-      android:layout_gravity="center_horizontal"
-      android:layout_marginBottom="8dp"
-      android:text="@string/declare_allegiance_card_button" />
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/details"
+        style="@style/TextAppearance.MaterialComponents.Body2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/declare_allegiance_card_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/declare_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:text="@string/declare_allegiance_card_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/details" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
   </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

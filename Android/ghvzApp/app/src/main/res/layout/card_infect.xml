@@ -16,6 +16,7 @@
 
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   style="@style/Widget.MaterialComponents.CardView"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
@@ -27,21 +28,42 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
-      android:id="@+id/title"
-      style="@style/TextAppearance.MaterialComponents.Headline6"
+    <LinearLayout
+      android:id="@+id/card_header"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/colorPrimary"
-      android:minHeight="48dp"
-      android:padding="8dp"
-      android:text="@string/infect_card_title"
-      android:textColor="@color/white" />
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
 
-    <LinearLayout
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:minHeight="48dp"
+        android:padding="8dp"
+        android:text="@string/infect_card_title"
+        android:textColor="@color/white" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/card_header_icon"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:visibility="gone"
+        app:icon="@drawable/ic_edit"
+        app:iconGravity="end"
+        app:iconTint="@color/white"
+        tools:visibility="visible" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/card_content"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:orientation="horizontal">
+      android:layout_margin="8dp">
 
       <EditText
         android:id="@+id/lifecode_input"
@@ -54,7 +76,10 @@
         android:inputType="text"
         android:lines="1"
         android:minHeight="48dp"
-        android:padding="8dp" />
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@id/send_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
       <com.google.android.material.button.MaterialButton
         android:id="@+id/send_button"
@@ -64,9 +89,11 @@
         android:enabled="false"
         app:cornerRadius="24dp"
         app:icon="@drawable/ic_send"
-        app:iconGravity="end" />
-    </LinearLayout>
+        app:iconGravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
   </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>
