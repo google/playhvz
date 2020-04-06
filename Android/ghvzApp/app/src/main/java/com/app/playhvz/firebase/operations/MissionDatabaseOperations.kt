@@ -125,13 +125,11 @@ class MissionDatabaseOperations {
         }
 
         /** Returns a query for missions associated with the given group ids. */
-        fun getMissionsAssociatedWithGroups(gameId: String, groupIds: List<String>): Query {
+        fun getMissionsAssociatedWithGroups(gameId: String, groupIds: List<String>, numMissionsToDisplay: Int): Query {
+            if (numMissionsToDisplay > 0) {
+                return LATEST_MISSION_QUERY(gameId, groupIds)
+            }
             return MISSION_BY_GROUP_QUERY(gameId, groupIds)
-        }
-
-        /** Returns a query for the latest mission associated with the given group ids. */
-        fun getLatestMission(gameId: String, groupIds: List<String>): Query {
-            return LATEST_MISSION_QUERY(gameId, groupIds)
         }
 
         /** Permanently deletes mission. */

@@ -237,8 +237,7 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
     [Player.FIELD__ALLEGIANCE]: newAllegiance
   })
 
-  await ChatUtils.autoRemovePlayerFromChats(db, gameId, playerDocSnapshot)
-  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocSnapshot.ref)
+  await GroupUtils.updatePlayerMembershipInGroups(db, gameId, playerDocSnapshot.ref)
 });
 
 

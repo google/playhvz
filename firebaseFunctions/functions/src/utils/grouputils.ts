@@ -33,7 +33,7 @@ export async function createManagedGroups(db: any, uid: any, gameId: string) {
 
   for (const [allegianceFilter, chatName] of globalAllegiances) {
     const groupData = Group.createManagedGroup(
-      /* name= */ Defaults.globalChatName,
+      /* name= */ chatName,
       /* settings= */ Group.getGlobalGroupSettings(allegianceFilter),
      )
     const createdGroup = await db.collection(Game.COLLECTION_PATH)
@@ -103,6 +103,12 @@ export async function createGroupAndMission(
 }
 
 // Add a new player to managed groups
+export async function updatePlayerMembershipInGroups(db: any, gameId: string, playerDocRef: any) {
+  await addPlayerToManagedGroups(db, gameId, playerDocRef)
+  await removePlayerFromGroups(db, gameId, playerDocRef)
+}
+
+// Add a new player to managed groups
 export async function addPlayerToManagedGroups(db: any, gameId: string, playerDocRef: any) {
   const managedGroupQuery = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -152,6 +158,25 @@ async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: any, pla
   await ChatUtils.addPlayerToChat(db, gameId, playerId, groupSnapshot, chatRoomId, /* isDocRef= */ false)
 }
 
+async function removePlayerFromGroup(db: any, gameId: string, groupSnapshot: any, playerDocSnapshot: any) {
+  // Check if group is associated with Chat
+  const querySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .where(Chat.FIELD__GROUP_ID, "==", groupSnapshot.id)
+    .get()
+
+  if (querySnapshot.empty) {
+    // Group is not associated with any chat rooms, just update membership directly
+    await groupSnapshot.ref.update({
+      [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayRemove(playerDocSnapshot.id)
+    });
+    return
+  }
+  // Group is associated with a chat room (we can assume only one chat room per group).
+  const chatRoomId = querySnapshot.docs[0].id
+  await ChatUtils.removePlayerFromChat(db, gameId, playerDocSnapshot, groupSnapshot, chatRoomId)
+}
 
 // Handles Auto-adding and Auto-removing members
 export async function updateMissionMembership(db: any, gameId: string, groupId: string) {
@@ -160,11 +185,11 @@ export async function updateMissionMembership(db: any, gameId: string, groupId: 
           .collection(Group.COLLECTION_PATH)
           .doc(groupId)
           .get()
-  await autoAddMembers(db, gameId, group)
+  await autoUpdateMembers(db, gameId, group)
 }
 
-// Adds members if appropriate
-async function autoAddMembers(db: any, gameId: string, group: any) {
+// Replaces members with members of the correct allegiance if appropriate
+async function autoUpdateMembers(db: any, gameId: string, group: any) {
   const groupData = group.data()
   if (groupData === undefined) {
     return
@@ -201,5 +226,35 @@ async function autoAddMembers(db: any, gameId: string, group: any) {
     await group.ref.update({
         [Group.FIELD__MEMBERS]: playerIdArray
       })
+  }
+}
+
+
+// Remove player from *any* auto-remove groups
+async function removePlayerFromGroups(db: any, gameId: string, playerDocRef: any) {
+  const autoRemoveGroupQuery = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .where(Group.FIELD__SETTINGS + "." + Group.FIELD__SETTINGS_AUTO_REMOVE, "==", true)
+    .get()
+
+  if (autoRemoveGroupQuery.empty) {
+    return
+  }
+
+  const playerDocSnapshot = await playerDocRef.get()
+  const playerData = await playerDocSnapshot.data()
+  const playerAllegiance = playerData[Player.FIELD__ALLEGIANCE]
+
+  for (const groupSnapshot of autoRemoveGroupQuery.docs) {
+    const groupData = groupSnapshot.data()
+    if (groupData === undefined) {
+      continue
+    }
+    const groupAllegiance = groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER]
+    if (groupAllegiance !== Defaults.EMPTY_ALLEGIANCE_FILTER && groupAllegiance !== playerAllegiance) {
+      // The player does not match the allegiance requirements, remove them from the group
+      await removePlayerFromGroup(db, gameId, groupSnapshot, playerDocSnapshot)
+    }
   }
 }

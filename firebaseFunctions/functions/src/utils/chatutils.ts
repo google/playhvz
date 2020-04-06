@@ -15,8 +15,6 @@
  */
 import * as admin from 'firebase-admin';
 
-import * as Chat from '../data/chat';
-import * as Defaults from '../data/defaults';
 import * as Game from '../data/game';
 import * as Group from '../data/group';
 import * as Player from '../data/player';
@@ -77,44 +75,3 @@ export async function removePlayerFromChat(
   })
 }
 
-
-// Auto remove player from any chats they don't qualify for anymore
-export async function autoRemovePlayerFromChats(
-  db: any,
-  gameId: string,
-  playerDocSnapshot: any,
-) {
-  const playerData = playerDocSnapshot.data()
-  if (playerData === undefined) {
-    return
-  }
-
-  for (const chatRoomId in playerData[Player.FIELD__CHAT_MEMBERSHIPS]) {
-    const chatRoomData = (await db.collection(Game.COLLECTION_PATH)
-       .doc(gameId)
-       .collection(Chat.COLLECTION_PATH)
-       .doc(chatRoomId)
-       .get())
-       .data();
-
-    if (chatRoomData === undefined) {
-      continue
-    }
-    const groupDocSnapshot = await db.collection(Game.COLLECTION_PATH)
-        .doc(gameId)
-        .collection(Group.COLLECTION_PATH)
-        .doc(chatRoomData[Chat.FIELD__GROUP_ID])
-        .get()
-    const groupData = groupDocSnapshot.data()
-    if (groupData === undefined) {
-      continue
-    }
-    if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_REMOVE] === true) {
-      const groupAllegianceFilter = groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER]
-      if (groupAllegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER
-          && groupAllegianceFilter !== playerData[Player.FIELD__ALLEGIANCE]) {
-        await removePlayerFromChat(db, gameId, playerDocSnapshot, groupDocSnapshot, chatRoomId)
-      }
-    }
-  }
-}
