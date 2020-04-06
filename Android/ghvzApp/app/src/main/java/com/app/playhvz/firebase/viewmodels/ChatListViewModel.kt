@@ -92,24 +92,28 @@ class ChatListViewModel : ViewModel() {
         gameId: String,
         updatedChatRoomIdList: List<String>
     ): LiveData<Map<String, ChatRoom?>> {
-        for (id in updatedChatRoomIdList) {
-            if (id in chatRoomList.docIdListeners) {
+        for (chatRoomId in updatedChatRoomIdList) {
+            if (chatRoomId in chatRoomList.docIdListeners) {
                 // We're already listening to this room
                 continue
             }
-            chatRoomList.docIdListeners[id] =
-                getChatRoomDocumentReference(gameId, id).addSnapshotListener(
+            chatRoomList.docIdListeners[chatRoomId] =
+                getChatRoomDocumentReference(gameId, chatRoomId).addSnapshotListener(
                     EventListener<DocumentSnapshot> { snapshot, e ->
                         if (e != null) {
                             Log.w(TAG, "ChatRoom listen failed. ", e)
                             return@EventListener
                         }
-                        if (snapshot == null) {
+                        if (snapshot == null || !snapshot.exists()) {
+                            val updatedRoomList = chatRoomList.value!!.toMutableMap()
+                            updatedRoomList.remove(chatRoomId)
+                            chatRoomList.value = updatedRoomList
+                            stopListening(setOf(chatRoomId))
                             return@EventListener
                         }
                         val updatedChatRoom = DataConverterUtil.convertSnapshotToChatRoom(snapshot)
                         val updatedRoomList = chatRoomList.value!!.toMutableMap()
-                        updatedRoomList[id] = updatedChatRoom
+                        updatedRoomList[chatRoomId] = updatedChatRoom
                         chatRoomList.value = updatedRoomList
                     })
         }

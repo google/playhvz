@@ -192,6 +192,7 @@ class MissionListViewModel : ViewModel() {
         missionGroupsPlayerIsIn: List<String>
     ): LiveData<Map<String, Mission?>> {
         if (missionGroupsPlayerIsIn.isEmpty()) {
+            missionList.value = mapOf()
             return missionList
         }
         val missionListener = MissionDatabaseOperations.getMissionsAssociatedWithGroups(
@@ -237,6 +238,7 @@ class MissionListViewModel : ViewModel() {
                         val updatedMissionList = missionList.value!!.toMutableMap()
                         updatedMissionList.remove(mission.id!!)
                         missionList.value = updatedMissionList
+                        stopListening(setOf(mission.id!!))
                         return@addSnapshotListener
                     }
                     val updatedMission = DataConverterUtil.convertSnapshotToMission(snapshot)

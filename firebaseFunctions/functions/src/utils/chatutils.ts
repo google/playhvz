@@ -23,30 +23,34 @@ export async function addPlayerToChat(
   db: any,
   gameId: string,
   playerId: string,
-  group: any,
+  groupDocRefOrSnapshot: any,
   chatRoomId: string,
-  isNewGroup: boolean
+  isDocRef: boolean
 ) {
-  const player = await db.collection(Game.COLLECTION_PATH)
+
+  if (chatRoomId === undefined || groupDocRefOrSnapshot === undefined) {
+    console.error("ChatRoomId or group was undefined when trying to add player to chat.")
+    return
+  }
+  const playerDocSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Player.COLLECTION_PATH)
     .doc(playerId)
     .get()
 
-    if (isNewGroup) {
-      await group.update({
-          [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
-        });
+    if (isDocRef) {
+      await groupDocRefOrSnapshot.update({
+        [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(playerDocSnapshot.id)
+      });
     } else {
-      await group.ref.update({
-              [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
-            });
+      await groupDocRefOrSnapshot.ref.update({
+        [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(playerDocSnapshot.id)
+      });
     }
-
     // We have to use dot-notation or firebase will overwrite the entire field.
     const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId
     const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
-    await player.ref.update({
+    await playerDocSnapshot.ref.update({
       [membershipField]: chatVisibility
     })
 }

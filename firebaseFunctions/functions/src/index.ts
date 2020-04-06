@@ -85,7 +85,7 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   }
 
   const gameId = (await db.collection(Game.COLLECTION_PATH).add(gameData)).id;
-  await GroupUtils.createGlobalGroup(db, context.auth.uid, gameId);
+  await GroupUtils.createManagedGroups(db, context.auth.uid, gameId);
   return gameId;
 });
 
@@ -150,12 +150,12 @@ exports.joinGame = functions.https.onCall(async (data, context) => {
   }
 
   const player = Player.create(uid, playerName);
-  const playerDocument = (await db.collection(Game.COLLECTION_PATH)
+  const playerDocRef = (await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Player.COLLECTION_PATH)
     .add(player));
 
-  await GroupUtils.addNewPlayerToGroups(db, gameId, playerDocument)
+  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef)
   return gameId
 });
 
@@ -289,14 +289,14 @@ exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
           'a valid gameId and groupId and chatRoomId.');
   }
 
-  const group = await db.collection(Game.COLLECTION_PATH)
+  const groupDocSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Group.COLLECTION_PATH)
     .doc(groupId)
     .get();
 
   for (const playerId of playerIdList) {
-    await ChatUtils.addPlayerToChat(db, gameId, playerId, group, chatRoomId, /* isNewGroup= */ false)
+    await ChatUtils.addPlayerToChat(db, gameId, playerId, groupDocSnapshot, chatRoomId, /* isDocRef= */ false)
   }
 });
 

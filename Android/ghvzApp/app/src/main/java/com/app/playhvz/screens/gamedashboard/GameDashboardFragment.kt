@@ -105,10 +105,11 @@ class GameDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        firestoreViewModel.getGame(gameId!!)
-            .observe(this, androidx.lifecycle.Observer { serverGame ->
-                updateGame(serverGame)
-            })
+        firestoreViewModel.getGame(gameId!!) {
+            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+        }.observe(this, androidx.lifecycle.Observer { serverGame: Game ->
+            updateGame(serverGame)
+        })
         PlayerUtils.getPlayer(gameId!!, playerId!!)
             .observe(this, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)

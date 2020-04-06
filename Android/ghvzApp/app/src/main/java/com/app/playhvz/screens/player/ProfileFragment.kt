@@ -74,7 +74,7 @@ class ProfileFragment : Fragment() {
         avatarView = view.findViewById(R.id.player_avatar)
         allegianceView = view.findViewById(R.id.player_allegiance)
 
-        userAvatarPresenter = UserAvatarPresenter(avatarView!!, R.dimen.avatar_large)
+        userAvatarPresenter = UserAvatarPresenter(avatarView, R.dimen.avatar_large)
 
         setupObservers()
         setupToolbar()

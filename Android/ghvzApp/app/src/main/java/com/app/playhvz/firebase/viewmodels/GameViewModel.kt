@@ -25,7 +25,7 @@ import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.constants.GamePath
 import com.app.playhvz.firebase.utils.DataConverterUtil
 
-class GameViewModel : ViewModel() {
+class GameViewModel() : ViewModel() {
     companion object {
         private val TAG = GameViewModel::class.qualifiedName
     }
@@ -33,16 +33,19 @@ class GameViewModel : ViewModel() {
     private var game: HvzData<Game> = HvzData()
 
     /** Returns a Game LiveData object for the given id. */
-    fun getGame(gameId: String): LiveData<Game> {
+    fun getGame(gameId: String, onFailureListener: () -> Unit): LiveData<Game> {
         game.docIdListeners[gameId] = GamePath.GAMES_COLLECTION.document(gameId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
+                    onFailureListener.invoke()
                     return@addSnapshotListener
                 }
-                if (snapshot != null && snapshot.exists()) {
-                    game.value = DataConverterUtil.convertSnapshotToGame(snapshot)
+                if (snapshot == null || !snapshot.exists()) {
+                    onFailureListener.invoke()
+                    return@addSnapshotListener
                 }
+                game.value = DataConverterUtil.convertSnapshotToGame(snapshot)
             }
         return game
     }

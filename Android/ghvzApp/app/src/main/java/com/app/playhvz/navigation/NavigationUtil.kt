@@ -27,7 +27,6 @@ import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
-import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragment
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
 
@@ -77,6 +76,7 @@ class NavigationUtil {
             val editor =
                 activity.getSharedPreferences(SharedPreferencesConstants.PREFS_FILENAME, 0)!!.edit()
             editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
+            editor.putString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
             editor.apply()
             navController.navigate(GameListFragmentDirections.actionGlobalNavGameListFragment())
         }
