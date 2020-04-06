@@ -15,7 +15,11 @@
  */
 
 export const EMPTY_ALLEGIANCE_FILTER = "none";
+export const HUMAN_ALLEGIANCE_FILTER = "resistance";
+export const ZOMBIE_ALLEGIANCE_FILTER = "horde";
+
+export const globalChatName = "Global Chat";
+export const globalHumanChatName = "Resistance Chat";
+export const globalZombieChatName = "Horde Chat";
 
 export const allegiance = "undeclared";
-export const globalChatName = "Global Chat";
-export const allegianceFilter = EMPTY_ALLEGIANCE_FILTER;

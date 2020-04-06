@@ -25,14 +25,27 @@ import * as Mission from '../data/mission';
 import * as Player from '../data/player';
 
 // Creates a group
-export async function createGlobalGroup(db: any, uid: any, gameId: string) {
-  const group = Group.createManagedGroup(
-    /* name= */ Defaults.globalChatName,
-    /* settings= */ Group.getGlobalGroupSettings(),
-  )
-  const createdGroup = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
-  const chat = Chat.create(createdGroup.id, Defaults.globalChatName)
-  await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
+export async function createManagedGroups(db: any, uid: any, gameId: string) {
+  const globalAllegiances = new Map()
+  globalAllegiances.set(Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.globalChatName)
+  globalAllegiances.set(Defaults.HUMAN_ALLEGIANCE_FILTER, Defaults.globalHumanChatName)
+  globalAllegiances.set(Defaults.ZOMBIE_ALLEGIANCE_FILTER, Defaults.globalZombieChatName)
+
+  for (const [allegianceFilter, chatName] of globalAllegiances) {
+    const groupData = Group.createManagedGroup(
+      /* name= */ chatName,
+      /* settings= */ Group.getGlobalGroupSettings(allegianceFilter),
+     )
+    const createdGroup = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Group.COLLECTION_PATH)
+      .add(groupData);
+    const chatData = Chat.create(createdGroup.id, chatName)
+    await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Chat.COLLECTION_PATH)
+      .add(chatData)
+  }
 }
 
 // Creates a group and chat
@@ -49,10 +62,16 @@ export async function createGroupAndChat(
     chatName,
     /* settings= */ settings,
   )
-  const createdGroup = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).add(group);
-  const chat = Chat.create(createdGroup.id, chatName)
-  const createdChat = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH).add(chat)
-  await ChatUtils.addPlayerToChat(db, gameId, playerId, createdGroup, createdChat.id, /* isNewGroup= */ true)
+  const createdGroupDocRef = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .add(group);
+  const chatData = Chat.create(createdGroupDocRef.id, chatName)
+  const createdChatDocRef = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .add(chatData)
+  await ChatUtils.addPlayerToChat(db, gameId, playerId, createdGroupDocRef, createdChatDocRef.id, /* isDocRef= */ true)
 }
 
 // Creates a group and mission
@@ -83,36 +102,81 @@ export async function createGroupAndMission(
   await updateMissionMembership(db, gameId, createdGroup.id)
 }
 
-
-// Add player to global chatroom
-export async function addNewPlayerToGroups(db: any, gameId: string, player: any) {
-  const groupQuery = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH)
-  .where(Group.FIELD__MANAGED, "==", true)
-  .where(Group.FIELD__NAME, "==", Defaults.globalChatName).get()
-
-  if (groupQuery.empty || groupQuery.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'Cannot find global chat.');
-  }
-  const group = groupQuery.docs[0];
-  const chatQuery = await db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Chat.COLLECTION_PATH)
-    .where(Chat.FIELD__GROUP_ID, "==", group.id).get()
-  if (chatQuery.empty || chatQuery.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'Cannot find chatroom associated with group.');
-  }
-
-  await group.ref.update({
-      [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(player.id)
-  });
-
-  const chatId = chatQuery.docs[0].id;
-  const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
-  // We have to use dot-notation or firebase will overwrite the entire field.
-  const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId
-  await player.update({
-    [membershipField]: chatVisibility
-  })
+// Add a new player to managed groups
+export async function updatePlayerMembershipInGroups(db: any, gameId: string, playerDocRef: any) {
+  await addPlayerToManagedGroups(db, gameId, playerDocRef)
+  await removePlayerFromGroups(db, gameId, playerDocRef)
 }
 
+// Add a new player to managed groups
+export async function addPlayerToManagedGroups(db: any, gameId: string, playerDocRef: any) {
+  const managedGroupQuery = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .where(Group.FIELD__MANAGED, "==", true)
+    .where(Group.FIELD__SETTINGS + "." + Group.FIELD__SETTINGS_AUTO_ADD, "==", true)
+    .get()
+
+  if (managedGroupQuery.empty) {
+    throw new functions.https.HttpsError('failed-precondition', 'Cannot find global chat.');
+  }
+
+  const playerDocSnapshot = await playerDocRef.get()
+  const playerData = await playerDocSnapshot.data()
+  const playerAllegiance = playerData[Player.FIELD__ALLEGIANCE]
+
+  for (const groupSnapshot of managedGroupQuery.docs) {
+    const groupData = groupSnapshot.data()
+    if (groupData === undefined) {
+      continue
+    }
+    const groupAllegiance = groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER]
+    if (groupAllegiance === Defaults.EMPTY_ALLEGIANCE_FILTER || groupAllegiance === playerAllegiance) {
+      // The player matches the allegiance requirements, add them to the group
+      await addPlayerToGroup(db, gameId, groupSnapshot, playerDocRef.id)
+    }
+  }
+}
+
+async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: any, playerId: string) {
+  // Check if group is associated with Chat
+  const querySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .where(Chat.FIELD__GROUP_ID, "==", groupSnapshot.id)
+    .get()
+
+  if (querySnapshot.empty) {
+    // Group is not associated with any chat rooms, just update membership directly
+    await groupSnapshot.ref.update({
+      [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayUnion(playerId)
+    });
+    return
+  }
+  // Group is associated with a chat room (we can assume only one chat room per group).
+  const chatRoomId = querySnapshot.docs[0].id
+  await ChatUtils.addPlayerToChat(db, gameId, playerId, groupSnapshot, chatRoomId, /* isDocRef= */ false)
+}
+
+async function removePlayerFromGroup(db: any, gameId: string, groupSnapshot: any, playerDocSnapshot: any) {
+  // Check if group is associated with Chat
+  const querySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .where(Chat.FIELD__GROUP_ID, "==", groupSnapshot.id)
+    .get()
+
+  if (querySnapshot.empty) {
+    // Group is not associated with any chat rooms, just update membership directly
+    await groupSnapshot.ref.update({
+      [Group.FIELD__MEMBERS]: admin.firestore.FieldValue.arrayRemove(playerDocSnapshot.id)
+    });
+    return
+  }
+  // Group is associated with a chat room (we can assume only one chat room per group).
+  const chatRoomId = querySnapshot.docs[0].id
+  await ChatUtils.removePlayerFromChat(db, gameId, playerDocSnapshot, groupSnapshot, chatRoomId)
+}
 
 // Handles Auto-adding and Auto-removing members
 export async function updateMissionMembership(db: any, gameId: string, groupId: string) {
@@ -121,11 +185,11 @@ export async function updateMissionMembership(db: any, gameId: string, groupId: 
           .collection(Group.COLLECTION_PATH)
           .doc(groupId)
           .get()
-  await autoAddMembers(db, gameId, group)
+  await autoUpdateMembers(db, gameId, group)
 }
 
-// Adds members if appropriate
-async function autoAddMembers(db: any, gameId: string, group: any) {
+// Replaces members with members of the correct allegiance if appropriate
+async function autoUpdateMembers(db: any, gameId: string, group: any) {
   const groupData = group.data()
   if (groupData === undefined) {
     return
@@ -162,5 +226,35 @@ async function autoAddMembers(db: any, gameId: string, group: any) {
     await group.ref.update({
         [Group.FIELD__MEMBERS]: playerIdArray
       })
+  }
+}
+
+
+// Remove player from *any* auto-remove groups
+async function removePlayerFromGroups(db: any, gameId: string, playerDocRef: any) {
+  const autoRemoveGroupQuery = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .where(Group.FIELD__SETTINGS + "." + Group.FIELD__SETTINGS_AUTO_REMOVE, "==", true)
+    .get()
+
+  if (autoRemoveGroupQuery.empty) {
+    return
+  }
+
+  const playerDocSnapshot = await playerDocRef.get()
+  const playerData = await playerDocSnapshot.data()
+  const playerAllegiance = playerData[Player.FIELD__ALLEGIANCE]
+
+  for (const groupSnapshot of autoRemoveGroupQuery.docs) {
+    const groupData = groupSnapshot.data()
+    if (groupData === undefined) {
+      continue
+    }
+    const groupAllegiance = groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER]
+    if (groupAllegiance !== Defaults.EMPTY_ALLEGIANCE_FILTER && groupAllegiance !== playerAllegiance) {
+      // The player does not match the allegiance requirements, remove them from the group
+      await removePlayerFromGroup(db, gameId, groupSnapshot, playerDocSnapshot)
+    }
   }
 }

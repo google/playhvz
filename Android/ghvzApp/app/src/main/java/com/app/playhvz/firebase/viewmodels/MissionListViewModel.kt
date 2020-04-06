@@ -30,6 +30,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 class MissionListViewModel : ViewModel() {
     companion object {
         private val TAG = MissionListViewModel::class.qualifiedName
+        private val ALL_MISSIONS = -1
+        private val ONE_MISSION = 1
     }
 
     private var associatedGroupIdList: HvzData<List<String>> = HvzData(listOf())
@@ -50,7 +52,8 @@ class MissionListViewModel : ViewModel() {
             androidx.lifecycle.Observer { updatedGroupsAssociatedWithMissions ->
                 observeMissionsPlayerIsIn(
                     gameId,
-                    updatedGroupsAssociatedWithMissions
+                    updatedGroupsAssociatedWithMissions,
+                    ALL_MISSIONS
                 )
             })
         extractListOfGroupIdsAssociatedWithMissions(gameId)
@@ -80,7 +83,7 @@ class MissionListViewModel : ViewModel() {
         groupIdsPlayerIsInList.observe(
             lifecycleOwner,
             androidx.lifecycle.Observer { missionGroupsPlayerIsIn ->
-                observeMissionsPlayerIsIn(gameId, missionGroupsPlayerIsIn)
+                observeMissionsPlayerIsIn(gameId, missionGroupsPlayerIsIn, ALL_MISSIONS)
             })
         listenToGroupPlayerIds(gameId, playerId)
         return missionList
@@ -109,7 +112,7 @@ class MissionListViewModel : ViewModel() {
         groupIdsPlayerIsInList.observe(
             lifecycleOwner,
             androidx.lifecycle.Observer { missionGroupsPlayerIsIn ->
-                observeLatestMissionPlayerIsIn(gameId, missionGroupsPlayerIsIn)
+                observeMissionsPlayerIsIn(gameId, missionGroupsPlayerIsIn, ONE_MISSION)
             })
         listenToGroupPlayerIds(gameId, playerId)
         return missionList
@@ -151,10 +154,12 @@ class MissionListViewModel : ViewModel() {
         playerId: String,
         updatedGroupsAssociatedWithMissions: List<String>
     ) {
-        // Of the groupIds associated with missions, narrow the list down to groups that have the player as a member
         if (updatedGroupsAssociatedWithMissions.isEmpty()) {
+            groupIdsPlayerIsInList.value = emptyList()
             return
         }
+        // Of the groupIds associated with missions, narrow the list down to groups that have the
+        // player as a member.
         val groupMembershipListener =
             GroupDatabaseOperations.getMissionGroupsPlayerIsIn(
                 gameId,
@@ -189,20 +194,25 @@ class MissionListViewModel : ViewModel() {
     /** Listens to updates on every chat room the player is a member of. */
     private fun observeMissionsPlayerIsIn(
         gameId: String,
-        missionGroupsPlayerIsIn: List<String>
+        missionGroupsPlayerIsIn: List<String>,
+        numMissionsToDisplay: Int
     ): LiveData<Map<String, Mission?>> {
         if (missionGroupsPlayerIsIn.isEmpty()) {
+            missionList.value = mapOf()
             return missionList
         }
         val missionListener = MissionDatabaseOperations.getMissionsAssociatedWithGroups(
             gameId,
-            missionGroupsPlayerIsIn
+            missionGroupsPlayerIsIn,
+            numMissionsToDisplay
         ).addSnapshotListener { querySnapshot, e ->
             if (e != null) {
                 Log.w(TAG, "Getting mission list failed. ", e)
+                missionList.value = mapOf()
                 return@addSnapshotListener
             }
             if (querySnapshot == null) {
+                missionList.value = mapOf()
                 return@addSnapshotListener
             }
             val updatedMissionIds = mutableSetOf<String>()
@@ -231,12 +241,17 @@ class MissionListViewModel : ViewModel() {
                 .addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         Log.w(TAG, "Mission listen failed. ", e)
+                        val updatedMissionList = missionList.value!!.toMutableMap()
+                        updatedMissionList.remove(mission.id!!)
+                        missionList.value = updatedMissionList
+                        stopListening(setOf(mission.id!!))
                         return@addSnapshotListener
                     }
                     if (snapshot == null || !snapshot.exists()) {
                         val updatedMissionList = missionList.value!!.toMutableMap()
                         updatedMissionList.remove(mission.id!!)
                         missionList.value = updatedMissionList
+                        stopListening(setOf(mission.id!!))
                         return@addSnapshotListener
                     }
                     val updatedMission = DataConverterUtil.convertSnapshotToMission(snapshot)
@@ -257,39 +272,5 @@ class MissionListViewModel : ViewModel() {
             missionList.docIdListeners[removedId]?.remove()
             missionList.docIdListeners.remove(removedId)
         }
-    }
-
-    /** Listens to updates on every chat room the player is a member of. */
-    private fun observeLatestMissionPlayerIsIn(
-        gameId: String,
-        missionGroupsPlayerIsIn: List<String>
-    ): LiveData<Map<String, Mission?>> {
-        if (missionGroupsPlayerIsIn.isEmpty()) {
-            return missionList
-        }
-        val missionListener = MissionDatabaseOperations.getLatestMission(
-            gameId,
-            missionGroupsPlayerIsIn
-        ).addSnapshotListener { querySnapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Getting mission list failed. ", e)
-                return@addSnapshotListener
-            }
-            if (querySnapshot == null) {
-                return@addSnapshotListener
-            }
-            val updatedMissionIds = mutableSetOf<String>()
-            for (missionSnapshot in querySnapshot.documents) {
-                updatedMissionIds.add(missionSnapshot.id)
-                maybeListenToMission(gameId, missionSnapshot)
-            }
-
-            // Remove mission listeners for missions the user isn't a member of anymore.
-            val removedMissions =
-                missionList.docIdListeners.keys.toSet().minus(updatedMissionIds.toSet())
-            stopListening(removedMissions)
-        }
-        missionList.docIdListeners[gameId] = missionListener
-        return missionList
     }
 }

@@ -171,10 +171,14 @@ class GameSettingsFragment : Fragment() {
         if (gameId == null) {
             return
         }
-        firestoreViewModel.getGame(gameId!!)
-            .observe(this, androidx.lifecycle.Observer { serverGame ->
-                updateGame(serverGame)
-            })
+        firestoreViewModel.getGame(gameId!!) {
+            NavigationUtil.navigateToGameList(
+                findNavController(),
+                activity!!
+            )
+        }.observe(this, androidx.lifecycle.Observer { serverGame ->
+            updateGame(serverGame)
+        })
     }
 
     private fun updateGame(serverGame: Game?) {

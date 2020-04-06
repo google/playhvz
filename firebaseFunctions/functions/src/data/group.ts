@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import * as Defaults from './defaults';
-
 export const COLLECTION_PATH = "groups";
 export const FIELD__NAME = "name";
 export const FIELD__MANAGED = "managed";
@@ -52,15 +49,15 @@ export function createPlayerOwnedGroup(ownerId: string, name: string, settings: 
   };
 }
 
-export function getGlobalGroupSettings() {
+export function getGlobalGroupSettings(allegianceFilter: string) {
   return {
     [FIELD__SETTINGS_ADD_SELF]: false,
     [FIELD__SETTINGS_ADD_OTHERS]: false,
     [FIELD__SETTINGS_REMOVE_SELF]: false,
     [FIELD__SETTINGS_REMOVE_OTHERS]: false,
     [FIELD__SETTINGS_AUTO_ADD]: true,
-    [FIELD__SETTINGS_AUTO_REMOVE]: false,
-    [FIELD__SETTINGS_ALLEGIANCE_FILTER]: Defaults.allegianceFilter
+    [FIELD__SETTINGS_AUTO_REMOVE]: true,
+    [FIELD__SETTINGS_ALLEGIANCE_FILTER]: allegianceFilter
   }
 }
 

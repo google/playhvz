@@ -220,7 +220,7 @@
   </string>
 
   <string name="game_settings_delete_dialog_cancel" definition="Cancel button for delete game dialog.">
-    Oops, keep the game!
+    Keep game
   </string>
 
   <string name="game_settings_game_name_label" definition="Label for game title text input.">
