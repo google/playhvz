@@ -132,7 +132,6 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
   }
 }
 
-
 async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: any, playerId: string) {
   // Check if group is associated with Chat
   const querySnapshot = await db.collection(Game.COLLECTION_PATH)

@@ -217,12 +217,12 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
           'a valid gameId, playerId, and allegiance.');
   }
 
-  const player = await db.collection(Game.COLLECTION_PATH)
+  const playerDocSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Player.COLLECTION_PATH)
     .doc(playerId)
     .get()
-  const playerData = player.data()
+  const playerData = playerDocSnapshot.data()
   if (playerData === undefined) {
     console.log("Player data is undefined, not updating allegiance")
     return
@@ -233,36 +233,12 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
   }
 
   // Update player allegiance
-  await player.ref.update({
+  await playerDocSnapshot.ref.update({
     [Player.FIELD__ALLEGIANCE]: newAllegiance
   })
 
-  // Update chat room memberships
-  for (const chatRoomId in playerData[Player.FIELD__CHAT_MEMBERSHIPS]) {
-    const chatRoom = (await db.collection(Game.COLLECTION_PATH)
-       .doc(gameId)
-       .collection(Chat.COLLECTION_PATH)
-       .doc(chatRoomId)
-       .get())
-       .data();
-    if (chatRoom === undefined) {
-      continue
-    }
-    const group = await db.collection(Game.COLLECTION_PATH)
-        .doc(gameId)
-        .collection(Group.COLLECTION_PATH)
-        .doc(chatRoom[Chat.FIELD__GROUP_ID])
-        .get()
-    const groupData = group.data()
-    if (groupData === undefined) {
-      continue
-    }
-    if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_REMOVE] === true) {
-      if (groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER] !== newAllegiance) {
-        await ChatUtils.removePlayerFromChat(db, gameId, player, group, chatRoomId)
-      }
-    }
-  }
+  await ChatUtils.autoRemovePlayerFromChats(db, gameId, playerDocSnapshot)
+  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocSnapshot.ref)
 });
 
 
