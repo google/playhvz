@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 import * as Game from '../data/game';
+import * as GeneralUtils from '../utils/generalutils';
 import * as Player from '../data/player';
+import * as RandomWords from '../data/wordlist';
 import * as Universal from '../data/universal';
+
+const NUM_LIFE_CODE_WORDS = 3
 
 // Returns a Query listing all players in the given game that are owned by this user.
 export function getUsersPlayersQuery(db: any, uid: any, gameId: string) {
@@ -27,4 +31,43 @@ export function getUsersPlayersQuery(db: any, uid: any, gameId: string) {
 export function getPlayersWithNameQuery(db: any, gameId: string, playerName: string) {
   return db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Player.COLLECTION_PATH)
       .where(Player.FIELD__NAME, "==", playerName);
+}
+
+export async function generateLifeCode(db: any, gameId: string, playerSnapshot: any) {
+  const gameSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .get()
+
+  const gameData = await gameSnapshot.data()
+  const playerData = await playerSnapshot.data()
+  if (gameData === undefined || playerData === undefined) {
+    return
+  }
+
+  const gameName = gameData[Game.FIELD__NAME]
+  const playerName = playerData[Player.FIELD__NAME]
+
+  let numLives = 0
+  if (playerData[Player.FIELD__LIVES] !== undefined) {
+    numLives = Object.keys(playerData[Player.FIELD__LIVES]).length
+  }
+
+  const seed = gameName + playerName + numLives
+  const selectedWords = getRandomWords(seed, NUM_LIFE_CODE_WORDS)
+  const lifeCode = selectedWords.join("-")
+
+  // We have to use dot-notation or firebase will overwrite the entire field.
+  const lifeCodeField = Player.FIELD__LIVES + "." + lifeCode
+  const lifeData = {[Player.FIELD__LIFE_CODE_STATUS]: false}
+  await playerSnapshot.ref.update({
+    [lifeCodeField]: lifeData
+  })}
+
+function getRandomWords(seed: string, numWords: number): string[] {
+  const selectedWords: string[] = new Array(numWords)
+  for (let i = 0; i < numWords; i++) {
+    const rand = GeneralUtils.hashString("herp-" + i + "-derp-" + seed)
+    selectedWords[i] = RandomWords.WORD_ARRAY[rand % RandomWords.WORD_ARRAY.length].trim()
+  }
+  return selectedWords
 }

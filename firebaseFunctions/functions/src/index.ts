@@ -231,6 +231,9 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
     console.log("Not changing allegiance, it's already set to " + newAllegiance)
     return
   }
+  if (newAllegiance === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+    await PlayerUtils.generateLifeCode(db, gameId, playerDocSnapshot)
+  }
 
   // Update player allegiance
   await playerDocSnapshot.ref.update({

@@ -27,6 +27,7 @@
 
 import * as Universal from './universal';
 import * as Defaults from './defaults';
+import * as GeneralUtils from '../utils/generalutils';
 
 export const COLLECTION_PATH = "players";
 export const FIELD__USER_ID = Universal.FIELD__USER_ID;
@@ -35,6 +36,8 @@ export const FIELD__AVATAR_URL = "avatarUrl";
 export const FIELD__ALLEGIANCE = "allegiance";
 export const FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships";
 export const FIELD__CHAT_VISIBILITY = "isVisible";
+export const FIELD__LIVES = "lives";
+export const FIELD__LIFE_CODE_STATUS = "alreadyUsed";
 
 export function create(userId: string, name: string): { [key: string]: any; } {
   return {
@@ -42,7 +45,8 @@ export function create(userId: string, name: string): { [key: string]: any; } {
     [FIELD__NAME]: name,
     [FIELD__AVATAR_URL]: getDefaultProfilePic(name),
     [FIELD__ALLEGIANCE]: Defaults.allegiance,
-    [FIELD__CHAT_MEMBERSHIPS]: {}
+    [FIELD__CHAT_MEMBERSHIPS]: {},
+    [FIELD__LIVES]: {}
   };
 }
 
@@ -82,19 +86,7 @@ function getDefaultProfilePic(name: string) {
 		'https://goo.gl/cHqQwU',
 	];
 
-	const hash = Math.abs(hashName(name));
+	const hash = Math.abs(GeneralUtils.hashString(name));
 	const index = hash % defaultProfilePics.length;
 	return defaultProfilePics[index];
-};
-
-
-function hashName(name: string): number {
-    let hash: number = 0;
-    if (name.length === 0) return hash;
-    for (let i= 0; i < name.length; i++) {
-        const char = name.charCodeAt(i);
-        hash = ((hash<<5)-hash)+char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash;
 };
