@@ -21,6 +21,7 @@ import * as Chat from './data/chat';
 import * as ChatUtils from './utils/chatutils';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
+import * as GeneralUtils from './utils/generalutils';
 import * as Group from './data/group';
 import * as GroupUtils from './utils/grouputils';
 import * as Player from './data/player';
@@ -369,7 +370,7 @@ exports.sendChatMessage = functions.https.onCall(async (data, context) => {
 
   const messageDocument = Message.create(
     senderId,
-    getTimestamp(),
+    GeneralUtils.getTimestamp(),
     message
   );
   await db.collection(Game.COLLECTION_PATH)
@@ -595,10 +596,6 @@ if (!context.auth) {
 
 function trimmedString(rawText: any): string {
   return rawText.trim();
-}
-
-function getTimestamp(): any {
-  return admin.firestore.Timestamp.now()
 }
 
 async function deleteCollection(collection: any) {

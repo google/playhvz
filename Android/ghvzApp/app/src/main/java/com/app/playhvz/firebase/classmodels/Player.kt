@@ -16,6 +16,8 @@
 
 package com.app.playhvz.firebase.classmodels
 
+import com.google.firebase.Timestamp
+
 /** Android data model representing Firebase Player documents. */
 class Player {
     var id: String? = null
@@ -33,4 +35,13 @@ class Player {
     var allegiance: String = ""
 
     var chatRoomMemberships: Map<String, Map<String, Boolean>> = mapOf()
+
+    var lives: Map<String, LifeCodeMetadata> = mapOf()
+
+    class LifeCodeMetadata {
+        var lifeCode: String? = null
+        var alreadyUsed: Boolean = false
+        var created: Timestamp? = null
+    }
+
 }

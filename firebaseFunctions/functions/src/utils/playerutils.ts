@@ -58,7 +58,10 @@ export async function generateLifeCode(db: any, gameId: string, playerSnapshot: 
 
   // We have to use dot-notation or firebase will overwrite the entire field.
   const lifeCodeField = Player.FIELD__LIVES + "." + lifeCode
-  const lifeData = {[Player.FIELD__LIFE_CODE_STATUS]: false}
+  const lifeData = {
+    [Player.FIELD__LIFE_CODE_STATUS]: false,
+    [Player.FIELD__LIFE_CODE_TIMESTAMP]: GeneralUtils.getTimestamp()
+  }
   await playerSnapshot.ref.update({
     [lifeCodeField]: lifeData
   })}

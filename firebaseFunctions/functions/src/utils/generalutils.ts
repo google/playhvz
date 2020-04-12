@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as admin from 'firebase-admin';
 
 export function hashString(hashableString: string): number {
     let hash: number = 0;
@@ -25,3 +26,6 @@ export function hashString(hashableString: string): number {
     return hash;
 };
 
+export function getTimestamp(): any {
+  return admin.firestore.Timestamp.now()
+}

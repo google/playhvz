@@ -41,6 +41,11 @@ class PlayerPath {
 
         const val PLAYER_FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships"
 
+        const val PLAYER_FIELD__LIVES = "lives"
+
+        const val PLAYER_FIELD__LIFE_CODE_STATUS = "alreadyUsed"
+
+        const val PLAYER_FIELD__LIFE_CODE_TIMESTAMP = "created"
 
         /*******************************************************************************************
          * End string definitions for field names in Firebase documents.

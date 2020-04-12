@@ -363,6 +363,18 @@
     Allegiance
   </string>
 
+  <string name="player_profile_life_code_label" definition="Label for the player's latest life code.">
+    Life code
+  </string>
+
+  <string name="player_profile_life_code_unused_label" definition="Label for the player's life code if it is still active.">
+    Unused
+  </string>
+
+  <string name="player_profile_life_code_used_label" definition="Label for the player's life code if it's used.">
+    Used
+  </string>
+
   <string name="player_search_input_label" definition="Label for the input textview for filtering players.">
     Search for player:
   </string>

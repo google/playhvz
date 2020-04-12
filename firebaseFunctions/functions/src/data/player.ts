@@ -38,6 +38,7 @@ export const FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships";
 export const FIELD__CHAT_VISIBILITY = "isVisible";
 export const FIELD__LIVES = "lives";
 export const FIELD__LIFE_CODE_STATUS = "alreadyUsed";
+export const FIELD__LIFE_CODE_TIMESTAMP = "created";
 
 export function create(userId: string, name: string): { [key: string]: any; } {
   return {
