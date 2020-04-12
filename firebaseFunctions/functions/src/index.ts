@@ -218,32 +218,47 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
           'a valid gameId, playerId, and allegiance.');
   }
 
-  const playerDocSnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Player.COLLECTION_PATH)
-    .doc(playerId)
-    .get()
-  const playerData = playerDocSnapshot.data()
-  if (playerData === undefined) {
-    console.log("Player data is undefined, not updating allegiance")
-    return
-  }
-  if (playerData[Player.FIELD__ALLEGIANCE] === newAllegiance) {
-    console.log("Not changing allegiance, it's already set to " + newAllegiance)
-    return
-  }
-  if (newAllegiance === Defaults.HUMAN_ALLEGIANCE_FILTER) {
-    await PlayerUtils.generateLifeCode(db, gameId, playerDocSnapshot)
-  }
-
-  // Update player allegiance
-  await playerDocSnapshot.ref.update({
-    [Player.FIELD__ALLEGIANCE]: newAllegiance
-  })
-
-  await GroupUtils.updatePlayerMembershipInGroups(db, gameId, playerDocSnapshot.ref)
+  await PlayerUtils.internallyChangePlayerAllegiance(db, gameId, playerId, newAllegiance)
 });
 
+
+exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  let lifeCode = data.lifeCode;
+  const infectorPlayerId = data.infectorPlayerId
+
+  if (!(typeof gameId === 'string') || !(typeof infectorPlayerId === 'string') || !(typeof lifeCode === 'string')) {
+        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  lifeCode = normalizeLifeCode(lifeCode);
+  if (gameId.length === 0 || infectorPlayerId.length === 0 || lifeCode.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'a valid gameId, playerId, and lifeCode.');
+  }
+
+  // Check if life code is associated with valid human player.
+  const infectedPlayerQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .where(Player.FIELD__LIVES, "array-contains", lifeCode)
+    .where(Player.FIELD__LIVES + "." + Player.FIELD__LIFE_CODE_STATUS, "==", /* alreadyUsed= */ false)
+    .get()
+
+  if (infectedPlayerQuerySnapshot.empty || infectedPlayerQuerySnapshot.docs.length > 1) {
+     throw new functions.https.HttpsError('failed-precondition', 'No valid player with given life code exists.');
+  }
+  const infectedPlayerSnapshot = infectedPlayerQuerySnapshot.docs[0];
+
+  let infectedPlayerData = await infectedPlayerSnapshot.data()
+  if (infectedPlayerData[Player.FIELD__ALLEGIANCE] === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+    await PlayerUtils.internallyChangePlayerAllegiance(db, gameId, infectedPlayerSnapshot.id, Defaults.ZOMBIE_ALLEGIANCE_FILTER)
+  }
+});
 
 /*******************************************************
 * GROUP functions
@@ -596,6 +611,14 @@ if (!context.auth) {
 
 function trimmedString(rawText: any): string {
   return rawText.trim();
+}
+
+// Normalizes the life code to lowercase and replaces spaces with dashes.
+function normalizeLifeCode(rawText: any): string {
+  let processedCode = rawText.trim()
+  processedCode = processedCode.toLowerCase()
+  processedCode = processedCode.split(' ').join('-')
+  return processedCode
 }
 
 async function deleteCollection(collection: any) {

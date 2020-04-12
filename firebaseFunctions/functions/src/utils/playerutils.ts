@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as Defaults from '../data/defaults';
 import * as Game from '../data/game';
 import * as GeneralUtils from '../utils/generalutils';
+import * as GroupUtils from '../utils/grouputils';
 import * as Player from '../data/player';
+import * as PlayerUtils from '../utils/playerutils';
 import * as RandomWords from '../data/wordlist';
 import * as Universal from '../data/universal';
 
@@ -64,7 +67,36 @@ export async function generateLifeCode(db: any, gameId: string, playerSnapshot: 
   }
   await playerSnapshot.ref.update({
     [lifeCodeField]: lifeData
-  })}
+  })
+}
+
+export async function internallyChangePlayerAllegiance(db: any, gameId: string, playerId: string, newAllegiance: string) {
+  const playerDocSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+    .get()
+  const playerData = playerDocSnapshot.data()
+  if (playerData === undefined) {
+    console.log("Player data is undefined, not updating allegiance")
+    return
+  }
+  if (playerData[Player.FIELD__ALLEGIANCE] === newAllegiance) {
+    console.log("Not changing allegiance, it's already set to " + newAllegiance)
+    return
+  }
+  if (newAllegiance === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+    await PlayerUtils.generateLifeCode(db, gameId, playerDocSnapshot)
+  }
+
+  // Update player allegiance
+  await playerDocSnapshot.ref.update({
+    [Player.FIELD__ALLEGIANCE]: newAllegiance
+  })
+
+  await GroupUtils.updatePlayerMembershipInGroups(db, gameId, playerDocSnapshot.ref)
+}
+
 
 function getRandomWords(seed: string, numWords: number): string[] {
   const selectedWords: string[] = new Array(numWords)
