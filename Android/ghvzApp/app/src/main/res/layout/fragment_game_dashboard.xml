@@ -32,6 +32,10 @@
       layout="@layout/card_infect" />
 
     <include
+      android:id="@+id/life_code_card"
+      layout="@layout/card_life_code" />
+
+    <include
       android:id="@+id/mission_card"
       layout="@layout/card_mission" />
   </LinearLayout>

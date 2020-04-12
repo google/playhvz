@@ -48,15 +48,8 @@ class LifeCodeAdapter(
         return items.size
     }
 
-    fun setData(data: Map<String, Player.LifeCodeMetadata?>) {
-        val sortedList = mutableListOf<Player.LifeCodeMetadata>()
-        for ((lifeCode, value) in data) {
-            if (value != null) {
-                val metadata = value
-                metadata.lifeCode = lifeCode
-                sortedList.add(metadata)
-            }
-        }
+    fun setData(data: Map<String, Player.LifeCodeMetadata>) {
+        val sortedList = data.values.toMutableList()
         sortedList.sortBy { lifeCode -> lifeCode.created }
         sortedList.reverse()
         items = sortedList

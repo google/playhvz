@@ -33,6 +33,7 @@ import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.cards.DeclareAllegianceCard
 import com.app.playhvz.screens.gamedashboard.cards.InfectCard
+import com.app.playhvz.screens.gamedashboard.cards.LifeCodeCard
 import com.app.playhvz.screens.gamedashboard.cards.MissionCard
 import com.app.playhvz.utils.PlayerUtils
 import com.app.playhvz.utils.SystemUtils
@@ -47,6 +48,7 @@ class GameDashboardFragment : Fragment() {
     private lateinit var missionViewModel: MissionListViewModel
     private lateinit var declareAllegianceCard: DeclareAllegianceCard
     private lateinit var infectCard: InfectCard
+    private lateinit var lifeCodeCard: LifeCodeCard
     private lateinit var missionCard: MissionCard
 
     var gameId: String? = null
@@ -71,10 +73,7 @@ class GameDashboardFragment : Fragment() {
             NavigationUtil.navigateToGameList(findNavController(), activity!!)
         }
 
-        declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
-        infectCard = InfectCard(this, gameId!!, playerId!!)
-        missionCard = MissionCard(this, findNavController(), gameId!!, playerId!!)
-
+        setupCards()
         setupObservers()
         setupToolbar()
     }
@@ -87,6 +86,7 @@ class GameDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
         declareAllegianceCard.onCreateView(view)
         infectCard.onCreateView(view)
+        lifeCodeCard.onCreateView(view)
         missionCard.onCreateView(view)
         return view
     }
@@ -126,6 +126,13 @@ class GameDashboardFragment : Fragment() {
             })
     }
 
+    private fun setupCards() {
+        declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
+        infectCard = InfectCard(this, gameId!!, playerId!!)
+        lifeCodeCard = LifeCodeCard(this, gameId!!, playerId!!)
+        missionCard = MissionCard(this, findNavController(), gameId!!, playerId!!)
+    }
+
     private fun updateGame(serverGame: Game?) {
         game = serverGame
         setupToolbar()
@@ -137,5 +144,6 @@ class GameDashboardFragment : Fragment() {
         }
         declareAllegianceCard.onPlayerUpdated(serverPlayer!!)
         infectCard.onPlayerUpdated(serverPlayer)
+        lifeCodeCard.onPlayerUpdated(serverPlayer)
     }
 }

@@ -30,6 +30,9 @@ class DataConverterUtil {
         fun convertSnapshotToPlayer(document: DocumentSnapshot): Player {
             val player = document.toObject(Player::class.java)!!
             player.id = document.id
+            for ((lifeCode, metadata) in player.lives) {
+                metadata.lifeCode = lifeCode
+            }
             return player
         }
 

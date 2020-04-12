@@ -67,4 +67,10 @@
     <item name="drawableTint">@color/app_secondary_text</item>
   </style>
 
+  <style name="LifeCodeStyle">
+    <item name="android:textColor">@color/grey800</item>
+    <item name="android:textSize">20sp</item>
+    <item name="android:textAllCaps">true</item>
+  </style>
+
 </resources>

@@ -23,11 +23,9 @@
 
   <androidx.emoji.widget.EmojiTextView
     android:id="@+id/player_life_code"
+    style="@style/LifeCodeStyle"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textAllCaps="true"
-    android:textColor="@color/grey800"
-    android:textSize="20sp" />
+    android:layout_height="wrap_content" />
 
   <androidx.emoji.widget.EmojiTextView
     android:id="@+id/player_life_code_label"
