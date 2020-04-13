@@ -20,14 +20,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.UserAvatarPresenter
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
@@ -50,6 +54,9 @@ class ProfileFragment : Fragment() {
     private lateinit var allegianceView: TextView
     private lateinit var avatarView: View
     private lateinit var nameView: EmojiTextView
+    private lateinit var lifeCodeIcon: ImageView
+    private lateinit var lifeCodeRecyclerView: RecyclerView
+    private lateinit var lifeCodeAdapter: LifeCodeAdapter
 
     var gameId: String? = null
     var playerId: String? = null
@@ -61,6 +68,7 @@ class ProfileFragment : Fragment() {
         playerId = args.playerId
         playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
         gameViewModel = ViewModelProvider(activity!!).get(GameViewModel::class.java)
+        lifeCodeAdapter = LifeCodeAdapter(listOf(), context!!)
 
     }
 
@@ -73,6 +81,10 @@ class ProfileFragment : Fragment() {
         nameView = view.findViewById(R.id.player_name)
         avatarView = view.findViewById(R.id.player_avatar)
         allegianceView = view.findViewById(R.id.player_allegiance)
+        lifeCodeIcon = view.findViewById(R.id.player_life_code_icon)
+        lifeCodeRecyclerView = view.findViewById(R.id.player_life_code_list)
+        lifeCodeRecyclerView.layoutManager = LinearLayoutManager(context)
+        lifeCodeRecyclerView.adapter = lifeCodeAdapter
 
         userAvatarPresenter = UserAvatarPresenter(avatarView, R.dimen.avatar_large)
 
@@ -97,12 +109,12 @@ class ProfileFragment : Fragment() {
         if (playerId.isNullOrEmpty()) {
             // Get current user's player for this game
             playerViewModel.getPlayer(gameId!!)
-                .observe(this, androidx.lifecycle.Observer { serverPlayer ->
+                .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                     updatePlayer(serverPlayer)
                 })
         } else {
             playerViewModel.getPlayer(gameId!!, playerId!!)
-                .observe(this, androidx.lifecycle.Observer { serverPlayer ->
+                .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                     updatePlayer(serverPlayer)
                 })
         }
@@ -115,5 +127,15 @@ class ProfileFragment : Fragment() {
         nameView.setText(serverPlayer.name)
         userAvatarPresenter.renderAvatar(serverPlayer)
         allegianceView.setText(serverPlayer.allegiance)
+
+        if (serverPlayer.allegiance == HUMAN) {
+            lifeCodeAdapter.setData(serverPlayer.lifeCodes)
+            lifeCodeAdapter.notifyDataSetChanged()
+            lifeCodeRecyclerView.visibility = View.VISIBLE
+            lifeCodeIcon.visibility = View.VISIBLE
+        } else {
+            lifeCodeRecyclerView.visibility = View.GONE
+            lifeCodeIcon.visibility = View.GONE
+        }
     }
 }

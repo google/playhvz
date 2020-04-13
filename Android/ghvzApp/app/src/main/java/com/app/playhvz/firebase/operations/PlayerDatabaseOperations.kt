@@ -61,6 +61,33 @@ class PlayerDatabaseOperations {
                 }
         }
 
+        /** Update a player's allegiance. */
+        suspend fun infectPlayerByLifeCode(
+            gameId: String,
+            infectorPlayerId: String,
+            lifeCode: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "infectorPlayerId" to infectorPlayerId,
+                "lifeCode" to lifeCode
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("infectPlayerByLifeCode")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Could not infect life code: ${task.exception}")
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
+        }
+
         /** Returns a Query listing all players in the given game that are owned by this user. */
         private fun getUsersPlayersQuery(gameId: String): Query? {
             val userId = FirebaseProvider.getFirebaseAuth().uid ?: return null

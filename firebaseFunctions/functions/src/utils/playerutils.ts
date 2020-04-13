@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as Defaults from '../data/defaults';
 import * as Game from '../data/game';
 import * as GeneralUtils from '../utils/generalutils';
+import * as GroupUtils from '../utils/grouputils';
 import * as Player from '../data/player';
+import * as PlayerUtils from '../utils/playerutils';
 import * as RandomWords from '../data/wordlist';
 import * as Universal from '../data/universal';
 
@@ -33,11 +36,11 @@ export function getPlayersWithNameQuery(db: any, gameId: string, playerName: str
       .where(Player.FIELD__NAME, "==", playerName);
 }
 
+
 export async function generateLifeCode(db: any, gameId: string, playerSnapshot: any) {
   const gameSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .get()
-
   const gameData = await gameSnapshot.data()
   const playerData = await playerSnapshot.data()
   if (gameData === undefined || playerData === undefined) {
@@ -48,8 +51,9 @@ export async function generateLifeCode(db: any, gameId: string, playerSnapshot: 
   const playerName = playerData[Player.FIELD__NAME]
 
   let numLives = 0
-  if (playerData[Player.FIELD__LIVES] !== undefined) {
-    numLives = Object.keys(playerData[Player.FIELD__LIVES]).length
+  const lives = playerData[Player.FIELD__LIVES]
+  if (lives !== undefined) {
+    numLives = Object.keys(lives).length * 11
   }
 
   const seed = gameName + playerName + numLives
@@ -58,16 +62,49 @@ export async function generateLifeCode(db: any, gameId: string, playerSnapshot: 
 
   // We have to use dot-notation or firebase will overwrite the entire field.
   const lifeCodeField = Player.FIELD__LIVES + "." + lifeCode
-  const lifeData = {[Player.FIELD__LIFE_CODE_STATUS]: false}
+  const lifeData = {
+    [Player.FIELD__LIFE_CODE]: lifeCode,
+    [Player.FIELD__LIFE_CODE_STATUS]: true,
+    [Player.FIELD__LIFE_CODE_TIMESTAMP]: GeneralUtils.getTimestamp()
+  }
   await playerSnapshot.ref.update({
     [lifeCodeField]: lifeData
-  })}
+  })
+}
+
+export async function internallyChangePlayerAllegiance(db: any, gameId: string, playerId: string, newAllegiance: string) {
+  const playerDocSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+    .get()
+  const playerData = playerDocSnapshot.data()
+  if (playerData === undefined) {
+    console.log("Player data is undefined, not updating allegiance")
+    return
+  }
+  if (playerData[Player.FIELD__ALLEGIANCE] === newAllegiance) {
+    console.log("Not changing allegiance, it's already set to " + newAllegiance)
+    return
+  }
+  if (newAllegiance === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+    await PlayerUtils.generateLifeCode(db, gameId, playerDocSnapshot)
+  }
+
+  // Update player allegiance
+  await playerDocSnapshot.ref.update({
+    [Player.FIELD__ALLEGIANCE]: newAllegiance
+  })
+
+  await GroupUtils.updatePlayerMembershipInGroups(db, gameId, playerDocSnapshot.ref)
+}
+
 
 function getRandomWords(seed: string, numWords: number): string[] {
   const selectedWords: string[] = new Array(numWords)
   for (let i = 0; i < numWords; i++) {
     const rand = GeneralUtils.hashString("herp-" + i + "-derp-" + seed)
-    selectedWords[i] = RandomWords.WORD_ARRAY[rand % RandomWords.WORD_ARRAY.length].trim()
+    selectedWords[i] = RandomWords.WORD_ARRAY[GeneralUtils.mod(rand, RandomWords.WORD_ARRAY.length)].trim()
   }
   return selectedWords
 }

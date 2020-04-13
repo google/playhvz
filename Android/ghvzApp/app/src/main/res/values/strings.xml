@@ -279,6 +279,14 @@
     You joined the game!
   </string>
 
+  <string name="life_code_card_title" definition="Card title for the life code widget.">
+    Life Code
+  </string>
+
+  <string name="life_code_card_description" definition="Card description for the life code widget.">
+    For past life codes see your profile page.
+  </string>
+
   <string name="menu_bottom_nav_chat" definition="Bottom navigation menu item for opening chat.">
     Chat
   </string>
@@ -361,6 +369,18 @@
 
   <string name="player_profile_allegiance_label" definition="Label for the player's allegiance.">
     Allegiance
+  </string>
+
+  <string name="player_profile_life_code_label" definition="Label for the player's latest life code.">
+    Current life code
+  </string>
+
+  <string name="player_profile_life_code_unused_label" definition="Label for the player's life code if it is still active.">
+    Previous life code - still active
+  </string>
+
+  <string name="player_profile_life_code_used_label" definition="Label for the player's life code if it's used.">
+    Previous life code - claimed
   </string>
 
   <string name="player_search_input_label" definition="Label for the input textview for filtering players.">

@@ -14,29 +14,25 @@
   ~ limitations under the License.
   -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="48dp"
+  android:layout_marginBottom="16dp"
+  android:gravity="center_vertical"
+  android:orientation="vertical">
 
-  <LinearLayout
-    android:layout_width="match_parent"
+  <androidx.emoji.widget.EmojiTextView
+    android:id="@+id/player_life_code"
+    style="@style/LifeCodeStyle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
+
+  <androidx.emoji.widget.EmojiTextView
+    android:id="@+id/player_life_code_label"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:text="@string/player_profile_life_code_label"
+    android:textColor="@color/grey700"
+    android:textSize="14sp" />
 
-    <include
-      android:id="@+id/declare_allegiance_card"
-      layout="@layout/card_declare_allegiance" />
-
-    <include
-      android:id="@+id/infect_card"
-      layout="@layout/card_infect" />
-
-    <include
-      android:id="@+id/life_code_card"
-      layout="@layout/card_life_code" />
-
-    <include
-      android:id="@+id/mission_card"
-      layout="@layout/card_mission" />
-  </LinearLayout>
-</ScrollView>
+</LinearLayout>
