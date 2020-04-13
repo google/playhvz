@@ -22,11 +22,14 @@ import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.operations.PlayerDatabaseOperations.Companion.infectPlayerByLifeCode
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.runBlocking
 
 class InfectCard(
     val fragment: GameDashboardFragment,
@@ -73,8 +76,26 @@ class InfectCard(
                 }
             }
         }
+
+        val onSuccess = {
+            lifecodeInputView.text.clear()
+            EspressoIdlingResource.decrement()
+            lifecodeSubmitButton.isEnabled = true
+        }
+        val onFail = {
+            EspressoIdlingResource.decrement()
+            lifecodeSubmitButton.isEnabled = true
+        }
         lifecodeSubmitButton.setOnClickListener {
-            // TODO: process lifecode and infect player.
+            lifecodeSubmitButton.isEnabled = false
+            runBlocking {
+                EspressoIdlingResource.increment()
+                infectPlayerByLifeCode(
+                    gameId, playerId, lifecodeInputView.text.toString(),
+                    onSuccess,
+                    onFail
+                )
+            }
         }
     }
 

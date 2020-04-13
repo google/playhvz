@@ -43,7 +43,9 @@ class PlayerPath {
 
         const val PLAYER_FIELD__LIVES = "lives"
 
-        const val PLAYER_FIELD__LIFE_CODE_STATUS = "alreadyUsed"
+        const val PLAYER_FIELD__LIFE_CODE = "lifeCode"
+
+        const val PLAYER_FIELD__LIFE_CODE_STATUS = "isActive"
 
         const val PLAYER_FIELD__LIFE_CODE_TIMESTAMP = "created"
 

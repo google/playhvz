@@ -17,6 +17,7 @@
 package com.app.playhvz.firebase.utils
 
 import com.app.playhvz.firebase.classmodels.*
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 
 class DataConverterUtil {
@@ -28,10 +29,11 @@ class DataConverterUtil {
         }
 
         fun convertSnapshotToPlayer(document: DocumentSnapshot): Player {
-            val player = document.toObject(Player::class.java)!!
+            val player: Player = document.toObject(Player::class.java)!!
             player.id = document.id
-            for ((lifeCode, metadata) in player.lives) {
-                metadata.lifeCode = lifeCode
+            // Convert life codes to something more code-friendly
+            for (key in player.lives.keys) {
+                player.lifeCodes[key] = player.LifeCodeMetadata(key)
             }
             return player
         }

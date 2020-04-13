@@ -74,7 +74,7 @@ class LifeCodeCard(
         }
 
         // Get the latest life code value.
-        val sortedList = updatedPlayer.lives.values.toMutableList()
+        val sortedList = updatedPlayer.lifeCodes.values.toMutableList()
         sortedList.sortBy { lifeCode -> lifeCode.created }
         sortedList.reverse()
         lifeCodeText.text = sortedList.first().lifeCode

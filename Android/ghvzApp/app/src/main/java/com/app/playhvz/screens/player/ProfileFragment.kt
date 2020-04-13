@@ -129,7 +129,7 @@ class ProfileFragment : Fragment() {
         allegianceView.setText(serverPlayer.allegiance)
 
         if (serverPlayer.allegiance == HUMAN) {
-            lifeCodeAdapter.setData(serverPlayer.lives)
+            lifeCodeAdapter.setData(serverPlayer.lifeCodes)
             lifeCodeAdapter.notifyDataSetChanged()
             lifeCodeRecyclerView.visibility = View.VISIBLE
             lifeCodeIcon.visibility = View.VISIBLE

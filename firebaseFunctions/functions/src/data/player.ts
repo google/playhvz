@@ -37,7 +37,8 @@ export const FIELD__ALLEGIANCE = "allegiance";
 export const FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships";
 export const FIELD__CHAT_VISIBILITY = "isVisible";
 export const FIELD__LIVES = "lives";
-export const FIELD__LIFE_CODE_STATUS = "alreadyUsed";
+export const FIELD__LIFE_CODE = "lifeCode";
+export const FIELD__LIFE_CODE_STATUS = "isActive";
 export const FIELD__LIFE_CODE_TIMESTAMP = "created";
 
 export function create(userId: string, name: string): { [key: string]: any; } {
@@ -88,6 +89,6 @@ function getDefaultProfilePic(name: string) {
 	];
 
 	const hash = Math.abs(GeneralUtils.hashString(name));
-	const index = hash % defaultProfilePics.length;
+	const index = GeneralUtils.mod(hash, defaultProfilePics.length);
 	return defaultProfilePics[index];
 };

@@ -242,20 +242,44 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
   }
 
   // Check if life code is associated with valid human player.
+  const lifeCodeStatusField = Player.FIELD__LIVES + "." + lifeCode + "." + Player.FIELD__LIFE_CODE_STATUS
   const infectedPlayerQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Player.COLLECTION_PATH)
-    .where(Player.FIELD__LIVES, "array-contains", lifeCode)
-    .where(Player.FIELD__LIVES + "." + Player.FIELD__LIFE_CODE_STATUS, "==", /* alreadyUsed= */ false)
+    .where(lifeCodeStatusField, "==", /* isActive= */ true)
     .get()
 
   if (infectedPlayerQuerySnapshot.empty || infectedPlayerQuerySnapshot.docs.length > 1) {
      throw new functions.https.HttpsError('failed-precondition', 'No valid player with given life code exists.');
   }
   const infectedPlayerSnapshot = infectedPlayerQuerySnapshot.docs[0];
+  const infectedPlayerData = await infectedPlayerSnapshot.data()
+  if (infectedPlayerData === undefined) {
+    return
+  }
 
-  let infectedPlayerData = await infectedPlayerSnapshot.data()
+  // Use up the life code and infect the player if they are out of lives
   if (infectedPlayerData[Player.FIELD__ALLEGIANCE] === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+    // Mark life code as used, aka deactivated
+    await infectedPlayerSnapshot.ref.update({
+      [lifeCodeStatusField]: false
+    })
+    const lives = infectedPlayerData[Player.FIELD__LIVES]
+    if (lives === undefined) {
+      return
+    }
+    for (const key of Object.keys(lives)) {
+      const metadata = lives[key]
+      if (metadata === undefined) {
+        continue
+      }
+      if (metadata[Player.FIELD__LIFE_CODE_STATUS] === true
+          && metadata[Player.FIELD__LIFE_CODE] !== lifeCode) {
+        // Player still has some lives left, don't turn them into a zombie.
+        console.log("Not turning player to zombie, they still have life codes active.")
+        return
+      }
+    }
     await PlayerUtils.internallyChangePlayerAllegiance(db, gameId, infectedPlayerSnapshot.id, Defaults.ZOMBIE_ALLEGIANCE_FILTER)
   }
 });
@@ -647,7 +671,6 @@ async function deleteDocument(documentRef: any) {
         await documentRef.delete()
   })
 }
-
 
 
 

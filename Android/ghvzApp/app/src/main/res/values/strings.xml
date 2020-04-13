@@ -376,11 +376,11 @@
   </string>
 
   <string name="player_profile_life_code_unused_label" definition="Label for the player's life code if it is still active.">
-    Previous life code - Unused
+    Previous life code - still active
   </string>
 
   <string name="player_profile_life_code_used_label" definition="Label for the player's life code if it's used.">
-    Previous life code - Used
+    Previous life code - claimed
   </string>
 
   <string name="player_search_input_label" definition="Label for the input textview for filtering players.">

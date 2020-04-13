@@ -27,13 +27,14 @@ import com.app.playhvz.firebase.classmodels.Player
 
 class LifeCodeViewHolder(val context: Context, val view: View) : RecyclerView.ViewHolder(view) {
 
-    private var lifeCode: Player.LifeCodeMetadata? = null
     private val lifeCodeTextView = view.findViewById<EmojiTextView>(R.id.player_life_code)!!
     private val labelTextView = view.findViewById<EmojiTextView>(R.id.player_life_code_label)!!
 
-    fun onBind(lifeCode: Player.LifeCodeMetadata) {
-        this.lifeCode = lifeCode
-        lifeCodeTextView.text = lifeCode.lifeCode
+    fun onBind(life: Player.LifeCodeMetadata) {
+        lifeCodeTextView.text = life.lifeCode
+        if (!life.isActive) {
+            lifeCodeTextView.paintFlags = STRIKE_THRU_TEXT_FLAG
+        }
 
         if (adapterPosition == 0) {
             return
@@ -41,12 +42,10 @@ class LifeCodeViewHolder(val context: Context, val view: View) : RecyclerView.Vi
 
         lifeCodeTextView.setTextColor(ContextCompat.getColor(context, R.color.grey500))
         labelTextView.setTextColor(ContextCompat.getColor(context, R.color.grey500))
-
-        if (!lifeCode.alreadyUsed) {
-            labelTextView.text = context.getString(R.string.player_profile_life_code_unused_label)
+        labelTextView.text = if (life.isActive) {
+            context.getString(R.string.player_profile_life_code_unused_label)
         } else {
-            lifeCodeTextView.paintFlags = STRIKE_THRU_TEXT_FLAG
-            labelTextView.text = context.getString(R.string.player_profile_life_code_used_label)
+            context.getString(R.string.player_profile_life_code_used_label)
         }
     }
 }

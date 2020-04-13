@@ -16,6 +16,9 @@
 
 package com.app.playhvz.firebase.classmodels
 
+import com.app.playhvz.firebase.constants.PlayerPath.Companion.PLAYER_FIELD__LIFE_CODE
+import com.app.playhvz.firebase.constants.PlayerPath.Companion.PLAYER_FIELD__LIFE_CODE_STATUS
+import com.app.playhvz.firebase.constants.PlayerPath.Companion.PLAYER_FIELD__LIFE_CODE_TIMESTAMP
 import com.google.firebase.Timestamp
 
 /** Android data model representing Firebase Player documents. */
@@ -36,12 +39,20 @@ class Player {
 
     var chatRoomMemberships: Map<String, Map<String, Boolean>> = mapOf()
 
-    var lives: Map<String, LifeCodeMetadata> = mapOf()
+    /** Raw data from firestore, shouldn't be used directly. */
+    var lives: Map<String, Map<String, *>> = mapOf()
 
-    class LifeCodeMetadata {
-        var lifeCode: String? = null
-        var alreadyUsed: Boolean = false
-        var created: Timestamp? = null
+    var lifeCodes: MutableMap<String, LifeCodeMetadata> = mutableMapOf()
+
+    inner class LifeCodeMetadata(key: String) {
+        var lifeCode: String
+        var isActive: Boolean = true
+        var created: Timestamp
+
+        init {
+            lifeCode = lives.getValue(key)[PLAYER_FIELD__LIFE_CODE] as String
+            isActive = lives.getValue(key)[PLAYER_FIELD__LIFE_CODE_STATUS] as Boolean
+            created = lives.getValue(key)[PLAYER_FIELD__LIFE_CODE_TIMESTAMP] as Timestamp
+        }
     }
-
 }

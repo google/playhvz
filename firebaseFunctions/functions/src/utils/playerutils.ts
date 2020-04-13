@@ -36,11 +36,11 @@ export function getPlayersWithNameQuery(db: any, gameId: string, playerName: str
       .where(Player.FIELD__NAME, "==", playerName);
 }
 
+
 export async function generateLifeCode(db: any, gameId: string, playerSnapshot: any) {
   const gameSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .get()
-
   const gameData = await gameSnapshot.data()
   const playerData = await playerSnapshot.data()
   if (gameData === undefined || playerData === undefined) {
@@ -51,8 +51,9 @@ export async function generateLifeCode(db: any, gameId: string, playerSnapshot: 
   const playerName = playerData[Player.FIELD__NAME]
 
   let numLives = 0
-  if (playerData[Player.FIELD__LIVES] !== undefined) {
-    numLives = Object.keys(playerData[Player.FIELD__LIVES]).length
+  const lives = playerData[Player.FIELD__LIVES]
+  if (lives !== undefined) {
+    numLives = Object.keys(lives).length * 11
   }
 
   const seed = gameName + playerName + numLives
@@ -62,7 +63,8 @@ export async function generateLifeCode(db: any, gameId: string, playerSnapshot: 
   // We have to use dot-notation or firebase will overwrite the entire field.
   const lifeCodeField = Player.FIELD__LIVES + "." + lifeCode
   const lifeData = {
-    [Player.FIELD__LIFE_CODE_STATUS]: false,
+    [Player.FIELD__LIFE_CODE]: lifeCode,
+    [Player.FIELD__LIFE_CODE_STATUS]: true,
     [Player.FIELD__LIFE_CODE_TIMESTAMP]: GeneralUtils.getTimestamp()
   }
   await playerSnapshot.ref.update({
@@ -102,7 +104,7 @@ function getRandomWords(seed: string, numWords: number): string[] {
   const selectedWords: string[] = new Array(numWords)
   for (let i = 0; i < numWords; i++) {
     const rand = GeneralUtils.hashString("herp-" + i + "-derp-" + seed)
-    selectedWords[i] = RandomWords.WORD_ARRAY[rand % RandomWords.WORD_ARRAY.length].trim()
+    selectedWords[i] = RandomWords.WORD_ARRAY[GeneralUtils.mod(rand, RandomWords.WORD_ARRAY.length)].trim()
   }
   return selectedWords
 }

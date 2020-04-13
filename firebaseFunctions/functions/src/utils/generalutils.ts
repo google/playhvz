@@ -29,3 +29,8 @@ export function hashString(hashableString: string): number {
 export function getTimestamp(): any {
   return admin.firestore.Timestamp.now()
 }
+
+/* There's a javascript bug with %, use our own function so negatives mod correctly. */
+export function mod(randValue: number, maxValue: number): number {
+    return ((randValue % maxValue) + maxValue) % maxValue;
+}
