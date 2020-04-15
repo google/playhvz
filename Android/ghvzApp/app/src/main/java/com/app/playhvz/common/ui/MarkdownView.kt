@@ -23,6 +23,7 @@ import android.graphics.Typeface.ITALIC
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
@@ -33,7 +34,8 @@ class MarkdownView : EmojiTextView {
         enum class TagType {
             BOLD,
             ITALIC,
-            STRIKE_THROUGH
+            STRIKE_THROUGH,
+            HEADING
         }
     }
 
@@ -62,9 +64,10 @@ class MarkdownView : EmojiTextView {
 
     private fun styleTag(
         tagType: TagType,
-        spannable: SpannableStringBuilder
+        spannableBuilder: SpannableStringBuilder
     ): SpannableStringBuilder {
         val tag = Tag(tagType)
+        var spannable = spannableBuilder
         var startIndex = 0
         val regex: Regex = Regex(tag.getRegex())
 
@@ -72,39 +75,7 @@ class MarkdownView : EmojiTextView {
             val result = regex.find(spannable, startIndex)
             if (result != null) {
                 startIndex = Math.min(result.range.last + 1, spannable.length)
-                var startTagStartInclusive = result.range.first
-                if (spannable[startTagStartInclusive].isWhitespace()) {
-                    // The starting space or ending space is counted in the result range, skip it
-                    startTagStartInclusive++
-                }
-                val startTagEndExclusive = startTagStartInclusive + 2
-                var endTagEndExclusive = Math.min(result.range.last + 1, spannable.length)
-                if (spannable[endTagEndExclusive - 1].isWhitespace()) {
-                    endTagEndExclusive--
-                }
-                val endTagStartInclusive = endTagEndExclusive - 2
-                // Contrary to what you'd think, the spannable inclusive/exclusive tag has nothing
-                // to do with the start and end index you supply, it only matters for whether text
-                // inserted in those spots will be styled... the start and end indexes should always
-                // be inclusive,exclusive no matter what the tag you use says.
-                spannable.setSpan(
-                    ForegroundColorSpan(Color.TRANSPARENT),
-                    startTagStartInclusive,
-                    startTagEndExclusive,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                spannable.setSpan(
-                    tag.getSpanStyle(),
-                    startTagEndExclusive,
-                    endTagStartInclusive,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                spannable.setSpan(
-                    ForegroundColorSpan(Color.TRANSPARENT),
-                    endTagStartInclusive,
-                    endTagEndExclusive,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                spannable = tag.styleSpan(result, spannable)
             } else {
                 startIndex = spannable.length + 1
             }
@@ -118,6 +89,7 @@ class MarkdownView : EmojiTextView {
             const val BOLD_REGEX_TAG = "\\*\\*"
             const val ITALIC_REGEX_TAG = "__"
             const val STRIKE_THROUGH_REGEX_TAG = "~~"
+            const val HEADING_REGEX_TAG = "(^|\\s)(#{1,6})\\s.*?\\n"
         }
 
         fun getRegex(): String {
@@ -128,14 +100,17 @@ class MarkdownView : EmojiTextView {
                 TagType.ITALIC -> {
                     ITALIC_REGEX_TAG
                 }
-                else -> {
+                TagType.STRIKE_THROUGH -> {
                     STRIKE_THROUGH_REGEX_TAG
+                }
+                else -> {
+                    return HEADING_REGEX_TAG
                 }
             }
             return "$tagString\\S.*?\\S$tagString"
         }
 
-        fun getSpanStyle(): Any {
+        fun getSpanStyle(relativeSize: Float = 1f): Any {
             return when (type) {
                 TagType.BOLD -> {
                     StyleSpan(BOLD)
@@ -143,10 +118,97 @@ class MarkdownView : EmojiTextView {
                 TagType.ITALIC -> {
                     StyleSpan(ITALIC)
                 }
-                else -> {
+                TagType.STRIKE_THROUGH -> {
                     StrikethroughSpan()
                 }
+                else -> {
+                    RelativeSizeSpan(relativeSize)
+                }
             }
+        }
+
+        fun styleSpan(
+            regexMatch: MatchResult,
+            spannable: SpannableStringBuilder
+        ): SpannableStringBuilder {
+            if (type != TagType.HEADING) {
+                return styleNonHeadingSpan(regexMatch, spannable)
+            }
+            return styleHeadingSpan(regexMatch, spannable)
+        }
+
+        private fun styleNonHeadingSpan(
+            regexMatch: MatchResult,
+            spannable: SpannableStringBuilder
+        ): SpannableStringBuilder {
+            var startTagStartInclusive = regexMatch.range.first
+            if (spannable[startTagStartInclusive].isWhitespace()) {
+                // The starting space or ending space is counted in the result range, skip it
+                startTagStartInclusive++
+            }
+            val startTagEndExclusive = startTagStartInclusive + 2
+            var endTagEndExclusive = Math.min(regexMatch.range.last + 1, spannable.length)
+            if (spannable[endTagEndExclusive - 1].isWhitespace()) {
+                endTagEndExclusive--
+            }
+            val endTagStartInclusive = endTagEndExclusive - 2
+            // Contrary to what you'd think, the spannable inclusive/exclusive tag has nothing
+            // to do with the start and end index you supply, it only matters for whether text
+            // inserted in those spots will be styled... the start and end indexes should always
+            // be inclusive,exclusive no matter what the tag you use says.
+            spannable.setSpan(
+                ForegroundColorSpan(Color.TRANSPARENT),
+                startTagStartInclusive,
+                startTagEndExclusive,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                getSpanStyle(),
+                startTagEndExclusive,
+                endTagStartInclusive,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                ForegroundColorSpan(Color.TRANSPARENT),
+                endTagStartInclusive,
+                endTagEndExclusive,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            return spannable
+        }
+
+        private fun styleHeadingSpan(
+            regexMatch: MatchResult,
+            spannable: SpannableStringBuilder
+        ): SpannableStringBuilder {
+            val numberOfHashtagsInclusive = regexMatch.groupValues[2].length
+            val startTagStartInclusive = regexMatch.range.first
+            val startTagEndExclusive = startTagStartInclusive + numberOfHashtagsInclusive + 1
+            var endOfContentExclusive = Math.min(regexMatch.range.last + 1, spannable.length)
+            if (spannable[endOfContentExclusive - 1].isWhitespace()) {
+                endOfContentExclusive--
+            }
+
+            // The more #, the smaller the heading.
+            val textSizeMultiplier = (4 - (0.35f * numberOfHashtagsInclusive))
+
+            // Contrary to what you'd think, the spannable inclusive/exclusive tag has nothing
+            // to do with the start and end index you supply, it only matters for whether text
+            // inserted in those spots will be styled... the start and end indexes should always
+            // be inclusive,exclusive no matter what the tag you use says.
+            spannable.setSpan(
+                ForegroundColorSpan(Color.TRANSPARENT),
+                startTagStartInclusive,
+                startTagEndExclusive,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                getSpanStyle(textSizeMultiplier),
+                startTagEndExclusive,
+                endOfContentExclusive,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            return spannable
         }
     }
 }
