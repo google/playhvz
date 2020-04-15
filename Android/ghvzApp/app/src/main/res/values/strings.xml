@@ -299,6 +299,22 @@
     **Text**
   </string>
 
+  <string name="markdown_hint_italic_raw" definition="Raw text hint for italic markdown text.">
+    __Text__ →
+  </string>
+
+  <string name="markdown_hint_italic_display" definition="Actual styled text for italic markdown text.">
+    __Text__
+  </string>
+
+  <string name="markdown_hint_strike_raw" definition="Raw text hint for strike through markdown text.">
+    ~~Text~~ →
+  </string>
+
+  <string name="markdown_hint_strike_display" definition="Actual styled text for strike through markdown text.">
+    ~~Text~~
+  </string>
+
   <string name="menu_bottom_nav_chat" definition="Bottom navigation menu item for opening chat.">
     Chat
   </string>
