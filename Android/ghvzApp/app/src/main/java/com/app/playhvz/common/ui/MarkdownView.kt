@@ -23,6 +23,7 @@ import android.graphics.Typeface.ITALIC
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
 import androidx.emoji.widget.EmojiTextView
@@ -31,7 +32,8 @@ class MarkdownView : EmojiTextView {
     companion object {
         enum class TagType {
             BOLD,
-            ITALIC
+            ITALIC,
+            STRIKE_THROUGH
         }
     }
 
@@ -55,7 +57,6 @@ class MarkdownView : EmojiTextView {
         for (tag in TagType.values()) {
             spannable = styleTag(tag, spannable)
         }
-        //spannable = setItalic(spannable)
         super.setText(spannable, BufferType.SPANNABLE)
     }
 
@@ -116,6 +117,7 @@ class MarkdownView : EmojiTextView {
         companion object {
             const val BOLD_REGEX_TAG = "\\*\\*"
             const val ITALIC_REGEX_TAG = "__"
+            const val STRIKE_THROUGH_REGEX_TAG = "~~"
         }
 
         fun getRegex(): String {
@@ -123,23 +125,28 @@ class MarkdownView : EmojiTextView {
                 TagType.BOLD -> {
                     BOLD_REGEX_TAG
                 }
-                else -> {
+                TagType.ITALIC -> {
                     ITALIC_REGEX_TAG
+                }
+                else -> {
+                    STRIKE_THROUGH_REGEX_TAG
                 }
             }
             return "$tagString\\S.*?\\S$tagString"
         }
 
-        fun getSpanStyle(): StyleSpan {
-            val styleType = when (type) {
+        fun getSpanStyle(): Any {
+            return when (type) {
                 TagType.BOLD -> {
-                    BOLD
+                    StyleSpan(BOLD)
+                }
+                TagType.ITALIC -> {
+                    StyleSpan(ITALIC)
                 }
                 else -> {
-                    ITALIC
+                    StrikethroughSpan()
                 }
             }
-            return StyleSpan(styleType)
         }
     }
 }
