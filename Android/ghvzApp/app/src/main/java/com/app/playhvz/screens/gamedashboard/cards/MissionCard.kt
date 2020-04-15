@@ -23,6 +23,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
 import androidx.navigation.NavController
 import com.app.playhvz.R
+import com.app.playhvz.common.ui.MarkdownView
 import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
@@ -41,7 +42,7 @@ class MissionCard(
     lateinit var cardTitle: EmojiTextView
     lateinit var startTimeView: TextView
     lateinit var endTimeView: TextView
-    lateinit var detailsView: EmojiTextView
+    lateinit var detailsView: MarkdownView
     lateinit var cardHeader: LinearLayout
     lateinit var cardHeaderIcon: MaterialButton
     lateinit var cardContent: ConstraintLayout

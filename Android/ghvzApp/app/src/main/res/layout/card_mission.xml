@@ -94,9 +94,9 @@
         app:layout_constraintTop_toTopOf="@id/mission_start_time"
         tools:text="Jun 06\n4:00 PM" />
 
-      <androidx.emoji.widget.EmojiTextView
+      <com.app.playhvz.common.ui.MarkdownView
         android:id="@+id/mission_details"
-        style="@style/TextAppearance.AppCompat.Body2"
+        style="@style/TextAppearance.MaterialComponents.Body2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="20dp"
