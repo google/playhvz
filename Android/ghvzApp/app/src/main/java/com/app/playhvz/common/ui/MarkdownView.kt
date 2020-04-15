@@ -74,7 +74,7 @@ class MarkdownView : EmojiTextView {
         while (startIndex < spannable.length) {
             val result = regex.find(spannable, startIndex)
             if (result != null) {
-                startIndex = Math.min(result.range.last + 1, spannable.length)
+                startIndex = Math.min(result.range.last, spannable.length)
                 spannable = tag.styleSpan(result, spannable)
             } else {
                 startIndex = spannable.length + 1
