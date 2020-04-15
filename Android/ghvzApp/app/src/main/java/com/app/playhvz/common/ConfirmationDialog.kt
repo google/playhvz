@@ -32,7 +32,6 @@ class ConfirmationDialog(
     private val descriptionResId: Int? = null,
     private var confirmationResId: Int? = null,
     private var cancelResId: Int? = null
-
 ) : DialogFragment() {
 
     companion object {
