@@ -107,7 +107,7 @@ class MarkdownView : EmojiTextView {
                     return HEADING_REGEX_TAG
                 }
             }
-            return "$tagString\\S.*?\\S$tagString"
+            return "$tagString\\S*?\\S$tagString"
         }
 
         fun getSpanStyle(relativeSize: Float = 1f): Any {
