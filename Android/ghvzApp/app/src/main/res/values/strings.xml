@@ -74,6 +74,10 @@
     Create
   </string>
 
+  <string name="button_dismiss" definition="Dismiss button.">
+    Dismiss
+  </string>
+
   <string name="button_next" definition="Button to select when saving changes and going to the next screen.">
     Next
   </string>
@@ -287,6 +291,14 @@
     For past life codes see your profile page.
   </string>
 
+  <string name="markdown_hint_bold_raw" definition="Raw text hint for bold markdown text.">
+    **Text** →
+  </string>
+
+  <string name="markdown_hint_bold_display" definition="Actual styled text for bold markdown text.">
+    **Text**
+  </string>
+
   <string name="menu_bottom_nav_chat" definition="Bottom navigation menu item for opening chat.">
     Chat
   </string>
@@ -410,6 +422,10 @@
 
   <string name="force_upgrade_image_content_description" definition="Content description for force upgrade image.">
     poo
+  </string>
+
+  <string name="markdown_dialog_trigger_content_description" definition="Content description for the button that opens the markdown cheatsheet.">
+    View Markdown hints
   </string>
 
   <!-- Non-translatable strings -->

@@ -30,6 +30,7 @@
   <color name="app_primary_text">@color/grey800</color>
   <color name="app_secondary_text">@color/grey700</color>
   <color name="sublabel_text">@color/grey500</color>
+  <color name="secondary_icon_button">@color/grey500</color>
 
   <color name="divider">#1F000000</color> <!-- 12% opacity grey -->
 </resources>
