@@ -73,7 +73,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_declare_allegiance_fragment,
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
-        R.id.nav_mission_settings_fragment
+        R.id.nav_mission_settings_fragment,
+        R.id.nav_rules_fragment
     )
 
     private var fragmentsWithoutBackNavigation = setOf(
@@ -137,6 +138,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 NavigationUtil.navigateToGameSettings(
                     findNavController(R.id.nav_host_fragment),
                     getCurrentGameId()
+                )
+            }
+            R.id.nav_rules_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToRules(
+                    findNavController(R.id.nav_host_fragment)
                 )
             }
             R.id.nav_game_list_fragment -> {

@@ -16,6 +16,7 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <!-- Game Admin options. -->
   <group
     android:id="@+id/nav_admin_options"
     android:visible="false">
@@ -25,7 +26,14 @@
       android:title="@string/navigation_drawer_game_settings" />
   </group>
 
-  <!-- Navigation Items defined by navigation graph -->
+  <!-- Navigation Items defined by navigation graph. -->
+  <group android:id="@+id/nav_game_options">
+    <item
+      android:id="@id/nav_rules_fragment"
+      android:icon="@drawable/ic_list"
+      android:title="@string/navigation_drawer_rules" />
+  </group>
+
   <group android:id="@+id/nav_global_options">
     <item
       android:id="@id/nav_game_list_fragment"
