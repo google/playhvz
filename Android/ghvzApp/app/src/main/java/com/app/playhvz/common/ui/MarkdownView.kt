@@ -89,7 +89,7 @@ class MarkdownView : EmojiTextView {
             const val BOLD_REGEX_TAG = "\\*\\*"
             const val ITALIC_REGEX_TAG = "__"
             const val STRIKE_THROUGH_REGEX_TAG = "~~"
-            const val HEADING_REGEX_TAG = "(^|\\s)(#{1,6})(\\s.*?)?\\n"
+            const val HEADING_REGEX_TAG = "(^|\\s)(#{1,6})(\\s.*?)?(\\n|$)"
         }
 
         fun getRegex(): String {

@@ -291,28 +291,48 @@
     For past life codes see your profile page.
   </string>
 
-  <string name="markdown_hint_bold_raw" definition="Raw text hint for bold markdown text.">
-    **Text** →
+  <string name="markdown_hint_dialog_title" definition="Dialog title for showing markdown hints.">
+    Markdown hints
   </string>
 
-  <string name="markdown_hint_bold_display" definition="Actual styled text for bold markdown text.">
-    **Text**
+  <string name="markdown_hint_arrow" definition="Arrow demonstrating left is relevant to right.">
+    →
   </string>
 
-  <string name="markdown_hint_italic_raw" definition="Raw text hint for italic markdown text.">
-    __Text__ →
+  <string name="markdown_hint_bold" definition="Text for bold markdown text.">
+    **bold**
   </string>
 
-  <string name="markdown_hint_italic_display" definition="Actual styled text for italic markdown text.">
-    __Text__
+  <string name="markdown_hint_italic" definition="Text for italic markdown text.">
+    __italic__
   </string>
 
-  <string name="markdown_hint_strike_raw" definition="Raw text hint for strike through markdown text.">
-    ~~Text~~ →
+  <string name="markdown_hint_strike" definition="Text for strikethrough markdown text.">
+    ~~strikethrough~~
   </string>
 
-  <string name="markdown_hint_strike_display" definition="Actual styled text for strike through markdown text.">
-    ~~Text~~
+  <string name="markdown_hint_heading1" definition="Text for heading1 markdown text.">
+    # H1
+  </string>
+
+  <string name="markdown_hint_heading2" definition="Text for heading2 markdown text.">
+    ## H2
+  </string>
+
+  <string name="markdown_hint_heading3" definition="Text for heading3 markdown text.">
+    ### H3
+  </string>
+
+  <string name="markdown_hint_heading4" definition="Text for heading4 markdown text.">
+    #### H4
+  </string>
+
+  <string name="markdown_hint_heading5" definition="Text for heading5 markdown text.">
+    ##### H5
+  </string>
+
+  <string name="markdown_hint_heading6" definition="Text for heading6 markdown text.">
+    ###### H6
   </string>
 
   <string name="menu_bottom_nav_chat" definition="Bottom navigation menu item for opening chat.">
