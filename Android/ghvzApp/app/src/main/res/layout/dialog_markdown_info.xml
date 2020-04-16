@@ -16,86 +16,41 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
   android:minWidth="@dimen/app_minimum_dialog_width"
   android:minHeight="@dimen/app_minimum_dialog_height"
   android:orientation="vertical"
-  android:padding="6dp">
+  android:padding="6dp"
+  android:paddingBottom="@dimen/screen_margin_horizontal">
+
+  <TextView
+    style="@style/TextAppearance.MaterialComponents.Headline6"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/screen_margin_horizontal"
+    android:paddingEnd="@dimen/screen_margin_horizontal"
+    android:text="@string/markdown_hint_dialog_title"
+    android:textColor="@color/app_secondary_text"
+    app:layout_constraintBottom_toBottomOf="@id/negative_button"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@id/negative_button" />
 
   <ImageButton
     android:id="@+id/negative_button"
     style="@style/ImageButtonStyle"
+    android:contentDescription="@string/button_dismiss"
     android:src="@drawable/ic_x"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
-  <TextView
-    android:id="@+id/bold_raw"
-    android:layout_width="wrap_content"
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/markdown_example_list"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/screen_margin_horizontal"
-    android:text="@string/markdown_hint_bold_raw"
-    android:textSize="18sp"
+    android:paddingTop="8dp"
+    app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/negative_button"
-    tools:ignore="RtlSymmetry" />
-
-  <com.app.playhvz.common.ui.MarkdownView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingStart="4dp"
-    android:paddingEnd="@dimen/screen_margin_horizontal"
-    android:text="@string/markdown_hint_bold_display"
-    android:textSize="18sp"
-    app:layout_constraintStart_toEndOf="@id/bold_raw"
-    app:layout_constraintTop_toTopOf="@id/bold_raw"
-    tools:ignore="RtlSymmetry" />
-
-  <TextView
-    android:id="@+id/italic_raw"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingStart="@dimen/screen_margin_horizontal"
-    android:text="@string/markdown_hint_italic_raw"
-    android:textSize="18sp"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/bold_raw"
-    tools:ignore="RtlSymmetry" />
-
-  <com.app.playhvz.common.ui.MarkdownView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingStart="4dp"
-    android:paddingEnd="@dimen/screen_margin_horizontal"
-    android:text="@string/markdown_hint_italic_display"
-    android:textSize="18sp"
-    app:layout_constraintStart_toEndOf="@id/italic_raw"
-    app:layout_constraintTop_toTopOf="@id/italic_raw"
-    tools:ignore="RtlSymmetry" />
-
-  <TextView
-    android:id="@+id/strike_raw"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingStart="@dimen/screen_margin_horizontal"
-    android:text="@string/markdown_hint_strike_raw"
-    android:textSize="18sp"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/italic_raw"
-    tools:ignore="RtlSymmetry" />
-
-  <com.app.playhvz.common.ui.MarkdownView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingStart="4dp"
-    android:paddingEnd="@dimen/screen_margin_horizontal"
-    android:text="@string/markdown_hint_strike_display"
-    android:textSize="18sp"
-    app:layout_constraintStart_toEndOf="@id/strike_raw"
-    app:layout_constraintTop_toTopOf="@id/strike_raw"
-    tools:ignore="RtlSymmetry" />
-
+    app:layout_constraintTop_toBottomOf="@id/negative_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
