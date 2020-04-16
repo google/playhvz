@@ -307,8 +307,8 @@
     __italic__
   </string>
 
-  <string name="markdown_hint_strike" definition="Text for strikethrough markdown text.">
-    ~~strikethrough~~
+  <string name="markdown_hint_strike" definition="Text for strike-through markdown text.">
+    ~~strike~~
   </string>
 
   <string name="markdown_hint_heading1" definition="Text for heading1 markdown text.">

@@ -17,12 +17,10 @@
 package com.app.playhvz.common.ui
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface.BOLD
 import android.graphics.Typeface.ITALIC
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
@@ -157,7 +155,7 @@ class MarkdownView : EmojiTextView {
             // inserted in those spots will be styled... the start and end indexes should always
             // be inclusive,exclusive no matter what the tag you use says.
             spannable.setSpan(
-                ForegroundColorSpan(Color.TRANSPARENT),
+                HiddenSpan(),
                 startTagStartInclusive,
                 startTagEndExclusive,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -169,7 +167,7 @@ class MarkdownView : EmojiTextView {
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             spannable.setSpan(
-                ForegroundColorSpan(Color.TRANSPARENT),
+                HiddenSpan(),
                 endTagStartInclusive,
                 endTagEndExclusive,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -183,7 +181,15 @@ class MarkdownView : EmojiTextView {
         ): SpannableStringBuilder {
             val numberOfHashtagsInclusive = regexMatch.groupValues[2].length
             val startTagStartInclusive = regexMatch.range.first
-            val startTagEndExclusive = startTagStartInclusive + numberOfHashtagsInclusive + 1
+            // +1 because we need this to be exclusive not inclusive
+            var startTagEndExclusive = startTagStartInclusive + numberOfHashtagsInclusive + 1
+            if (spannable[startTagEndExclusive].isWhitespace()) {
+                // Make sure to include the space after the "#" as part of the header tag. For some
+                // reason I don't really care enough to figure out, the space isn't counted if there
+                // was a newline before the heading tag, but it is already counted if we were at the
+                // start of the string (\n vs ^ in regex).
+                startTagEndExclusive++
+            }
             var endOfContentExclusive = Math.min(regexMatch.range.last + 1, spannable.length)
             if (spannable[endOfContentExclusive - 1].isWhitespace()) {
                 endOfContentExclusive--
@@ -197,7 +203,7 @@ class MarkdownView : EmojiTextView {
             // inserted in those spots will be styled... the start and end indexes should always
             // be inclusive,exclusive no matter what the tag you use says.
             spannable.setSpan(
-                ForegroundColorSpan(Color.TRANSPARENT),
+                HiddenSpan(),
                 startTagStartInclusive,
                 startTagEndExclusive,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
