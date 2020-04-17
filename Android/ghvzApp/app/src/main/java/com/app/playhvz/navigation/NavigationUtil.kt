@@ -16,6 +16,7 @@
 
 package com.app.playhvz.navigation
 
+import androidx.activity.ComponentActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants

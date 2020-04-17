@@ -26,6 +26,7 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -202,7 +203,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val navController = findNavController(R.id.nav_host_fragment)
         setSupportActionBar(toolbar)
         appBarConfiguration =
-            AppBarConfiguration(fragmentsWithoutBackNavigation, findViewById(R.id.drawer_layout))
+            AppBarConfiguration(
+                fragmentsWithoutBackNavigation,
+                findViewById<DrawerLayout>(R.id.drawer_layout)
+            )
         toolbar.setupWithNavController(navController, appBarConfiguration)
 
         navDrawerView.setupWithNavController(navController)

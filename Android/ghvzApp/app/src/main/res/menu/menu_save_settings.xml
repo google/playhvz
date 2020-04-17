@@ -17,7 +17,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
-    android:id="@+id/save_mission"
+    android:id="@+id/save_option"
     android:icon="@drawable/ic_check"
     android:title="@string/mission_settings_delete"
     app:showAsAction="always" />

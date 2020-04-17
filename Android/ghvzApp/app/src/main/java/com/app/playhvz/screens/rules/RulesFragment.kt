@@ -17,10 +17,9 @@
 package com.app.playhvz.screens.rules
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ProgressBar
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -33,18 +32,23 @@ import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
+
 class RulesFragment : Fragment() {
 
     private var gameId: String? = null
     private var fab: FloatingActionButton? = null
+    private var isEditing: Boolean = false
 
-    private lateinit var toolbar: ActionBar
-    private lateinit var progressBar: ProgressBar
     private lateinit var gameViewModel: GameViewModel
-
+    private lateinit var interceptBackCallback: OnBackPressedCallback
+    private lateinit var progressBar: ProgressBar
+    private lateinit var toolbar: ActionBar
+    private lateinit var toolbarMenu: Menu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        toolbar = (activity as AppCompatActivity).supportActionBar!!
+        gameViewModel = GameViewModel()
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -52,10 +56,18 @@ class RulesFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         if (gameId == null) {
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
-        toolbar = (activity as AppCompatActivity).supportActionBar!!
-        gameViewModel = GameViewModel()
+
+        interceptBackCallback = object : OnBackPressedCallback(/* enabled= */ true) {
+            override fun handleOnBackPressed() {
+                println("lizard - did the thing")
+                onBackPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, interceptBackCallback)
+
+        setupToolbar()
     }
 
     override fun onCreateView(
@@ -67,15 +79,33 @@ class RulesFragment : Fragment() {
         fab = activity?.findViewById(R.id.floating_action_button)
         progressBar = view.findViewById(R.id.progress_bar)
 
-        setupFab()
-        setupToolbar()
         setupObservers()
         return view
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_save_settings, menu)
+        toolbarMenu = menu
+        setupFab()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.save_option) {
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun onBackPressed() {
+        println("lizard - back pressed")
+        if (isEditing) {
+            exitEditMode()
+        }
     }
 
     fun setupToolbar() {
         toolbar.title = getString(R.string.navigation_drawer_rules)
         toolbar.setDisplayHomeAsUpEnabled(false)
+        setHasOptionsMenu(true)
     }
 
     private fun setupObservers() {
@@ -83,7 +113,7 @@ class RulesFragment : Fragment() {
             return
         }
         gameViewModel.getGame(gameId!!) {
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
             updateGame(serverGame)
         })
@@ -91,9 +121,13 @@ class RulesFragment : Fragment() {
 
     private fun setupFab() {
         fab?.setOnClickListener {
+            if (isEditing) {
+                exitEditMode()
+            } else {
+                enterEditMode()
+            }
         }
-        fab?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_edit))
-        fab?.visibility = View.VISIBLE
+        exitEditMode()
     }
 
     private fun hideProgressBar() {
@@ -105,5 +139,31 @@ class RulesFragment : Fragment() {
 
     private fun updateGame(serverGame: Game) {
         hideProgressBar()
+    }
+
+    private fun hideActionBarActions() {
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
+        menuItem.isVisible = false
+    }
+
+    private fun showActionBarActions() {
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
+        menuItem.isVisible = true
+    }
+
+    private fun enterEditMode() {
+        if (isEditing) {
+            return
+        }
+        isEditing = true
+        fab?.visibility = View.GONE
+        showActionBarActions()
+    }
+
+    private fun exitEditMode() {
+        hideActionBarActions()
+        fab?.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_edit))
+        fab?.visibility = View.VISIBLE
+        isEditing = false
     }
 }

@@ -143,13 +143,13 @@ class MissionSettingsFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_mission_settings, menu)
+        inflater.inflate(R.menu.menu_save_settings, menu)
         toolbarMenu = menu
         disableActions()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.save_mission) {
+        if (item.itemId == R.id.save_option) {
             submitMission()
         }
         return super.onOptionsItemSelected(item)
@@ -304,14 +304,14 @@ class MissionSettingsFragment : Fragment() {
     }
 
     private fun disableActions() {
-        val menuItem = toolbarMenu.findItem(R.id.save_mission)
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 130
         menuItem.isEnabled = false
         submitButton.isEnabled = false
     }
 
     private fun enableActions() {
-        val menuItem = toolbarMenu.findItem(R.id.save_mission)
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 255
         menuItem.isEnabled = true
         submitButton.isEnabled = true
