@@ -51,8 +51,8 @@ class SignInActivity : BaseActivity() {
     // All static methods or variables go inside this companion object.
     companion object {
         private val TAG = SignInActivity::class.qualifiedName
-        private val EXTRA_SIGNOUT = "signout"
-        val GOOGLE_SIGN_IN_REQUEST_CODE: Int = 1
+        const val EXTRA_SIGNOUT = "signout"
+        const val GOOGLE_SIGN_IN_REQUEST_CODE: Int = 1
 
         fun getLaunchIntent(from: Context, signOut: Boolean) =
             Intent(from, SignInActivity::class.java).apply {
@@ -96,6 +96,7 @@ class SignInActivity : BaseActivity() {
         // Redirect to the home screen if we're already signed in.
         val user = FirebaseProvider.getFirebaseAuth().currentUser
         if (user != null) {
+            Log.d(TAG, "User is already signed in, navigating to home page.")
             showLoadingSpinner()
             ensureUserSetUpBeforeNavigatingToHomePage()
         }
@@ -139,7 +140,7 @@ class SignInActivity : BaseActivity() {
             } catch (e: ApiException) {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
-                Log.w(TAG, "signInResult:failed code=" + e.statusCode)
+                Log.e(TAG, "signInResult:failed code= " + e.statusCode)
                 Toast.makeText(
                     applicationContext,
                     getString(R.string.sign_in_failed_toast),

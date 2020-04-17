@@ -26,6 +26,7 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -65,6 +66,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private var prefs: SharedPreferences? = null
     private var gameViewModel = GameViewModel()
+    private var gameId: String? = null
     private var isAdmin: Boolean = false
 
     private var fragmentsWithoutBottomNav = arrayOf(
@@ -73,7 +75,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_declare_allegiance_fragment,
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
-        R.id.nav_mission_settings_fragment
+        R.id.nav_mission_settings_fragment,
+        R.id.nav_rules_fragment
     )
 
     private var fragmentsWithoutBackNavigation = setOf(
@@ -139,6 +142,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     getCurrentGameId()
                 )
             }
+            R.id.nav_rules_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToRules(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
             R.id.nav_game_list_fragment -> {
                 SystemUtils.clearSharedPrefs(this)
                 drawer_layout.closeDrawer(GravityCompat.START)
@@ -195,7 +204,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val navController = findNavController(R.id.nav_host_fragment)
         setSupportActionBar(toolbar)
         appBarConfiguration =
-            AppBarConfiguration(fragmentsWithoutBackNavigation, findViewById(R.id.drawer_layout))
+            AppBarConfiguration(
+                fragmentsWithoutBackNavigation,
+                findViewById<DrawerLayout>(R.id.drawer_layout)
+            )
         toolbar.setupWithNavController(navController, appBarConfiguration)
 
         navDrawerView.setupWithNavController(navController)
@@ -240,6 +252,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun listenToGameUpdates(gameId: String?) {
+        this.gameId = gameId
         if (gameId.isNullOrEmpty()) {
             if (isAdmin) {
                 isAdmin = false
@@ -261,6 +274,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun updateNavDrawerItems() {
         navDrawerView.menu.setGroupVisible(R.id.nav_admin_options, isAdmin)
+        navDrawerView.menu.setGroupVisible(R.id.nav_game_options, gameId != null)
     }
 
     private fun getNavController(): NavController {

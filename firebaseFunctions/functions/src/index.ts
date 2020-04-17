@@ -38,7 +38,7 @@ const db = admin.firestore();
 ********************************************************/
 
 exports.registerDevice = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
+  if (context.auth === undefined) {
       // Throwing an HttpsError so that the client gets the error details.
       throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
           'while authenticated.');

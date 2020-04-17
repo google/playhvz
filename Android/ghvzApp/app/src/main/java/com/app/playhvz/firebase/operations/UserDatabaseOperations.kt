@@ -73,7 +73,7 @@ class UserDatabaseOperations() {
                 .call(data)
                 .continueWith { task ->
                     if (!task.isSuccessful) {
-                        Log.e(TAG, "Failed to register device token!")
+                        Log.e(TAG, "Failed to register device token! Error: " + task.exception)
                         return@continueWith
                     }
                 }

@@ -73,9 +73,7 @@ class GameDashboardFragment : Fragment() {
             NavigationUtil.navigateToGameList(findNavController(), activity!!)
         }
 
-        setupCards()
-        setupObservers()
-        setupToolbar()
+
     }
 
     override fun onCreateView(
@@ -83,11 +81,14 @@ class GameDashboardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setupObservers()
+        setupCards()
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
         declareAllegianceCard.onCreateView(view)
         infectCard.onCreateView(view)
         lifeCodeCard.onCreateView(view)
         missionCard.onCreateView(view)
+        setupToolbar()
         return view
     }
 
@@ -107,15 +108,15 @@ class GameDashboardFragment : Fragment() {
         }
         firestoreViewModel.getGame(gameId!!) {
             NavigationUtil.navigateToGameList(findNavController(), activity!!)
-        }.observe(this, androidx.lifecycle.Observer { serverGame: Game ->
+        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
             updateGame(serverGame)
         })
         PlayerUtils.getPlayer(gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverPlayer ->
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
             })
         missionViewModel.getLatestMissionPlayerIsIn(this, gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { missionMap ->
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { missionMap ->
                 if (missionMap.isEmpty()) {
                     missionCard.hide()
                     return@Observer

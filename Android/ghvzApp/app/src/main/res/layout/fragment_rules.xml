@@ -14,11 +14,17 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
-  <item
-    android:id="@+id/save_mission"
-    android:icon="@drawable/ic_check"
-    android:title="@string/mission_settings_delete"
-    app:showAsAction="always" />
-</menu>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <ProgressBar
+    android:id="@+id/progress_bar"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/horizontal_progress_bar_height"
+    android:indeterminate="true"
+    android:paddingStart="@dimen/screen_margin_horizontal"
+    android:paddingEnd="@dimen/screen_margin_horizontal" />
+</LinearLayout>

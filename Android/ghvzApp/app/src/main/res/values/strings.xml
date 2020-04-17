@@ -415,6 +415,10 @@
     Home
   </string>
 
+  <string name="navigation_drawer_rules" definition="Navigation drawer menu item for opening the rules of a game.">
+    Rules
+  </string>
+
   <string name="player_profile_allegiance_label" definition="Label for the player's allegiance.">
     Allegiance
   </string>

@@ -16,6 +16,7 @@
 
 package com.app.playhvz.navigation
 
+import androidx.activity.ComponentActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants
@@ -29,6 +30,7 @@ import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
+import com.app.playhvz.screens.rules.RulesFragmentDirections
 
 class NavigationUtil {
     companion object {
@@ -133,6 +135,15 @@ class NavigationUtil {
         fun navigateToMissionSettings(navController: NavController, missionId: String?) {
             navController.navigate(
                 MissionSettingsFragmentDirections.actionGlobalNavMissionSettingsFragment(missionId)
+            )
+        }
+
+        /**
+         * Opens the rules of the game.
+         */
+        fun navigateToRules(navController: NavController) {
+            navController.navigate(
+                RulesFragmentDirections.actionGlobalNavRulesFragment()
             )
         }
     }
