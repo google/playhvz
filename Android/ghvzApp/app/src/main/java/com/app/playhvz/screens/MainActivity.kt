@@ -66,6 +66,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private var prefs: SharedPreferences? = null
     private var gameViewModel = GameViewModel()
+    private var gameId: String? = null
     private var isAdmin: Boolean = false
 
     private var fragmentsWithoutBottomNav = arrayOf(
@@ -251,6 +252,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun listenToGameUpdates(gameId: String?) {
+        this.gameId = gameId
         if (gameId.isNullOrEmpty()) {
             if (isAdmin) {
                 isAdmin = false
@@ -272,6 +274,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun updateNavDrawerItems() {
         navDrawerView.menu.setGroupVisible(R.id.nav_admin_options, isAdmin)
+        navDrawerView.menu.setGroupVisible(R.id.nav_game_options, gameId != null)
     }
 
     private fun getNavController(): NavController {

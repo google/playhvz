@@ -59,14 +59,6 @@ class RulesFragment : Fragment() {
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
 
-        interceptBackCallback = object : OnBackPressedCallback(/* enabled= */ true) {
-            override fun handleOnBackPressed() {
-                println("lizard - did the thing")
-                onBackPressed()
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(this, interceptBackCallback)
-
         setupToolbar()
     }
 
@@ -90,16 +82,13 @@ class RulesFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.save_option) {
+        when (item.itemId) {
+            R.id.save_option -> {
+                exitEditMode()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    fun onBackPressed() {
-        println("lizard - back pressed")
-        if (isEditing) {
-            exitEditMode()
-        }
     }
 
     fun setupToolbar() {
@@ -120,6 +109,7 @@ class RulesFragment : Fragment() {
     }
 
     private fun setupFab() {
+        fab?.visibility = View.VISIBLE
         fab?.setOnClickListener {
             if (isEditing) {
                 exitEditMode()
@@ -156,14 +146,13 @@ class RulesFragment : Fragment() {
             return
         }
         isEditing = true
-        fab?.visibility = View.GONE
+        fab?.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_x))
         showActionBarActions()
     }
 
     private fun exitEditMode() {
         hideActionBarActions()
         fab?.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_edit))
-        fab?.visibility = View.VISIBLE
         isEditing = false
     }
 }
