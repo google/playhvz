@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:orientation="vertical"
@@ -26,13 +27,26 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:hint="@string/collapsible_section_title_hint_text"
+    android:maxLength="60"
     android:textColor="@color/app_primary_text"
-    android:textSize="@dimen/list_item_title_text" />
+    android:textSize="@dimen/list_item_title_text"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <ImageButton
+    android:id="@+id/markdown_info_button"
+    style="@style/ImageButtonStyle"
+    android:contentDescription="@string/markdown_dialog_trigger_content_description"
+    android:src="@drawable/ic_info"
+    app:layout_constraintBottom_toTopOf="@+id/section_content"
+    app:layout_constraintEnd_toEndOf="parent" />
 
   <androidx.emoji.widget.EmojiEditText
     android:id="@+id/section_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:hint="@string/collapsible_section_content_hint_text" />
+    android:hint="@string/collapsible_section_content_hint_text"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/section_title" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

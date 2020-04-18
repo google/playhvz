@@ -198,7 +198,7 @@ class RulesFragment : Fragment() {
                     editAdapter?.notifyDataSetChanged()
                 }
                 if (editAdapter == null) {
-                    editAdapter = RulesEditAdapter(listOf(), requireContext(), onRuleAdded)
+                    editAdapter = RulesEditAdapter(listOf(), this, onRuleAdded)
 
                 }
             } else if (fab.visibility == View.VISIBLE) {

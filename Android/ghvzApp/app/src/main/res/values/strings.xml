@@ -140,7 +140,7 @@
   </string>
 
   <string name="collapsible_section_add_new" definition="Label for add new collapsible section button.">
-    Add
+    Add new item
   </string>
 
   <string name="collapsible_section_title_hint_text" definition="Hint text for collapsible section title text.">

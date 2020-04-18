@@ -16,20 +16,25 @@
 
 package com.app.playhvz.screens.rules
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.common.MarkdownInfoDialog
 import com.app.playhvz.firebase.classmodels.Game
 
 
 class RulesEditAdapter(
     private var items: List<Game.Rule>,
-    val context: Context,
+    val fragment: Fragment,
     val onRuleAdded: () -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    companion object {
+        private val TAG = RulesEditAdapter::class.qualifiedName
+    }
 
     private val TYPE_RULE = 1
     private val TYPE_ADD = 2
@@ -47,7 +52,7 @@ class RulesEditAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == TYPE_ADD) {
             return AddCollapsibleSectionViewHolder(
-                LayoutInflater.from(context).inflate(
+                LayoutInflater.from(fragment.context).inflate(
                     R.layout.list_item_add_collapsible_section,
                     parent,
                     false
@@ -55,8 +60,19 @@ class RulesEditAdapter(
                 onRuleAdded
             )
         }
+
+        val editableRuleLayout = LayoutInflater.from(fragment.context).inflate(
+            R.layout.list_item_collapsible_section_edit,
+            parent,
+            false
+        )
+        val markdownInfoButton =
+            editableRuleLayout.findViewById<ImageButton>(R.id.markdown_info_button)
+        markdownInfoButton.setOnClickListener {
+            fragment.activity?.supportFragmentManager?.let { MarkdownInfoDialog().show(it, TAG) }
+        }
         return CollapsibleSectionEditViewHolder(
-            LayoutInflater.from(context).inflate(
+            LayoutInflater.from(fragment.context).inflate(
                 R.layout.list_item_collapsible_section_edit,
                 parent,
                 false
