@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.firebase.classmodels
+package com.app.playhvz.screens.rules
 
-/** Android data model representing Firebase Game documents. */
-class Game {
-    // Game Id
-    var id: String? = null
+import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 
-    // Name of the game
-    var name: String? = null
+class AddCollapsibleSectionViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
-    // Creator of the game
-    var creatorUserId: String? = null
-
-    var rules: List<Rule> = listOf()
-
-    class Rule {
-        var order: Int = 0
-        var sectionTitle: String = ""
-        var sectionContent: String = ""
+    fun onBind() {
+        itemView.setOnClickListener {
+            // Todo: Add new blank rule
+        }
     }
 }

@@ -19,36 +19,45 @@ package com.app.playhvz.screens.rules
 import android.os.Bundle
 import android.view.*
 import android.widget.ProgressBar
-import androidx.activity.OnBackPressedCallback
+import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.utils.GameUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class RulesFragment : Fragment() {
 
     private var gameId: String? = null
-    private var fab: FloatingActionButton? = null
+    private var game: Game? = null
     private var isEditing: Boolean = false
+    private var editAdapter: RulesEditAdapter? = null
 
+    private lateinit var fab: FloatingActionButton
     private lateinit var gameViewModel: GameViewModel
-    private lateinit var interceptBackCallback: OnBackPressedCallback
     private lateinit var progressBar: ProgressBar
     private lateinit var toolbar: ActionBar
     private lateinit var toolbarMenu: Menu
+    private lateinit var displayAdapter: RulesDisplayAdapter
+    private lateinit var rulesList: RecyclerView
+    private lateinit var errorLabel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         toolbar = (activity as AppCompatActivity).supportActionBar!!
         gameViewModel = GameViewModel()
+        displayAdapter = RulesDisplayAdapter(listOf(), requireContext())
+        editAdapter = RulesEditAdapter(listOf(), requireContext())
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -68,8 +77,12 @@ class RulesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_rules, container, false)
-        fab = activity?.findViewById(R.id.floating_action_button)
+        fab = requireActivity().findViewById(R.id.floating_action_button)
         progressBar = view.findViewById(R.id.progress_bar)
+        errorLabel = view.findViewById(R.id.error_label)
+        rulesList = view.findViewById(R.id.collapsible_item_list)
+        rulesList.layoutManager = LinearLayoutManager(context)
+        rulesList.adapter = displayAdapter
 
         setupObservers()
         return view
@@ -101,16 +114,19 @@ class RulesFragment : Fragment() {
         if (gameId.isNullOrEmpty()) {
             return
         }
-        gameViewModel.getGame(gameId!!) {
+
+        val onFailure = {
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
-            updateGame(serverGame)
-        })
+        }
+        gameViewModel.getGame(gameId!!, onFailure)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
+                updateGame(serverGame)
+            })
     }
 
     private fun setupFab() {
-        fab?.visibility = View.VISIBLE
-        fab?.setOnClickListener {
+        fab.visibility = View.GONE
+        fab.setOnClickListener {
             if (isEditing) {
                 exitEditMode()
             } else {
@@ -125,10 +141,6 @@ class RulesFragment : Fragment() {
             return
         }
         progressBar.visibility = View.GONE
-    }
-
-    private fun updateGame(serverGame: Game) {
-        hideProgressBar()
     }
 
     private fun hideActionBarActions() {
@@ -146,13 +158,44 @@ class RulesFragment : Fragment() {
             return
         }
         isEditing = true
-        fab?.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_x))
+        fab.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_x))
         showActionBarActions()
+        editAdapter?.setData(game!!.rules)
+        rulesList.adapter = editAdapter
     }
 
     private fun exitEditMode() {
         hideActionBarActions()
-        fab?.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_edit))
+        fab.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_edit))
         isEditing = false
+        rulesList.adapter = displayAdapter
+        updateUiFromGame()
+    }
+
+    private fun updateGame(serverGame: Game) {
+        hideProgressBar()
+        game = serverGame
+        if (isEditing) {
+            errorLabel.visibility = View.VISIBLE
+            toolbarMenu.getItem(R.id.save_option).isEnabled = false
+            return
+        } else if (errorLabel.visibility == View.VISIBLE) {
+            errorLabel.visibility = View.GONE
+        }
+        updateUiFromGame()
+    }
+
+    private fun updateUiFromGame() {
+        if (game != null) {
+            if (GameUtils.isAdmin(game!!)) {
+                fab.visibility = View.VISIBLE
+                if (editAdapter == null) editAdapter = RulesEditAdapter(listOf(), requireContext())
+            } else if (fab.visibility == View.VISIBLE) {
+                fab.visibility = View.GONE
+            }
+            displayAdapter.setData(game!!.rules)
+        }
+        displayAdapter.setData(listOf())
+        displayAdapter.notifyDataSetChanged()
     }
 }

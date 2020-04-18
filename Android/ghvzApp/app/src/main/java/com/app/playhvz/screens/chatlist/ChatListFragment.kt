@@ -56,7 +56,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         chatListViewModel = ChatListViewModel()
-        chatListAdapter = ChatListAdapter(listOf(), context!!, this)
+        chatListAdapter = ChatListAdapter(listOf(), requireContext(), this)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
