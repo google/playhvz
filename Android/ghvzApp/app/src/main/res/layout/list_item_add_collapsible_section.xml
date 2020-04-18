@@ -17,11 +17,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
+  android:background="?attr/selectableItemBackground"
   android:orientation="horizontal"
   android:paddingTop="12dp"
   android:paddingBottom="12dp">
 
   <androidx.emoji.widget.EmojiTextView
+    style="@style/TextAppearance.MaterialComponents.Subtitle1"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_weight="1"
@@ -30,6 +32,7 @@
     android:textSize="@dimen/list_item_title_text" />
 
   <ImageButton
+    style="@style/ImageButtonStyle"
     android:layout_width="@dimen/tap_target_min"
     android:layout_height="@dimen/tap_target_min"
     android:importantForAccessibility="no"
