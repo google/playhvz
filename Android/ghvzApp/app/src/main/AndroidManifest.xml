@@ -15,53 +15,62 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.app.playhvz">
+  xmlns:tools="http://schemas.android.com/tools"
+  package="com.app.playhvz">
 
-  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.INTERNET" />
 
   <application
-      android:name=".app.PlayHvzApplication"
-      android:allowBackup="true"
-      android:icon="@mipmap/ic_launcher"
-      android:label="@string/app_name"
-      android:roundIcon="@mipmap/ic_launcher_round"
-      android:supportsRtl="true"
-      android:theme="@style/AppTheme"
-      tools:ignore="GoogleAppIndexingWarning">
-    <activity android:name="com.app.playhvz.screens.signin.SignInActivity">
+    android:name=".app.PlayHvzApplication"
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme"
+    tools:ignore="GoogleAppIndexingWarning">
+    <activity
+      android:name="com.app.playhvz.screens.signin.SignInActivity"
+      android:screenOrientation="portrait"
+      tools:ignore="LockedOrientationActivity">
       <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
     <activity
-        android:name=".app.BaseActivity"
-        android:exported="false"/>
-    <activity android:name=".screens.MainActivity"/>
-    <activity android:name="com.app.playhvz.screens.forceupgrade.ForceUpgradeActivity"/>
+      android:name=".app.BaseActivity"
+      android:exported="false" />
+    <activity
+      android:name=".screens.MainActivity"
+      android:screenOrientation="portrait"
+      tools:ignore="LockedOrientationActivity" />
+    <activity
+      android:name="com.app.playhvz.screens.forceupgrade.ForceUpgradeActivity"
+      android:screenOrientation="portrait"
+      tools:ignore="LockedOrientationActivity" />
 
     <!-- Set default notification icon. -->
     <meta-data
-        android:name="com.google.firebase.messaging.default_notification_icon"
-        android:resource="@mipmap/ic_launcher_round"/>
+      android:name="com.google.firebase.messaging.default_notification_icon"
+      android:resource="@mipmap/ic_launcher_round" />
     <!-- Set default notification color. -->
     <meta-data
-        android:name="com.google.firebase.messaging.default_notification_color"
-        android:resource="@color/colorAccent"/>
+      android:name="com.google.firebase.messaging.default_notification_color"
+      android:resource="@color/colorAccent" />
     <meta-data
-        android:name="com.google.firebase.messaging.default_notification_channel_id"
-        android:value="@string/default_notification_channel_id"/>
+      android:name="com.google.firebase.messaging.default_notification_channel_id"
+      android:value="@string/default_notification_channel_id" />
     <meta-data
-        android:name="preloaded_fonts"
-        android:resource="@array/preloaded_fonts" />
+      android:name="preloaded_fonts"
+      android:resource="@array/preloaded_fonts" />
 
     <service
-        android:name=".firebase.MessagingService"
-        android:enabled="true"
-        android:exported="false">
+      android:name=".firebase.MessagingService"
+      android:enabled="true"
+      android:exported="false">
       <intent-filter>
-        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
       </intent-filter>
     </service>
 

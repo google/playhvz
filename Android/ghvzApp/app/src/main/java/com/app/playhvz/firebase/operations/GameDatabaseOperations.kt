@@ -20,12 +20,14 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAMES_COLLECTION
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__CREATOR_ID
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.constants.UniversalConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
+import com.app.playhvz.utils.GameUtils
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
@@ -130,6 +132,24 @@ class GameDatabaseOperations {
                         successListener.invoke()
                     }
             }
+
+        /** Updates the game object. */
+        suspend fun asyncUpdateGame(
+            game: Game,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            if (game.id == null || !GameUtils.isAdmin(game)) {
+                return@withContext
+            }
+            // TODO: should this be set or update?
+            GAMES_COLLECTION.document(game.id!!).set(game).addOnSuccessListener {
+                successListener.invoke()
+            }.addOnFailureListener {
+                Log.e(TAG, "Failed to update game: " + it)
+                failureListener.invoke()
+            }
+        }
 
         /** Returns a Query listing all Games created by the current user. */
         fun getGameByCreatorQuery(): Query {

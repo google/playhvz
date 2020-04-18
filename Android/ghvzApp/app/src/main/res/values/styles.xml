@@ -76,7 +76,7 @@
   <style name="ImageButtonStyle">
     <item name="android:layout_width">@dimen/tap_target_min</item>
     <item name="android:layout_height">@dimen/tap_target_min</item>
-    <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    <item name="android:background">?attr/selectableItemBackground</item>
     <item name="android:tint">@color/secondary_icon_button</item>
   </style>
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Google Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical"
+  android:paddingTop="12dp"
+  android:paddingBottom="12dp">
+
+  <androidx.emoji.widget.EmojiEditText
+    android:id="@+id/section_title"
+    style="@style/TextAppearance.MaterialComponents.Headline4"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:hint="@string/collapsible_section_title_hint_text"
+    android:inputType="textAutoCorrect|textCapSentences"
+    android:lines="1"
+    android:maxLength="40"
+    android:textColor="@color/app_primary_text"
+    android:textSize="@dimen/list_item_title_text"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <ImageButton
+    android:id="@+id/markdown_info_button"
+    style="@style/ImageButtonStyle"
+    android:contentDescription="@string/markdown_dialog_trigger_content_description"
+    android:src="@drawable/ic_info"
+    app:layout_constraintBottom_toTopOf="@+id/section_content"
+    app:layout_constraintEnd_toEndOf="parent" />
+
+  <androidx.emoji.widget.EmojiEditText
+    android:id="@+id/section_content"
+    style="@style/TextAppearance.MaterialComponents.Body2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/collapsible_section_content_hint_text"
+    android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/section_title" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
