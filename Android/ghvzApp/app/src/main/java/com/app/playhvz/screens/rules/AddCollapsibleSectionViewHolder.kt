@@ -19,11 +19,12 @@ package com.app.playhvz.screens.rules
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class AddCollapsibleSectionViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+class AddCollapsibleSectionViewHolder(val view: View, val onRuleAdded: () -> Unit?) :
+    RecyclerView.ViewHolder(view) {
 
     fun onBind() {
         itemView.setOnClickListener {
-            // Todo: Add new blank rule
+            onRuleAdded.invoke()
         }
     }
 }

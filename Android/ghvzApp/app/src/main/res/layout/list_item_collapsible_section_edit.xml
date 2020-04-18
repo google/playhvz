@@ -17,26 +17,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="?attr/selectableItemBackground"
-  android:orientation="horizontal"
+  android:orientation="vertical"
   android:paddingTop="12dp"
   android:paddingBottom="12dp">
 
-  <androidx.emoji.widget.EmojiTextView
-    style="@style/TextAppearance.MaterialComponents.Subtitle1"
-    android:layout_width="0dp"
+  <androidx.emoji.widget.EmojiEditText
+    android:id="@+id/section_title"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:text="@string/collapsible_section_add_new"
+    android:hint="@string/collapsible_section_title_hint_text"
     android:textColor="@color/app_primary_text"
     android:textSize="@dimen/list_item_title_text" />
 
-  <ImageButton
-    style="@style/ImageButtonStyle"
-    android:layout_width="@dimen/tap_target_min"
-    android:layout_height="@dimen/tap_target_min"
-    android:clickable="false"
-    android:importantForAccessibility="no"
-    android:src="@drawable/ic_plus" />
+  <androidx.emoji.widget.EmojiEditText
+    android:id="@+id/section_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/collapsible_section_content_hint_text" />
 
 </LinearLayout>

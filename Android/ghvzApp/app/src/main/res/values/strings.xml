@@ -143,6 +143,14 @@
     Add
   </string>
 
+  <string name="collapsible_section_title_hint_text" definition="Hint text for collapsible section title text.">
+    Add title
+  </string>
+
+  <string name="collapsible_section_content_hint_text" definition="Hint text for collapsible section content text.">
+    Add some content
+  </string>
+
   <string name="datetime_dialog_title" definition="Title for the date time selection dialog.">
     Set date and time
   </string>

@@ -32,7 +32,7 @@ class RulesDisplayAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return CollapsibleSectionDisplayViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.list_item_collapsible_section,
+                R.layout.list_item_collapsible_section_display,
                 parent,
                 false
             )

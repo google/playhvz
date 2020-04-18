@@ -40,6 +40,7 @@ class RulesFragment : Fragment() {
 
     private var gameId: String? = null
     private var game: Game? = null
+    private var currentRules: MutableList<Game.Rule> = mutableListOf()
     private var isEditing: Boolean = false
     private var editAdapter: RulesEditAdapter? = null
 
@@ -57,7 +58,6 @@ class RulesFragment : Fragment() {
         toolbar = (activity as AppCompatActivity).supportActionBar!!
         gameViewModel = GameViewModel()
         displayAdapter = RulesDisplayAdapter(listOf(), requireContext())
-        editAdapter = RulesEditAdapter(listOf(), requireContext())
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -160,6 +160,7 @@ class RulesFragment : Fragment() {
         isEditing = true
         fab.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_x))
         showActionBarActions()
+        currentRules = game!!.rules.toMutableList()
         editAdapter?.setData(game!!.rules)
         rulesList.adapter = editAdapter
     }
@@ -169,7 +170,7 @@ class RulesFragment : Fragment() {
         fab.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_edit))
         isEditing = false
         rulesList.adapter = displayAdapter
-        updateUiFromGame()
+        updateUi()
     }
 
     private fun updateGame(serverGame: Game) {
@@ -182,14 +183,24 @@ class RulesFragment : Fragment() {
         } else if (errorLabel.visibility == View.VISIBLE) {
             errorLabel.visibility = View.GONE
         }
-        updateUiFromGame()
+        updateUi()
     }
 
-    private fun updateUiFromGame() {
+    private fun updateUi() {
         if (game != null) {
             if (GameUtils.isAdmin(game!!)) {
                 fab.visibility = View.VISIBLE
-                if (editAdapter == null) editAdapter = RulesEditAdapter(listOf(), requireContext())
+                val onRuleAdded = {
+                    val newRule = Game.Rule()
+                    newRule.order = currentRules.size
+                    currentRules.add(newRule)
+                    editAdapter?.setData(currentRules)
+                    editAdapter?.notifyDataSetChanged()
+                }
+                if (editAdapter == null) {
+                    editAdapter = RulesEditAdapter(listOf(), requireContext(), onRuleAdded)
+
+                }
             } else if (fab.visibility == View.VISIBLE) {
                 fab.visibility = View.GONE
             }

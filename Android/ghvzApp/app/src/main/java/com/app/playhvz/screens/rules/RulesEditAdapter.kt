@@ -26,7 +26,8 @@ import com.app.playhvz.firebase.classmodels.Game
 
 class RulesEditAdapter(
     private var items: List<Game.Rule>,
-    val context: Context
+    val context: Context,
+    val onRuleAdded: () -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -50,12 +51,13 @@ class RulesEditAdapter(
                     R.layout.list_item_add_collapsible_section,
                     parent,
                     false
-                )
+                ),
+                onRuleAdded
             )
         }
-        return CollapsibleSectionDisplayViewHolder(
+        return CollapsibleSectionEditViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.list_item_collapsible_section,
+                R.layout.list_item_collapsible_section_edit,
                 parent,
                 false
             )
@@ -66,7 +68,7 @@ class RulesEditAdapter(
         if (getItemViewType(position) == TYPE_ADD) {
             (holder as AddCollapsibleSectionViewHolder).onBind()
         } else {
-            (holder as CollapsibleSectionDisplayViewHolder).onBind(items[position])
+            (holder as CollapsibleSectionEditViewHolder).onBind(items[position])
         }
     }
 
