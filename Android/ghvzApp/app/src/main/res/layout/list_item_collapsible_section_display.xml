@@ -15,14 +15,16 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:orientation="vertical"
-  android:paddingTop="12dp"
-  android:paddingBottom="12dp">
+  android:paddingTop="16dp"
+  android:paddingBottom="16dp">
 
   <androidx.emoji.widget.EmojiTextView
     android:id="@+id/section_title"
+    style="@style/TextAppearance.MaterialComponents.Headline4"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textColor="@color/app_primary_text"
@@ -30,7 +32,10 @@
 
   <com.app.playhvz.common.ui.MarkdownView
     android:id="@+id/section_content"
+    style="@style/TextAppearance.MaterialComponents.Body2"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    tools:ignore="RtlSymmetry" />
 
 </LinearLayout>

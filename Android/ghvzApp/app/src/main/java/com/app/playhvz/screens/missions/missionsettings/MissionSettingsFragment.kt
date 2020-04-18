@@ -304,6 +304,7 @@ class MissionSettingsFragment : Fragment() {
     }
 
     private fun disableActions() {
+        SystemUtils.hideKeyboard(requireContext())
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 130
         menuItem.isEnabled = false

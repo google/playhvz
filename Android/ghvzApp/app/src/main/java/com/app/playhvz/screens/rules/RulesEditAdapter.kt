@@ -16,6 +16,8 @@
 
 package com.app.playhvz.screens.rules
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -35,6 +37,7 @@ class RulesEditAdapter(
     companion object {
         private val TAG = RulesEditAdapter::class.qualifiedName
     }
+
 
     private val TYPE_RULE = 1
     private val TYPE_ADD = 2
@@ -76,7 +79,9 @@ class RulesEditAdapter(
                 R.layout.list_item_collapsible_section_edit,
                 parent,
                 false
-            )
+            ),
+            TitleTextWatcher(),
+            ContentTextWatcher()
         )
     }
 
@@ -84,7 +89,7 @@ class RulesEditAdapter(
         if (getItemViewType(position) == TYPE_ADD) {
             (holder as AddCollapsibleSectionViewHolder).onBind()
         } else {
-            (holder as CollapsibleSectionEditViewHolder).onBind(items[position])
+            (holder as CollapsibleSectionEditViewHolder).onBind(position, items[position])
         }
     }
 
@@ -94,5 +99,69 @@ class RulesEditAdapter(
 
     fun setData(rules: List<Game.Rule>) {
         items = rules.sortedBy { rule -> rule.order }
+    }
+
+    fun getLatestData(): List<Game.Rule> {
+        return items
+    }
+
+    // The EditText TextWatcher must know the current position so when the view is reused in onBind
+    // we'll be updating the right Collapsible Section.
+    inner class TitleTextWatcher : TextWatcher {
+        private var position = 0
+        fun setPosition(position: Int) {
+            this.position = position
+        }
+
+        override fun beforeTextChanged(
+            charSequence: CharSequence,
+            i: Int,
+            i2: Int,
+            i3: Int
+        ) {
+            // no op
+        }
+
+        override fun onTextChanged(
+            charSequence: CharSequence,
+            i: Int,
+            i2: Int,
+            i3: Int
+        ) {
+            items[position].sectionTitle = charSequence.toString()
+        }
+
+        override fun afterTextChanged(editable: Editable) {
+            // no op
+        }
+    }
+
+    inner class ContentTextWatcher : TextWatcher {
+        private var position = 0
+        fun setPosition(position: Int) {
+            this.position = position
+        }
+
+        override fun beforeTextChanged(
+            charSequence: CharSequence,
+            i: Int,
+            i2: Int,
+            i3: Int
+        ) {
+            // no op
+        }
+
+        override fun onTextChanged(
+            charSequence: CharSequence,
+            i: Int,
+            i2: Int,
+            i3: Int
+        ) {
+            items[position].sectionContent = charSequence.toString()
+        }
+
+        override fun afterTextChanged(editable: Editable) {
+            // no op
+        }
     }
 }

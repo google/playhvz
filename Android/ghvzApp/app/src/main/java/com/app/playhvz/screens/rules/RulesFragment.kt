@@ -28,12 +28,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.GameUtils
+import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.runBlocking
 
 
 class RulesFragment : Fragment() {
@@ -42,6 +46,7 @@ class RulesFragment : Fragment() {
     private var game: Game? = null
     private var currentRules: MutableList<Game.Rule> = mutableListOf()
     private var isEditing: Boolean = false
+    private var isSaving: Boolean = false
     private var editAdapter: RulesEditAdapter? = null
 
     private lateinit var fab: FloatingActionButton
@@ -97,7 +102,7 @@ class RulesFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.save_option -> {
-                exitEditMode()
+                saveChanges()
                 return true
             }
         }
@@ -176,9 +181,12 @@ class RulesFragment : Fragment() {
     private fun updateGame(serverGame: Game) {
         hideProgressBar()
         game = serverGame
+        if (isSaving) {
+            return
+        }
         if (isEditing) {
             errorLabel.visibility = View.VISIBLE
-            toolbarMenu.getItem(R.id.save_option).isEnabled = false
+            toolbarMenu.findItem(R.id.save_option).isEnabled = false
             return
         } else if (errorLabel.visibility == View.VISIBLE) {
             errorLabel.visibility = View.GONE
@@ -187,26 +195,74 @@ class RulesFragment : Fragment() {
     }
 
     private fun updateUi() {
-        if (game != null) {
-            if (GameUtils.isAdmin(game!!)) {
-                fab.visibility = View.VISIBLE
-                val onRuleAdded = {
-                    val newRule = Game.Rule()
-                    newRule.order = currentRules.size
-                    currentRules.add(newRule)
-                    editAdapter?.setData(currentRules)
-                    editAdapter?.notifyDataSetChanged()
-                }
-                if (editAdapter == null) {
-                    editAdapter = RulesEditAdapter(listOf(), this, onRuleAdded)
-
-                }
-            } else if (fab.visibility == View.VISIBLE) {
-                fab.visibility = View.GONE
-            }
-            displayAdapter.setData(game!!.rules)
+        if (game == null) {
+            displayAdapter.setData(listOf())
+            displayAdapter.notifyDataSetChanged()
+            return
         }
-        displayAdapter.setData(listOf())
+        if (GameUtils.isAdmin(game!!)) {
+            fab.visibility = View.VISIBLE
+            val onRuleAdded = {
+                val newRule = Game.Rule()
+                newRule.order = currentRules.size
+                currentRules.add(newRule)
+                editAdapter?.setData(currentRules)
+                editAdapter?.notifyDataSetChanged()
+            }
+            if (editAdapter == null) {
+                editAdapter = RulesEditAdapter(listOf(), this, onRuleAdded)
+
+            }
+        } else if (fab.visibility == View.VISIBLE) {
+            fab.visibility = View.GONE
+        }
+        displayAdapter.setData(game!!.rules)
         displayAdapter.notifyDataSetChanged()
+    }
+
+    private fun saveChanges() {
+        if (game == null) {
+            return
+        }
+        isSaving = true
+        disableActions()
+
+        game?.rules = editAdapter!!.getLatestData()
+        val onSuccess = {
+            isSaving = false
+            exitEditMode()
+            enableActions()
+            updateUi()
+        }
+        runBlocking {
+            EspressoIdlingResource.increment()
+            GameDatabaseOperations.asyncUpdateGame(
+                game!!,
+                onSuccess,
+                {
+                    isSaving = false
+                    enableActions()
+                    SystemUtils.showToast(context, "Couldn't save rules.")
+                }
+            )
+            EspressoIdlingResource.decrement()
+        }
+    }
+
+    private fun disableActions() {
+        SystemUtils.hideKeyboard(requireContext())
+        progressBar.visibility = View.VISIBLE
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
+        menuItem.icon.mutate().alpha = 130
+        menuItem.isEnabled = false
+        fab.isEnabled = false
+    }
+
+    private fun enableActions() {
+        progressBar.visibility = View.GONE
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
+        menuItem.icon.mutate().alpha = 255
+        menuItem.isEnabled = true
+        fab.isEnabled = true
     }
 }
