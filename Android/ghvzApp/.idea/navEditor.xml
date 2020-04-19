@@ -28,6 +28,11 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_global_nav_faq_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="action_global_nav_game_dashboard_fragment">
                     <value>
                       <LayoutPositions />
@@ -123,7 +128,7 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="nav_fa_fragment">
+                  <entry key="nav_faq_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">

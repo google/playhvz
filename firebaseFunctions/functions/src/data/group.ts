@@ -61,6 +61,18 @@ export function getGlobalGroupSettings(allegianceFilter: string) {
   }
 }
 
+export function getAdminGroupSettings(allegianceFilter: string) {
+  return {
+    [FIELD__SETTINGS_ADD_SELF]: false,
+    [FIELD__SETTINGS_ADD_OTHERS]: false,
+    [FIELD__SETTINGS_REMOVE_SELF]: true,
+    [FIELD__SETTINGS_REMOVE_OTHERS]: true,
+    [FIELD__SETTINGS_AUTO_ADD]: false,
+    [FIELD__SETTINGS_AUTO_REMOVE]: false,
+    [FIELD__SETTINGS_ALLEGIANCE_FILTER]: allegianceFilter
+  }
+}
+
 export function createSettings(
   addSelf: boolean,
   addOthers: boolean,

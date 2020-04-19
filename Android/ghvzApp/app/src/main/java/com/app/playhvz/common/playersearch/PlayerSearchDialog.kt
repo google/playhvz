@@ -34,14 +34,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.HvzData
-import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
+import com.app.playhvz.firebase.operations.GroupDatabaseOperations
 import com.app.playhvz.utils.PlayerUtils
 import kotlinx.coroutines.runBlocking
 
-class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: String?) :
+class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: String? = null) :
     DialogFragment(),
     PlayerAdapter.PlayerSearchClickHandler {
     companion object {
@@ -78,7 +78,7 @@ class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: 
         positiveButton = dialogView.findViewById(R.id.positive_button)
         progressBar = dialogView.findViewById(R.id.progress_bar)
 
-        playerAdapter = PlayerAdapter(listOf(), context!!, this)
+        playerAdapter = PlayerAdapter(listOf(), requireContext(), this)
         val playerRecyclerView: RecyclerView = dialogView.findViewById(R.id.player_list)
         val layoutManager = LinearLayoutManager(context)
         playerRecyclerView.layoutManager = layoutManager
@@ -167,16 +167,25 @@ class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: 
 
         runBlocking {
             EspressoIdlingResource.increment()
-            ChatDatabaseOperations.asyncAddPlayersToChat(
-                gameId,
-                selectedPlayers.toList(),
-                group?.id!!,
-                chatRoomId!!,
-                onSuccess,
-                onFailure
-            )
-            EspressoIdlingResource.decrement()
+            if (chatRoomId == null) {
+                GroupDatabaseOperations.asyncAddPlayersToGroup(
+                    gameId,
+                    selectedPlayers.toList(),
+                    group?.id!!,
+                    onSuccess,
+                    onFailure
+                )
+            } else {
+                ChatDatabaseOperations.asyncAddPlayersToChat(
+                    gameId,
+                    selectedPlayers.toList(),
+                    group?.id!!,
+                    chatRoomId,
+                    onSuccess,
+                    onFailure
+                )
+                EspressoIdlingResource.decrement()
+            }
         }
-
     }
 }

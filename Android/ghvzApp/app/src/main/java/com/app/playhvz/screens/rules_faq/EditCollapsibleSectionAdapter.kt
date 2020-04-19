@@ -31,7 +31,7 @@ import com.app.playhvz.firebase.classmodels.Game
 class EditCollapsibleSectionAdapter(
     private var items: List<Game.CollapsibleSection>,
     val fragment: Fragment,
-    val onRuleAdded: () -> Unit?
+    val onSectionAdded: () -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -39,7 +39,7 @@ class EditCollapsibleSectionAdapter(
     }
 
 
-    private val TYPE_RULE = 1
+    private val TYPE_COLLAPSIBLE_SECTION_ITEM = 1
     private val TYPE_ADD = 2
 
     private val ADD_SECTION_COUNT = 1
@@ -48,7 +48,7 @@ class EditCollapsibleSectionAdapter(
         return if (position == items.size) {
             TYPE_ADD
         } else {
-            TYPE_RULE
+            TYPE_COLLAPSIBLE_SECTION_ITEM
         }
     }
 
@@ -60,17 +60,17 @@ class EditCollapsibleSectionAdapter(
                     parent,
                     false
                 ),
-                onRuleAdded
+                onSectionAdded
             )
         }
 
-        val editableRuleLayout = LayoutInflater.from(fragment.context).inflate(
+        val editableSectionLayout = LayoutInflater.from(fragment.context).inflate(
             R.layout.list_item_collapsible_section_edit,
             parent,
             false
         )
         val markdownInfoButton =
-            editableRuleLayout.findViewById<ImageButton>(R.id.markdown_info_button)
+            editableSectionLayout.findViewById<ImageButton>(R.id.markdown_info_button)
         markdownInfoButton.setOnClickListener {
             fragment.activity?.supportFragmentManager?.let { MarkdownInfoDialog().show(it, TAG) }
         }
@@ -98,7 +98,7 @@ class EditCollapsibleSectionAdapter(
     }
 
     fun setData(sections: List<Game.CollapsibleSection>) {
-        items = sections.sortedBy { rule -> rule.order }
+        items = sections.sortedBy { section -> section.order }
     }
 
     fun getLatestData(): List<Game.CollapsibleSection> {

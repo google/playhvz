@@ -81,12 +81,28 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   }
 
   const gameData = {
-    "name": name,
-    "creatorUserId": context.auth.uid,
+    [Game.FIELD__NAME]: name,
+    [Game.FIELD__CREATOR_USER_ID]: context.auth.uid,
   }
 
-  const gameId = (await db.collection(Game.COLLECTION_PATH).add(gameData)).id;
+  const gameSnapshot = await db.collection(Game.COLLECTION_PATH).add(gameData)
+  const gameId = gameSnapshot.id
   await GroupUtils.createManagedGroups(db, context.auth.uid, gameId);
+
+  const adminGroupQuery = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Group.COLLECTION_PATH)
+      .where(Group.FIELD__MANAGED, "==", true)
+      .where(Group.FIELD__NAME, "==", Defaults.gameAdminChatName)
+      .get()
+
+  if (!adminGroupQuery.empty && adminGroupQuery.docs.length === 1) {
+    const adminGroupId = adminGroupQuery.docs[0].id
+    await gameSnapshot.update({
+      [Game.FIELD__ADMIN_GROUP_ID]: adminGroupId
+    })
+  }
+
   return gameId;
 });
 
@@ -287,6 +303,36 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
 /*******************************************************
 * GROUP functions
 ********************************************************/
+
+exports.addPlayersToGroup = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const groupId = data.groupId;
+  const playerIdList = data.playerIdList
+  if (!(typeof gameId === 'string') || !(typeof groupId === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0 || groupId.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId and groupId and chatRoomId.');
+  }
+
+  const groupSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(groupId)
+    .get();
+
+  for (const playerId of playerIdList) {
+    await GroupUtils.addPlayerToGroup(db, gameId, groupSnapshot, playerId)
+  }
+});
+
 
 exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
   if (!context.auth) {

@@ -76,7 +76,7 @@ class MissionDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_mission_dashboard, container, false)
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.mission_list)
-        adapter = MissionDashboardAdapter(listOf(), context!!, findNavController())
+        adapter = MissionDashboardAdapter(listOf(), requireContext(), findNavController())
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         return view
@@ -85,7 +85,7 @@ class MissionDashboardFragment : Fragment() {
     fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            toolbar.title = context!!.getString(R.string.mission_title)
+            toolbar.title = requireContext().getString(R.string.mission_title)
             toolbar.setDisplayHomeAsUpEnabled(false)
         }
     }
@@ -106,28 +106,30 @@ class MissionDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        gameViewModel.getGame(gameId!!) {
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
             NavigationUtil.navigateToGameList(
                 findNavController(),
-                activity!!
+                requireActivity()
             )
-        }.observe(this, androidx.lifecycle.Observer { serverGame ->
-            updateGame(serverGame)
+        }.observe(this, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+            updateGame(serverGameAndAdminStatus)
         })
         PlayerUtils.getPlayer(gameId!!, playerId!!)
             .observe(this, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
             })
-
     }
 
-    private fun updateGame(serverGame: Game?) {
-        game = serverGame
-        setupFab(GameUtils.isAdmin(game!!))
-        adapter.setIsAdmin(GameUtils.isAdmin(game!!))
+    private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
+        if (serverUpdate == null) {
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
+        }
+        game = serverUpdate!!.game
+        setupFab(serverUpdate.isAdmin)
+        adapter.setIsAdmin(serverUpdate.isAdmin)
         adapter.notifyDataSetChanged()
 
-        if (GameUtils.isAdmin(game!!)) {
+        if (serverUpdate.isAdmin) {
             missionViewModel.getAllMissionsInGame(this, gameId!!)
                 .observe(this, androidx.lifecycle.Observer { serverMissionList ->
                     updateMissionList(serverMissionList)
@@ -142,7 +144,7 @@ class MissionDashboardFragment : Fragment() {
 
     private fun updatePlayer(serverPlayer: Player?) {
         if (serverPlayer == null) {
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
     }
 

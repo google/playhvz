@@ -27,6 +27,10 @@ class Game {
     // Creator of the game
     var creatorUserId: String? = null
 
+    var adminGroupId: String? = null
+
+    var admins: List<String> = listOf()
+
     var rules: List<CollapsibleSection> = listOf()
 
     var faq: List<CollapsibleSection> = listOf()

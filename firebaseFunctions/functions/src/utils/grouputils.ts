@@ -26,15 +26,21 @@ import * as Player from '../data/player';
 
 // Creates a group
 export async function createManagedGroups(db: any, uid: any, gameId: string) {
-  const globalAllegiances = new Map()
-  globalAllegiances.set(Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.globalChatName)
-  globalAllegiances.set(Defaults.HUMAN_ALLEGIANCE_FILTER, Defaults.globalHumanChatName)
-  globalAllegiances.set(Defaults.ZOMBIE_ALLEGIANCE_FILTER, Defaults.globalZombieChatName)
+  const globalAllegiances = [
+    [Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.globalChatName],
+    [Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.gameAdminChatName],
+    [Defaults.HUMAN_ALLEGIANCE_FILTER, Defaults.globalHumanChatName],
+    [Defaults.ZOMBIE_ALLEGIANCE_FILTER, Defaults.globalZombieChatName]
+  ]
 
   for (const [allegianceFilter, chatName] of globalAllegiances) {
+    let settings = Group.getGlobalGroupSettings(allegianceFilter)
+    if (chatName === Defaults.gameAdminChatName) {
+      settings = Group.getAdminGroupSettings(allegianceFilter)
+    }
     const groupData = Group.createManagedGroup(
-      /* name= */ chatName,
-      /* settings= */ Group.getGlobalGroupSettings(allegianceFilter),
+      chatName,
+      settings,
      )
     const createdGroup = await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
@@ -136,9 +142,22 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
       await addPlayerToGroup(db, gameId, groupSnapshot, playerDocRef.id)
     }
   }
+
+  // If player is game creator then add them to the managed admin group.
+  const gameSnapshot = await db.collection(Game.COLLECTION_PATH).doc(gameId).get()
+  const gameData = await gameSnapshot.data()
+  if (playerData[Player.FIELD__USER_ID] === gameData[Game.FIELD__CREATOR_USER_ID]) {
+    const groupSnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Group.COLLECTION_PATH)
+      .doc(gameData[Game.FIELD__ADMIN_GROUP_ID])
+      .get()
+    await addPlayerToGroup(db, gameId, groupSnapshot, playerDocRef.id)
+  }
 }
 
-async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: any, playerId: string) {
+/** Adds player to group and updates chat memberships if there is a chat room associated with the group. */
+export async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: any, playerId: string) {
   // Check if group is associated with Chat
   const querySnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)

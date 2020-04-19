@@ -223,6 +223,14 @@
     New Game
   </string>
 
+  <string name="game_settings_admin_list_title" definition="Title for section showing admins.">
+    Admins
+  </string>
+
+  <string name="game_settings_add_admin_button" definition="Button text for adding a new admin.">
+    Add admin
+  </string>
+
   <string name="game_settings_delete_dialog_title" definition="Title for delete game dialog.">
     Really delete \'%1$s\'?
   </string>
