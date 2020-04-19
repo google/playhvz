@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.rules
+package com.app.playhvz.screens.rules_faq
 
 import android.os.Bundle
 import android.view.*
@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
@@ -40,29 +41,37 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
 
 
-class RulesFragment : Fragment() {
+class CollapsibleListFragment : Fragment() {
+    enum class CollapsibleFragmentType {
+        RULES,
+        FAQ
+    }
+
+    private val args: CollapsibleListFragmentArgs by navArgs()
 
     private var gameId: String? = null
     private var game: Game? = null
-    private var currentRules: MutableList<Game.Rule> = mutableListOf()
+    private var currentCollapsibleSections: MutableList<Game.CollapsibleSection> = mutableListOf()
     private var isEditing: Boolean = false
     private var isSaving: Boolean = false
-    private var editAdapter: RulesEditAdapter? = null
+    private var editAdapter: EditCollapsibleSectionAdapter? = null
 
+    private lateinit var fragmentType: CollapsibleFragmentType
     private lateinit var fab: FloatingActionButton
     private lateinit var gameViewModel: GameViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var toolbar: ActionBar
     private lateinit var toolbarMenu: Menu
-    private lateinit var displayAdapter: RulesDisplayAdapter
+    private lateinit var displayAdapter: DisplayCollapsibleSectionAdapter
     private lateinit var rulesList: RecyclerView
     private lateinit var errorLabel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fragmentType = args.fragmentType
         toolbar = (activity as AppCompatActivity).supportActionBar!!
         gameViewModel = GameViewModel()
-        displayAdapter = RulesDisplayAdapter(listOf(), requireContext())
+        displayAdapter = DisplayCollapsibleSectionAdapter(listOf(), requireContext())
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -81,7 +90,7 @@ class RulesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_rules, container, false)
+        val view = inflater.inflate(R.layout.fragment_collapsible_list, container, false)
         fab = requireActivity().findViewById(R.id.floating_action_button)
         progressBar = view.findViewById(R.id.progress_bar)
         errorLabel = view.findViewById(R.id.error_label)
@@ -110,7 +119,11 @@ class RulesFragment : Fragment() {
     }
 
     fun setupToolbar() {
-        toolbar.title = getString(R.string.navigation_drawer_rules)
+        toolbar.title = if (fragmentType == CollapsibleFragmentType.RULES) {
+            getString(R.string.navigation_drawer_rules)
+        } else {
+            getString(R.string.navigation_drawer_faq)
+        }
         toolbar.setDisplayHomeAsUpEnabled(false)
         setHasOptionsMenu(true)
     }
@@ -165,8 +178,13 @@ class RulesFragment : Fragment() {
         isEditing = true
         fab.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_x))
         showActionBarActions()
-        currentRules = game!!.rules.toMutableList()
-        editAdapter?.setData(game!!.rules)
+        val dataList = if (fragmentType == CollapsibleFragmentType.RULES) {
+            game!!.rules
+        } else {
+            game!!.faq
+        }
+        currentCollapsibleSections = dataList.toMutableList()
+        editAdapter?.setData(dataList)
         rulesList.adapter = editAdapter
     }
 
@@ -203,20 +221,25 @@ class RulesFragment : Fragment() {
         if (GameUtils.isAdmin(game!!)) {
             fab.visibility = View.VISIBLE
             val onRuleAdded = {
-                val newRule = Game.Rule()
-                newRule.order = currentRules.size
-                currentRules.add(newRule)
-                editAdapter?.setData(currentRules)
+                val newRule = Game.CollapsibleSection()
+                newRule.order = currentCollapsibleSections.size
+                currentCollapsibleSections.add(newRule)
+                editAdapter?.setData(currentCollapsibleSections)
                 editAdapter?.notifyDataSetChanged()
             }
             if (editAdapter == null) {
-                editAdapter = RulesEditAdapter(listOf(), this, onRuleAdded)
+                editAdapter = EditCollapsibleSectionAdapter(listOf(), this, onRuleAdded)
 
             }
         } else if (fab.visibility == View.VISIBLE) {
             fab.visibility = View.GONE
         }
-        displayAdapter.setData(game!!.rules)
+        val dataList = if (fragmentType == CollapsibleFragmentType.RULES) {
+            game!!.rules
+        } else {
+            game!!.faq
+        }
+        displayAdapter.setData(dataList)
         displayAdapter.notifyDataSetChanged()
     }
 
@@ -227,7 +250,12 @@ class RulesFragment : Fragment() {
         isSaving = true
         disableActions()
 
-        game?.rules = editAdapter!!.getLatestData()
+        if (fragmentType == CollapsibleFragmentType.RULES) {
+            game?.rules = editAdapter!!.getLatestData()
+        }
+        if (fragmentType == CollapsibleFragmentType.FAQ) {
+            game?.faq = editAdapter!!.getLatestData()
+        }
         val onSuccess = {
             isSaving = false
             exitEditMode()
@@ -242,7 +270,7 @@ class RulesFragment : Fragment() {
                 {
                     isSaving = false
                     enableActions()
-                    SystemUtils.showToast(context, "Couldn't save rules.")
+                    SystemUtils.showToast(context, "Couldn't save changes.")
                 }
             )
             EspressoIdlingResource.decrement()

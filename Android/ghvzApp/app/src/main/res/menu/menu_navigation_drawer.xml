@@ -32,6 +32,11 @@
       android:id="@id/nav_rules_fragment"
       android:icon="@drawable/ic_list"
       android:title="@string/navigation_drawer_rules" />
+
+    <item
+      android:id="@id/nav_faq_fragment"
+      android:icon="@drawable/ic_help"
+      android:title="@string/navigation_drawer_faq" />
   </group>
 
   <group android:id="@+id/nav_global_options">

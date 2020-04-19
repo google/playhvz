@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.rules
+package com.app.playhvz.screens.rules_faq
 
 import android.text.Editable
 import android.text.TextWatcher
@@ -28,14 +28,14 @@ import com.app.playhvz.common.MarkdownInfoDialog
 import com.app.playhvz.firebase.classmodels.Game
 
 
-class RulesEditAdapter(
-    private var items: List<Game.Rule>,
+class EditCollapsibleSectionAdapter(
+    private var items: List<Game.CollapsibleSection>,
     val fragment: Fragment,
     val onRuleAdded: () -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
-        private val TAG = RulesEditAdapter::class.qualifiedName
+        private val TAG = EditCollapsibleSectionAdapter::class.qualifiedName
     }
 
 
@@ -74,7 +74,7 @@ class RulesEditAdapter(
         markdownInfoButton.setOnClickListener {
             fragment.activity?.supportFragmentManager?.let { MarkdownInfoDialog().show(it, TAG) }
         }
-        return CollapsibleSectionEditViewHolder(
+        return EditCollapsibleSectionViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 R.layout.list_item_collapsible_section_edit,
                 parent,
@@ -89,7 +89,7 @@ class RulesEditAdapter(
         if (getItemViewType(position) == TYPE_ADD) {
             (holder as AddCollapsibleSectionViewHolder).onBind()
         } else {
-            (holder as CollapsibleSectionEditViewHolder).onBind(position, items[position])
+            (holder as EditCollapsibleSectionViewHolder).onBind(position, items[position])
         }
     }
 
@@ -97,11 +97,11 @@ class RulesEditAdapter(
         return items.size + ADD_SECTION_COUNT
     }
 
-    fun setData(rules: List<Game.Rule>) {
-        items = rules.sortedBy { rule -> rule.order }
+    fun setData(sections: List<Game.CollapsibleSection>) {
+        items = sections.sortedBy { rule -> rule.order }
     }
 
-    fun getLatestData(): List<Game.Rule> {
+    fun getLatestData(): List<Game.CollapsibleSection> {
         return items
     }
 

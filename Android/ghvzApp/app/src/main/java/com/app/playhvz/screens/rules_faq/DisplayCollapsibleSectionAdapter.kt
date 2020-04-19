@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.rules
+package com.app.playhvz.screens.rules_faq
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -23,14 +23,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Game
 
-class RulesDisplayAdapter(
-    private var items: List<Game.Rule>,
+class DisplayCollapsibleSectionAdapter(
+    private var items: List<Game.CollapsibleSection>,
     val context: Context
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return CollapsibleSectionDisplayViewHolder(
+        return DisplayCollapsibleSectionViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.list_item_collapsible_section_display,
                 parent,
@@ -40,14 +40,14 @@ class RulesDisplayAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as CollapsibleSectionDisplayViewHolder).onBind(items[position])
+        (holder as DisplayCollapsibleSectionViewHolder).onBind(items[position])
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun setData(rules: List<Game.Rule>) {
-        items = rules.sortedBy { rule -> rule.order }
+    fun setData(sections: List<Game.CollapsibleSection>) {
+        items = sections.sortedBy { rule -> rule.order }
     }
 }

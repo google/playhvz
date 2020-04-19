@@ -419,6 +419,10 @@
     Create new game
   </string>
 
+  <string name="navigation_drawer_faq" definition="Navigation drawer menu item for opening the FAQ of a game.">
+    FAQ
+  </string>
+
   <string name="navigation_drawer_game_settings" definition="Navigation drawer menu item for opening settings for the current game.">
     Game settings
   </string>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.rules
+package com.app.playhvz.screens.rules_faq
 
 import android.view.View
 import androidx.emoji.widget.EmojiTextView
@@ -23,14 +23,14 @@ import com.app.playhvz.R
 import com.app.playhvz.common.ui.MarkdownView
 import com.app.playhvz.firebase.classmodels.Game
 
-class CollapsibleSectionDisplayViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+class DisplayCollapsibleSectionViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
     private val sectionTitle = view.findViewById<EmojiTextView>(R.id.section_title)!!
     private val sectionContent = view.findViewById<MarkdownView>(R.id.section_content)!!
 
-    fun onBind(rule: Game.Rule) {
-        sectionTitle.text = rule.sectionTitle
-        sectionContent.text = rule.sectionContent
+    fun onBind(section: Game.CollapsibleSection) {
+        sectionTitle.text = section.sectionTitle
+        sectionContent.text = section.sectionContent
         itemView.setOnClickListener {
             if (sectionContent.visibility == View.VISIBLE) {
                 sectionContent.visibility = View.GONE
