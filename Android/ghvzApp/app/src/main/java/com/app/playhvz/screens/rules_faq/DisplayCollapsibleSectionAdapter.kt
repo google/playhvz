@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.rules
+package com.app.playhvz.screens.rules_faq
 
 import android.content.Context
 import android.view.LayoutInflater

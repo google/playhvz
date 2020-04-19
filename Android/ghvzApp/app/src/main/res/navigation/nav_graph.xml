@@ -85,7 +85,15 @@
     app:destination="@id/nav_rules_fragment">
     <argument
       android:name="fragmentType"
-      app:argType="com.app.playhvz.screens.rules.RulesFragment$CollapsibleFragmentType" />
+      app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
+  </action>
+
+  <action
+    android:id="@+id/action_global_nav_faq_fragment"
+    app:destination="@id/nav_faq_fragment">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
   </action>
 
   <fragment
@@ -114,12 +122,22 @@
 
   <fragment
     android:id="@+id/nav_rules_fragment"
-    android:name="com.app.playhvz.screens.rules.RulesFragment"
+    android:name="com.app.playhvz.screens.rules_faq.CollapsibleListFragment"
     android:label="@string/navigation_drawer_rules"
-    tools:layout="@layout/fragment_rules">
+    tools:layout="@layout/fragment_collapsible_list">
     <argument
       android:name="fragmentType"
-      app:argType="com.app.playhvz.screens.rules.RulesFragment$CollapsibleFragmentType" />
+      app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/nav_faq_fragment"
+    android:name="com.app.playhvz.screens.rules_faq.CollapsibleListFragment"
+    android:label="@string/navigation_drawer_faq"
+    tools:layout="@layout/fragment_collapsible_list">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
   </fragment>
 
   <fragment

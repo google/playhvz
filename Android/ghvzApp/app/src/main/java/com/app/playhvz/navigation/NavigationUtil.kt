@@ -29,8 +29,8 @@ import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
-import com.app.playhvz.screens.rules.RulesFragment
-import com.app.playhvz.screens.rules.RulesFragmentDirections
+import com.app.playhvz.screens.rules_faq.CollapsibleListFragment
+import com.app.playhvz.screens.rules_faq.CollapsibleListFragmentDirections
 
 class NavigationUtil {
     companion object {
@@ -143,7 +143,9 @@ class NavigationUtil {
          */
         fun navigateToRules(navController: NavController) {
             navController.navigate(
-                RulesFragmentDirections.actionGlobalNavRulesFragment(RulesFragment.CollapsibleFragmentType.RULES)
+                CollapsibleListFragmentDirections.actionGlobalNavRulesFragment(
+                    CollapsibleListFragment.CollapsibleFragmentType.RULES
+                )
             )
         }
 
@@ -152,7 +154,9 @@ class NavigationUtil {
          */
         fun navigateToFaq(navController: NavController) {
             navController.navigate(
-                RulesFragmentDirections.actionGlobalNavRulesFragment(RulesFragment.CollapsibleFragmentType.FAQ)
+                CollapsibleListFragmentDirections.actionGlobalNavRulesFragment(
+                    CollapsibleListFragment.CollapsibleFragmentType.FAQ
+                )
             )
         }
     }

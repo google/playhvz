@@ -148,6 +148,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     findNavController(R.id.nav_host_fragment)
                 )
             }
+            R.id.nav_faq_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToFaq(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
             R.id.nav_game_list_fragment -> {
                 SystemUtils.clearSharedPrefs(this)
                 drawer_layout.closeDrawer(GravityCompat.START)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.rules
+package com.app.playhvz.screens.rules_faq
 
 import android.os.Bundle
 import android.view.*
@@ -41,13 +41,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
 
 
-class RulesFragment : Fragment() {
+class CollapsibleListFragment : Fragment() {
     enum class CollapsibleFragmentType {
         RULES,
         FAQ
     }
 
-    private val args: RulesFragmentArgs by navArgs()
+    private val args: CollapsibleListFragmentArgs by navArgs()
 
     private var gameId: String? = null
     private var game: Game? = null
@@ -90,7 +90,7 @@ class RulesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_rules, container, false)
+        val view = inflater.inflate(R.layout.fragment_collapsible_list, container, false)
         fab = requireActivity().findViewById(R.id.floating_action_button)
         progressBar = view.findViewById(R.id.progress_bar)
         errorLabel = view.findViewById(R.id.error_label)
