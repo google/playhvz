@@ -82,7 +82,11 @@
 
   <action
     android:id="@+id/action_global_nav_rules_fragment"
-    app:destination="@id/nav_rules_fragment" />
+    app:destination="@id/nav_rules_fragment">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.rules.RulesFragment$CollapsibleFragmentType" />
+  </action>
 
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
@@ -112,7 +116,11 @@
     android:id="@+id/nav_rules_fragment"
     android:name="com.app.playhvz.screens.rules.RulesFragment"
     android:label="@string/navigation_drawer_rules"
-    tools:layout="@layout/fragment_rules" />
+    tools:layout="@layout/fragment_rules">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.rules.RulesFragment$CollapsibleFragmentType" />
+  </fragment>
 
   <fragment
     android:id="@+id/nav_create_game_fragment"

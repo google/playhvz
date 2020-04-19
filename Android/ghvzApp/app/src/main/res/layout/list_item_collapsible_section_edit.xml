@@ -31,7 +31,7 @@
     android:inputType="textAutoCorrect|textCapSentences"
     android:lines="1"
     android:maxLength="40"
-    android:paddingBottom="6dp"
+    android:paddingBottom="8dp"
     android:textColor="@color/app_primary_text"
     android:textSize="@dimen/list_item_title_text"
     app:layout_constraintStart_toStartOf="parent"

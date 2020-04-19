@@ -29,6 +29,8 @@ class Game {
 
     var rules: List<CollapsibleSection> = listOf()
 
+    var faq: List<CollapsibleSection> = listOf()
+
     class CollapsibleSection {
         var order: Int = 0
         var sectionTitle: String = ""
