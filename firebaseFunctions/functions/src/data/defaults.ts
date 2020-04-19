@@ -21,5 +21,6 @@ export const ZOMBIE_ALLEGIANCE_FILTER = "horde";
 export const globalChatName = "Global Chat";
 export const globalHumanChatName = "Resistance Chat";
 export const globalZombieChatName = "Horde Chat";
+export const gameAdminChatName = "Admins";
 
 export const allegiance = "undeclared";

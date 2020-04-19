@@ -24,21 +24,30 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.ConfirmationDialog
+import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.common.playersearch.PlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.GroupViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.screens.chatroom.chatinfo.MemberAdapter
 import com.app.playhvz.screens.gamelist.JoinGameDialog
+import com.app.playhvz.utils.PlayerHelper
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.button.MaterialButton
@@ -51,21 +60,35 @@ class GameSettingsFragment : Fragment() {
         private val TAG = GameSettingsFragment::class.qualifiedName
     }
 
-    lateinit var firestoreViewModel: GameViewModel
     val args: GameSettingsFragmentArgs by navArgs()
-
     var gameId: String? = null
+    var playerId: String? = null
     var game: Game? = null
+    var adminGroup: Group? = null
 
+    private var playerHelper: PlayerHelper = PlayerHelper()
+
+    private lateinit var adminRecyclerView: RecyclerView
+    private lateinit var addAdminButton: MaterialButton
+    private lateinit var adminAdapter: MemberAdapter
+    private lateinit var gameViewModel: GameViewModel
+    private lateinit var groupViewModel: GroupViewModel
     private lateinit var nameView: EmojiEditText
     private lateinit var submitButton: Button
     private lateinit var gameNameErrorLabel: TextView
+    private lateinit var adminSection: ConstraintLayout
     private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameId = args.gameId
-        firestoreViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        groupViewModel = GroupViewModel()
+        val sharedPrefs = activity?.getSharedPreferences(
+            SharedPreferencesConstants.PREFS_FILENAME,
+            0
+        )!!
+        playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
         setupObservers()
     }
 
@@ -79,12 +102,23 @@ class GameSettingsFragment : Fragment() {
         submitButton = view.findViewById(R.id.submit_button)
         gameNameErrorLabel = view.findViewById(R.id.game_name_error_label)
         progressBar = view.findViewById(R.id.progress_bar)
+        adminSection = view.findViewById(R.id.admin_section)
+        addAdminButton = view.findViewById(R.id.add_admin_button)
+        adminRecyclerView = view.findViewById(R.id.admin_list)
+        adminRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        adminAdapter = MemberAdapter(listOf(), requireContext(), this)
+        adminRecyclerView.adapter = adminAdapter
+
+        addAdminButton.setOnClickListener {
+             val addPeopleDialog = PlayerSearchDialog(gameId!!, adminGroup)
+             activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
+        }
 
         submitButton.setOnClickListener { _ ->
             if (gameId == null) {
                 createGame()
             } else {
-                updateGame()
+                submitChanges()
             }
         }
 
@@ -104,13 +138,13 @@ class GameSettingsFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title =
-                if (game == null || game?.name.isNullOrEmpty()) context!!.getString(R.string.game_settings_create_game_toolbar_title)
+                if (game == null || game?.name.isNullOrEmpty()) requireContext().getString(R.string.game_settings_create_game_toolbar_title)
                 else game?.name
             toolbar.setDisplayHomeAsUpEnabled(false)
         }
     }
 
-    fun initializeFields() {
+    private fun initializeFields() {
         if (gameId != null) {
             // Disable changing name of already created game
             nameView.setText(game?.name)
@@ -118,6 +152,7 @@ class GameSettingsFragment : Fragment() {
             nameView.isFocusable = false
         } else {
             // Setup UI for creating a new game
+            adminSection.visibility = View.GONE
             nameView.doOnTextChanged { text, _, _, _ ->
                 when {
                     text.isNullOrEmpty() -> {
@@ -142,7 +177,7 @@ class GameSettingsFragment : Fragment() {
         val name = nameView.text
         val gameCreatedListener = OnSuccessListener<String> { gameId ->
             SystemUtils.showToast(context, getString(R.string.create_game_success_toast, name))
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
             haveAdminCreatePlayer(gameId, name.toString())
         }
         val gameExistsListener = {
@@ -163,28 +198,50 @@ class GameSettingsFragment : Fragment() {
         }
     }
 
-    private fun updateGame() {
-
-    }
-
     private fun setupObservers() {
-        if (gameId == null) {
+        if (gameId == null || playerId == null) {
             return
         }
-        firestoreViewModel.getGame(gameId!!) {
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
             NavigationUtil.navigateToGameList(
                 findNavController(),
-                activity!!
+                requireActivity()
             )
-        }.observe(this, androidx.lifecycle.Observer { serverGame ->
-            updateGame(serverGame)
+        }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
+            updateGame(serverUpdate)
         })
     }
 
-    private fun updateGame(serverGame: Game?) {
-        game = serverGame
+    private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
+        if (serverUpdate == null) {
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
+        }
+        game = serverUpdate!!.game
+
+        groupViewModel.getGroup(gameId!!, game!!.adminGroupId!!)
+            .observe(this, androidx.lifecycle.Observer { serverGroup: Group? ->
+                updateAdminGroup(serverGroup)
+            })
+
         setupToolbar()
         initializeFields()
+    }
+
+    private fun updateAdminGroup(serverGroup: Group?) {
+        var members: List<String> = listOf()
+        if (serverGroup != null) {
+            members = serverGroup.members
+        }
+        adminGroup = serverGroup
+        playerHelper.getListOfPlayers(gameId!!, members)
+            .observe(this, androidx.lifecycle.Observer { playerMap ->
+                adminAdapter.setData(playerMap)
+                adminAdapter.notifyDataSetChanged()
+            })
+    }
+
+    private fun submitChanges() {
+        // TODO update game
     }
 
     private fun showDeleteDialog() {
@@ -202,8 +259,8 @@ class GameSettingsFragment : Fragment() {
                         gameId!!
                     ) {
                         SystemUtils.showToast(context, "Deleted game")
-                        SystemUtils.clearSharedPrefs(activity!!)
-                        NavigationUtil.navigateToGameList(findNavController(), activity!!)
+                        SystemUtils.clearSharedPrefs(requireActivity())
+                        NavigationUtil.navigateToGameList(findNavController(), requireActivity())
                     }
                     EspressoIdlingResource.decrement()
                 }

@@ -266,10 +266,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 return
             }
         } else {
-            gameViewModel.getGame(gameId) {
+            gameViewModel.getGameAndAdminObserver(this, gameId, getCurrentPlayerId()!!) {
                 NavigationUtil.navigateToGameList(getNavController(), this)
-            }.observe(this, androidx.lifecycle.Observer { serverGame ->
-                val newIsAdmin = GameUtils.isAdmin(serverGame)
+            }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
+                val newIsAdmin = serverUpdate.isAdmin
                 if (newIsAdmin != isAdmin) {
                     isAdmin = newIsAdmin
                     updateNavDrawerItems()

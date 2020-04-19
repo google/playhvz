@@ -17,3 +17,7 @@
 
 export const COLLECTION_PATH = "games";
 export const FIELD__NAME = "name";
+export const FIELD__CREATOR_USER_ID = "creatorUserId";
+export const FIELD__RULES = "rules";
+export const FIELD__FAQ = "faq";
+export const FIELD__ADMIN_GROUP_ID = "adminGroupId";

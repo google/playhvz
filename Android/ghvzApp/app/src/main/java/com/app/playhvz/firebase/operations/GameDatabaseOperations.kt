@@ -139,7 +139,7 @@ class GameDatabaseOperations {
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            if (game.id == null || !GameUtils.isAdmin(game)) {
+            if (game.id == null) {
                 return@withContext
             }
             // TODO: should this be set or update?

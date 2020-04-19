@@ -17,8 +17,11 @@
 package com.app.playhvz.firebase.operations
 
 import com.app.playhvz.firebase.constants.GroupPath
+import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GroupDatabaseOperations {
     companion object {
@@ -44,5 +47,32 @@ class GroupDatabaseOperations {
                 listOfGroupIdsAssociatedWithMissions
             )
         }
+
+        /** Adds a list of players to the group. */
+        suspend fun asyncAddPlayersToGroup(
+            gameId: String,
+            playerIdList: List<String>,
+            groupId: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "groupId" to groupId,
+                "playerIdList" to playerIdList
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("addPlayersToGroup")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
+        }
+
     }
 }
