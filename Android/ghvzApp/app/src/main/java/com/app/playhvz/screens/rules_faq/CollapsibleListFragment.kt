@@ -35,7 +35,6 @@ import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.utils.GameUtils
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
@@ -50,6 +49,8 @@ class CollapsibleListFragment : Fragment() {
     private val args: CollapsibleListFragmentArgs by navArgs()
 
     private var gameId: String? = null
+    private var playerId: String? = null
+    private var isAdmin: Boolean = false
     private var game: Game? = null
     private var currentCollapsibleSections: MutableList<Game.CollapsibleSection> = mutableListOf()
     private var isEditing: Boolean = false
@@ -78,7 +79,8 @@ class CollapsibleListFragment : Fragment() {
             0
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
-        if (gameId == null) {
+        playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+        if (gameId == null || playerId == null) {
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
 
@@ -129,17 +131,19 @@ class CollapsibleListFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        if (gameId.isNullOrEmpty()) {
+        if (gameId.isNullOrEmpty() || playerId == null) {
             return
         }
 
         val onFailure = {
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
-        gameViewModel.getGame(gameId!!, onFailure)
-            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
-                updateGame(serverGame)
-            })
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!, onFailure)
+            .observe(
+                viewLifecycleOwner,
+                androidx.lifecycle.Observer { serverUpdate: GameViewModel.GameWithAdminStatus ->
+                    updateGame(serverUpdate)
+                })
     }
 
     private fun setupFab() {
@@ -196,9 +200,13 @@ class CollapsibleListFragment : Fragment() {
         updateUi()
     }
 
-    private fun updateGame(serverGame: Game) {
+    private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
         hideProgressBar()
-        game = serverGame
+        if (serverUpdate == null) {
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
+        }
+        isAdmin = serverUpdate!!.isAdmin
+        game = serverUpdate.game
         if (isSaving) {
             return
         }
@@ -218,7 +226,7 @@ class CollapsibleListFragment : Fragment() {
             displayAdapter.notifyDataSetChanged()
             return
         }
-        if (GameUtils.isAdmin(game!!)) {
+        if (isAdmin) {
             fab.visibility = View.VISIBLE
             val onRuleAdded = {
                 val newRule = Game.CollapsibleSection()

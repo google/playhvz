@@ -30,7 +30,8 @@ class GameUtils {
         val TAG = GameUtils::class.qualifiedName
 
         /** Returns whether the current player is a game admin or not. */
-        fun isAdmin(game: Game): Boolean {
+        @Deprecated("Use GameViewModel.getGameAndAdminObserver() instead")
+        private fun isAdmin(game: Game): Boolean {
             return game.creatorUserId == FirebaseProvider.getFirebaseAuth().uid
         }
 
