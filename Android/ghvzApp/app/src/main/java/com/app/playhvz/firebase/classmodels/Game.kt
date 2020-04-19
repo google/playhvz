@@ -27,9 +27,9 @@ class Game {
     // Creator of the game
     var creatorUserId: String? = null
 
-    var rules: List<Rule> = listOf()
+    var sections: List<CollapsibleSection> = listOf()
 
-    class Rule {
+    class CollapsibleSection {
         var order: Int = 0
         var sectionTitle: String = ""
         var sectionContent: String = ""

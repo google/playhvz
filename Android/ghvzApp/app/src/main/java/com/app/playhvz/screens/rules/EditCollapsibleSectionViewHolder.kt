@@ -23,21 +23,21 @@ import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Game
 
 
-class CollapsibleSectionEditViewHolder(
+class EditCollapsibleSectionViewHolder(
     val view: View,
-    val titleTextWatcher: RulesEditAdapter.TitleTextWatcher,
-    val contentTextWatcher: RulesEditAdapter.ContentTextWatcher
+    val titleTextWatcher: EditCollapsibleSectionAdapter.TitleTextWatcher,
+    val contentTextWatcher: EditCollapsibleSectionAdapter.ContentTextWatcher
 ) : RecyclerView.ViewHolder(view) {
 
     private val sectionTitle = view.findViewById<EmojiEditText>(R.id.section_title)!!
     private val sectionContent = view.findViewById<EmojiEditText>(R.id.section_content)!!
 
-    fun onBind(position: Int, rule: Game.Rule) {
+    fun onBind(position: Int, section: Game.CollapsibleSection) {
         titleTextWatcher.setPosition(position)
         contentTextWatcher.setPosition(position)
-        sectionTitle.setText(rule.sectionTitle)
+        sectionTitle.setText(section.sectionTitle)
         sectionTitle.addTextChangedListener(titleTextWatcher)
-        sectionContent.setText(rule.sectionContent)
+        sectionContent.setText(section.sectionContent)
         sectionContent.addTextChangedListener(contentTextWatcher)
     }
 }
