@@ -165,8 +165,8 @@ class RulesFragment : Fragment() {
         isEditing = true
         fab.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_x))
         showActionBarActions()
-        currentCollapsibleSections = game!!.sections.toMutableList()
-        editAdapter?.setData(game!!.sections)
+        currentCollapsibleSections = game!!.rules.toMutableList()
+        editAdapter?.setData(game!!.rules)
         rulesList.adapter = editAdapter
     }
 
@@ -216,7 +216,7 @@ class RulesFragment : Fragment() {
         } else if (fab.visibility == View.VISIBLE) {
             fab.visibility = View.GONE
         }
-        displayAdapter.setData(game!!.sections)
+        displayAdapter.setData(game!!.rules)
         displayAdapter.notifyDataSetChanged()
     }
 
@@ -227,7 +227,7 @@ class RulesFragment : Fragment() {
         isSaving = true
         disableActions()
 
-        game?.sections = editAdapter!!.getLatestData()
+        game?.rules = editAdapter!!.getLatestData()
         val onSuccess = {
             isSaving = false
             exitEditMode()
