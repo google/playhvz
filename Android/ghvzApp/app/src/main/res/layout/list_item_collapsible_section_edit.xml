@@ -16,6 +16,7 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:orientation="vertical"
@@ -30,21 +31,25 @@
     android:hint="@string/collapsible_section_title_hint_text"
     android:inputType="textAutoCorrect|textCapSentences"
     android:maxLength="70"
+    android:paddingEnd="@dimen/tap_target_min"
     android:paddingBottom="8dp"
     android:textColor="@color/app_primary_text"
     android:textSize="@dimen/list_item_title_text"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+    app:layout_constraintTop_toTopOf="parent"
+    tools:ignore="RtlSymmetry" />
 
   <ImageButton
-    android:id="@+id/markdown_info_button"
+    android:id="@+id/section_delete_button"
     style="@style/ImageButtonStyle"
-    android:contentDescription="@string/markdown_dialog_trigger_content_description"
-    android:src="@drawable/ic_info"
-    app:layout_constraintBottom_toTopOf="@+id/section_content"
-    app:layout_constraintEnd_toEndOf="parent" />
+    android:layout_width="@dimen/tap_target_min"
+    android:layout_height="@dimen/tap_target_min"
+    android:contentDescription="@string/delete_button_content_description"
+    android:src="@drawable/ic_x"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-  <androidx.emoji.widget.EmojiEditText
+  <com.app.playhvz.common.ui.MarkdownEditText
     android:id="@+id/section_content"
     style="@style/TextAppearance.MaterialComponents.Body2"
     android:layout_width="match_parent"

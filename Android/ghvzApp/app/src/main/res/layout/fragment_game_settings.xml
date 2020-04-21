@@ -43,6 +43,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:hint="@string/game_settings_game_name_hint_text"
+    android:inputType="textCapSentences|textNoSuggestions"
     android:maxLength="40"
     android:maxLines="1" />
 

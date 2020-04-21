@@ -31,13 +31,13 @@ import com.app.playhvz.firebase.classmodels.Game
 class EditCollapsibleSectionAdapter(
     private var items: List<Game.CollapsibleSection>,
     val fragment: Fragment,
-    val onSectionAdded: () -> Unit?
+    val onSectionAdded: () -> Unit?,
+    val onSectionDeleted: (position: Int) -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private val TAG = EditCollapsibleSectionAdapter::class.qualifiedName
     }
-
 
     private val TYPE_COLLAPSIBLE_SECTION_ITEM = 1
     private val TYPE_ADD = 2
@@ -69,11 +69,6 @@ class EditCollapsibleSectionAdapter(
             parent,
             false
         )
-        val markdownInfoButton =
-            editableSectionLayout.findViewById<ImageButton>(R.id.markdown_info_button)
-        markdownInfoButton.setOnClickListener {
-            fragment.activity?.supportFragmentManager?.let { MarkdownInfoDialog().show(it, TAG) }
-        }
         return EditCollapsibleSectionViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 R.layout.list_item_collapsible_section_edit,
@@ -81,7 +76,8 @@ class EditCollapsibleSectionAdapter(
                 false
             ),
             TitleTextWatcher(),
-            ContentTextWatcher()
+            ContentTextWatcher(),
+            onSectionDeleted
         )
     }
 

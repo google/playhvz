@@ -151,6 +151,14 @@
     Add some content
   </string>
 
+  <string name="collapsible_section_remove_dialog_title" definition="Title for the delete confirmation dialog.">
+    Really delete section?
+  </string>
+
+  <string name="collapsible_section_remove_dialog_content" definition="Description for the delete confirmation dialog.">
+    This can\'t be undone.
+  </string>
+
   <string name="datetime_dialog_title" definition="Title for the date time selection dialog.">
     Set date and time
   </string>
@@ -495,6 +503,10 @@
 
   <string name="markdown_dialog_trigger_content_description" definition="Content description for the button that opens the markdown cheatsheet.">
     View Markdown hints
+  </string>
+
+  <string name="delete_button_content_description" definition="Content description for a delete button.">
+    Delete
   </string>
 
 

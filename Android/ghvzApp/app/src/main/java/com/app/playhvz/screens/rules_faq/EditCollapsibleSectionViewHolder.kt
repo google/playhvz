@@ -17,6 +17,7 @@
 package com.app.playhvz.screens.rules_faq
 
 import android.view.View
+import android.widget.ImageButton
 import androidx.emoji.widget.EmojiEditText
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
@@ -26,13 +27,18 @@ import com.app.playhvz.firebase.classmodels.Game
 class EditCollapsibleSectionViewHolder(
     val view: View,
     val titleTextWatcher: EditCollapsibleSectionAdapter.TitleTextWatcher,
-    val contentTextWatcher: EditCollapsibleSectionAdapter.ContentTextWatcher
+    val contentTextWatcher: EditCollapsibleSectionAdapter.ContentTextWatcher,
+    val onDeleteSection: (position: Int) -> Unit?
 ) : RecyclerView.ViewHolder(view) {
 
     private val sectionTitle = view.findViewById<EmojiEditText>(R.id.section_title)!!
     private val sectionContent = view.findViewById<EmojiEditText>(R.id.section_content)!!
+    private val deleteButton = view.findViewById<ImageButton>(R.id.section_delete_button)!!
 
     fun onBind(position: Int, section: Game.CollapsibleSection) {
+        deleteButton.setOnClickListener {
+            onDeleteSection.invoke(position)
+        }
         titleTextWatcher.setPosition(position)
         contentTextWatcher.setPosition(position)
         sectionTitle.setText(section.sectionTitle)

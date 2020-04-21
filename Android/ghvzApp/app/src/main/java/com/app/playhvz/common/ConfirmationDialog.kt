@@ -43,7 +43,7 @@ class ConfirmationDialog(
     var onCancel: (() -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        customView = activity!!.layoutInflater.inflate(R.layout.dialog_confirmation, null)
+        customView = requireActivity().layoutInflater.inflate(R.layout.dialog_confirmation, null)
         val descriptionTextView = customView.findViewById<TextView>(R.id.dialog_description)
 
         if (descriptionResId == null) {
@@ -59,7 +59,7 @@ class ConfirmationDialog(
             cancelResId = R.string.button_cancel
         }
 
-        val dialog = AlertDialog.Builder(context!!)
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setView(customView)
             .create()

@@ -61,6 +61,7 @@
       android:layout_height="wrap_content"
       android:layout_marginBottom="8dp"
       android:layout_weight="1"
+      android:inputType="textAutoCorrect|textCapSentences|textMultiLine"
       android:maxHeight="124dp"
       android:minHeight="52dp"
       android:orientation="vertical" />

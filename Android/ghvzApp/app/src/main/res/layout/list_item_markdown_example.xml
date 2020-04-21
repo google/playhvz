@@ -43,7 +43,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="@id/display_text" />
 
-  <com.app.playhvz.common.ui.MarkdownView
+  <com.app.playhvz.common.ui.MarkdownTextView
     android:id="@+id/display_text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

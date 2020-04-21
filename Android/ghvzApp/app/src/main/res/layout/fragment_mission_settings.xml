@@ -15,7 +15,6 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
@@ -137,30 +136,13 @@
         android:text="@string/allegiance_option_everyone" />
     </RadioGroup>
 
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
       android:layout_width="match_parent"
-      android:layout_height="wrap_content">
+      android:layout_height="wrap_content"
+      android:text="@string/mission_settings_details_label"
+      android:textSize="18sp" />
 
-      <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/mission_settings_details_label"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@id/markdown_info_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/markdown_info_button" />
-
-      <ImageButton
-        android:id="@+id/markdown_info_button"
-        style="@style/ImageButtonStyle"
-        android:contentDescription="@string/markdown_dialog_trigger_content_description"
-        android:src="@drawable/ic_info"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.emoji.widget.EmojiEditText
+    <com.app.playhvz.common.ui.MarkdownEditText
       android:id="@+id/mission_details"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"

@@ -18,7 +18,6 @@ package com.app.playhvz.screens.missions.missionsettings
 
 import android.os.Bundle
 import android.view.*
-import android.widget.ImageButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -31,7 +30,6 @@ import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.DateTimePickerDialog
-import com.app.playhvz.common.MarkdownInfoDialog
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.BLANK_ALLEGIANCE_FILTER
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.UNDECLARED
@@ -101,10 +99,6 @@ class MissionSettingsFragment : Fragment() {
         startTime = view.findViewById(R.id.mission_start_time)
         endTime = view.findViewById(R.id.mission_end_time)
         allegianceRadioGroup = view.findViewById(R.id.radio_button_group)
-        val markdownInfoButton = view.findViewById<ImageButton>(R.id.markdown_info_button)
-        markdownInfoButton.setOnClickListener {
-            activity?.supportFragmentManager?.let { MarkdownInfoDialog().show(it, TAG) }
-        }
 
         submitButton.setOnClickListener {
             submitMission()
@@ -130,15 +124,21 @@ class MissionSettingsFragment : Fragment() {
         return view
     }
 
+    override fun onDestroyView() {
+        SystemUtils.hideKeyboard(requireContext())
+        super.onDestroyView()
+    }
+
     fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         setHasOptionsMenu(true)
         if (toolbar != null) {
             if (missionId == null) {
-                toolbar.title = context!!.getString(R.string.mission_settings_create_mission_title)
+                toolbar.title =
+                    requireContext().getString(R.string.mission_settings_create_mission_title)
                 return
             }
-            toolbar.title = context!!.getString(R.string.mission_settings_title)
+            toolbar.title = requireContext().getString(R.string.mission_settings_title)
         }
     }
 

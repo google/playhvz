@@ -27,7 +27,7 @@ import android.text.style.StyleSpan
 import android.util.AttributeSet
 import androidx.emoji.widget.EmojiTextView
 
-class MarkdownView : EmojiTextView {
+class MarkdownTextView : EmojiTextView {
     companion object {
         enum class TagType {
             BOLD,
@@ -196,7 +196,7 @@ class MarkdownView : EmojiTextView {
             }
 
             // The more #, the smaller the heading.
-            val textSizeMultiplier = (4 - (0.35f * numberOfHashtagsInclusive))
+            val textSizeMultiplier = (3.2f - (0.35f * numberOfHashtagsInclusive))
 
             // Contrary to what you'd think, the spannable inclusive/exclusive tag has nothing
             // to do with the start and end index you supply, it only matters for whether text
