@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
@@ -41,6 +42,10 @@ import kotlinx.coroutines.runBlocking
 
 
 class CollapsibleListFragment : Fragment() {
+    companion object {
+        private val TAG = CollapsibleListFragment::class.qualifiedName
+    }
+
     enum class CollapsibleFragmentType {
         RULES,
         FAQ
@@ -228,15 +233,29 @@ class CollapsibleListFragment : Fragment() {
         }
         if (isAdmin) {
             fab.visibility = View.VISIBLE
-            val onRuleAdded = {
-                val newRule = Game.CollapsibleSection()
-                newRule.order = currentCollapsibleSections.size
-                currentCollapsibleSections.add(newRule)
+            val onSectionAdded = {
+                val newSection = Game.CollapsibleSection()
+                newSection.order = currentCollapsibleSections.size
+                currentCollapsibleSections.add(newSection)
                 editAdapter?.setData(currentCollapsibleSections)
                 editAdapter?.notifyDataSetChanged()
             }
+            val onSectionDeleted = { position: Int ->
+                val confirmationDialog = ConfirmationDialog(
+                    getString(R.string.collapsible_section_remove_dialog_title),
+                    R.string.collapsible_section_remove_dialog_content,
+                    R.string.delete_button_content_description
+                )
+                confirmationDialog.setPositiveButtonCallback {
+                    currentCollapsibleSections.removeAt(position)
+                    editAdapter?.setData(currentCollapsibleSections)
+                    editAdapter?.notifyDataSetChanged()
+                }
+                activity?.supportFragmentManager?.let { confirmationDialog.show(it, TAG) }
+            }
             if (editAdapter == null) {
-                editAdapter = EditCollapsibleSectionAdapter(listOf(), this, onRuleAdded)
+                editAdapter =
+                    EditCollapsibleSectionAdapter(listOf(), this, onSectionAdded, onSectionDeleted)
 
             }
         } else if (fab.visibility == View.VISIBLE) {

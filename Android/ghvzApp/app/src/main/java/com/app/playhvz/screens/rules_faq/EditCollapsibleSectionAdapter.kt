@@ -31,13 +31,13 @@ import com.app.playhvz.firebase.classmodels.Game
 class EditCollapsibleSectionAdapter(
     private var items: List<Game.CollapsibleSection>,
     val fragment: Fragment,
-    val onSectionAdded: () -> Unit?
+    val onSectionAdded: () -> Unit?,
+    val onSectionDeleted: (position: Int) -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private val TAG = EditCollapsibleSectionAdapter::class.qualifiedName
     }
-
 
     private val TYPE_COLLAPSIBLE_SECTION_ITEM = 1
     private val TYPE_ADD = 2
@@ -76,7 +76,8 @@ class EditCollapsibleSectionAdapter(
                 false
             ),
             TitleTextWatcher(),
-            ContentTextWatcher()
+            ContentTextWatcher(),
+            onSectionDeleted
         )
     }
 
