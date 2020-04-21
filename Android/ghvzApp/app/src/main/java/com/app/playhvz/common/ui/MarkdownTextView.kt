@@ -196,7 +196,7 @@ class MarkdownTextView : EmojiTextView {
             }
 
             // The more #, the smaller the heading.
-            val textSizeMultiplier = (4 - (0.35f * numberOfHashtagsInclusive))
+            val textSizeMultiplier = (3.2f - (0.35f * numberOfHashtagsInclusive))
 
             // Contrary to what you'd think, the spannable inclusive/exclusive tag has nothing
             // to do with the start and end index you supply, it only matters for whether text
