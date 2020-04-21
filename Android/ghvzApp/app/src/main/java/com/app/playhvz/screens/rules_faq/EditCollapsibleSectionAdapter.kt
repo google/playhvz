@@ -69,11 +69,6 @@ class EditCollapsibleSectionAdapter(
             parent,
             false
         )
-        val markdownInfoButton =
-            editableSectionLayout.findViewById<ImageButton>(R.id.markdown_info_button)
-        markdownInfoButton.setOnClickListener {
-            fragment.activity?.supportFragmentManager?.let { MarkdownInfoDialog().show(it, TAG) }
-        }
         return EditCollapsibleSectionViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 R.layout.list_item_collapsible_section_edit,

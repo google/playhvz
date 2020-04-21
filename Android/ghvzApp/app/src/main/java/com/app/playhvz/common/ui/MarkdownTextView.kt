@@ -27,7 +27,7 @@ import android.text.style.StyleSpan
 import android.util.AttributeSet
 import androidx.emoji.widget.EmojiTextView
 
-class MarkdownView : EmojiTextView {
+class MarkdownTextView : EmojiTextView {
     companion object {
         enum class TagType {
             BOLD,

@@ -29,7 +29,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.common.ui.MarkdownView
+import com.app.playhvz.common.ui.MarkdownTextView
 
 class MarkdownInfoDialog() : DialogFragment() {
     companion object {
@@ -106,7 +106,7 @@ class MarkdownInfoDialog() : DialogFragment() {
 
     class HelpItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         private val exampleText = view.findViewById<TextView>(R.id.example_text)
-        private val displayText = view.findViewById<MarkdownView>(R.id.display_text)
+        private val displayText = view.findViewById<MarkdownTextView>(R.id.display_text)
         fun onBind(markdownString: String) {
             exampleText.text = markdownString
             displayText.text = markdownString

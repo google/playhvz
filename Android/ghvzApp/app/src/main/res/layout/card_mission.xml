@@ -94,7 +94,7 @@
         app:layout_constraintTop_toTopOf="@id/mission_start_time"
         tools:text="Jun 06\n4:00 PM" />
 
-      <com.app.playhvz.common.ui.MarkdownView
+      <com.app.playhvz.common.ui.MarkdownTextView
         android:id="@+id/mission_details"
         style="@style/TextAppearance.MaterialComponents.Body2"
         android:layout_width="wrap_content"

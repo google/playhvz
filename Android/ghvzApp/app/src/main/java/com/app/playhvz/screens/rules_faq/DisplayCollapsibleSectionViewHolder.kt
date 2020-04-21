@@ -20,13 +20,13 @@ import android.view.View
 import androidx.emoji.widget.EmojiTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.common.ui.MarkdownView
+import com.app.playhvz.common.ui.MarkdownTextView
 import com.app.playhvz.firebase.classmodels.Game
 
 class DisplayCollapsibleSectionViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
     private val sectionTitle = view.findViewById<EmojiTextView>(R.id.section_title)!!
-    private val sectionContent = view.findViewById<MarkdownView>(R.id.section_content)!!
+    private val sectionContent = view.findViewById<MarkdownTextView>(R.id.section_content)!!
 
     fun onBind(section: Game.CollapsibleSection) {
         sectionTitle.text = section.sectionTitle
