@@ -167,6 +167,7 @@
       android:layout_gravity="top"
       android:background="@drawable/rectangular_border"
       android:gravity="start|top"
+      android:inputType="textAutoCorrect|textCapSentences"
       android:lines="12" />
 
     <Button
