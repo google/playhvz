@@ -33,11 +33,14 @@ class PlayerHelper {
 
     /** Returns a list of Player LiveData objects, internally handles cleaning up firebase listeners. */
     fun getListOfPlayers(gameId: String, playerIdList: List<String>): HvzData<Map<String, Player>> {
-        ObserverUtils.cleanupObsoleteListeners(
-            playerList,
-            playerList.value!!.keys.toSet(),
-            playerIdList.toSet()
-        )
+        // Remove listeners for any players that were removed from the list.
+        val removedIds = playerList.value!!.keys.toSet().minus(playerIdList.toSet())
+        stopListening(playerList, removedIds)
+        if (removedIds.isNotEmpty() && playerList.value!!.isNotEmpty()) {
+            val mutableList = playerList.value!!.toMutableMap()
+            removedIds.map { key -> mutableList.remove(key) }
+            playerList.value = mutableList
+        }
 
         for (id in playerIdList) {
             if (id in playerList.docIdListeners) {
@@ -60,5 +63,15 @@ class PlayerHelper {
                     }
         }
         return playerList
+    }
+
+    private fun stopListening(liveData: HvzData<*>, removedIds: Set<String>) {
+        for (removedId in removedIds) {
+            if (!liveData.docIdListeners.containsKey(removedId)) {
+                continue
+            }
+            liveData.docIdListeners[removedId]?.remove()
+            liveData.docIdListeners.remove(removedId)
+        }
     }
 }

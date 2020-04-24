@@ -42,7 +42,6 @@ import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.signin.SignInActivity
-import com.app.playhvz.utils.GameUtils
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -91,7 +90,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     // This must NOT be a lambda! https://stackoverflow.com/a/3104265/12094056
     private val gameIdPreferenceListener =
         SharedPreferences.OnSharedPreferenceChangeListener { prefs: SharedPreferences?, key: String? ->
-            if (key.equals(CURRENT_GAME_ID)) {
+            if (key.equals(CURRENT_GAME_ID) || key.equals(CURRENT_PLAYER_ID)) {
                 listenToGameUpdates(prefs?.getString(CURRENT_GAME_ID, null))
             }
         }
@@ -258,24 +257,23 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun listenToGameUpdates(gameId: String?) {
-        this.gameId = gameId
-        if (gameId.isNullOrEmpty()) {
+        if (gameId.isNullOrEmpty() || getCurrentPlayerId() == null) {
             if (isAdmin) {
                 isAdmin = false
                 updateNavDrawerItems()
-                return
             }
-        } else {
-            gameViewModel.getGameAndAdminObserver(this, gameId, getCurrentPlayerId()!!) {
-                NavigationUtil.navigateToGameList(getNavController(), this)
-            }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
-                val newIsAdmin = serverUpdate.isAdmin
-                if (newIsAdmin != isAdmin) {
-                    isAdmin = newIsAdmin
-                    updateNavDrawerItems()
-                }
-            })
+            return
         }
+        this.gameId = gameId
+        gameViewModel.getGameAndAdminObserver(this, gameId, getCurrentPlayerId()!!) {
+            NavigationUtil.navigateToGameList(getNavController(), this)
+        }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
+            val newIsAdmin = serverUpdate.isAdmin
+            if (newIsAdmin != isAdmin) {
+                isAdmin = newIsAdmin
+                updateNavDrawerItems()
+            }
+        })
     }
 
     private fun updateNavDrawerItems() {

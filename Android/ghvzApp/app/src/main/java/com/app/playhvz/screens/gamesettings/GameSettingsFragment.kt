@@ -41,7 +41,9 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.playersearch.PlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Group
+import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
+import com.app.playhvz.firebase.operations.GroupDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.GroupViewModel
 import com.app.playhvz.navigation.NavigationUtil
@@ -106,7 +108,7 @@ class GameSettingsFragment : Fragment() {
         addAdminButton = view.findViewById(R.id.add_admin_button)
         adminRecyclerView = view.findViewById(R.id.admin_list)
         adminRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adminAdapter = MemberAdapter(listOf(), requireContext(), this)
+        adminAdapter = MemberAdapter(listOf(), requireContext(), {player -> onRemoveAdminClicked(player)})
         adminRecyclerView.adapter = adminAdapter
 
         addAdminButton.setOnClickListener {
@@ -213,7 +215,7 @@ class GameSettingsFragment : Fragment() {
     }
 
     private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
-        if (serverUpdate == null) {
+        if (serverUpdate == null || serverUpdate.game == null) {
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
         game = serverUpdate!!.game
@@ -228,11 +230,13 @@ class GameSettingsFragment : Fragment() {
     }
 
     private fun updateAdminGroup(serverGroup: Group?) {
-        var members: List<String> = listOf()
-        if (serverGroup != null) {
-            members = serverGroup.members
+        if (serverGroup == null) {
+            return
         }
         adminGroup = serverGroup
+        val members = serverGroup.members
+        adminAdapter.setGroupOwnerPlayerId(serverGroup.owners)
+        adminAdapter.setCanRemovePlayer(serverGroup.settings.canRemoveOthers)
         playerHelper.getListOfPlayers(gameId!!, members)
             .observe(this, androidx.lifecycle.Observer { playerMap ->
                 adminAdapter.setData(playerMap)
@@ -273,5 +277,28 @@ class GameSettingsFragment : Fragment() {
         val joinGameDialog = JoinGameDialog(this)
         joinGameDialog.setGameName(gameName)
         activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }
+    }
+
+    private fun onRemoveAdminClicked(player: Player) {
+        val leaveConfirmationDialog = ConfirmationDialog(
+            getString(R.string.chat_info_remove_dialog_title, player.name),
+            R.string.chat_info_remove_dialog_description,
+            R.string.chat_info_remove_dialog_confirmation
+        )
+        leaveConfirmationDialog.setPositiveButtonCallback {
+            runBlocking {
+                EspressoIdlingResource.increment()
+                GroupDatabaseOperations.asyncRemovePlayerFromGroup(
+                    gameId!!,
+                    player.id!!,
+                    game!!.adminGroupId!!,
+                    {
+                        SystemUtils.showToast(requireContext(), "Successfully removed player")
+                    },
+                    {})
+                EspressoIdlingResource.decrement()
+            }
+        }
+        activity?.supportFragmentManager?.let { leaveConfirmationDialog.show(it, TAG) }
     }
 }

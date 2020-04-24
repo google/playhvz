@@ -135,6 +135,18 @@
     <item quantity="other">%1$s members</item>
   </plurals>
 
+  <string name="chat_info_remove_dialog_title" definition="Title for dialog confirming user wants to remove player from chat room.">
+    Really remove %1$s?
+  </string>
+
+  <string name="chat_info_remove_dialog_description" definition="Dialog message informing user they can't rejoin chat room after removing player.">
+    They can\'t rejoin by themselves. They\'ll have to ask someone else to add them back.
+  </string>
+
+  <string name="chat_info_remove_dialog_confirmation" definition="Confirmation button for removing player chat dialog.">
+    Yep, remove
+  </string>
+
   <string name="chat_input_hint" definition="Hint text for chat room message input.">
     Message %1$s
   </string>

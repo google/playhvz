@@ -41,10 +41,12 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRE
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.playersearch.PlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Group
+import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.PlayerHelper
+import com.app.playhvz.utils.SystemUtils
 import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of Chatrooms the user is a member of.*/
@@ -76,8 +78,8 @@ class ChatInfoFragment : Fragment() {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
         chatViewModel = ChatRoomViewModel()
-        memberAdapter = MemberAdapter(listOf(), requireContext(), this)
-
+        memberAdapter =
+            MemberAdapter(listOf(), requireContext(), { player -> onRemovePlayerClicked(player) })
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -146,6 +148,8 @@ class ChatInfoFragment : Fragment() {
         divider.visibility =
             if (addPeopleOption.isVisible || leaveOption.isVisible) VISIBLE else GONE
 
+        memberAdapter.setCanRemovePlayer(updatedGroup.settings.canRemoveOthers)
+        memberAdapter.setGroupOwnerPlayerId(updatedGroup.owners)
         playerHelper.getListOfPlayers(gameId!!, updatedGroup.members)
             .observe(this, androidx.lifecycle.Observer { playerMap ->
                 memberAdapter.setData(playerMap)
@@ -180,6 +184,29 @@ class ChatInfoFragment : Fragment() {
                     chatRoomId,
                     {
                         NavigationUtil.navigateToChatList(findNavController())
+                    },
+                    {})
+                EspressoIdlingResource.decrement()
+            }
+        }
+        activity?.supportFragmentManager?.let { leaveConfirmationDialog.show(it, TAG) }
+    }
+
+    private fun onRemovePlayerClicked(player: Player) {
+        val leaveConfirmationDialog = ConfirmationDialog(
+            getString(R.string.chat_info_remove_dialog_title, player.name),
+            R.string.chat_info_remove_dialog_description,
+            R.string.chat_info_remove_dialog_confirmation
+        )
+        leaveConfirmationDialog.setPositiveButtonCallback {
+            runBlocking {
+                EspressoIdlingResource.increment()
+                ChatDatabaseOperations.asyncRemovePlayerFromChatRoom(
+                    gameId!!,
+                    player.id!!,
+                    chatRoomId,
+                    {
+                        SystemUtils.showToast(requireContext(), "Successfully removed player")
                     },
                     {})
                 EspressoIdlingResource.decrement()

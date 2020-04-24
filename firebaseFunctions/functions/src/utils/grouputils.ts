@@ -143,7 +143,7 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
     }
   }
 
-  // If player is game creator then add them to the managed admin group.
+  // If player is game creator then add their player id to the game and add them to the managed admin group.
   const gameSnapshot = await db.collection(Game.COLLECTION_PATH).doc(gameId).get()
   const gameData = await gameSnapshot.data()
   if (playerData[Player.FIELD__USER_ID] === gameData[Game.FIELD__CREATOR_USER_ID]) {
@@ -152,6 +152,9 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
       .collection(Group.COLLECTION_PATH)
       .doc(gameData[Game.FIELD__ADMIN_GROUP_ID])
       .get()
+    await groupSnapshot.ref.update({
+      [Group.FIELD__OWNERS]: playerDocSnapshot.id
+    })
     await addPlayerToGroup(db, gameId, groupSnapshot, playerDocRef.id)
   }
 }
@@ -177,7 +180,8 @@ export async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: a
   await ChatUtils.addPlayerToChat(db, gameId, playerId, groupSnapshot, chatRoomId, /* isDocRef= */ false)
 }
 
-async function removePlayerFromGroup(db: any, gameId: string, groupSnapshot: any, playerDocSnapshot: any) {
+/** Removes player from group and updates chat memberships if there is a chat room associated with the group. */
+export async function removePlayerFromGroup(db: any, gameId: string, groupSnapshot: any, playerDocSnapshot: any) {
   // Check if group is associated with Chat
   const querySnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)

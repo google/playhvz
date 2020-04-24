@@ -44,7 +44,7 @@
     android:layout_height="48dp"
     android:visibility="invisible"
     app:cornerRadius="24dp"
-    app:icon="@drawable/ic_more"
+    app:icon="@drawable/ic_x"
     app:iconGravity="end" />
 
 </LinearLayout>
