@@ -71,7 +71,7 @@ class ChatRoomFragment : Fragment() {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
         chatViewModel = ChatRoomViewModel()
-        messageAdapter = MessageAdapter(listOf(), context!!, this)
+        messageAdapter = MessageAdapter(listOf(), requireContext(), this)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,

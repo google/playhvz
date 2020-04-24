@@ -20,7 +20,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Player
@@ -28,9 +27,11 @@ import com.app.playhvz.firebase.classmodels.Player
 class MemberAdapter(
     private var items: List<Player>,
     val context: Context,
-    private val lifecycleOwner: LifecycleOwner
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    val onIconClicked: (player: Player) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var canRemovePlayers: Boolean = false
+    private var ownerPlayerIds: List<String> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MemberViewHolder(
@@ -43,7 +44,9 @@ class MemberAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as MemberViewHolder).onBind(items[position], lifecycleOwner)
+        val player = items[position]
+        val showIcon = canRemovePlayers && !ownerPlayerIds.contains(player.id)
+        (holder as MemberViewHolder).onBind(items[position], onIconClicked, showIcon)
     }
 
     override fun getItemCount(): Int {
@@ -60,7 +63,11 @@ class MemberAdapter(
         items = cleansedList
     }
 
-    /*fun setData(data: List<LiveData<Player>>) {
-        items = data
-    } */
+    fun setCanRemovePlayer(canKick: Boolean) {
+        canRemovePlayers = canKick
+    }
+
+    fun setGroupOwnerPlayerId(owners: List<String>) {
+        ownerPlayerIds = owners
+    }
 }

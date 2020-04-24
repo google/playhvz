@@ -333,6 +333,42 @@ exports.addPlayersToGroup = functions.https.onCall(async (data, context) => {
   }
 });
 
+exports.removePlayerFromGroup = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const playerId = data.playerId;
+  const groupId = data.groupId;
+  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof groupId === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0 || playerId.length === 0 || groupId.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId, playerId, and chatRoomId.');
+  }
+
+  const playerSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+    .get()
+
+  const groupSnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Group.COLLECTION_PATH)
+      .doc(groupId)
+      .get()
+  await GroupUtils.removePlayerFromGroup(db, gameId, groupSnapshot, playerSnapshot)
+});
+
+
+/*******************************************************
+* CHAT functions
+********************************************************/
 
 exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
@@ -407,10 +443,6 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
 
   await ChatUtils.removePlayerFromChat(db, gameId, player, group, chatRoomId)
 });
-
-/*******************************************************
-* CHAT functions
-********************************************************/
 
 // Sends a chat message
 // TODO: make this happen as a single transaction
@@ -497,7 +529,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     /* addSelf= */ true,
     /* addOthers= */ true,
     /* removeSelf= */ true,
-    /* removeOthers= */ false,
+    /* removeOthers= */ true,
     /* autoAdd= */ false,
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);

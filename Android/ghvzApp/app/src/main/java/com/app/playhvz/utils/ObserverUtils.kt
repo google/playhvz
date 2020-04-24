@@ -24,13 +24,15 @@ class ObserverUtils {
         val TAG = ObserverUtils::class.qualifiedName
 
         /** Removes listeners that aren't in the list anymore. */
-        fun cleanupObsoleteListeners(
+        // Don't use this until you implement the todos
+        private fun cleanupObsoleteListeners(
             liveData: HvzData<*>,
             oldList: Set<String>,
             newList: Set<String>
         ) {
             val removedIds = oldList.minus(newList)
             stopListening(liveData, removedIds)
+           // TODO: remove items from livedata value...
         }
 
         private fun stopListening(liveData: HvzData<*>, removedIds: Set<String>) {

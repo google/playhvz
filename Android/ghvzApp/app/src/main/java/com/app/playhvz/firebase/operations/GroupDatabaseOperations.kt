@@ -16,6 +16,7 @@
 
 package com.app.playhvz.firebase.operations
 
+import android.util.Log
 import com.app.playhvz.firebase.constants.GroupPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.DocumentReference
@@ -67,6 +68,33 @@ class GroupDatabaseOperations {
                 .call(data)
                 .continueWith { task ->
                     if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
+        }
+
+        /** Remove player from admin group. */
+        suspend fun asyncRemovePlayerFromGroup(
+            gameId: String,
+            playerId: String,
+            groupId: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "playerId" to playerId,
+                "groupId" to groupId
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("removePlayerFromGroup")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Could not remove player from group: ${task.exception}")
                         failureListener.invoke()
                         return@continueWith
                     }
