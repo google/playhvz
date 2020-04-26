@@ -46,7 +46,7 @@ export async function createManagedGroups(db: any, uid: any, gameId: string) {
       .doc(gameId)
       .collection(Group.COLLECTION_PATH)
       .add(groupData);
-    const chatData = Chat.create(createdGroup.id, chatName)
+    const chatData = Chat.create(createdGroup.id, chatName, /* withAdmins= */ false)
     await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
       .collection(Chat.COLLECTION_PATH)
@@ -62,7 +62,7 @@ export async function createGroupAndChat(
   playerId: string,
   chatName: string,
   settings: any
-) {
+): Promise<string> {
   const group = Group.createPlayerOwnedGroup(
     playerId,
     chatName,
@@ -72,12 +72,13 @@ export async function createGroupAndChat(
     .doc(gameId)
     .collection(Group.COLLECTION_PATH)
     .add(group);
-  const chatData = Chat.create(createdGroupDocRef.id, chatName)
+  const chatData = Chat.create(createdGroupDocRef.id, chatName, /* withAdmins= */ false)
   const createdChatDocRef = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Chat.COLLECTION_PATH)
     .add(chatData)
   await ChatUtils.addPlayerToChat(db, gameId, playerId, createdGroupDocRef, createdChatDocRef.id, /* isDocRef= */ true)
+  return createdChatDocRef.id
 }
 
 // Creates a group and mission

@@ -24,6 +24,11 @@
       android:id="@id/nav_game_settings_fragment"
       android:icon="@drawable/ic_settings"
       android:title="@string/navigation_drawer_game_settings" />
+
+    <item
+      android:id="@id/nav_admin_chat_list_fragment"
+      android:icon="@drawable/ic_headset"
+      android:title="@string/navigation_drawer_admin_chat_list" />
   </group>
 
   <!-- Navigation Items defined by navigation graph. -->
@@ -37,6 +42,11 @@
       android:id="@id/nav_faq_fragment"
       android:icon="@drawable/ic_help"
       android:title="@string/navigation_drawer_faq" />
+
+    <item
+      android:id="@id/nav_create_chat_with_admin"
+      android:icon="@drawable/ic_headset"
+      android:title="@string/navigation_drawer_create_chat_with_admin" />
   </group>
 
   <group android:id="@+id/nav_global_options">

@@ -28,6 +28,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.firebase.classmodels.Game
@@ -74,9 +75,11 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
         editor.putString(CURRENT_GAME_ID, gameId)
         editor.apply()
         runBlocking {
+            EspressoIdlingResource.increment()
             GameDatabaseOperations.getPlayerIdForGame(gameId, editor) {
                 NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
             }
+            EspressoIdlingResource.decrement()
         }
     }
 

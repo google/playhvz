@@ -56,6 +56,11 @@
     app:popUpToInclusive="true" />
 
   <action
+    android:id="@+id/action_global_nav_admin_chat_list_fragment"
+    app:destination="@id/nav_admin_chat_list_fragment"
+    app:launchSingleTop="true" />
+
+  <action
     android:id="@+id/action_global_nav_mission_dashboard_fragment"
     app:destination="@id/nav_mission_dashboard_fragment"
     app:launchSingleTop="true"
@@ -95,6 +100,9 @@
       android:name="fragmentType"
       app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
   </action>
+
+  <action
+    android:id="@+id/nav_create_chat_with_admin"/>
 
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
@@ -159,6 +167,11 @@
 
   <fragment
     android:id="@+id/nav_chat_list_fragment"
+    android:name="com.app.playhvz.screens.chatlist.ChatListFragment"
+    tools:layout="@layout/fragment_chat_list" />
+
+  <fragment
+    android:id="@+id/nav_admin_chat_list_fragment"
     android:name="com.app.playhvz.screens.chatlist.ChatListFragment"
     tools:layout="@layout/fragment_chat_list" />
 

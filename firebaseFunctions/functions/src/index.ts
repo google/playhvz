@@ -537,6 +537,78 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     await GroupUtils.createGroupAndChat(db, context.auth.uid, gameId, ownerId, chatName, settings);
 })
 
+// Creates a chat room
+// TODO: make this happen as a single transaction
+exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  const playerId = data.playerId;
+
+  if (!(typeof gameId === 'string') || !(typeof playerId === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String and not empty.");
+  }
+  if (gameId.length === 0 || playerId.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            '2 arguments.');
+  }
+
+  const playerSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+    .get()
+
+  const playerData = playerSnapshot.data()
+  if (playerData === undefined) {
+    return
+  }
+  const playerChatRoomIds = Object.keys(playerData[Player.FIELD__CHAT_MEMBERSHIPS])
+
+  const adminQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .where(admin.firestore.FieldPath.documentId(), "in", Array.from(playerChatRoomIds))
+    .where(Chat.FIELD__WITH_ADMINS, "==", true)
+    .get()
+
+  if (!adminQuerySnapshot.empty) {
+    // Admin chat already exists, reusing the existing chat.
+    const adminChatSnapshot = adminQuerySnapshot.docs[0]
+    const visibilityField = Player.FIELD__CHAT_MEMBERSHIPS + "." + adminChatSnapshot.id + "." + Player.FIELD__CHAT_VISIBILITY
+    await playerSnapshot.ref.update({
+      [visibilityField]: true
+    })
+    return adminChatSnapshot.id
+  }
+
+  // Create admin chat since it doesn't exist.
+  const chatName = playerData[Player.FIELD__NAME] + " & HvZ CDC"
+
+  const settings = Group.createSettings(
+    /* addSelf= */ true,
+    /* addOthers= */ false,
+    /* removeSelf= */ true,
+    /* removeOthers= */ false,
+    /* autoAdd= */ false,
+    /* autoRemove= */ false,
+    Defaults.EMPTY_ALLEGIANCE_FILTER);
+
+  const createdChatId = await GroupUtils.createGroupAndChat(db, context.auth.uid, gameId, playerId, chatName, settings);
+  const chatSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .doc(createdChatId)
+    .get()
+  await chatSnapshot.ref.update({
+    [Chat.FIELD__WITH_ADMINS]: true
+  })
+  return createdChatId
+})
+
 /*******************************************************
 * MISSION functions
 ********************************************************/
