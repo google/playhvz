@@ -17,16 +17,34 @@
 package com.app.playhvz.firebase.classmodels
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.ServerTimestamp
+import java.util.*
+import kotlin.collections.HashMap
 
 /** Android data model representing Firebase Chat Message documents. */
 class Message {
     companion object {
-        val FIELD__TIMESTAMP = "timestamp"
+        const val FIELD__MESSAGE = "message"
+        const val FIELD__SENDER_ID = "senderId"
+        const val FIELD__TIMESTAMP = "timestamp"
+
+        fun createFirebaseObject(senderId: String, messageText: String): HashMap<String, Any> {
+            val data = HashMap<String, Any>()
+            data[FIELD__SENDER_ID] = senderId
+            data[FIELD__MESSAGE] = messageText
+            // To let the server set the timestamp use: FieldValue.serverTimestamp()
+            // We're setting the timestamp to the local time, otherwise firebase triggers and update
+            // for the message and another update for the timestamp. That's a lot of refreshes for
+            // chat, so prefer to use local timestamp and only update once.
+            data[FIELD__TIMESTAMP] = Timestamp(Date())
+            return data
+        }
     }
 
     var id: String? = null
 
     var message: String = ""
     var senderId: String = ""
+    @ServerTimestamp
     var timestamp: Timestamp? = null
 }

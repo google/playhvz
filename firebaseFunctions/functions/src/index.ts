@@ -445,8 +445,10 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
 });
 
 // Sends a chat message
-// TODO: make this happen as a single transaction
-exports.sendChatMessage = functions.https.onCall(async (data, context) => {
+// DEPRECATED: We switched to sending chats directly because it's way faster. Keeping this
+// around for historical knowledge... will delete once we're sure we don't want this.
+//exports.sendChatMessage = functions.https.onCall(async (data, context) => {
+function internal_sendChatMessage {
   if (!context.auth) {
       // Throwing an HttpsError so that the client gets the error details.
       throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +

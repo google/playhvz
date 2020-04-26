@@ -83,7 +83,7 @@ class ChatRoomViewModel : ViewModel() {
                 FIELD__TIMESTAMP,
                 Query.Direction.ASCENDING
             ).addSnapshotListener(
-                EventListener<QuerySnapshot> { snapshot, e ->
+                EventListener{ snapshot, e ->
                     if (e != null) {
                         Log.w(TAG, "Message collection listen failed. ", e)
                         return@EventListener

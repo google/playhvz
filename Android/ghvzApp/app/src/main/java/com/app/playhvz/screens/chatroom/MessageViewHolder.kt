@@ -40,7 +40,9 @@ class MessageViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
     fun onBind(message: Message, player: LiveData<Player>?, lifecycleOwner: LifecycleOwner) {
         messageView.text = message.message
-        timestampView.text = getDate(message.timestamp!!)
+        if (message.timestamp != null) {
+            timestampView.text = getDate(message.timestamp!!)
+        }
         player?.observe(lifecycleOwner) { updatedPlayer ->
             updateDisplayedPlayerData(updatedPlayer)
         }

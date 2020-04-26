@@ -30,4 +30,6 @@ class ChatRoom {
     var name: String = ""
 
     var isVisible: Boolean = true
+
+    var withAdmins: Boolean = false
 }
