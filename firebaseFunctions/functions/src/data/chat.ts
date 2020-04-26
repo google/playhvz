@@ -17,10 +17,12 @@
 export const COLLECTION_PATH = "chatRooms";
 export const FIELD__GROUP_ID = "associatedGroupId";
 export const FIELD__NAME = "name";
+export const FIELD__WITH_ADMINS = "withAdmins";
 
-export function create(groupId: string, name: string): { [key: string]: any; } {
+export function create(groupId: string, name: string, withAdmins: boolean): { [key: string]: any; } {
   return {
     [FIELD__GROUP_ID]: groupId,
-    [FIELD__NAME]: name
+    [FIELD__NAME]: name,
+    [FIELD__WITH_ADMINS]: withAdmins,
   };
 }

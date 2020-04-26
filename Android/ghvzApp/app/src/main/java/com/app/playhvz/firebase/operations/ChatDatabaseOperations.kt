@@ -102,7 +102,32 @@ class ChatDatabaseOperations {
                 }
         }
 
-        /** Create Chat Room. */
+        /** Create or fetch the player's chat room with admins. */
+        suspend fun asyncCreateOrGetAdminChat(
+            gameId: String,
+            playerId: String,
+            successListener: (chatRoomId: String) -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "playerId" to playerId
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("createOrGetChatWithAdmin")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    val adminChatId = task.result?.data as String
+                    successListener.invoke(adminChatId)
+                }
+        }
+
+        /** Adds list of players to chat room. */
         suspend fun asyncAddPlayersToChat(
             gameId: String,
             playerIdList: List<String>,

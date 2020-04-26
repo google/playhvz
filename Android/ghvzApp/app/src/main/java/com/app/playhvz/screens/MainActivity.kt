@@ -35,9 +35,11 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import com.app.playhvz.R
 import com.app.playhvz.app.BaseActivity
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
+import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
@@ -47,6 +49,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener,
     NavController.OnDestinationChangedListener {
@@ -152,6 +155,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 NavigationUtil.navigateToFaq(
                     findNavController(R.id.nav_host_fragment)
                 )
+            }
+            R.id.nav_create_chat_with_admin -> {
+                navigateToAdminChat()
             }
             R.id.nav_game_list_fragment -> {
                 SystemUtils.clearSharedPrefs(this)
@@ -283,5 +289,27 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun getNavController(): NavController {
         return findNavController(R.id.nav_host_fragment)
+    }
+
+    private fun navigateToAdminChat() {
+        val gameId = getCurrentGameId()
+        val playerId = getCurrentPlayerId()
+        if (gameId == null || playerId == null) {
+            return
+        }
+        val onSuccess = { adminChatId: String ->
+            drawer_layout.closeDrawer(GravityCompat.START)
+            NavigationUtil.navigateToChatRoom(getNavController(), adminChatId)
+        }
+        runBlocking {
+            EspressoIdlingResource.increment()
+            ChatDatabaseOperations.asyncCreateOrGetAdminChat(
+                gameId,
+                playerId,
+                onSuccess,
+                {}
+            )
+            EspressoIdlingResource.decrement()
+        }
     }
 }

@@ -455,6 +455,14 @@
     Game settings
   </string>
 
+  <string name="navigation_drawer_admin_chat_list" definition="Navigation drawer menu item for opening list of chats admin is in for the current game.">
+    Chats with admin
+  </string>
+
+  <string name="navigation_drawer_create_chat_with_admin" definition="Navigation drawer menu item for creating a chat with admins.">
+    Chat with an Admin
+  </string>
+
   <string name="navigation_drawer_home" definition="Navigation drawer menu item for opening the home screen.">
     Home
   </string>
