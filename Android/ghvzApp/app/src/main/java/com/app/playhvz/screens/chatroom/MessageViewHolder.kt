@@ -33,16 +33,45 @@ import java.text.SimpleDateFormat
 
 class MessageViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
 
+    private val COALESCE_THRESHOLD = 150 // seconds
     private val avatarView = view.findViewById<ConstraintLayout>(R.id.player_avatar)!!
     private val messageView = view.findViewById<TextView>(R.id.message)!!
     private val nameView = view.findViewById<TextView>(R.id.player_name)!!
     private val timestampView = view.findViewById<TextView>(R.id.timestamp)!!
 
-    fun onBind(message: Message, player: LiveData<Player>?, lifecycleOwner: LifecycleOwner) {
+    fun onBind(
+        message: Message,
+        player: LiveData<Player>?,
+        previousMessage: Message?,
+        lifecycleOwner: LifecycleOwner
+    ) {
         messageView.text = message.message
-        timestampView.text = getDate(message.timestamp!!)
-        player?.observe(lifecycleOwner) { updatedPlayer ->
-            updateDisplayedPlayerData(updatedPlayer)
+        if (!shouldCoalesce(message, previousMessage)) {
+            itemView.setPadding(
+                itemView.paddingLeft,
+                itemView.context.resources.getDimensionPixelSize(R.dimen.chat_message_padding_top),
+                itemView.paddingRight,
+                itemView.paddingBottom
+            )
+            avatarView.visibility = View.VISIBLE
+            nameView.visibility = View.VISIBLE
+            timestampView.visibility = View.VISIBLE
+            if (message.timestamp != null) {
+                timestampView.text = getDate(message.timestamp!!)
+            }
+            player?.observe(lifecycleOwner) { updatedPlayer ->
+                updateDisplayedPlayerData(updatedPlayer)
+            }
+        } else {
+            itemView.setPadding(
+                itemView.paddingLeft,
+                0,
+                itemView.paddingRight,
+                itemView.paddingBottom
+            )
+            avatarView.visibility = View.GONE
+            nameView.visibility = View.GONE
+            timestampView.visibility = View.GONE
         }
     }
 
@@ -55,5 +84,17 @@ class MessageViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
     private fun getDate(timestamp: Timestamp): String {
         val sfd = SimpleDateFormat("MMM d  h:mm a")
         return sfd.format(timestamp.toDate())
+    }
+
+    private fun shouldCoalesce(message: Message, previousMessage: Message?): Boolean {
+        if (previousMessage == null || message.senderId != previousMessage.senderId) {
+            return false
+        }
+        if (message.timestamp != null && previousMessage.timestamp != null
+            && (message.timestamp!!.seconds - previousMessage.timestamp!!.seconds) < COALESCE_THRESHOLD
+        ) {
+            return true
+        }
+        return false
     }
 }

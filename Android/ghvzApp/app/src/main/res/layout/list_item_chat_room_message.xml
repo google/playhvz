@@ -20,12 +20,14 @@
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:orientation="horizontal"
-  android:paddingTop="12dp"
-  android:paddingBottom="12dp">
+  android:paddingTop="@dimen/chat_message_padding_top"
+  android:paddingBottom="@dimen/chat_message_padding_bottom">
 
   <include
     android:id="@+id/player_avatar"
     layout="@layout/player_avatar"
+    android:layout_width="@dimen/avatar_small"
+    android:layout_height="@dimen/avatar_small"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,12 +35,12 @@
     android:id="@+id/player_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/chat_message_margin_start"
     android:ellipsize="end"
     android:maxLines="1"
-    android:paddingStart="16dp"
-    android:textColor="@color/app_primary_text"
-    android:textSize="14sp"
-    app:layout_constraintStart_toEndOf="@id/player_avatar"
+    android:textColor="@color/app_secondary_text"
+    android:textSize="@dimen/app_secondary_text"
+    app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="@id/player_avatar"
     tools:text="ZellaTheZombieQueen" />
 
@@ -51,17 +53,23 @@
     android:textSize="12sp"
     app:layout_constraintBottom_toBottomOf="@id/player_name"
     app:layout_constraintStart_toEndOf="@id/player_name"
+    tools:ignore="RtlSymmetry"
     tools:text="July 8th" />
 
   <androidx.emoji.widget.EmojiTextView
     android:id="@+id/message"
-    android:layout_width="wrap_content"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:paddingStart="16dp"
-    android:paddingEnd="@dimen/screen_margin_horizontal"
+    android:layout_marginStart="@dimen/chat_message_margin_start"
+    android:layout_marginEnd="@dimen/screen_margin_horizontal"
+    android:inputType="textMultiLine"
+    android:scrollHorizontally="false"
     android:textColor="@color/app_primary_text"
-    android:textSize="@dimen/list_item_title_text"
-    app:layout_constraintStart_toStartOf="@id/player_name"
-    app:layout_constraintTop_toBottomOf="@id/player_name" />
+    android:textSize="@dimen/chat_message_text_size"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/player_name"
+    tools:ignore="RtlSymmetry"
+    tools:text="Hello friend! How are you? Hope things are going well!" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

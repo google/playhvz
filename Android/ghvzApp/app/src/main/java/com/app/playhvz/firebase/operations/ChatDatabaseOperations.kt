@@ -17,11 +17,16 @@
 package com.app.playhvz.firebase.operations
 
 import android.util.Log
+import com.app.playhvz.firebase.classmodels.Message
 import com.app.playhvz.firebase.constants.ChatPath
+import com.app.playhvz.firebase.constants.ChatPath.Companion.MESSAGE_COLLECTION
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ServerTimestamp
+import com.google.firestore.v1.DocumentTransform
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -42,36 +47,25 @@ class ChatDatabaseOperations {
             gameId: String,
             chatRoomId: String
         ): CollectionReference {
-            return ChatPath.MESSAGE_COLLECTION(gameId, chatRoomId)
+            return MESSAGE_COLLECTION(gameId, chatRoomId)
         }
 
-        /** Check if game exists and tries to add player to game if so. */
         suspend fun sendChatMessage(
             gameId: String,
             chatRoomId: String,
             playerId: String,
-            message: String,
+            messageText: String,
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            val data = hashMapOf(
-                "gameId" to gameId,
-                "chatRoomId" to chatRoomId,
-                "senderId" to playerId,
-                "message" to message
-            )
 
-            FirebaseProvider.getFirebaseFunctions()
-                .getHttpsCallable("sendChatMessage")
-                .call(data)
-                .continueWith { task ->
-                    if (!task.isSuccessful) {
-                        Log.e(TAG, "Could not send message: ${task.exception}")
-                        failureListener.invoke()
-                        return@continueWith
-                    }
-                    successListener.invoke()
-                }
+            val message = Message.createFirebaseObject(playerId, messageText)
+            MESSAGE_COLLECTION(gameId, chatRoomId).add(message).addOnSuccessListener {
+                successListener.invoke()
+            }.addOnFailureListener {
+                Log.e(TAG, "Failed to send message: " + it)
+                failureListener.invoke()
+            }
         }
 
         /** Create Chat Room. */

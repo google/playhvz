@@ -47,7 +47,12 @@ class MessageAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = items[position]
-        (holder as MessageViewHolder).onBind(items[position], players[message.senderId], lifecycleOwner)
+        val previousMessage = if (position == 0) {
+            null
+        } else {
+            items[position - 1]
+        }
+        (holder as MessageViewHolder).onBind(items[position], players[message.senderId], previousMessage, lifecycleOwner)
     }
 
     override fun getItemCount(): Int {
