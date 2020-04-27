@@ -61,7 +61,6 @@
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/chat_message_margin_start"
-    android:layout_marginEnd="@dimen/screen_margin_horizontal"
     android:inputType="textMultiLine"
     android:scrollHorizontally="false"
     android:textColor="@color/app_primary_text"
