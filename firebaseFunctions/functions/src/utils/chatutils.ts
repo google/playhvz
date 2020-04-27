@@ -50,9 +50,12 @@ export async function addPlayerToChat(
     }
     // We have to use dot-notation or firebase will overwrite the entire field.
     const membershipField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId
-    const chatVisibility = {[Player.FIELD__CHAT_VISIBILITY]: true}
+    const chatMembershipValue = {
+      [Player.FIELD__CHAT_VISIBILITY]: true,
+      [Player.FIELD__CHAT_NOTIFICATIONS]: true
+    }
     await playerDocSnapshot.ref.update({
-      [membershipField]: chatVisibility
+      [membershipField]: chatMembershipValue
     })
 }
 

@@ -21,7 +21,6 @@ import * as Chat from './data/chat';
 import * as ChatUtils from './utils/chatutils';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
-import * as GeneralUtils from './utils/generalutils';
 import * as Group from './data/group';
 import * as GroupUtils from './utils/grouputils';
 import * as Player from './data/player';
@@ -447,8 +446,7 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
 // Sends a chat message
 // DEPRECATED: We switched to sending chats directly because it's way faster. Keeping this
 // around for historical knowledge... will delete once we're sure we don't want this.
-//exports.sendChatMessage = functions.https.onCall(async (data, context) => {
-function internal_sendChatMessage {
+/* exports.sendChatMessage = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
       // Throwing an HttpsError so that the client gets the error details.
       throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
@@ -498,7 +496,7 @@ function internal_sendChatMessage {
     .doc(chatRoomId)
     .collection(Message.COLLECTION_PATH)
     .add(messageDocument)
-})
+}) */
 
 // Creates a chat room
 // TODO: make this happen as a single transaction
@@ -610,6 +608,82 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
   })
   return createdChatId
 })
+
+/**
+ * Triggers when a new message is added to a chat room.
+ * TODO: send notifications batched instead of one at a time.
+ */
+exports.triggerChatNotification = functions.firestore
+  .document(Game.COLLECTION_PATH + "/{gameId}/" + Chat.COLLECTION_PATH + "/{chatId}/" + Message.COLLECTION_PATH + "/{messageId}")
+  .onCreate(async (messageSnapshot, context) => {
+      const gameId = context.params.gameId;
+      const chatId = context.params.chatId;
+      const messageData = await messageSnapshot.data()
+      if (messageData === undefined) {
+        return
+      }
+      const senderId = messageData[Message.FIELD__SENDER_ID]
+
+      // Query for all the players in this chat that are allowing notifications.
+      const chatMembershipQueryField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId + "." + Player.FIELD__CHAT_NOTIFICATIONS
+      const playersToNotifyQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+        .doc(gameId)
+        .collection(Player.COLLECTION_PATH)
+        .where(chatMembershipQueryField, "==", true)
+        .get()
+
+      if (playersToNotifyQuerySnapshot.empty) {
+        // No one to notify
+        return
+      }
+
+      // Build notification contents
+      const senderData = await (
+        await db.collection(Game.COLLECTION_PATH)
+          .doc(gameId)
+          .collection(Player.COLLECTION_PATH)
+          .doc(senderId)
+          .get()
+      ).data()
+      const chatRoomData = await (
+        await db.collection(Game.COLLECTION_PATH)
+          .doc(gameId)
+          .collection(Chat.COLLECTION_PATH)
+          .doc(chatId)
+          .get()
+      ).data()
+      if (senderData === undefined || chatRoomData === undefined) {
+        return
+      }
+      const notificationPayload = {
+        notification: {
+          title: `${senderData[Player.FIELD__NAME]} — ${chatRoomData[Chat.FIELD__NAME]}`,
+          body: `${messageData[Message.FIELD__MESSAGE]}`,
+        }
+      }
+
+      // Get player device tokens and send notification.
+      for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
+        const playerData = playerSnapshot.data()
+        if (playerSnapshot.id === senderId || playerData === undefined) {
+          continue
+        }
+        // Get player's device token to notify
+        const userData = await (await db
+            .collection(User.COLLECTION_PATH)
+            .doc(playerData[Player.FIELD__USER_ID])
+            .get()
+          ).data()
+        if (userData === undefined) {
+          continue
+        }
+        const deviceToken = userData[User.FIELD__DEVICE_TOKEN]
+        if (deviceToken.length > 0) {
+          // Notify device
+          await admin.messaging().sendToDevice(deviceToken, notificationPayload)
+        }
+      }
+});
 
 /*******************************************************
 * MISSION functions

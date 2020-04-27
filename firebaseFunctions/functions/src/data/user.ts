@@ -15,3 +15,4 @@
  */
 
 export const COLLECTION_PATH = "users";
+export const FIELD__DEVICE_TOKEN = "deviceToken"
