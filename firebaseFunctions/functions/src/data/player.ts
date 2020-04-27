@@ -36,6 +36,7 @@ export const FIELD__AVATAR_URL = "avatarUrl";
 export const FIELD__ALLEGIANCE = "allegiance";
 export const FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships";
 export const FIELD__CHAT_VISIBILITY = "isVisible";
+export const FIELD__CHAT_NOTIFICATIONS = "allowNotifications";
 export const FIELD__LIVES = "lives";
 export const FIELD__LIFE_CODE = "lifeCode";
 export const FIELD__LIFE_CODE_STATUS = "isActive";
