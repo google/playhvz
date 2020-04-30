@@ -183,6 +183,7 @@ class ChatInfoFragment : Fragment() {
                 R.string.chat_info_leave_dialog_confirmation
             )
         leaveConfirmationDialog.setPositiveButtonCallback {
+            progressBar.visibility = View.VISIBLE
             runBlocking {
                 EspressoIdlingResource.increment()
                 ChatDatabaseOperations.asyncRemovePlayerFromChatRoom(
@@ -190,6 +191,7 @@ class ChatInfoFragment : Fragment() {
                     playerId!!,
                     chatRoomId,
                     {
+                        progressBar.visibility = View.GONE
                         NavigationUtil.navigateToChatList(findNavController())
                     },
                     {})
