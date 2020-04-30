@@ -47,6 +47,7 @@ import com.app.playhvz.screens.signin.SignInActivity
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.runBlocking
@@ -157,6 +158,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 )
             }
             R.id.nav_create_chat_with_admin -> {
+                item.actionView.visibility = View.VISIBLE
                 navigateToAdminChat()
             }
             R.id.nav_game_list_fragment -> {
@@ -203,6 +205,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun setupUI() {
         navDrawerView = findViewById(R.id.nav_view)
+        navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility = View.GONE
 
         setupToolbar()
         setupBottomNavigationBar()
@@ -298,6 +301,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             return
         }
         val onSuccess = { adminChatId: String ->
+            navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility = View.GONE
             drawer_layout.closeDrawer(GravityCompat.START)
             NavigationUtil.navigateToChatRoom(getNavController(), adminChatId)
         }
