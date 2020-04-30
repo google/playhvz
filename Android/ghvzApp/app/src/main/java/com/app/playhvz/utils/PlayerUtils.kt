@@ -20,11 +20,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEAD_ALLEGIANCES
+import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.constants.GroupPath.Companion.GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.utils.DataConverterUtil
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.QuerySnapshot
 
 
@@ -125,6 +127,41 @@ class PlayerUtils {
                     .addOnSuccessListener(updatePlayerList)
                 return
             }
+        }
+
+
+        /** Returns a paginated list of Players in the game with the given filter. */
+        fun getPlayerListInGroup(
+            liveData: HvzData<List<Player>>,
+            gameId: String,
+            group: Group,
+            nameFilter: String?
+        ) {
+            // Logic for filtering on start string is courtesy of:
+            // https://firebase.google.com/docs/database/admin/retrieve-data#range-queries
+
+            val updatePlayerList: OnSuccessListener<in QuerySnapshot> =
+                OnSuccessListener { querySnapshot ->
+                    if (querySnapshot.isEmpty || querySnapshot.documents.isEmpty()) {
+                        liveData.value = listOf()
+                        return@OnSuccessListener
+                    }
+                    val mutableList = mutableListOf<Player>()
+                    for (playerSnapshot in querySnapshot.documents) {
+                        mutableList.add(DataConverterUtil.convertSnapshotToPlayer(playerSnapshot))
+                    }
+                    liveData.value = mutableList.toList()
+                }
+
+            // Special note, due to weirdness with Firebase we must directly call .get() on the
+            // chain of commands. If we create a query variable and call .get() on the object then
+            // the orderBy().startAt().endAt() logic fails for some reason.
+            PlayerPath.PLAYERS_COLLECTION(gameId)
+                .whereIn(FieldPath.documentId(), group.members)
+                .limit(PAGINATION_LIMIT)
+                .get()
+                .addOnSuccessListener(updatePlayerList)
+            return
         }
     }
 }

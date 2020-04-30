@@ -18,10 +18,6 @@ package com.app.playhvz.firebase.classmodels
 
 /** Android data model representing Firebase Chatroom documents. */
 class ChatRoom {
-    companion object {
-        val FIELD__IS_VISIBLE = "isVisible"
-    }
-
     var id: String? = null
 
     // Group id

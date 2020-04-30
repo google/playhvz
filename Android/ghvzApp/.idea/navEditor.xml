@@ -73,7 +73,7 @@
                       <LayoutPositions />
                     </value>
                   </entry>
-                  <entry key="nav_adminchat_list_fragment">
+                  <entry key="nav_admin_chat_list_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
@@ -119,6 +119,11 @@
                           </Point>
                         </option>
                       </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="nav_create_chat_with_admin">
+                    <value>
+                      <LayoutPositions />
                     </value>
                   </entry>
                   <entry key="nav_create_game_fragment">

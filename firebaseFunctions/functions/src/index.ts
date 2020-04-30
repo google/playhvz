@@ -84,8 +84,8 @@ exports.createGame = functions.https.onCall(async (data, context) => {
     [Game.FIELD__CREATOR_USER_ID]: context.auth.uid,
   }
 
-  const gameSnapshot = await db.collection(Game.COLLECTION_PATH).add(gameData)
-  const gameId = gameSnapshot.id
+  const gameRef = await db.collection(Game.COLLECTION_PATH).add(gameData)
+  const gameId = gameRef.id
   await GroupUtils.createManagedGroups(db, context.auth.uid, gameId);
 
   const adminGroupQuery = await db.collection(Game.COLLECTION_PATH)
@@ -97,10 +97,22 @@ exports.createGame = functions.https.onCall(async (data, context) => {
 
   if (!adminGroupQuery.empty && adminGroupQuery.docs.length === 1) {
     const adminGroupId = adminGroupQuery.docs[0].id
-    await gameSnapshot.update({
+    await gameRef.update({
       [Game.FIELD__ADMIN_GROUP_ID]: adminGroupId
     })
   }
+
+  // Create admin on call player
+  const player = Player.create("", Defaults.FIGUREHEAD_ADMIN_NAME);
+  const playerDocRef = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Player.COLLECTION_PATH)
+      .add(player);
+
+  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef, /* ignoreAllegiance= */ true)
+  await gameRef.update({
+    [Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]: playerDocRef.id
+  })
 
   return gameId;
 });
@@ -171,7 +183,7 @@ exports.joinGame = functions.https.onCall(async (data, context) => {
     .collection(Player.COLLECTION_PATH)
     .add(player));
 
-  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef)
+  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef, /* ignoreAllegiance= */ false)
   return gameId
 });
 
@@ -417,19 +429,19 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
           'a valid gameId, playerId, and chatRoomId.');
   }
 
-  const player = await db.collection(Game.COLLECTION_PATH)
+  const playerSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Player.COLLECTION_PATH)
     .doc(playerId)
     .get()
 
-  const chatRoom = (await db.collection(Game.COLLECTION_PATH)
+  const chatRoomData = (await db.collection(Game.COLLECTION_PATH)
      .doc(gameId)
      .collection(Chat.COLLECTION_PATH)
      .doc(chatRoomId)
      .get())
      .data();
-  if (chatRoom === undefined) {
+  if (chatRoomData === undefined) {
     console.log("Chat room was undefined, not removing player.")
     return
   }
@@ -437,10 +449,18 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
   const group = await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
       .collection(Group.COLLECTION_PATH)
-      .doc(chatRoom[Chat.FIELD__GROUP_ID])
+      .doc(chatRoomData[Chat.FIELD__GROUP_ID])
       .get()
 
-  await ChatUtils.removePlayerFromChat(db, gameId, player, group, chatRoomId)
+  if (chatRoomData[Chat.FIELD__WITH_ADMINS]) {
+    const visibilityField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId + "." + Player.FIELD__CHAT_VISIBILITY
+    await playerSnapshot.ref.update({
+      [visibilityField]: false
+    })
+    return
+  }
+
+  await ChatUtils.removePlayerFromChat(db, gameId, playerSnapshot, group, chatRoomId)
 });
 
 // Sends a chat message
@@ -563,10 +583,12 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
     .get()
 
   const playerData = playerSnapshot.data()
-  if (playerData === undefined) {
+  const gameData = await (await db.collection(Game.COLLECTION_PATH).doc(gameId).get()).data()
+  if (playerData === undefined || gameData == undefined) {
     return
   }
   const playerChatRoomIds = Object.keys(playerData[Player.FIELD__CHAT_MEMBERSHIPS])
+  const adminPlayerId = gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]
 
   const adminQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -582,11 +604,24 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
     await playerSnapshot.ref.update({
       [visibilityField]: true
     })
+
+    // "Add" the admin to the chat. Even if they are already in it, this resets their notification
+    // and visibility settings so the chat reappears for them.
+    const adminChatData = await adminChatSnapshot.data()
+    if (adminChatData === undefined) {
+      return adminChatSnapshot.id
+    }
+    await ChatUtils.addPlayerToChat(db,
+                gameId,
+                adminPlayerId,
+                db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).doc(adminChatData[Chat.FIELD__GROUP_ID]),
+                adminChatSnapshot.id,
+                /* isDocRef= */ true)
     return adminChatSnapshot.id
   }
 
   // Create admin chat since it doesn't exist.
-  const chatName = playerData[Player.FIELD__NAME] + " & HvZ CDC"
+  const chatName = playerData[Player.FIELD__NAME] + " & " + Defaults.FIGUREHEAD_ADMIN_NAME
 
   const settings = Group.createSettings(
     /* addSelf= */ true,
@@ -606,6 +641,17 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
   await chatSnapshot.ref.update({
     [Chat.FIELD__WITH_ADMINS]: true
   })
+
+  const createdChatData = await chatSnapshot.data()
+  if (createdChatData === undefined) {
+    return createdChatId
+  }
+  await ChatUtils.addPlayerToChat(db,
+    gameId,
+    adminPlayerId,
+    db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).doc(createdChatData[Chat.FIELD__GROUP_ID]),
+    createdChatId,
+    /* isDocRef= */ true)
   return createdChatId
 })
 

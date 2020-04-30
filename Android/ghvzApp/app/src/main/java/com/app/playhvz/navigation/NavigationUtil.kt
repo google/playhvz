@@ -104,9 +104,9 @@ class NavigationUtil {
         /**
          * Opens the chat's info screen.
          */
-        fun navigateToChatInfo(navController: NavController, chatRoomId: String) {
+        fun navigateToChatInfo(navController: NavController, chatRoomId: String, isChatWithAdmins: Boolean) {
             navController.navigate(
-                ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(chatRoomId)
+                ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(chatRoomId, isChatWithAdmins)
             )
         }
 

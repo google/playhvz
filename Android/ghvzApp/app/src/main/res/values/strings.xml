@@ -82,6 +82,10 @@
     Next
   </string>
 
+  <string name="button_set" definition="Button to set field to selected item.">
+    Set
+  </string>
+
   <string name="button_submit" definition="Button to select when saving changes.">
     Submit
   </string>
@@ -124,6 +128,10 @@
 
   <string name="chat_info_leave_dialog_description" definition="Dialog message informing user they can't rejoin chat room after leaving.">
     This can\'t be undone, you\'ll have to ask someone else to add you back.
+  </string>
+
+  <string name="chat_info_leave_dialog_with_admins_description" definition="Dialog message informing user they can rejoin chat room after leaving.">
+    You can rejoin, just click chat with an admin again.
   </string>
 
   <string name="chat_info_leave_dialog_confirmation" definition="Confirmation button for leave chat dialog.">
@@ -249,6 +257,14 @@
 
   <string name="game_settings_add_admin_button" definition="Button text for adding a new admin.">
     Add admin
+  </string>
+
+  <string name="game_settings_admin_on_call_title" definition="Title for section showing admin on call.">
+    Admin On Call
+  </string>
+
+  <string name="game_settings_admin_on_call_description" definition="Description for section showing admin on call.">
+    This is the player account that will get notifications when someone pings the default admin account or tries to \"Chat with an Admin\".
   </string>
 
   <string name="game_settings_delete_dialog_title" definition="Title for delete game dialog.">

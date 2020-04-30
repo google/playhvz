@@ -21,3 +21,5 @@ export const FIELD__CREATOR_USER_ID = "creatorUserId";
 export const FIELD__RULES = "rules";
 export const FIELD__FAQ = "faq";
 export const FIELD__ADMIN_GROUP_ID = "adminGroupId";
+export const FIELD__ADMIN_ON_CALL_PLAYER_ID = "adminOnCallPlayerId";
+export const FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT = "figureheadAdminPlayerAccount";

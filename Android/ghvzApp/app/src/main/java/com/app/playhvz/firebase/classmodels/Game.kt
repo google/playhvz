@@ -29,6 +29,10 @@ class Game {
 
     var adminGroupId: String? = null
 
+    var adminOnCallPlayerId: String? = null
+
+    var figureheadAdminPlayerAccount: String? = null
+
     var admins: List<String> = listOf()
 
     var rules: List<CollapsibleSection> = listOf()

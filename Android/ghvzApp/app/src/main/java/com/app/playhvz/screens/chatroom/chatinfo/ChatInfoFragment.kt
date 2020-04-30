@@ -66,17 +66,18 @@ class ChatInfoFragment : Fragment() {
     private lateinit var memberAdapter: MemberAdapter
     private lateinit var progressBar: ProgressBar
 
-
     private val args: ChatInfoFragmentArgs by navArgs()
     private var gameId: String? = null
     private var group: Group? = null
     private var playerHelper: PlayerHelper = PlayerHelper()
     private var playerId: String? = null
+    private var isChatWithAdmins: Boolean = false
     private var toolbar: ActionBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
+        isChatWithAdmins = args.isChatWithAdmins
         chatViewModel = ChatRoomViewModel()
         memberAdapter =
             MemberAdapter(listOf(), requireContext(), { player -> onRemovePlayerClicked(player) })
@@ -170,12 +171,19 @@ class ChatInfoFragment : Fragment() {
     }
 
     private fun onLeaveClicked() {
-        val leaveConfirmationDialog = ConfirmationDialog(
-            getString(R.string.chat_info_leave_dialog_title, chatViewModel.getChatName()),
-            R.string.chat_info_leave_dialog_description,
-            R.string.chat_info_leave_dialog_confirmation
-        )
+        val dialogDescription = if (isChatWithAdmins) {
+            R.string.chat_info_leave_dialog_with_admins_description
+        } else {
+            R.string.chat_info_leave_dialog_description
+        }
+        val leaveConfirmationDialog =
+            ConfirmationDialog(
+                getString(R.string.chat_info_leave_dialog_title, chatViewModel.getChatName()),
+                dialogDescription,
+                R.string.chat_info_leave_dialog_confirmation
+            )
         leaveConfirmationDialog.setPositiveButtonCallback {
+            progressBar.visibility = View.VISIBLE
             runBlocking {
                 EspressoIdlingResource.increment()
                 ChatDatabaseOperations.asyncRemovePlayerFromChatRoom(
@@ -183,6 +191,7 @@ class ChatInfoFragment : Fragment() {
                     playerId!!,
                     chatRoomId,
                     {
+                        progressBar.visibility = View.GONE
                         NavigationUtil.navigateToChatList(findNavController())
                     },
                     {})
