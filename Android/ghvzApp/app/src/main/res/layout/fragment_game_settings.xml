@@ -60,42 +60,78 @@
     android:layout_height="wrap_content"
     android:text="@string/game_settings_game_name_sublabel" />
 
-  <androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/admin_section"
+  <LinearLayout
+    android:id="@+id/items_to_hide_during_creation"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp">
+    android:orientation="vertical">
 
-    <TextView
-      android:id="@+id/admin_list_label"
-      style="@style/TextInputLabel"
+    <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="@string/game_settings_admin_list_title"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
+      android:minHeight="@dimen/tap_target_min">
 
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/admin_list"
+      <TextView
+        android:id="@+id/admin_on_call_title"
+        style="@style/TextInputLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="@string/game_settings_admin_on_call_title" />
+
+      <include
+        android:id="@+id/on_call_player"
+        layout="@layout/list_item_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/admin_on_call_title"
+        app:layout_constraintStart_toStartOf="parent" />
+
+      <TextView
+        android:id="@+id/admin_on_call_description"
+        style="@style/TextInputSubLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/on_call_player"
+        android:text="@string/game_settings_admin_on_call_description" />
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:layout_constraintHeight_default="wrap"
-      app:layout_constraintHeight_max="200dp"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/admin_list_label" />
+      android:paddingTop="12dp"
+      android:paddingBottom="12dp">
 
-    <com.google.android.material.button.MaterialButton
-      android:id="@+id/add_admin_button"
-      style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="8dp"
-      android:text="@string/game_settings_add_admin_button"
-      app:icon="@drawable/ic_plus"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/admin_list" />
-  </androidx.constraintlayout.widget.ConstraintLayout>
+      <TextView
+        android:id="@+id/admin_list_label"
+        style="@style/TextInputLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/game_settings_admin_list_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/admin_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintHeight_max="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/admin_list_label" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/add_admin_button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/game_settings_add_admin_button"
+        app:icon="@drawable/ic_plus"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/admin_list" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </LinearLayout>
 
 
   <Button

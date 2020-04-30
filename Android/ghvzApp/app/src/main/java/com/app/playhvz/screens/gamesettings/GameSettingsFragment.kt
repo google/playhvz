@@ -17,14 +17,14 @@
 package com.app.playhvz.screens.gamesettings
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
@@ -37,8 +37,10 @@ import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.ConfirmationDialog
+import com.app.playhvz.common.UserAvatarPresenter
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.playersearch.PlayerSearchDialog
+import com.app.playhvz.common.playersearch.PlayerSearchWithinGroupDialog
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
@@ -46,6 +48,7 @@ import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.operations.GroupDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.GroupViewModel
+import com.app.playhvz.firebase.viewmodels.PlayerViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.chatroom.chatinfo.MemberAdapter
 import com.app.playhvz.screens.gamelist.JoinGameDialog
@@ -67,6 +70,7 @@ class GameSettingsFragment : Fragment() {
     var playerId: String? = null
     var game: Game? = null
     var adminGroup: Group? = null
+    var onCallAdminPlayerId: String? = null
 
     private var playerHelper: PlayerHelper = PlayerHelper()
 
@@ -75,11 +79,17 @@ class GameSettingsFragment : Fragment() {
     private lateinit var adminAdapter: MemberAdapter
     private lateinit var gameViewModel: GameViewModel
     private lateinit var groupViewModel: GroupViewModel
+    private lateinit var playerViewModel: PlayerViewModel
     private lateinit var nameView: EmojiEditText
     private lateinit var submitButton: Button
     private lateinit var gameNameErrorLabel: TextView
-    private lateinit var adminSection: ConstraintLayout
     private lateinit var progressBar: ProgressBar
+    private lateinit var toolbarMenu: Menu
+    private lateinit var itemsToHideDuringCreation: LinearLayout
+    private lateinit var onCallPlayerLayout: LinearLayout
+    private lateinit var onCallPlayerAvatarView: ConstraintLayout
+    private lateinit var onCallPlayerNameView: TextView
+    private lateinit var onCallPlayerIconView: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +100,7 @@ class GameSettingsFragment : Fragment() {
             SharedPreferencesConstants.PREFS_FILENAME,
             0
         )!!
+        playerViewModel = PlayerViewModel()
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
         setupObservers()
     }
@@ -104,23 +115,35 @@ class GameSettingsFragment : Fragment() {
         submitButton = view.findViewById(R.id.submit_button)
         gameNameErrorLabel = view.findViewById(R.id.game_name_error_label)
         progressBar = view.findViewById(R.id.progress_bar)
-        adminSection = view.findViewById(R.id.admin_section)
+        itemsToHideDuringCreation = view.findViewById(R.id.items_to_hide_during_creation)
+        onCallPlayerLayout = view.findViewById(R.id.on_call_player)
+        onCallPlayerAvatarView = onCallPlayerLayout.findViewById(R.id.player_avatar_container)!!
+        onCallPlayerNameView = onCallPlayerLayout.findViewById(R.id.player_name)!!
+        onCallPlayerIconView = onCallPlayerLayout.findViewById(R.id.additional_icon)!!
         addAdminButton = view.findViewById(R.id.add_admin_button)
         adminRecyclerView = view.findViewById(R.id.admin_list)
         adminRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adminAdapter = MemberAdapter(listOf(), requireContext(), {player -> onRemoveAdminClicked(player)})
+        adminAdapter =
+            MemberAdapter(listOf(), requireContext(), { player -> onRemoveAdminClicked(player) })
         adminRecyclerView.adapter = adminAdapter
 
+        onCallPlayerLayout.visibility = View.GONE
+        onCallPlayerIconView.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_edit)
+        onCallPlayerIconView.visibility = View.VISIBLE
+        onCallPlayerIconView.setOnClickListener {
+            changeOnCallAdmin()
+        }
+
         addAdminButton.setOnClickListener {
-             val addPeopleDialog = PlayerSearchDialog(gameId!!, adminGroup)
-             activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
+            val addPeopleDialog = PlayerSearchDialog(gameId!!, adminGroup)
+            activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
         }
 
         submitButton.setOnClickListener { _ ->
             if (gameId == null) {
                 createGame()
             } else {
-                submitChanges()
+                saveChanges()
             }
         }
 
@@ -134,6 +157,21 @@ class GameSettingsFragment : Fragment() {
         setupToolbar()
         initializeFields()
         return view
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_save_settings, menu)
+        toolbarMenu = menu
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.save_option -> {
+                saveChanges()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun setupToolbar() {
@@ -154,7 +192,7 @@ class GameSettingsFragment : Fragment() {
             nameView.isFocusable = false
         } else {
             // Setup UI for creating a new game
-            adminSection.visibility = View.GONE
+            itemsToHideDuringCreation.visibility = View.GONE
             nameView.doOnTextChanged { text, _, _, _ ->
                 when {
                     text.isNullOrEmpty() -> {
@@ -211,6 +249,10 @@ class GameSettingsFragment : Fragment() {
             )
         }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
             updateGame(serverUpdate)
+            if (serverUpdate != null) {
+                onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
+                listenToAdminOnCallPlayerUpdates()
+            }
         })
     }
 
@@ -244,8 +286,31 @@ class GameSettingsFragment : Fragment() {
             })
     }
 
-    private fun submitChanges() {
+    private fun listenToAdminOnCallPlayerUpdates() {
+        if (onCallAdminPlayerId.isNullOrEmpty()) {
+            onCallPlayerLayout.visibility = View.GONE
+            return
+        }
+        playerViewModel.getPlayer(gameId!!, onCallAdminPlayerId!!)
+            .observe(this, androidx.lifecycle.Observer { serverPlayer: Player? ->
+                if (serverPlayer == null) {
+                    onCallPlayerLayout.visibility = View.GONE
+                    return@Observer
+                }
+                updateOnCallPlayer(serverPlayer)
+            })
+    }
+
+    private fun updateOnCallPlayer(updatedPlayer: Player) {
+        onCallPlayerLayout.visibility = View.VISIBLE
+        val userAvatarPresenter = UserAvatarPresenter(onCallPlayerAvatarView, R.dimen.avatar_small)
+        userAvatarPresenter.renderAvatar(updatedPlayer)
+        onCallPlayerNameView.text = updatedPlayer.name
+    }
+
+    private fun saveChanges() {
         // TODO update game
+        disableActions()
     }
 
     private fun showDeleteDialog() {
@@ -300,5 +365,30 @@ class GameSettingsFragment : Fragment() {
             }
         }
         activity?.supportFragmentManager?.let { leaveConfirmationDialog.show(it, TAG) }
+    }
+
+    private fun disableActions() {
+        SystemUtils.hideKeyboard(requireContext())
+        progressBar.visibility = View.VISIBLE
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
+        menuItem.icon.mutate().alpha = 130
+        menuItem.isEnabled = false
+    }
+
+    private fun enableActions() {
+        progressBar.visibility = View.GONE
+        val menuItem = toolbarMenu.findItem(R.id.save_option)
+        menuItem.icon.mutate().alpha = 255
+        menuItem.isEnabled = true
+    }
+
+    private fun changeOnCallAdmin() {
+        val onPlayerSelected = { selectedId: String ->
+            onCallAdminPlayerId = selectedId
+            listenToAdminOnCallPlayerUpdates()
+        }
+        val selectPersonDialog =
+            PlayerSearchWithinGroupDialog(gameId!!, adminGroup, onPlayerSelected)
+        activity?.supportFragmentManager?.let { selectPersonDialog.show(it, TAG) }
     }
 }

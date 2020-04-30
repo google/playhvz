@@ -157,6 +157,10 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
       [Group.FIELD__OWNERS]: admin.firestore.FieldValue.arrayUnion(playerDocSnapshot.id)
     })
     await addPlayerToGroup(db, gameId, groupSnapshot, playerDocRef.id)
+    // Also set game creator as default "Admin On Call"
+    gameSnapshot.ref.update({
+      [Game.FIELD__ADMIN_ON_CALL_PLAYER_ID]: playerDocSnapshot.id
+    })
   }
 }
 

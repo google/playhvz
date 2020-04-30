@@ -28,7 +28,8 @@ import com.google.android.material.button.MaterialButton
 class PlayerAdapter(
     private var items: List<Player>,
     val context: Context,
-    val playerSelectedClickHandler: PlayerSearchClickHandler
+    val playerSelectedClickHandler: PlayerSearchClickHandler,
+    val maxSelectable: Int? = null
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), PlayerViewHolder.PlayerClickListener {
 
@@ -73,7 +74,12 @@ class PlayerAdapter(
             checkIcon.visibility = View.VISIBLE
             checkIcon.isEnabled = true
         }
-        playerSelectedClickHandler.onPlayerClicked(selectedPlayers.isNotEmpty())
+        val allowSubmit = if (maxSelectable != null) {
+            selectedPlayers.isNotEmpty() && selectedPlayers.size <= maxSelectable
+        } else {
+            selectedPlayers.isNotEmpty()
+        }
+        playerSelectedClickHandler.onPlayerClicked(allowSubmit)
     }
 
     fun setData(data: List<Player>) {

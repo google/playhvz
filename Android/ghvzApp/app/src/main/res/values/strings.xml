@@ -82,6 +82,10 @@
     Next
   </string>
 
+  <string name="button_set" definition="Button to set field to selected item.">
+    Set
+  </string>
+
   <string name="button_submit" definition="Button to select when saving changes.">
     Submit
   </string>
@@ -253,6 +257,14 @@
 
   <string name="game_settings_add_admin_button" definition="Button text for adding a new admin.">
     Add admin
+  </string>
+
+  <string name="game_settings_admin_on_call_title" definition="Title for section showing admin on call.">
+    Admin On Call
+  </string>
+
+  <string name="game_settings_admin_on_call_description" definition="Description for section showing admin on call.">
+    This is the player account that will get notifications when someone pings the default admin account or tries to \"Chat with an Admin\".
   </string>
 
   <string name="game_settings_delete_dialog_title" definition="Title for delete game dialog.">
