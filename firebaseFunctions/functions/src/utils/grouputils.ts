@@ -154,7 +154,7 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
       .doc(gameData[Game.FIELD__ADMIN_GROUP_ID])
       .get()
     await groupSnapshot.ref.update({
-      [Group.FIELD__OWNERS]: playerDocSnapshot.id
+      [Group.FIELD__OWNERS]: admin.firestore.FieldValue.arrayUnion(playerDocSnapshot.id)
     })
     await addPlayerToGroup(db, gameId, groupSnapshot, playerDocRef.id)
   }
