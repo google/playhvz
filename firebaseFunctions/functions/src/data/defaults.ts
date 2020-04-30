@@ -24,3 +24,5 @@ export const globalZombieChatName = "Horde Chat";
 export const gameAdminChatName = "Admins";
 
 export const allegiance = "undeclared";
+
+export const FIGUREHEAD_ADMIN_NAME = "HvZ CDC";

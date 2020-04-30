@@ -111,12 +111,12 @@ export async function createGroupAndMission(
 
 // Add a new player to managed groups
 export async function updatePlayerMembershipInGroups(db: any, gameId: string, playerDocRef: any) {
-  await addPlayerToManagedGroups(db, gameId, playerDocRef)
+  await addPlayerToManagedGroups(db, gameId, playerDocRef, /* ignoreAllegiance= */ false)
   await removePlayerFromGroups(db, gameId, playerDocRef)
 }
 
 // Add a new player to managed groups
-export async function addPlayerToManagedGroups(db: any, gameId: string, playerDocRef: any) {
+export async function addPlayerToManagedGroups(db: any, gameId: string, playerDocRef: any, ignoreAllegiance: boolean) {
   const managedGroupQuery = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Group.COLLECTION_PATH)
@@ -138,7 +138,7 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
       continue
     }
     const groupAllegiance = groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_ALLEGIANCE_FILTER]
-    if (groupAllegiance === Defaults.EMPTY_ALLEGIANCE_FILTER || groupAllegiance === playerAllegiance) {
+    if (ignoreAllegiance || groupAllegiance === Defaults.EMPTY_ALLEGIANCE_FILTER || groupAllegiance === playerAllegiance) {
       // The player matches the allegiance requirements, add them to the group
       await addPlayerToGroup(db, gameId, groupSnapshot, playerDocRef.id)
     }
@@ -239,10 +239,13 @@ async function autoUpdateMembers(db: any, gameId: string, group: any) {
       .get()
   }
 
-  if (playerQuerySnapshot === null) {
+  const gameData = await (await db.collection(Game.COLLECTION_PATH).doc(gameId).get()).data()
+  if (playerQuerySnapshot === null || gameData === undefined) {
     return
   }
+
   const playerIdArray = new Array();
+  playerIdArray.push(gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT])
   playerQuerySnapshot.forEach((playerDoc: any) => {
     playerIdArray.push(playerDoc.id)
   });
