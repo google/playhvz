@@ -22,11 +22,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.ChatRoom
-import com.app.playhvz.firebase.classmodels.ChatRoom.Companion.FIELD__IS_VISIBLE
+import com.app.playhvz.firebase.classmodels.Player.Companion.FIELD__CHAT_MEMBERSHIP_IS_VISIBLE
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations.Companion.getChatRoomDocumentReference
 import com.app.playhvz.firebase.operations.PlayerDatabaseOperations.Companion.getPlayerDocumentReference
 import com.app.playhvz.firebase.utils.DataConverterUtil
-import com.app.playhvz.utils.ObserverUtils
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
@@ -71,7 +70,7 @@ class ChatListViewModel : ViewModel() {
                 val player = DataConverterUtil.convertSnapshotToPlayer(snapshot!!)
                 val updatedChatRoomIds: MutableList<String> = mutableListOf()
                 for ((key, value) in player.chatRoomMemberships) {
-                    if (value.getOrElse(FIELD__IS_VISIBLE) { false }) {
+                    if (value.getOrElse(FIELD__CHAT_MEMBERSHIP_IS_VISIBLE) { false }) {
                         updatedChatRoomIds.add(key)
                     }
                 }

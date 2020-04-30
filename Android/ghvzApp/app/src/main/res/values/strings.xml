@@ -126,6 +126,10 @@
     This can\'t be undone, you\'ll have to ask someone else to add you back.
   </string>
 
+  <string name="chat_info_leave_dialog_with_admins_description" definition="Dialog message informing user they can rejoin chat room after leaving.">
+    You can rejoin, just click chat with an admin again.
+  </string>
+
   <string name="chat_info_leave_dialog_confirmation" definition="Confirmation button for leave chat dialog.">
     Yep, leave
   </string>

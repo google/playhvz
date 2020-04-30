@@ -23,6 +23,11 @@ import com.google.firebase.Timestamp
 
 /** Android data model representing Firebase Player documents. */
 class Player {
+    companion object {
+        val FIELD__CHAT_MEMBERSHIP_IS_VISIBLE = "isVisible"
+        val FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS = "allowNotifications"
+    }
+
     var id: String? = null
 
     // UserId for the User that owns this player account

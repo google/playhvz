@@ -417,19 +417,19 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
           'a valid gameId, playerId, and chatRoomId.');
   }
 
-  const player = await db.collection(Game.COLLECTION_PATH)
+  const playerSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Player.COLLECTION_PATH)
     .doc(playerId)
     .get()
 
-  const chatRoom = (await db.collection(Game.COLLECTION_PATH)
+  const chatRoomData = (await db.collection(Game.COLLECTION_PATH)
      .doc(gameId)
      .collection(Chat.COLLECTION_PATH)
      .doc(chatRoomId)
      .get())
      .data();
-  if (chatRoom === undefined) {
+  if (chatRoomData === undefined) {
     console.log("Chat room was undefined, not removing player.")
     return
   }
@@ -437,10 +437,18 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
   const group = await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
       .collection(Group.COLLECTION_PATH)
-      .doc(chatRoom[Chat.FIELD__GROUP_ID])
+      .doc(chatRoomData[Chat.FIELD__GROUP_ID])
       .get()
 
-  await ChatUtils.removePlayerFromChat(db, gameId, player, group, chatRoomId)
+  if (chatRoomData[Chat.FIELD__WITH_ADMINS]) {
+    const visibilityField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId + "." + Player.FIELD__CHAT_VISIBILITY
+    await playerSnapshot.ref.update({
+      [visibilityField]: false
+    })
+    return
+  }
+
+  await ChatUtils.removePlayerFromChat(db, gameId, playerSnapshot, group, chatRoomId)
 });
 
 // Sends a chat message

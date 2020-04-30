@@ -56,7 +56,6 @@ class ChatRoomFragment : Fragment() {
     lateinit var chatViewModel: ChatRoomViewModel
     lateinit var messageAdapter: MessageAdapter
 
-
     private lateinit var chatRoomId: String
     private lateinit var progressBar: ProgressBar
     private lateinit var messageInputView: EmojiEditText
@@ -66,6 +65,7 @@ class ChatRoomFragment : Fragment() {
     private var gameId: String? = null
     private var playerId: String? = null
     private var toolbar: ActionBar? = null
+    private var isChatWithAdmin: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -142,7 +142,7 @@ class ChatRoomFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.chat_info) {
-            NavigationUtil.navigateToChatInfo(findNavController(), chatRoomId)
+            NavigationUtil.navigateToChatInfo(findNavController(), chatRoomId, isChatWithAdmin)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -173,6 +173,7 @@ class ChatRoomFragment : Fragment() {
             toolbar?.title = updatedChatRoom.name
             messageInputView.hint = getString(R.string.chat_input_hint, updatedChatRoom.name)
         }
+        isChatWithAdmin = updatedChatRoom.withAdmins
     }
 
     private fun onMessagesUpdated(updatedMessageList: List<Message>) {

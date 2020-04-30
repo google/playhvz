@@ -205,6 +205,10 @@
       android:name="chatRoomId"
       app:argType="string"
       app:nullable="false" />
+    <argument
+      android:name="isChatWithAdmins"
+      app:argType="boolean"
+      app:nullable="false" />
   </fragment>
 
   <fragment
