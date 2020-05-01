@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.app.HvzData
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.UserAvatarPresenter
@@ -65,34 +66,37 @@ class GameSettingsFragment : Fragment() {
         private val TAG = GameSettingsFragment::class.qualifiedName
     }
 
-    val args: GameSettingsFragmentArgs by navArgs()
-    var gameId: String? = null
-    var playerId: String? = null
-    var game: Game? = null
-    var adminGroup: Group? = null
-    var onCallAdminPlayerId: String? = null
-
-    private var playerHelper: PlayerHelper = PlayerHelper()
-
     private lateinit var adminRecyclerView: RecyclerView
     private lateinit var addAdminButton: MaterialButton
     private lateinit var adminAdapter: MemberAdapter
     private lateinit var gameViewModel: GameViewModel
+    private lateinit var errorLabel: TextView
     private lateinit var groupViewModel: GroupViewModel
     private lateinit var playerViewModel: PlayerViewModel
     private lateinit var nameView: EmojiEditText
     private lateinit var submitButton: Button
     private lateinit var gameNameErrorLabel: TextView
     private lateinit var progressBar: ProgressBar
-    private lateinit var toolbarMenu: Menu
     private lateinit var itemsToHideDuringCreation: LinearLayout
     private lateinit var onCallPlayerLayout: LinearLayout
     private lateinit var onCallPlayerAvatarView: ConstraintLayout
     private lateinit var onCallPlayerNameView: TextView
     private lateinit var onCallPlayerIconView: MaterialButton
 
+    private val args: GameSettingsFragmentArgs by navArgs()
+    private var adminGroup: Group? = null
+    private var gameId: String? = null
+    private var playerId: String? = null
+    private var game: Game? = null
+    private var hasChanges = HvzData<Boolean>(false)
+    private var isSaving = false
+    private var onCallAdminPlayerId: String? = null
+    private var playerHelper: PlayerHelper = PlayerHelper()
+    private var toolbarMenu: Menu? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         gameId = args.gameId
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
         groupViewModel = GroupViewModel()
@@ -111,6 +115,7 @@ class GameSettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_game_settings, container, false)
+        errorLabel = view.findViewById(R.id.error_label)
         nameView = view.findViewById(R.id.game_name)
         submitButton = view.findViewById(R.id.submit_button)
         gameNameErrorLabel = view.findViewById(R.id.game_name_error_label)
@@ -184,12 +189,77 @@ class GameSettingsFragment : Fragment() {
         }
     }
 
+    private fun setupObservers() {
+        hasChanges.observe(this, androidx.lifecycle.Observer { updatedHasChanges ->
+            if (updatedHasChanges) {
+                enableActions()
+            } else {
+                disableActions()
+            }
+        })
+        if (gameId == null || playerId == null) {
+            return
+        }
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
+            NavigationUtil.navigateToGameList(
+                findNavController(),
+                requireActivity()
+            )
+        }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
+            if (hasChanges.value!! &&  !isSaving) {
+                // Someone else updated the game, show an error and ignore pending changes.
+                errorLabel.visibility = View.VISIBLE
+                disableActions()
+                return@Observer
+            } else {
+                errorLabel.visibility = View.GONE
+            }
+
+            updateGame(serverUpdate)
+            if (serverUpdate != null) {
+                onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
+                listenToAdminOnCallPlayerUpdates()
+            }
+        })
+    }
+
+    private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
+        if (serverUpdate == null || serverUpdate.game == null) {
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
+        }
+        game = serverUpdate!!.game
+
+        groupViewModel.getGroup(gameId!!, game!!.adminGroupId!!)
+            .observe(this, androidx.lifecycle.Observer { serverGroup: Group? ->
+                updateAdminGroup(serverGroup)
+            })
+
+        setupToolbar()
+        initializeFields()
+    }
+
+    private fun updateAdminGroup(serverGroup: Group?) {
+        if (serverGroup == null) {
+            return
+        }
+        adminGroup = serverGroup
+        val members = serverGroup.members
+        adminAdapter.setGroupOwnerPlayerId(serverGroup.owners)
+        adminAdapter.setCanRemovePlayer(serverGroup.settings.canRemoveOthers)
+        playerHelper.getListOfPlayers(gameId!!, members)
+            .observe(this, androidx.lifecycle.Observer { playerMap ->
+                adminAdapter.setData(playerMap)
+                adminAdapter.notifyDataSetChanged()
+            })
+    }
+
     private fun initializeFields() {
         if (gameId != null) {
             // Disable changing name of already created game
             nameView.setText(game?.name)
             nameView.isEnabled = false
             nameView.isFocusable = false
+            disableActions()
         } else {
             // Setup UI for creating a new game
             itemsToHideDuringCreation.visibility = View.GONE
@@ -238,79 +308,71 @@ class GameSettingsFragment : Fragment() {
         }
     }
 
-    private fun setupObservers() {
-        if (gameId == null || playerId == null) {
-            return
-        }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
-            updateGame(serverUpdate)
-            if (serverUpdate != null) {
-                onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
-                listenToAdminOnCallPlayerUpdates()
-            }
-        })
-    }
-
-    private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
-        if (serverUpdate == null || serverUpdate.game == null) {
-            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-        }
-        game = serverUpdate!!.game
-
-        groupViewModel.getGroup(gameId!!, game!!.adminGroupId!!)
-            .observe(this, androidx.lifecycle.Observer { serverGroup: Group? ->
-                updateAdminGroup(serverGroup)
-            })
-
-        setupToolbar()
-        initializeFields()
-    }
-
-    private fun updateAdminGroup(serverGroup: Group?) {
-        if (serverGroup == null) {
-            return
-        }
-        adminGroup = serverGroup
-        val members = serverGroup.members
-        adminAdapter.setGroupOwnerPlayerId(serverGroup.owners)
-        adminAdapter.setCanRemovePlayer(serverGroup.settings.canRemoveOthers)
-        playerHelper.getListOfPlayers(gameId!!, members)
-            .observe(this, androidx.lifecycle.Observer { playerMap ->
-                adminAdapter.setData(playerMap)
-                adminAdapter.notifyDataSetChanged()
-            })
-    }
-
     private fun listenToAdminOnCallPlayerUpdates() {
         if (onCallAdminPlayerId.isNullOrEmpty()) {
             onCallPlayerLayout.visibility = View.GONE
             return
         }
         playerViewModel.getPlayer(gameId!!, onCallAdminPlayerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverPlayer: Player? ->
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer: Player? ->
                 if (serverPlayer == null) {
                     onCallPlayerLayout.visibility = View.GONE
                     return@Observer
                 }
-                updateOnCallPlayer(serverPlayer)
+                updateOnCallPlayerUI(serverPlayer)
             })
     }
 
-    private fun updateOnCallPlayer(updatedPlayer: Player) {
+    private fun updateOnCallPlayerUI(updatedPlayer: Player) {
         onCallPlayerLayout.visibility = View.VISIBLE
         val userAvatarPresenter = UserAvatarPresenter(onCallPlayerAvatarView, R.dimen.avatar_small)
         userAvatarPresenter.renderAvatar(updatedPlayer)
         onCallPlayerNameView.text = updatedPlayer.name
     }
 
+    private fun haveAdminCreatePlayer(gameId: String, gameName: String) {
+        val joinGameDialog = JoinGameDialog(this)
+        joinGameDialog.setGameName(gameName)
+        activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }
+    }
+
+    private fun changeOnCallAdmin() {
+        val onPlayerSelected = { selectedId: String ->
+            onCallAdminPlayerId = selectedId
+            listenToAdminOnCallPlayerUpdates()
+            if (!hasChanges.value!!) {
+                hasChanges.value = true
+            }
+        }
+        val selectPersonDialog =
+            PlayerSearchWithinGroupDialog(gameId!!, adminGroup, onPlayerSelected)
+        activity?.supportFragmentManager?.let { selectPersonDialog.show(it, TAG) }
+    }
+
     private fun saveChanges() {
-        // TODO update game
+        if (!hasChanges.value!! || errorLabel.visibility == View.VISIBLE || game == null) {
+            return
+        }
+        isSaving = true
         disableActions()
+        progressBar.visibility = View.VISIBLE
+        val onSuccess = {
+            NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
+        }
+        game?.adminOnCallPlayerId = onCallAdminPlayerId
+        runBlocking {
+            EspressoIdlingResource.increment()
+            GameDatabaseOperations.asyncUpdateGame(
+                game!!,
+                onSuccess,
+                {
+                    isSaving = false
+                    enableActions()
+                    SystemUtils.showToast(context, "Couldn't save changes.")
+                }
+            )
+            EspressoIdlingResource.decrement()
+        }
     }
 
     private fun showDeleteDialog() {
@@ -338,11 +400,6 @@ class GameSettingsFragment : Fragment() {
         activity?.supportFragmentManager?.let { deleteDialog.show(it, TAG) }
     }
 
-    private fun haveAdminCreatePlayer(gameId: String, gameName: String) {
-        val joinGameDialog = JoinGameDialog(this)
-        joinGameDialog.setGameName(gameName)
-        activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }
-    }
 
     private fun onRemoveAdminClicked(player: Player) {
         val leaveConfirmationDialog = ConfirmationDialog(
@@ -368,27 +425,25 @@ class GameSettingsFragment : Fragment() {
     }
 
     private fun disableActions() {
+        if (toolbarMenu == null) {
+            return
+        }
         SystemUtils.hideKeyboard(requireContext())
-        progressBar.visibility = View.VISIBLE
-        val menuItem = toolbarMenu.findItem(R.id.save_option)
-        menuItem.icon.mutate().alpha = 130
-        menuItem.isEnabled = false
+        val menuItem = toolbarMenu?.findItem(R.id.save_option)
+        menuItem?.icon?.mutate()?.alpha = 130
+        menuItem?.isEnabled = false
+        submitButton.isEnabled = false
     }
 
     private fun enableActions() {
+        if (toolbarMenu == null) {
+            return
+        }
         progressBar.visibility = View.GONE
-        val menuItem = toolbarMenu.findItem(R.id.save_option)
-        menuItem.icon.mutate().alpha = 255
-        menuItem.isEnabled = true
+        val menuItem = toolbarMenu?.findItem(R.id.save_option)
+        menuItem?.icon?.mutate()?.alpha = 255
+        menuItem?.isEnabled = true
+        submitButton.isEnabled = true
     }
 
-    private fun changeOnCallAdmin() {
-        val onPlayerSelected = { selectedId: String ->
-            onCallAdminPlayerId = selectedId
-            listenToAdminOnCallPlayerUpdates()
-        }
-        val selectPersonDialog =
-            PlayerSearchWithinGroupDialog(gameId!!, adminGroup, onPlayerSelected)
-        activity?.supportFragmentManager?.let { selectPersonDialog.show(it, TAG) }
-    }
 }

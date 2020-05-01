@@ -658,6 +658,8 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
 /**
  * Triggers when a new message is added to a chat room.
  * TODO: send notifications batched instead of one at a time.
+ * TODO: for chat with admins if room isn't visible, trigger notification & set room to visible again
+ * TODO: send notification to admin on call player when necessary
  */
 exports.triggerChatNotification = functions.firestore
   .document(Game.COLLECTION_PATH + "/{gameId}/" + Chat.COLLECTION_PATH + "/{chatId}/" + Message.COLLECTION_PATH + "/{messageId}")

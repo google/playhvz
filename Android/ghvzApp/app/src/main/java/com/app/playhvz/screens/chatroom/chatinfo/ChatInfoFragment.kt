@@ -38,7 +38,6 @@ import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
-import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.playersearch.PlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
@@ -64,19 +63,20 @@ class ChatInfoFragment : Fragment() {
     private lateinit var leaveOption: TextView
     private lateinit var memberCountView: TextView
     private lateinit var memberAdapter: MemberAdapter
+    private lateinit var playerId: String
     private lateinit var progressBar: ProgressBar
 
     private val args: ChatInfoFragmentArgs by navArgs()
     private var gameId: String? = null
     private var group: Group? = null
     private var playerHelper: PlayerHelper = PlayerHelper()
-    private var playerId: String? = null
     private var isChatWithAdmins: Boolean = false
     private var toolbar: ActionBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
+        playerId = args.playerId
         isChatWithAdmins = args.isChatWithAdmins
         chatViewModel = ChatRoomViewModel()
         memberAdapter =
@@ -87,7 +87,6 @@ class ChatInfoFragment : Fragment() {
             0
         )!!
         gameId = sharedPrefs.getString(CURRENT_GAME_ID, null)
-        playerId = sharedPrefs.getString(CURRENT_PLAYER_ID, null)
 
         toolbar = (activity as AppCompatActivity).supportActionBar
         setupObservers()
@@ -109,8 +108,8 @@ class ChatInfoFragment : Fragment() {
         progressBar.visibility = View.GONE
         setupToolbar()
 
-        addPeopleOption.setOnClickListener { v -> onAddPeopleClicked() }
-        leaveOption.setOnClickListener { v -> onLeaveClicked() }
+        addPeopleOption.setOnClickListener { _ -> onAddPeopleClicked() }
+        leaveOption.setOnClickListener { _ -> onLeaveClicked() }
 
         val memberRecyclerView = view.findViewById<RecyclerView>(R.id.member_list)
         val layoutManager = LinearLayoutManager(context)
@@ -158,13 +157,6 @@ class ChatInfoFragment : Fragment() {
             })
     }
 
-    private fun updateView() {
-        if (this.view == null) {
-            return
-        }
-        progressBar.visibility = View.GONE
-    }
-
     private fun onAddPeopleClicked() {
         val addPeopleDialog = PlayerSearchDialog(gameId!!, group, chatRoomId)
         activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
@@ -188,11 +180,15 @@ class ChatInfoFragment : Fragment() {
                 EspressoIdlingResource.increment()
                 ChatDatabaseOperations.asyncRemovePlayerFromChatRoom(
                     gameId!!,
-                    playerId!!,
+                    playerId,
                     chatRoomId,
                     {
                         progressBar.visibility = View.GONE
-                        NavigationUtil.navigateToChatList(findNavController())
+                        if (isChatWithAdmins) {
+                            NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
+                        } else {
+                            NavigationUtil.navigateToChatList(findNavController())
+                        }
                     },
                     {})
                 EspressoIdlingResource.decrement()

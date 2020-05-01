@@ -101,8 +101,7 @@
       app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
   </action>
 
-  <action
-    android:id="@+id/nav_create_chat_with_admin"/>
+  <action android:id="@+id/nav_create_chat_with_admin" />
 
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
@@ -172,7 +171,7 @@
 
   <fragment
     android:id="@+id/nav_admin_chat_list_fragment"
-    android:name="com.app.playhvz.screens.chatlist.ChatListFragment"
+    android:name="com.app.playhvz.screens.chatlist.AdminChatListFragment"
     tools:layout="@layout/fragment_chat_list" />
 
   <fragment
@@ -196,6 +195,10 @@
       android:name="chatRoomId"
       app:argType="string"
       app:nullable="false" />
+    <argument
+      android:name="playerId"
+      app:argType="string"
+      app:nullable="false" />
   </fragment>
 
   <fragment
@@ -203,6 +206,10 @@
     android:name="com.app.playhvz.screens.chatroom.chatinfo.ChatInfoFragment">
     <argument
       android:name="chatRoomId"
+      app:argType="string"
+      app:nullable="false" />
+    <argument
+      android:name="playerId"
       app:argType="string"
       app:nullable="false" />
     <argument

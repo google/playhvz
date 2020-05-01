@@ -19,6 +19,8 @@ package com.app.playhvz.navigation
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.screens.chatlist.AdminChatListFragment
+import com.app.playhvz.screens.chatlist.AdminChatListFragmentDirections
 import com.app.playhvz.screens.chatlist.ChatListFragmentDirections
 import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
 import com.app.playhvz.screens.chatroom.chatinfo.ChatInfoFragmentDirections
@@ -93,20 +95,29 @@ class NavigationUtil {
         }
 
         /**
+         * Opens list of admin chat rooms.
+         */
+        fun navigateToAdminChatList(navController: NavController) {
+            navController.navigate(
+                AdminChatListFragmentDirections.actionGlobalNavAdminChatListFragment()
+            )
+        }
+
+        /**
          * Opens the chat room.
          */
-        fun navigateToChatRoom(navController: NavController, chatRoomId: String) {
+        fun navigateToChatRoom(navController: NavController, chatRoomId: String, playerId: String) {
             navController.navigate(
-                ChatRoomFragmentDirections.actionGlobalNavChatRoomFragment(chatRoomId)
+                ChatRoomFragmentDirections.actionGlobalNavChatRoomFragment(chatRoomId, playerId)
             )
         }
 
         /**
          * Opens the chat's info screen.
          */
-        fun navigateToChatInfo(navController: NavController, chatRoomId: String, isChatWithAdmins: Boolean) {
+        fun navigateToChatInfo(navController: NavController, chatRoomId: String, playerId: String, isChatWithAdmins: Boolean) {
             navController.navigate(
-                ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(chatRoomId, isChatWithAdmins)
+                ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(chatRoomId, playerId, isChatWithAdmins)
             )
         }
 

@@ -33,6 +33,14 @@
     android:visibility="invisible" />
 
   <TextView
+    android:id="@+id/error_label"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/change_conflict_error_label"
+    android:textColor="@color/red"
+    android:visibility="gone" />
+
+  <TextView
     style="@style/TextInputLabel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"

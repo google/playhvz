@@ -106,6 +106,10 @@
     Chats
   </string>
 
+  <string name="chat_list_for_admin_toolbar" definition="Toolbar title for the admin chat list view.">
+    Admin chats
+  </string>
+
   <string name="chat_room_toolbar" definition="Toolbar title for the chat room view if the room name won't load.">
     Chat
   </string>
@@ -472,7 +476,7 @@
   </string>
 
   <string name="navigation_drawer_admin_chat_list" definition="Navigation drawer menu item for opening list of chats admin is in for the current game.">
-    Chats with admin
+    View admin chats
   </string>
 
   <string name="navigation_drawer_create_chat_with_admin" definition="Navigation drawer menu item for creating a chat with admins.">
@@ -511,8 +515,8 @@
     Failed, try again
   </string>
 
-  <string name="rules_error_label" definition="Error stating that data was updated.">
-    Oh no! Someone else made a change… copy your edits, quit editing and try again.
+  <string name="change_conflict_error_label" definition="Error stating that data was updated.">
+    Oh no! Someone else made a change… copy your changes, quit editing and try again.
   </string>
 
   <string name="sign_in_failed_toast">
