@@ -33,7 +33,7 @@
     android:id="@+id/error_label"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="@string/rules_error_label"
+    android:text="@string/change_conflict_error_label"
     android:textColor="@color/red"
     android:visibility="gone" />
 
