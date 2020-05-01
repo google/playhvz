@@ -64,7 +64,7 @@ class ChatRoomViewModel : ViewModel() {
                         Log.w(TAG, "ChatRoom listen failed. ", e)
                         return@EventListener
                     }
-                    if (snapshot == null) {
+                    if (snapshot == null || !snapshot.exists()) {
                         return@EventListener
                     }
                     chatRoom.value = DataConverterUtil.convertSnapshotToChatRoom(snapshot)

@@ -47,7 +47,6 @@ import com.app.playhvz.screens.signin.SignInActivity
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.runBlocking
@@ -145,6 +144,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     getCurrentGameId()
                 )
             }
+            R.id.nav_admin_chat_list_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToAdminChatList(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
             R.id.nav_rules_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToRules(
@@ -205,7 +210,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun setupUI() {
         navDrawerView = findViewById(R.id.nav_view)
-        navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility = View.GONE
+        navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility =
+            View.GONE
 
         setupToolbar()
         setupBottomNavigationBar()
@@ -301,9 +307,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             return
         }
         val onSuccess = { adminChatId: String ->
-            navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility = View.GONE
+            navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility =
+                View.GONE
             drawer_layout.closeDrawer(GravityCompat.START)
-            NavigationUtil.navigateToChatRoom(getNavController(), adminChatId)
+            NavigationUtil.navigateToChatRoom(getNavController(), adminChatId, playerId)
         }
         runBlocking {
             EspressoIdlingResource.increment()

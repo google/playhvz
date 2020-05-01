@@ -30,17 +30,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
-import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.firebase.classmodels.ChatRoom
 import com.app.playhvz.firebase.viewmodels.ChatListViewModel
+import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
-/** Fragment for showing a list of Chatrooms the user is a member of.*/
-class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
+/** Fragment for showing a list of Chatrooms the admin figurehead is a member of.*/
+class AdminChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
     companion object {
-        private val TAG = ChatListFragment::class.qualifiedName
+        private val TAG = AdminChatListFragment::class.qualifiedName
     }
 
     lateinit var chatListViewModel: ChatListViewModel
@@ -48,9 +48,9 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
 
     private lateinit var progressBar: ProgressBar
 
+    private var adminPlayerId: String? = null
     private var fab: FloatingActionButton? = null
     private var gameId: String? = null
-    private var playerId: String? = null
     private var toolbar: ActionBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +63,6 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
             0
         )!!
         gameId = sharedPrefs.getString(CURRENT_GAME_ID, null)
-        playerId = sharedPrefs.getString(CURRENT_PLAYER_ID, null)
         toolbar = (activity as AppCompatActivity).supportActionBar
     }
 
@@ -85,21 +84,31 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
     }
 
     override fun onChatRoomClicked(chatRoomId: String) {
-        NavigationUtil.navigateToChatRoom(findNavController(), chatRoomId, playerId!!)
+        NavigationUtil.navigateToChatRoom(findNavController(), chatRoomId, adminPlayerId!!)
     }
 
     fun setupToolbar() {
-        toolbar?.title = getString(R.string.chat_list_toolbar)
+        toolbar?.title = getString(R.string.chat_list_for_admin_toolbar)
         toolbar?.setDisplayHomeAsUpEnabled(false)
     }
 
     private fun setupObservers() {
-        if (gameId.isNullOrEmpty() || playerId.isNullOrEmpty()) {
+        if (gameId.isNullOrEmpty()) {
             return
         }
-        chatListViewModel.getChatRoomList(this, gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverChatRoomList ->
-                onChatRoomUpdated(serverChatRoomList)
+
+        val gameViewModel = GameViewModel()
+        gameViewModel.getGame(gameId!!, {})
+            .observe(this, androidx.lifecycle.Observer { game ->
+                if (game == null) {
+                    return@Observer
+                }
+                adminPlayerId = game.figureheadAdminPlayerAccount
+                chatListViewModel.getChatRoomList(this, gameId!!, adminPlayerId!!)
+                    .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverChatRoomList ->
+                        progressBar.visibility = View.GONE
+                        onChatRoomUpdated(serverChatRoomList)
+                    })
             })
     }
 
@@ -112,20 +121,12 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
 
     /** Update data and notify view and adapter of change. */
     private fun onChatRoomUpdated(updatedChatRoomList: Map<String, ChatRoom?>) {
-        updateView()
         chatListAdapter.setData(updatedChatRoomList)
         chatListAdapter.notifyDataSetChanged()
     }
 
-    private fun updateView() {
-        if (this.view == null) {
-            return
-        }
-        progressBar.visibility = View.GONE
-    }
-
     private fun createChat() {
-        val createChatDialog = CreateChatDialog(gameId!!, playerId!!)
+        val createChatDialog = CreateChatDialog(gameId!!, adminPlayerId!!)
         activity?.supportFragmentManager?.let { createChatDialog.show(it, TAG) }
     }
 }

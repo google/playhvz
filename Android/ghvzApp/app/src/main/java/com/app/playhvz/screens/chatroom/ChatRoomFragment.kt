@@ -57,19 +57,20 @@ class ChatRoomFragment : Fragment() {
     lateinit var messageAdapter: MessageAdapter
 
     private lateinit var chatRoomId: String
+    private lateinit var playerId: String
     private lateinit var progressBar: ProgressBar
     private lateinit var messageInputView: EmojiEditText
     private lateinit var sendButton: MaterialButton
 
     private val args: ChatRoomFragmentArgs by navArgs()
     private var gameId: String? = null
-    private var playerId: String? = null
     private var toolbar: ActionBar? = null
     private var isChatWithAdmin: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         chatRoomId = args.chatRoomId
+        playerId = args.playerId
         chatViewModel = ChatRoomViewModel()
         messageAdapter = MessageAdapter(listOf(), requireContext(), this)
 
@@ -78,7 +79,6 @@ class ChatRoomFragment : Fragment() {
             0
         )!!
         gameId = sharedPrefs.getString(CURRENT_GAME_ID, null)
-        playerId = sharedPrefs.getString(CURRENT_PLAYER_ID, null)
 
         toolbar = (activity as AppCompatActivity).supportActionBar
         setupObservers()
@@ -142,7 +142,7 @@ class ChatRoomFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.chat_info) {
-            NavigationUtil.navigateToChatInfo(findNavController(), chatRoomId, isChatWithAdmin)
+            NavigationUtil.navigateToChatInfo(findNavController(), chatRoomId, playerId, isChatWithAdmin)
         }
         return super.onOptionsItemSelected(item)
     }
