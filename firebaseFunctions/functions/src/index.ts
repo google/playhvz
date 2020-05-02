@@ -659,7 +659,6 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
  * Triggers when a new message is added to a chat room.
  * TODO: send notifications batched instead of one at a time.
  * TODO: for chat with admins if room isn't visible, trigger notification & set room to visible again
- * TODO: send notification to admin on call player when necessary
  */
 exports.triggerChatNotification = functions.firestore
   .document(Game.COLLECTION_PATH + "/{gameId}/" + Chat.COLLECTION_PATH + "/{chatId}/" + Message.COLLECTION_PATH + "/{messageId}")
@@ -710,10 +709,31 @@ exports.triggerChatNotification = functions.firestore
         }
       }
 
+      const gameData = await (await db.collection(Game.COLLECTION_PATH)
+        .doc(gameId)
+        .get())
+        .data()
+      if (gameData === undefined) {
+        return
+      }
+
       // Get player device tokens and send notification.
       for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
-        const playerData = playerSnapshot.data()
-        if (playerSnapshot.id === senderId || playerData === undefined) {
+        if (playerSnapshot.id === senderId) {
+          // Don't notify the user that sent the message.
+          continue
+        }
+        // If player is the admin player then notify the admin on-call player instead.
+        let playerData: any = playerSnapshot.data()
+        if (playerSnapshot.id === gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]) {
+          playerData = (await db.collection(Game.COLLECTION_PATH)
+            .doc(gameId)
+            .collection(Player.COLLECTION_PATH)
+            .doc(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])
+            .get())
+            .data()
+        }
+        if (playerData === undefined) {
           continue
         }
         // Get player's device token to notify
