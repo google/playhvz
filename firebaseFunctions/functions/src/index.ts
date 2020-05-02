@@ -717,6 +717,11 @@ exports.triggerChatNotification = functions.firestore
         return
       }
 
+      const playerIdArray = new Array();
+      for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
+        playerIdArray.push(playerSnapshot.id)
+      }
+
       // Get player device tokens and send notification.
       for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
         if (playerSnapshot.id === senderId) {
@@ -726,6 +731,10 @@ exports.triggerChatNotification = functions.firestore
         // If player is the admin player then notify the admin on-call player instead.
         let playerData: any = playerSnapshot.data()
         if (playerSnapshot.id === gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]) {
+          if (playerIdArray.includes(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])) {
+            // Admin on call player is already getting notified about this message.
+            continue
+          }
           playerData = (await db.collection(Game.COLLECTION_PATH)
             .doc(gameId)
             .collection(Player.COLLECTION_PATH)
