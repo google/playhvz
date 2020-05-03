@@ -17,6 +17,7 @@
 package com.app.playhvz.firebase.operations
 
 import android.util.Log
+import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.constants.UniversalConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
@@ -94,5 +95,25 @@ class PlayerDatabaseOperations {
             return PlayerPath.PLAYERS_COLLECTION(gameId)
                 .whereEqualTo(UNIVERSAL_FIELD__USER_ID, userId)
         }
+
+        /** Updates the player object. */
+        suspend fun asyncUpdatePlayer(
+            gameId: String?,
+            player: Player,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            if (gameId == null || player.id == null) {
+                return@withContext
+            }
+            // TODO: should this be set or update?
+            PlayerPath.PLAYERS_COLLECTION(gameId).document(player.id!!).set(player).addOnSuccessListener {
+                successListener.invoke()
+            }.addOnFailureListener {
+                Log.e(TAG, "Failed to update player: " + it)
+                failureListener.invoke()
+            }
+        }
+
     }
 }

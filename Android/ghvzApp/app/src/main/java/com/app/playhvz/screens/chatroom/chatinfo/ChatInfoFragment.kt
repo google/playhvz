@@ -26,7 +26,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -41,11 +40,14 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRE
 import com.app.playhvz.common.playersearch.PlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.classmodels.Player.Companion.FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
+import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.PlayerHelper
 import com.app.playhvz.utils.SystemUtils
+import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of Chatrooms the user is a member of.*/
@@ -63,10 +65,12 @@ class ChatInfoFragment : Fragment() {
     private lateinit var leaveOption: TextView
     private lateinit var memberCountView: TextView
     private lateinit var memberAdapter: MemberAdapter
+    private lateinit var notificationOption: SwitchMaterial
     private lateinit var playerId: String
     private lateinit var progressBar: ProgressBar
 
     private val args: ChatInfoFragmentArgs by navArgs()
+    private var currentPlayer: Player? = null
     private var gameId: String? = null
     private var group: Group? = null
     private var playerHelper: PlayerHelper = PlayerHelper()
@@ -103,6 +107,7 @@ class ChatInfoFragment : Fragment() {
         divider = view.findViewById(R.id.divider_below_options)
         addPeopleOption = view.findViewById(R.id.add_people_option)
         leaveOption = view.findViewById(R.id.leave_option)
+        notificationOption = view.findViewById(R.id.notifications_option)
         memberCountView = view.findViewById(R.id.member_count)
 
         progressBar.visibility = View.GONE
@@ -110,6 +115,11 @@ class ChatInfoFragment : Fragment() {
 
         addPeopleOption.setOnClickListener { _ -> onAddPeopleClicked() }
         leaveOption.setOnClickListener { _ -> onLeaveClicked() }
+        notificationOption.setOnCheckedChangeListener { _, isChecked ->
+            onNotificationOptionChanged(
+                isChecked
+            )
+        }
 
         val memberRecyclerView = view.findViewById<RecyclerView>(R.id.member_list)
         val layoutManager = LinearLayoutManager(context)
@@ -145,15 +155,16 @@ class ChatInfoFragment : Fragment() {
         addPeopleOption.visibility = if (updatedGroup.settings.canAddOthers) VISIBLE else GONE
         leaveOption.visibility = if (updatedGroup.settings.canRemoveSelf) VISIBLE else GONE
 
-        divider.visibility =
-            if (addPeopleOption.isVisible || leaveOption.isVisible) VISIBLE else GONE
-
         memberAdapter.setCanRemovePlayer(updatedGroup.settings.canRemoveOthers)
         memberAdapter.setGroupOwnerPlayerId(updatedGroup.owners)
         playerHelper.getListOfPlayers(gameId!!, updatedGroup.members)
             .observe(this, androidx.lifecycle.Observer { playerMap ->
                 memberAdapter.setData(playerMap)
                 memberAdapter.notifyDataSetChanged()
+                currentPlayer = playerMap[playerId]
+                if (currentPlayer != null) {
+                    notificationOption.isChecked = getCurrentNotificationSetting()
+                }
             })
     }
 
@@ -197,6 +208,43 @@ class ChatInfoFragment : Fragment() {
         activity?.supportFragmentManager?.let { leaveConfirmationDialog.show(it, TAG) }
     }
 
+    private fun onNotificationOptionChanged(isChecked: Boolean) {
+        if (isChecked == getCurrentNotificationSetting()) {
+            // Setting is same as last known server setting, do nothing.
+            return
+        }
+        val updatedPlayer = currentPlayer!!
+        val mutableChatMemberships = updatedPlayer.chatRoomMemberships.toMutableMap()
+        val mutableRoomOptions = mutableChatMemberships[chatRoomId]?.toMutableMap()
+        if (mutableRoomOptions == null) {
+            return
+        }
+        mutableRoomOptions[FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS] = isChecked
+        mutableChatMemberships[chatRoomId] = mutableRoomOptions
+        updatedPlayer.chatRoomMemberships = mutableChatMemberships
+
+        progressBar.visibility = VISIBLE
+        notificationOption.isEnabled = false
+        runBlocking {
+            EspressoIdlingResource.increment()
+            PlayerDatabaseOperations.asyncUpdatePlayer(
+                gameId,
+                updatedPlayer,
+                {
+                    notificationOption.isEnabled = true
+                    progressBar.visibility = GONE
+                },
+                {
+                    notificationOption.isEnabled = true
+                    progressBar.visibility = GONE
+                    SystemUtils.showToast(context, "Couldn't save changes.")
+                }
+            )
+            EspressoIdlingResource.decrement()
+        }
+
+    }
+
     private fun onRemovePlayerClicked(player: Player) {
         val leaveConfirmationDialog = ConfirmationDialog(
             getString(R.string.chat_info_remove_dialog_title, player.name),
@@ -218,5 +266,15 @@ class ChatInfoFragment : Fragment() {
             }
         }
         activity?.supportFragmentManager?.let { leaveConfirmationDialog.show(it, TAG) }
+    }
+
+    private fun getCurrentNotificationSetting(): Boolean {
+        val default = true
+        if (currentPlayer == null) {
+            return default
+        }
+        return currentPlayer!!.chatRoomMemberships[chatRoomId]?.get(
+            FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
+        ) ?: default
     }
 }

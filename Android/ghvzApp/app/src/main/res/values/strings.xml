@@ -147,6 +147,10 @@
     <item quantity="other">%1$s members</item>
   </plurals>
 
+  <string name="chat_info_notifications_option" definition="Option to enable/disable notifications in the chat room.">
+    Allow notifications
+  </string>
+
   <string name="chat_info_remove_dialog_title" definition="Title for dialog confirming user wants to remove player from chat room.">
     Really remove %1$s?
   </string>
