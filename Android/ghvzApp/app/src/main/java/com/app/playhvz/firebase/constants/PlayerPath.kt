@@ -35,7 +35,7 @@ class PlayerPath {
          ******************************************************************************************/
 
         /**
-         * Field inside Player's Public document that contains the name of the player.
+         * Field inside Player document that contains the name of the player.
          */
         const val PLAYER_FIELD__NAME = "name"
 

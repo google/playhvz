@@ -60,7 +60,6 @@ class PlayerUtils {
                         }
                         if (snapshot != null && snapshot.exists()) {
                             player.value = DataConverterUtil.convertSnapshotToPlayer(snapshot)
-
                         }
                     }
             return player

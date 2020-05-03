@@ -213,23 +213,15 @@ class ChatInfoFragment : Fragment() {
             // Setting is same as last known server setting, do nothing.
             return
         }
-        val updatedPlayer = currentPlayer!!
-        val mutableChatMemberships = updatedPlayer.chatRoomMemberships.toMutableMap()
-        val mutableRoomOptions = mutableChatMemberships[chatRoomId]?.toMutableMap()
-        if (mutableRoomOptions == null) {
-            return
-        }
-        mutableRoomOptions[FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS] = isChecked
-        mutableChatMemberships[chatRoomId] = mutableRoomOptions
-        updatedPlayer.chatRoomMemberships = mutableChatMemberships
-
         progressBar.visibility = VISIBLE
         notificationOption.isEnabled = false
         runBlocking {
             EspressoIdlingResource.increment()
-            PlayerDatabaseOperations.asyncUpdatePlayer(
+            PlayerDatabaseOperations.asyncUpdatePlayerChatNotificationSetting(
                 gameId,
-                updatedPlayer,
+                playerId,
+                chatRoomId,
+                isChecked,
                 {
                     notificationOption.isEnabled = true
                     progressBar.visibility = GONE
