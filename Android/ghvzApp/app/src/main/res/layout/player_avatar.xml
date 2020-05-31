@@ -19,7 +19,7 @@
   android:id="@+id/player_avatar"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
-  android:background="@drawable/circular_border">
+  android:background="@drawable/border_circle">
 
   <ImageView
     android:id="@+id/player_avatar_image"

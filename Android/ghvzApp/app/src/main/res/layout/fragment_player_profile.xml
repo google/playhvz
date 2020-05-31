@@ -34,16 +34,32 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
-  <LinearLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/header"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@id/progress_bar">
 
-    <include layout="@layout/player_avatar" />
+    <include
+      layout="@layout/player_avatar"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+      android:layout_width="28dp"
+      android:layout_height="28dp"
+      android:layout_marginStart="46dp"
+      android:layout_marginTop="24dp"
+      android:background="@drawable/border_rounded_corner"
+      android:padding="2dp"
+      android:src="@drawable/ic_edit"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="@id/player_avatar"
+      app:tint="@color/colorPrimary"
+      tools:ignore="ContentDescription,RtlSymmetry" />
 
     <androidx.emoji.widget.EmojiTextView
       android:id="@+id/player_name"
@@ -52,9 +68,12 @@
       android:paddingStart="16dp"
       android:textColor="@color/app_primary_text"
       android:textSize="24sp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toEndOf="@id/player_avatar"
+      app:layout_constraintTop_toTopOf="parent"
       tools:ignore="RtlSymmetry"
       tools:text="BabyYoda" />
-  </LinearLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
   <View
     android:id="@+id/divider"

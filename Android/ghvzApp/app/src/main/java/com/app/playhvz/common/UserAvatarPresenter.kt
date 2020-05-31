@@ -59,7 +59,7 @@ class UserAvatarPresenter(avatarView: View, sizeDimenRes: Int) {
     private fun renderAllegiance(player: Player) {
         val aliveStatus: AliveStatus = PlayerUtils.getAliveStatus(player.allegiance)
         val unwrappedDrawable =
-            AppCompatResources.getDrawable(avatarBorderView.context, R.drawable.circular_border)
+            AppCompatResources.getDrawable(avatarBorderView.context, R.drawable.border_circle)
         val wrappedDrawable =
             DrawableCompat.wrap(unwrappedDrawable!!)
         DrawableCompat.setTint(

@@ -26,6 +26,7 @@
   <color name="red">#FF0000</color>
   <color name="white">#FFFFFF</color>
   <color name="black">#000000</color>
+  <color name="translucent_white">#DDFFFFFF</color>
 
   <color name="app_primary_text">@color/grey800</color>
   <color name="app_secondary_text">@color/grey700</color>
