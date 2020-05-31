@@ -18,6 +18,7 @@ package com.app.playhvz.firebase.operations
 
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.classmodels.Player.Companion.FIELD__AVATAR_URL
 import com.app.playhvz.firebase.classmodels.Player.Companion.FIELD__CHAT_MEMBERSHIPS
 import com.app.playhvz.firebase.classmodels.Player.Companion.FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
 import com.app.playhvz.firebase.constants.PlayerPath
@@ -113,6 +114,28 @@ class PlayerDatabaseOperations {
             PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId).update(
                 "$FIELD__CHAT_MEMBERSHIPS.$chatRoomId.$FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS",
                 newNotificationSetting
+            ).addOnSuccessListener {
+                successListener.invoke()
+            }.addOnFailureListener {
+                Log.e(TAG, "Failed to update player: " + it)
+                failureListener.invoke()
+            }
+        }
+
+        /** Updates the player profile image. */
+        suspend fun asyncUpdatePlayerProfileImage(
+            gameId: String?,
+            playerId: String?,
+            profileImageUrl: String?,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            if (gameId == null || playerId == null || profileImageUrl == null) {
+                return@withContext
+            }
+            PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId).update(
+                FIELD__AVATAR_URL,
+                profileImageUrl
             ).addOnSuccessListener {
                 successListener.invoke()
             }.addOnFailureListener {

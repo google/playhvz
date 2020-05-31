@@ -16,11 +16,13 @@
 
 package com.app.playhvz.screens.player
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji.widget.EmojiTextView
@@ -30,12 +32,19 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.PhotoUploadDialog
 import com.app.playhvz.common.UserAvatarPresenter
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
+import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.firebase.UploadService.Companion.getProfileImageName
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerViewModel
+import com.app.playhvz.utils.SystemUtils
+import kotlinx.coroutines.runBlocking
 
 
 /** Fragment for showing a list of Games the user is registered for.*/
@@ -45,7 +54,6 @@ class ProfileFragment : Fragment() {
     }
 
     val args: ProfileFragmentArgs by navArgs()
-
 
     lateinit var playerViewModel: PlayerViewModel
     lateinit var gameViewModel: GameViewModel
@@ -57,18 +65,21 @@ class ProfileFragment : Fragment() {
     private lateinit var lifeCodeIcon: ImageView
     private lateinit var lifeCodeRecyclerView: RecyclerView
     private lateinit var lifeCodeAdapter: LifeCodeAdapter
+    private lateinit var progressBar: ProgressBar
 
     var gameId: String? = null
     var playerId: String? = null
+    var currentUserPlayerId: String? = null
     var game: Game? = null
+    var player: Player? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameId = args.gameId
         playerId = args.playerId
         playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
-        gameViewModel = ViewModelProvider(activity!!).get(GameViewModel::class.java)
-        lifeCodeAdapter = LifeCodeAdapter(listOf(), context!!)
+        gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
+        lifeCodeAdapter = LifeCodeAdapter(listOf(), requireContext())
 
     }
 
@@ -78,6 +89,7 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_player_profile, container, false)
+        progressBar = view.findViewById(R.id.progress_bar)
         nameView = view.findViewById(R.id.player_name)
         avatarView = view.findViewById(R.id.player_avatar)
         allegianceView = view.findViewById(R.id.player_allegiance)
@@ -86,7 +98,24 @@ class ProfileFragment : Fragment() {
         lifeCodeRecyclerView.layoutManager = LinearLayoutManager(context)
         lifeCodeRecyclerView.adapter = lifeCodeAdapter
 
-        userAvatarPresenter = UserAvatarPresenter(avatarView, R.dimen.avatar_large)
+        userAvatarPresenter = UserAvatarPresenter(avatarView, R.dimen.avatar_xl)
+
+        avatarView.setOnClickListener {
+            if (player == null) {
+                return@setOnClickListener
+            }
+            val photoUrl: String? = player!!.avatarUrl
+            val photoUploadDialog =
+                PhotoUploadDialog(getProfileImageName(player!!), photoUrl) { uri: Uri? ->
+                    updatePlayerAvatarUrl(uri)
+                }
+            activity?.supportFragmentManager?.let {
+                photoUploadDialog.show(
+                    it,
+                    TAG
+                )
+            }
+        }
 
         setupObservers()
         setupToolbar()
@@ -97,7 +126,9 @@ class ProfileFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title =
-                if (gameViewModel.getGame()?.value?.name.isNullOrEmpty()) context!!.getString(R.string.app_name)
+                if (gameViewModel.getGame()?.value?.name.isNullOrEmpty()) requireContext().getString(
+                    R.string.app_name
+                )
                 else gameViewModel.getGame()?.value?.name
         }
     }
@@ -108,8 +139,17 @@ class ProfileFragment : Fragment() {
         }
         if (playerId.isNullOrEmpty()) {
             // Get current user's player for this game
-            playerViewModel.getPlayer(gameId!!)
+            if (currentUserPlayerId == null) {
+                val sharedPrefs = activity?.getSharedPreferences(
+                    SharedPreferencesConstants.PREFS_FILENAME,
+                    0
+                )!!
+                currentUserPlayerId =
+                    sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+            }
+            playerViewModel.getPlayer(gameId!!, currentUserPlayerId!!)
                 .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
+                    println("lizard - update")
                     updatePlayer(serverPlayer)
                 })
         } else {
@@ -121,6 +161,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updatePlayer(serverPlayer: Player?) {
+        player = serverPlayer
         if (serverPlayer == null) {
             return
         }
@@ -136,6 +177,29 @@ class ProfileFragment : Fragment() {
         } else {
             lifeCodeRecyclerView.visibility = View.GONE
             lifeCodeIcon.visibility = View.GONE
+        }
+    }
+
+    private fun updatePlayerAvatarUrl(uri: Uri?) {
+        if (uri == null || gameId == null || player == null) {
+            return
+        }
+        progressBar.visibility = View.VISIBLE
+        runBlocking {
+            EspressoIdlingResource.increment()
+            PlayerDatabaseOperations.asyncUpdatePlayerProfileImage(
+                gameId,
+                player!!.id,
+                uri.toString(),
+                {
+                    progressBar.visibility = View.GONE
+                },
+                {
+                    progressBar.visibility = View.GONE
+                    SystemUtils.showToast(context, "Couldn't save changes.")
+                }
+            )
+            EspressoIdlingResource.decrement()
         }
     }
 }

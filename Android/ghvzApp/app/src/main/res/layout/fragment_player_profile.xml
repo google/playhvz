@@ -22,6 +22,18 @@
   android:orientation="vertical"
   android:padding="@dimen/screen_margin_horizontal">
 
+  <ProgressBar
+    android:id="@+id/progress_bar"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/horizontal_progress_bar_height"
+    android:indeterminate="true"
+    android:paddingStart="@dimen/screen_margin_horizontal"
+    android:paddingEnd="@dimen/screen_margin_horizontal"
+    android:visibility="invisible"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
   <LinearLayout
     android:id="@+id/header"
     android:layout_width="match_parent"
@@ -29,7 +41,7 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
+    app:layout_constraintTop_toBottomOf="@id/progress_bar">
 
     <include layout="@layout/player_avatar" />
 
@@ -65,10 +77,10 @@
     android:layout_height="20dp"
     android:importantForAccessibility="no"
     android:src="@drawable/ic_flag"
-    android:tint="@color/grey700"
     app:layout_constraintBottom_toBottomOf="@id/player_allegiance_label"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="@id/player_allegiance" />
+    app:layout_constraintTop_toTopOf="@id/player_allegiance"
+    app:tint="@color/grey700" />
 
   <TextView
     android:id="@+id/player_allegiance"
@@ -99,9 +111,9 @@
     android:layout_marginTop="24dp"
     android:importantForAccessibility="no"
     android:src="@drawable/ic_cake"
-    android:tint="@color/grey700"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/player_allegiance_label" />
+    app:layout_constraintTop_toBottomOf="@id/player_allegiance_label"
+    app:tint="@color/grey700" />
 
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/player_life_code_list"
