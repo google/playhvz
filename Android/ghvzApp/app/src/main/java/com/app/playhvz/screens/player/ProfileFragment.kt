@@ -109,6 +109,9 @@ class ProfileFragment : Fragment() {
                 PhotoUploadDialog(getProfileImageName(player!!), photoUrl) { uri: Uri? ->
                     updatePlayerAvatarUrl(uri)
                 }
+            photoUploadDialog.setPositiveButtonCallback {
+                progressBar.visibility = View.VISIBLE
+            }
             activity?.supportFragmentManager?.let {
                 photoUploadDialog.show(
                     it,
@@ -192,6 +195,8 @@ class ProfileFragment : Fragment() {
                 uri.toString(),
                 {
                     progressBar.visibility = View.GONE
+                    player!!.avatarUrl = uri.toString()
+                    userAvatarPresenter.renderAvatar(player!!)
                 },
                 {
                     progressBar.visibility = View.GONE

@@ -46,14 +46,8 @@ class UserAvatarPresenter(avatarView: View, sizeDimenRes: Int) {
     }
 
     fun renderAvatar(player: Player) {
-        println("lizard - rerending avatar " + player.avatarUrl)
         ImageDownloaderUtils.downloadCircularImage(avatarImageView, player.avatarUrl, radius)
         renderAllegiance(player)
-    }
-
-    fun renderAvatar(player: LiveData<Player>) {
-        ImageDownloaderUtils.downloadCircularImage(avatarImageView, player.value!!.avatarUrl, radius)
-        renderAllegiance(player.value!!)
     }
 
     private fun renderAllegiance(player: Player) {
