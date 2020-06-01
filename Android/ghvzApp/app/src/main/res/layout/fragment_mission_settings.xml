@@ -147,7 +147,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="top"
-      android:background="@drawable/rectangular_border"
+      android:background="@drawable/border_rectangle"
       android:gravity="start|top"
       android:lines="12" />
 

@@ -27,6 +27,7 @@ class Player {
         const val FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships"
         const val FIELD__CHAT_MEMBERSHIP_IS_VISIBLE = "isVisible"
         const val FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS = "allowNotifications"
+        const val FIELD__AVATAR_URL = "avatarUrl"
     }
 
     var id: String? = null

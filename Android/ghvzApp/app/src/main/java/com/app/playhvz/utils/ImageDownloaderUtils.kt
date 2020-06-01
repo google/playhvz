@@ -16,7 +16,15 @@
 
 package com.app.playhvz.utils
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.provider.MediaStore
 import android.widget.ImageView
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.fragment.app.FragmentActivity
 import com.app.playhvz.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
@@ -24,17 +32,36 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
+
 class ImageDownloaderUtils {
     companion object {
+        const val READ_EXTERNAL_STORAGE_REQUEST_CODE = 1
+        const val PICK_IMAGE_REQUEST_CODE = 2
+
         /** Function that handles async downloading an image from a url.
          * @param imageView the view to show the image in once downloaded
          * @param imageUrl the image url to download
          * @param radius the radius of how rounded the corners should be
          */
-        fun downloadImage(imageView: ImageView, imageUrl: String, radius: Int) {
+        fun downloadCircularImage(imageView: ImageView, imageUrl: String, radius: Int) {
             Glide.with(imageView.context)
                 .load(imageUrl)
                 .transform(CenterCrop(), RoundedCorners(radius))
+                .placeholder(R.drawable.ic_person)
+                .error(R.drawable.ic_error)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .priority(Priority.HIGH)
+                .into(imageView)
+        }
+
+        /** Function that handles async downloading an image from a url.
+         * @param imageView the view to show the image in once downloaded
+         * @param imageUrl the image url to download
+         */
+        fun downloadSquareImage(imageView: ImageView, imageUrl: String) {
+            Glide.with(imageView.context)
+                .load(imageUrl)
+                .transform(CenterCrop())
                 .placeholder(R.drawable.ic_person)
                 .error(R.drawable.ic_error)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

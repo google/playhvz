@@ -22,16 +22,44 @@
   android:orientation="vertical"
   android:padding="@dimen/screen_margin_horizontal">
 
-  <LinearLayout
+  <ProgressBar
+    android:id="@+id/progress_bar"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/horizontal_progress_bar_height"
+    android:indeterminate="true"
+    android:paddingStart="@dimen/screen_margin_horizontal"
+    android:paddingEnd="@dimen/screen_margin_horizontal"
+    android:visibility="invisible"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/header"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
+    app:layout_constraintTop_toBottomOf="@id/progress_bar">
 
-    <include layout="@layout/player_avatar" />
+    <include
+      layout="@layout/player_avatar"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+      android:layout_width="28dp"
+      android:layout_height="28dp"
+      android:layout_marginStart="46dp"
+      android:layout_marginTop="24dp"
+      android:background="@drawable/border_rounded_corner"
+      android:padding="2dp"
+      android:src="@drawable/ic_edit"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="@id/player_avatar"
+      app:tint="@color/colorPrimary"
+      tools:ignore="ContentDescription,RtlSymmetry" />
 
     <androidx.emoji.widget.EmojiTextView
       android:id="@+id/player_name"
@@ -40,9 +68,12 @@
       android:paddingStart="16dp"
       android:textColor="@color/app_primary_text"
       android:textSize="24sp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toEndOf="@id/player_avatar"
+      app:layout_constraintTop_toTopOf="parent"
       tools:ignore="RtlSymmetry"
       tools:text="BabyYoda" />
-  </LinearLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
   <View
     android:id="@+id/divider"
@@ -65,10 +96,10 @@
     android:layout_height="20dp"
     android:importantForAccessibility="no"
     android:src="@drawable/ic_flag"
-    android:tint="@color/grey700"
     app:layout_constraintBottom_toBottomOf="@id/player_allegiance_label"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="@id/player_allegiance" />
+    app:layout_constraintTop_toTopOf="@id/player_allegiance"
+    app:tint="@color/grey700" />
 
   <TextView
     android:id="@+id/player_allegiance"
@@ -99,9 +130,9 @@
     android:layout_marginTop="24dp"
     android:importantForAccessibility="no"
     android:src="@drawable/ic_cake"
-    android:tint="@color/grey700"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/player_allegiance_label" />
+    app:layout_constraintTop_toBottomOf="@id/player_allegiance_label"
+    app:tint="@color/grey700" />
 
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/player_life_code_list"

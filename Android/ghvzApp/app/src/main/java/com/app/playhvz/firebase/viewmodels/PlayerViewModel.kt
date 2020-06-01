@@ -45,7 +45,6 @@ class PlayerViewModel : ViewModel() {
                 }
                 if (snapshot != null && snapshot.exists()) {
                     player.value = DataConverterUtil.convertSnapshotToPlayer(snapshot)
-
                 }
             }
         return player
@@ -54,13 +53,13 @@ class PlayerViewModel : ViewModel() {
     /** Returns a Player LiveData object for the current user id. */
     @Suppress("LABEL_NAME_CLASH")
     fun getPlayer(gameId: String): MutableLiveData<Player> {
-        val playerId = FirebaseProvider.getFirebaseAuth().uid
-        if (playerId.isNullOrEmpty()) {
+        val userId = FirebaseProvider.getFirebaseAuth().uid
+        if (userId.isNullOrEmpty()) {
             Log.w(TAG, "Player Id was empty and shouldn't be, not listening to data updates.")
             return player
         }
         player.docIdListeners["query"] = PlayerPath.PLAYERS_COLLECTION(gameId)
-            .whereEqualTo(UNIVERSAL_FIELD__USER_ID, playerId)
+            .whereEqualTo(UNIVERSAL_FIELD__USER_ID, userId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)

@@ -46,19 +46,14 @@ class UserAvatarPresenter(avatarView: View, sizeDimenRes: Int) {
     }
 
     fun renderAvatar(player: Player) {
-        ImageDownloaderUtils.downloadImage(avatarImageView, player.avatarUrl, radius)
+        ImageDownloaderUtils.downloadCircularImage(avatarImageView, player.avatarUrl, radius)
         renderAllegiance(player)
-    }
-
-    fun renderAvatar(player: LiveData<Player>) {
-        ImageDownloaderUtils.downloadImage(avatarImageView, player.value!!.avatarUrl, radius)
-        renderAllegiance(player.value!!)
     }
 
     private fun renderAllegiance(player: Player) {
         val aliveStatus: AliveStatus = PlayerUtils.getAliveStatus(player.allegiance)
         val unwrappedDrawable =
-            AppCompatResources.getDrawable(avatarBorderView.context, R.drawable.circular_border)
+            AppCompatResources.getDrawable(avatarBorderView.context, R.drawable.border_circle)
         val wrappedDrawable =
             DrawableCompat.wrap(unwrappedDrawable!!)
         DrawableCompat.setTint(
