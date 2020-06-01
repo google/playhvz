@@ -71,7 +71,7 @@ class PhotoUploadDialog(
             .create()
 
         val positiveButton = customView.findViewById<MaterialButton>(R.id.positive_button)
-        positiveButton.setText(R.string.button_set)
+        positiveButton.setText(R.string.button_use)
         positiveButton.setOnClickListener {
             if (currentBitmap != null) {
                 val uploadService: UploadService = UploadService()

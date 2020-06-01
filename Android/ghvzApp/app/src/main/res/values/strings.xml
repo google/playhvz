@@ -90,6 +90,11 @@
     Submit
   </string>
 
+
+  <string name="button_use" definition="Button to select when saving changes.">
+    Use
+  </string>
+
   <string name="chat_creation_checkbox_allegiance" definition="Label for the checkbox indicating if the room has an allegiance filter.">
     Enforce members are only:
   </string>
@@ -496,7 +501,7 @@
   </string>
 
   <string name="photo_upload_dialog_title" definition="Title for the photo upload dialog.">
-    Select image
+    Image Preview
   </string>
 
   <string name="player_profile_allegiance_label" definition="Label for the player's allegiance.">

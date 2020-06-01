@@ -149,7 +149,6 @@ class ProfileFragment : Fragment() {
             }
             playerViewModel.getPlayer(gameId!!, currentUserPlayerId!!)
                 .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
-                    println("lizard - update")
                     updatePlayer(serverPlayer)
                 })
         } else {
