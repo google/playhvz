@@ -103,13 +103,13 @@ These are one time firebase setup instructions along with backend configuration
 |drake@playhvz.com|
 
 #### Back End (/backend)
-1. Open your Firebase account page and use the gear icon to select the settings
-1. Make a copy of config\_.py and name it config.py (remove the underscore)
-1. Back in Firebase copy your webconfig and place a copy into your newly created config.py
+1. Open your Firebase account page and use the gear icon to select the settings.
+1. Make a copy of config\_.py and name it config.py. (remove the underscore)
+1. Back in Firebase copy your webconfig and place a copy into your newly created config.py.
 1. Click on the Service Accounts tab and navigate to the Database Secrets sub tab.
 1. Show your the secrets key and copy it over for the FIREBASE_SECRET value in config.py.
 1. You can now run your server with `dev_appserver.py app.yaml`
-1. You can also navigate your front end to use this server with [localhost:5000/?bridge=remote](localhost:5000/?bridge=remote) as long as you setup your front end config's backend URL (config.json)
+1. You can also navigate your front end to use this server with [localhost:5000/?bridge=remote](localhost:5000/?bridge=remote) as long as you setup your front end config's backend URL. (config.json)
 
 ## Setup
 
@@ -158,9 +158,9 @@ sudo apt-get install google-cloud-sdk-app-engine-python
 
 #### Mac
 
-1. Go to https://cloud.google.com/appengine/downloads
-1. Click Python
-1. Click DOWNLOAD AND INSTALL THE CLOUD SDK
+1. Go to https://cloud.google.com/appengine/downloads .
+1. Click Python.
+1. Click DOWNLOAD AND INSTALL THE CLOUD SDK.
 1. Download and install that SDK.
 
 (continue in the common section below)
@@ -199,17 +199,17 @@ To run the webdrivers:
 Replacing ALLCAPS'd segments with your values.
 * `PASSWORD` is the password for your fake account. To get passwords for fake test accounts, please ask someone on the team.
 * `SPECIFIC_TEST_NAMES` maps to test file names, minus the .py. This list of tests may have any number of elements. If no tests are specified, by default all are run.
-* If the first element in `SPECIFIC_TEST_NAMES` is not, all tests will be run EXCEPT those specified
+* If the first element in `SPECIFIC_TEST_NAMES` is not, all tests will be run EXCEPT those specified.
 * `-d` uses desktop window sizing. Omitting this flag will run with mobile sizing instead.
 * `-m` uses mobile window sizing (default behavior).
 * `-l` indicates local server testing, and will rely on in-memory state rather than a database. User accounts defined in config.json will be used for tests.
 * `-r` indicates remote server testing, and will use your firebase and user account settings from `config.json`.
-* `-s` runs the tests sequentially (rather than in parallel)
-* `-max` specifies the maximum number of tests which can be run in parallel at a time (default is 3)
+* `-s` runs the tests sequentially (rather than in parallel).
+* `-max` specifies the maximum number of tests which can be run in parallel at a time (default is 3).
 * `-cp` changes the default password if the password flag is not provided.
-* `-cmp` changes maxParallel default - the default number of tests which will run together at a time
-* `-rr` reruns the same tests run last time run.py was run
-* `-rf` reruns tests that failed the last time run.py was run
+* `-cmp` changes maxParallel default - the default number of tests which will run together at a time.
+* `-rr` reruns the same tests run last time run.py was run.
+* `-rf` reruns tests that failed the last time run.py was run.
 
 **Note**: Bracketed segments are optional.
 
