@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.missions.missionsettings
+package com.app.playhvz.screens.rewards.rewardsettings
 
 import android.os.Bundle
 import android.view.*
@@ -46,9 +46,9 @@ import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of missions.*/
-class MissionSettingsFragment : Fragment() {
+class RewardSettingsFragment : Fragment() {
     companion object {
-        private val TAG = MissionSettingsFragment::class.qualifiedName
+        private val TAG = RewardSettingsFragment::class.qualifiedName
     }
 
     private lateinit var nameText: EmojiEditText
@@ -60,13 +60,13 @@ class MissionSettingsFragment : Fragment() {
     private lateinit var allegianceRadioGroup: RadioGroup
     private lateinit var toolbarMenu: Menu
 
-    val args: MissionSettingsFragmentArgs by navArgs()
+    val args: RewardSettingsFragmentArgs by navArgs()
     var gameId: String? = null
     var missionId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        missionId = args.missionId
+        missionId = args.rewardId
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
             0
@@ -135,10 +135,10 @@ class MissionSettingsFragment : Fragment() {
         if (toolbar != null) {
             if (missionId == null) {
                 toolbar.title =
-                    requireContext().getString(R.string.mission_settings_create_mission_title)
+                    requireContext().getString(R.string.reward_settings_create_reward_title)
                 return
             }
-            toolbar.title = requireContext().getString(R.string.mission_settings_title)
+            toolbar.title = requireContext().getString(R.string.reward_settings_edit_reward_title)
             toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }

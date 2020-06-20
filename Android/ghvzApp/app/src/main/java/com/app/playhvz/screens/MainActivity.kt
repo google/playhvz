@@ -78,6 +78,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
         R.id.nav_mission_settings_fragment,
+        R.id.nav_reward_dashboard_fragment,
+        R.id.nav_reward_settings_fragment,
         R.id.nav_rules_fragment
     )
 
@@ -137,6 +139,19 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     /** Navigation Drawer item selection. */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            // Admin navigation options
+            R.id.nav_admin_chat_list_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToAdminChatList(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
+            R.id.nav_reward_dashboard_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToRewardDashboard(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
             R.id.nav_game_settings_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToGameSettings(
@@ -144,12 +159,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     getCurrentGameId()
                 )
             }
-            R.id.nav_admin_chat_list_fragment -> {
-                drawer_layout.closeDrawer(GravityCompat.START)
-                NavigationUtil.navigateToAdminChatList(
-                    findNavController(R.id.nav_host_fragment)
-                )
-            }
+            // Player navigation options
             R.id.nav_rules_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToRules(
@@ -166,6 +176,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 item.actionView.visibility = View.VISIBLE
                 navigateToAdminChat()
             }
+            // General app options
             R.id.nav_game_list_fragment -> {
                 SystemUtils.clearSharedPrefs(this)
                 drawer_layout.closeDrawer(GravityCompat.START)

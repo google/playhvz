@@ -31,6 +31,8 @@ import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
+import com.app.playhvz.screens.rewards.RewardDashboardFragmentDirections
+import com.app.playhvz.screens.rewards.rewardsettings.RewardSettingsFragmentDirections
 import com.app.playhvz.screens.rules_faq.CollapsibleListFragment
 import com.app.playhvz.screens.rules_faq.CollapsibleListFragmentDirections
 
@@ -168,6 +170,25 @@ class NavigationUtil {
                 CollapsibleListFragmentDirections.actionGlobalNavRulesFragment(
                     CollapsibleListFragment.CollapsibleFragmentType.FAQ
                 )
+            )
+        }
+
+        /**
+         * Opens reward dashboard.
+         */
+        fun navigateToRewardDashboard(navController: NavController) {
+            navController.navigate(
+                RewardDashboardFragmentDirections.actionGlobalNavRewardDashboardFragment()
+            )
+        }
+
+        /**
+         * Navigates to the mission setting page for the provided missionId. Passing a null mission
+         * id will open the "Create Mission" flow.
+         */
+        fun navigateToRewardSettings(navController: NavController, rewardId: String?) {
+            navController.navigate(
+                RewardSettingsFragmentDirections.actionGlobalNavRewardSettingsFragment(rewardId)
             )
         }
     }

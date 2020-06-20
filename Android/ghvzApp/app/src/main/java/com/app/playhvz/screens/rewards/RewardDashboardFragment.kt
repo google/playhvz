@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.missions
+package com.app.playhvz.screens.rewards
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -37,16 +37,16 @@ import com.app.playhvz.utils.PlayerUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /** Fragment for showing a list of missions.*/
-class MissionDashboardFragment : Fragment() {
+class RewardDashboardFragment : Fragment() {
     companion object {
-        private val TAG = MissionDashboardFragment::class.qualifiedName
+        private val TAG = RewardDashboardFragment::class.qualifiedName
     }
 
     lateinit var gameViewModel: GameViewModel
     lateinit var missionViewModel: MissionListViewModel
     lateinit var fab: FloatingActionButton
     lateinit var recyclerView: RecyclerView
-    lateinit var adapter: MissionDashboardAdapter
+    lateinit var adapter: RewardDashboardAdapter
 
     var gameId: String? = null
     var playerId: String? = null
@@ -73,7 +73,7 @@ class MissionDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_mission_dashboard, container, false)
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.mission_list)
-        adapter = MissionDashboardAdapter(listOf(), requireContext(), findNavController())
+        adapter = RewardDashboardAdapter(listOf(), requireContext(), findNavController())
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         setupObservers()
@@ -84,7 +84,7 @@ class MissionDashboardFragment : Fragment() {
     fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            toolbar.title = requireContext().getString(R.string.mission_title)
+            toolbar.title = requireContext().getString(R.string.navigation_drawer_rewards)
             toolbar.setDisplayHomeAsUpEnabled(false)
         }
     }
@@ -96,7 +96,7 @@ class MissionDashboardFragment : Fragment() {
         }
         fab.visibility = View.VISIBLE
         fab.setOnClickListener {
-            createMission()
+            createReward()
         }
         fab.visibility = View.VISIBLE
     }
@@ -152,7 +152,7 @@ class MissionDashboardFragment : Fragment() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun createMission() {
-        NavigationUtil.navigateToMissionSettings(findNavController(), null)
+    private fun createReward() {
+        NavigationUtil.navigateToRewardSettings(findNavController(), null)
     }
 }
