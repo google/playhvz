@@ -17,7 +17,6 @@
 package com.app.playhvz.firebase.utils
 
 import com.app.playhvz.firebase.classmodels.*
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 
 class DataConverterUtil {
@@ -60,6 +59,12 @@ class DataConverterUtil {
             val group = document.toObject(Group::class.java)!!
             group.id = document.id
             return group
+        }
+
+        fun convertSnapshotToReward(document: DocumentSnapshot): Reward {
+            val reward = document.toObject(Reward::class.java)!!
+            reward.id = document.id
+            return reward
         }
     }
 }

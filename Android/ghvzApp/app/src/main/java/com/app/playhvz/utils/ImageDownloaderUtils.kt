@@ -62,7 +62,7 @@ class ImageDownloaderUtils {
             Glide.with(imageView.context)
                 .load(imageUrl)
                 .transform(CenterCrop())
-                .placeholder(R.drawable.ic_person)
+                .placeholder(R.drawable.ic_edit)
                 .error(R.drawable.ic_error)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .priority(Priority.HIGH)

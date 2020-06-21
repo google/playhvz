@@ -26,13 +26,22 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
+import java.util.*
 
 class UploadService {
     companion object {
         private val TAG = UploadService::class.qualifiedName
 
         fun getProfileImageName(player: Player): String {
-            return player.userId + "_" + player.id + "_" + "profile"
+            return "profile_" + player.userId + "_" + player.id
+        }
+
+        fun getRewardImageName(): String {
+            return "reward_" + UUID.randomUUID().toString()
+        }
+
+        fun getMessageImageName(): String {
+            return "message_" + UUID.randomUUID().toString()
         }
     }
 

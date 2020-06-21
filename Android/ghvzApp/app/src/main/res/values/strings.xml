@@ -544,6 +544,30 @@
     Edit reward
   </string>
 
+  <string name="reward_settings_short_name_hint_text" definition="Hint text for an abbreviated reward for bravery.">
+    Valor
+  </string>
+
+  <string name="reward_settings_long_name_hint_text" definition="Hint text for long reward name of bravery.">
+    Extreme Valor In Battle
+  </string>
+
+  <string name="reward_settings_label_short_name" definition="Label for the text input for specifying a reward's short name.">
+    Short name
+  </string>
+
+  <string name="reward_settings_label_long_name" definition="Label for the text input for specifying a reward's long name.">
+    Long name
+  </string>
+
+  <string name="reward_settings_label_description" definition="Label for the text input for specifying a reward's description.">
+    Description
+  </string>
+
+  <string name="reward_settings_label_delete_button" definition="Label for the button to delete the reward.">
+    Permanently delete reward
+  </string>
+
   <string name="sign_in_failed_toast">
     Sign in failed :(
   </string>

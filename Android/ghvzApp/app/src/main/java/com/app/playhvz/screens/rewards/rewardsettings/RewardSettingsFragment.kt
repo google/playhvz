@@ -16,10 +16,11 @@
 
 package com.app.playhvz.screens.rewards.rewardsettings
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.widget.RadioGroup
-import android.widget.TextView
+import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
@@ -29,18 +30,16 @@ import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.ConfirmationDialog
-import com.app.playhvz.common.DateTimePickerDialog
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.BLANK_ALLEGIANCE_FILTER
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.UNDECLARED
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
+import com.app.playhvz.common.PhotoUploadDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
-import com.app.playhvz.firebase.classmodels.Mission
+import com.app.playhvz.firebase.UploadService.Companion.getRewardImageName
+import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.firebase.operations.MissionDatabaseOperations
+import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.utils.DataConverterUtil
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.utils.ImageDownloaderUtils
 import com.app.playhvz.utils.SystemUtils
-import com.app.playhvz.utils.TimeUtils
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
@@ -51,40 +50,40 @@ class RewardSettingsFragment : Fragment() {
         private val TAG = RewardSettingsFragment::class.qualifiedName
     }
 
-    private lateinit var nameText: EmojiEditText
-    private lateinit var detailText: EmojiEditText
-    private lateinit var submitButton: MaterialButton
-    private lateinit var startTime: TextView
-    private lateinit var endTime: TextView
-    private lateinit var missionDraft: Mission
-    private lateinit var allegianceRadioGroup: RadioGroup
+    private lateinit var descriptionText: EmojiEditText
+    private lateinit var button: MaterialButton
+    private lateinit var imageView: ImageView
+    private lateinit var longNameText: EmojiEditText
+    private lateinit var progressBar: ProgressBar
+    private lateinit var rewardDraft: Reward
+    private lateinit var rewardImageUploadName: String
+    private lateinit var shortNameText: EmojiEditText
     private lateinit var toolbarMenu: Menu
 
     val args: RewardSettingsFragmentArgs by navArgs()
     var gameId: String? = null
-    var missionId: String? = null
+    var rewardId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        missionId = args.rewardId
+        rewardId = args.rewardId
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
             0
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
-        missionDraft = Mission()
-        if (missionId != null) {
-            MissionDatabaseOperations.getMissionDocument(
+        rewardDraft = Reward()
+        if (rewardId != null) {
+            RewardDatabaseOperations.getRewardDocument(
                 gameId!!,
-                missionId!!,
+                rewardId!!,
                 OnSuccessListener { document ->
-                    missionDraft = DataConverterUtil.convertSnapshotToMission(document)
+                    rewardDraft = DataConverterUtil.convertSnapshotToReward(document)
                     initializeData()
                     enableActions()
                 })
         }
-        setupObservers()
-        setupToolbar()
+        rewardImageUploadName = getRewardImageName()
     }
 
     override fun onCreateView(
@@ -92,18 +91,31 @@ class RewardSettingsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_mission_settings, container, false)
-        nameText = view.findViewById(R.id.mission_name)
-        detailText = view.findViewById(R.id.mission_details)
-        submitButton = view.findViewById(R.id.submit_button)
-        startTime = view.findViewById(R.id.mission_start_time)
-        endTime = view.findViewById(R.id.mission_end_time)
-        allegianceRadioGroup = view.findViewById(R.id.radio_button_group)
+        val view = inflater.inflate(R.layout.fragment_reward_settings, container, false)
+        imageView = view.findViewById(R.id.reward_badge_image)
+        progressBar = view.findViewById(R.id.progress_bar)
+        shortNameText = view.findViewById(R.id.reward_short_name)
+        longNameText = view.findViewById(R.id.reward_long_name)
+        descriptionText = view.findViewById(R.id.reward_description)
+        button = view.findViewById(R.id.submit_button)
 
-        submitButton.setOnClickListener {
-            submitMission()
+        imageView.setOnClickListener {
+            if (rewardDraft == null) {
+                return@setOnClickListener
+            }
+            val photoUrl: String? = rewardDraft.imageUrl
+            val photoUploadDialog =
+                PhotoUploadDialog(rewardImageUploadName, photoUrl) { uri: Uri? ->
+                    updateImageUrl(uri)
+                }
+            photoUploadDialog.setPositiveButtonCallback {
+                progressBar.visibility = View.VISIBLE
+            }
+            activity?.supportFragmentManager?.let {
+                photoUploadDialog.show(it, TAG)
+            }
         }
-        nameText.doOnTextChanged { text, _, _, _ ->
+        shortNameText.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() || text.isBlank() -> {
                     disableActions()
@@ -113,14 +125,11 @@ class RewardSettingsFragment : Fragment() {
                 }
             }
         }
-        startTime.setOnClickListener { v ->
-            openTimePicker(v as TextView)
+        button.setOnClickListener {
+            submitReward()
         }
-        endTime.setOnClickListener { v ->
-            openTimePicker(v as TextView)
-        }
-
-        setupAllegianceButtons()
+        setupObservers()
+        setupToolbar()
         return view
     }
 
@@ -133,7 +142,7 @@ class RewardSettingsFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         setHasOptionsMenu(true)
         if (toolbar != null) {
-            if (missionId == null) {
+            if (rewardId == null) {
                 toolbar.title =
                     requireContext().getString(R.string.reward_settings_create_reward_title)
                 return
@@ -151,7 +160,7 @@ class RewardSettingsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.save_option) {
-            submitMission()
+            submitReward()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -162,128 +171,81 @@ class RewardSettingsFragment : Fragment() {
         }
     }
 
-    private fun setupAllegianceButtons() {
-        if (missionId != null) {
-            allegianceRadioGroup.isEnabled = false
-        }
-    }
-
     private fun initializeData() {
-        nameText.setText(missionDraft.name)
-        detailText.setText(missionDraft.details)
-        startTime.text = TimeUtils.getFormattedTime(missionDraft.startTime, /* singleLine= */ false)
-        endTime.text = TimeUtils.getFormattedTime(missionDraft.endTime, /* singleLine= */ false)
-        when (missionDraft.allegianceFilter) {
-            HUMAN -> allegianceRadioGroup.check(R.id.radio_human)
-            ZOMBIE -> allegianceRadioGroup.check(R.id.radio_zombie)
-            UNDECLARED -> allegianceRadioGroup.check(R.id.radio_undeclared)
-            else -> allegianceRadioGroup.check(R.id.radio_everyone)
-        }
-        submitButton.text = getString(R.string.mission_settings_delete)
-        submitButton.setOnClickListener {
+        rewardDraft.imageUrl?.let { ImageDownloaderUtils.downloadSquareImage(imageView, it) }
+        shortNameText.setText(rewardDraft.shortName)
+        longNameText.setText(rewardDraft.longName)
+        descriptionText.setText(rewardDraft.description)
+        button.text = getString(R.string.reward_settings_label_delete_button)
+        button.setOnClickListener {
             showDeleteDialog()
         }
     }
 
-    private fun submitMission() {
+    private fun submitReward() {
         disableActions()
-        val name: String = nameText.text.toString()
-        val details: String = detailText.text.toString()
+        rewardDraft.shortName = shortNameText.text.toString()
+        rewardDraft.longName = longNameText.text.toString()
+        rewardDraft.description = descriptionText.text.toString()
+        rewardDraft.points = 20f
 
-        val selectedFilter = allegianceRadioGroup.checkedRadioButtonId
-
-        val allegianceFilter: String = if (selectedFilter == R.id.radio_human) {
-            HUMAN
-        } else if (selectedFilter == R.id.radio_zombie) {
-            ZOMBIE
-        } else if (selectedFilter == R.id.radio_undeclared) {
-            UNDECLARED
-        } else {
-            BLANK_ALLEGIANCE_FILTER
-        }
-
-        if (missionId == null) {
+        if (rewardId == null) {
             runBlocking {
                 EspressoIdlingResource.increment()
-                MissionDatabaseOperations.asyncCreateMission(
+                RewardDatabaseOperations.asyncCreateReward(
                     gameId!!,
-                    name,
-                    details,
-                    missionDraft.startTime,
-                    missionDraft.endTime,
-                    allegianceFilter,
+                    rewardDraft,
                     {
-                        SystemUtils.showToast(context, "Created mission.")
-                        NavigationUtil.navigateToMissionDashboard(findNavController())
+                        SystemUtils.showToast(context, "Created reward.")
+                        NavigationUtil.navigateToRewardDashboard(findNavController())
                     },
                     {
                         enableActions()
-                        SystemUtils.showToast(context, "Couldn't create mission.")
+                        SystemUtils.showToast(context, "Couldn't create reward.")
                     }
                 )
                 EspressoIdlingResource.decrement()
             }
         } else {
-            runBlocking {
-                EspressoIdlingResource.increment()
-                MissionDatabaseOperations.asyncUpdateMission(
-                    gameId!!,
-                    missionId!!,
-                    name,
-                    details,
-                    missionDraft.startTime,
-                    missionDraft.endTime,
-                    allegianceFilter,
-                    {
-                        SystemUtils.showToast(context, "Updated mission.")
-                        NavigationUtil.navigateToMissionDashboard(findNavController())
-                    },
-                    {
-                        enableActions()
-                        SystemUtils.showToast(context, "Couldn't update mission.")
-                    }
-                )
-                EspressoIdlingResource.decrement()
-            }
+            /* runBlocking {
+                 EspressoIdlingResource.increment()
+                 MissionDatabaseOperations.asyncUpdateMission(
+                     gameId!!,
+                     rewardId!!,
+                     name,
+                     details,
+                     missionDraft.startTime,
+                     missionDraft.endTime,
+                     allegianceFilter,
+                     {
+                         SystemUtils.showToast(context, "Updated mission.")
+                         NavigationUtil.navigateToMissionDashboard(findNavController())
+                     },
+                     {
+                         enableActions()
+                         SystemUtils.showToast(context, "Couldn't update mission.")
+                     }
+                 )
+                 EspressoIdlingResource.decrement()
+             }*/
         }
-    }
-
-    private fun openTimePicker(clickedView: TextView) {
-        val dateTimeDialog = DateTimePickerDialog { timestamp ->
-            clickedView.text = TimeUtils.getFormattedTime(timestamp, /* singleLine= */ false)
-            if (clickedView.tag == getString(R.string.mission_settings_start_time_tag)) {
-                missionDraft.startTime = timestamp
-            } else {
-                missionDraft.endTime = timestamp
-            }
-        }
-        if (clickedView.tag == getString(R.string.mission_settings_start_time_tag)) {
-            if (missionDraft.startTime != Mission.EMPTY_TIMESTAMP) {
-                dateTimeDialog.setDateTime(missionDraft.startTime)
-            }
-        } else {
-            if (missionDraft.endTime != Mission.EMPTY_TIMESTAMP) {
-                dateTimeDialog.setDateTime(missionDraft.endTime)
-            }
-        }
-        activity?.supportFragmentManager?.let { dateTimeDialog.show(it, TAG) }
     }
 
     private fun showDeleteDialog() {
         disableActions()
         val deleteDialog = ConfirmationDialog(
-            getString(R.string.game_settings_delete_dialog_title, missionDraft.name),
+            getString(R.string.game_settings_delete_dialog_title, rewardDraft.shortName),
             R.string.game_settings_delete_dialog_description,
             R.string.game_settings_delete_dialog_confirmation,
             R.string.button_cancel
         )
         deleteDialog.setPositiveButtonCallback {
-            if (missionId != null) {
+            if (rewardId != null) {
                 runBlocking {
                     EspressoIdlingResource.increment()
                     MissionDatabaseOperations.asyncDeleteMission(
                         gameId!!,
-                        missionId!!,
+                        rewardId!!,
                         {
                             SystemUtils.showToast(context, "Deleted mission")
                             NavigationUtil.navigateToMissionDashboard(findNavController())
@@ -309,13 +271,40 @@ class RewardSettingsFragment : Fragment() {
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 130
         menuItem.isEnabled = false
-        submitButton.isEnabled = false
+        button.isEnabled = false
     }
 
     private fun enableActions() {
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 255
         menuItem.isEnabled = true
-        submitButton.isEnabled = true
+        button.isEnabled = true
+    }
+
+    private fun updateImageUrl(uri: Uri?) {
+        if (uri == null || gameId == null) {
+            return
+        }
+        progressBar.visibility = View.VISIBLE
+        ImageDownloaderUtils.downloadSquareImage(imageView, uri.toString())
+        rewardDraft.imageUrl = uri.toString()
+        /*runBlocking {
+            EspressoIdlingResource.increment()
+            PlayerDatabaseOperations.asyncUpdatePlayerProfileImage(
+                gameId,
+                player!!.id,
+                uri.toString(),
+                {
+                    progressBar.visibility = View.GONE
+                    player!!.avatarUrl = uri.toString()
+                    userAvatarPresenter.renderAvatar(player!!)
+                },
+                {
+                    progressBar.visibility = View.GONE
+                    SystemUtils.showToast(context, "Couldn't save changes.")
+                }
+            )
+            EspressoIdlingResource.decrement()
+        }*/
     }
 }

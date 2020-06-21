@@ -33,10 +33,9 @@ import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.utils.PlayerUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-/** Fragment for showing a list of missions.*/
+/** Fragment for showing a list of rewards.*/
 class RewardDashboardFragment : Fragment() {
     companion object {
         private val TAG = RewardDashboardFragment::class.qualifiedName
@@ -70,9 +69,9 @@ class RewardDashboardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_mission_dashboard, container, false)
+        val view = inflater.inflate(R.layout.fragment_reward_dashboard, container, false)
         fab = activity?.findViewById(R.id.floating_action_button)!!
-        recyclerView = view.findViewById(R.id.mission_list)
+        recyclerView = view.findViewById(R.id.reward_list)
         adapter = RewardDashboardAdapter(listOf(), requireContext(), findNavController())
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
@@ -110,13 +109,9 @@ class RewardDashboardFragment : Fragment() {
                 findNavController(),
                 requireActivity()
             )
-        }.observe(this, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
-        PlayerUtils.getPlayer(gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverPlayer ->
-                updatePlayer(serverPlayer)
-            })
     }
 
     private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
@@ -128,23 +123,17 @@ class RewardDashboardFragment : Fragment() {
         adapter.setIsAdmin(serverUpdate.isAdmin)
         adapter.notifyDataSetChanged()
 
-        if (serverUpdate.isAdmin) {
-            missionViewModel.getAllMissionsInGame(this, gameId!!)
-                .observe(this, androidx.lifecycle.Observer { serverMissionList ->
-                    updateMissionList(serverMissionList)
-                })
-        } else {
-            missionViewModel.getMissionListOfMissionsPlayerIsIn(this, gameId!!, playerId!!)
-                .observe(this, androidx.lifecycle.Observer { serverMissionList ->
-                    updateMissionList(serverMissionList)
-                })
-        }
-    }
-
-    private fun updatePlayer(serverPlayer: Player?) {
-        if (serverPlayer == null) {
-            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-        }
+        /* if (serverUpdate.isAdmin) {
+             missionViewModel.getAllMissionsInGame(this, gameId!!)
+                 .observe(this, androidx.lifecycle.Observer { serverMissionList ->
+                     updateMissionList(serverMissionList)
+                 })
+         } else {
+             missionViewModel.getMissionListOfMissionsPlayerIsIn(this, gameId!!, playerId!!)
+                 .observe(this, androidx.lifecycle.Observer { serverMissionList ->
+                     updateMissionList(serverMissionList)
+                 })
+         } */
     }
 
     private fun updateMissionList(updatedMissionList: Map<String, Mission?>) {
