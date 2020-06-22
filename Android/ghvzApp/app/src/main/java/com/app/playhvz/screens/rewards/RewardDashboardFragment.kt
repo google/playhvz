@@ -30,8 +30,9 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.firebase.viewmodels.GameViewModel
-import com.app.playhvz.firebase.viewmodels.MissionListViewModel
+import com.app.playhvz.firebase.viewmodels.RewardListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -42,7 +43,7 @@ class RewardDashboardFragment : Fragment() {
     }
 
     lateinit var gameViewModel: GameViewModel
-    lateinit var missionViewModel: MissionListViewModel
+    lateinit var rewardViewModel: RewardListViewModel
     lateinit var fab: FloatingActionButton
     lateinit var recyclerView: RecyclerView
     lateinit var adapter: RewardDashboardAdapter
@@ -59,7 +60,7 @@ class RewardDashboardFragment : Fragment() {
             0
         )!!
         gameViewModel = GameViewModel()
-        missionViewModel = MissionListViewModel()
+        rewardViewModel = RewardListViewModel()
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
     }
@@ -112,6 +113,11 @@ class RewardDashboardFragment : Fragment() {
         }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
+        rewardViewModel.getAllRewardsInGame(this, gameId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverRewardList ->
+            updateRewardList(serverRewardList)
+        })
+
     }
 
     private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
@@ -136,8 +142,8 @@ class RewardDashboardFragment : Fragment() {
          } */
     }
 
-    private fun updateMissionList(updatedMissionList: Map<String, Mission?>) {
-        adapter.setData(updatedMissionList)
+    private fun updateRewardList(updatedRewardList: List<Reward>) {
+        adapter.setData(updatedRewardList)
         adapter.notifyDataSetChanged()
     }
 

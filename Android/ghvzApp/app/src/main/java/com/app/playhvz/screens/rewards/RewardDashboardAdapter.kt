@@ -22,10 +22,10 @@ import android.view.ViewGroup
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Mission
+import com.app.playhvz.firebase.classmodels.Reward
 
 class RewardDashboardAdapter(
-    private var items: List<Mission>,
+    private var items: List<Reward>,
     val context: Context,
     private val navController: NavController
 ) :
@@ -36,7 +36,7 @@ class RewardDashboardAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return RewardViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.card_mission,
+                R.layout.card_reward,
                 parent,
                 false
             ),
@@ -52,16 +52,8 @@ class RewardDashboardAdapter(
         return items.size
     }
 
-    fun setData(data: Map<String, Mission?>) {
-        val cleansedList = mutableListOf<Mission>()
-        for ((_, value) in data) {
-            if (value != null) {
-                cleansedList.add(value)
-            }
-        }
-        cleansedList.sortBy { mission -> mission.endTime }
-        cleansedList.reverse()
-        items = cleansedList
+    fun setData(data: List<Reward>) {
+        items = data
     }
 
     fun setIsAdmin(isAdmin: Boolean) {

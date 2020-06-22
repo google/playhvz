@@ -27,5 +27,6 @@ class CrossClientConstants {
         val DEAD_ALLEGIANCES = arrayOf(ZOMBIE)
         const val ALIVE_COLOR: Int = Color.MAGENTA
         const val DEAD_COLOR: Int = Color.GREEN
+        const val DEFAULT_REWARD_POINT_VALUE = 20
     }
 }

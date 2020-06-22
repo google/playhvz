@@ -536,6 +536,19 @@
     Oh no! Someone else made a change… copy your changes, quit editing and try again.
   </string>
 
+  <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">
+    <item quantity="one">%1$s pt</item>
+    <item quantity="other">%1$s pts</item>
+  </plurals>
+
+  <string name="reward_card_label_generate_claim_codes_button" definition="Label for the button to generate new claim codes.">
+    Generate claim codes
+  </string>
+
+  <string name="reward_card_label_view_claim_codes_button" definition="Label for the button to view claim codes.">
+    View claim codes
+  </string>
+
   <string name="reward_settings_create_reward_title">
     Create reward
   </string>
@@ -555,6 +568,7 @@
   <string name="reward_settings_label_points" definition="Label for the text input for specifying a reward's points.">
     Point value
   </string>
+
 
   <string name="reward_settings_label_short_name" definition="Label for the text input for specifying a reward's short name.">
     Short name

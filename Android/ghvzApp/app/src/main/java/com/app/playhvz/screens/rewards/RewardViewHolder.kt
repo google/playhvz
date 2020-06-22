@@ -17,6 +17,7 @@
 package com.app.playhvz.screens.rewards
 
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -24,22 +25,24 @@ import androidx.emoji.widget.EmojiTextView
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Mission
+import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.utils.TimeUtils
+import com.app.playhvz.utils.ImageDownloaderUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
-class RewardViewHolder(view: View, private val navController: NavController) : RecyclerView.ViewHolder(view) {
+class RewardViewHolder(view: View, private val navController: NavController) :
+    RecyclerView.ViewHolder(view) {
 
-    private var missionCard: MaterialCardView = view.findViewById(R.id.mission_card)
-    private var cardTitle: EmojiTextView = missionCard.findViewById(R.id.title)
-    private var startTimeView: TextView = missionCard.findViewById(R.id.mission_start_time)
-    private var endTimeView: TextView = missionCard.findViewById(R.id.mission_end_time)
-    private var detailsView: EmojiTextView = missionCard.findViewById(R.id.mission_details)
-    private var cardHeader: LinearLayout = missionCard.findViewById(R.id.card_header)
-    private var cardHeaderIcon: MaterialButton = missionCard.findViewById(R.id.card_header_icon)
-    private var cardContent: ConstraintLayout = missionCard.findViewById(R.id.card_content)
+    private var rewardCard: MaterialCardView = view.findViewById(R.id.reward_card)
+    private var cardTitle: EmojiTextView = rewardCard.findViewById(R.id.title)
+    private var cardHeader: LinearLayout = rewardCard.findViewById(R.id.card_header)
+    private var cardHeaderIcon: MaterialButton = rewardCard.findViewById(R.id.card_header_icon)
+    private var cardContent: ConstraintLayout = rewardCard.findViewById(R.id.card_content)
+    private var imageView: ImageView = rewardCard.findViewById(R.id.reward_badge_image)
+    private var pointView: TextView = rewardCard.findViewById(R.id.reward_points)
+    private var longNameView: EmojiTextView = rewardCard.findViewById(R.id.reward_long_name)
+    private var descriptionView: EmojiTextView = rewardCard.findViewById(R.id.reward_description)
 
     init {
         cardHeader.setOnClickListener {
@@ -51,23 +54,35 @@ class RewardViewHolder(view: View, private val navController: NavController) : R
                 cardContent.visibility = View.VISIBLE
             }
         }
-
-
     }
 
-    fun onBind(mission: Mission, isAdmin: Boolean) {
+    fun onBind(reward: Reward, isAdmin: Boolean) {
         if (isAdmin) {
             cardHeaderIcon.visibility = View.VISIBLE
             cardHeaderIcon.setOnClickListener {
-                NavigationUtil.navigateToMissionSettings(navController, mission.id)
+                NavigationUtil.navigateToRewardSettings(navController, reward.id)
             }
         } else {
             cardHeaderIcon.visibility = View.GONE
         }
 
-        cardTitle.text = mission.name
-        startTimeView.text = TimeUtils.getFormattedTime(mission.startTime, true)
-        endTimeView.text = TimeUtils.getFormattedTime(mission.endTime, true)
-        detailsView.text = mission.details
+        cardTitle.text = reward.shortName
+        longNameView.text = reward.longName
+        descriptionView.text = reward.description
+        if (reward.imageUrl.isNullOrBlank()) {
+            imageView.visibility = View.GONE
+        } else {
+            ImageDownloaderUtils.downloadSquareImage(imageView, reward.imageUrl!!)
+        }
+        var points = 0
+        if (reward.points != null) {
+            points = reward.points!!
+        }
+        pointView.text =
+            pointView.resources.getQuantityString(
+                R.plurals.reward_card_label_points,
+                points,
+                points
+            )
     }
 }

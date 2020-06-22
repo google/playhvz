@@ -18,9 +18,11 @@ package com.app.playhvz.firebase.operations
 
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.RewardPath
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
@@ -30,14 +32,12 @@ class RewardDatabaseOperations {
     companion object {
         private val TAG = RewardDatabaseOperations::class.qualifiedName
 
-        /** Returns a document reference to the given rewardId. */
-        fun getRewardDocumentReference(
-            gameId: String,
-            rewardId: String
-        ): DocumentReference {
-            return RewardPath.REWARD_DOCUMENT_REFERENCE(gameId, rewardId)
+        /** Returns a collection reference to the given chatRoomId. */
+        fun getRewardCollectionReference(
+            gameId: String
+        ): CollectionReference {
+            return RewardPath.REWARD_COLLECTION(gameId)
         }
-
         fun getRewardDocument(
             gameId: String,
             rewardId: String,
@@ -85,7 +85,6 @@ class RewardDatabaseOperations {
                 failureListener.invoke()
             }
         }
-
 
         /** Permanently deletes reward. */
         /* suspend fun asyncDeleteReward(

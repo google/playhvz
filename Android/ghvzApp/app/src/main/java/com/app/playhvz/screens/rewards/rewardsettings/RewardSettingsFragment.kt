@@ -33,7 +33,9 @@ import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.PhotoUploadDialog
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEFAULT_REWARD_POINT_VALUE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.firebase.UploadService
 import com.app.playhvz.firebase.UploadService.Companion.getRewardImageName
 import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.firebase.operations.MissionDatabaseOperations
@@ -51,8 +53,6 @@ class RewardSettingsFragment : Fragment() {
     companion object {
         private val TAG = RewardSettingsFragment::class.qualifiedName
     }
-
-    private val DEFAULT_POINT_VALUE = 20
 
     private lateinit var descriptionText: EmojiEditText
     private lateinit var button: MaterialButton
@@ -110,7 +110,7 @@ class RewardSettingsFragment : Fragment() {
         badgeContainer.clipChildren = true
         imageView.clipToOutline = true
 
-        pointText.setText(DEFAULT_POINT_VALUE)
+        pointText.setText(DEFAULT_REWARD_POINT_VALUE.toString())
         imageContainer.setOnClickListener {
             if (rewardDraft == null) {
                 return@setOnClickListener
@@ -184,8 +184,12 @@ class RewardSettingsFragment : Fragment() {
     }
 
     private fun initializeData() {
-        rewardDraft.imageUrl?.let { ImageDownloaderUtils.downloadSquareImage(imageView, it) }
-        rewardDraft.points?.let { pointText.setText(it) }
+        if (!rewardDraft.imageUrl.isNullOrBlank()) {
+            val url = rewardDraft.imageUrl.toString()
+            ImageDownloaderUtils.downloadSquareImage(imageView, url)
+            rewardImageUploadName = UploadService.parseRewardImageNameFromExistingFirebaseUrl(url)
+        }
+        rewardDraft.points?.let { pointText.setText(it.toString()) }
         shortNameText.setText(rewardDraft.shortName)
         longNameText.setText(rewardDraft.longName)
         descriptionText.setText(rewardDraft.description)
@@ -202,7 +206,7 @@ class RewardSettingsFragment : Fragment() {
         rewardDraft.description = descriptionText.text.toString()
         val pointText = pointText.text.toString()
         rewardDraft.points =
-            if (pointText.isBlank()) DEFAULT_POINT_VALUE else Integer.valueOf(pointText)
+            if (pointText.isBlank()) DEFAULT_REWARD_POINT_VALUE else Integer.valueOf(pointText)
 
         if (rewardId == null) {
             runBlocking {
@@ -222,27 +226,23 @@ class RewardSettingsFragment : Fragment() {
                 EspressoIdlingResource.decrement()
             }
         } else {
-            /* runBlocking {
-                 EspressoIdlingResource.increment()
-                 MissionDatabaseOperations.asyncUpdateMission(
-                     gameId!!,
-                     rewardId!!,
-                     name,
-                     details,
-                     missionDraft.startTime,
-                     missionDraft.endTime,
-                     allegianceFilter,
-                     {
-                         SystemUtils.showToast(context, "Updated mission.")
-                         NavigationUtil.navigateToMissionDashboard(findNavController())
-                     },
-                     {
-                         enableActions()
-                         SystemUtils.showToast(context, "Couldn't update mission.")
-                     }
-                 )
-                 EspressoIdlingResource.decrement()
-             }*/
+            runBlocking {
+                EspressoIdlingResource.increment()
+                RewardDatabaseOperations.asyncUpdateReward(
+                    gameId!!,
+                    rewardId!!,
+                    rewardDraft,
+                    {
+                        SystemUtils.showToast(context, "Updated reward!")
+                        NavigationUtil.navigateToRewardDashboard(findNavController())
+                    },
+                    {
+                        enableActions()
+                        SystemUtils.showToast(context, "Couldn't update reward.")
+                    }
+                )
+                EspressoIdlingResource.decrement()
+            }
         }
     }
 

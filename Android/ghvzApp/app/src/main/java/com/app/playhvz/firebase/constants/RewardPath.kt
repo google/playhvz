@@ -16,6 +16,8 @@
 
 package com.app.playhvz.firebase.constants
 
+import com.google.firebase.firestore.Query
+
 class RewardPath {
     companion object {
         /**

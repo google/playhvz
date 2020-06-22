@@ -17,7 +17,7 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/mission_card"
+  android:id="@+id/reward_card"
   style="@style/Widget.MaterialComponents.CardView"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
@@ -65,43 +65,47 @@
       android:layout_height="wrap_content"
       android:layout_margin="8dp">
 
+      <include
+        android:id="@+id/image_container"
+        layout="@layout/reward_badge"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
       <TextView
-        android:id="@+id/mission_start_time"
-        style="@style/CardMissionTime"
+        android:id="@+id/reward_points"
+        style="@style/HeaderText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/image_container"
+        app:layout_constraintStart_toEndOf="@id/image_container"
+        app:layout_constraintTop_toTopOf="@id/image_container"
+        tools:text="20 pts" />
+
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/reward_long_name"
+        style="@style/TextAppearance.AppCompat.Headline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Jun 06\n3:00 PM" />
+        app:layout_constraintTop_toBottomOf="@id/image_container"
+        tools:text="Award for Valor" />
 
-      <TextView
-        android:id="@+id/time_separator"
-        style="@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle"
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/reward_description"
+        style="@style/TextAppearance.AppCompat.Body2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="@string/mission_time_separator"
-        app:layout_constraintStart_toEndOf="@id/mission_start_time"
-        app:layout_constraintTop_toTopOf="@id/mission_start_time" />
-
-      <TextView
-        android:id="@+id/mission_end_time"
-        style="@style/CardMissionTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/time_separator"
-        app:layout_constraintTop_toTopOf="@id/mission_start_time"
-        tools:text="Jun 06\n4:00 PM" />
-
-      <com.app.playhvz.common.ui.MarkdownTextView
-        android:id="@+id/mission_details"
-        style="@style/TextAppearance.MaterialComponents.Body2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/mission_start_time" />
+        app:layout_constraintTop_toBottomOf="@id/reward_long_name" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/generate_code_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:text="@string/reward_card_label_generate_claim_codes_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/reward_description" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
