@@ -290,6 +290,10 @@ class RewardSettingsFragment : Fragment() {
     }
 
     private fun enableActions() {
+        if (view == null) {
+            // Fragment was killed
+            return
+        }
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 255
         menuItem.isEnabled = true
@@ -300,27 +304,8 @@ class RewardSettingsFragment : Fragment() {
         if (uri == null || gameId == null) {
             return
         }
-        progressBar.visibility = View.VISIBLE
         ImageDownloaderUtils.downloadSquareImage(imageView, uri.toString())
         rewardDraft.imageUrl = uri.toString()
-
-        /*runBlocking {
-            EspressoIdlingResource.increment()
-            PlayerDatabaseOperations.asyncUpdatePlayerProfileImage(
-                gameId,
-                player!!.id,
-                uri.toString(),
-                {
-                    progressBar.visibility = View.GONE
-                    player!!.avatarUrl = uri.toString()
-                    userAvatarPresenter.renderAvatar(player!!)
-                },
-                {
-                    progressBar.visibility = View.GONE
-                    SystemUtils.showToast(context, "Couldn't save changes.")
-                }
-            )
-            EspressoIdlingResource.decrement()
-        }*/
+        progressBar.visibility = View.INVISIBLE
     }
 }

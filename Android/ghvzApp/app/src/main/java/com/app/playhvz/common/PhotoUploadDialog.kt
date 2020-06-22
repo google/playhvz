@@ -132,7 +132,7 @@ class PhotoUploadDialog(
         if (url.isNullOrBlank()) {
             return
         }
-        ImageDownloaderUtils.downloadSquareImage(imageView, url!!)
+        ImageDownloaderUtils.downloadSquareImage(imageView, url, /* withCache= */ false)
     }
 
     private fun openImageGallery() {
