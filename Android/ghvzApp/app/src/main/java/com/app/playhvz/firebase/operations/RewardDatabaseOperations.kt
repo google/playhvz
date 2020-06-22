@@ -19,7 +19,6 @@ package com.app.playhvz.firebase.operations
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.firebase.constants.RewardPath
-import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.DocumentReference
@@ -59,16 +58,8 @@ class RewardDatabaseOperations {
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            val data = hashMapOf(
-                "gameId" to gameId,
-                "shortName" to rewardDraft.shortName,
-                "longName" to rewardDraft.longName,
-                "imageUrl" to rewardDraft.imageUrl,
-                "points" to rewardDraft.points,
-                "description" to rewardDraft.description
-            )
             RewardPath.REWARD_COLLECTION(gameId).add(
-                rewardDraft
+                Reward.createFirebaseObject(rewardDraft)
             ).addOnSuccessListener {
                 successListener.invoke()
             }.addOnFailureListener {
@@ -77,51 +68,27 @@ class RewardDatabaseOperations {
             }
         }
 
-        /*FirebaseProvider.getFirebaseFunctions()
-            .getHttpsCallable("createReward")
-            .call(data)
-            .continueWith { task ->
-                if (!task.isSuccessful) {
-                    failureListener.invoke()
-                    return@continueWith
-                }
+        /** Update Reward. */
+        suspend fun asyncUpdateReward(
+            gameId: String,
+            rewardId: String,
+            rewardDraft: Reward,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            RewardPath.REWARD_DOCUMENT_REFERENCE(gameId, rewardId).set(
+                Reward.createFirebaseObject(rewardDraft)
+            ).addOnSuccessListener {
                 successListener.invoke()
-            }*/
-    }
-
-    /** Update Reward. */
-    suspend fun asyncUpdateReward(
-        gameId: String,
-        rewardId: String,
-        rewardDraft: Reward,
-        successListener: () -> Unit,
-        failureListener: () -> Unit
-    ) = withContext(Dispatchers.Default) {
-        val data = hashMapOf(
-            "gameId" to gameId,
-            "rewardId" to rewardId,
-            "shortName" to rewardDraft.shortName,
-            "longName" to rewardDraft.longName,
-            "imageUrl" to rewardDraft.imageUrl,
-            "points" to rewardDraft.points,
-            "description" to rewardDraft.description
-        )
-
-        FirebaseProvider.getFirebaseFunctions()
-            .getHttpsCallable("updateReward")
-            .call(data)
-            .continueWith { task ->
-                if (!task.isSuccessful) {
-                    failureListener.invoke()
-                    return@continueWith
-                }
-                successListener.invoke()
+            }.addOnFailureListener {
+                Log.e(TAG, "Failed to update reward: " + it)
+                failureListener.invoke()
             }
-    }
+        }
 
 
-    /** Permanently deletes reward. */
-    /* suspend fun asyncDeleteReward(
+        /** Permanently deletes reward. */
+        /* suspend fun asyncDeleteReward(
          gameId: String,
          rewardId: String,
          successListener: () -> Unit,
@@ -142,4 +109,5 @@ class RewardDatabaseOperations {
                  successListener.invoke()
              }
      } */
+    }
 }

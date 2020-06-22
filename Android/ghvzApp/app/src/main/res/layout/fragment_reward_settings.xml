@@ -72,6 +72,20 @@
       style="@style/TextInputLabel"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:text="@string/reward_settings_label_points" />
+
+    <EditText
+      android:id="@+id/reward_points"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:inputType="numberDecimal"
+      android:text="@string/reward_settings_label_points"
+      android:textSize="24sp" />
+
+    <TextView
+      style="@style/TextInputLabel"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
       android:text="@string/reward_settings_label_short_name" />
 
     <androidx.emoji.widget.EmojiEditText

@@ -19,9 +19,11 @@ package com.app.playhvz.screens.rewards.rewardsettings
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.Fragment
@@ -50,10 +52,13 @@ class RewardSettingsFragment : Fragment() {
         private val TAG = RewardSettingsFragment::class.qualifiedName
     }
 
+    private val DEFAULT_POINT_VALUE = 20
+
     private lateinit var descriptionText: EmojiEditText
     private lateinit var button: MaterialButton
     private lateinit var imageView: ImageView
     private lateinit var longNameText: EmojiEditText
+    private lateinit var pointText: EditText
     private lateinit var progressBar: ProgressBar
     private lateinit var rewardDraft: Reward
     private lateinit var rewardImageUploadName: String
@@ -94,12 +99,19 @@ class RewardSettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_reward_settings, container, false)
         imageView = view.findViewById(R.id.reward_badge_image)
         progressBar = view.findViewById(R.id.progress_bar)
+        pointText = view.findViewById(R.id.reward_points)
         shortNameText = view.findViewById(R.id.reward_short_name)
         longNameText = view.findViewById(R.id.reward_long_name)
         descriptionText = view.findViewById(R.id.reward_description)
         button = view.findViewById(R.id.submit_button)
+        val imageContainer = view.findViewById<ConstraintLayout>(R.id.image_container)
+        val badgeContainer = view.findViewById<ConstraintLayout>(R.id.reward_badge_image_container)
+        badgeContainer.clipToOutline = true
+        badgeContainer.clipChildren = true
+        imageView.clipToOutline = true
 
-        imageView.setOnClickListener {
+        pointText.setText(DEFAULT_POINT_VALUE)
+        imageContainer.setOnClickListener {
             if (rewardDraft == null) {
                 return@setOnClickListener
             }
@@ -173,6 +185,7 @@ class RewardSettingsFragment : Fragment() {
 
     private fun initializeData() {
         rewardDraft.imageUrl?.let { ImageDownloaderUtils.downloadSquareImage(imageView, it) }
+        rewardDraft.points?.let { pointText.setText(it) }
         shortNameText.setText(rewardDraft.shortName)
         longNameText.setText(rewardDraft.longName)
         descriptionText.setText(rewardDraft.description)
@@ -187,7 +200,9 @@ class RewardSettingsFragment : Fragment() {
         rewardDraft.shortName = shortNameText.text.toString()
         rewardDraft.longName = longNameText.text.toString()
         rewardDraft.description = descriptionText.text.toString()
-        rewardDraft.points = 20f
+        val pointText = pointText.text.toString()
+        rewardDraft.points =
+            if (pointText.isBlank()) DEFAULT_POINT_VALUE else Integer.valueOf(pointText)
 
         if (rewardId == null) {
             runBlocking {
@@ -288,6 +303,7 @@ class RewardSettingsFragment : Fragment() {
         progressBar.visibility = View.VISIBLE
         ImageDownloaderUtils.downloadSquareImage(imageView, uri.toString())
         rewardDraft.imageUrl = uri.toString()
+
         /*runBlocking {
             EspressoIdlingResource.increment()
             PlayerDatabaseOperations.asyncUpdatePlayerProfileImage(

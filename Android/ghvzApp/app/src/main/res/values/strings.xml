@@ -552,6 +552,10 @@
     Extreme Valor In Battle
   </string>
 
+  <string name="reward_settings_label_points" definition="Label for the text input for specifying a reward's points.">
+    Point value
+  </string>
+
   <string name="reward_settings_label_short_name" definition="Label for the text input for specifying a reward's short name.">
     Short name
   </string>

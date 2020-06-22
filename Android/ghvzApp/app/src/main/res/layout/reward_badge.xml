@@ -14,17 +14,23 @@
   ~ limitations under the License.
   -->
 
-
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:id="@+id/reward_badge_image"
-  android:layout_width="@dimen/avatar_large"
-  android:layout_height="@dimen/avatar_large"
-  android:importantForAccessibility="no"
-  android:src="@drawable/ic_edit"
-  app:layout_constraintBottom_toBottomOf="parent"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toTopOf="parent" />
+  android:id="@+id/reward_badge_image_container"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:background="@drawable/border_diamond">
+
+  <ImageView
+    android:id="@+id/reward_badge_image"
+    android:layout_width="@dimen/avatar_large"
+    android:layout_height="@dimen/avatar_large"
+    android:importantForAccessibility="no"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -16,13 +16,34 @@
 
 package com.app.playhvz.firebase.classmodels
 
+import com.google.firebase.Timestamp
+import java.util.*
+import kotlin.collections.HashMap
+
 /** Android data model representing Firebase Reward documents. */
 class Reward {
-    var id: String? = null
+    companion object {
+        const val FIELD__SHORT_NAME = "shortName"
+        const val FIELD__LONG_NAME = "longName"
+        const val FIELD__DESCRIPTION = "description"
+        const val FIELD__IMAGE_URL = "imageUrl"
+        const val FIELD__POINTS = "points"
 
+        fun createFirebaseObject(rewardDraft: Reward): HashMap<String, Any?> {
+            val data = HashMap<String, Any?>()
+            data[FIELD__SHORT_NAME] = rewardDraft.shortName
+            data[FIELD__LONG_NAME] = rewardDraft.longName
+            data[FIELD__DESCRIPTION] = rewardDraft.description
+            data[FIELD__IMAGE_URL] = rewardDraft.imageUrl
+            data[FIELD__POINTS] = rewardDraft.points
+            return data
+        }
+    }
+
+    var id: String? = null
     var shortName: String? = null
     var longName: String? = null
     var description: String? = null
-    var points: Float? = null
+    var points: Int? = null
     var imageUrl: String? = null
 }
