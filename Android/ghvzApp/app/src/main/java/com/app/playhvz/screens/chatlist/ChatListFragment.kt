@@ -90,7 +90,7 @@ class ChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
 
     fun setupToolbar() {
         toolbar?.title = getString(R.string.chat_list_toolbar)
-        toolbar?.setDisplayHomeAsUpEnabled(false)
+        toolbar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun setupObservers() {

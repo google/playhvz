@@ -85,7 +85,7 @@ class MissionDashboardFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title = requireContext().getString(R.string.mission_title)
-            toolbar.setDisplayHomeAsUpEnabled(false)
+            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 

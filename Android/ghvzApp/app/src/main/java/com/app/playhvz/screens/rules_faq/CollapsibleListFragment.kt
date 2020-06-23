@@ -131,7 +131,7 @@ class CollapsibleListFragment : Fragment() {
         } else {
             getString(R.string.navigation_drawer_faq)
         }
-        toolbar.setDisplayHomeAsUpEnabled(false)
+        toolbar.setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
     }
 

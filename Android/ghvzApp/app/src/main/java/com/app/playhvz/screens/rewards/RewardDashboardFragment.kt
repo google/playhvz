@@ -93,7 +93,7 @@ class RewardDashboardFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title = requireContext().getString(R.string.navigation_drawer_rewards)
-            toolbar.setDisplayHomeAsUpEnabled(false)
+            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 
