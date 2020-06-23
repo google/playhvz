@@ -31,7 +31,11 @@ import com.app.playhvz.utils.ImageDownloaderUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
-class RewardViewHolder(view: View, private val navController: NavController) :
+class RewardViewHolder(
+    view: View,
+    private val navController: NavController,
+    private val onGenerateCodeClick: (rewardId: String) -> Unit
+) :
     RecyclerView.ViewHolder(view) {
 
     private var rewardCard: MaterialCardView = view.findViewById(R.id.reward_card)
@@ -43,6 +47,10 @@ class RewardViewHolder(view: View, private val navController: NavController) :
     private var pointView: TextView = rewardCard.findViewById(R.id.reward_points)
     private var longNameView: EmojiTextView = rewardCard.findViewById(R.id.reward_long_name)
     private var descriptionView: EmojiTextView = rewardCard.findViewById(R.id.reward_description)
+    private var generateClaimCodesButton: MaterialButton =
+        rewardCard.findViewById(R.id.reward_generate_code_button)
+
+    private lateinit var rewardId: String
 
     init {
         cardHeader.setOnClickListener {
@@ -57,6 +65,7 @@ class RewardViewHolder(view: View, private val navController: NavController) :
     }
 
     fun onBind(reward: Reward, isAdmin: Boolean) {
+        rewardId = reward.id!!
         if (isAdmin) {
             cardHeaderIcon.visibility = View.VISIBLE
             cardHeaderIcon.setOnClickListener {
@@ -84,5 +93,8 @@ class RewardViewHolder(view: View, private val navController: NavController) :
                 points,
                 points
             )
+        generateClaimCodesButton.setOnClickListener {
+            onGenerateCodeClick.invoke(rewardId)
+        }
     }
 }

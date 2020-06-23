@@ -19,6 +19,7 @@ import * as functions from 'firebase-functions';
 
 import * as Chat from './data/chat';
 import * as ChatUtils from './utils/chatutils';
+import * as ClaimCode from './data/claimcode';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
 import * as Group from './data/group';
@@ -27,6 +28,8 @@ import * as Player from './data/player';
 import * as PlayerUtils from './utils/playerutils';
 import * as Message from './data/message';
 import * as Mission from './data/mission';
+import * as Reward from './data/reward';
+import * as RewardUtils from './utils/rewardutils';
 import * as User from './data/user';
 
 admin.initializeApp();
@@ -584,7 +587,7 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
 
   const playerData = playerSnapshot.data()
   const gameData = await (await db.collection(Game.COLLECTION_PATH).doc(gameId).get()).data()
-  if (playerData === undefined || gameData == undefined) {
+  if (playerData === undefined || gameData === undefined) {
     return
   }
   const playerChatRoomIds = Object.keys(playerData[Player.FIELD__CHAT_MEMBERSHIPS])
@@ -975,6 +978,77 @@ async function deleteDocument(documentRef: any) {
   })
 }
 
+/*******************************************************
+* REWARD functions
+********************************************************/
+
+exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const rewardId = data.rewardId;
+  const numCodes = data.numCodes;
+
+  if (!(typeof gameId === 'string') || !(typeof rewardId === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (!(typeof numCodes === 'number')) {
+        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type Number.");
+    }
+  if (gameId.length === 0 || rewardId.length === 0 || numCodes < 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId and rewardId and numCodes.');
+  }
+
+  const rewardDocSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .doc(rewardId)
+    .get()
+
+  const rewardData = await rewardDocSnapshot.data()
+  if (rewardData === undefined) {
+    return
+  }
+
+  // Get existing claim codes
+  const claimCodeQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .doc(rewardId)
+    .collection(ClaimCode.COLLECTION_PATH)
+    .get();
+
+  const existingCodeArray = new Array();
+  if (!claimCodeQuerySnapshot.empty) {
+    claimCodeQuerySnapshot.forEach((claimCodeDoc: any) => {
+      existingCodeArray.push(claimCodeDoc.id)
+    });
+  }
+
+  const generatedCodes: string[] = RewardUtils.generateClaimCode(
+    db,
+    gameId,
+    rewardData,
+    existingCodeArray,
+    numCodes)
+
+  for (let i = 0; i < numCodes; i++) {
+    // Create a new Claim Code document for each code we just generated.
+    const claimCode = ClaimCode.create(generatedCodes[i])
+    await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Reward.COLLECTION_PATH)
+      .doc(rewardId)
+      .collection(ClaimCode.COLLECTION_PATH)
+      .add(claimCode)
+  }
+  console.log("Generated " + numCodes + " for reward: " + rewardId)
+});
 
 
 

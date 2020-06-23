@@ -27,7 +27,8 @@ import com.app.playhvz.firebase.classmodels.Reward
 class RewardDashboardAdapter(
     private var items: List<Reward>,
     val context: Context,
-    private val navController: NavController
+    private val navController: NavController,
+    val onGenerateClaimCodes: (rewardId: String) -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -40,7 +41,8 @@ class RewardDashboardAdapter(
                 parent,
                 false
             ),
-            navController
+            navController,
+            onGenerateClaimCodes
         )
     }
 

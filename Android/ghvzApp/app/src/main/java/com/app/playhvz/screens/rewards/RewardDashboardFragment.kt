@@ -26,15 +26,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
-import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.RewardListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of rewards.*/
 class RewardDashboardFragment : Fragment() {
@@ -73,7 +75,11 @@ class RewardDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_reward_dashboard, container, false)
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.reward_list)
-        adapter = RewardDashboardAdapter(listOf(), requireContext(), findNavController())
+        adapter = RewardDashboardAdapter(
+            listOf(),
+            requireContext(),
+            findNavController(),
+            { rewardId -> triggerAmountSelector(rewardId) })
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         setupObservers()
@@ -115,8 +121,8 @@ class RewardDashboardFragment : Fragment() {
         })
         rewardViewModel.getAllRewardsInGame(this, gameId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverRewardList ->
-            updateRewardList(serverRewardList)
-        })
+                updateRewardList(serverRewardList)
+            })
 
     }
 
@@ -149,5 +155,23 @@ class RewardDashboardFragment : Fragment() {
 
     private fun createReward() {
         NavigationUtil.navigateToRewardSettings(findNavController(), null)
+    }
+
+    private fun triggerAmountSelector(rewardId: String) {
+        val amountSelectorDialog =
+            AmountSelectorDialog(requireContext().getString(R.string.reward_claim_code_dialog))
+        amountSelectorDialog.setPositiveButtonCallback { selectedNumber ->
+            runBlocking {
+                EspressoIdlingResource.increment()
+                RewardDatabaseOperations.asyncGenerateClaimCodes(
+                    gameId!!,
+                    rewardId,
+                    selectedNumber,
+                    {},
+                    {})
+                EspressoIdlingResource.decrement()
+            }
+        }
+        activity?.supportFragmentManager?.let { amountSelectorDialog.show(it, TAG) }
     }
 }

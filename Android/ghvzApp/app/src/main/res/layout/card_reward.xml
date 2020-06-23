@@ -100,9 +100,10 @@
         app:layout_constraintTop_toBottomOf="@id/reward_long_name" />
 
       <com.google.android.material.button.MaterialButton
-        android:id="@+id/generate_code_button"
+        android:id="@+id/reward_generate_code_button"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
+        android:layout_marginTop="8dp"
         android:text="@string/reward_card_label_generate_claim_codes_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/reward_description" />

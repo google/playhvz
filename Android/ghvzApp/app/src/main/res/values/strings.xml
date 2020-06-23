@@ -549,6 +549,14 @@
     View claim codes
   </string>
 
+  <string name="reward_claim_code_dialog" definition="Dialog title for the dialog to select an amount of claim codes to generate.">
+    Amount to generate
+  </string>
+
+  <string name="reward_claim_code_dialog_button" definition="Confirmation button for the claim code generator dialog.">
+    Generate
+  </string>
+
   <string name="reward_settings_create_reward_title">
     Create reward
   </string>

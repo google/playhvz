@@ -18,12 +18,11 @@ package com.app.playhvz.firebase.operations
 
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.Reward
-import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.RewardPath
+import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,6 +37,7 @@ class RewardDatabaseOperations {
         ): CollectionReference {
             return RewardPath.REWARD_COLLECTION(gameId)
         }
+
         fun getRewardDocument(
             gameId: String,
             rewardId: String,
@@ -84,6 +84,31 @@ class RewardDatabaseOperations {
                 Log.e(TAG, "Failed to update reward: " + it)
                 failureListener.invoke()
             }
+        }
+
+        /** Generate claim codes for the reward. */
+        suspend fun asyncGenerateClaimCodes(
+            gameId: String,
+            rewardId: String,
+            numCodes: Int,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "rewardId" to rewardId,
+                "numCodes" to numCodes
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("generateClaimCodes")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
         }
 
         /** Permanently deletes reward. */
