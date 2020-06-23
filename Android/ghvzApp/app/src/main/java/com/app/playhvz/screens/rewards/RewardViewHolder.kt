@@ -54,7 +54,7 @@ class RewardViewHolder(
         rewardCard.findViewById(R.id.reward_generate_code_button)
 
     private lateinit var rewardId: String
-    private lateinit var rewardListViewModel: RewardListViewModel
+    private var rewardListViewModel: RewardListViewModel
 
     init {
         cardHeader.setOnClickListener {

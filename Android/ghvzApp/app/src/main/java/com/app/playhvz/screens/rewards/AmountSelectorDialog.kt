@@ -46,8 +46,8 @@ class AmountSelectorDialog(
         customView = requireActivity().layoutInflater.inflate(R.layout.dialog_amount_selector, null)
         numberPicker = customView.findViewById(R.id.dialog_number_picker)
         numberPicker.minValue = 1
-        numberPicker.maxValue = 1000
-        //numberPicker.value = 200
+        numberPicker.maxValue = 400
+        numberPicker.value = 10
 
         if (confirmationResId == null) {
             confirmationResId = R.string.reward_claim_code_dialog_button
