@@ -35,6 +35,7 @@ import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.RewardListViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
 
@@ -76,6 +77,7 @@ class RewardDashboardFragment : Fragment() {
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.reward_list)
         adapter = RewardDashboardAdapter(
+            gameId!!,
             listOf(),
             requireContext(),
             findNavController(),
@@ -134,18 +136,6 @@ class RewardDashboardFragment : Fragment() {
         setupFab(serverUpdate.isAdmin)
         adapter.setIsAdmin(serverUpdate.isAdmin)
         adapter.notifyDataSetChanged()
-
-        /* if (serverUpdate.isAdmin) {
-             missionViewModel.getAllMissionsInGame(this, gameId!!)
-                 .observe(this, androidx.lifecycle.Observer { serverMissionList ->
-                     updateMissionList(serverMissionList)
-                 })
-         } else {
-             missionViewModel.getMissionListOfMissionsPlayerIsIn(this, gameId!!, playerId!!)
-                 .observe(this, androidx.lifecycle.Observer { serverMissionList ->
-                     updateMissionList(serverMissionList)
-                 })
-         } */
     }
 
     private fun updateRewardList(updatedRewardList: List<Reward>) {
@@ -167,8 +157,8 @@ class RewardDashboardFragment : Fragment() {
                     gameId!!,
                     rewardId,
                     selectedNumber,
-                    {},
-                    {})
+                    { SystemUtils.showToast(requireContext(), "Created claim codes! Click the count to refresh it") },
+                    { SystemUtils.showToast(requireContext(), "Claim code generation failed") })
                 EspressoIdlingResource.decrement()
             }
         }

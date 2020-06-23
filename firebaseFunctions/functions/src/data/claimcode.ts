@@ -25,6 +25,7 @@
  *
  ************************************************************/
 
+import * as Defaults from './defaults';
 import * as Universal from './universal';
 
 export const COLLECTION_PATH = "claimCodes";
@@ -35,6 +36,6 @@ export const FIELD__REDEEMER = "redeemer";
 export function create(code: string): { [key: string]: any; } {
   return {
     [FIELD__CODE]: code,
-    [FIELD__REDEEMER]: ""
+    [FIELD__REDEEMER]: Defaults.EMPTY_REWARD_REDEEMER
   };
 }

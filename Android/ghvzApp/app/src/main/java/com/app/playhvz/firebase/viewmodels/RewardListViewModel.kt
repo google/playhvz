@@ -20,10 +20,12 @@ import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.utils.DataConverterUtil
+import kotlinx.coroutines.runBlocking
 
 class RewardListViewModel : ViewModel() {
     companion object {
@@ -31,7 +33,6 @@ class RewardListViewModel : ViewModel() {
     }
 
     private var rewardList: HvzData<List<Reward>> = HvzData(listOf())
-    private var rewardDocIdList: HvzData<List<String>> = HvzData(listOf())
 
     /** Listens to all reward updates and returns a LiveData object. */
     fun getAllRewardsInGame(
@@ -57,5 +58,22 @@ class RewardListViewModel : ViewModel() {
                     rewardList.value = updatedList
                 }
         return rewardList
+    }
+
+    /** ONE TIME gets the current count of unused claim codes. */
+    fun getCurrentClaimedCount(
+        gameId: String,
+        rewardId: String,
+        onSuccess: (rewardId: String, unusedCount: Int, total: Int) -> Unit
+    ) {
+        val success = { unusedCount: Int, total: Int ->
+            onSuccess.invoke(rewardId, unusedCount, total)
+        }
+        val fail = {}
+        runBlocking {
+            EspressoIdlingResource.increment()
+            RewardDatabaseOperations.asyncGetCurrentClaimCodeCount(gameId, rewardId, success, fail)
+            EspressoIdlingResource.decrement()
+        }
     }
 }

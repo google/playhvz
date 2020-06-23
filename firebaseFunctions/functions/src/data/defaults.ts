@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+export const EMPTY_REWARD_REDEEMER = "";
 export const EMPTY_ALLEGIANCE_FILTER = "none";
 export const HUMAN_ALLEGIANCE_FILTER = "resistance";
 export const ZOMBIE_ALLEGIANCE_FILTER = "horde";
@@ -26,3 +27,4 @@ export const gameAdminChatName = "Admins";
 export const allegiance = "undeclared";
 
 export const FIGUREHEAD_ADMIN_NAME = "HvZ CDC";
+

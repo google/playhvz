@@ -26,12 +26,14 @@ import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.viewmodels.RewardListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.ImageDownloaderUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class RewardViewHolder(
+    private val gameId: String,
     view: View,
     private val navController: NavController,
     private val onGenerateCodeClick: (rewardId: String) -> Unit
@@ -47,10 +49,12 @@ class RewardViewHolder(
     private var pointView: TextView = rewardCard.findViewById(R.id.reward_points)
     private var longNameView: EmojiTextView = rewardCard.findViewById(R.id.reward_long_name)
     private var descriptionView: EmojiTextView = rewardCard.findViewById(R.id.reward_description)
+    private var claimCountView: TextView = rewardCard.findViewById(R.id.reward_claimed_count)
     private var generateClaimCodesButton: MaterialButton =
         rewardCard.findViewById(R.id.reward_generate_code_button)
 
     private lateinit var rewardId: String
+    private lateinit var rewardListViewModel: RewardListViewModel
 
     init {
         cardHeader.setOnClickListener {
@@ -62,6 +66,7 @@ class RewardViewHolder(
                 cardContent.visibility = View.VISIBLE
             }
         }
+        rewardListViewModel = RewardListViewModel()
     }
 
     fun onBind(reward: Reward, isAdmin: Boolean) {
@@ -95,6 +100,42 @@ class RewardViewHolder(
             )
         generateClaimCodesButton.setOnClickListener {
             onGenerateCodeClick.invoke(rewardId)
+        }
+
+        initializeAndFetchRewardCount()
+    }
+
+    private fun initializeAndFetchRewardCount() {
+        claimCountView.text = claimCountView.resources.getString(
+            R.string.reward_card_label_claim_code_count,
+            "?",
+            "?"
+        )
+
+        val onClaimCodeCountUpdate = Unit@{ eventRewardId: String, unusedCount: Int, total: Int ->
+            if (eventRewardId != rewardId) {
+                // View was recycled by the time we got updated data, ignore.
+                return@Unit
+            }
+            claimCountView.text = claimCountView.resources.getString(
+                R.string.reward_card_label_claim_code_count,
+                unusedCount.toString(),
+                total.toString()
+            )
+        }
+
+        rewardListViewModel.getCurrentClaimedCount(
+            gameId,
+            rewardId,
+            onClaimCodeCountUpdate
+        )
+
+        claimCountView.setOnClickListener {
+            rewardListViewModel.getCurrentClaimedCount(
+                gameId,
+                rewardId,
+                onClaimCodeCountUpdate
+            )
         }
     }
 }

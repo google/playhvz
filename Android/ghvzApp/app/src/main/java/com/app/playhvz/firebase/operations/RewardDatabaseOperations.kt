@@ -104,10 +104,40 @@ class RewardDatabaseOperations {
                 .call(data)
                 .continueWith { task ->
                     if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to generate claim codes: " + task.exception)
                         failureListener.invoke()
                         return@continueWith
                     }
                     successListener.invoke()
+                }
+        }
+
+        /** Generate claim codes for the reward. */
+        suspend fun asyncGetCurrentClaimCodeCount(
+            gameId: String,
+            rewardId: String,
+            successListener: (unusedCount: Int, total: Int) -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "rewardId" to rewardId
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("getRewardClaimedStats")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to get claim code count: " + task.exception)
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    if (task.result != null) {
+                        val resultMap = task.result!!.data as Map<*, *>
+                        val unusedCount = resultMap["unusedCount"] as Int
+                        val usedCount = resultMap["usedCount"] as Int
+                        successListener.invoke(unusedCount, unusedCount + usedCount)
+                    }
                 }
         }
 

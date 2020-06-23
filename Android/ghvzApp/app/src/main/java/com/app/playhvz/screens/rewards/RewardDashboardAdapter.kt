@@ -25,6 +25,7 @@ import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Reward
 
 class RewardDashboardAdapter(
+    private var gameId: String,
     private var items: List<Reward>,
     val context: Context,
     private val navController: NavController,
@@ -36,6 +37,7 @@ class RewardDashboardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return RewardViewHolder(
+            gameId,
             LayoutInflater.from(context).inflate(
                 R.layout.card_reward,
                 parent,

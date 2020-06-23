@@ -553,6 +553,10 @@
     Amount to generate
   </string>
 
+  <string name="reward_card_label_claim_code_count" definition="Label for showing the available claim codes.">
+   Available: %1$s/%2$s
+  </string>
+
   <string name="reward_claim_code_dialog_button" definition="Confirmation button for the claim code generator dialog.">
     Generate
   </string>
