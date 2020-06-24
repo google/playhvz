@@ -90,6 +90,9 @@
     Submit
   </string>
 
+  <string name="button_refresh" definition="Refresh button.">
+    Refresh
+  </string>
 
   <string name="button_use" definition="Button to select when saving changes.">
     Use
@@ -553,6 +556,18 @@
     Amount to generate
   </string>
 
+  <string name="reward_card_expand_content_description" definition="Content description for button to expand reward details.">
+    Expand reward details
+  </string>
+
+  <string name="reward_card_collapse_content_description" definition="Content description for button to collapse reward details.">
+    Collapse reward details
+  </string>
+
+  <string name="reward_card_view_claim_code_button" definition="Button text for showing a list of claim codes.">
+    View claim codes
+  </string>
+
   <string name="reward_card_label_claim_code_count" definition="Label for showing the available claim codes.">
    Available: %1$s/%2$s
   </string>
@@ -563,6 +578,14 @@
 
   <string name="reward_settings_create_reward_title">
     Create reward
+  </string>
+
+  <string name="reward_claim_code_dialog_title" definition="Title for the available claim codes">
+    Unused claim codes:
+  </string>
+
+  <string name="reward_claim_code_dialog_none" definition="Indicator that there are no claim codes">
+    &lt; none &gt;
   </string>
 
   <string name="reward_settings_edit_reward_title">

@@ -1089,14 +1089,59 @@ exports.getRewardClaimedStats = functions.https.onCall(async (data, context) => 
 
   const unusedCount = unusedCodesQuerySnapshot.empty ? 0 : unusedCodesQuerySnapshot.docs.length
   const usedCount = usedCodesQuerySnapshot.empty ? 0 : usedCodesQuerySnapshot.docs.length
-
-  console.log("Unused: " + unusedCount + " for reward: " + usedCount)
   return {
     "unusedCount": unusedCount,
     "usedCount": usedCount
   }
 });
 
+
+exports.getAvailableClaimCodes = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const rewardId = data.rewardId;
+
+  if (!(typeof gameId === 'string') || !(typeof rewardId === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0 || rewardId.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId and rewardId.');
+  }
+
+  // Get unused claim codes
+  const unusedCodesQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .doc(rewardId)
+    .collection(ClaimCode.COLLECTION_PATH)
+    .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
+    .get();
+
+  if (unusedCodesQuerySnapshot.empty) {
+    return {
+        "claimCodes": []
+      }
+  }
+
+  const codeArray = new Array();
+  unusedCodesQuerySnapshot.forEach((claimCodeDoc: any) => {
+    const claimData = claimCodeDoc.data()
+    if (claimData === undefined) {
+      return // "continue" in a forEach
+    }
+    codeArray.push(claimData[ClaimCode.FIELD__CODE])
+  });
+
+  return {
+    "claimCodes": JSON.stringify(codeArray)
+  }
+});
 
 
 

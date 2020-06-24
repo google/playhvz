@@ -26,6 +26,8 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+
 
 class RewardDatabaseOperations {
     companion object {
@@ -137,6 +139,41 @@ class RewardDatabaseOperations {
                         val unusedCount = resultMap["unusedCount"] as Int
                         val usedCount = resultMap["usedCount"] as Int
                         successListener.invoke(unusedCount, unusedCount + usedCount)
+                    }
+                }
+        }
+
+        /** Gets available claim codes for the reward. */
+        suspend fun asyncGetAvailableClaimCodes(
+            gameId: String,
+            rewardId: String,
+            successListener: (codes: Array<String>) -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "rewardId" to rewardId
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("getAvailableClaimCodes")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to get claim codes: " + task.exception)
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    if (task.result != null) {
+                        val claimCodes: MutableList<String> = mutableListOf()
+                        try {
+                            val resultMap = task.result!!.data as Map<*, *>
+                            val claimCodesJsonArray = JSONArray(resultMap["claimCodes"] as String)
+                            for (i in 0 until claimCodesJsonArray.length()) {
+                                claimCodes.add(claimCodesJsonArray.getString(i))
+                            }
+                        } finally {
+                            successListener.invoke(claimCodes.toTypedArray())
+                        }
                     }
                 }
         }

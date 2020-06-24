@@ -16,15 +16,18 @@
 
 package com.app.playhvz.screens.rewards
 
+import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Reward
 
 class RewardDashboardAdapter(
+    private val activity: FragmentActivity,
     private var gameId: String,
     private var items: List<Reward>,
     val context: Context,
@@ -37,6 +40,7 @@ class RewardDashboardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return RewardViewHolder(
+            activity,
             gameId,
             LayoutInflater.from(context).inflate(
                 R.layout.card_reward,
