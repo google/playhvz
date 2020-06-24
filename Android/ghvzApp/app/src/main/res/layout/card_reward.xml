@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Google Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/reward_card"
+  style="@style/Widget.MaterialComponents.CardView"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_margin="16dp"
+  app:cardCornerRadius="8dp">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+      android:id="@+id/card_header"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorPrimary"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
+
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:minHeight="48dp"
+        android:padding="8dp"
+        android:textColor="@color/white" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/card_header_icon"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:visibility="gone"
+        app:icon="@drawable/ic_edit"
+        app:iconGravity="end"
+        app:iconTint="@color/white"
+        tools:visibility="visible" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/card_content"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="8dp">
+
+      <include
+        android:id="@+id/image_container"
+        layout="@layout/reward_badge"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <TextView
+        android:id="@+id/reward_points"
+        style="@style/HeaderText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/image_container"
+        app:layout_constraintStart_toEndOf="@id/image_container"
+        app:layout_constraintTop_toTopOf="@id/image_container"
+        tools:text="20 pts" />
+
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/reward_long_name"
+        style="@style/TextAppearance.AppCompat.Headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image_container"
+        tools:text="Award for Valor" />
+
+      <androidx.emoji.widget.EmojiTextView
+        android:id="@+id/reward_description"
+        style="@style/TextAppearance.AppCompat.Body2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/reward_long_name" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/reward_generate_code_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/reward_card_label_generate_claim_codes_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/reward_description" />
+
+      <TextView
+        android:id="@+id/reward_claimed_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="5/10" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+  </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

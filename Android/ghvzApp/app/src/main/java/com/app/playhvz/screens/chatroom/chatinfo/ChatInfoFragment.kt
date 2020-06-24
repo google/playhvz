@@ -131,7 +131,7 @@ class ChatInfoFragment : Fragment() {
 
     fun setupToolbar() {
         toolbar?.title = getString(R.string.chat_info_title)
-        toolbar?.setDisplayHomeAsUpEnabled(false)
+        toolbar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun setupObservers() {

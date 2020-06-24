@@ -139,6 +139,7 @@ class MissionSettingsFragment : Fragment() {
                 return
             }
             toolbar.title = requireContext().getString(R.string.mission_settings_title)
+            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 

@@ -22,14 +22,20 @@
     android:id="@+id/nav_admin_options"
     android:visible="false">
     <item
+      android:id="@id/nav_admin_chat_list_fragment"
+      android:icon="@drawable/ic_headset"
+      android:title="@string/navigation_drawer_admin_chat_list" />
+
+    <item
+      android:id="@id/nav_reward_dashboard_fragment"
+      android:icon="@drawable/ic_trophy"
+      android:title="@string/navigation_drawer_rewards" />
+
+    <item
       android:id="@id/nav_game_settings_fragment"
       android:icon="@drawable/ic_settings"
       android:title="@string/navigation_drawer_game_settings" />
 
-    <item
-      android:id="@id/nav_admin_chat_list_fragment"
-      android:icon="@drawable/ic_headset"
-      android:title="@string/navigation_drawer_admin_chat_list" />
   </group>
 
   <!-- Navigation Items defined by navigation graph. -->

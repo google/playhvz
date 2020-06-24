@@ -185,7 +185,7 @@ class GameSettingsFragment : Fragment() {
             toolbar.title =
                 if (game == null || game?.name.isNullOrEmpty()) requireContext().getString(R.string.game_settings_create_game_toolbar_title)
                 else game?.name
-            toolbar.setDisplayHomeAsUpEnabled(false)
+            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 

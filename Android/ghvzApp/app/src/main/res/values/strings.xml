@@ -496,6 +496,10 @@
     Home
   </string>
 
+  <string name="navigation_drawer_rewards" definition="Navigation drawer menu item for opening the reward dashboard for the game.">
+    Rewards
+  </string>
+
   <string name="navigation_drawer_rules" definition="Navigation drawer menu item for opening the rules of a game.">
     Rules
   </string>
@@ -530,6 +534,68 @@
 
   <string name="change_conflict_error_label" definition="Error stating that data was updated.">
     Oh no! Someone else made a change… copy your changes, quit editing and try again.
+  </string>
+
+  <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">
+    <item quantity="one">%1$s pt</item>
+    <item quantity="other">%1$s pts</item>
+  </plurals>
+
+  <string name="reward_card_label_generate_claim_codes_button" definition="Label for the button to generate new claim codes.">
+    Generate claim codes
+  </string>
+
+  <string name="reward_card_label_view_claim_codes_button" definition="Label for the button to view claim codes.">
+    View claim codes
+  </string>
+
+  <string name="reward_claim_code_dialog" definition="Dialog title for the dialog to select an amount of claim codes to generate.">
+    Amount to generate
+  </string>
+
+  <string name="reward_card_label_claim_code_count" definition="Label for showing the available claim codes.">
+   Available: %1$s/%2$s
+  </string>
+
+  <string name="reward_claim_code_dialog_button" definition="Confirmation button for the claim code generator dialog.">
+    Generate
+  </string>
+
+  <string name="reward_settings_create_reward_title">
+    Create reward
+  </string>
+
+  <string name="reward_settings_edit_reward_title">
+    Edit reward
+  </string>
+
+  <string name="reward_settings_short_name_hint_text" definition="Hint text for an abbreviated reward for bravery.">
+    Valor
+  </string>
+
+  <string name="reward_settings_long_name_hint_text" definition="Hint text for long reward name of bravery.">
+    Extreme Valor In Battle
+  </string>
+
+  <string name="reward_settings_label_points" definition="Label for the text input for specifying a reward's points.">
+    Point value
+  </string>
+
+
+  <string name="reward_settings_label_short_name" definition="Label for the text input for specifying a reward's short name.">
+    Short name
+  </string>
+
+  <string name="reward_settings_label_long_name" definition="Label for the text input for specifying a reward's long name.">
+    Long name
+  </string>
+
+  <string name="reward_settings_label_description" definition="Label for the text input for specifying a reward's description.">
+    Description
+  </string>
+
+  <string name="reward_settings_label_delete_button" definition="Label for the button to delete the reward.">
+    Permanently delete reward
   </string>
 
   <string name="sign_in_failed_toast">

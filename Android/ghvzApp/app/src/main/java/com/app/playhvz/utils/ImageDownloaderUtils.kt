@@ -16,15 +16,7 @@
 
 package com.app.playhvz.utils
 
-import android.Manifest
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.provider.MediaStore
 import android.widget.ImageView
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.fragment.app.FragmentActivity
 import com.app.playhvz.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
@@ -62,9 +54,24 @@ class ImageDownloaderUtils {
             Glide.with(imageView.context)
                 .load(imageUrl)
                 .transform(CenterCrop())
-                .placeholder(R.drawable.ic_person)
+                .placeholder(R.drawable.ic_hourglass)
                 .error(R.drawable.ic_error)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .priority(Priority.HIGH)
+                .into(imageView)
+        }
+
+        /** Function that handles async downloading an image from a url.
+         * @param imageView the view to show the image in once downloaded
+         * @param imageUrl the image url to download
+         */
+        fun downloadSquareImage(imageView: ImageView, imageUrl: String, withCache: Boolean) {
+            Glide.with(imageView.context)
+                .load(imageUrl)
+                .transform(CenterCrop())
+                .placeholder(R.drawable.ic_hourglass)
+                .error(R.drawable.ic_error)
+                .diskCacheStrategy(if (withCache) DiskCacheStrategy.ALL else DiskCacheStrategy.NONE)
                 .priority(Priority.HIGH)
                 .into(imageView)
         }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.missions
+package com.app.playhvz.screens.rewards
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,27 +26,30 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
-import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
-import com.app.playhvz.firebase.viewmodels.MissionListViewModel
+import com.app.playhvz.firebase.viewmodels.RewardListViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.utils.PlayerUtils
+import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.runBlocking
 
-/** Fragment for showing a list of missions.*/
-class MissionDashboardFragment : Fragment() {
+/** Fragment for showing a list of rewards.*/
+class RewardDashboardFragment : Fragment() {
     companion object {
-        private val TAG = MissionDashboardFragment::class.qualifiedName
+        private val TAG = RewardDashboardFragment::class.qualifiedName
     }
 
     lateinit var gameViewModel: GameViewModel
-    lateinit var missionViewModel: MissionListViewModel
+    lateinit var rewardViewModel: RewardListViewModel
     lateinit var fab: FloatingActionButton
     lateinit var recyclerView: RecyclerView
-    lateinit var adapter: MissionDashboardAdapter
+    lateinit var adapter: RewardDashboardAdapter
 
     var gameId: String? = null
     var playerId: String? = null
@@ -60,7 +63,7 @@ class MissionDashboardFragment : Fragment() {
             0
         )!!
         gameViewModel = GameViewModel()
-        missionViewModel = MissionListViewModel()
+        rewardViewModel = RewardListViewModel()
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
     }
@@ -70,10 +73,15 @@ class MissionDashboardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_mission_dashboard, container, false)
+        val view = inflater.inflate(R.layout.fragment_reward_dashboard, container, false)
         fab = activity?.findViewById(R.id.floating_action_button)!!
-        recyclerView = view.findViewById(R.id.mission_list)
-        adapter = MissionDashboardAdapter(listOf(), requireContext(), findNavController())
+        recyclerView = view.findViewById(R.id.reward_list)
+        adapter = RewardDashboardAdapter(
+            gameId!!,
+            listOf(),
+            requireContext(),
+            findNavController(),
+            { rewardId -> triggerAmountSelector(rewardId) })
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         setupObservers()
@@ -84,7 +92,7 @@ class MissionDashboardFragment : Fragment() {
     fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            toolbar.title = requireContext().getString(R.string.mission_title)
+            toolbar.title = requireContext().getString(R.string.navigation_drawer_rewards)
             toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
@@ -96,7 +104,7 @@ class MissionDashboardFragment : Fragment() {
         }
         fab.visibility = View.VISIBLE
         fab.setOnClickListener {
-            createMission()
+            createReward()
         }
         fab.visibility = View.VISIBLE
     }
@@ -110,13 +118,14 @@ class MissionDashboardFragment : Fragment() {
                 findNavController(),
                 requireActivity()
             )
-        }.observe(this, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
-        PlayerUtils.getPlayer(gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverPlayer ->
-                updatePlayer(serverPlayer)
+        rewardViewModel.getAllRewardsInGame(this, gameId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverRewardList ->
+                updateRewardList(serverRewardList)
             })
+
     }
 
     private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
@@ -127,32 +136,32 @@ class MissionDashboardFragment : Fragment() {
         setupFab(serverUpdate.isAdmin)
         adapter.setIsAdmin(serverUpdate.isAdmin)
         adapter.notifyDataSetChanged()
-
-        if (serverUpdate.isAdmin) {
-            missionViewModel.getAllMissionsInGame(this, gameId!!)
-                .observe(this, androidx.lifecycle.Observer { serverMissionList ->
-                    updateMissionList(serverMissionList)
-                })
-        } else {
-            missionViewModel.getMissionListOfMissionsPlayerIsIn(this, gameId!!, playerId!!)
-                .observe(this, androidx.lifecycle.Observer { serverMissionList ->
-                    updateMissionList(serverMissionList)
-                })
-        }
     }
 
-    private fun updatePlayer(serverPlayer: Player?) {
-        if (serverPlayer == null) {
-            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-        }
-    }
-
-    private fun updateMissionList(updatedMissionList: Map<String, Mission?>) {
-        adapter.setData(updatedMissionList)
+    private fun updateRewardList(updatedRewardList: List<Reward>) {
+        adapter.setData(updatedRewardList)
         adapter.notifyDataSetChanged()
     }
 
-    private fun createMission() {
-        NavigationUtil.navigateToMissionSettings(findNavController(), null)
+    private fun createReward() {
+        NavigationUtil.navigateToRewardSettings(findNavController(), null)
+    }
+
+    private fun triggerAmountSelector(rewardId: String) {
+        val amountSelectorDialog =
+            AmountSelectorDialog(requireContext().getString(R.string.reward_claim_code_dialog))
+        amountSelectorDialog.setPositiveButtonCallback { selectedNumber ->
+            runBlocking {
+                EspressoIdlingResource.increment()
+                RewardDatabaseOperations.asyncGenerateClaimCodes(
+                    gameId!!,
+                    rewardId,
+                    selectedNumber,
+                    { SystemUtils.showToast(requireContext(), "Created claim codes! Click the count to refresh it") },
+                    { SystemUtils.showToast(requireContext(), "Claim code generation failed") })
+                EspressoIdlingResource.decrement()
+            }
+        }
+        activity?.supportFragmentManager?.let { amountSelectorDialog.show(it, TAG) }
     }
 }

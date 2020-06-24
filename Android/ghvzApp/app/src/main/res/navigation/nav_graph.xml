@@ -69,7 +69,9 @@
 
   <action
     android:id="@+id/action_global_nav_mission_settings_fragment"
-    app:destination="@id/nav_mission_settings_fragment" />
+    app:destination="@id/nav_mission_settings_fragment"
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_mission_dashboard_fragment" />
 
   <action
     android:id="@+id/action_global_nav_chat_room_fragment"
@@ -102,6 +104,15 @@
   </action>
 
   <action android:id="@+id/nav_create_chat_with_admin" />
+
+  <action
+    android:id="@+id/action_global_nav_reward_dashboard_fragment"
+    app:destination="@id/nav_reward_dashboard_fragment" />
+
+  <action
+    android:id="@+id/action_global_nav_reward_settings_fragment"
+    app:destination="@id/nav_reward_settings_fragment"
+    app:popUpTo="@+id/nav_reward_dashboard_fragment" />
 
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
@@ -232,6 +243,21 @@
     android:name="com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragment">
     <argument
       android:name="missionId"
+      app:argType="string"
+      app:nullable="true" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/nav_reward_dashboard_fragment"
+    android:name="com.app.playhvz.screens.rewards.RewardDashboardFragment"
+    android:label="@string/navigation_drawer_rewards"
+    tools:layout="@layout/fragment_mission_dashboard" />
+
+  <fragment
+    android:id="@+id/nav_reward_settings_fragment"
+    android:name="com.app.playhvz.screens.rewards.rewardsettings.RewardSettingsFragment">
+    <argument
+      android:name="rewardId"
       app:argType="string"
       app:nullable="true" />
   </fragment>

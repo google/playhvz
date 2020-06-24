@@ -26,13 +26,43 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
+import java.util.*
 
 class UploadService {
     companion object {
         private val TAG = UploadService::class.qualifiedName
+        val IMAGE_DIRECTORY_NAME = "images"
+        val HUMAN_READABLE_SLASH = "/"
+        val URL_SLASH = "%2F"
+        val FILE_TYPE = ".jpg"
+
+        val PROFILE_TAG = "profile_"
+        val REWARD_TAG = "reward_"
+        val MESSAGE_TAG = "message_"
 
         fun getProfileImageName(player: Player): String {
-            return player.userId + "_" + player.id + "_" + "profile"
+            return PROFILE_TAG + player.userId + "_" + player.id
+        }
+
+        fun getRewardImageName(): String {
+            return REWARD_TAG + UUID.randomUUID().toString()
+        }
+
+        fun getMessageImageName(): String {
+            return MESSAGE_TAG + UUID.randomUUID().toString()
+        }
+
+        fun parseRewardImageNameFromExistingFirebaseUrl(url: String): String {
+            val regex = Regex(IMAGE_DIRECTORY_NAME + URL_SLASH + REWARD_TAG + ".+" + FILE_TYPE)
+            val result = regex.find(url, /* startIndex= */ 0)
+            if (result == null || result.groupValues.isEmpty()) {
+                // Couldn't parse URL, just make a new reward file name
+                return getRewardImageName()
+            }
+            var uuid = result.groupValues[0]
+            uuid = uuid.substringAfter(REWARD_TAG)
+            uuid = uuid.substringBefore(FILE_TYPE)
+            return REWARD_TAG + uuid
         }
     }
 
@@ -40,7 +70,8 @@ class UploadService {
 
     fun uploadBitmap(bitmap: Bitmap, name: String, urlCallback: ((url: Uri?) -> Unit)? = null) {
         val storageRef = storage.reference
-        val pathReference = storageRef.child("images/$name.jpg")
+        val pathReference =
+            storageRef.child(IMAGE_DIRECTORY_NAME + HUMAN_READABLE_SLASH + name + FILE_TYPE)
 
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
