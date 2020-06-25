@@ -27,7 +27,8 @@ import com.app.playhvz.firebase.classmodels.Player
 class MemberAdapter(
     private var items: List<Player>,
     val context: Context,
-    val onIconClicked: (player: Player) -> Unit
+    val onIconClicked: (player: Player) -> Unit,
+    private val viewProfile: ((playerId: String) -> Unit)?
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var canRemovePlayers: Boolean = false
@@ -39,7 +40,8 @@ class MemberAdapter(
                 R.layout.list_item_player,
                 parent,
                 false
-            )
+            ),
+            viewProfile
         )
     }
 

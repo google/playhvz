@@ -39,6 +39,7 @@ import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
+import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
@@ -283,6 +284,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun listenToGameUpdates(gameId: String?) {
+        if (FirebaseProvider.getFirebaseAuth().currentUser == null) {
+            // The user signed out and the game id was cleared. Do nothing with game navigation.
+            return
+        }
         if (gameId.isNullOrEmpty() || getCurrentPlayerId() == null) {
             if (isAdmin) {
                 isAdmin = false

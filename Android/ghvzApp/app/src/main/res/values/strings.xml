@@ -511,6 +511,18 @@
     Image Preview
   </string>
 
+  <string name="player_profile_admin_options_label" definition="Label for the admin options screen.">
+    Admin Options
+  </string>
+
+  <string name="player_profile_admin_options_allegiance" definition="Button for changing player allegiance.">
+    Change allegiance
+  </string>
+
+  <string name="player_profile_admin_options_reward" definition="Button for gifting the player a reward.">
+    Give reward
+  </string>
+
   <string name="player_profile_allegiance_label" definition="Label for the player's allegiance.">
     Allegiance
   </string>
@@ -556,14 +568,6 @@
     Amount to generate
   </string>
 
-  <string name="reward_card_expand_content_description" definition="Content description for button to expand reward details.">
-    Expand reward details
-  </string>
-
-  <string name="reward_card_collapse_content_description" definition="Content description for button to collapse reward details.">
-    Collapse reward details
-  </string>
-
   <string name="reward_card_view_claim_code_button" definition="Button text for showing a list of claim codes.">
     View claim codes
   </string>
@@ -604,7 +608,6 @@
     Point value
   </string>
 
-
   <string name="reward_settings_label_short_name" definition="Label for the text input for specifying a reward's short name.">
     Short name
   </string>
@@ -621,6 +624,21 @@
     Permanently delete reward
   </string>
 
+  <string name="set_allegiance_title" definition="Title for dialog to change the player's allegiance.">
+    Change allegiance to:
+  </string>
+
+  <string name="set_allegiance_positive_button" definition="Button for selecting the player's allegiance.">
+    Update
+  </string>
+
+  <string name="set_allegiance_warning" definition="Warning text about changing a player's allegiance.">
+    Be careful, changing this will cause the player to be added and removed from the appropriate groups based on their new allegiance.
+    Note that if a player is already human and you set them to human again THEY WILL GET A ADDITIONAL LIFECODE. That means the zombie
+    can still redeem their old lifecode and get points but this player will stay human. Players are human until ALL of their lifecodes are claimed.
+    Setting a zombie to be a zombie does nothing. Weird things could happen if you set a player to be undeclared; maybe it will be fine and maybe it will break?
+  </string>
+
   <string name="sign_in_failed_toast">
     Sign in failed :(
   </string>
@@ -635,6 +653,14 @@
 
 
   <!-- Accessibility strings -->
+  <string name="button_collapse_content_description" definition="Content description for button to collapse details.">
+    Collapse options
+  </string>
+
+  <string name="button_expand_content_description" definition="Content description for button to expand details.">
+    Expand options
+  </string>
+
   <string name="chat_info_content_description" definition="Content description for the icon to open chat info page.">
     See chat info
   </string>
@@ -649,6 +675,14 @@
 
   <string name="delete_button_content_description" definition="Content description for a delete button.">
     Delete
+  </string>
+
+  <string name="reward_card_expand_content_description" definition="Content description for button to expand reward details.">
+    Expand reward details
+  </string>
+
+  <string name="reward_card_collapse_content_description" definition="Content description for button to collapse reward details.">
+    Collapse reward details
   </string>
 
 

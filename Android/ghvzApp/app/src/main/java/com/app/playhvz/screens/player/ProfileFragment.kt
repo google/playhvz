@@ -22,12 +22,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,7 +46,9 @@ import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerViewModel
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
 
 
@@ -66,12 +71,19 @@ class ProfileFragment : Fragment() {
     private lateinit var lifeCodeRecyclerView: RecyclerView
     private lateinit var lifeCodeAdapter: LifeCodeAdapter
     private lateinit var progressBar: ProgressBar
+    private lateinit var adminOptionsContainer: ConstraintLayout
 
     var gameId: String? = null
     var playerId: String? = null
     var currentUserPlayerId: String? = null
     var game: Game? = null
     var player: Player? = null
+    var isAdmin: Boolean = false
+
+    private var expandAdminOptionsButton: MaterialButton? = null
+    private var collapsibleAdminOptionsSection: LinearLayout? = null
+    private var changeAllegianceButton: MaterialButton? = null
+    private var giveRewardButton: MaterialButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +92,6 @@ class ProfileFragment : Fragment() {
         playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
         gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
         lifeCodeAdapter = LifeCodeAdapter(listOf(), requireContext())
-
     }
 
     override fun onCreateView(
@@ -90,6 +101,7 @@ class ProfileFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_player_profile, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
+        adminOptionsContainer = view.findViewById(R.id.admin_options_container)
         nameView = view.findViewById(R.id.player_name)
         avatarView = view.findViewById(R.id.player_avatar)
         allegianceView = view.findViewById(R.id.player_allegiance)
@@ -160,6 +172,28 @@ class ProfileFragment : Fragment() {
                     updatePlayer(serverPlayer)
                 })
         }
+
+        if (currentUserPlayerId == null) {
+            val sharedPrefs = activity?.getSharedPreferences(
+                SharedPreferencesConstants.PREFS_FILENAME,
+                0
+            )!!
+            currentUserPlayerId =
+                sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+        }
+
+        // Monitor if the current user is an admin.
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, currentUserPlayerId!!) {
+            NavigationUtil.navigateToGameList(
+                findNavController(),
+                requireActivity()
+            )
+        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverUpdate ->
+            if (serverUpdate != null) {
+                isAdmin = serverUpdate.isAdmin
+                setupAdminUi()
+            }
+        })
     }
 
     private fun updatePlayer(serverPlayer: Player?) {
@@ -171,7 +205,8 @@ class ProfileFragment : Fragment() {
         userAvatarPresenter.renderAvatar(serverPlayer)
         allegianceView.setText(serverPlayer.allegiance)
 
-        if (serverPlayer.allegiance == HUMAN) {
+        if (serverPlayer.allegiance == HUMAN && playerId == null) {
+            // Only show lifecodes if we're not viewing someone else's profile
             lifeCodeAdapter.setData(serverPlayer.lifeCodes)
             lifeCodeAdapter.notifyDataSetChanged()
             lifeCodeRecyclerView.visibility = View.VISIBLE
@@ -206,4 +241,66 @@ class ProfileFragment : Fragment() {
             EspressoIdlingResource.decrement()
         }
     }
+
+    private fun setupAdminUi() {
+        if (!isAdmin) {
+            adminOptionsContainer.visibility = View.GONE
+            return
+        }
+        adminOptionsContainer.visibility = View.VISIBLE
+        if (expandAdminOptionsButton == null) {
+            expandAdminOptionsButton = view?.findViewById(R.id.more_less_button)
+        }
+        if (collapsibleAdminOptionsSection == null) {
+            collapsibleAdminOptionsSection =
+                view?.findViewById(R.id.admin_options_collapsible_section)
+        }
+        expandAdminOptionsButton!!.setOnClickListener { v ->
+            val isCollapsed = collapsibleAdminOptionsSection!!.visibility == View.GONE
+            collapsibleAdminOptionsSection!!.visibility =
+                if (isCollapsed) View.VISIBLE else View.GONE
+            expandAdminOptionsButton!!.setIconResource(
+                if (isCollapsed) R.drawable.ic_expand_less else R.drawable.ic_expand_more
+            )
+            expandAdminOptionsButton!!.contentDescription =
+                if (isCollapsed)
+                    v.resources.getString(R.string.button_collapse_content_description)
+                else
+                    v.resources.getString(R.string.button_expand_content_description)
+        }
+
+        if (changeAllegianceButton == null) {
+            changeAllegianceButton = view?.findViewById(R.id.change_allegiance_button)
+        }
+        changeAllegianceButton!!.setOnClickListener {
+            val allegianceDialog = SetAllegianceDialog(
+                player!!.allegiance,
+                { newAllegiance -> setAllegiance(newAllegiance) })
+            activity?.supportFragmentManager?.let {
+                allegianceDialog.show(it, TAG)
+            }
+
+        }
+
+        if (giveRewardButton == null) {
+            giveRewardButton = view?.findViewById(R.id.give_reward_button)
+        }
+
+
+    }
+
+    private fun setAllegiance(allegiance: String) {
+        runBlocking {
+            EspressoIdlingResource.increment()
+            val playerToChange = if (playerId.isNullOrBlank()) currentUserPlayerId!! else playerId!!
+            PlayerDatabaseOperations.setPlayerAllegiance(
+                gameId!!,
+                playerToChange,
+                allegiance,
+                {},
+                {})
+            EspressoIdlingResource.decrement()
+        }
+    }
+
 }

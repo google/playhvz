@@ -41,6 +41,7 @@ class GameViewModel() : ViewModel() {
     private var game: HvzData<Game> = HvzData()
     private var gameWithAdminStatus: HvzData<GameWithAdminStatus> = HvzData()
     private var adminGroup: HvzData<Group> = HvzData()
+    private var isAdmin: HvzData<Boolean> = HvzData()
 
     /** Returns a Game LiveData object for the given id. */
     fun getGame(gameId: String, onFailureListener: () -> Unit): LiveData<Game> {

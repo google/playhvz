@@ -129,7 +129,12 @@ class GameSettingsFragment : Fragment() {
         adminRecyclerView = view.findViewById(R.id.admin_list)
         adminRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         adminAdapter =
-            MemberAdapter(listOf(), requireContext(), { player -> onRemoveAdminClicked(player) })
+            MemberAdapter(
+                listOf(),
+                requireContext(), /* onIconClicked= */
+                { player -> onRemoveAdminClicked(player) }, /* viewProfile= */
+                null
+            )
         adminRecyclerView.adapter = adminAdapter
 
         onCallPlayerLayout.visibility = View.GONE
@@ -206,7 +211,7 @@ class GameSettingsFragment : Fragment() {
                 requireActivity()
             )
         }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
-            if (hasChanges.value!! &&  !isSaving) {
+            if (hasChanges.value!! && !isSaving) {
                 // Someone else updated the game, show an error and ignore pending changes.
                 errorLabel.visibility = View.VISIBLE
                 disableActions()

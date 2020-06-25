@@ -107,7 +107,7 @@ class GameDashboardFragment : Fragment() {
             return
         }
         firestoreViewModel.getGame(gameId!!) {
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
             updateGame(serverGame)
         })

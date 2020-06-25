@@ -142,4 +142,86 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="@id/player_life_code_icon" />
 
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/admin_options_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    tools:visibility="visible">
+
+    <View
+      android:id="@+id/admin_divider"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/divider_height"
+      android:background="@color/divider"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+      android:id="@+id/admin_options_label"
+      style="@style/LifeCodeStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:padding="@dimen/screen_margin_horizontal"
+      android:text="@string/player_profile_admin_options_label"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/admin_divider" />
+
+    <com.google.android.material.button.MaterialButton
+      android:id="@+id/more_less_button"
+      style="@style/Widget.MaterialComponents.Button.TextButton"
+      android:layout_width="@dimen/tap_target_min"
+      android:layout_height="@dimen/tap_target_min"
+      android:contentDescription="@string/button_expand_content_description"
+      app:icon="@drawable/ic_expand_more"
+      app:layout_constraintBottom_toBottomOf="@id/admin_options_label"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="@id/admin_options_label" />
+
+    <LinearLayout
+      android:id="@+id/admin_options_collapsible_section"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:visibility="gone"
+      app:layout_constraintTop_toBottomOf="@id/admin_options_label"
+      tools:visibility="visible">
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/change_allegiance_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:lines="2"
+        android:maxWidth="170dp"
+        android:minHeight="@dimen/tap_target_min"
+        android:text="@string/player_profile_admin_options_allegiance"
+        app:icon="@drawable/ic_flag"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/details" />
+
+      <Space
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/give_reward_button"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:lines="2"
+        android:minHeight="@dimen/tap_target_min"
+        android:text="@string/player_profile_admin_options_reward"
+        app:icon="@drawable/ic_trophy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/details" />
+    </LinearLayout>
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -84,7 +84,11 @@ class ChatInfoFragment : Fragment() {
         isChatWithAdmins = args.isChatWithAdmins
         chatViewModel = ChatRoomViewModel()
         memberAdapter =
-            MemberAdapter(listOf(), requireContext(), { player -> onRemovePlayerClicked(player) })
+            MemberAdapter(
+                listOf(),
+                requireContext(), /* onIconClicked= */
+                { player -> onRemovePlayerClicked(player) }, /* viewProfile= */
+                { playerId -> viewPlayerProfile(playerId) })
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -268,5 +272,10 @@ class ChatInfoFragment : Fragment() {
         return currentPlayer!!.chatRoomMemberships[chatRoomId]?.get(
             FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
         ) ?: default
+    }
+
+    private fun viewPlayerProfile(playerToView: String) {
+        NavigationUtil.navigateToPlayerProfile(findNavController(), gameId, playerToView)
+
     }
 }
