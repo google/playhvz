@@ -79,6 +79,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
         R.id.nav_mission_settings_fragment,
+        R.id.nav_redeem_lifecode_fragment,
+        R.id.nav_redeem_reward_fragment,
         R.id.nav_reward_dashboard_fragment,
         R.id.nav_reward_settings_fragment,
         R.id.nav_rules_fragment
@@ -186,6 +188,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_create_game_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToCreateGame(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
+            R.id.nav_redeem_lifecode_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToInfectPlayer(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
+            R.id.nav_redeem_reward_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToRedeemReward(
                     findNavController(R.id.nav_host_fragment)
                 )
             }

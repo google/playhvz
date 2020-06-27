@@ -40,6 +40,17 @@
 
   <!-- Navigation Items defined by navigation graph. -->
   <group android:id="@+id/nav_game_options">
+
+    <item
+      android:id="@id/nav_redeem_reward_fragment"
+      android:icon="@drawable/ic_trophy"
+      android:title="@string/navigation_drawer_redeem_reward" />
+
+    <item
+      android:id="@id/nav_redeem_lifecode_fragment"
+      android:icon="@drawable/ic_zed"
+      android:title="@string/navigation_drawer_infect_player" />
+
     <item
       android:id="@id/nav_rules_fragment"
       android:icon="@drawable/ic_list"

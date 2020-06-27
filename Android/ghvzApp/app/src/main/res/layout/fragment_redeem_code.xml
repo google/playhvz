@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Google Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context=".screens.redeemcode.RedeemCodeFragment">
+
+  <ProgressBar
+    android:id="@+id/progress_bar"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/horizontal_progress_bar_height"
+    android:indeterminate="true"
+    android:paddingStart="@dimen/screen_margin_horizontal"
+    android:paddingEnd="@dimen/screen_margin_horizontal"
+    android:visibility="gone" />
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/card_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp">
+
+    <EditText
+      android:id="@+id/code_input"
+      style="@style/TextAppearance.MaterialComponents.Body2"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:hint="@string/infect_card_hint_text"
+      android:importantForAutofill="no"
+      android:inputType="textNoSuggestions"
+      android:lines="1"
+      android:minHeight="48dp"
+      android:padding="8dp"
+      app:layout_constraintEnd_toStartOf="@id/send_button"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+      android:id="@+id/send_button"
+      style="@style/Widget.MaterialComponents.Button.TextButton"
+      android:layout_width="48dp"
+      android:layout_height="48dp"
+      android:enabled="false"
+      app:cornerRadius="24dp"
+      app:icon="@drawable/ic_send"
+      app:iconGravity="end"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+      android:id="@+id/error_label"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:textColor="@color/red"
+      android:visibility="gone"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/code_input" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

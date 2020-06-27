@@ -86,7 +86,6 @@ class DeclareAllegianceFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title = getString(R.string.declare_allegiance_card_title)
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 

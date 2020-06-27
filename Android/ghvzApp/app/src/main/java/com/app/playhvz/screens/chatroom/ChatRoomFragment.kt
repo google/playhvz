@@ -149,7 +149,6 @@ class ChatRoomFragment : Fragment() {
 
     fun setupToolbar() {
         toolbar?.title = ""
-        toolbar?.setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
     }
 

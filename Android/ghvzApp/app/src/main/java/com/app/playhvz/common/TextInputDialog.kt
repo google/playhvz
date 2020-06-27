@@ -52,7 +52,7 @@ class TextInputDialog(title: String? = null, hint: String? = null, draftText: St
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        customView = activity!!.layoutInflater.inflate(R.layout.dialog_text_input, null)
+        customView = requireActivity().layoutInflater.inflate(R.layout.dialog_text_input, null)
 
         editText = customView.findViewById(R.id.editText)
         editText.hint = hintText
@@ -66,7 +66,7 @@ class TextInputDialog(title: String? = null, hint: String? = null, draftText: St
             editText.append(draftText)
         }
 
-        val builder = AlertDialog.Builder(context!!)
+        val builder = AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setView(customView)
             .setPositiveButton(android.R.string.ok) { _, _ ->

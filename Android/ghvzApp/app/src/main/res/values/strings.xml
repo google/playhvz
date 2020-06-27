@@ -499,8 +499,16 @@
     Home
   </string>
 
+  <string name="navigation_drawer_infect_player" definition="Navigation drawer menu item for infecting a player.">
+    Infect player
+  </string>
+
   <string name="navigation_drawer_rewards" definition="Navigation drawer menu item for opening the reward dashboard for the game.">
     Rewards
+  </string>
+
+  <string name="navigation_drawer_redeem_reward" definition="Navigation drawer menu item for redeeming a reward code.">
+    Redeem reward
   </string>
 
   <string name="navigation_drawer_rules" definition="Navigation drawer menu item for opening the rules of a game.">

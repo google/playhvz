@@ -160,7 +160,6 @@ class RewardSettingsFragment : Fragment() {
                 return
             }
             toolbar.title = requireContext().getString(R.string.reward_settings_edit_reward_title)
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 

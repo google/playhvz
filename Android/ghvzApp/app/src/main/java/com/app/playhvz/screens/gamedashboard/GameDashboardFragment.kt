@@ -98,7 +98,6 @@ class GameDashboardFragment : Fragment() {
             toolbar.title =
                 if (game == null || game?.name.isNullOrEmpty()) requireContext().getString(R.string.app_name)
                 else game?.name
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 
