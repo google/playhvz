@@ -83,12 +83,15 @@ export async function internallyChangePlayerAllegiance(db: any, gameId: string, 
     console.log("Player data is undefined, not updating allegiance")
     return
   }
+  if (newAllegiance === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+     // Even if the player is already a human generate a new lifecode for them. Players aren't zombies
+     // until all their lifecodes are used so this lets us prevent a player from becoming a zombie
+     // if someone else got their existing lifecode already.
+      await PlayerUtils.generateLifeCode(db, gameId, playerDocSnapshot)
+  }
   if (playerData[Player.FIELD__ALLEGIANCE] === newAllegiance) {
     console.log("Not changing allegiance, it's already set to " + newAllegiance)
     return
-  }
-  if (newAllegiance === Defaults.HUMAN_ALLEGIANCE_FILTER) {
-    await PlayerUtils.generateLifeCode(db, gameId, playerDocSnapshot)
   }
 
   // Update player allegiance

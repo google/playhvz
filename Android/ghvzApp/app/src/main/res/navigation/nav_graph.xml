@@ -105,6 +105,25 @@
 
   <action android:id="@+id/nav_create_chat_with_admin" />
 
+  <action android:id="@+id/nav_find_player" />
+
+  <action
+    android:id="@+id/action_global_nav_redeem_reward_fragment"
+    app:destination="@id/nav_redeem_reward_fragment">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.redeemcode.RedeemCodeFragment$RedeemCodeFragmentType" />
+
+  </action>
+
+  <action
+    android:id="@+id/action_global_nav_redeem_lifecode_fragment"
+    app:destination="@id/nav_redeem_lifecode_fragment">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.redeemcode.RedeemCodeFragment$RedeemCodeFragmentType" />
+  </action>
+
   <action
     android:id="@+id/action_global_nav_reward_dashboard_fragment"
     app:destination="@id/nav_reward_dashboard_fragment" />
@@ -260,6 +279,26 @@
       android:name="rewardId"
       app:argType="string"
       app:nullable="true" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/nav_redeem_reward_fragment"
+    android:name="com.app.playhvz.screens.redeemcode.RedeemCodeFragment"
+    android:label="@string/navigation_drawer_redeem_reward"
+    tools:layout="@layout/fragment_redeem_code">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.redeemcode.RedeemCodeFragment$RedeemCodeFragmentType" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/nav_redeem_lifecode_fragment"
+    android:name="com.app.playhvz.screens.redeemcode.RedeemCodeFragment"
+    android:label="@string/navigation_drawer_infect_player"
+    tools:layout="@layout/fragment_redeem_code">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.redeemcode.RedeemCodeFragment$RedeemCodeFragmentType" />
   </fragment>
 
 </navigation>

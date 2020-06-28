@@ -58,8 +58,8 @@ class GameDashboardFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        firestoreViewModel = ViewModelProvider(activity!!).get(GameViewModel::class.java)
-        missionViewModel = ViewModelProvider(activity!!).get(MissionListViewModel::class.java)
+        firestoreViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
+        missionViewModel = ViewModelProvider(requireActivity()).get(MissionListViewModel::class.java)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -69,8 +69,8 @@ class GameDashboardFragment : Fragment() {
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
 
         if (gameId == null || playerId == null) {
-            SystemUtils.clearSharedPrefs(activity!!)
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            SystemUtils.clearSharedPrefs(requireActivity())
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
 
 
@@ -96,9 +96,8 @@ class GameDashboardFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title =
-                if (game == null || game?.name.isNullOrEmpty()) context!!.getString(R.string.app_name)
+                if (game == null || game?.name.isNullOrEmpty()) requireContext().getString(R.string.app_name)
                 else game?.name
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 
@@ -106,11 +105,19 @@ class GameDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        firestoreViewModel.getGame(gameId!!) {
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
-        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
-            updateGame(serverGame)
-        })
+        val failureListener = {
+            try {
+                NavigationUtil.navigateToGameList(findNavController(), requireActivity())
+            } catch (e: IllegalStateException) {
+                // This means the user signed out and we can't find the nav controller because the
+                // main activity died and we're showing the sign-in activity instead.
+                // Do nothing because the right activity is already showing.
+            }
+        }
+        firestoreViewModel.getGame(gameId!!, failureListener)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
+                updateGame(serverGame)
+            })
         PlayerUtils.getPlayer(gameId!!, playerId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
@@ -141,7 +148,7 @@ class GameDashboardFragment : Fragment() {
 
     private fun updatePlayer(serverPlayer: Player?) {
         if (serverPlayer == null) {
-            NavigationUtil.navigateToGameList(findNavController(), activity!!)
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
         declareAllegianceCard.onPlayerUpdated(serverPlayer!!)
         infectCard.onPlayerUpdated(serverPlayer)

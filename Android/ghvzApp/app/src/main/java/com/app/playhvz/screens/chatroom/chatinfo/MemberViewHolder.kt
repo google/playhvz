@@ -26,13 +26,15 @@ import com.app.playhvz.firebase.classmodels.Player
 import com.google.android.material.button.MaterialButton
 
 
-class MemberViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+class MemberViewHolder(val view: View, private val viewProfile: ((playerId: String) -> Unit)?) : RecyclerView.ViewHolder(view) {
 
     private val avatarView = view.findViewById<ConstraintLayout>(R.id.player_avatar_container)!!
     private val nameView = view.findViewById<TextView>(R.id.player_name)!!
     private val iconView = view.findViewById<MaterialButton>(R.id.additional_icon)!!
+    private var player: Player? = null
 
     fun onBind(player: Player?, onIconClicked: (player: Player) -> Unit, shouldShowIcon: Boolean) {
+        this.player = player
         updateDisplayedPlayerData(player!!)
         iconView.visibility = if (shouldShowIcon) {
             View.VISIBLE
@@ -43,6 +45,9 @@ class MemberViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
             iconView.setOnClickListener {
                 onIconClicked.invoke(player)
             }
+        }
+        if (viewProfile != null) {
+            view.setOnClickListener { viewProfile.invoke(player.id!!) }
         }
     }
 

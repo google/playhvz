@@ -41,6 +41,7 @@ class GameViewModel() : ViewModel() {
     private var game: HvzData<Game> = HvzData()
     private var gameWithAdminStatus: HvzData<GameWithAdminStatus> = HvzData()
     private var adminGroup: HvzData<Group> = HvzData()
+    private var isAdmin: HvzData<Boolean> = HvzData()
 
     /** Returns a Game LiveData object for the given id. */
     fun getGame(gameId: String, onFailureListener: () -> Unit): LiveData<Game> {
@@ -130,6 +131,14 @@ class GameViewModel() : ViewModel() {
                 }
             }
         return adminGroup
+    }
+
+    // Clears out any reference to previous game datas
+    fun reset() {
+        game = HvzData()
+        gameWithAdminStatus = HvzData()
+        adminGroup = HvzData()
+        isAdmin = HvzData()
     }
 
     private fun stopListening() {

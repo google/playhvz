@@ -19,6 +19,11 @@ import * as Reward from '../data/reward';
 
 const NUM_REWARD_CODE_WORDS = 2
 
+export function extractShortNameFromCode(claimCode: string): string {
+  return claimCode.split("-", 1)[0]
+}
+
+
 export function generateClaimCode(
   db: any,
   gameId: string,
@@ -59,3 +64,4 @@ function getRandomWords(seed: string, numWords: number): string[] {
   }
   return selectedWords
 }
+

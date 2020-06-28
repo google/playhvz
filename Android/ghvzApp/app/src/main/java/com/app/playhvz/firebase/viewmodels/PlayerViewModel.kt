@@ -72,6 +72,11 @@ class PlayerViewModel : ViewModel() {
         return player
     }
 
+    // Clears out any reference to previous player data
+    fun reset() {
+        player = HvzData()
+    }
+
     /** Returns the latest LiveData object we requested. */
     fun getPlayer(): MutableLiveData<Player>? {
         return if (player.value != null) player else null

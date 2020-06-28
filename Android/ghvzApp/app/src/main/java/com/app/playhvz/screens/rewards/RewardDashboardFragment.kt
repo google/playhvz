@@ -42,7 +42,7 @@ import kotlinx.coroutines.runBlocking
 /** Fragment for showing a list of rewards.*/
 class RewardDashboardFragment : Fragment() {
     companion object {
-        private val TAG = RewardDashboardFragment::class.qualifiedName
+        val TAG = RewardDashboardFragment::class.qualifiedName
     }
 
     lateinit var gameViewModel: GameViewModel
@@ -77,6 +77,7 @@ class RewardDashboardFragment : Fragment() {
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.reward_list)
         adapter = RewardDashboardAdapter(
+            requireActivity(),
             gameId!!,
             listOf(),
             requireContext(),
@@ -93,7 +94,6 @@ class RewardDashboardFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title = requireContext().getString(R.string.navigation_drawer_rewards)
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 

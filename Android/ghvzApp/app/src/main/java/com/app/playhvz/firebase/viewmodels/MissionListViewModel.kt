@@ -38,6 +38,13 @@ class MissionListViewModel : ViewModel() {
     private var groupIdsPlayerIsInList: HvzData<List<String>> = HvzData(listOf())
     private var missionList: HvzData<Map<String, Mission?>> = HvzData(mapOf())
 
+    /** Clears all saved state. */
+    fun reset() {
+       associatedGroupIdList = HvzData(listOf())
+       groupIdsPlayerIsInList = HvzData(listOf())
+       missionList = HvzData(mapOf())
+    }
+
     /** Listens to all mission updates and returns a LiveData object list in the missions. */
     fun getAllMissionsInGame(
         lifecycleOwner: LifecycleOwner,

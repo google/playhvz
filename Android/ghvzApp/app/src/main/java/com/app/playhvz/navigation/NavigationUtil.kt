@@ -19,7 +19,6 @@ package com.app.playhvz.navigation
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants
-import com.app.playhvz.screens.chatlist.AdminChatListFragment
 import com.app.playhvz.screens.chatlist.AdminChatListFragmentDirections
 import com.app.playhvz.screens.chatlist.ChatListFragmentDirections
 import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
@@ -31,6 +30,8 @@ import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
+import com.app.playhvz.screens.redeemcode.RedeemCodeFragment
+import com.app.playhvz.screens.redeemcode.RedeemCodeFragmentDirections
 import com.app.playhvz.screens.rewards.RewardDashboardFragmentDirections
 import com.app.playhvz.screens.rewards.rewardsettings.RewardSettingsFragmentDirections
 import com.app.playhvz.screens.rules_faq.CollapsibleListFragment
@@ -117,9 +118,18 @@ class NavigationUtil {
         /**
          * Opens the chat's info screen.
          */
-        fun navigateToChatInfo(navController: NavController, chatRoomId: String, playerId: String, isChatWithAdmins: Boolean) {
+        fun navigateToChatInfo(
+            navController: NavController,
+            chatRoomId: String,
+            playerId: String,
+            isChatWithAdmins: Boolean
+        ) {
             navController.navigate(
-                ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(chatRoomId, playerId, isChatWithAdmins)
+                ChatInfoFragmentDirections.actionGlobalNavChatInfoFragment(
+                    chatRoomId,
+                    playerId,
+                    isChatWithAdmins
+                )
             )
         }
 
@@ -189,6 +199,28 @@ class NavigationUtil {
         fun navigateToRewardSettings(navController: NavController, rewardId: String?) {
             navController.navigate(
                 RewardSettingsFragmentDirections.actionGlobalNavRewardSettingsFragment(rewardId)
+            )
+        }
+
+        /**
+         * Opens the reward redemption view.
+         */
+        fun navigateToRedeemReward(navController: NavController) {
+            navController.navigate(
+                RedeemCodeFragmentDirections.actionGlobalNavRedeemLifecodeFragment(
+                    RedeemCodeFragment.RedeemCodeFragmentType.REWARDCODE
+                )
+            )
+        }
+
+        /**
+         * Opens the lifecode redemption (aka infection) view.
+         */
+        fun navigateToInfectPlayer(navController: NavController) {
+            navController.navigate(
+                RedeemCodeFragmentDirections.actionGlobalNavRedeemLifecodeFragment(
+                    RedeemCodeFragment.RedeemCodeFragmentType.LIFECODE
+                )
             )
         }
     }

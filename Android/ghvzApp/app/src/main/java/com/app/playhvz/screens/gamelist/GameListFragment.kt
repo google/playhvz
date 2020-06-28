@@ -24,6 +24,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +35,9 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRE
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameListViewModel
+import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.MissionListViewModel
+import com.app.playhvz.firebase.viewmodels.PlayerViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import kotlinx.coroutines.runBlocking
 
@@ -53,8 +57,14 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firestoreViewModel = GameListViewModel()
-        gameListAdapter = GameListAdapter(emptyList(), context!!, this)
-        setupObservers()
+        gameListAdapter = GameListAdapter(emptyList(), requireContext(), this)
+        // Clear out any previous viewmodels
+        val gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
+        val playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
+        val missionViewModel = ViewModelProvider(requireActivity()).get(MissionListViewModel::class.java)
+        gameViewModel.reset()
+        playerViewModel.reset()
+        missionViewModel.reset()
     }
 
     override fun onCreateView(
@@ -66,6 +76,7 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
         val gameListRecyclerView = view.findViewById<RecyclerView>(R.id.game_list)
         gameListRecyclerView.layoutManager = LinearLayoutManager(context)
         gameListRecyclerView.adapter = gameListAdapter
+        setupObservers()
         return view
     }
 

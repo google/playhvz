@@ -40,7 +40,7 @@ import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.UserAvatarPresenter
 import com.app.playhvz.common.globals.SharedPreferencesConstants
-import com.app.playhvz.common.playersearch.PlayerSearchDialog
+import com.app.playhvz.common.playersearch.ChatPlayerSearchDialog
 import com.app.playhvz.common.playersearch.PlayerSearchWithinGroupDialog
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Group
@@ -129,7 +129,12 @@ class GameSettingsFragment : Fragment() {
         adminRecyclerView = view.findViewById(R.id.admin_list)
         adminRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         adminAdapter =
-            MemberAdapter(listOf(), requireContext(), { player -> onRemoveAdminClicked(player) })
+            MemberAdapter(
+                listOf(),
+                requireContext(), /* onIconClicked= */
+                { player -> onRemoveAdminClicked(player) }, /* viewProfile= */
+                null
+            )
         adminRecyclerView.adapter = adminAdapter
 
         onCallPlayerLayout.visibility = View.GONE
@@ -140,7 +145,7 @@ class GameSettingsFragment : Fragment() {
         }
 
         addAdminButton.setOnClickListener {
-            val addPeopleDialog = PlayerSearchDialog(gameId!!, adminGroup)
+            val addPeopleDialog = ChatPlayerSearchDialog(gameId!!, adminGroup)
             activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
         }
 
@@ -185,7 +190,6 @@ class GameSettingsFragment : Fragment() {
             toolbar.title =
                 if (game == null || game?.name.isNullOrEmpty()) requireContext().getString(R.string.game_settings_create_game_toolbar_title)
                 else game?.name
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 
@@ -206,7 +210,7 @@ class GameSettingsFragment : Fragment() {
                 requireActivity()
             )
         }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
-            if (hasChanges.value!! &&  !isSaving) {
+            if (hasChanges.value!! && !isSaving) {
                 // Someone else updated the game, show an error and ignore pending changes.
                 errorLabel.visibility = View.VISIBLE
                 disableActions()

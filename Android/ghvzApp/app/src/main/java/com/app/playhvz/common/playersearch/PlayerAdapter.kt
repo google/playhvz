@@ -29,7 +29,8 @@ class PlayerAdapter(
     private var items: List<Player>,
     val context: Context,
     val playerSelectedClickHandler: PlayerSearchClickHandler,
-    val maxSelectable: Int? = null
+    val maxSelectable: Int? = null,
+    val onSinglePlayerSelected: ((player: Player) -> Unit)? = null
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), PlayerViewHolder.PlayerClickListener {
 
@@ -63,6 +64,10 @@ class PlayerAdapter(
     }
 
     override fun onPlayerClicked(checkIcon: MaterialButton, player: Player) {
+        if (onSinglePlayerSelected != null) {
+            onSinglePlayerSelected.invoke(player)
+            return
+        }
         val playerId = player.id!!
         if (selectedPlayers.contains(playerId)) {
             // Deselect the player

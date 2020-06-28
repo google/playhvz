@@ -53,7 +53,7 @@ class DeclareAllegianceFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        firestoreViewModel = ViewModelProvider(activity!!).get(GameViewModel::class.java)
+        firestoreViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -61,9 +61,6 @@ class DeclareAllegianceFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
-
-        setupObservers()
-        setupToolbar()
     }
 
     override fun onCreateView(
@@ -80,6 +77,8 @@ class DeclareAllegianceFragment : Fragment() {
             setAllegiance(ZOMBIE)
             NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
         }
+        setupObservers()
+        setupToolbar()
         return view
     }
 
@@ -87,7 +86,6 @@ class DeclareAllegianceFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title = getString(R.string.declare_allegiance_card_title)
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 
@@ -96,7 +94,7 @@ class DeclareAllegianceFragment : Fragment() {
             return
         }
         PlayerUtils.getPlayer(gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverPlayer ->
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                 player = serverPlayer
             })
     }

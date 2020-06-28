@@ -89,7 +89,6 @@ class AdminChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
 
     fun setupToolbar() {
         toolbar?.title = getString(R.string.chat_list_for_admin_toolbar)
-        toolbar?.setDisplayHomeAsUpEnabled(false)
     }
 
     private fun setupObservers() {

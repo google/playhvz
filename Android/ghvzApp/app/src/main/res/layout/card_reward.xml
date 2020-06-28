@@ -76,37 +76,72 @@
         style="@style/HeaderText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="8dp"
+        android:layout_marginHorizontal="12dp"
         app:layout_constraintBottom_toBottomOf="@id/image_container"
         app:layout_constraintStart_toEndOf="@id/image_container"
         app:layout_constraintTop_toTopOf="@id/image_container"
         tools:text="20 pts" />
 
-      <androidx.emoji.widget.EmojiTextView
-        android:id="@+id/reward_long_name"
-        style="@style/TextAppearance.AppCompat.Headline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_container"
-        tools:text="Award for Valor" />
-
-      <androidx.emoji.widget.EmojiTextView
-        android:id="@+id/reward_description"
-        style="@style/TextAppearance.AppCompat.Body2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/reward_long_name" />
-
       <com.google.android.material.button.MaterialButton
-        android:id="@+id/reward_generate_code_button"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/reward_card_label_generate_claim_codes_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/reward_description" />
+        android:id="@+id/more_less_button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="@dimen/tap_target_min"
+        android:layout_height="@dimen/tap_target_min"
+        android:contentDescription="@string/reward_card_expand_content_description"
+        app:icon="@drawable/ic_expand_more"
+        app:layout_constraintBottom_toBottomOf="@id/reward_points"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/reward_points" />
+
+      <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/reward_details_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image_container"
+        tools:visibility="visible">
+
+        <androidx.emoji.widget.EmojiTextView
+          android:id="@+id/reward_long_name"
+          style="@style/TextAppearance.MaterialComponents.Headline5"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:paddingBottom="2dp"
+          android:textColor="@color/app_secondary_text"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          tools:text="Award for Valor" />
+
+        <androidx.emoji.widget.EmojiTextView
+          android:id="@+id/reward_description"
+          style="@style/TextAppearance.AppCompat.Body2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textColor="@color/app_secondary_text"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/reward_long_name" />
+
+        <com.google.android.material.button.MaterialButton
+          android:id="@+id/reward_view_code_button"
+          android:layout_width="wrap_content"
+          android:layout_height="48dp"
+          android:layout_marginTop="8dp"
+          android:text="@string/reward_card_label_view_claim_codes_button"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/reward_description" />
+
+        <com.google.android.material.button.MaterialButton
+          android:id="@+id/reward_generate_code_button"
+          android:layout_width="wrap_content"
+          android:layout_height="48dp"
+          android:layout_marginTop="8dp"
+          android:text="@string/reward_card_label_generate_claim_codes_button"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/reward_view_code_button" />
+
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <TextView
         android:id="@+id/reward_claimed_count"
@@ -115,8 +150,8 @@
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/reward_details_section"
         tools:text="5/10" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
   </LinearLayout>

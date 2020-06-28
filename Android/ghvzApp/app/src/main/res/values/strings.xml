@@ -90,6 +90,9 @@
     Submit
   </string>
 
+  <string name="button_refresh" definition="Refresh button.">
+    Refresh
+  </string>
 
   <string name="button_use" definition="Button to select when saving changes.">
     Use
@@ -496,16 +499,40 @@
     Home
   </string>
 
+  <string name="navigation_drawer_infect_player" definition="Navigation drawer menu item for infecting a player.">
+    Infect player
+  </string>
+
   <string name="navigation_drawer_rewards" definition="Navigation drawer menu item for opening the reward dashboard for the game.">
     Rewards
+  </string>
+
+  <string name="navigation_drawer_redeem_reward" definition="Navigation drawer menu item for redeeming a reward code.">
+    Redeem reward
   </string>
 
   <string name="navigation_drawer_rules" definition="Navigation drawer menu item for opening the rules of a game.">
     Rules
   </string>
 
+  <string name="navigation_drawer_player_search" definition="Navigation drawer menu item for searching for a player.">
+    Search for player
+  </string>
+
   <string name="photo_upload_dialog_title" definition="Title for the photo upload dialog.">
     Image Preview
+  </string>
+
+  <string name="player_profile_admin_options_label" definition="Label for the admin options screen.">
+    Admin Options
+  </string>
+
+  <string name="player_profile_admin_options_allegiance" definition="Button for changing player allegiance.">
+    Change allegiance
+  </string>
+
+  <string name="player_profile_admin_options_reward" definition="Button for gifting the player a reward.">
+    Give reward
   </string>
 
   <string name="player_profile_allegiance_label" definition="Label for the player's allegiance.">
@@ -541,6 +568,10 @@
     <item quantity="other">%1$s pts</item>
   </plurals>
 
+  <string name="redeem_code_error_label" definition="Error label when redeeming a code failed">
+    Error: code failed
+  </string>
+
   <string name="reward_card_label_generate_claim_codes_button" definition="Label for the button to generate new claim codes.">
     Generate claim codes
   </string>
@@ -553,6 +584,10 @@
     Amount to generate
   </string>
 
+  <string name="reward_card_view_claim_code_button" definition="Button text for showing a list of claim codes.">
+    View claim codes
+  </string>
+
   <string name="reward_card_label_claim_code_count" definition="Label for showing the available claim codes.">
    Available: %1$s/%2$s
   </string>
@@ -561,8 +596,24 @@
     Generate
   </string>
 
-  <string name="reward_settings_create_reward_title">
+  <string name="reward_settings_create_reward_title" definition="Title for the reward creation view.">
     Create reward
+  </string>
+
+  <string name="reward_settings_error_label" definition="Error label when short name is already used.">
+    Error: name is already used
+  </string>
+
+  <string name="reward_claim_code_hint" definition="Hint text for inputing a reward claim code">
+    Enter reward code
+  </string>
+
+  <string name="reward_claim_code_dialog_title" definition="Title for the available claim codes">
+    Unused claim codes:
+  </string>
+
+  <string name="reward_claim_code_dialog_none" definition="Indicator that there are no claim codes">
+    &lt; none &gt;
   </string>
 
   <string name="reward_settings_edit_reward_title">
@@ -570,7 +621,7 @@
   </string>
 
   <string name="reward_settings_short_name_hint_text" definition="Hint text for an abbreviated reward for bravery.">
-    Valor
+    valor
   </string>
 
   <string name="reward_settings_long_name_hint_text" definition="Hint text for long reward name of bravery.">
@@ -580,7 +631,6 @@
   <string name="reward_settings_label_points" definition="Label for the text input for specifying a reward's points.">
     Point value
   </string>
-
 
   <string name="reward_settings_label_short_name" definition="Label for the text input for specifying a reward's short name.">
     Short name
@@ -598,6 +648,21 @@
     Permanently delete reward
   </string>
 
+  <string name="set_allegiance_title" definition="Title for dialog to change the player's allegiance.">
+    Change allegiance to:
+  </string>
+
+  <string name="set_allegiance_positive_button" definition="Button for selecting the player's allegiance.">
+    Update
+  </string>
+
+  <string name="set_allegiance_warning" definition="Warning text about changing a player's allegiance.">
+    Be careful, changing this will cause the player to be added and removed from the appropriate groups based on their new allegiance.
+    Note that if a player is already human and you set them to human again THEY WILL GET A ADDITIONAL LIFECODE. That means the zombie
+    can still redeem their old lifecode and get points but this player will stay human. Players are human until ALL of their lifecodes are claimed.
+    Setting a zombie to be a zombie does nothing. Weird things could happen if you set a player to be undeclared; maybe it will be fine and maybe it will break?
+  </string>
+
   <string name="sign_in_failed_toast">
     Sign in failed :(
   </string>
@@ -612,6 +677,14 @@
 
 
   <!-- Accessibility strings -->
+  <string name="button_collapse_content_description" definition="Content description for button to collapse details.">
+    Collapse options
+  </string>
+
+  <string name="button_expand_content_description" definition="Content description for button to expand details.">
+    Expand options
+  </string>
+
   <string name="chat_info_content_description" definition="Content description for the icon to open chat info page.">
     See chat info
   </string>
@@ -626,6 +699,14 @@
 
   <string name="delete_button_content_description" definition="Content description for a delete button.">
     Delete
+  </string>
+
+  <string name="reward_card_expand_content_description" definition="Content description for button to expand reward details.">
+    Expand reward details
+  </string>
+
+  <string name="reward_card_collapse_content_description" definition="Content description for button to collapse reward details.">
+    Collapse reward details
   </string>
 
 

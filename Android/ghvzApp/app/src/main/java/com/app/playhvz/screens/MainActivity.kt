@@ -27,6 +27,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -39,6 +40,8 @@ import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
+import com.app.playhvz.common.playersearch.GlobalPlayerSearchDialog
+import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
@@ -65,9 +68,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var fab: FloatingActionButton
     private lateinit var bottomNavView: BottomNavigationView
     private lateinit var navDrawerView: NavigationView
+    private lateinit var gameViewModel: GameViewModel
 
     private var prefs: SharedPreferences? = null
-    private var gameViewModel = GameViewModel()
     private var gameId: String? = null
     private var isAdmin: Boolean = false
 
@@ -78,6 +81,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
         R.id.nav_mission_settings_fragment,
+        R.id.nav_redeem_lifecode_fragment,
+        R.id.nav_redeem_reward_fragment,
         R.id.nav_reward_dashboard_fragment,
         R.id.nav_reward_settings_fragment,
         R.id.nav_rules_fragment
@@ -105,6 +110,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setContentView(R.layout.activity_main)
         FirebaseDatabaseUtil.initFirebaseDatabase()
 
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
         fab = findViewById(R.id.floating_action_button)
         bottomNavView = findViewById(R.id.bottom_navigation_view)
         prefs = getSharedPreferences(PREFS_FILENAME, 0)
@@ -187,6 +193,30 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 NavigationUtil.navigateToCreateGame(
                     findNavController(R.id.nav_host_fragment)
                 )
+            }
+            R.id.nav_redeem_lifecode_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToInfectPlayer(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
+            R.id.nav_redeem_reward_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToRedeemReward(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
+            R.id.nav_find_player -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                val onPlayerSelected = { playerId: String ->
+                    NavigationUtil.navigateToPlayerProfile(
+                        findNavController(R.id.nav_host_fragment),
+                        gameId!!,
+                        playerId
+                    )
+                }
+                val playerSearchDialog = GlobalPlayerSearchDialog(gameId!!, onPlayerSelected)
+                playerSearchDialog.show(supportFragmentManager, TAG)
             }
             R.id.nav_sign_out -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
@@ -283,6 +313,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun listenToGameUpdates(gameId: String?) {
+        if (FirebaseProvider.getFirebaseAuth().currentUser == null) {
+            // The user signed out and the game id was cleared. Do nothing with game navigation.
+            return
+        }
         if (gameId.isNullOrEmpty() || getCurrentPlayerId() == null) {
             if (isAdmin) {
                 isAdmin = false

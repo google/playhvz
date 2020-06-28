@@ -31,5 +31,22 @@ export const COLLECTION_PATH = "rewards";
 export const FIELD__ID = Universal.FIELD__USER_ID;
 export const FIELD__SHORT_NAME = "shortName";
 export const FIELD__LONG_NAME = "longName";
+export const FIELD__DESCRIPTION = "description";
 export const FIELD__IMAGE_URL = "imageUrl";
 export const FIELD__POINTS = "points";
+
+export function create(
+  shortName: string,
+  longName: string,
+  description: string,
+  imageUrl: string,
+  points: number
+): { [key: string]: any; } {
+  return {
+    [FIELD__SHORT_NAME]: shortName,
+    [FIELD__LONG_NAME]: longName,
+    [FIELD__DESCRIPTION]: description,
+    [FIELD__IMAGE_URL]: imageUrl,
+    [FIELD__POINTS]: points
+  };
+}

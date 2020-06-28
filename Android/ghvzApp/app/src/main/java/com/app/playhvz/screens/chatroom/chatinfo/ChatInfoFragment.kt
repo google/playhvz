@@ -37,7 +37,7 @@ import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
-import com.app.playhvz.common.playersearch.PlayerSearchDialog
+import com.app.playhvz.common.playersearch.ChatPlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.classmodels.Player.Companion.FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
@@ -84,7 +84,11 @@ class ChatInfoFragment : Fragment() {
         isChatWithAdmins = args.isChatWithAdmins
         chatViewModel = ChatRoomViewModel()
         memberAdapter =
-            MemberAdapter(listOf(), requireContext(), { player -> onRemovePlayerClicked(player) })
+            MemberAdapter(
+                listOf(),
+                requireContext(), /* onIconClicked= */
+                { player -> onRemovePlayerClicked(player) }, /* viewProfile= */
+                { playerId -> viewPlayerProfile(playerId) })
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -131,7 +135,6 @@ class ChatInfoFragment : Fragment() {
 
     fun setupToolbar() {
         toolbar?.title = getString(R.string.chat_info_title)
-        toolbar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun setupObservers() {
@@ -169,7 +172,7 @@ class ChatInfoFragment : Fragment() {
     }
 
     private fun onAddPeopleClicked() {
-        val addPeopleDialog = PlayerSearchDialog(gameId!!, group, chatRoomId)
+        val addPeopleDialog = ChatPlayerSearchDialog(gameId!!, group, chatRoomId)
         activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
     }
 
@@ -268,5 +271,10 @@ class ChatInfoFragment : Fragment() {
         return currentPlayer!!.chatRoomMemberships[chatRoomId]?.get(
             FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
         ) ?: default
+    }
+
+    private fun viewPlayerProfile(playerToView: String) {
+        NavigationUtil.navigateToPlayerProfile(findNavController(), gameId, playerToView)
+
     }
 }

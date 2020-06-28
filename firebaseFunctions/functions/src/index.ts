@@ -982,6 +982,61 @@ async function deleteDocument(documentRef: any) {
 * REWARD functions
 ********************************************************/
 
+exports.createReward = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  let shortName = data.shortName;
+  const longName = data.longName;
+  const description = data.description;
+  const imageUrl = data.imageUrl;
+  const points = data.points;
+
+  if (!(typeof gameId === 'string')
+      || !(typeof shortName === 'string')
+      || !(typeof longName === 'string')
+      || !(typeof description === 'string')
+      || !(typeof imageUrl === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (!(typeof points === 'number')) {
+        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type Number.");
+  }
+  if (gameId.length === 0
+      || shortName.length === 0
+      || longName.length === 0
+      || description.length === 0
+      || imageUrl.length === 0
+      || points < 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId and valid reward args.');
+  }
+
+  shortName = shortName.trim()
+  shortName = shortName.replace(/\W/g, '') // remove all non alphanumeric chars
+
+  // Verify shortName isn't already used.
+  const rewardQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .where(Reward.FIELD__SHORT_NAME, "==", shortName)
+    .get()
+  if (!rewardQuerySnapshot.empty) {
+    throw new functions.https.HttpsError('failed-precondition', 'Reward with that name already exists.');
+  }
+
+  const reward = Reward.create(shortName, longName, description, imageUrl, points)
+
+  await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .add(reward)
+});
+
 exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
       // Throwing an HttpsError so that the client gets the error details.
@@ -1089,8 +1144,6 @@ exports.getRewardClaimedStats = functions.https.onCall(async (data, context) => 
 
   const unusedCount = unusedCodesQuerySnapshot.empty ? 0 : unusedCodesQuerySnapshot.docs.length
   const usedCount = usedCodesQuerySnapshot.empty ? 0 : usedCodesQuerySnapshot.docs.length
-
-  console.log("Unused: " + unusedCount + " for reward: " + usedCount)
   return {
     "unusedCount": unusedCount,
     "usedCount": usedCount
@@ -1098,6 +1151,112 @@ exports.getRewardClaimedStats = functions.https.onCall(async (data, context) => 
 });
 
 
+exports.getAvailableClaimCodes = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
 
+  const gameId = data.gameId;
+  const rewardId = data.rewardId;
+
+  if (!(typeof gameId === 'string') || !(typeof rewardId === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0 || rewardId.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId and rewardId.');
+  }
+
+  // Get unused claim codes
+  const unusedCodesQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .doc(rewardId)
+    .collection(ClaimCode.COLLECTION_PATH)
+    .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
+    .get();
+
+  if (unusedCodesQuerySnapshot.empty) {
+    return {
+        "claimCodes": []
+      }
+  }
+
+  const codeArray = new Array();
+  unusedCodesQuerySnapshot.forEach((claimCodeDoc: any) => {
+    const claimData = claimCodeDoc.data()
+    if (claimData === undefined) {
+      return // "continue" in a forEach
+    }
+    codeArray.push(claimData[ClaimCode.FIELD__CODE])
+  });
+
+  return {
+    "claimCodes": JSON.stringify(codeArray)
+  }
+});
+
+
+exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+  const playerId = data.playerId
+  let claimCode = data.claimCode;
+
+  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof claimCode === 'string')) {
+        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  claimCode = normalizeLifeCode(claimCode);
+  if (gameId.length === 0 || playerId.length === 0 || claimCode.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'a valid gameId, playerId, and claimCode.');
+  }
+
+  // Check if claim code is associated with valid reward.
+  const shortName = RewardUtils.extractShortNameFromCode(claimCode)
+  const rewardQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .where(Reward.FIELD__SHORT_NAME, "==", shortName)
+    .get()
+  if (rewardQuerySnapshot.empty || rewardQuerySnapshot.docs.length > 1) {
+     throw new functions.https.HttpsError('failed-precondition', 'No valid reward exists.');
+  }
+
+  // Check if reward code is valid.
+  const rewardDocSnapshot = rewardQuerySnapshot.docs[0];
+  const claimCodeQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Reward.COLLECTION_PATH)
+      .doc(rewardDocSnapshot.id)
+      .collection(ClaimCode.COLLECTION_PATH)
+      .where(ClaimCode.FIELD__CODE, "==", claimCode)
+      .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
+      .get()
+  if (claimCodeQuerySnapshot.empty || claimCodeQuerySnapshot.docs.length > 1) {
+    throw new functions.https.HttpsError('failed-precondition', 'No valid claim code exists.');
+  }
+  const claimCodeDocSnapshot = claimCodeQuerySnapshot.docs[0];
+
+  const playerDocRef = db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+  const rewardInfoPath = Player.FIELD__REWARDS + "." + rewardDocSnapshot.id
+
+  // Redeem claim code!
+  await claimCodeDocSnapshot.ref.update({
+    [ClaimCode.FIELD__REDEEMER]: playerId
+  })
+  await playerDocRef.update({
+    [rewardInfoPath]: admin.firestore.FieldValue.increment(1)
+  })
+});
 
 

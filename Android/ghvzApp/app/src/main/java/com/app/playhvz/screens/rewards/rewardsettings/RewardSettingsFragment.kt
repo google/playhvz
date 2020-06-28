@@ -22,6 +22,7 @@ import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
@@ -56,6 +57,7 @@ class RewardSettingsFragment : Fragment() {
 
     private lateinit var descriptionText: EmojiEditText
     private lateinit var button: MaterialButton
+    private lateinit var errorLabel: TextView
     private lateinit var imageView: ImageView
     private lateinit var longNameText: EmojiEditText
     private lateinit var pointText: EditText
@@ -99,6 +101,7 @@ class RewardSettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_reward_settings, container, false)
         imageView = view.findViewById(R.id.reward_badge_image)
         progressBar = view.findViewById(R.id.progress_bar)
+        errorLabel = view.findViewById(R.id.error_label)
         pointText = view.findViewById(R.id.reward_points)
         shortNameText = view.findViewById(R.id.reward_short_name)
         longNameText = view.findViewById(R.id.reward_long_name)
@@ -129,13 +132,20 @@ class RewardSettingsFragment : Fragment() {
         }
         shortNameText.doOnTextChanged { text, _, _, _ ->
             when {
-                text.isNullOrEmpty() || text.isBlank() -> {
+                text.isNullOrEmpty() -> {
                     disableActions()
+                }
+                text.contains(Regex("\\s")) -> {
+                    disableActions()
+                    errorLabel.setText(R.string.error_whitespace)
+                    errorLabel.visibility = View.VISIBLE
+                    return@doOnTextChanged
                 }
                 else -> {
                     enableActions()
                 }
             }
+            errorLabel.visibility = View.GONE
         }
         button.setOnClickListener {
             submitReward()
@@ -160,7 +170,6 @@ class RewardSettingsFragment : Fragment() {
                 return
             }
             toolbar.title = requireContext().getString(R.string.reward_settings_edit_reward_title)
-            toolbar.setDisplayHomeAsUpEnabled(true)
         }
     }
 
@@ -191,6 +200,8 @@ class RewardSettingsFragment : Fragment() {
         }
         rewardDraft.points?.let { pointText.setText(it.toString()) }
         shortNameText.setText(rewardDraft.shortName)
+        shortNameText.isEnabled = false
+        shortNameText.isFocusable = false
         longNameText.setText(rewardDraft.longName)
         descriptionText.setText(rewardDraft.description)
         button.text = getString(R.string.reward_settings_label_delete_button)
@@ -200,8 +211,9 @@ class RewardSettingsFragment : Fragment() {
     }
 
     private fun submitReward() {
+        progressBar.visibility = View.VISIBLE
         disableActions()
-        rewardDraft.shortName = shortNameText.text.toString()
+        rewardDraft.shortName = shortNameText.text.toString().toLowerCase()
         rewardDraft.longName = longNameText.text.toString()
         rewardDraft.description = descriptionText.text.toString()
         val pointText = pointText.text.toString()
@@ -215,10 +227,14 @@ class RewardSettingsFragment : Fragment() {
                     gameId!!,
                     rewardDraft,
                     {
+                        progressBar.visibility = View.GONE
                         SystemUtils.showToast(context, "Created reward.")
                         NavigationUtil.navigateToRewardDashboard(findNavController())
                     },
                     {
+                        progressBar.visibility = View.GONE
+                        errorLabel.setText(R.string.reward_settings_error_label)
+                        errorLabel.visibility = View.VISIBLE
                         enableActions()
                         SystemUtils.showToast(context, "Couldn't create reward.")
                     }

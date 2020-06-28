@@ -22,6 +22,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
@@ -33,6 +34,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class RewardViewHolder(
+    private val activity: FragmentActivity,
     private val gameId: String,
     view: View,
     private val navController: NavController,
@@ -49,9 +51,14 @@ class RewardViewHolder(
     private var pointView: TextView = rewardCard.findViewById(R.id.reward_points)
     private var longNameView: EmojiTextView = rewardCard.findViewById(R.id.reward_long_name)
     private var descriptionView: EmojiTextView = rewardCard.findViewById(R.id.reward_description)
+    private var expandDetailsButton: MaterialButton = rewardCard.findViewById(R.id.more_less_button)
+    private var rewardDetailsSection: ConstraintLayout =
+        rewardCard.findViewById(R.id.reward_details_section)
     private var claimCountView: TextView = rewardCard.findViewById(R.id.reward_claimed_count)
     private var generateClaimCodesButton: MaterialButton =
         rewardCard.findViewById(R.id.reward_generate_code_button)
+    private var viewClaimCodesButton: MaterialButton =
+        rewardCard.findViewById(R.id.reward_view_code_button)
 
     private lateinit var rewardId: String
     private var rewardListViewModel: RewardListViewModel
@@ -102,7 +109,23 @@ class RewardViewHolder(
             onGenerateCodeClick.invoke(rewardId)
         }
 
+        viewClaimCodesButton.setOnClickListener {
+            val viewerDialog =
+                ClaimCodeViewerDialog(
+                    gameId,
+                    rewardId,
+                    it.resources.getString(R.string.reward_claim_code_dialog_title)
+                )
+            activity.supportFragmentManager.let {
+                viewerDialog.show(
+                    it,
+                    RewardDashboardFragment.TAG
+                )
+            }
+        }
+
         initializeAndFetchRewardCount()
+        setupExpandCollapseDetails()
     }
 
     private fun initializeAndFetchRewardCount() {
@@ -136,6 +159,21 @@ class RewardViewHolder(
                 rewardId,
                 onClaimCodeCountUpdate
             )
+        }
+    }
+
+    private fun setupExpandCollapseDetails() {
+        expandDetailsButton.setOnClickListener { v ->
+            val isCollapsed = rewardDetailsSection.visibility == View.GONE
+            rewardDetailsSection.visibility = if (isCollapsed) View.VISIBLE else View.GONE
+            expandDetailsButton.setIconResource(
+                if (isCollapsed) R.drawable.ic_expand_less else R.drawable.ic_expand_more
+            )
+            expandDetailsButton.contentDescription =
+                if (isCollapsed)
+                    v.resources.getString(R.string.reward_card_collapse_content_description)
+                else
+                    v.resources.getString(R.string.reward_card_expand_content_description)
         }
     }
 }

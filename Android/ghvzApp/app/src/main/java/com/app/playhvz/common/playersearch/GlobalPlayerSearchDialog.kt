@@ -32,20 +32,18 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.HvzData
-import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
-import com.app.playhvz.firebase.operations.ChatDatabaseOperations
-import com.app.playhvz.firebase.operations.GroupDatabaseOperations
 import com.app.playhvz.utils.PlayerUtils
-import kotlinx.coroutines.runBlocking
 
-class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: String? = null) :
+class GlobalPlayerSearchDialog(
+    val gameId: String,
+    val onPlayerSelected: (playerId: String) -> Unit
+) :
     DialogFragment(),
     PlayerAdapter.PlayerSearchClickHandler {
     companion object {
-        private val TAG = PlayerSearchDialog::class.qualifiedName
+        private val TAG = GlobalPlayerSearchDialog::class.qualifiedName
     }
 
     private lateinit var dialogView: View
@@ -58,8 +56,6 @@ class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: 
     private lateinit var progressBar: ProgressBar
 
     private lateinit var playerListLiveData: HvzData<List<Player>>
-
-    private var playerFilter: String? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         playerListLiveData = HvzData(listOf())
@@ -78,7 +74,13 @@ class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: 
         positiveButton = dialogView.findViewById(R.id.positive_button)
         progressBar = dialogView.findViewById(R.id.progress_bar)
 
-        playerAdapter = PlayerAdapter(listOf(), requireContext(), this)
+        positiveButton.visibility = View.GONE
+        val firstSelection = { player: Player ->
+            this.dismiss()
+            onPlayerSelected.invoke(player.id!!)
+        }
+
+        playerAdapter = PlayerAdapter(listOf(), requireContext(), this, null, firstSelection)
         val playerRecyclerView: RecyclerView = dialogView.findViewById(R.id.player_list)
         val layoutManager = LinearLayoutManager(context)
         playerRecyclerView.layoutManager = layoutManager
@@ -107,7 +109,7 @@ class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: 
     }
 
     override fun onPlayerClicked(anyPlayerSelected: Boolean) {
-        positiveButton.isEnabled = anyPlayerSelected
+        // Do nothing, we don't have a positive button on this dialog
     }
 
     private fun queryPlayers(nameFilter: String?) {
@@ -116,14 +118,6 @@ class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: 
 
     private fun onPlayerListUpdated(updatedList: List<Player>) {
         val filteredList = updatedList.toMutableList()
-        if (group != null) {
-            // Filter out players that are already members
-            for (player in updatedList) {
-                if (group.members.contains(player.id)) {
-                    filteredList.remove(player)
-                }
-            }
-        }
         playerAdapter.setData(filteredList)
         playerAdapter.notifyDataSetChanged()
     }
@@ -131,61 +125,9 @@ class PlayerSearchDialog(val gameId: String, val group: Group?, val chatRoomId: 
     private fun initDialogViews() {
         errorLabel.visibility = View.GONE
         inputLabel.setText(getString(R.string.player_search_input_label))
-        positiveButton.isEnabled = false
-        positiveButton.text = getString(R.string.button_add)
-        positiveButton.setOnClickListener {
-            positiveButton.isEnabled = false
-            addSelectedPlayers()
-        }
         negativeButton.text = getString(R.string.button_cancel)
         negativeButton.setOnClickListener {
             this.dismiss()
-        }
-    }
-
-    private fun addSelectedPlayers() {
-        progressBar.visibility = View.VISIBLE
-        val selectedPlayers = playerAdapter.getSelectedPlayers()
-
-        val onSuccess = {
-            progressBar.visibility = View.INVISIBLE
-            dismiss()
-            Toast.makeText(
-                context,
-                getString(R.string.generic_success_toast),
-                Toast.LENGTH_LONG
-            ).show()
-
-        }
-        val onFailure = {
-            progressBar.visibility = View.INVISIBLE
-            errorLabel.setText(R.string.player_search_error_label)
-            errorLabel.visibility = View.VISIBLE
-            positiveButton.isEnabled = false
-        }
-        onSuccess.invoke()
-
-        runBlocking {
-            EspressoIdlingResource.increment()
-            if (chatRoomId == null) {
-                GroupDatabaseOperations.asyncAddPlayersToGroup(
-                    gameId,
-                    selectedPlayers.toList(),
-                    group?.id!!,
-                    onSuccess,
-                    onFailure
-                )
-            } else {
-                ChatDatabaseOperations.asyncAddPlayersToChat(
-                    gameId,
-                    selectedPlayers.toList(),
-                    group?.id!!,
-                    chatRoomId,
-                    onSuccess,
-                    onFailure
-                )
-                EspressoIdlingResource.decrement()
-            }
         }
     }
 }

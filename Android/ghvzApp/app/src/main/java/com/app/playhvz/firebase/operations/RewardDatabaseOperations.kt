@@ -18,14 +18,18 @@ package com.app.playhvz.firebase.operations
 
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.RewardPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+
 
 class RewardDatabaseOperations {
     companion object {
@@ -36,6 +40,14 @@ class RewardDatabaseOperations {
             gameId: String
         ): CollectionReference {
             return RewardPath.REWARD_COLLECTION(gameId)
+        }
+
+        /** Returns a document reference to the given rewardId. */
+        fun getRewardDocumentReference(
+            gameId: String,
+            rewardId: String
+        ): DocumentReference {
+            return RewardPath.REWARD_DOCUMENT_REFERENCE(gameId, rewardId)
         }
 
         fun getRewardDocument(
@@ -58,14 +70,25 @@ class RewardDatabaseOperations {
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            RewardPath.REWARD_COLLECTION(gameId).add(
-                Reward.createFirebaseObject(rewardDraft)
-            ).addOnSuccessListener {
-                successListener.invoke()
-            }.addOnFailureListener {
-                Log.e(TAG, "Failed to create reward: " + it)
-                failureListener.invoke()
-            }
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "shortName" to rewardDraft.shortName,
+                "longName" to rewardDraft.longName,
+                "description" to rewardDraft.description,
+                "imageUrl" to rewardDraft.imageUrl,
+                "points" to rewardDraft.points
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("createReward")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to create reward: " + task.exception)
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
         }
 
         /** Update Reward. */
@@ -138,6 +161,68 @@ class RewardDatabaseOperations {
                         val usedCount = resultMap["usedCount"] as Int
                         successListener.invoke(unusedCount, unusedCount + usedCount)
                     }
+                }
+        }
+
+        /** Gets available claim codes for the reward. */
+        suspend fun asyncGetAvailableClaimCodes(
+            gameId: String,
+            rewardId: String,
+            successListener: (codes: Array<String>) -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "rewardId" to rewardId
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("getAvailableClaimCodes")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to get claim codes: " + task.exception)
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    if (task.result != null) {
+                        val claimCodes: MutableList<String> = mutableListOf()
+                        try {
+                            val resultMap = task.result!!.data as Map<*, *>
+                            val claimCodesJsonArray = JSONArray(resultMap["claimCodes"] as String)
+                            for (i in 0 until claimCodesJsonArray.length()) {
+                                claimCodes.add(claimCodesJsonArray.getString(i))
+                            }
+                        } finally {
+                            successListener.invoke(claimCodes.toTypedArray())
+                        }
+                    }
+                }
+        }
+
+        /** Redeems a given reward code. */
+        suspend fun redeemClaimCode(
+            gameId: String,
+            playerId: String,
+            claimCode: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "playerId" to playerId,
+                "claimCode" to claimCode
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("redeemRewardCode")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Could not redeem reward code: ${task.exception}")
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
                 }
         }
 
