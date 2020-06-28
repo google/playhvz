@@ -97,9 +97,12 @@ class ProfileFragment : Fragment() {
         gameId = args.gameId
         playerId = args.playerId
         gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
-        playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
-        rewardViewModel =
-            ViewModelProvider(requireActivity()).get(PlayerRewardViewModel::class.java)
+        if (playerId != null) {
+            playerViewModel = PlayerViewModel()
+        } else {
+            playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
+        }
+        rewardViewModel = PlayerRewardViewModel()
         lifeCodeAdapter = LifeCodeAdapter(listOf(), requireContext())
         rewardAdapter = RewardAdapter(requireContext())
     }

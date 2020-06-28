@@ -133,6 +133,14 @@ class GameViewModel() : ViewModel() {
         return adminGroup
     }
 
+    // Clears out any reference to previous game datas
+    fun reset() {
+        game = HvzData()
+        gameWithAdminStatus = HvzData()
+        adminGroup = HvzData()
+        isAdmin = HvzData()
+    }
+
     private fun stopListening() {
         for (id in adminGroup.docIdListeners.keys) {
             adminGroup.docIdListeners[id]!!.remove()
