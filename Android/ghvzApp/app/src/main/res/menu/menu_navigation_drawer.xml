@@ -52,6 +52,11 @@
       android:title="@string/navigation_drawer_infect_player" />
 
     <item
+      android:id="@id/nav_find_player"
+      android:icon="@drawable/ic_person_search"
+      android:title="@string/navigation_drawer_player_search" />
+
+    <item
       android:id="@id/nav_rules_fragment"
       android:icon="@drawable/ic_list"
       android:title="@string/navigation_drawer_rules" />

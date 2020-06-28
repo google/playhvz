@@ -39,6 +39,7 @@ import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
+import com.app.playhvz.common.playersearch.GlobalPlayerSearchDialog
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
@@ -202,6 +203,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 NavigationUtil.navigateToRedeemReward(
                     findNavController(R.id.nav_host_fragment)
                 )
+            }
+            R.id.nav_find_player -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                val onPlayerSelected = { playerId: String ->
+                    NavigationUtil.navigateToPlayerProfile(
+                        findNavController(R.id.nav_host_fragment),
+                        gameId!!,
+                        playerId
+                    )
+                }
+                val playerSearchDialog = GlobalPlayerSearchDialog(gameId!!, onPlayerSelected)
+                playerSearchDialog.show(supportFragmentManager, TAG)
             }
             R.id.nav_sign_out -> {
                 drawer_layout.closeDrawer(GravityCompat.START)

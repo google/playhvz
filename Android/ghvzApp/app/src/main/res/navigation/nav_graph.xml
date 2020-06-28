@@ -105,6 +105,8 @@
 
   <action android:id="@+id/nav_create_chat_with_admin" />
 
+  <action android:id="@+id/nav_find_player" />
+
   <action
     android:id="@+id/action_global_nav_redeem_reward_fragment"
     app:destination="@id/nav_redeem_reward_fragment">

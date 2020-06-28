@@ -515,6 +515,10 @@
     Rules
   </string>
 
+  <string name="navigation_drawer_player_search" definition="Navigation drawer menu item for searching for a player.">
+    Search for player
+  </string>
+
   <string name="photo_upload_dialog_title" definition="Title for the photo upload dialog.">
     Image Preview
   </string>

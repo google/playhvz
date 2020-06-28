@@ -37,7 +37,7 @@ import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
-import com.app.playhvz.common.playersearch.PlayerSearchDialog
+import com.app.playhvz.common.playersearch.ChatPlayerSearchDialog
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.classmodels.Player.Companion.FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
@@ -172,7 +172,7 @@ class ChatInfoFragment : Fragment() {
     }
 
     private fun onAddPeopleClicked() {
-        val addPeopleDialog = PlayerSearchDialog(gameId!!, group, chatRoomId)
+        val addPeopleDialog = ChatPlayerSearchDialog(gameId!!, group, chatRoomId)
         activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
     }
 

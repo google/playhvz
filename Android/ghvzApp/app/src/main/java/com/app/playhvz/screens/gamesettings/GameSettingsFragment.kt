@@ -40,7 +40,7 @@ import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.UserAvatarPresenter
 import com.app.playhvz.common.globals.SharedPreferencesConstants
-import com.app.playhvz.common.playersearch.PlayerSearchDialog
+import com.app.playhvz.common.playersearch.ChatPlayerSearchDialog
 import com.app.playhvz.common.playersearch.PlayerSearchWithinGroupDialog
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Group
@@ -145,7 +145,7 @@ class GameSettingsFragment : Fragment() {
         }
 
         addAdminButton.setOnClickListener {
-            val addPeopleDialog = PlayerSearchDialog(gameId!!, adminGroup)
+            val addPeopleDialog = ChatPlayerSearchDialog(gameId!!, adminGroup)
             activity?.supportFragmentManager?.let { addPeopleDialog.show(it, TAG) }
         }
 

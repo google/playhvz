@@ -68,6 +68,16 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_global_nav_redeem_lifecode_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
+                  <entry key="action_global_nav_redeem_reward_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="action_global_nav_reward_dashboard_fragment">
                     <value>
                       <LayoutPositions />
@@ -208,11 +218,6 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="nav_infect_player_fragment">
-                    <value>
-                      <LayoutPositions />
-                    </value>
-                  </entry>
                   <entry key="nav_mission_dashboard_fragment">
                     <value>
                       <LayoutPositions>
@@ -249,7 +254,7 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="nav_re_fragment">
+                  <entry key="nav_redeem_lifecode_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
