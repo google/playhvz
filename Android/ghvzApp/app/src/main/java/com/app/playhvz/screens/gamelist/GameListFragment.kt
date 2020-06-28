@@ -36,6 +36,7 @@ import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.operations.GameDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameListViewModel
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import kotlinx.coroutines.runBlocking
@@ -60,8 +61,10 @@ class GameListFragment : Fragment(), GameListAdapter.IFragmentNavigator {
         // Clear out any previous viewmodels
         val gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
         val playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
+        val missionViewModel = ViewModelProvider(requireActivity()).get(MissionListViewModel::class.java)
         gameViewModel.reset()
         playerViewModel.reset()
+        missionViewModel.reset()
     }
 
     override fun onCreateView(
