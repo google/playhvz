@@ -27,6 +27,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -67,9 +68,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var fab: FloatingActionButton
     private lateinit var bottomNavView: BottomNavigationView
     private lateinit var navDrawerView: NavigationView
+    private lateinit var gameViewModel: GameViewModel
 
     private var prefs: SharedPreferences? = null
-    private var gameViewModel = GameViewModel()
     private var gameId: String? = null
     private var isAdmin: Boolean = false
 
@@ -109,6 +110,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setContentView(R.layout.activity_main)
         FirebaseDatabaseUtil.initFirebaseDatabase()
 
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
         fab = findViewById(R.id.floating_action_button)
         bottomNavView = findViewById(R.id.bottom_navigation_view)
         prefs = getSharedPreferences(PREFS_FILENAME, 0)
