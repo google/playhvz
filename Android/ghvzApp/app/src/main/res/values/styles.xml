@@ -80,4 +80,11 @@
     <item name="android:tint">@color/secondary_icon_button</item>
   </style>
 
+  <style name="NormalTextInputStyle">
+    <item name="android:inputType">textAutoCorrect|textCapSentences|textMultiLine</item>
+  </style>
+
+  <style name="SentenceCaseTextInputStyle">
+    <item name="android:inputType">textAutoCorrect|textCapSentences</item>
+  </style>
 </resources>

@@ -71,6 +71,7 @@
       android:id="@+id/error_label"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
+      android:text="@string/redeem_code_error_label"
       android:textColor="@color/red"
       android:visibility="gone"
       app:layout_constraintEnd_toEndOf="parent"

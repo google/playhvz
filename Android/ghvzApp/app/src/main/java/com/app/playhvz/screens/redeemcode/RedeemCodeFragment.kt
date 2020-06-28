@@ -21,17 +21,24 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
+import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.runBlocking
 
 class RedeemCodeFragment : Fragment() {
     companion object {
@@ -48,13 +55,14 @@ class RedeemCodeFragment : Fragment() {
 
     private val args: RedeemCodeFragmentArgs by navArgs()
 
+    private lateinit var codeInput: EditText
+    private lateinit var errorLabel: TextView
     private lateinit var fragmentType: RedeemCodeFragmentType
     private lateinit var gameViewModel: GameViewModel
     private lateinit var progressBar: ProgressBar
+    lateinit var submitButton: MaterialButton
     private lateinit var toolbar: ActionBar
     private lateinit var toolbarMenu: Menu
-    private lateinit var errorLabel: TextView
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,8 +90,63 @@ class RedeemCodeFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_redeem_code, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
+        codeInput = view.findViewById(R.id.code_input)
+        submitButton = view.findViewById(R.id.send_button)
         errorLabel = view.findViewById(R.id.error_label)
 
+        codeInput.hint =
+            if (fragmentType == RedeemCodeFragmentType.LIFECODE)
+                resources.getString(R.string.infect_card_hint_text)
+            else
+                resources.getString(R.string.reward_claim_code_hint)
+        codeInput.doOnTextChanged { text, _, _, _ ->
+            errorLabel.visibility = View.GONE
+            when {
+                text.isNullOrEmpty() || text.isBlank() -> {
+                    submitButton.isEnabled = false
+                }
+                else -> {
+                    submitButton.isEnabled = true
+                }
+            }
+        }
+
+        val onSuccess = {
+            progressBar.visibility = View.GONE
+            codeInput.text.clear()
+            EspressoIdlingResource.decrement()
+            submitButton.isEnabled = true
+        }
+        val onFail = {
+            EspressoIdlingResource.decrement()
+            submitButton.isEnabled = true
+            errorLabel.visibility = View.VISIBLE
+            progressBar.visibility = View.GONE
+        }
+        submitButton.setOnClickListener {
+            submitButton.isEnabled = false
+            progressBar.visibility = View.VISIBLE
+            runBlocking {
+                EspressoIdlingResource.increment()
+                if (fragmentType == RedeemCodeFragmentType.LIFECODE) {
+                    PlayerDatabaseOperations.infectPlayerByLifeCode(
+                        gameId!!,
+                        playerId!!,
+                        codeInput.text.toString(),
+                        onSuccess,
+                        onFail
+                    )
+                } else {
+                    RewardDatabaseOperations.redeemClaimCode(
+                        gameId!!,
+                        playerId!!,
+                        codeInput.text.toString(),
+                        onSuccess,
+                        onFail
+                    )
+                }
+            }
+        }
         return view
     }
 

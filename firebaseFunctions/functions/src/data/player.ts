@@ -41,6 +41,7 @@ export const FIELD__LIVES = "lives";
 export const FIELD__LIFE_CODE = "lifeCode";
 export const FIELD__LIFE_CODE_STATUS = "isActive";
 export const FIELD__LIFE_CODE_TIMESTAMP = "created";
+export const FIELD__REWARDS = "rewards";
 
 export function create(userId: string, name: string): { [key: string]: any; } {
   return {

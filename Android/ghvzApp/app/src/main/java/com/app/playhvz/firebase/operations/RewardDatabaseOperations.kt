@@ -60,14 +60,25 @@ class RewardDatabaseOperations {
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            RewardPath.REWARD_COLLECTION(gameId).add(
-                Reward.createFirebaseObject(rewardDraft)
-            ).addOnSuccessListener {
-                successListener.invoke()
-            }.addOnFailureListener {
-                Log.e(TAG, "Failed to create reward: " + it)
-                failureListener.invoke()
-            }
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "shortName" to rewardDraft.shortName,
+                "longName" to rewardDraft.longName,
+                "description" to rewardDraft.description,
+                "imageUrl" to rewardDraft.imageUrl,
+                "points" to rewardDraft.points
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("createReward")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to create reward: " + task.exception)
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
         }
 
         /** Update Reward. */
@@ -175,6 +186,33 @@ class RewardDatabaseOperations {
                             successListener.invoke(claimCodes.toTypedArray())
                         }
                     }
+                }
+        }
+
+        /** Redeems a given reward code. */
+        suspend fun redeemClaimCode(
+            gameId: String,
+            playerId: String,
+            claimCode: String,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "playerId" to playerId,
+                "claimCode" to claimCode
+            )
+
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("redeemRewardCode")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Could not redeem reward code: ${task.exception}")
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
                 }
         }
 

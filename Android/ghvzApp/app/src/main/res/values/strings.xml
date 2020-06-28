@@ -564,6 +564,10 @@
     <item quantity="other">%1$s pts</item>
   </plurals>
 
+  <string name="redeem_code_error_label" definition="Error label when redeeming a code failed">
+    Error: code failed
+  </string>
+
   <string name="reward_card_label_generate_claim_codes_button" definition="Label for the button to generate new claim codes.">
     Generate claim codes
   </string>
@@ -588,8 +592,16 @@
     Generate
   </string>
 
-  <string name="reward_settings_create_reward_title">
+  <string name="reward_settings_create_reward_title" definition="Title for the reward creation view.">
     Create reward
+  </string>
+
+  <string name="reward_settings_error_label" definition="Error label when short name is already used.">
+    Error: name is already used
+  </string>
+
+  <string name="reward_claim_code_hint" definition="Hint text for inputing a reward claim code">
+    Enter reward code
   </string>
 
   <string name="reward_claim_code_dialog_title" definition="Title for the available claim codes">
@@ -605,7 +617,7 @@
   </string>
 
   <string name="reward_settings_short_name_hint_text" definition="Hint text for an abbreviated reward for bravery.">
-    Valor
+    valor
   </string>
 
   <string name="reward_settings_long_name_hint_text" definition="Hint text for long reward name of bravery.">

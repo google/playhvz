@@ -94,7 +94,16 @@
       android:layout_height="wrap_content"
       android:hint="@string/reward_settings_short_name_hint_text"
       android:maxLength="10"
+
       android:maxLines="1" />
+
+    <TextView
+      android:id="@+id/error_label"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/reward_settings_error_label"
+      android:textColor="@color/red"
+      android:visibility="gone" />
 
     <TextView
       style="@style/TextInputLabel"
@@ -104,6 +113,7 @@
 
     <androidx.emoji.widget.EmojiEditText
       android:id="@+id/reward_long_name"
+      style="@style/SentenceCaseTextInputStyle"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:hint="@string/reward_settings_long_name_hint_text"
@@ -118,6 +128,7 @@
 
     <androidx.emoji.widget.EmojiEditText
       android:id="@+id/reward_description"
+      style="@style/NormalTextInputStyle"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="top"
