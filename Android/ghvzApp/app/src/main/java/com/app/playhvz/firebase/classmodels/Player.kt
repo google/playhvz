@@ -46,6 +46,8 @@ class Player {
 
     var chatRoomMemberships: Map<String, Map<String, Boolean>> = mapOf()
 
+    var rewards: Map<String, Int> = mapOf()
+
     /** Raw data from firestore, shouldn't be used directly. */
     var lives: Map<String, Map<String, *>> = mapOf()
 

@@ -18,11 +18,13 @@ package com.app.playhvz.firebase.operations
 
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.RewardPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,6 +40,14 @@ class RewardDatabaseOperations {
             gameId: String
         ): CollectionReference {
             return RewardPath.REWARD_COLLECTION(gameId)
+        }
+
+        /** Returns a document reference to the given rewardId. */
+        fun getRewardDocumentReference(
+            gameId: String,
+            rewardId: String
+        ): DocumentReference {
+            return RewardPath.REWARD_DOCUMENT_REFERENCE(gameId, rewardId)
         }
 
         fun getRewardDocument(

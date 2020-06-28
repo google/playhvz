@@ -43,11 +43,15 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.UploadService.Companion.getProfileImageName
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.PlayerRewardViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
+import com.google.android.flexbox.FlexWrap
+import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
 
@@ -60,8 +64,9 @@ class ProfileFragment : Fragment() {
 
     val args: ProfileFragmentArgs by navArgs()
 
-    lateinit var playerViewModel: PlayerViewModel
     lateinit var gameViewModel: GameViewModel
+    lateinit var playerViewModel: PlayerViewModel
+    lateinit var rewardViewModel: PlayerRewardViewModel
     lateinit var userAvatarPresenter: UserAvatarPresenter
 
     private lateinit var allegianceView: TextView
@@ -72,6 +77,8 @@ class ProfileFragment : Fragment() {
     private lateinit var lifeCodeAdapter: LifeCodeAdapter
     private lateinit var progressBar: ProgressBar
     private lateinit var adminOptionsContainer: ConstraintLayout
+    private lateinit var rewardRecyclerView: RecyclerView
+    private lateinit var rewardAdapter: RewardAdapter
 
     var gameId: String? = null
     var playerId: String? = null
@@ -89,9 +96,12 @@ class ProfileFragment : Fragment() {
         super.onCreate(savedInstanceState)
         gameId = args.gameId
         playerId = args.playerId
-        playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
         gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
+        playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
+        rewardViewModel =
+            ViewModelProvider(requireActivity()).get(PlayerRewardViewModel::class.java)
         lifeCodeAdapter = LifeCodeAdapter(listOf(), requireContext())
+        rewardAdapter = RewardAdapter(requireContext())
     }
 
     override fun onCreateView(
@@ -109,6 +119,12 @@ class ProfileFragment : Fragment() {
         lifeCodeRecyclerView = view.findViewById(R.id.player_life_code_list)
         lifeCodeRecyclerView.layoutManager = LinearLayoutManager(context)
         lifeCodeRecyclerView.adapter = lifeCodeAdapter
+        rewardRecyclerView = view.findViewById(R.id.player_reward_list)
+        val flexLayout = FlexboxLayoutManager(requireContext())
+        flexLayout.flexWrap = FlexWrap.WRAP
+        rewardRecyclerView.layoutManager = flexLayout
+        rewardRecyclerView.adapter = rewardAdapter
+
 
         userAvatarPresenter = UserAvatarPresenter(avatarView, R.dimen.avatar_xl)
 
@@ -215,6 +231,10 @@ class ProfileFragment : Fragment() {
             lifeCodeRecyclerView.visibility = View.GONE
             lifeCodeIcon.visibility = View.GONE
         }
+        rewardViewModel.getPlayersRewards(viewLifecycleOwner, gameId!!, serverPlayer.rewards)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { updatedRewards ->
+                updateRewardUi(updatedRewards)
+            })
     }
 
     private fun updatePlayerAvatarUrl(uri: Uri?) {
@@ -303,4 +323,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private fun updateRewardUi(updatedRewards: Map<String, Pair<Reward?, Int>>) {
+        rewardAdapter.setData(updatedRewards)
+    }
 }
