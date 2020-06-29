@@ -295,6 +295,17 @@ class ProfileFragment : Fragment() {
         if (giveRewardButton == null) {
             giveRewardButton = view?.findViewById(R.id.give_reward_button)
         }
+        val playerToAward = if (isViewingMyOwnProfile) currentUserPlayerId else playerId
+        giveRewardButton!!.setOnClickListener {
+            val rewardDialog = RewardSelectorDialog(
+                gameId!!,
+                playerToAward!!
+            )
+            activity?.supportFragmentManager?.let {
+                rewardDialog.show(it, TAG)
+            }
+
+        }
     }
 
     private fun setupAvatarUi() {

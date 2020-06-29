@@ -93,7 +93,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:hint="@string/reward_settings_short_name_hint_text"
-      android:maxLength="10"
+      android:maxLength="20"
 
       android:maxLines="1" />
 

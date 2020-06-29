@@ -23,6 +23,10 @@ export function extractShortNameFromCode(claimCode: string): string {
   return claimCode.split("-", 1)[0]
 }
 
+export function extractPlayerIdFromCode(claimCode: string): string {
+  return claimCode.split("-", 2)[1]
+}
+
 
 export function generateClaimCode(
   db: any,
