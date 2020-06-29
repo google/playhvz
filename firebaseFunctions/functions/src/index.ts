@@ -1228,9 +1228,20 @@ exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
   if (rewardQuerySnapshot.empty || rewardQuerySnapshot.docs.length > 1) {
      throw new functions.https.HttpsError('failed-precondition', 'No valid reward exists.');
   }
+  const rewardDocSnapshot = rewardQuerySnapshot.docs[0];
+
+  // If the middle code matches the player id then this is a reward we're granting them. Let it be so.
+  const secondCode = RewardUtils.extractPlayerIdFromCode(claimCode)
+  if (secondCode === playerId.toLowerCase()) {
+    await db.collection(Game.COLLECTION_PATH)
+          .doc(gameId)
+          .collection(Reward.COLLECTION_PATH)
+          .doc(rewardDocSnapshot.id)
+          .collection(ClaimCode.COLLECTION_PATH)
+          .add(ClaimCode.create(claimCode))
+  }
 
   // Check if reward code is valid.
-  const rewardDocSnapshot = rewardQuerySnapshot.docs[0];
   const claimCodeQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
       .collection(Reward.COLLECTION_PATH)
@@ -1258,5 +1269,47 @@ exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
     [rewardInfoPath]: admin.firestore.FieldValue.increment(1)
   })
 });
+
+
+exports.getRewardsByName = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+  const gameId = data.gameId;
+
+  if (!(typeof gameId === 'string')) {
+        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (gameId.length === 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'a valid gameId.');
+  }
+
+  const allRewardsQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .get()
+  if (allRewardsQuerySnapshot.empty) {
+    return {
+        "rewards": JSON.stringify([...new Map()])
+    }
+  }
+
+  const rewardMap = new Map();
+  allRewardsQuerySnapshot.forEach((rewardDoc: any) => {
+    const rewardData = rewardDoc.data()
+    if (rewardData === undefined) {
+      return // "continue" in a forEach
+    }
+    rewardMap.set(rewardData[Reward.FIELD__SHORT_NAME], rewardDoc.id)
+  });
+
+    return {
+      "rewards": JSON.stringify([...rewardMap])
+    }
+});
+
 
 

@@ -18,7 +18,6 @@ package com.app.playhvz.firebase.operations
 
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.Reward
-import com.app.playhvz.firebase.constants.ChatPath
 import com.app.playhvz.firebase.constants.RewardPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
@@ -194,6 +193,40 @@ class RewardDatabaseOperations {
                             }
                         } finally {
                             successListener.invoke(claimCodes.toTypedArray())
+                        }
+                    }
+                }
+        }
+
+        /** Gets available claim codes for the reward. */
+        suspend fun asyncGetRewardsByName(
+            gameId: String,
+            successListener: (rewards: Map<String, String>) -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("getRewardsByName")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to get rewards by name: " + task.exception)
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    if (task.result != null) {
+                        val rewards: MutableMap<String, String> = mutableMapOf()
+                        try {
+                            val resultMap = task.result!!.data as Map<*, *>
+                            val rewardJsonArray = JSONArray(resultMap["rewards"] as String)
+                            for (i in 0 until rewardJsonArray.length()) {
+                                val itemArray = rewardJsonArray.getJSONArray(i)
+                                rewards[itemArray.getString(0)] = itemArray.getString(1)
+                            }
+                        } finally {
+                            successListener.invoke(rewards)
                         }
                     }
                 }

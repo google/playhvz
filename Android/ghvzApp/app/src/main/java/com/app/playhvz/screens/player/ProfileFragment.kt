@@ -71,6 +71,7 @@ class ProfileFragment : Fragment() {
 
     private lateinit var allegianceView: TextView
     private lateinit var avatarView: View
+    private lateinit var avatarEditIcon: ImageView
     private lateinit var nameView: EmojiTextView
     private lateinit var lifeCodeIcon: ImageView
     private lateinit var lifeCodeRecyclerView: RecyclerView
@@ -86,6 +87,7 @@ class ProfileFragment : Fragment() {
     var game: Game? = null
     var player: Player? = null
     var isAdmin: Boolean = false
+    var isViewingMyOwnProfile: Boolean = false
 
     private var expandAdminOptionsButton: MaterialButton? = null
     private var collapsibleAdminOptionsSection: LinearLayout? = null
@@ -97,10 +99,13 @@ class ProfileFragment : Fragment() {
         gameId = args.gameId
         playerId = args.playerId
         gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
-        if (playerId != null) {
-            playerViewModel = PlayerViewModel()
+        isViewingMyOwnProfile = playerId == null
+        playerViewModel = if (!isViewingMyOwnProfile) {
+            // Use a temporary player view model since we're viewing a random player.
+            PlayerViewModel()
         } else {
-            playerViewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
+            // Reuse existing player view model since we're viewing the current player's profile.
+            ViewModelProvider(this).get(PlayerViewModel::class.java)
         }
         rewardViewModel = PlayerRewardViewModel()
         lifeCodeAdapter = LifeCodeAdapter(listOf(), requireContext())
@@ -117,6 +122,7 @@ class ProfileFragment : Fragment() {
         adminOptionsContainer = view.findViewById(R.id.admin_options_container)
         nameView = view.findViewById(R.id.player_name)
         avatarView = view.findViewById(R.id.player_avatar)
+        avatarEditIcon = view.findViewById(R.id.player_avatar_edit_icon)
         allegianceView = view.findViewById(R.id.player_allegiance)
         lifeCodeIcon = view.findViewById(R.id.player_life_code_icon)
         lifeCodeRecyclerView = view.findViewById(R.id.player_life_code_list)
@@ -131,26 +137,7 @@ class ProfileFragment : Fragment() {
 
         userAvatarPresenter = UserAvatarPresenter(avatarView, R.dimen.avatar_xl)
 
-        avatarView.setOnClickListener {
-            if (player == null) {
-                return@setOnClickListener
-            }
-            val photoUrl: String? = player!!.avatarUrl
-            val photoUploadDialog =
-                PhotoUploadDialog(getProfileImageName(player!!), photoUrl) { uri: Uri? ->
-                    updatePlayerAvatarUrl(uri)
-                }
-            photoUploadDialog.setPositiveButtonCallback {
-                progressBar.visibility = View.VISIBLE
-            }
-            activity?.supportFragmentManager?.let {
-                photoUploadDialog.show(
-                    it,
-                    TAG
-                )
-            }
-        }
-
+        setupAvatarUi()
         setupObservers()
         setupToolbar()
         return view
@@ -171,7 +158,7 @@ class ProfileFragment : Fragment() {
         if (gameId.isNullOrEmpty()) {
             return
         }
-        if (playerId.isNullOrEmpty()) {
+        if (isViewingMyOwnProfile) {
             // Get current user's player for this game
             if (currentUserPlayerId == null) {
                 val sharedPrefs = activity?.getSharedPreferences(
@@ -224,8 +211,8 @@ class ProfileFragment : Fragment() {
         userAvatarPresenter.renderAvatar(serverPlayer)
         allegianceView.setText(serverPlayer.allegiance)
 
-        if (serverPlayer.allegiance == HUMAN && playerId == null) {
-            // Only show lifecodes if we're not viewing someone else's profile
+        if (serverPlayer.allegiance == HUMAN && isViewingMyOwnProfile) {
+            // Only show lifecodes if we're viewing our own profile
             lifeCodeAdapter.setData(serverPlayer.lifeCodes)
             lifeCodeAdapter.notifyDataSetChanged()
             lifeCodeRecyclerView.visibility = View.VISIBLE
@@ -308,8 +295,43 @@ class ProfileFragment : Fragment() {
         if (giveRewardButton == null) {
             giveRewardButton = view?.findViewById(R.id.give_reward_button)
         }
+        val playerToAward = if (isViewingMyOwnProfile) currentUserPlayerId else playerId
+        giveRewardButton!!.setOnClickListener {
+            val rewardDialog = RewardSelectorDialog(
+                gameId!!,
+                playerToAward!!
+            )
+            activity?.supportFragmentManager?.let {
+                rewardDialog.show(it, TAG)
+            }
 
+        }
+    }
 
+    private fun setupAvatarUi() {
+        if (!isViewingMyOwnProfile) {
+            avatarEditIcon.visibility = View.GONE
+        } else {
+            avatarView.setOnClickListener {
+                if (player == null) {
+                    return@setOnClickListener
+                }
+                val photoUrl: String? = player!!.avatarUrl
+                val photoUploadDialog =
+                    PhotoUploadDialog(getProfileImageName(player!!), photoUrl) { uri: Uri? ->
+                        updatePlayerAvatarUrl(uri)
+                    }
+                photoUploadDialog.setPositiveButtonCallback {
+                    progressBar.visibility = View.VISIBLE
+                }
+                activity?.supportFragmentManager?.let {
+                    photoUploadDialog.show(
+                        it,
+                        TAG
+                    )
+                }
+            }
+        }
     }
 
     private fun setAllegiance(allegiance: String) {

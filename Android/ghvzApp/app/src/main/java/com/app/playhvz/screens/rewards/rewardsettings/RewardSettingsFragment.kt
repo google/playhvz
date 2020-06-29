@@ -34,7 +34,7 @@ import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.PhotoUploadDialog
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEFAULT_REWARD_POINT_VALUE
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.REWARD_POINT_VALUE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.UploadService
 import com.app.playhvz.firebase.UploadService.Companion.getRewardImageName
@@ -113,7 +113,7 @@ class RewardSettingsFragment : Fragment() {
         badgeContainer.clipChildren = true
         imageView.clipToOutline = true
 
-        pointText.setText(DEFAULT_REWARD_POINT_VALUE.toString())
+        pointText.setText(REWARD_POINT_VALUE.toString())
         imageContainer.setOnClickListener {
             if (rewardDraft == null) {
                 return@setOnClickListener
@@ -218,7 +218,7 @@ class RewardSettingsFragment : Fragment() {
         rewardDraft.description = descriptionText.text.toString()
         val pointText = pointText.text.toString()
         rewardDraft.points =
-            if (pointText.isBlank()) DEFAULT_REWARD_POINT_VALUE else Integer.valueOf(pointText)
+            if (pointText.isBlank()) REWARD_POINT_VALUE else Integer.valueOf(pointText)
 
         if (rewardId == null) {
             runBlocking {
