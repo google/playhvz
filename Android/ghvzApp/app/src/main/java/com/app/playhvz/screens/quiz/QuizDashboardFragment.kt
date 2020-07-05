@@ -73,7 +73,8 @@ class QuizDashboardFragment : Fragment() {
             gameId!!,
             listOf(),
             requireContext(),
-            findNavController())
+            findNavController()
+        )
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
         setupObservers()
@@ -95,7 +96,7 @@ class QuizDashboardFragment : Fragment() {
         }
         fab.visibility = View.VISIBLE
         fab.setOnClickListener {
-            //createReward()
+            selectQuestionType()
         }
         fab.visibility = View.VISIBLE
     }
@@ -128,7 +129,8 @@ class QuizDashboardFragment : Fragment() {
         NavigationUtil.navigateToRewardSettings(findNavController(), null)
     }
 
-    private fun triggerAmountSelector(rewardId: String) {
-        //activity?.supportFragmentManager?.let { amountSelectorDialog.show(it, TAG) }
+    private fun selectQuestionType() {
+        val dialog = QuestionTypeSelectorDialog(gameId!!)
+        activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
     }
 }

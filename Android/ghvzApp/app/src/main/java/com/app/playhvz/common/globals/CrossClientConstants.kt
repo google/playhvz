@@ -28,5 +28,10 @@ class CrossClientConstants {
         const val ALIVE_COLOR: Int = Color.MAGENTA
         const val DEAD_COLOR: Int = Color.GREEN
         const val REWARD_POINT_VALUE = 20
+
+        const val QUIZ_TYPE_MULTIPLE_CHOICE = "multipleChoice"
+        const val QUIZ_TYPE_TRUE_FALSE = "trueFalse"
+        const val QUIZ_TYPE_ORDER = "order"
+        const val QUIZ_TYPE_INFO = "info"
     }
 }

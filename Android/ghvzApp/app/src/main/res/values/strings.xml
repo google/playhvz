@@ -568,7 +568,27 @@
   </string>
 
   <string name="quiz_dashboard_title" definition="Title for the declaration quiz dashboard.">
-    Allegiance Declaration Quiz
+    Quiz Questions
+  </string>
+
+  <string name="quiz_dashboard_dialog_title" definition="Title for the declaration quiz dialog to select question type.">
+    Create new question of type:
+  </string>
+
+  <string name="quiz_dashboard_dialog_type_true_false" definition="Option for creating a true/false question type.">
+    True/False
+  </string>
+
+  <string name="quiz_dashboard_dialog_type_order" definition="Option for creating an order question type.">
+    Order items
+  </string>
+
+  <string name="quiz_dashboard_dialog_type_multiple_choice" definition="Option for creating a multiple choice question type.">
+    Multiple Choice
+  </string>
+
+  <string name="quiz_dashboard_dialog_type_info" definition="Option for creating an info screen 'question' type.">
+    Info only
   </string>
 
   <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">
