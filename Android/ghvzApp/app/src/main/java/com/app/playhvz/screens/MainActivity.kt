@@ -81,6 +81,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
         R.id.nav_mission_settings_fragment,
+        R.id.nav_quiz_dashboard_fragment,
         R.id.nav_redeem_lifecode_fragment,
         R.id.nav_redeem_reward_fragment,
         R.id.nav_reward_dashboard_fragment,
@@ -155,6 +156,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_reward_dashboard_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToRewardDashboard(
+                    findNavController(R.id.nav_host_fragment)
+                )
+            }
+            R.id.nav_quiz_dashboard_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToQuizDashboard(
                     findNavController(R.id.nav_host_fragment)
                 )
             }

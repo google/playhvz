@@ -33,6 +33,11 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_global_nav_edit_quiz_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="action_global_nav_faq_fragment">
                     <value>
                       <LayoutPositions />
@@ -170,6 +175,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="nav_edi_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="nav_faq_fragment">
                     <value>
                       <LayoutPositions>
@@ -180,6 +197,11 @@
                           </Point>
                         </option>
                       </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="nav_find_player">
+                    <value>
+                      <LayoutPositions />
                     </value>
                   </entry>
                   <entry key="nav_game_dashboard_fragment">

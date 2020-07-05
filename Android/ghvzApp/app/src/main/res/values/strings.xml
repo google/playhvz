@@ -479,6 +479,10 @@
     Create new game
   </string>
 
+  <string name="navigation_drawer_edit_quiz" definition="Navigation drawer menu item for opening the admin view for the declaration quiz.">
+    Edit allegiance quiz
+  </string>
+
   <string name="navigation_drawer_faq" definition="Navigation drawer menu item for opening the FAQ of a game.">
     FAQ
   </string>
@@ -561,6 +565,10 @@
 
   <string name="change_conflict_error_label" definition="Error stating that data was updated.">
     Oh no! Someone else made a change… copy your changes, quit editing and try again.
+  </string>
+
+  <string name="quiz_dashboard_title" definition="Title for the declaration quiz dashboard.">
+    Allegiance Declaration Quiz
   </string>
 
   <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">
@@ -658,7 +666,7 @@
 
   <string name="set_allegiance_warning" definition="Warning text about changing a player's allegiance.">
     Be careful, changing this will cause the player to be added and removed from the appropriate groups based on their new allegiance.
-    Note that if a player is already human and you set them to human again THEY WILL GET A ADDITIONAL LIFECODE. That means the zombie
+    Note that if a player is already human and you set them to human again THEY WILL GET A ADDITIONAL LIFECODE. That means a zombie
     can still redeem their old lifecode and get points but this player will stay human. Players are human until ALL of their lifecodes are claimed.
     Setting a zombie to be a zombie does nothing. Weird things could happen if you set a player to be undeclared; maybe it will be fine and maybe it will break?
   </string>
