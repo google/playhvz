@@ -32,6 +32,11 @@
       android:title="@string/navigation_drawer_rewards" />
 
     <item
+      android:id="@id/nav_quiz_dashboard_fragment"
+      android:icon="@drawable/ic_school"
+      android:title="@string/navigation_drawer_edit_quiz" />
+
+    <item
       android:id="@id/nav_game_settings_fragment"
       android:icon="@drawable/ic_settings"
       android:title="@string/navigation_drawer_game_settings" />

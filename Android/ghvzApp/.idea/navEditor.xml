@@ -68,6 +68,21 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_global_nav_quiz_dashboard_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
+                  <entry key="action_global_nav_quiz_question_info_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
+                  <entry key="action_global_nav_quiz_question_order_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="action_global_nav_redeem_lifecode_fragment">
                     <value>
                       <LayoutPositions />
@@ -182,6 +197,11 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="nav_find_player">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="nav_game_dashboard_fragment">
                     <value>
                       <LayoutPositions>
@@ -243,6 +263,30 @@
                     </value>
                   </entry>
                   <entry key="nav_player_profile_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="nav_quiz_dashboard_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="nav_quiz_question_info_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">

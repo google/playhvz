@@ -30,6 +30,9 @@ import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
+import com.app.playhvz.screens.quiz.QuizDashboardFragmentDirections
+import com.app.playhvz.screens.quiz.questions.InfoQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.questions.OrderQuestionFragmentDirections
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragment
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragmentDirections
 import com.app.playhvz.screens.rewards.RewardDashboardFragmentDirections
@@ -189,6 +192,34 @@ class NavigationUtil {
         fun navigateToRewardDashboard(navController: NavController) {
             navController.navigate(
                 RewardDashboardFragmentDirections.actionGlobalNavRewardDashboardFragment()
+            )
+        }
+
+        /**
+         * Opens quiz dashboard.
+         */
+        fun navigateToQuizDashboard(navController: NavController) {
+            navController.navigate(
+                QuizDashboardFragmentDirections.actionGlobalNavQuizDashboardFragment()
+            )
+        }
+
+        /**
+         * Opens quiz info question.
+         */
+        fun navigateToQuizInfoQuestion(navController: NavController) {
+            navController.navigate(
+                InfoQuestionFragmentDirections.actionGlobalNavQuizQuestionInfoFragment()
+            )
+        }
+
+
+        /**
+         * Opens quiz order question.
+         */
+        fun navigateToQuizOrderQuestion(navController: NavController) {
+            navController.navigate(
+                OrderQuestionFragmentDirections.actionGlobalNavQuizQuestionOrderFragment()
             )
         }
 
