@@ -26,6 +26,6 @@
     android:layout_gravity="top"
     android:background="@drawable/border_rectangle"
     android:gravity="start|top"
-    android:lines="18" />
+    android:lines="8" />
 
 </LinearLayout>

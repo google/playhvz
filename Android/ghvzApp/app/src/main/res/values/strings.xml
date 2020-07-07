@@ -595,6 +595,10 @@
     Info
   </string>
 
+  <string name="quiz_order_question_title" definition="Title for the order question type.">
+    Ordering
+  </string>
+
   <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">
     <item quantity="one">%1$s pt</item>
     <item quantity="other">%1$s pts</item>

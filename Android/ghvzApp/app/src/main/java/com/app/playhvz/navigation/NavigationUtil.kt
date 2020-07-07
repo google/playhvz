@@ -32,6 +32,7 @@ import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentD
 import com.app.playhvz.screens.player.ProfileFragmentDirections
 import com.app.playhvz.screens.quiz.QuizDashboardFragmentDirections
 import com.app.playhvz.screens.quiz.questions.InfoQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.questions.OrderQuestionFragmentDirections
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragment
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragmentDirections
 import com.app.playhvz.screens.rewards.RewardDashboardFragmentDirections
@@ -209,6 +210,16 @@ class NavigationUtil {
         fun navigateToQuizInfoQuestion(navController: NavController) {
             navController.navigate(
                 InfoQuestionFragmentDirections.actionGlobalNavQuizQuestionInfoFragment()
+            )
+        }
+
+
+        /**
+         * Opens quiz order question.
+         */
+        fun navigateToQuizOrderQuestion(navController: NavController) {
+            navController.navigate(
+                OrderQuestionFragmentDirections.actionGlobalNavQuizQuestionOrderFragment()
             )
         }
 

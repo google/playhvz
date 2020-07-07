@@ -25,9 +25,9 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
 import com.app.playhvz.utils.SystemUtils
 
-class InfoQuestionFragment : Fragment() {
+class OrderQuestionFragment : Fragment() {
     companion object {
-        val TAG = InfoQuestionFragment::class.qualifiedName
+        val TAG = OrderQuestionFragment::class.qualifiedName
     }
 
     private lateinit var descriptionText: MarkdownEditText
@@ -52,7 +52,7 @@ class InfoQuestionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_quiz_question_info, container, false)
+        val view = inflater.inflate(R.layout.fragment_quiz_question_order, container, false)
         descriptionText = view.findViewById(R.id.description_text)
         setupToolbar()
         return view
@@ -79,7 +79,7 @@ class InfoQuestionFragment : Fragment() {
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            toolbar.title = requireContext().getString(R.string.quiz_info_question_title)
+            toolbar.title = requireContext().getString(R.string.quiz_order_question_title)
         }
     }
 

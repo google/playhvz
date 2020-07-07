@@ -78,6 +78,7 @@ class QuestionTypeSelectorDialog(
             CrossClientConstants.QUIZ_TYPE_TRUE_FALSE
         } else if (selected == R.id.radio_order) {
             CrossClientConstants.QUIZ_TYPE_ORDER
+            NavigationUtil.navigateToQuizOrderQuestion(findNavController())
         } else {
             CrossClientConstants.QUIZ_TYPE_INFO
             NavigationUtil.navigateToQuizInfoQuestion(findNavController())
