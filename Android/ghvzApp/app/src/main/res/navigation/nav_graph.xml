@@ -137,6 +137,12 @@
     app:destination="@id/nav_quiz_dashboard_fragment"
     app:launchSingleTop="true" />
 
+
+  <action
+    android:id="@+id/action_global_nav_quiz_question_info_fragment"
+    app:destination="@id/nav_quiz_question_info_fragment"
+    app:popUpTo="@+id/nav_quiz_dashboard_fragment" />
+
   <fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
@@ -310,5 +316,11 @@
     android:name="com.app.playhvz.screens.quiz.QuizDashboardFragment"
     android:label="@string/navigation_drawer_edit_quiz"
     tools:layout="@layout/fragment_quiz_question_dashboard" />
+
+  <fragment
+    android:id="@+id/nav_quiz_question_info_fragment"
+    android:name="com.app.playhvz.screens.quiz.questions.InfoQuestionFragment"
+    android:label="@string/quiz_info_question_title"
+    tools:layout="@layout/fragment_quiz_question_info" />
 
 </navigation>

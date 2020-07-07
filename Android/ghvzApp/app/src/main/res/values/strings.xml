@@ -591,6 +591,10 @@
     Info only
   </string>
 
+  <string name="quiz_info_question_title" definition="Title for the info question type.">
+    Info
+  </string>
+
   <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">
     <item quantity="one">%1$s pt</item>
     <item quantity="other">%1$s pts</item>

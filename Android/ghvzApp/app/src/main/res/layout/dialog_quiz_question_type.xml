@@ -37,26 +37,30 @@
 
     <RadioButton
       android:id="@+id/radio_multiple_choice"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:minHeight="@dimen/tap_target_min"
       android:text="@string/quiz_dashboard_dialog_type_multiple_choice" />
 
     <RadioButton
       android:id="@+id/radio_order"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:minHeight="@dimen/tap_target_min"
       android:text="@string/quiz_dashboard_dialog_type_order" />
 
     <RadioButton
       android:id="@+id/radio_true_false"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:minHeight="@dimen/tap_target_min"
       android:text="@string/quiz_dashboard_dialog_type_true_false" />
 
     <RadioButton
       android:id="@+id/radio_info"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:minHeight="@dimen/tap_target_min"
       android:text="@string/quiz_dashboard_dialog_type_info" />
   </RadioGroup>
 

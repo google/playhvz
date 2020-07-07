@@ -24,8 +24,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioGroup
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.fragment.findNavController
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants
+import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.button.MaterialButton
 
 class QuestionTypeSelectorDialog(
@@ -54,7 +56,7 @@ class QuestionTypeSelectorDialog(
         }
         val positiveButton = customView.findViewById<MaterialButton>(R.id.positive_button)
         positiveButton.setOnClickListener {
-            getTypeSelection()
+            triggerActionFromTypeSelection()
             dialog?.dismiss()
         }
         return dialog
@@ -68,9 +70,9 @@ class QuestionTypeSelectorDialog(
         return customView
     }
 
-    private fun getTypeSelection(): String {
+    private fun triggerActionFromTypeSelection() {
         val selected = typeSelectorGroup.checkedRadioButtonId
-        return if (selected == R.id.radio_multiple_choice) {
+        if (selected == R.id.radio_multiple_choice) {
             CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE
         } else if (selected == R.id.radio_true_false) {
             CrossClientConstants.QUIZ_TYPE_TRUE_FALSE
@@ -78,6 +80,7 @@ class QuestionTypeSelectorDialog(
             CrossClientConstants.QUIZ_TYPE_ORDER
         } else {
             CrossClientConstants.QUIZ_TYPE_INFO
+            NavigationUtil.navigateToQuizInfoQuestion(findNavController())
         }
     }
 }
