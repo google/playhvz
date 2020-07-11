@@ -29,7 +29,9 @@ import com.app.playhvz.R
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.classmodels.Question
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.QuizQuestionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -40,6 +42,7 @@ class QuizDashboardFragment : Fragment() {
     }
 
     lateinit var gameViewModel: GameViewModel
+    lateinit var questionViewModel: QuizQuestionListViewModel
     lateinit var fab: FloatingActionButton
     lateinit var recyclerView: RecyclerView
     lateinit var adapter: QuizDashboardAdapter
@@ -56,6 +59,7 @@ class QuizDashboardFragment : Fragment() {
             0
         )!!
         gameViewModel = GameViewModel()
+        questionViewModel = QuizQuestionListViewModel()
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
     }
@@ -113,6 +117,10 @@ class QuizDashboardFragment : Fragment() {
         }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
+        questionViewModel.getGameQuizQuestions(this, gameId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { questionList ->
+                updateQuestionList(questionList)
+            })
     }
 
     private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
@@ -122,6 +130,11 @@ class QuizDashboardFragment : Fragment() {
         game = serverUpdate!!.game
         setupFab(serverUpdate.isAdmin)
         adapter.setIsAdmin(serverUpdate.isAdmin)
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun updateQuestionList(questions: List<Question?>) {
+        adapter.setData(questions)
         adapter.notifyDataSetChanged()
     }
 
