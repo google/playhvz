@@ -591,6 +591,10 @@
     Info only
   </string>
 
+  <string name="quiz_card_title" definition="Title for the question showing the number.">
+    #%1$s
+  </string>
+
   <string name="quiz_info_question_title" definition="Title for the info question type.">
     Info
   </string>

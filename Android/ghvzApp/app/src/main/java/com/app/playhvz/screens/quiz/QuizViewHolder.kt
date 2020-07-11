@@ -24,7 +24,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
@@ -43,7 +45,7 @@ class QuizViewHolder(
     private var cardContent: ConstraintLayout = questionCard.findViewById(R.id.card_content)
     private var questionText: EmojiTextView = questionCard.findViewById(R.id.question_text)
 
-    private lateinit var questionId: String
+    private lateinit var question: Question
 
     init {
         cardHeader.setOnClickListener {
@@ -58,17 +60,45 @@ class QuizViewHolder(
     }
 
     fun onBind(question: Question, isAdmin: Boolean) {
-        questionId = question.id!!
+        this.question = question
         if (isAdmin) {
             cardHeaderIcon.visibility = View.VISIBLE
             cardHeaderIcon.setOnClickListener {
-                //NavigationUtil.navigateToRewardSettings(navController, reward.id)
+                navigateToQuestionSettings()
             }
         } else {
             cardHeaderIcon.visibility = View.GONE
         }
 
-        cardTitle.text = "#" + question.index.toString()
+
+
+        cardTitle.text =
+            cardTitle.resources.getString(R.string.quiz_card_title, question.index.toString())
         questionText.text = question.text
+    }
+
+    private fun navigateToQuestionSettings() {
+        when (question.type) {
+            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE -> {
+
+            }
+            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE -> {
+
+            }
+            CrossClientConstants.QUIZ_TYPE_ORDER -> {
+                NavigationUtil.navigateToQuizOrderQuestion(
+                    navController,
+                    question.id,
+                    -1
+                )
+            }
+            else -> {
+                NavigationUtil.navigateToQuizInfoQuestion(
+                    navController,
+                    question.id,
+                    -1
+                )
+            }
+        }
     }
 }

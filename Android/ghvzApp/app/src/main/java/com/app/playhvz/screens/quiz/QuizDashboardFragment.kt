@@ -26,6 +26,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
@@ -141,5 +142,30 @@ class QuizDashboardFragment : Fragment() {
     private fun selectQuestionType() {
         val dialog = QuestionTypeSelectorDialog(gameId!!, adapter.itemCount)
         activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
+    }
+
+    private fun navigateToQuestionFragment(type: String, questionId: String?, index: Int) {
+        when (type) {
+            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE -> {
+
+            }
+            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE -> {
+
+            }
+            CrossClientConstants.QUIZ_TYPE_ORDER -> {
+                NavigationUtil.navigateToQuizOrderQuestion(
+                    findNavController(),
+                    questionId,
+                    index
+                )
+            }
+            else -> {
+                NavigationUtil.navigateToQuizInfoQuestion(
+                    findNavController(),
+                    questionId,
+                    index
+                )
+            }
+        }
     }
 }

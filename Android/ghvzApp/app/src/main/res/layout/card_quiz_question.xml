@@ -65,7 +65,7 @@
       android:layout_height="wrap_content"
       android:layout_margin="8dp">
 
-      <androidx.emoji.widget.EmojiTextView
+      <com.app.playhvz.common.ui.MarkdownTextView
         android:id="@+id/question_text"
         style="@style/TextAppearance.AppCompat.Body2"
         android:layout_width="wrap_content"

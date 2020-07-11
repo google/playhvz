@@ -25,15 +25,11 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
-import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
 import com.app.playhvz.firebase.classmodels.Question
-import com.app.playhvz.firebase.operations.QuizQuestionDatabaseOperations
-import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
-import kotlinx.coroutines.runBlocking
 
 class InfoQuestionFragment : Fragment() {
     companion object {
@@ -43,13 +39,13 @@ class InfoQuestionFragment : Fragment() {
     val args: InfoQuestionFragmentArgs by navArgs()
 
     private lateinit var descriptionText: MarkdownEditText
+    private lateinit var draftHelper: QuestionDraftHelper
     private lateinit var progressBar: ProgressBar
     private lateinit var toolbarMenu: Menu
 
     private var gameId: String? = null
     private var playerId: String? = null
     private var questionId: String? = null
-    private var questionDraft: Question = Question()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,13 +55,7 @@ class InfoQuestionFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
-
         questionId = args.questionId
-        if (questionId == null) {
-            questionDraft.type = CrossClientConstants.QUIZ_TYPE_INFO
-            questionDraft.index = args.nextAvailableIndex
-        }
-
         setHasOptionsMenu(true)
     }
 
@@ -87,7 +77,9 @@ class InfoQuestionFragment : Fragment() {
                 }
             }
         }
+
         setupToolbar()
+        setupDraftHelper()
         return view
     }
 
@@ -116,30 +108,30 @@ class InfoQuestionFragment : Fragment() {
         }
     }
 
+    private fun setupDraftHelper() {
+        draftHelper =
+            QuestionDraftHelper(requireContext(), findNavController(), gameId!!, questionId)
+        draftHelper.setDisableActions {
+            disableActions()
+        }
+        draftHelper.setEnableActions {
+            enableActions()
+        }
+        draftHelper.setProgressBar(progressBar)
+        draftHelper.initializeDraft(
+            CrossClientConstants.QUIZ_TYPE_INFO,
+            args.nextAvailableIndex,
+            { draft -> initUI(draft) })
+    }
+
+    private fun initUI(draft: Question) {
+        descriptionText.setText(draft.text)
+    }
+
     private fun saveChanges() {
         val info = descriptionText.text.toString()
-        questionDraft.text = info
-        println("lizard - index " + questionDraft.index)
-        if (questionId == null) {
-            runBlocking {
-                EspressoIdlingResource.increment()
-                QuizQuestionDatabaseOperations.asyncCreateQuizQuestion(
-                    gameId!!,
-                    questionDraft,
-                    {
-                        progressBar.visibility = View.GONE
-                        SystemUtils.showToast(context, "Created question.")
-                        NavigationUtil.navigateToQuizDashboard(findNavController())
-                    },
-                    {
-                        progressBar.visibility = View.GONE
-                        enableActions()
-                        SystemUtils.showToast(context, "Couldn't create question.")
-                    }
-                )
-                EspressoIdlingResource.decrement()
-            }
-        }
+        draftHelper.questionDraft.text = info
+        draftHelper.persistDraftToServer()
     }
 
     private fun disableActions() {

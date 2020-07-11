@@ -22,6 +22,7 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants
@@ -38,12 +39,12 @@ class OrderQuestionFragment : Fragment() {
     val args: OrderQuestionFragmentArgs by navArgs()
 
     private lateinit var descriptionText: MarkdownEditText
+    private lateinit var draftHelper: QuestionDraftHelper
     private lateinit var progressBar: ProgressBar
     private lateinit var toolbarMenu: Menu
 
     private var gameId: String? = null
     private var playerId: String? = null
-    private var questionDraft: Question = Question()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,13 +55,6 @@ class OrderQuestionFragment : Fragment() {
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
         setHasOptionsMenu(true)
-
-        if (args.questionId != null) {
-
-        } else {
-            questionDraft.type = CrossClientConstants.QUIZ_TYPE_ORDER
-            questionDraft.index = args.nextAvailableIndex
-        }
     }
 
     override fun onCreateView(
@@ -82,6 +76,7 @@ class OrderQuestionFragment : Fragment() {
             }
         }
         setupToolbar()
+        setupDraftHelper()
         return view
     }
 
@@ -110,8 +105,30 @@ class OrderQuestionFragment : Fragment() {
         }
     }
 
+    private fun setupDraftHelper() {
+        draftHelper =
+            QuestionDraftHelper(requireContext(), findNavController(), gameId!!, args.questionId)
+        draftHelper.setDisableActions {
+            disableActions()
+        }
+        draftHelper.setEnableActions {
+            enableActions()
+        }
+        draftHelper.setProgressBar(progressBar)
+        draftHelper.initializeDraft(
+            CrossClientConstants.QUIZ_TYPE_ORDER,
+            args.nextAvailableIndex,
+            { draft -> initUI(draft) })
+    }
+
+    private fun initUI(draft: Question) {
+        descriptionText.setText(draft.text)
+    }
+
     private fun saveChanges() {
         val info = descriptionText.text.toString()
+        draftHelper.questionDraft.text = info
+        draftHelper.persistDraftToServer()
     }
 
     private fun disableActions() {
@@ -122,7 +139,7 @@ class OrderQuestionFragment : Fragment() {
     }
 
     private fun enableActions() {
-        if (view == null) {
+        if (view == null || toolbarMenu.findItem(R.id.save_option) == null) {
             // Fragment was killed
             return
         }
