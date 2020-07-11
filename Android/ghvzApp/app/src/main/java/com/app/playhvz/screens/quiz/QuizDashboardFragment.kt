@@ -125,12 +125,8 @@ class QuizDashboardFragment : Fragment() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun createReward() {
-        NavigationUtil.navigateToRewardSettings(findNavController(), null)
-    }
-
     private fun selectQuestionType() {
-        val dialog = QuestionTypeSelectorDialog(gameId!!)
+        val dialog = QuestionTypeSelectorDialog(gameId!!, adapter.itemCount)
         activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
     }
 }

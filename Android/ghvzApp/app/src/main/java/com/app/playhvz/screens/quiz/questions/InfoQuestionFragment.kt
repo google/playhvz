@@ -18,23 +18,38 @@ package com.app.playhvz.screens.quiz.questions
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
+import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.operations.QuizQuestionDatabaseOperations
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
+import kotlinx.coroutines.runBlocking
 
 class InfoQuestionFragment : Fragment() {
     companion object {
         val TAG = InfoQuestionFragment::class.qualifiedName
     }
 
+    val args: InfoQuestionFragmentArgs by navArgs()
+
     private lateinit var descriptionText: MarkdownEditText
+    private lateinit var progressBar: ProgressBar
     private lateinit var toolbarMenu: Menu
 
     private var gameId: String? = null
     private var playerId: String? = null
+    private var questionId: String? = null
+    private var questionDraft: Question = Question()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +59,13 @@ class InfoQuestionFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+
+        questionId = args.questionId
+        if (questionId == null) {
+            questionDraft.type = CrossClientConstants.QUIZ_TYPE_INFO
+            questionDraft.index = args.nextAvailableIndex
+        }
+
         setHasOptionsMenu(true)
     }
 
@@ -53,7 +75,18 @@ class InfoQuestionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_quiz_question_info, container, false)
+        progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
+        descriptionText.doOnTextChanged { text, _, _, _ ->
+            when {
+                text.isNullOrEmpty() -> {
+                    disableActions()
+                }
+                else -> {
+                    enableActions()
+                }
+            }
+        }
         setupToolbar()
         return view
     }
@@ -85,6 +118,28 @@ class InfoQuestionFragment : Fragment() {
 
     private fun saveChanges() {
         val info = descriptionText.text.toString()
+        questionDraft.text = info
+        println("lizard - index " + questionDraft.index)
+        if (questionId == null) {
+            runBlocking {
+                EspressoIdlingResource.increment()
+                QuizQuestionDatabaseOperations.asyncCreateQuizQuestion(
+                    gameId!!,
+                    questionDraft,
+                    {
+                        progressBar.visibility = View.GONE
+                        SystemUtils.showToast(context, "Created question.")
+                        NavigationUtil.navigateToQuizDashboard(findNavController())
+                    },
+                    {
+                        progressBar.visibility = View.GONE
+                        enableActions()
+                        SystemUtils.showToast(context, "Couldn't create question.")
+                    }
+                )
+                EspressoIdlingResource.decrement()
+            }
+        }
     }
 
     private fun disableActions() {
@@ -95,7 +150,7 @@ class InfoQuestionFragment : Fragment() {
     }
 
     private fun enableActions() {
-        if (view == null) {
+        if (view == null || toolbarMenu.findItem(R.id.save_option) == null) {
             // Fragment was killed
             return
         }

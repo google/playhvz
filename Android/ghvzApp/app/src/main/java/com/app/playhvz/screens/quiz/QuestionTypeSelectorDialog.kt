@@ -31,7 +31,8 @@ import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.button.MaterialButton
 
 class QuestionTypeSelectorDialog(
-    private val gameId: String
+    private val gameId: String,
+    private val nextIndex: Int
 ) : DialogFragment() {
     companion object {
         private val TAG = QuestionTypeSelectorDialog::class.qualifiedName
@@ -78,10 +79,18 @@ class QuestionTypeSelectorDialog(
             CrossClientConstants.QUIZ_TYPE_TRUE_FALSE
         } else if (selected == R.id.radio_order) {
             CrossClientConstants.QUIZ_TYPE_ORDER
-            NavigationUtil.navigateToQuizOrderQuestion(findNavController())
+            NavigationUtil.navigateToQuizOrderQuestion(
+                findNavController(),
+                /* questionId= */ null,
+                nextIndex
+            )
         } else {
             CrossClientConstants.QUIZ_TYPE_INFO
-            NavigationUtil.navigateToQuizInfoQuestion(findNavController())
+            NavigationUtil.navigateToQuizInfoQuestion(
+                findNavController(),
+                /* questionId= */ null,
+                nextIndex
+            )
         }
     }
 }

@@ -18,11 +18,16 @@ package com.app.playhvz.screens.quiz.questions
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
+import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
+import com.app.playhvz.firebase.classmodels.Question
 import com.app.playhvz.utils.SystemUtils
 
 class OrderQuestionFragment : Fragment() {
@@ -30,11 +35,15 @@ class OrderQuestionFragment : Fragment() {
         val TAG = OrderQuestionFragment::class.qualifiedName
     }
 
+    val args: OrderQuestionFragmentArgs by navArgs()
+
     private lateinit var descriptionText: MarkdownEditText
+    private lateinit var progressBar: ProgressBar
     private lateinit var toolbarMenu: Menu
 
     private var gameId: String? = null
     private var playerId: String? = null
+    private var questionDraft: Question = Question()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +54,13 @@ class OrderQuestionFragment : Fragment() {
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
         setHasOptionsMenu(true)
+
+        if (args.questionId != null) {
+
+        } else {
+            questionDraft.type = CrossClientConstants.QUIZ_TYPE_ORDER
+            questionDraft.index = args.nextAvailableIndex
+        }
     }
 
     override fun onCreateView(
@@ -53,7 +69,18 @@ class OrderQuestionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_quiz_question_order, container, false)
+        progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
+        descriptionText.doOnTextChanged { text, _, _, _ ->
+            when {
+                text.isNullOrEmpty() -> {
+                    disableActions()
+                }
+                else -> {
+                    enableActions()
+                }
+            }
+        }
         setupToolbar()
         return view
     }

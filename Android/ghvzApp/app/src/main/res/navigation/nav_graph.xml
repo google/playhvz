@@ -326,12 +326,30 @@
     android:id="@+id/nav_quiz_question_info_fragment"
     android:name="com.app.playhvz.screens.quiz.questions.InfoQuestionFragment"
     android:label="@string/quiz_info_question_title"
-    tools:layout="@layout/fragment_quiz_question_info" />
+    tools:layout="@layout/fragment_quiz_question_info">
+    <argument
+      android:name="questionId"
+      app:argType="string"
+      app:nullable="true" />
+    <argument
+      android:name="nextAvailableIndex"
+      android:defaultValue="-1"
+      app:argType="integer" />
+  </fragment>
 
   <fragment
     android:id="@+id/nav_quiz_question_order_fragment"
     android:name="com.app.playhvz.screens.quiz.questions.OrderQuestionFragment"
     android:label="@string/quiz_order_question_title"
-    tools:layout="@layout/fragment_quiz_question_order" />
+    tools:layout="@layout/fragment_quiz_question_order">
+    <argument
+      android:name="questionId"
+      app:argType="string"
+      app:nullable="true" />
+    <argument
+      android:name="nextAvailableIndex"
+      android:defaultValue="-1"
+      app:argType="integer" />
+  </fragment>
 
 </navigation>
