@@ -24,6 +24,8 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
@@ -38,6 +40,8 @@ class OrderQuestionFragment : Fragment() {
 
     val args: OrderQuestionFragmentArgs by navArgs()
 
+    private lateinit var answerAdapter: MultichoiceAnswerAdapter
+    private lateinit var answerRecyclerView: RecyclerView
     private lateinit var descriptionText: MarkdownEditText
     private lateinit var draftHelper: QuestionDraftHelper
     private lateinit var progressBar: ProgressBar
@@ -45,6 +49,29 @@ class OrderQuestionFragment : Fragment() {
 
     private var gameId: String? = null
     private var playerId: String? = null
+
+    private val onSectionAdded = {
+        /* val newSection = Game.CollapsibleSection()
+         newSection.order = currentCollapsibleSections.size
+         currentCollapsibleSections.add(newSection)
+         editAdapter?.setData(currentCollapsibleSections)
+         editAdapter?.notifyDataSetChanged() */
+    }
+    private val onSectionDeleted = { position: Int ->
+        /*  val confirmationDialog = ConfirmationDialog(
+              getString(R.string.collapsible_section_remove_dialog_title),
+              R.string.collapsible_section_remove_dialog_content,
+              R.string.delete_button_content_description
+          )
+          confirmationDialog.setPositiveButtonCallback {
+              currentCollapsibleSections.removeAt(position)
+              editAdapter?.setData(currentCollapsibleSections)
+              editAdapter?.notifyDataSetChanged()
+          }
+          activity?.supportFragmentManager?.let { confirmationDialog.show(it,
+              CollapsibleListFragment.TAG
+          ) } */
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +81,7 @@ class OrderQuestionFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+        answerAdapter = MultichoiceAnswerAdapter(listOf(), this, onSectionAdded, onSectionDeleted)
         setHasOptionsMenu(true)
     }
 
@@ -65,6 +93,10 @@ class OrderQuestionFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_quiz_question_order, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
+        answerRecyclerView = view.findViewById(R.id.item_list)
+        answerRecyclerView.layoutManager = LinearLayoutManager(context)
+        answerRecyclerView.adapter = answerAdapter
+
         descriptionText.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() -> {

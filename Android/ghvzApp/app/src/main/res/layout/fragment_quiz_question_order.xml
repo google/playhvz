@@ -38,4 +38,15 @@
     android:gravity="start|top"
     android:lines="8" />
 
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:text="@string/quiz_question_multi_answer_description" />
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/item_list"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
 </LinearLayout>

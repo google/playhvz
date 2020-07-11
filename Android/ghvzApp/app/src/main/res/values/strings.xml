@@ -603,6 +603,10 @@
     Ordering
   </string>
 
+  <string name="quiz_question_multi_answer_description" definition="Description telling the admin more info about answers.">
+    Answers will appear in a random order to users.
+  </string>
+
   <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">
     <item quantity="one">%1$s pt</item>
     <item quantity="other">%1$s pts</item>
