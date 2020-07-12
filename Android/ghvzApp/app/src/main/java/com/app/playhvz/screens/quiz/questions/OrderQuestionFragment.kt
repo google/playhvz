@@ -27,6 +27,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
@@ -49,28 +50,40 @@ class OrderQuestionFragment : Fragment() {
 
     private var gameId: String? = null
     private var playerId: String? = null
+    private var currentAnswers: MutableList<Question.Answer> = mutableListOf()
 
-    private val onSectionAdded = {
-        /* val newSection = Game.CollapsibleSection()
-         newSection.order = currentCollapsibleSections.size
-         currentCollapsibleSections.add(newSection)
-         editAdapter?.setData(currentCollapsibleSections)
-         editAdapter?.notifyDataSetChanged() */
+    private val onAddAnswer = {
+        val newAnswer = Question.Answer()
+        newAnswer.order = currentAnswers.size
+        currentAnswers.add(newAnswer)
+        refreshAnswers()
     }
-    private val onSectionDeleted = { position: Int ->
-        /*  val confirmationDialog = ConfirmationDialog(
-              getString(R.string.collapsible_section_remove_dialog_title),
-              R.string.collapsible_section_remove_dialog_content,
-              R.string.delete_button_content_description
-          )
-          confirmationDialog.setPositiveButtonCallback {
-              currentCollapsibleSections.removeAt(position)
-              editAdapter?.setData(currentCollapsibleSections)
-              editAdapter?.notifyDataSetChanged()
-          }
-          activity?.supportFragmentManager?.let { confirmationDialog.show(it,
-              CollapsibleListFragment.TAG
-          ) } */
+    private val onEditAnswer = { position: Int ->
+        val onUpdate =
+            { updatedAnswer: Question.Answer ->
+                println("lizard - answer text: " + updatedAnswer.text)
+                currentAnswers[position] = updatedAnswer
+                refreshAnswers()
+            }
+        val dialog = AnswerDialog(currentAnswers[position], onUpdate)
+        activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
+    }
+    private val onDeleteAnswer = { position: Int ->
+        val confirmationDialog = ConfirmationDialog(
+            getString(R.string.collapsible_section_remove_dialog_title),
+            R.string.collapsible_section_remove_dialog_content,
+            R.string.delete_button_content_description
+        )
+        confirmationDialog.setPositiveButtonCallback {
+            currentAnswers.removeAt(position)
+            refreshAnswers()
+        }
+        activity?.supportFragmentManager?.let {
+            confirmationDialog.show(
+                it,
+                TAG
+            )
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +94,8 @@ class OrderQuestionFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
-        answerAdapter = MultichoiceAnswerAdapter(listOf(), this, onSectionAdded, onSectionDeleted)
+        answerAdapter =
+            MultichoiceAnswerAdapter(listOf(), this, onAddAnswer, onEditAnswer, onDeleteAnswer)
         setHasOptionsMenu(true)
     }
 
@@ -155,11 +169,14 @@ class OrderQuestionFragment : Fragment() {
 
     private fun initUI(draft: Question) {
         descriptionText.setText(draft.text)
+        currentAnswers = draft.answers.toMutableList()
+        refreshAnswers()
     }
 
     private fun saveChanges() {
         val info = descriptionText.text.toString()
         draftHelper.questionDraft.text = info
+        draftHelper.questionDraft.answers = currentAnswers
         draftHelper.persistDraftToServer()
     }
 
@@ -178,5 +195,10 @@ class OrderQuestionFragment : Fragment() {
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 255
         menuItem.isEnabled = true
+    }
+
+    private fun refreshAnswers() {
+        answerAdapter.setData(currentAnswers)
+        answerAdapter.notifyDataSetChanged()
     }
 }

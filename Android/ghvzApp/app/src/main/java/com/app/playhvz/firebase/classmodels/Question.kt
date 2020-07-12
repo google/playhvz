@@ -43,9 +43,9 @@ class Question {
     var text: String? = null
     var answers: List<Answer> = listOf()
 
-    inner class Answer() {
-        var text: String? = null
-        var order: Int? = null
+    class Answer {
+        var text: String = ""
+        var order: Int = -1
         var isCorrect: Boolean = true
     }
 }

@@ -16,24 +16,21 @@
 
 package com.app.playhvz.screens.quiz.questions
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.common.MarkdownInfoDialog
-import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.Question
 import com.app.playhvz.screens.rules_faq.AddCollapsibleSectionViewHolder
 
 
 class MultichoiceAnswerAdapter(
-    private var items: List<Game.CollapsibleSection>,
+    private var items: List<Question.Answer>,
     val fragment: Fragment,
-    val onSectionAdded: () -> Unit?,
-    val onSectionDeleted: (position: Int) -> Unit?
+    val onAdd: () -> Unit?,
+    val onEdit: (position: Int) -> Unit?,
+    val onDelete: (position: Int) -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -61,19 +58,18 @@ class MultichoiceAnswerAdapter(
                     parent,
                     false
                 ),
-                onSectionAdded
+                onAdd
             )
         }
 
         return MultichoiceAnswerViewHolder(
             LayoutInflater.from(fragment.context).inflate(
-                R.layout.list_item_collapsible_section_edit,
+                R.layout.list_item_quiz_answer,
                 parent,
                 false
             ),
-            TitleTextWatcher(),
-            ContentTextWatcher(),
-            onSectionDeleted
+            onEdit,
+            onDelete
         )
     }
 
@@ -89,71 +85,11 @@ class MultichoiceAnswerAdapter(
         return items.size + ADD_SECTION_COUNT
     }
 
-    fun setData(sections: List<Game.CollapsibleSection>) {
-        items = sections.sortedBy { section -> section.order }
+    fun setData(sections: List<Question.Answer>) {
+        items = sections.sortedBy { answer -> answer.order }
     }
 
-    fun getLatestData(): List<Game.CollapsibleSection> {
+    fun getLatestData(): List<Question.Answer> {
         return items
-    }
-
-    // The EditText TextWatcher must know the current position so when the view is reused in onBind
-    // we'll be updating the right Collapsible Section.
-    inner class TitleTextWatcher : TextWatcher {
-        private var position = 0
-        fun setPosition(position: Int) {
-            this.position = position
-        }
-
-        override fun beforeTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
-            // no op
-        }
-
-        override fun onTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
-            items[position].sectionTitle = charSequence.toString()
-        }
-
-        override fun afterTextChanged(editable: Editable) {
-            // no op
-        }
-    }
-
-    inner class ContentTextWatcher : TextWatcher {
-        private var position = 0
-        fun setPosition(position: Int) {
-            this.position = position
-        }
-
-        override fun beforeTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
-            // no op
-        }
-
-        override fun onTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
-            items[position].sectionContent = charSequence.toString()
-        }
-
-        override fun afterTextChanged(editable: Editable) {
-            // no op
-        }
     }
 }

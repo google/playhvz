@@ -94,6 +94,10 @@
     Refresh
   </string>
 
+  <string name="button_update" definition="Button to select when saving changes.">
+    Update
+  </string>
+
   <string name="button_use" definition="Button to select when saving changes.">
     Use
   </string>
@@ -565,6 +569,14 @@
 
   <string name="change_conflict_error_label" definition="Error stating that data was updated.">
     Oh no! Someone else made a change… copy your changes, quit editing and try again.
+  </string>
+
+  <string name="quiz_answer_dialog_title" definition="Title for the quiz answer dialog.">
+    Quiz Answer
+  </string>
+
+  <string name="quiz_answer_dialog_text" definition="Label for the text input for an answer's text.">
+    Answer
   </string>
 
   <string name="quiz_dashboard_title" definition="Title for the declaration quiz dashboard.">

@@ -39,7 +39,6 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
 
-
     <fragment
       android:id="@+id/nav_host_fragment"
       android:name="androidx.navigation.fragment.NavHostFragment"
@@ -50,7 +49,6 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/toolbar"
-      app:navGraph="@navigation/nav_graph"
       tools:ignore="FragmentTagUsage" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

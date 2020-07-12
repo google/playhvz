@@ -18,32 +18,28 @@ package com.app.playhvz.screens.quiz.questions
 
 import android.view.View
 import android.widget.ImageButton
-import androidx.emoji.widget.EmojiEditText
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.common.ui.MarkdownTextView
+import com.app.playhvz.firebase.classmodels.Question
 
 
 class MultichoiceAnswerViewHolder(
     val view: View,
-    val titleTextWatcher: MultichoiceAnswerAdapter.TitleTextWatcher,
-    val contentTextWatcher: MultichoiceAnswerAdapter.ContentTextWatcher,
-    val onDeleteSection: (position: Int) -> Unit?
+    val onEdit: (position: Int) -> Unit?,
+    val onDelete: (position: Int) -> Unit?
 ) : RecyclerView.ViewHolder(view) {
 
-    private val sectionTitle = view.findViewById<EmojiEditText>(R.id.section_title)!!
-    private val sectionContent = view.findViewById<EmojiEditText>(R.id.section_content)!!
-    private val deleteButton = view.findViewById<ImageButton>(R.id.section_delete_button)!!
+    private val answerButton = view.findViewById<MarkdownTextView>(R.id.answer_button)!!
+    private val deleteButton = view.findViewById<ImageButton>(R.id.delete_button)!!
 
-    fun onBind(position: Int, section: Game.CollapsibleSection) {
+    fun onBind(position: Int, answer: Question.Answer) {
         deleteButton.setOnClickListener {
-            onDeleteSection.invoke(position)
+            onDelete.invoke(position)
         }
-        titleTextWatcher.setPosition(position)
-        contentTextWatcher.setPosition(position)
-        sectionTitle.setText(section.sectionTitle)
-        sectionTitle.addTextChangedListener(titleTextWatcher)
-        sectionContent.setText(section.sectionContent)
-        sectionContent.addTextChangedListener(contentTextWatcher)
+        answerButton.text = answer.text
+        answerButton.setOnClickListener {
+            onEdit.invoke(position)
+        }
     }
 }

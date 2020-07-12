@@ -148,7 +148,7 @@
     app:destination="@id/nav_quiz_question_order_fragment"
     app:popUpTo="@+id/nav_quiz_dashboard_fragment" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
     android:label="@string/navigation_drawer_game_dashboard"
@@ -159,9 +159,9 @@
       android:name="gameId"
       app:argType="string"
       app:nullable="true" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_game_settings_fragment"
     android:name="com.app.playhvz.screens.gamesettings.GameSettingsFragment"
     android:label="@string/navigation_drawer_create_game"
@@ -170,9 +170,9 @@
       android:name="gameId"
       app:argType="string"
       app:nullable="true" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_rules_fragment"
     android:name="com.app.playhvz.screens.rules_faq.CollapsibleListFragment"
     android:label="@string/navigation_drawer_rules"
@@ -180,9 +180,9 @@
     <argument
       android:name="fragmentType"
       app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_faq_fragment"
     android:name="com.app.playhvz.screens.rules_faq.CollapsibleListFragment"
     android:label="@string/navigation_drawer_faq"
@@ -190,9 +190,9 @@
     <argument
       android:name="fragmentType"
       app:argType="com.app.playhvz.screens.rules_faq.CollapsibleListFragment$CollapsibleFragmentType" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_create_game_fragment"
     android:name="com.app.playhvz.screens.gamesettings.GameSettingsFragment"
     android:label="@string/navigation_drawer_create_game"
@@ -201,25 +201,25 @@
       android:name="gameId"
       app:argType="string"
       app:nullable="true" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_game_list_fragment"
     android:name="com.app.playhvz.screens.gamelist.GameListFragment"
     android:label="@string/navigation_drawer_game_list"
     tools:layout="@layout/fragment_game_list" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_chat_list_fragment"
     android:name="com.app.playhvz.screens.chatlist.ChatListFragment"
     tools:layout="@layout/fragment_chat_list" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_admin_chat_list_fragment"
     android:name="com.app.playhvz.screens.chatlist.AdminChatListFragment"
     tools:layout="@layout/fragment_chat_list" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_player_profile_fragment"
     android:name="com.app.playhvz.screens.player.ProfileFragment"
     tools:layout="@layout/fragment_player_profile">
@@ -231,9 +231,9 @@
       android:name="playerId"
       app:argType="string"
       app:nullable="true" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_chat_room_fragment"
     android:name="com.app.playhvz.screens.chatroom.ChatRoomFragment">
     <argument
@@ -244,9 +244,9 @@
       android:name="playerId"
       app:argType="string"
       app:nullable="false" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_chat_info_fragment"
     android:name="com.app.playhvz.screens.chatroom.chatinfo.ChatInfoFragment">
     <argument
@@ -261,42 +261,42 @@
       android:name="isChatWithAdmins"
       app:argType="boolean"
       app:nullable="false" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_declare_allegiance_fragment"
     android:name="com.app.playhvz.screens.declareallegiance.DeclareAllegianceFragment" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_mission_dashboard_fragment"
     android:name="com.app.playhvz.screens.missions.MissionDashboardFragment"
     tools:layout="@layout/fragment_mission_dashboard" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_mission_settings_fragment"
     android:name="com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragment">
     <argument
       android:name="missionId"
       app:argType="string"
       app:nullable="true" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_reward_dashboard_fragment"
     android:name="com.app.playhvz.screens.rewards.RewardDashboardFragment"
     android:label="@string/navigation_drawer_rewards"
     tools:layout="@layout/fragment_mission_dashboard" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_reward_settings_fragment"
     android:name="com.app.playhvz.screens.rewards.rewardsettings.RewardSettingsFragment">
     <argument
       android:name="rewardId"
       app:argType="string"
       app:nullable="true" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_redeem_reward_fragment"
     android:name="com.app.playhvz.screens.redeemcode.RedeemCodeFragment"
     android:label="@string/navigation_drawer_redeem_reward"
@@ -304,9 +304,9 @@
     <argument
       android:name="fragmentType"
       app:argType="com.app.playhvz.screens.redeemcode.RedeemCodeFragment$RedeemCodeFragmentType" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_redeem_lifecode_fragment"
     android:name="com.app.playhvz.screens.redeemcode.RedeemCodeFragment"
     android:label="@string/navigation_drawer_infect_player"
@@ -314,15 +314,15 @@
     <argument
       android:name="fragmentType"
       app:argType="com.app.playhvz.screens.redeemcode.RedeemCodeFragment$RedeemCodeFragmentType" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_quiz_dashboard_fragment"
     android:name="com.app.playhvz.screens.quiz.QuizDashboardFragment"
     android:label="@string/navigation_drawer_edit_quiz"
     tools:layout="@layout/fragment_quiz_question_dashboard" />
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_quiz_question_info_fragment"
     android:name="com.app.playhvz.screens.quiz.questions.InfoQuestionFragment"
     android:label="@string/quiz_info_question_title"
@@ -335,9 +335,9 @@
       android:name="nextAvailableIndex"
       android:defaultValue="-1"
       app:argType="integer" />
-  </fragment>
+  </single_instance_fragment>
 
-  <fragment
+  <single_instance_fragment
     android:id="@+id/nav_quiz_question_order_fragment"
     android:name="com.app.playhvz.screens.quiz.questions.OrderQuestionFragment"
     android:label="@string/quiz_order_question_title"
@@ -350,6 +350,6 @@
       android:name="nextAvailableIndex"
       android:defaultValue="-1"
       app:argType="integer" />
-  </fragment>
+  </single_instance_fragment>
 
 </navigation>
