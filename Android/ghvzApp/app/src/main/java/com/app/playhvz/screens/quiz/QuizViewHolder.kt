@@ -17,19 +17,16 @@
 package com.app.playhvz.screens.quiz
 
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Reward
-import com.app.playhvz.firebase.viewmodels.RewardListViewModel
+import com.app.playhvz.common.globals.CrossClientConstants
+import com.app.playhvz.firebase.classmodels.Question
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.utils.ImageDownloaderUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
@@ -41,26 +38,14 @@ class QuizViewHolder(
 ) :
     RecyclerView.ViewHolder(view) {
 
-    private var rewardCard: MaterialCardView = view.findViewById(R.id.reward_card)
-    private var cardTitle: EmojiTextView = rewardCard.findViewById(R.id.title)
-    private var cardHeader: LinearLayout = rewardCard.findViewById(R.id.card_header)
-    private var cardHeaderIcon: MaterialButton = rewardCard.findViewById(R.id.card_header_icon)
-    private var cardContent: ConstraintLayout = rewardCard.findViewById(R.id.card_content)
-    private var imageView: ImageView = rewardCard.findViewById(R.id.reward_badge_image)
-    private var pointView: TextView = rewardCard.findViewById(R.id.reward_points)
-    private var longNameView: EmojiTextView = rewardCard.findViewById(R.id.reward_long_name)
-    private var descriptionView: EmojiTextView = rewardCard.findViewById(R.id.reward_description)
-    private var expandDetailsButton: MaterialButton = rewardCard.findViewById(R.id.more_less_button)
-    private var rewardDetailsSection: ConstraintLayout =
-        rewardCard.findViewById(R.id.reward_details_section)
-    private var claimCountView: TextView = rewardCard.findViewById(R.id.reward_claimed_count)
-    private var generateClaimCodesButton: MaterialButton =
-        rewardCard.findViewById(R.id.reward_generate_code_button)
-    private var viewClaimCodesButton: MaterialButton =
-        rewardCard.findViewById(R.id.reward_view_code_button)
+    private var questionCard: MaterialCardView = view.findViewById(R.id.question_card)
+    private var cardTitle: EmojiTextView = questionCard.findViewById(R.id.title)
+    private var cardHeader: LinearLayout = questionCard.findViewById(R.id.card_header)
+    private var cardHeaderIcon: MaterialButton = questionCard.findViewById(R.id.card_header_icon)
+    private var cardContent: ConstraintLayout = questionCard.findViewById(R.id.card_content)
+    private var questionText: EmojiTextView = questionCard.findViewById(R.id.question_text)
 
-    private lateinit var rewardId: String
-    private var rewardListViewModel: RewardListViewModel
+    private lateinit var question: Question
 
     init {
         cardHeader.setOnClickListener {
@@ -72,89 +57,48 @@ class QuizViewHolder(
                 cardContent.visibility = View.VISIBLE
             }
         }
-        rewardListViewModel = RewardListViewModel()
     }
 
-    fun onBind(reward: Reward, isAdmin: Boolean) {
-        rewardId = reward.id!!
+    fun onBind(question: Question, isAdmin: Boolean) {
+        this.question = question
         if (isAdmin) {
             cardHeaderIcon.visibility = View.VISIBLE
             cardHeaderIcon.setOnClickListener {
-                NavigationUtil.navigateToRewardSettings(navController, reward.id)
+                navigateToQuestionSettings()
             }
         } else {
             cardHeaderIcon.visibility = View.GONE
         }
 
-        cardTitle.text = reward.shortName
-        longNameView.text = reward.longName
-        descriptionView.text = reward.description
-        if (reward.imageUrl.isNullOrBlank()) {
-            imageView.visibility = View.GONE
-        } else {
-            ImageDownloaderUtils.downloadSquareImage(imageView, reward.imageUrl!!)
-        }
-        var points = 0
-        if (reward.points != null) {
-            points = reward.points!!
-        }
-        pointView.text =
-            pointView.resources.getQuantityString(
-                R.plurals.reward_card_label_points,
-                points,
-                points
-            )
 
-        initializeAndFetchRewardCount()
-        setupExpandCollapseDetails()
+
+        cardTitle.text =
+            cardTitle.resources.getString(R.string.quiz_card_title, question.index.toString())
+        questionText.text = question.text
     }
 
-    private fun initializeAndFetchRewardCount() {
-        claimCountView.text = claimCountView.resources.getString(
-            R.string.reward_card_label_claim_code_count,
-            "?",
-            "?"
-        )
+    private fun navigateToQuestionSettings() {
+        when (question.type) {
+            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE -> {
 
-        val onClaimCodeCountUpdate = Unit@{ eventRewardId: String, unusedCount: Int, total: Int ->
-            if (eventRewardId != rewardId) {
-                // View was recycled by the time we got updated data, ignore.
-                return@Unit
             }
-            claimCountView.text = claimCountView.resources.getString(
-                R.string.reward_card_label_claim_code_count,
-                unusedCount.toString(),
-                total.toString()
-            )
-        }
+            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE -> {
 
-        rewardListViewModel.getCurrentClaimedCount(
-            gameId,
-            rewardId,
-            onClaimCodeCountUpdate
-        )
-
-        claimCountView.setOnClickListener {
-            rewardListViewModel.getCurrentClaimedCount(
-                gameId,
-                rewardId,
-                onClaimCodeCountUpdate
-            )
-        }
-    }
-
-    private fun setupExpandCollapseDetails() {
-        expandDetailsButton.setOnClickListener { v ->
-            val isCollapsed = rewardDetailsSection.visibility == View.GONE
-            rewardDetailsSection.visibility = if (isCollapsed) View.VISIBLE else View.GONE
-            expandDetailsButton.setIconResource(
-                if (isCollapsed) R.drawable.ic_expand_less else R.drawable.ic_expand_more
-            )
-            expandDetailsButton.contentDescription =
-                if (isCollapsed)
-                    v.resources.getString(R.string.reward_card_collapse_content_description)
-                else
-                    v.resources.getString(R.string.reward_card_expand_content_description)
+            }
+            CrossClientConstants.QUIZ_TYPE_ORDER -> {
+                NavigationUtil.navigateToQuizOrderQuestion(
+                    navController,
+                    question.id,
+                    -1
+                )
+            }
+            else -> {
+                NavigationUtil.navigateToQuizInfoQuestion(
+                    navController,
+                    question.id,
+                    -1
+                )
+            }
         }
     }
 }

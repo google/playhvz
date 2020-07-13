@@ -23,12 +23,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.classmodels.Question
 
 class QuizDashboardAdapter(
     private val activity: FragmentActivity,
     private var gameId: String,
-    private var items: List<Reward>,
+    private var items: List<Question>,
     val context: Context,
     private val navController: NavController
 ) :
@@ -41,7 +41,7 @@ class QuizDashboardAdapter(
             activity,
             gameId,
             LayoutInflater.from(context).inflate(
-                R.layout.card_reward,
+                R.layout.card_quiz_question,
                 parent,
                 false
             ),
@@ -57,8 +57,15 @@ class QuizDashboardAdapter(
         return items.size
     }
 
-    fun setData(data: List<Reward>) {
-        items = data
+    fun setData(data: List<Question?>) {
+        val clean = mutableListOf<Question>()
+        for (question in data) {
+            if (question != null) {
+                clean.add(question)
+            }
+        }
+        clean.sortBy { question -> question.index }
+        items = clean
     }
 
     fun setIsAdmin(isAdmin: Boolean) {

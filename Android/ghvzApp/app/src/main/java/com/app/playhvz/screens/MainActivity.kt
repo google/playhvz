@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import com.app.playhvz.R
@@ -46,6 +47,7 @@ import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.navigation.SingleInstanceNavigator
 import com.app.playhvz.screens.signin.SignInActivity
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -69,6 +71,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var bottomNavView: BottomNavigationView
     private lateinit var navDrawerView: NavigationView
     private lateinit var gameViewModel: GameViewModel
+    private lateinit var navController: NavController
 
     private var prefs: SharedPreferences? = null
     private var gameId: String? = null
@@ -112,7 +115,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         FirebaseDatabaseUtil.initFirebaseDatabase()
-
+        navController = findNavController(R.id.nav_host_fragment)
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
         fab = findViewById(R.id.floating_action_button)
         bottomNavView = findViewById(R.id.bottom_navigation_view)
@@ -126,7 +129,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if (currentGameId != null && currentPlayerId != null) {
             listenToGameUpdates(currentGameId)
             NavigationUtil.navigateToGameDashboard(
-                findNavController(R.id.nav_host_fragment),
+                navController,
                 currentGameId
             )
         } else {
@@ -135,13 +138,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
+        val navController = navController
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     /** Ties Navigation Drawer items to destinations defined by navigation graph. */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
+        val navController = navController
         return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 
@@ -152,25 +155,25 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_admin_chat_list_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToAdminChatList(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_reward_dashboard_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToRewardDashboard(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_quiz_dashboard_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToQuizDashboard(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_game_settings_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToGameSettings(
-                    findNavController(R.id.nav_host_fragment),
+                    navController,
                     getCurrentGameId()
                 )
             }
@@ -178,13 +181,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_rules_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToRules(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_faq_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToFaq(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_create_chat_with_admin -> {
@@ -195,31 +198,31 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_game_list_fragment -> {
                 SystemUtils.clearSharedPrefs(this)
                 drawer_layout.closeDrawer(GravityCompat.START)
-                findNavController(R.id.nav_host_fragment).navigate(R.id.nav_game_list_fragment)
+                navController.navigate(R.id.nav_game_list_fragment)
             }
             R.id.nav_create_game_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToCreateGame(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_redeem_lifecode_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToInfectPlayer(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_redeem_reward_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToRedeemReward(
-                    findNavController(R.id.nav_host_fragment)
+                    navController
                 )
             }
             R.id.nav_find_player -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 val onPlayerSelected = { playerId: String ->
                     NavigationUtil.navigateToPlayerProfile(
-                        findNavController(R.id.nav_host_fragment),
+                        navController,
                         gameId!!,
                         playerId
                     )
@@ -259,6 +262,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun setupUI() {
+        // Set up navigator so that fragments don't call onCreate() twice when the activity is recreated.
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)!!
+        val singleInstanceNavigator = SingleInstanceNavigator(
+            this,
+            navHostFragment.childFragmentManager,
+            R.id.nav_host_fragment
+        )
+        navController.navigatorProvider.addNavigator(singleInstanceNavigator)
+        navController.setGraph(R.navigation.nav_graph)
+
         navDrawerView = findViewById(R.id.nav_view)
         navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility =
             View.GONE
@@ -271,7 +284,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private fun setupToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val navDrawerView = findViewById<NavigationView>(R.id.nav_view)
-        val navController = findNavController(R.id.nav_host_fragment)
+        val navController = navController
         setSupportActionBar(toolbar)
         appBarConfiguration =
             AppBarConfiguration(
@@ -289,28 +302,26 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun setupBottomNavigationBar() {
-        val navController = getNavController()
-        findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
-            .setupWithNavController(navController)
-
+        //val navHostFragment: NavHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment);
+        NavigationUI.setupWithNavController(bottomNavView, navController)
+        bottomNavView.setupWithNavController(navController)
         bottomNavView.setOnNavigationItemSelectedListener { item -> onBottomNavItemSelected(item) }
-
     }
 
     /** Bottom Navigation item selection. */
     private fun onBottomNavItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_home -> {
-                NavigationUtil.navigateToGameDashboard(getNavController(), getCurrentGameId())
+                NavigationUtil.navigateToGameDashboard(navController, getCurrentGameId())
             }
             R.id.action_missions -> {
-                NavigationUtil.navigateToMissionDashboard(getNavController())
+                NavigationUtil.navigateToMissionDashboard(navController)
             }
             R.id.action_chat -> {
-                NavigationUtil.navigateToChatList(getNavController())
+                NavigationUtil.navigateToChatList(navController)
             }
             R.id.action_profile -> {
-                NavigationUtil.navigateToPlayerProfile(getNavController(), getCurrentGameId(), null)
+                NavigationUtil.navigateToPlayerProfile(navController, getCurrentGameId(), null)
             }
         }
         return true
@@ -335,7 +346,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
         this.gameId = gameId
         gameViewModel.getGameAndAdminObserver(this, gameId, getCurrentPlayerId()!!) {
-            NavigationUtil.navigateToGameList(getNavController(), this)
+            NavigationUtil.navigateToGameList(navController, this)
         }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
             val newIsAdmin = serverUpdate.isAdmin
             if (newIsAdmin != isAdmin) {
@@ -350,10 +361,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         navDrawerView.menu.setGroupVisible(R.id.nav_game_options, gameId != null)
     }
 
-    private fun getNavController(): NavController {
-        return findNavController(R.id.nav_host_fragment)
-    }
-
     private fun navigateToAdminChat() {
         val gameId = getCurrentGameId()
         val playerId = getCurrentPlayerId()
@@ -364,7 +371,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             navDrawerView.menu.findItem(R.id.nav_create_chat_with_admin).actionView.visibility =
                 View.GONE
             drawer_layout.closeDrawer(GravityCompat.START)
-            NavigationUtil.navigateToChatRoom(getNavController(), adminChatId, playerId)
+            NavigationUtil.navigateToChatRoom(navController, adminChatId, playerId)
         }
         runBlocking {
             EspressoIdlingResource.increment()

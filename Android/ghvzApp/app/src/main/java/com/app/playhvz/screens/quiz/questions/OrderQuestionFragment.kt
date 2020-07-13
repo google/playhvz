@@ -18,11 +18,20 @@ package com.app.playhvz.screens.quiz.questions
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.common.ConfirmationDialog
+import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
+import com.app.playhvz.firebase.classmodels.Question
 import com.app.playhvz.utils.SystemUtils
 
 class OrderQuestionFragment : Fragment() {
@@ -30,11 +39,51 @@ class OrderQuestionFragment : Fragment() {
         val TAG = OrderQuestionFragment::class.qualifiedName
     }
 
+    val args: OrderQuestionFragmentArgs by navArgs()
+
+    private lateinit var answerAdapter: MultichoiceAnswerAdapter
+    private lateinit var answerRecyclerView: RecyclerView
     private lateinit var descriptionText: MarkdownEditText
+    private lateinit var draftHelper: QuestionDraftHelper
+    private lateinit var progressBar: ProgressBar
     private lateinit var toolbarMenu: Menu
 
     private var gameId: String? = null
     private var playerId: String? = null
+    private var currentAnswers: MutableList<Question.Answer> = mutableListOf()
+
+    private val onAddAnswer = {
+        val newAnswer = Question.Answer()
+        newAnswer.order = currentAnswers.size
+        currentAnswers.add(newAnswer)
+        refreshAnswers()
+    }
+    private val onEditAnswer = { position: Int ->
+        val onUpdate =
+            { updatedAnswer: Question.Answer ->
+                currentAnswers[position] = updatedAnswer
+                refreshAnswers()
+            }
+        val dialog = AnswerDialog(currentAnswers[position], onUpdate)
+        activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
+    }
+    private val onDeleteAnswer = { position: Int ->
+        val confirmationDialog = ConfirmationDialog(
+            getString(R.string.collapsible_section_remove_dialog_title),
+            R.string.collapsible_section_remove_dialog_content,
+            R.string.delete_button_content_description
+        )
+        confirmationDialog.setPositiveButtonCallback {
+            currentAnswers.removeAt(position)
+            refreshAnswers()
+        }
+        activity?.supportFragmentManager?.let {
+            confirmationDialog.show(
+                it,
+                TAG
+            )
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +93,8 @@ class OrderQuestionFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+        answerAdapter =
+            MultichoiceAnswerAdapter(listOf(), this, onAddAnswer, onEditAnswer, onDeleteAnswer)
         setHasOptionsMenu(true)
     }
 
@@ -53,8 +104,24 @@ class OrderQuestionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_quiz_question_order, container, false)
+        progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
+        answerRecyclerView = view.findViewById(R.id.item_list)
+        answerRecyclerView.layoutManager = LinearLayoutManager(context)
+        answerRecyclerView.adapter = answerAdapter
+
+        descriptionText.doOnTextChanged { text, _, _, _ ->
+            when {
+                text.isNullOrEmpty() -> {
+                    disableActions()
+                }
+                else -> {
+                    enableActions()
+                }
+            }
+        }
         setupToolbar()
+        setupDraftHelper()
         return view
     }
 
@@ -71,9 +138,9 @@ class OrderQuestionFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroyView() {
+    override fun onPause() {
+        super.onPause()
         SystemUtils.hideKeyboard(requireContext())
-        super.onDestroyView()
     }
 
     private fun setupToolbar() {
@@ -83,8 +150,33 @@ class OrderQuestionFragment : Fragment() {
         }
     }
 
+    private fun setupDraftHelper() {
+        draftHelper =
+            QuestionDraftHelper(requireContext(), findNavController(), gameId!!, args.questionId)
+        draftHelper.setDisableActions {
+            disableActions()
+        }
+        draftHelper.setEnableActions {
+            enableActions()
+        }
+        draftHelper.setProgressBar(progressBar)
+        draftHelper.initializeDraft(
+            CrossClientConstants.QUIZ_TYPE_ORDER,
+            args.nextAvailableIndex,
+            { draft -> initUI(draft) })
+    }
+
+    private fun initUI(draft: Question) {
+        descriptionText.setText(draft.text)
+        currentAnswers = draft.answers.toMutableList()
+        refreshAnswers()
+    }
+
     private fun saveChanges() {
         val info = descriptionText.text.toString()
+        draftHelper.questionDraft.text = info
+        draftHelper.questionDraft.answers = currentAnswers
+        draftHelper.persistDraftToServer()
     }
 
     private fun disableActions() {
@@ -95,12 +187,17 @@ class OrderQuestionFragment : Fragment() {
     }
 
     private fun enableActions() {
-        if (view == null) {
+        if (view == null || toolbarMenu.findItem(R.id.save_option) == null) {
             // Fragment was killed
             return
         }
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 255
         menuItem.isEnabled = true
+    }
+
+    private fun refreshAnswers() {
+        answerAdapter.setData(currentAnswers)
+        answerAdapter.notifyDataSetChanged()
     }
 }

@@ -66,5 +66,11 @@ class DataConverterUtil {
             reward.id = document.id
             return reward
         }
+
+        fun convertSnapshotToQuestion(document: DocumentSnapshot): Question {
+            val question = document.toObject(Question::class.java)!!
+            question.id = document.id
+            return question
+        }
     }
 }

@@ -17,10 +17,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:orientation="vertical"
   android:padding="@dimen/screen_margin_horizontal">
+
+  <ProgressBar
+    android:id="@+id/progress_bar"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/horizontal_progress_bar_height"
+    android:indeterminate="true"
+    android:visibility="invisible" />
 
   <com.app.playhvz.common.ui.MarkdownEditText
     android:id="@+id/description_text"
+    style="@style/NormalTextInputStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="top"
@@ -28,4 +38,15 @@
     android:gravity="start|top"
     android:lines="8" />
 
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:text="@string/quiz_question_multi_answer_description" />
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/item_list"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
 </LinearLayout>

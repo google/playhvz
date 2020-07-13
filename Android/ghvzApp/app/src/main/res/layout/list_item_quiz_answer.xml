@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Google Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_marginVertical="16dp"
+  android:background="@drawable/border_rectangle"
+  android:orientation="horizontal"
+  android:paddingHorizontal="8dp">
+
+  <TextView
+    android:id="@+id/answer_order"
+    style="@style/TextAppearance.MaterialComponents.Body2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:paddingEnd="10dp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:ignore="RtlSymmetry"
+    tools:text="#3" />
+
+  <com.app.playhvz.common.ui.MarkdownTextView
+    android:id="@+id/answer_button"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_weight="1"
+    android:background="@drawable/selectable_item_with_border"
+    android:backgroundTint="@color/colorPrimary"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:minHeight="@dimen/tap_target_min"
+    android:padding="4dp"
+    android:textColor="@color/white"
+    app:layout_constraintEnd_toStartOf="@id/delete_button"
+    app:layout_constraintStart_toEndOf="@id/answer_order"
+    app:layout_constraintTop_toTopOf="@id/answer_order"
+    tools:text="Go to the crosswalk and wait for all the players to arrive" />
+
+  <ImageButton
+    android:id="@+id/delete_button"
+    style="@style/ImageButtonStyle"
+    android:layout_width="@dimen/tap_target_min"
+    android:layout_height="@dimen/tap_target_min"
+    android:layout_gravity="center"
+    android:contentDescription="@string/delete_button_content_description"
+    android:src="@drawable/ic_x"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <com.app.playhvz.common.ui.MarkdownTextView
+    android:id="@+id/answer_correctness"
+    style="@style/TextAppearance.MaterialComponents.Body2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="4dp"
+    app:layout_constraintTop_toBottomOf="@id/answer_button"
+    tools:text="Is Correct: false" />
+</androidx.constraintlayout.widget.ConstraintLayout>

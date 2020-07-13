@@ -58,6 +58,14 @@
     %1$s already exists!
   </string>
 
+  <string name="boolean_true" definition="True.">
+    True
+  </string>
+
+  <string name="boolean_false" definition="False.">
+    False
+  </string>
+
   <string name="button_add" definition="Button to add selected item to a list or group.">
     Add
   </string>
@@ -92,6 +100,10 @@
 
   <string name="button_refresh" definition="Refresh button.">
     Refresh
+  </string>
+
+  <string name="button_update" definition="Button to select when saving changes.">
+    Update
   </string>
 
   <string name="button_use" definition="Button to select when saving changes.">
@@ -567,6 +579,30 @@
     Oh no! Someone else made a change… copy your changes, quit editing and try again.
   </string>
 
+  <string name="quiz_answer_dialog_title" definition="Title for the quiz answer dialog.">
+    Quiz Answer
+  </string>
+
+  <string name="quiz_answer_dialog_text" definition="Label for the text input for an answer's text.">
+    Answer
+  </string>
+
+  <string name="quiz_answer_empty_text" definition="Label for the answer text when it is empty.">
+    &lt;click to edit answer&gt;
+  </string>
+
+  <string name="quiz_answer_order_text" definition="Label for the answer's ordering.">
+    #%1$d
+  </string>
+
+  <string name="quiz_answer_correct_text" definition="Label for the answer's correctness.">
+    This is a **CORRECT** answer option
+  </string>
+
+  <string name="quiz_answer_incorrect_text" definition="Label for the answer's correctness.">
+    This is an **INCORRECT** answer option
+  </string>
+
   <string name="quiz_dashboard_title" definition="Title for the declaration quiz dashboard.">
     Quiz Questions
   </string>
@@ -591,12 +627,20 @@
     Info only
   </string>
 
+  <string name="quiz_card_title" definition="Title for the question showing the number.">
+    #%1$s
+  </string>
+
   <string name="quiz_info_question_title" definition="Title for the info question type.">
     Info
   </string>
 
   <string name="quiz_order_question_title" definition="Title for the order question type.">
     Ordering
+  </string>
+
+  <string name="quiz_question_multi_answer_description" definition="Description telling the admin more info about answers.">
+    Answers will appear in a random order to users.
   </string>
 
   <plurals name="reward_card_label_points" definition="Label for the text input for specifying a reward's points.">

@@ -58,7 +58,7 @@
         android:layout_height="28dp"
         android:layout_marginStart="46dp"
         android:layout_marginTop="24dp"
-        android:background="@drawable/border_rounded_corner"
+        android:background="@drawable/container_rounded_corner"
         android:padding="2dp"
         android:src="@drawable/ic_edit"
         app:layout_constraintBottom_toBottomOf="parent"

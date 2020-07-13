@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz
+package com.app.playhvz.screens.quiz.questions
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -22,32 +22,30 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioGroup
+import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
-import androidx.navigation.fragment.findNavController
 import com.app.playhvz.R
-import com.app.playhvz.common.globals.CrossClientConstants
-import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.firebase.classmodels.Question
 import com.google.android.material.button.MaterialButton
 
-class QuestionTypeSelectorDialog(
-    private val gameId: String,
-    private val nextIndex: Int
+class AnswerDialog(
+    private val answer: Question.Answer,
+    private val onUpdate: (updatedAnswer: Question.Answer) -> Unit
 ) : DialogFragment() {
     companion object {
-        private val TAG = QuestionTypeSelectorDialog::class.qualifiedName
+        private val TAG = AnswerDialog::class.qualifiedName
     }
 
     private lateinit var customView: View
-    private lateinit var typeSelectorGroup: RadioGroup
+    private lateinit var answerText: EmojiEditText
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         customView =
-            requireActivity().layoutInflater.inflate(R.layout.dialog_quiz_question_type, null)
-        typeSelectorGroup = customView.findViewById(R.id.radio_button_group)
+            requireActivity().layoutInflater.inflate(R.layout.dialog_quiz_answer, null)
+        answerText = customView.findViewById(R.id.answer_text)
 
         val dialog = AlertDialog.Builder(requireContext())
-            .setTitle(resources.getString(R.string.quiz_dashboard_dialog_title))
+            .setTitle(resources.getString(R.string.quiz_answer_dialog_title))
             .setView(customView)
             .create()
 
@@ -57,7 +55,8 @@ class QuestionTypeSelectorDialog(
         }
         val positiveButton = customView.findViewById<MaterialButton>(R.id.positive_button)
         positiveButton.setOnClickListener {
-            triggerActionFromTypeSelection()
+            answer.text = answerText.text.toString()
+            onUpdate.invoke(answer)
             dialog?.dismiss()
         }
         return dialog
@@ -67,30 +66,12 @@ class QuestionTypeSelectorDialog(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        initView()
         // Return already inflated custom view
         return customView
     }
 
-    private fun triggerActionFromTypeSelection() {
-        val selected = typeSelectorGroup.checkedRadioButtonId
-        if (selected == R.id.radio_multiple_choice) {
-            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE
-        } else if (selected == R.id.radio_true_false) {
-            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE
-        } else if (selected == R.id.radio_order) {
-            CrossClientConstants.QUIZ_TYPE_ORDER
-            NavigationUtil.navigateToQuizOrderQuestion(
-                findNavController(),
-                /* questionId= */ null,
-                nextIndex
-            )
-        } else {
-            CrossClientConstants.QUIZ_TYPE_INFO
-            NavigationUtil.navigateToQuizInfoQuestion(
-                findNavController(),
-                /* questionId= */ null,
-                nextIndex
-            )
-        }
+    private fun initView() {
+        answerText.setText(answer.text)
     }
 }

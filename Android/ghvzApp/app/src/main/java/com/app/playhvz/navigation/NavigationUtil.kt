@@ -207,9 +207,16 @@ class NavigationUtil {
         /**
          * Opens quiz info question.
          */
-        fun navigateToQuizInfoQuestion(navController: NavController) {
+        fun navigateToQuizInfoQuestion(
+            navController: NavController,
+            questionId: String?,
+            nextIndex: Int
+        ) {
             navController.navigate(
-                InfoQuestionFragmentDirections.actionGlobalNavQuizQuestionInfoFragment()
+                InfoQuestionFragmentDirections.actionGlobalNavQuizQuestionInfoFragment(
+                    questionId,
+                    nextIndex
+                )
             )
         }
 
@@ -217,9 +224,15 @@ class NavigationUtil {
         /**
          * Opens quiz order question.
          */
-        fun navigateToQuizOrderQuestion(navController: NavController) {
+        fun navigateToQuizOrderQuestion(
+            navController: NavController, questionId: String?,
+            nextIndex: Int
+        ) {
             navController.navigate(
-                OrderQuestionFragmentDirections.actionGlobalNavQuizQuestionOrderFragment()
+                OrderQuestionFragmentDirections.actionGlobalNavQuizQuestionOrderFragment(
+                    questionId,
+                    nextIndex
+                )
             )
         }
 

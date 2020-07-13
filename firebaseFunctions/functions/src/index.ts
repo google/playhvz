@@ -28,6 +28,7 @@ import * as Player from './data/player';
 import * as PlayerUtils from './utils/playerutils';
 import * as Message from './data/message';
 import * as Mission from './data/mission';
+import * as QuizQuestion from './data/quizquestion';
 import * as Reward from './data/reward';
 import * as RewardUtils from './utils/rewardutils';
 import * as User from './data/user';
@@ -1312,4 +1313,48 @@ exports.getRewardsByName = functions.https.onCall(async (data, context) => {
 });
 
 
+
+/*******************************************************
+* QUIZ QUESTION functions
+********************************************************/
+
+/**
+ * Initiate a recursive delete of documents at a given path.
+ *
+ * The calling user must be authenticated and have the custom "admin" attribute
+ * set to true on the auth token.
+ *
+ * This delete is NOT an atomic operation and it's possible
+ * that it may fail after only deleting some documents.
+ *
+ * @param {string} data.path the document or collection path to delete.
+ */
+exports.deleteQuizQuestion = functions.runWith({
+    timeoutSeconds: 540,
+    memory: '2GB'
+}).https.onCall(async (data, context) => {
+    // Only allow admin users to execute this function.
+    if (!(context.auth)) {
+    /* TODO: only allow for admins once we launch game (&& context.auth.token && context.auth.token.admin) */
+      throw new functions.https.HttpsError('permission-denied', 'Must be an administrative user to initiate delete.');
+    }
+
+    const gameId = data.gameId;
+    const questionId = data.questionId;
+    console.log(
+      `User ${context.auth.uid} has requested to delete question ${questionId}`
+    );
+
+    // Run a recursive delete on the quiz document path.
+    const questionRef = db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(QuizQuestion.COLLECTION_PATH)
+      .doc(questionId);
+    await questionRef.listCollections().then(async (collections: any) => {
+      for (const collection of collections) {
+        await deleteCollection(collection)
+      }
+      await questionRef.delete()
+    });
+});
 

@@ -25,6 +25,7 @@ import com.app.playhvz.firebase.classmodels.Mission
 import com.app.playhvz.firebase.operations.GroupDatabaseOperations
 import com.app.playhvz.firebase.operations.MissionDatabaseOperations
 import com.app.playhvz.firebase.utils.DataConverterUtil
+import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
 import com.google.firebase.firestore.DocumentSnapshot
 
 class MissionListViewModel : ViewModel() {

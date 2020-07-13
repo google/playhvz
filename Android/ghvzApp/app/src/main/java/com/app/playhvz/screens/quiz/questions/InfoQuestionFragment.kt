@@ -18,11 +18,17 @@ package com.app.playhvz.screens.quiz.questions
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
+import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
+import com.app.playhvz.firebase.classmodels.Question
 import com.app.playhvz.utils.SystemUtils
 
 class InfoQuestionFragment : Fragment() {
@@ -30,11 +36,16 @@ class InfoQuestionFragment : Fragment() {
         val TAG = InfoQuestionFragment::class.qualifiedName
     }
 
+    val args: InfoQuestionFragmentArgs by navArgs()
+
     private lateinit var descriptionText: MarkdownEditText
+    private lateinit var draftHelper: QuestionDraftHelper
+    private lateinit var progressBar: ProgressBar
     private lateinit var toolbarMenu: Menu
 
     private var gameId: String? = null
     private var playerId: String? = null
+    private var questionId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +55,7 @@ class InfoQuestionFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
+        questionId = args.questionId
         setHasOptionsMenu(true)
     }
 
@@ -53,8 +65,21 @@ class InfoQuestionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_quiz_question_info, container, false)
+        progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
+        descriptionText.doOnTextChanged { text, _, _, _ ->
+            when {
+                text.isNullOrEmpty() -> {
+                    disableActions()
+                }
+                else -> {
+                    enableActions()
+                }
+            }
+        }
+
         setupToolbar()
+        setupDraftHelper()
         return view
     }
 
@@ -83,8 +108,30 @@ class InfoQuestionFragment : Fragment() {
         }
     }
 
+    private fun setupDraftHelper() {
+        draftHelper =
+            QuestionDraftHelper(requireContext(), findNavController(), gameId!!, questionId)
+        draftHelper.setDisableActions {
+            disableActions()
+        }
+        draftHelper.setEnableActions {
+            enableActions()
+        }
+        draftHelper.setProgressBar(progressBar)
+        draftHelper.initializeDraft(
+            CrossClientConstants.QUIZ_TYPE_INFO,
+            args.nextAvailableIndex,
+            { draft -> initUI(draft) })
+    }
+
+    private fun initUI(draft: Question) {
+        descriptionText.setText(draft.text)
+    }
+
     private fun saveChanges() {
         val info = descriptionText.text.toString()
+        draftHelper.questionDraft.text = info
+        draftHelper.persistDraftToServer()
     }
 
     private fun disableActions() {
@@ -95,7 +142,7 @@ class InfoQuestionFragment : Fragment() {
     }
 
     private fun enableActions() {
-        if (view == null) {
+        if (view == null || toolbarMenu.findItem(R.id.save_option) == null) {
             // Fragment was killed
             return
         }
