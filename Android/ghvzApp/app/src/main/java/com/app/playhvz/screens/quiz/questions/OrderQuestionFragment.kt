@@ -61,7 +61,6 @@ class OrderQuestionFragment : Fragment() {
     private val onEditAnswer = { position: Int ->
         val onUpdate =
             { updatedAnswer: Question.Answer ->
-                println("lizard - answer text: " + updatedAnswer.text)
                 currentAnswers[position] = updatedAnswer
                 refreshAnswers()
             }
