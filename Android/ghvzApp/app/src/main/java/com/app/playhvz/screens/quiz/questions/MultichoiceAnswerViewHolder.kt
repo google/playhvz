@@ -18,6 +18,7 @@ package com.app.playhvz.screens.quiz.questions
 
 import android.view.View
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.ui.MarkdownTextView
@@ -32,14 +33,26 @@ class MultichoiceAnswerViewHolder(
 
     private val answerButton = view.findViewById<MarkdownTextView>(R.id.answer_button)!!
     private val deleteButton = view.findViewById<ImageButton>(R.id.delete_button)!!
+    private val orderView = view.findViewById<TextView>(R.id.answer_order)!!
+    private val correctnessView = view.findViewById<MarkdownTextView>(R.id.answer_correctness)!!
 
     fun onBind(position: Int, answer: Question.Answer) {
+        val res = orderView.resources
         deleteButton.setOnClickListener {
             onDelete.invoke(position)
         }
-        answerButton.text = answer.text
+        answerButton.text = if (answer.text.isEmpty()) {
+            res.getString(R.string.quiz_answer_empty_text)
+        } else {
+            answer.text
+        }
         answerButton.setOnClickListener {
             onEdit.invoke(position)
         }
+
+        orderView.text = res.getString(R.string.quiz_answer_order_text, answer.order)
+        val correctness =
+            if (answer.isCorrect) R.string.quiz_answer_correct_text else R.string.quiz_answer_incorrect_text
+        correctnessView.text = res.getString(correctness)
     }
 }

@@ -14,22 +14,33 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:layout_margin="2dp"
+  android:layout_marginVertical="16dp"
   android:background="@drawable/border_rectangle"
   android:orientation="horizontal"
-  android:padding="8dp">
+  android:paddingHorizontal="8dp">
+
+  <TextView
+    android:id="@+id/answer_order"
+    style="@style/TextAppearance.MaterialComponents.Body2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:paddingEnd="10dp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:ignore="RtlSymmetry"
+    tools:text="#3" />
 
   <com.app.playhvz.common.ui.MarkdownTextView
     android:id="@+id/answer_button"
-    style="@style/TextAppearance.MaterialComponents.Headline6"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
-    android:layout_marginTop="16dp"
     android:layout_weight="1"
     android:background="@drawable/selectable_item_with_border"
     android:backgroundTint="@color/colorPrimary"
@@ -39,6 +50,9 @@
     android:minHeight="@dimen/tap_target_min"
     android:padding="4dp"
     android:textColor="@color/white"
+    app:layout_constraintEnd_toStartOf="@id/delete_button"
+    app:layout_constraintStart_toEndOf="@id/answer_order"
+    app:layout_constraintTop_toTopOf="@id/answer_order"
     tools:text="Go to the crosswalk and wait for all the players to arrive" />
 
   <ImageButton
@@ -46,10 +60,18 @@
     style="@style/ImageButtonStyle"
     android:layout_width="@dimen/tap_target_min"
     android:layout_height="@dimen/tap_target_min"
-    android:layout_gravity="top"
-    android:layout_margin="8dp"
-    android:layout_marginTop="16dp"
+    android:layout_gravity="center"
     android:contentDescription="@string/delete_button_content_description"
-    android:src="@drawable/ic_x" />
+    android:src="@drawable/ic_x"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-</LinearLayout>
+  <com.app.playhvz.common.ui.MarkdownTextView
+    android:id="@+id/answer_correctness"
+    style="@style/TextAppearance.MaterialComponents.Body2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="4dp"
+    app:layout_constraintTop_toBottomOf="@id/answer_button"
+    tools:text="Is Correct: false" />
+</androidx.constraintlayout.widget.ConstraintLayout>

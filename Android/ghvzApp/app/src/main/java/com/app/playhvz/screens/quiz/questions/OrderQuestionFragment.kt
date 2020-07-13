@@ -139,9 +139,9 @@ class OrderQuestionFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroyView() {
+    override fun onPause() {
+        super.onPause()
         SystemUtils.hideKeyboard(requireContext())
-        super.onDestroyView()
     }
 
     private fun setupToolbar() {
