@@ -175,7 +175,7 @@ class OrderQuestionFragment : Fragment() {
     private fun saveChanges() {
         val info = descriptionText.text.toString()
         draftHelper.questionDraft.text = info
-        draftHelper.questionDraft.answers = currentAnswers
+        draftHelper.setAnswers(currentAnswers)
         draftHelper.persistDraftToServer()
     }
 

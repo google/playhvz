@@ -66,6 +66,14 @@
     False
   </string>
 
+  <string name="boolean_correct" definition="Correct.">
+    Correct
+  </string>
+
+  <string name="boolean_incorrect" definition="Incorrect.">
+    Incorrect
+  </string>
+
   <string name="button_add" definition="Button to add selected item to a list or group.">
     Add
   </string>
@@ -585,6 +593,10 @@
 
   <string name="quiz_answer_dialog_text" definition="Label for the text input for an answer's text.">
     Answer
+  </string>
+
+  <string name="quiz_answer_dialog_correctness" definition="Label for the text input for an answer's text.">
+    This answer option is
   </string>
 
   <string name="quiz_answer_empty_text" definition="Label for the answer text when it is empty.">

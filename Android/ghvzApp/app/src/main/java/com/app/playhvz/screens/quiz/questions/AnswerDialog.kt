@@ -22,6 +22,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
 import com.app.playhvz.R
@@ -36,13 +38,18 @@ class AnswerDialog(
         private val TAG = AnswerDialog::class.qualifiedName
     }
 
+    private val CORRECT_POSITION = 0
+    private val INCORRECT_POSITION = 1
+
     private lateinit var customView: View
     private lateinit var answerText: EmojiEditText
+    private lateinit var answerCorrectness: Spinner
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         customView =
             requireActivity().layoutInflater.inflate(R.layout.dialog_quiz_answer, null)
         answerText = customView.findViewById(R.id.answer_text)
+        answerCorrectness = customView.findViewById(R.id.answer_correctness_spinner)
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(resources.getString(R.string.quiz_answer_dialog_title))
@@ -56,9 +63,24 @@ class AnswerDialog(
         val positiveButton = customView.findViewById<MaterialButton>(R.id.positive_button)
         positiveButton.setOnClickListener {
             answer.text = answerText.text.toString()
+            answer.isCorrect = answerCorrectness.selectedItemPosition == CORRECT_POSITION
             onUpdate.invoke(answer)
             dialog?.dismiss()
         }
+
+        val correctnessOptions = arrayOf(
+            resources.getString(R.string.boolean_correct),
+            resources.getString(R.string.boolean_incorrect)
+        )
+        ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            correctnessOptions
+        ).also { correctnessAdapter: ArrayAdapter<String> ->
+            correctnessAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            answerCorrectness.adapter = correctnessAdapter
+        }
+
         return dialog
     }
 
@@ -73,5 +95,6 @@ class AnswerDialog(
 
     private fun initView() {
         answerText.setText(answer.text)
+        answerCorrectness.setSelection(if (answer.isCorrect) CORRECT_POSITION else INCORRECT_POSITION)
     }
 }

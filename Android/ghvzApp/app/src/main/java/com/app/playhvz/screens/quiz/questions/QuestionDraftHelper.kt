@@ -71,6 +71,16 @@ class QuestionDraftHelper(
         }
     }
 
+    fun setAnswers(draftAnswers: List<Question.Answer>) {
+        val cleansed = mutableListOf<Question.Answer>()
+        for (proposal in draftAnswers) {
+            if (!proposal.text.isNullOrBlank()) {
+                cleansed.add(proposal)
+            }
+        }
+        questionDraft.answers = cleansed
+    }
+
     fun persistDraftToServer() {
         progressBar.visibility = View.VISIBLE
         disableActions.invoke()

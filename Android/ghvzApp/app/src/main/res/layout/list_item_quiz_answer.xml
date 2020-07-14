@@ -31,6 +31,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:paddingEnd="10dp"
+    android:textSize="18sp"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     tools:ignore="RtlSymmetry"
@@ -69,9 +70,11 @@
   <com.app.playhvz.common.ui.MarkdownTextView
     android:id="@+id/answer_correctness"
     style="@style/TextAppearance.MaterialComponents.Body2"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingVertical="4dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@id/answer_button"
     tools:text="Is Correct: false" />
 </androidx.constraintlayout.widget.ConstraintLayout>
