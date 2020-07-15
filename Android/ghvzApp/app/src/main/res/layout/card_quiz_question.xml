@@ -73,6 +73,22 @@
         android:textColor="@color/app_secondary_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+      <TextView
+        android:id="@+id/answer_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/question_text" />
+
+      <TextView
+        android:id="@+id/question_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/question_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
   </LinearLayout>

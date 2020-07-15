@@ -66,6 +66,14 @@
     False
   </string>
 
+  <string name="boolean_correct" definition="Correct.">
+    Correct
+  </string>
+
+  <string name="boolean_incorrect" definition="Incorrect.">
+    Incorrect
+  </string>
+
   <string name="button_add" definition="Button to add selected item to a list or group.">
     Add
   </string>
@@ -82,8 +90,24 @@
     Create
   </string>
 
+  <string name="button_delete" definition="Delete button.">
+    Delete
+  </string>
+
   <string name="button_dismiss" definition="Dismiss button.">
     Dismiss
+  </string>
+
+  <string name="button_move_up" definition="Move up button.">
+    Move up
+  </string>
+
+  <string name="button_move_down" definition="Move down button.">
+    Move down
+  </string>
+
+  <string name="button_remove_ordering" definition="Remove ordering button.">
+    Remove ordering
   </string>
 
   <string name="button_next" definition="Button to select when saving changes and going to the next screen.">
@@ -587,12 +611,16 @@
     Answer
   </string>
 
+  <string name="quiz_answer_dialog_correctness" definition="Label for the text input for an answer's text.">
+    This answer option is
+  </string>
+
   <string name="quiz_answer_empty_text" definition="Label for the answer text when it is empty.">
     &lt;click to edit answer&gt;
   </string>
 
   <string name="quiz_answer_order_text" definition="Label for the answer's ordering.">
-    #%1$d
+    #%1$s
   </string>
 
   <string name="quiz_answer_correct_text" definition="Label for the answer's correctness.">
@@ -605,6 +633,10 @@
 
   <string name="quiz_dashboard_title" definition="Title for the declaration quiz dashboard.">
     Quiz Questions
+  </string>
+
+  <string name="quiz_dashboard_answer_count" definition="Count for the number of answers a question has.">
+    %1$d answers
   </string>
 
   <string name="quiz_dashboard_dialog_title" definition="Title for the declaration quiz dialog to select question type.">
@@ -779,6 +811,10 @@
 
   <string name="delete_button_content_description" definition="Content description for a delete button.">
     Delete
+  </string>
+
+  <string name="overflow_button_content_description" definition="Content description for an overflow button.">
+    Options
   </string>
 
   <string name="reward_card_expand_content_description" definition="Content description for button to expand reward details.">

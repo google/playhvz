@@ -31,12 +31,18 @@ import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.utils.SystemUtils
 
 class OrderQuestionFragment : Fragment() {
     companion object {
         val TAG = OrderQuestionFragment::class.qualifiedName
+    }
+
+    enum class OrderModification {
+        MOVE_UP,
+        REMOVE,
+        MOVE_DOWN
     }
 
     val args: OrderQuestionFragmentArgs by navArgs()
@@ -50,17 +56,17 @@ class OrderQuestionFragment : Fragment() {
 
     private var gameId: String? = null
     private var playerId: String? = null
-    private var currentAnswers: MutableList<Question.Answer> = mutableListOf()
+    private var currentAnswers: MutableList<QuizQuestion.Answer> = mutableListOf()
 
     private val onAddAnswer = {
-        val newAnswer = Question.Answer()
+        val newAnswer = QuizQuestion.Answer()
         newAnswer.order = currentAnswers.size
         currentAnswers.add(newAnswer)
         refreshAnswers()
     }
     private val onEditAnswer = { position: Int ->
         val onUpdate =
-            { updatedAnswer: Question.Answer ->
+            { updatedAnswer: QuizQuestion.Answer ->
                 currentAnswers[position] = updatedAnswer
                 refreshAnswers()
             }
@@ -84,6 +90,35 @@ class OrderQuestionFragment : Fragment() {
             )
         }
     }
+    private val onChangeAnswerOrder = { position: Int, modification: OrderModification ->
+        val currentOrdering = currentAnswers[position].order
+        if (modification == OrderModification.REMOVE) {
+            currentAnswers[position].order = CrossClientConstants.QUIZ_BLANK_ORDER
+            for (index in 0 until currentAnswers.size) {
+                if (currentAnswers[index].order < currentOrdering) {
+                    continue
+                }
+                currentAnswers[index].order--
+            }
+        } else if (modification == OrderModification.MOVE_UP) {
+            val targetOrdering = currentOrdering - 1
+            swapAnswers(position, targetOrdering)
+        } else if (modification == OrderModification.MOVE_DOWN) {
+            if (currentAnswers[position].order == CrossClientConstants.QUIZ_BLANK_ORDER) {
+                for (index in 0 until currentAnswers.size) {
+                    if (currentAnswers[index].order < 0) {
+                        continue
+                    }
+                    currentAnswers[index].order++
+                }
+                currentAnswers[position].order = 0
+            } else {
+                val targetOrdering = currentOrdering + 1
+                swapAnswers(position, targetOrdering)
+            }
+        }
+        refreshAnswers()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,7 +129,14 @@ class OrderQuestionFragment : Fragment() {
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
         answerAdapter =
-            MultichoiceAnswerAdapter(listOf(), this, onAddAnswer, onEditAnswer, onDeleteAnswer)
+            MultichoiceAnswerAdapter(
+                listOf(),
+                this,
+                onAddAnswer,
+                onEditAnswer,
+                onDeleteAnswer,
+                onChangeAnswerOrder
+            )
         setHasOptionsMenu(true)
     }
 
@@ -143,6 +185,11 @@ class OrderQuestionFragment : Fragment() {
         SystemUtils.hideKeyboard(requireContext())
     }
 
+    override fun onResume() {
+        super.onResume()
+        descriptionText.clearFocus()
+    }
+
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
@@ -166,7 +213,7 @@ class OrderQuestionFragment : Fragment() {
             { draft -> initUI(draft) })
     }
 
-    private fun initUI(draft: Question) {
+    private fun initUI(draft: QuizQuestion) {
         descriptionText.setText(draft.text)
         currentAnswers = draft.answers.toMutableList()
         refreshAnswers()
@@ -175,7 +222,7 @@ class OrderQuestionFragment : Fragment() {
     private fun saveChanges() {
         val info = descriptionText.text.toString()
         draftHelper.questionDraft.text = info
-        draftHelper.questionDraft.answers = currentAnswers
+        draftHelper.setAnswers(currentAnswers)
         draftHelper.persistDraftToServer()
     }
 
@@ -197,7 +244,18 @@ class OrderQuestionFragment : Fragment() {
     }
 
     private fun refreshAnswers() {
+        currentAnswers = currentAnswers.sortedBy { answer -> answer.order }.toMutableList()
         answerAdapter.setData(currentAnswers)
         answerAdapter.notifyDataSetChanged()
+    }
+
+    private fun swapAnswers(currentPostion: Int, endingOrder: Int) {
+        for ((index, value) in currentAnswers.withIndex()) {
+            if (value.order == endingOrder) {
+                currentAnswers[index].order = currentAnswers[currentPostion].order
+                currentAnswers[currentPostion].order = endingOrder
+                return
+            }
+        }
     }
 }

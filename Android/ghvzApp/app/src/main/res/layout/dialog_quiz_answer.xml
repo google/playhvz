@@ -39,8 +39,26 @@
     style="@style/NormalTextInputStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:layout_constraintBottom_toTopOf="@id/negative_button"
     app:layout_constraintTop_toBottomOf="@id/text_label" />
+
+  <TextView
+    android:id="@+id/answer_correctness_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/quiz_answer_dialog_correctness"
+    android:textSize="18sp"
+    app:layout_constraintBottom_toBottomOf="@id/answer_correctness_spinner"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@id/answer_correctness_spinner" />
+
+  <Spinner
+    android:id="@+id/answer_correctness_spinner"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/tap_target_min"
+    app:layout_constraintBottom_toTopOf="@id/negative_button"
+    app:layout_constraintStart_toEndOf="@id/answer_correctness_label"
+    app:layout_constraintTop_toBottomOf="@id/answer_text" />
 
   <com.google.android.material.button.MaterialButton
     android:id="@+id/negative_button"

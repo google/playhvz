@@ -17,7 +17,7 @@
 package com.app.playhvz.firebase.operations
 
 import android.util.Log
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.firebase.constants.QuizQuestionPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
@@ -63,12 +63,12 @@ class QuizQuestionDatabaseOperations {
 
         suspend fun asyncCreateQuizQuestion(
             gameId: String,
-            questionDraft: Question,
+            questionDraft: QuizQuestion,
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
             QuizQuestionPath.QUIZ_QUESTION_COLLECTION(gameId).add(
-                Question.createFirebaseObject(questionDraft)
+                QuizQuestion.createFirebaseObject(questionDraft)
             ).addOnSuccessListener {
                 successListener.invoke()
             }.addOnFailureListener {
@@ -80,12 +80,12 @@ class QuizQuestionDatabaseOperations {
         suspend fun asyncUpdateQuizQuestion(
             gameId: String,
             questionId: String,
-            questionDraft: Question,
+            questionDraft: QuizQuestion,
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
             QuizQuestionPath.QUIZ_QUESTION_DOCUMENT_REFERENCE(gameId, questionId).set(
-                Question.createFirebaseObject(questionDraft)
+                QuizQuestion.createFirebaseObject(questionDraft)
             ).addOnSuccessListener {
                 successListener.invoke()
             }.addOnFailureListener {
