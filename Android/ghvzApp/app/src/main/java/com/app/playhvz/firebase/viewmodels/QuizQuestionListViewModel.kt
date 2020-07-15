@@ -18,29 +18,24 @@ package com.app.playhvz.firebase.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.HvzData
-import com.app.playhvz.firebase.classmodels.Question
-import com.app.playhvz.firebase.classmodels.Reward
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.firebase.operations.QuizQuestionDatabaseOperations
-import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.utils.DataConverterUtil
-import kotlinx.coroutines.runBlocking
 
 class QuizQuestionListViewModel : ViewModel() {
     companion object {
         private val TAG = QuizQuestionListViewModel::class.qualifiedName
     }
 
-    private var questionList: HvzData<List<Question>> = HvzData(listOf())
+    private var questionList: HvzData<List<QuizQuestion>> = HvzData(listOf())
 
     /** Listens to all question updates and returns a LiveData object. */
     fun getGameQuizQuestions(
         lifecycleOwner: LifecycleOwner,
         gameId: String
-    ): HvzData<List<Question>> {
+    ): HvzData<List<QuizQuestion>> {
         questionList.docIdListeners[gameId] =
             QuizQuestionDatabaseOperations.getQuizQuestionCollectionReference(gameId)
                 .addSnapshotListener { querySnapshot, e ->
@@ -53,7 +48,7 @@ class QuizQuestionListViewModel : ViewModel() {
                         questionList.value = emptyList()
                         return@addSnapshotListener
                     }
-                    val updatedList: MutableList<Question> = mutableListOf()
+                    val updatedList: MutableList<QuizQuestion> = mutableListOf()
                     for (questionSnapshot in querySnapshot.documents) {
                         updatedList.add(DataConverterUtil.convertSnapshotToQuestion(questionSnapshot))
                     }

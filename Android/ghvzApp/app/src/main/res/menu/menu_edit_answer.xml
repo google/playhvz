@@ -14,11 +14,24 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
-    android:id="@+id/delete"
+    android:id="@+id/move_up_option"
+    android:icon="@drawable/ic_expand_less"
+    android:title="@string/button_move_up" />
+
+  <item
+    android:id="@+id/remove_order_option"
     android:icon="@drawable/ic_x"
-    android:title="@string/delete_button_content_description"
-    app:showAsAction="always" />
+    android:title="@string/button_remove_ordering" />
+
+  <item
+    android:id="@+id/move_down_option"
+    android:icon="@drawable/ic_expand_more"
+    android:title="@string/button_move_down" />
+
+  <item
+    android:id="@+id/delete_option"
+    android:icon="@drawable/ic_x"
+    android:title="@string/button_delete" />
 </menu>

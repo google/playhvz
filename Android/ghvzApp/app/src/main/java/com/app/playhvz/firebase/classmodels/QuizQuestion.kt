@@ -17,7 +17,7 @@
 package com.app.playhvz.firebase.classmodels
 
 /** Android data model representing Firebase Reward documents. */
-class Question {
+class QuizQuestion {
     companion object {
         const val FIELD__INDEX = "index"
         const val FIELD__TYPE = "type"
@@ -27,7 +27,7 @@ class Question {
         const val FIELD__ANSWER_ORDER = "order"
         const val FIELD__ANSWER_IS_CORRECT = "isCorrect"
 
-        fun createFirebaseObject(questionDraft: Question): HashMap<String, Any?> {
+        fun createFirebaseObject(questionDraft: QuizQuestion): HashMap<String, Any?> {
             val data = HashMap<String, Any?>()
             data[FIELD__INDEX] = questionDraft.index
             data[FIELD__TYPE] = questionDraft.type

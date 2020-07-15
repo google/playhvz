@@ -30,7 +30,7 @@ import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.QuizQuestionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
@@ -134,7 +134,7 @@ class QuizDashboardFragment : Fragment() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun updateQuestionList(questions: List<Question?>) {
+    private fun updateQuestionList(questions: List<QuizQuestion?>) {
         adapter.setData(questions)
         adapter.notifyDataSetChanged()
     }

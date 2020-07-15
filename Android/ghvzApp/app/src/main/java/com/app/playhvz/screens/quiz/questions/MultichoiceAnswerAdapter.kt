@@ -21,16 +21,17 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.screens.rules_faq.AddCollapsibleSectionViewHolder
 
 
 class MultichoiceAnswerAdapter(
-    private var items: List<Question.Answer>,
+    private var items: List<QuizQuestion.Answer>,
     val fragment: Fragment,
     val onAdd: () -> Unit?,
     val onEdit: (position: Int) -> Unit?,
-    val onDelete: (position: Int) -> Unit?
+    val onDelete: (position: Int) -> Unit?,
+    val onChangeOrder: (position: Int, mod: OrderQuestionFragment.OrderModification) -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -70,7 +71,8 @@ class MultichoiceAnswerAdapter(
                 false
             ),
             onEdit,
-            onDelete
+            onDelete,
+            onChangeOrder
         )
     }
 
@@ -78,7 +80,8 @@ class MultichoiceAnswerAdapter(
         if (getItemViewType(position) == TYPE_ADD) {
             (holder as AddCollapsibleSectionViewHolder).onBind()
         } else {
-            (holder as MultichoiceAnswerViewHolder).onBind(position, items[position])
+            val isLastAnswer = position == (itemCount - 2)
+            (holder as MultichoiceAnswerViewHolder).onBind(position, items[position], isLastAnswer)
         }
     }
 
@@ -86,11 +89,7 @@ class MultichoiceAnswerAdapter(
         return items.size + ADD_SECTION_COUNT
     }
 
-    fun setData(sections: List<Question.Answer>) {
-        items = sections.sortedBy { answer -> answer.order }
-    }
-
-    fun getLatestData(): List<Question.Answer> {
-        return items
+    fun setData(sections: List<QuizQuestion.Answer>) {
+        items = sections
     }
 }

@@ -21,8 +21,7 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.navigation.NavController
 import com.app.playhvz.app.EspressoIdlingResource
-import com.app.playhvz.common.globals.CrossClientConstants
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.firebase.operations.QuizQuestionDatabaseOperations
 import com.app.playhvz.firebase.utils.DataConverterUtil
 import com.app.playhvz.navigation.NavigationUtil
@@ -41,7 +40,7 @@ class QuestionDraftHelper(
     private lateinit var enableActions: () -> Unit
     private lateinit var progressBar: ProgressBar
 
-    var questionDraft: Question = Question()
+    var questionDraft: QuizQuestion = QuizQuestion()
 
     fun setProgressBar(progressBar: ProgressBar) {
         this.progressBar = progressBar
@@ -55,7 +54,11 @@ class QuestionDraftHelper(
         this.disableActions = disableActions
     }
 
-    fun initializeDraft(type: String, nextIndex: Int, draftInitializedCallback: (draft: Question) -> Unit) {
+    fun initializeDraft(
+        type: String,
+        nextIndex: Int,
+        draftInitializedCallback: (draft: QuizQuestion) -> Unit
+    ) {
         if (questionId == null) {
             questionDraft.type = type
             questionDraft.index = nextIndex
@@ -65,14 +68,16 @@ class QuestionDraftHelper(
                 questionId,
                 OnSuccessListener { document ->
                     questionDraft = DataConverterUtil.convertSnapshotToQuestion(document)
+                    questionDraft.answers =
+                        questionDraft.answers.sortedBy { answer -> answer.order }
                     draftInitializedCallback.invoke(questionDraft)
                     enableActions.invoke()
                 })
         }
     }
 
-    fun setAnswers(draftAnswers: List<Question.Answer>) {
-        val cleansed = mutableListOf<Question.Answer>()
+    fun setAnswers(draftAnswers: List<QuizQuestion.Answer>) {
+        val cleansed = mutableListOf<QuizQuestion.Answer>()
         for (proposal in draftAnswers) {
             if (!proposal.text.isNullOrBlank()) {
                 cleansed.add(proposal)

@@ -18,6 +18,7 @@ package com.app.playhvz.screens.quiz
 
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.FragmentActivity
@@ -25,7 +26,8 @@ import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.QUIZ_TYPE_INFO
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -44,8 +46,9 @@ class QuizViewHolder(
     private var cardHeaderIcon: MaterialButton = questionCard.findViewById(R.id.card_header_icon)
     private var cardContent: ConstraintLayout = questionCard.findViewById(R.id.card_content)
     private var questionText: EmojiTextView = questionCard.findViewById(R.id.question_text)
+    private var answerCountText: TextView = questionCard.findViewById(R.id.answer_count)
 
-    private lateinit var question: Question
+    private lateinit var question: QuizQuestion
 
     init {
         cardHeader.setOnClickListener {
@@ -59,8 +62,9 @@ class QuizViewHolder(
         }
     }
 
-    fun onBind(question: Question, isAdmin: Boolean) {
+    fun onBind(question: QuizQuestion, isAdmin: Boolean) {
         this.question = question
+        val res = cardTitle.resources
         if (isAdmin) {
             cardHeaderIcon.visibility = View.VISIBLE
             cardHeaderIcon.setOnClickListener {
@@ -70,11 +74,12 @@ class QuizViewHolder(
             cardHeaderIcon.visibility = View.GONE
         }
 
-
-
-        cardTitle.text =
-            cardTitle.resources.getString(R.string.quiz_card_title, question.index.toString())
+        cardTitle.text = res.getString(R.string.quiz_card_title, question.index.toString())
         questionText.text = question.text
+        answerCountText.visibility =
+            if (question.type == QUIZ_TYPE_INFO) View.GONE else View.VISIBLE
+        answerCountText.text =
+            res.getString(R.string.quiz_dashboard_answer_count, question.answers.size)
     }
 
     private fun navigateToQuestionSettings() {

@@ -28,7 +28,7 @@ import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.utils.SystemUtils
 
 class InfoQuestionFragment : Fragment() {
@@ -124,7 +124,7 @@ class InfoQuestionFragment : Fragment() {
             { draft -> initUI(draft) })
     }
 
-    private fun initUI(draft: Question) {
+    private fun initUI(draft: QuizQuestion) {
         descriptionText.setText(draft.text)
     }
 

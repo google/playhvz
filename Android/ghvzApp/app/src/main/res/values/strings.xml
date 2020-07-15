@@ -90,8 +90,24 @@
     Create
   </string>
 
+  <string name="button_delete" definition="Delete button.">
+    Delete
+  </string>
+
   <string name="button_dismiss" definition="Dismiss button.">
     Dismiss
+  </string>
+
+  <string name="button_move_up" definition="Move up button.">
+    Move up
+  </string>
+
+  <string name="button_move_down" definition="Move down button.">
+    Move down
+  </string>
+
+  <string name="button_remove_ordering" definition="Remove ordering button.">
+    Remove ordering
   </string>
 
   <string name="button_next" definition="Button to select when saving changes and going to the next screen.">
@@ -604,7 +620,7 @@
   </string>
 
   <string name="quiz_answer_order_text" definition="Label for the answer's ordering.">
-    #%1$d
+    #%1$s
   </string>
 
   <string name="quiz_answer_correct_text" definition="Label for the answer's correctness.">
@@ -617,6 +633,10 @@
 
   <string name="quiz_dashboard_title" definition="Title for the declaration quiz dashboard.">
     Quiz Questions
+  </string>
+
+  <string name="quiz_dashboard_answer_count" definition="Count for the number of answers a question has.">
+    %1$d answers
   </string>
 
   <string name="quiz_dashboard_dialog_title" definition="Title for the declaration quiz dialog to select question type.">

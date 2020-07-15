@@ -27,12 +27,12 @@ import android.widget.Spinner
 import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.google.android.material.button.MaterialButton
 
 class AnswerDialog(
-    private val answer: Question.Answer,
-    private val onUpdate: (updatedAnswer: Question.Answer) -> Unit
+    private val answer: QuizQuestion.Answer,
+    private val onUpdate: (updatedAnswer: QuizQuestion.Answer) -> Unit
 ) : DialogFragment() {
     companion object {
         private val TAG = AnswerDialog::class.qualifiedName

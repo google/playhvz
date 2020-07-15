@@ -23,12 +23,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.Question
+import com.app.playhvz.firebase.classmodels.QuizQuestion
 
 class QuizDashboardAdapter(
     private val activity: FragmentActivity,
     private var gameId: String,
-    private var items: List<Question>,
+    private var items: List<QuizQuestion>,
     val context: Context,
     private val navController: NavController
 ) :
@@ -57,8 +57,8 @@ class QuizDashboardAdapter(
         return items.size
     }
 
-    fun setData(data: List<Question?>) {
-        val clean = mutableListOf<Question>()
+    fun setData(data: List<QuizQuestion?>) {
+        val clean = mutableListOf<QuizQuestion>()
         for (question in data) {
             if (question != null) {
                 clean.add(question)
