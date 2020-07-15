@@ -47,6 +47,7 @@ class QuizViewHolder(
     private var cardContent: ConstraintLayout = questionCard.findViewById(R.id.card_content)
     private var questionText: EmojiTextView = questionCard.findViewById(R.id.question_text)
     private var answerCountText: TextView = questionCard.findViewById(R.id.answer_count)
+    private var questionTypeText: TextView = questionCard.findViewById(R.id.question_type)
 
     private lateinit var question: QuizQuestion
 
@@ -80,6 +81,7 @@ class QuizViewHolder(
             if (question.type == QUIZ_TYPE_INFO) View.GONE else View.VISIBLE
         answerCountText.text =
             res.getString(R.string.quiz_dashboard_answer_count, question.answers.size)
+        questionTypeText.text = question.type
     }
 
     private fun navigateToQuestionSettings() {
