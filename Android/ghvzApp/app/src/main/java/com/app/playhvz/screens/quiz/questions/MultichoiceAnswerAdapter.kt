@@ -63,6 +63,7 @@ class MultichoiceAnswerAdapter(
         }
 
         return MultichoiceAnswerViewHolder(
+            fragment.requireContext(),
             LayoutInflater.from(fragment.context).inflate(
                 R.layout.list_item_quiz_answer,
                 parent,

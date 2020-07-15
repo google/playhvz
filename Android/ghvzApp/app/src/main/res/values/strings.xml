@@ -793,6 +793,10 @@
     Delete
   </string>
 
+  <string name="overflow_button_content_description" definition="Content description for an overflow button.">
+    Options
+  </string>
+
   <string name="reward_card_expand_content_description" definition="Content description for button to expand reward details.">
     Expand reward details
   </string>

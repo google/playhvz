@@ -143,6 +143,11 @@ class OrderQuestionFragment : Fragment() {
         SystemUtils.hideKeyboard(requireContext())
     }
 
+    override fun onResume() {
+        super.onResume()
+        descriptionText.clearFocus()
+    }
+
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
