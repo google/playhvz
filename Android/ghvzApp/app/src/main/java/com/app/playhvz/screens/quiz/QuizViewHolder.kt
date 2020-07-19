@@ -87,9 +87,6 @@ class QuizViewHolder(
             cardHeaderIcon.visibility = View.VISIBLE
             cardHeaderIcon.icon =
                 AppCompatResources.getDrawable(cardHeaderIcon.context, R.drawable.ic_more)
-            /* cardHeaderIcon.setOnClickListener {
-                 navigateToQuestionSettings()
-             } */
         } else {
             cardHeaderIcon.visibility = View.GONE
         }
@@ -109,7 +106,11 @@ class QuizViewHolder(
 
             }
             CrossClientConstants.QUIZ_TYPE_TRUE_FALSE -> {
-
+                NavigationUtil.navigateToQuizTrueFalseQuestion(
+                    navController,
+                    question.id,
+                    -1
+                )
             }
             CrossClientConstants.QUIZ_TYPE_ORDER -> {
                 NavigationUtil.navigateToQuizOrderQuestion(

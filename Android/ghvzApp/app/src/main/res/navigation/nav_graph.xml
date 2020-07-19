@@ -148,6 +148,11 @@
     app:destination="@id/nav_quiz_question_order_fragment"
     app:popUpTo="@+id/nav_quiz_dashboard_fragment" />
 
+  <action
+    android:id="@+id/action_global_nav_quiz_question_true_false_fragment"
+    app:destination="@id/nav_quiz_question_true_false_fragment"
+    app:popUpTo="@+id/nav_quiz_dashboard_fragment" />
+
   <single_instance_fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
@@ -341,7 +346,22 @@
     android:id="@+id/nav_quiz_question_order_fragment"
     android:name="com.app.playhvz.screens.quiz.questions.OrderQuestionFragment"
     android:label="@string/quiz_order_question_title"
-    tools:layout="@layout/fragment_quiz_question_order">
+    tools:layout="@layout/fragment_quiz_question_multianswer">
+    <argument
+      android:name="questionId"
+      app:argType="string"
+      app:nullable="true" />
+    <argument
+      android:name="nextAvailableIndex"
+      android:defaultValue="-1"
+      app:argType="integer" />
+  </single_instance_fragment>
+
+  <single_instance_fragment
+    android:id="@+id/nav_quiz_question_true_false_fragment"
+    android:name="com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragment"
+    android:label="@string/quiz_true_false_question_title"
+    tools:layout="@layout/fragment_quiz_question_multianswer">
     <argument
       android:name="questionId"
       app:argType="string"

@@ -672,7 +672,15 @@
   </string>
 
   <string name="quiz_order_question_title" definition="Title for the order question type.">
-    Ordering
+    Order the answers
+  </string>
+
+  <string name="quiz_true_false_question_title" definition="Title for the true false question type.">
+    True/False
+  </string>
+
+  <string name="quiz_multiple_choice_question_title" definition="Title for the multiple question type.">
+    Multiple choice
   </string>
 
   <string name="quiz_question_multi_answer_description" definition="Description telling the admin more info about answers.">

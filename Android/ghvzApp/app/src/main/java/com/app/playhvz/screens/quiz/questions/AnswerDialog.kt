@@ -32,7 +32,8 @@ import com.google.android.material.button.MaterialButton
 
 class AnswerDialog(
     private val answer: QuizQuestion.Answer,
-    private val onUpdate: (updatedAnswer: QuizQuestion.Answer) -> Unit
+    private val onUpdate: (updatedAnswer: QuizQuestion.Answer) -> Unit,
+    private val canEditText: Boolean = true
 ) : DialogFragment() {
     companion object {
         private val TAG = AnswerDialog::class.qualifiedName
@@ -50,6 +51,8 @@ class AnswerDialog(
             requireActivity().layoutInflater.inflate(R.layout.dialog_quiz_answer, null)
         answerText = customView.findViewById(R.id.answer_text)
         answerCorrectness = customView.findViewById(R.id.answer_correctness_spinner)
+
+        answerText.isEnabled = canEditText
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(resources.getString(R.string.quiz_answer_dialog_title))

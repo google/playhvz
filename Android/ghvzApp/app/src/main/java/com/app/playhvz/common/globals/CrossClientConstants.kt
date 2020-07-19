@@ -30,7 +30,7 @@ class CrossClientConstants {
         const val REWARD_POINT_VALUE = 20
 
         const val QUIZ_TYPE_MULTIPLE_CHOICE = "multipleChoice"
-        const val QUIZ_TYPE_TRUE_FALSE = "trueFalse"
+        const val QUIZ_TYPE_TRUE_FALSE = "boolean"
         const val QUIZ_TYPE_ORDER = "order"
         const val QUIZ_TYPE_INFO = "info"
         const val QUIZ_BLANK_ORDER = -1

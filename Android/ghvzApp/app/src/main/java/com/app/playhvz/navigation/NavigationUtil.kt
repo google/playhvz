@@ -33,6 +33,8 @@ import com.app.playhvz.screens.player.ProfileFragmentDirections
 import com.app.playhvz.screens.quiz.QuizDashboardFragmentDirections
 import com.app.playhvz.screens.quiz.questions.InfoQuestionFragmentDirections
 import com.app.playhvz.screens.quiz.questions.OrderQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragment
+import com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragmentDirections
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragment
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragmentDirections
 import com.app.playhvz.screens.rewards.RewardDashboardFragmentDirections
@@ -230,6 +232,21 @@ class NavigationUtil {
         ) {
             navController.navigate(
                 OrderQuestionFragmentDirections.actionGlobalNavQuizQuestionOrderFragment(
+                    questionId,
+                    nextIndex
+                )
+            )
+        }
+
+        /**
+         * Opens quiz true/false question.
+         */
+        fun navigateToQuizTrueFalseQuestion(
+            navController: NavController, questionId: String?,
+            nextIndex: Int
+        ) {
+            navController.navigate(
+                TrueFalseQuestionFragmentDirections.actionGlobalNavQuizQuestionTrueFalseFragment(
                     questionId,
                     nextIndex
                 )
