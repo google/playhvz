@@ -98,6 +98,10 @@
     Dismiss
   </string>
 
+  <string name="button_edit" definition="Edit button.">
+    Edit
+  </string>
+
   <string name="button_move_up" definition="Move up button.">
     Move up
   </string>
