@@ -329,7 +329,7 @@
 
   <single_instance_fragment
     android:id="@+id/nav_quiz_question_info_fragment"
-    android:name="com.app.playhvz.screens.quiz.questions.InfoQuestionFragment"
+    android:name="com.app.playhvz.screens.quiz.editablequestions.InfoQuestionFragment"
     android:label="@string/quiz_info_question_title"
     tools:layout="@layout/fragment_quiz_question_info">
     <argument
@@ -344,12 +344,12 @@
 
   <single_instance_fragment
     android:id="@+id/nav_quiz_question_multi_answer_fragment"
-    android:name="com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragment"
+    android:name="com.app.playhvz.screens.quiz.editablequestions.MultiAnswerQuestionFragment"
     android:label="@string/quiz_order_question_title"
     tools:layout="@layout/fragment_quiz_question_multi_answer">
     <argument
       android:name="fragmentType"
-      app:argType="com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragment$FragmentType" />
+      app:argType="com.app.playhvz.screens.quiz.editablequestions.MultiAnswerQuestionFragment$FragmentType" />
     <argument
       android:name="questionId"
       app:argType="string"
@@ -362,7 +362,7 @@
 
   <single_instance_fragment
     android:id="@+id/nav_quiz_question_true_false_fragment"
-    android:name="com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragment"
+    android:name="com.app.playhvz.screens.quiz.editablequestions.TrueFalseQuestionFragment"
     android:label="@string/quiz_true_false_question_title"
     tools:layout="@layout/fragment_quiz_question_multi_answer">
     <argument

@@ -14,63 +14,41 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.questions
+package com.app.playhvz.screens.quiz.editablequestions
 
 import android.content.Context
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.ui.MarkdownTextView
 import com.app.playhvz.firebase.classmodels.QuizQuestion
-import com.app.playhvz.screens.quiz.OrderingController
-import com.app.playhvz.screens.quiz.OrderingController.OrderModification
 
-class MultichoiceAnswerViewHolder(
+class BooleanAnswerViewHolder(
     val context: Context,
     val view: View,
-    val onEdit: (position: Int) -> Unit?,
-    val onDelete: (position: Int) -> Unit?,
-    onChangeOrder: (position: Int, modification: OrderModification) -> Unit?
+    val onEdit: (position: Int) -> Unit?
 ) : RecyclerView.ViewHolder(view) {
 
     private val answerButton = view.findViewById<MarkdownTextView>(R.id.answer_button)!!
     private val overflowButton = view.findViewById<ImageButton>(R.id.overflow_button)!!
     private val orderView = view.findViewById<TextView>(R.id.answer_order)!!
     private val correctnessView = view.findViewById<MarkdownTextView>(R.id.answer_correctness)!!
-
-    private var orderingController: OrderingController
     private var answer: QuizQuestion.Answer? = null
-    private var isLastAnswer = false
-
-    private val onOtherOptionSelected: (adapterPosition: Int, menuItemId: Int) -> Boolean =
-        { adapterPosition: Int, menuItemId: Int ->
-            if (menuItemId == R.id.delete_option) {
-                onDelete.invoke(adapterPosition)
-                true
-            } else if (menuItemId == R.id.edit_option) {
-                onEdit.invoke(adapterPosition)
-                true
-            }
-            false
-        }
 
     init {
-        orderingController = OrderingController(
-            overflowButton,
-            R.menu.menu_edit_quiz_answer,
-            /* canRemoveOrder= */ true,
-            onChangeOrder,
-            onOtherOptionSelected
-        )
+        overflowButton.setOnClickListener {
+            triggerOverflowPopup()
+        }
     }
 
-    fun onBind(position: Int, answer: QuizQuestion.Answer, isLastAnswer: Boolean) {
+    fun onBind(position: Int, answer: QuizQuestion.Answer) {
         this.answer = answer
-        this.isLastAnswer = isLastAnswer
         val res = orderView.resources
-        orderingController.onBind(adapterPosition, answer.order, isLastAnswer)
 
         answerButton.text = if (answer.text.isEmpty()) {
             res.getString(R.string.quiz_answer_empty_text)
@@ -89,5 +67,25 @@ class MultichoiceAnswerViewHolder(
         val correctness =
             if (answer.isCorrect) R.string.quiz_answer_correct_text else R.string.quiz_answer_incorrect_text
         correctnessView.text = res.getString(correctness)
+    }
+
+    private fun triggerOverflowPopup() {
+        val popup = PopupMenu(overflowButton.context, overflowButton)
+        val inflater: MenuInflater = popup.menuInflater
+        inflater.inflate(R.menu.menu_edit_quiz_answer, popup.menu)
+        popup.menu.findItem(R.id.move_up_option).isVisible = false
+        popup.menu.findItem(R.id.remove_order_option).isVisible = false
+        popup.menu.findItem(R.id.move_down_option).isVisible = false
+        popup.menu.findItem(R.id.delete_option).isVisible = false
+        popup.setOnMenuItemClickListener { item -> handleOverflowPopupSelection(item) }
+        popup.show()
+    }
+
+    private fun handleOverflowPopupSelection(item: MenuItem): Boolean {
+        if (item.itemId == R.id.edit_option) {
+            onEdit.invoke(adapterPosition)
+            return true
+        }
+        return false
     }
 }

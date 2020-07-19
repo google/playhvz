@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.questions
+package com.app.playhvz.screens.quiz.editablequestions
 
 import android.content.Context
 import android.view.View
 import android.widget.ProgressBar
 import androidx.navigation.NavController
 import com.app.playhvz.app.EspressoIdlingResource
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.QUIZ_BLANK_ORDER
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.QUIZ_TYPE_TRUE_FALSE
 import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.firebase.operations.QuizQuestionDatabaseOperations
 import com.app.playhvz.firebase.utils.DataConverterUtil

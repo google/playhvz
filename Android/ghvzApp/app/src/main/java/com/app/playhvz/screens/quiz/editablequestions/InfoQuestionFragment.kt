@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.questions
+package com.app.playhvz.screens.quiz.editablequestions
 
 import android.os.Bundle
 import android.view.*
@@ -97,8 +97,13 @@ class InfoQuestionFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
         super.onDestroyView()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        SystemUtils.hideKeyboard(requireView())
     }
 
     private fun setupToolbar() {
@@ -135,7 +140,7 @@ class InfoQuestionFragment : Fragment() {
     }
 
     private fun disableActions() {
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 130
         menuItem.isEnabled = false

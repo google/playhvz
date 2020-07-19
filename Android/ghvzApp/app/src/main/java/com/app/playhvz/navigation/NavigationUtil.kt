@@ -31,10 +31,10 @@ import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
 import com.app.playhvz.screens.quiz.QuizDashboardFragmentDirections
-import com.app.playhvz.screens.quiz.questions.InfoQuestionFragmentDirections
-import com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragment
-import com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragmentDirections
-import com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.editablequestions.InfoQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.editablequestions.MultiAnswerQuestionFragment
+import com.app.playhvz.screens.quiz.editablequestions.MultiAnswerQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.editablequestions.TrueFalseQuestionFragmentDirections
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragment
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragmentDirections
 import com.app.playhvz.screens.rewards.RewardDashboardFragmentDirections

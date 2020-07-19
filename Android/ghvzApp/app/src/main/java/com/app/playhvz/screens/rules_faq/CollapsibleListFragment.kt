@@ -125,6 +125,11 @@ class CollapsibleListFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onPause() {
+        super.onPause()
+        SystemUtils.hideKeyboard(requireView())
+    }
+
     fun setupToolbar() {
         toolbar.title = if (fragmentType == CollapsibleFragmentType.RULES) {
             getString(R.string.navigation_drawer_rules)
@@ -304,7 +309,7 @@ class CollapsibleListFragment : Fragment() {
     }
 
     private fun disableActions() {
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
         progressBar.visibility = View.VISIBLE
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 130
