@@ -137,15 +137,14 @@
     app:destination="@id/nav_quiz_dashboard_fragment"
     app:launchSingleTop="true" />
 
-
   <action
     android:id="@+id/action_global_nav_quiz_question_info_fragment"
     app:destination="@id/nav_quiz_question_info_fragment"
     app:popUpTo="@+id/nav_quiz_dashboard_fragment" />
 
   <action
-    android:id="@+id/action_global_nav_quiz_question_order_fragment"
-    app:destination="@id/nav_quiz_question_order_fragment"
+    android:id="@+id/action_global_nav_quiz_question_multi_answer_fragment"
+    app:destination="@id/nav_quiz_question_multi_answer_fragment"
     app:popUpTo="@+id/nav_quiz_dashboard_fragment" />
 
   <action
@@ -343,10 +342,13 @@
   </single_instance_fragment>
 
   <single_instance_fragment
-    android:id="@+id/nav_quiz_question_order_fragment"
-    android:name="com.app.playhvz.screens.quiz.questions.OrderQuestionFragment"
+    android:id="@+id/nav_quiz_question_multi_answer_fragment"
+    android:name="com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragment"
     android:label="@string/quiz_order_question_title"
-    tools:layout="@layout/fragment_quiz_question_multianswer">
+    tools:layout="@layout/fragment_quiz_question_multi_answer">
+    <argument
+      android:name="fragmentType"
+      app:argType="com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragment$FragmentType" />
     <argument
       android:name="questionId"
       app:argType="string"
@@ -361,7 +363,7 @@
     android:id="@+id/nav_quiz_question_true_false_fragment"
     android:name="com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragment"
     android:label="@string/quiz_true_false_question_title"
-    tools:layout="@layout/fragment_quiz_question_multianswer">
+    tools:layout="@layout/fragment_quiz_question_multi_answer">
     <argument
       android:name="questionId"
       app:argType="string"

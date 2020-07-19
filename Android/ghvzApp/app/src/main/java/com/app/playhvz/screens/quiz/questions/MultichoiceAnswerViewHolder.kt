@@ -18,7 +18,6 @@ package com.app.playhvz.screens.quiz.questions
 
 import android.content.Context
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +48,9 @@ class MultichoiceAnswerViewHolder(
         { adapterPosition: Int, menuItemId: Int ->
             if (menuItemId == R.id.delete_option) {
                 onDelete.invoke(adapterPosition)
+                true
+            } else if (menuItemId == R.id.edit_option) {
+                onEdit.invoke(adapterPosition)
                 true
             }
             false

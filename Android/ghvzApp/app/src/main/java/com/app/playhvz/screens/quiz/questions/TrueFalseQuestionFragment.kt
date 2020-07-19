@@ -84,7 +84,7 @@ class TrueFalseQuestionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         setupToolbar()
-        val view = inflater.inflate(R.layout.fragment_quiz_question_multianswer, container, false)
+        val view = inflater.inflate(R.layout.fragment_quiz_question_multi_answer, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
         answerRecyclerView = view.findViewById(R.id.item_list)

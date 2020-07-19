@@ -32,8 +32,8 @@ import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentD
 import com.app.playhvz.screens.player.ProfileFragmentDirections
 import com.app.playhvz.screens.quiz.QuizDashboardFragmentDirections
 import com.app.playhvz.screens.quiz.questions.InfoQuestionFragmentDirections
-import com.app.playhvz.screens.quiz.questions.OrderQuestionFragmentDirections
-import com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragment
+import com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragment
+import com.app.playhvz.screens.quiz.questions.MultiAnswerQuestionFragmentDirections
 import com.app.playhvz.screens.quiz.questions.TrueFalseQuestionFragmentDirections
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragment
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragmentDirections
@@ -231,7 +231,24 @@ class NavigationUtil {
             nextIndex: Int
         ) {
             navController.navigate(
-                OrderQuestionFragmentDirections.actionGlobalNavQuizQuestionOrderFragment(
+                MultiAnswerQuestionFragmentDirections.actionGlobalNavQuizQuestionMultiAnswerFragment(
+                    MultiAnswerQuestionFragment.FragmentType.ORDER,
+                    questionId,
+                    nextIndex
+                )
+            )
+        }
+
+        /**
+         * Opens quiz multiple choice question.
+         */
+        fun navigateToQuizMultipleChoiceQuestion(
+            navController: NavController, questionId: String?,
+            nextIndex: Int
+        ) {
+            navController.navigate(
+                MultiAnswerQuestionFragmentDirections.actionGlobalNavQuizQuestionMultiAnswerFragment(
+                    MultiAnswerQuestionFragment.FragmentType.MULTIPLE_CHOICE,
                     questionId,
                     nextIndex
                 )

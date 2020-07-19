@@ -73,7 +73,11 @@ class QuestionTypeSelectorDialog(
     private fun triggerActionFromTypeSelection() {
         val selected = typeSelectorGroup.checkedRadioButtonId
         if (selected == R.id.radio_multiple_choice) {
-            // TODO
+            NavigationUtil.navigateToQuizMultipleChoiceQuestion(
+                findNavController(),
+                /* questionId= */ null,
+                nextIndex
+            )
         } else if (selected == R.id.radio_true_false) {
             NavigationUtil.navigateToQuizTrueFalseQuestion(
                 findNavController(),
