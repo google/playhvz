@@ -135,7 +135,8 @@
   <action
     android:id="@+id/action_global_nav_quiz_dashboard_fragment"
     app:destination="@id/nav_quiz_dashboard_fragment"
-    app:launchSingleTop="true" />
+    app:launchSingleTop="true"
+    app:popUpTo="@+id/nav_game_dashboard_fragment" />
 
   <action
     android:id="@+id/action_global_nav_quiz_question_info_fragment"
