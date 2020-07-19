@@ -19,18 +19,16 @@ package com.app.playhvz.screens.quiz
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.QuizQuestion
 
 class QuizDashboardAdapter(
-    private val activity: FragmentActivity,
-    private var gameId: String,
     private var items: List<QuizQuestion>,
     val context: Context,
-    private val navController: NavController
+    private val navController: NavController,
+    val onChangeOrder: (position: Int, modification: OrderingController.OrderModification) -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -38,34 +36,30 @@ class QuizDashboardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return QuizViewHolder(
-            activity,
-            gameId,
             LayoutInflater.from(context).inflate(
                 R.layout.card_quiz_question,
                 parent,
                 false
             ),
-            navController
+            navController,
+            onChangeOrder
         )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as QuizViewHolder).onBind(items[position], isAdmin)
+        (holder as QuizViewHolder).onBind(
+            items[position],
+            isAdmin,
+            /* isLast= */ position == (itemCount - 1)
+        )
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun setData(data: List<QuizQuestion?>) {
-        val clean = mutableListOf<QuizQuestion>()
-        for (question in data) {
-            if (question != null) {
-                clean.add(question)
-            }
-        }
-        clean.sortBy { question -> question.index }
-        items = clean
+    fun setData(data: List<QuizQuestion>) {
+        items = data
     }
 
     fun setIsAdmin(isAdmin: Boolean) {

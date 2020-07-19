@@ -19,9 +19,9 @@ package com.app.playhvz.screens.quiz
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
-import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
@@ -33,10 +33,9 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class QuizViewHolder(
-    private val activity: FragmentActivity,
-    private val gameId: String,
     view: View,
-    private val navController: NavController
+    private val navController: NavController,
+    onChangeOrder: (position: Int, modification: OrderingController.OrderModification) -> Unit?
 ) :
     RecyclerView.ViewHolder(view) {
 
@@ -48,8 +47,18 @@ class QuizViewHolder(
     private var questionText: EmojiTextView = questionCard.findViewById(R.id.question_text)
     private var answerCountText: TextView = questionCard.findViewById(R.id.answer_count)
     private var questionTypeText: TextView = questionCard.findViewById(R.id.question_type)
+    private var orderingController: OrderingController
 
     private lateinit var question: QuizQuestion
+
+    private val onOtherOptionSelected: (adapterPosition: Int, menuItemId: Int) -> Boolean =
+        { adapterPosition: Int, menuItemId: Int ->
+            if (menuItemId == R.id.edit_option) {
+                navigateToQuestionSettings()
+                true
+            }
+            false
+        }
 
     init {
         cardHeader.setOnClickListener {
@@ -61,16 +70,26 @@ class QuizViewHolder(
                 cardContent.visibility = View.VISIBLE
             }
         }
+        orderingController = OrderingController(
+            cardHeaderIcon,
+            R.menu.menu_edit_quiz_question,
+            /* canRemoveOrder= */false,
+            onChangeOrder,
+            onOtherOptionSelected
+        )
     }
 
-    fun onBind(question: QuizQuestion, isAdmin: Boolean) {
+    fun onBind(question: QuizQuestion, isAdmin: Boolean, isLast: Boolean) {
         this.question = question
         val res = cardTitle.resources
+        orderingController.onBind(adapterPosition, question.index!!, isLast)
         if (isAdmin) {
             cardHeaderIcon.visibility = View.VISIBLE
-            cardHeaderIcon.setOnClickListener {
-                navigateToQuestionSettings()
-            }
+            cardHeaderIcon.icon =
+                AppCompatResources.getDrawable(cardHeaderIcon.context, R.drawable.ic_more)
+            /* cardHeaderIcon.setOnClickListener {
+                 navigateToQuestionSettings()
+             } */
         } else {
             cardHeaderIcon.visibility = View.GONE
         }

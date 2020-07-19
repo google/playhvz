@@ -26,15 +26,18 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.classmodels.QuizQuestion
+import com.app.playhvz.firebase.operations.QuizQuestionDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.QuizQuestionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.runBlocking
 
 /** Fragment for showing a list of rewards.*/
 class QuizDashboardFragment : Fragment() {
@@ -52,6 +55,19 @@ class QuizDashboardFragment : Fragment() {
     var playerId: String? = null
     var game: Game? = null
     var player: Player? = null
+    var questions: List<QuizQuestion> = listOf()
+
+    private val onChangeAnswerOrder =
+        { position: Int, modification: OrderingController.OrderModification ->
+            val currentOrdering = questions[position].index!!
+            if (modification == OrderingController.OrderModification.MOVE_UP) {
+                val targetOrdering = currentOrdering - 1
+                swapQuestions(position, targetOrdering)
+            } else if (modification == OrderingController.OrderModification.MOVE_DOWN) {
+                val targetOrdering = currentOrdering + 1
+                swapQuestions(position, targetOrdering)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,11 +90,10 @@ class QuizDashboardFragment : Fragment() {
         fab = activity?.findViewById(R.id.floating_action_button)!!
         recyclerView = view.findViewById(R.id.question_list)
         adapter = QuizDashboardAdapter(
-            requireActivity(),
-            gameId!!,
             listOf(),
             requireContext(),
-            findNavController()
+            findNavController(),
+            onChangeAnswerOrder
         )
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
@@ -135,7 +150,15 @@ class QuizDashboardFragment : Fragment() {
     }
 
     private fun updateQuestionList(questions: List<QuizQuestion?>) {
-        adapter.setData(questions)
+        val clean = mutableListOf<QuizQuestion>()
+        for (question in questions) {
+            if (question != null) {
+                clean.add(question)
+            }
+        }
+        clean.sortBy { question -> question.index }
+        this.questions = clean.toList()
+        adapter.setData(this.questions)
         adapter.notifyDataSetChanged()
     }
 
@@ -165,6 +188,23 @@ class QuizDashboardFragment : Fragment() {
                     questionId,
                     index
                 )
+            }
+        }
+    }
+
+    private fun swapQuestions(currentPostion: Int, endingOrder: Int) {
+        for ((index, value) in questions.withIndex()) {
+            if (value.index == endingOrder) {
+                runBlocking {
+                    EspressoIdlingResource.increment()
+                    QuizQuestionDatabaseOperations.swapQuestionIndexes(
+                        gameId!!,
+                        questions[currentPostion],
+                        questions[index]
+                    )
+                    EspressoIdlingResource.decrement()
+                }
+                return
             }
         }
     }

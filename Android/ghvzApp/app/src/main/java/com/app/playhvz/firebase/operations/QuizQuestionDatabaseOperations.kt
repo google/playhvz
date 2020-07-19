@@ -18,6 +18,7 @@ package com.app.playhvz.firebase.operations
 
 import android.util.Log
 import com.app.playhvz.firebase.classmodels.QuizQuestion
+import com.app.playhvz.firebase.classmodels.QuizQuestion.Companion.FIELD__INDEX
 import com.app.playhvz.firebase.constants.QuizQuestionPath
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
@@ -41,7 +42,7 @@ class QuizQuestionDatabaseOperations {
         }
 
         /** Returns a document reference to the given questionId. */
-        fun getRewardDocumentReference(
+        fun getQuizQuestionDocumentReference(
             gameId: String,
             questionId: String
         ): DocumentReference {
@@ -115,6 +116,25 @@ class QuizQuestionDatabaseOperations {
                     }
                     successListener.invoke()
                 }
+        }
+
+        suspend fun swapQuestionIndexes(
+            gameId: String,
+            question1: QuizQuestion,
+            question2: QuizQuestion
+        ) {
+            val newQuestion1Index = question2.index!!
+            val newQuestion2Index = question1.index!!
+
+            val question1DocRef = getQuizQuestionDocumentReference(gameId, question1.id!!)
+            val question2DocRef = getQuizQuestionDocumentReference(gameId, question2.id!!)
+
+            FirebaseProvider.getFirebaseFirestore().runTransaction { transaction ->
+                transaction.update(question1DocRef, FIELD__INDEX, newQuestion1Index)
+                transaction.update(question2DocRef, FIELD__INDEX, newQuestion2Index)
+                null
+            }.addOnSuccessListener { Log.d(TAG, "Transaction success!") }
+                .addOnFailureListener { e -> Log.w(TAG, "Transaction failure.", e) }
         }
     }
 }

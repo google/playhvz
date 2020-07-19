@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.QuizQuestion
+import com.app.playhvz.screens.quiz.OrderingController.OrderModification
 import com.app.playhvz.screens.rules_faq.AddCollapsibleSectionViewHolder
 
 
@@ -31,7 +32,7 @@ class MultichoiceAnswerAdapter(
     val onAdd: () -> Unit?,
     val onEdit: (position: Int) -> Unit?,
     val onDelete: (position: Int) -> Unit?,
-    val onChangeOrder: (position: Int, mod: OrderQuestionFragment.OrderModification) -> Unit?
+    val onChangeOrder: (position: Int, mod: OrderModification) -> Unit?
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
