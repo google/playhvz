@@ -153,6 +153,10 @@
     app:destination="@id/nav_quiz_question_true_false_fragment"
     app:popUpTo="@+id/nav_quiz_dashboard_fragment" />
 
+  <action
+    android:id="@+id/action_global_nav_take_quiz_fragment"
+    app:destination="@id/nav_take_quiz_fragment" />
+
   <single_instance_fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
@@ -374,5 +378,11 @@
       android:defaultValue="-1"
       app:argType="integer" />
   </single_instance_fragment>
+
+  <single_instance_fragment
+    android:id="@+id/nav_take_quiz_fragment"
+    android:name="com.app.playhvz.screens.declareallegiance.TakeQuizFragment"
+    android:label="@string/take_quiz_rules_title"
+    tools:layout="@layout/fragment_take_allegiance_quiz" />
 
 </navigation>

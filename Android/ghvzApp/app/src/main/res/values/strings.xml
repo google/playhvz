@@ -799,6 +799,18 @@
     Sign out
   </string>
 
+  <string name="take_quiz_check_button" definition="Button to verify answers.">
+    Check answers
+  </string>
+
+  <string name="take_quiz_rules_button" definition="Button to show rules.">
+    Help
+  </string>
+
+  <string name="take_quiz_rules_title" definition="App bar title for the take quiz screen.">
+    Quick quiz
+  </string>
+
 
   <!-- Accessibility strings -->
   <string name="button_collapse_content_description" definition="Content description for button to collapse details.">

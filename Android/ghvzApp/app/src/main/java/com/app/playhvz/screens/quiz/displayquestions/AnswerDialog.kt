@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.editablequestions
+package com.app.playhvz.screens.quiz.displayquestions
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -28,7 +28,7 @@ import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.QuizQuestion
-import com.app.playhvz.screens.quiz.displayquestions.AnswerDialog
+import com.app.playhvz.screens.quiz.editablequestions.AnswerDialog
 import com.google.android.material.button.MaterialButton
 
 class AnswerDialog(

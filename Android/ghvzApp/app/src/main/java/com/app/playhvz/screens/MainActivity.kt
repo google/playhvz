@@ -92,7 +92,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_redeem_reward_fragment,
         R.id.nav_reward_dashboard_fragment,
         R.id.nav_reward_settings_fragment,
-        R.id.nav_rules_fragment
+        R.id.nav_rules_fragment,
+        R.id.nav_take_quiz_fragment
     )
 
     private var fragmentsWithoutBackNavigation = setOf(

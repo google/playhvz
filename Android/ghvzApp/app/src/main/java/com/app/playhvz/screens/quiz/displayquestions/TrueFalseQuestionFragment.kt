@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.editablequestions
+package com.app.playhvz.screens.quiz.displayquestions
 
 import android.os.Bundle
 import android.view.*
@@ -27,28 +27,21 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
 import com.app.playhvz.firebase.classmodels.QuizQuestion
-import com.app.playhvz.screens.quiz.OrderingController.OrderModification
-import com.app.playhvz.screens.quiz.displayquestions.AnswerDialog
+import com.app.playhvz.screens.quiz.editablequestions.TrueFalseQuestionFragmentArgs
 import com.app.playhvz.utils.SystemUtils
 
-class MultiAnswerQuestionFragment : Fragment() {
+class TrueFalseQuestionFragment : Fragment() {
     companion object {
-        val TAG = MultiAnswerQuestionFragment::class.qualifiedName
+        val TAG = TrueFalseQuestionFragment::class.qualifiedName
     }
 
-    enum class FragmentType {
-        ORDER,
-        MULTIPLE_CHOICE
-    }
+    val args: TrueFalseQuestionFragmentArgs by navArgs()
 
-    val args: MultiAnswerQuestionFragmentArgs by navArgs()
-
-    private lateinit var answerAdapter: MultichoiceAnswerAdapter
+    private lateinit var answerAdapter: BooleanAnswerAdapter
     private lateinit var answerRecyclerView: RecyclerView
     private lateinit var descriptionText: MarkdownEditText
     private lateinit var draftHelper: QuestionDraftHelper
@@ -59,66 +52,14 @@ class MultiAnswerQuestionFragment : Fragment() {
     private var playerId: String? = null
     private var currentAnswers: MutableList<QuizQuestion.Answer> = mutableListOf()
 
-    private val onAddAnswer = {
-        val newAnswer = QuizQuestion.Answer()
-        newAnswer.order = currentAnswers.size
-        currentAnswers.add(newAnswer)
-        refreshAnswers()
-    }
     private val onEditAnswer = { position: Int ->
         val onUpdate =
             { updatedAnswer: QuizQuestion.Answer ->
                 currentAnswers[position] = updatedAnswer
                 refreshAnswers()
             }
-        val dialog = AnswerDialog(currentAnswers[position], onUpdate)
+        val dialog = AnswerDialog(currentAnswers[position], onUpdate, /* canEditText= */false)
         activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
-    }
-    private val onDeleteAnswer = { position: Int ->
-        val confirmationDialog = ConfirmationDialog(
-            getString(R.string.collapsible_section_remove_dialog_title),
-            R.string.collapsible_section_remove_dialog_content,
-            R.string.delete_button_content_description
-        )
-        confirmationDialog.setPositiveButtonCallback {
-            currentAnswers.removeAt(position)
-            refreshAnswers()
-        }
-        activity?.supportFragmentManager?.let {
-            confirmationDialog.show(
-                it,
-                TAG
-            )
-        }
-    }
-    private val onChangeAnswerOrder = { position: Int, modification: OrderModification ->
-        val currentOrdering = currentAnswers[position].order
-        if (modification == OrderModification.REMOVE) {
-            currentAnswers[position].order = CrossClientConstants.QUIZ_BLANK_ORDER
-            for (index in 0 until currentAnswers.size) {
-                if (currentAnswers[index].order < currentOrdering) {
-                    continue
-                }
-                currentAnswers[index].order--
-            }
-        } else if (modification == OrderModification.MOVE_UP) {
-            val targetOrdering = currentOrdering - 1
-            swapAnswers(position, targetOrdering)
-        } else if (modification == OrderModification.MOVE_DOWN) {
-            if (currentAnswers[position].order == CrossClientConstants.QUIZ_BLANK_ORDER) {
-                for (index in 0 until currentAnswers.size) {
-                    if (currentAnswers[index].order < 0) {
-                        continue
-                    }
-                    currentAnswers[index].order++
-                }
-                currentAnswers[position].order = 0
-            } else {
-                val targetOrdering = currentOrdering + 1
-                swapAnswers(position, targetOrdering)
-            }
-        }
-        refreshAnswers()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,13 +71,10 @@ class MultiAnswerQuestionFragment : Fragment() {
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
         answerAdapter =
-            MultichoiceAnswerAdapter(
+            BooleanAnswerAdapter(
                 listOf(),
                 this,
-                onAddAnswer,
-                onEditAnswer,
-                onDeleteAnswer,
-                onChangeAnswerOrder
+                onEditAnswer
             )
         setHasOptionsMenu(true)
     }
@@ -146,6 +84,7 @@ class MultiAnswerQuestionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setupToolbar()
         val view = inflater.inflate(R.layout.fragment_quiz_question_multi_answer, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
@@ -163,7 +102,6 @@ class MultiAnswerQuestionFragment : Fragment() {
                 }
             }
         }
-        setupToolbar()
         setupDraftHelper()
         return view
     }
@@ -194,11 +132,7 @@ class MultiAnswerQuestionFragment : Fragment() {
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            if (args.fragmentType == FragmentType.ORDER)
-                toolbar.title = requireContext().getString(R.string.quiz_order_question_title)
-            else
-                toolbar.title =
-                    requireContext().getString(R.string.quiz_multiple_choice_question_title)
+            toolbar.title = requireContext().getString(R.string.quiz_true_false_question_title)
         }
     }
 
@@ -212,15 +146,22 @@ class MultiAnswerQuestionFragment : Fragment() {
             enableActions()
         }
         draftHelper.setProgressBar(progressBar)
-        val questionType = if (args.fragmentType == FragmentType.ORDER) {
-            CrossClientConstants.QUIZ_TYPE_ORDER
-        } else {
-            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE
-        }
         draftHelper.initializeDraft(
-            questionType,
+            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE,
             args.nextAvailableIndex,
             { draft -> initUI(draft) })
+        if (args.questionId == null) {
+            val trueAnswer = QuizQuestion.Answer()
+            trueAnswer.order = CrossClientConstants.QUIZ_BLANK_ORDER
+            trueAnswer.isCorrect = true
+            trueAnswer.text = "True"
+            val falseAnswer = QuizQuestion.Answer()
+            falseAnswer.order = CrossClientConstants.QUIZ_BLANK_ORDER
+            falseAnswer.isCorrect = false
+            falseAnswer.text = "False"
+            currentAnswers = mutableListOf(trueAnswer, falseAnswer)
+            refreshAnswers()
+        }
     }
 
     private fun initUI(draft: QuizQuestion) {
@@ -257,15 +198,5 @@ class MultiAnswerQuestionFragment : Fragment() {
         currentAnswers = currentAnswers.sortedBy { answer -> answer.order }.toMutableList()
         answerAdapter.setData(currentAnswers)
         answerAdapter.notifyDataSetChanged()
-    }
-
-    private fun swapAnswers(currentPostion: Int, endingOrder: Int) {
-        for ((index, value) in currentAnswers.withIndex()) {
-            if (value.order == endingOrder) {
-                currentAnswers[index].order = currentAnswers[currentPostion].order
-                currentAnswers[currentPostion].order = endingOrder
-                return
-            }
-        }
     }
 }

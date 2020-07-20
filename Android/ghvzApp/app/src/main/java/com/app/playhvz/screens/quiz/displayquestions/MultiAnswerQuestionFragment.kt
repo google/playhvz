@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.editablequestions
+package com.app.playhvz.screens.quiz.displayquestions
 
 import android.os.Bundle
 import android.view.*
@@ -22,8 +22,6 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
@@ -33,7 +31,6 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
 import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.screens.quiz.OrderingController.OrderModification
-import com.app.playhvz.screens.quiz.displayquestions.AnswerDialog
 import com.app.playhvz.utils.SystemUtils
 
 class MultiAnswerQuestionFragment : Fragment() {
@@ -41,17 +38,9 @@ class MultiAnswerQuestionFragment : Fragment() {
         val TAG = MultiAnswerQuestionFragment::class.qualifiedName
     }
 
-    enum class FragmentType {
-        ORDER,
-        MULTIPLE_CHOICE
-    }
-
-    val args: MultiAnswerQuestionFragmentArgs by navArgs()
-
     private lateinit var answerAdapter: MultichoiceAnswerAdapter
     private lateinit var answerRecyclerView: RecyclerView
     private lateinit var descriptionText: MarkdownEditText
-    private lateinit var draftHelper: QuestionDraftHelper
     private lateinit var progressBar: ProgressBar
     private lateinit var toolbarMenu: Menu
 
@@ -164,7 +153,6 @@ class MultiAnswerQuestionFragment : Fragment() {
             }
         }
         setupToolbar()
-        setupDraftHelper()
         return view
     }
 
@@ -194,33 +182,9 @@ class MultiAnswerQuestionFragment : Fragment() {
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            if (args.fragmentType == FragmentType.ORDER)
-                toolbar.title = requireContext().getString(R.string.quiz_order_question_title)
-            else
-                toolbar.title =
-                    requireContext().getString(R.string.quiz_multiple_choice_question_title)
+            toolbar.title =
+                requireContext().getString(R.string.quiz_multiple_choice_question_title)
         }
-    }
-
-    private fun setupDraftHelper() {
-        draftHelper =
-            QuestionDraftHelper(requireContext(), findNavController(), gameId!!, args.questionId)
-        draftHelper.setDisableActions {
-            disableActions()
-        }
-        draftHelper.setEnableActions {
-            enableActions()
-        }
-        draftHelper.setProgressBar(progressBar)
-        val questionType = if (args.fragmentType == FragmentType.ORDER) {
-            CrossClientConstants.QUIZ_TYPE_ORDER
-        } else {
-            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE
-        }
-        draftHelper.initializeDraft(
-            questionType,
-            args.nextAvailableIndex,
-            { draft -> initUI(draft) })
     }
 
     private fun initUI(draft: QuizQuestion) {
@@ -231,9 +195,6 @@ class MultiAnswerQuestionFragment : Fragment() {
 
     private fun saveChanges() {
         val info = descriptionText.text.toString()
-        draftHelper.questionDraft.text = info
-        draftHelper.setAnswers(currentAnswers)
-        draftHelper.persistDraftToServer()
     }
 
     private fun disableActions() {

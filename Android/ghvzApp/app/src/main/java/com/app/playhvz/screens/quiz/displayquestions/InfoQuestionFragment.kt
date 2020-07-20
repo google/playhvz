@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.editablequestions
+package com.app.playhvz.screens.quiz.displayquestions
 
 import android.os.Bundle
 import android.view.*
@@ -24,25 +24,21 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
 import com.app.playhvz.firebase.classmodels.QuizQuestion
-import com.app.playhvz.screens.quiz.displayquestions.AnswerDialog
+import com.app.playhvz.screens.quiz.editablequestions.InfoQuestionFragmentArgs
 import com.app.playhvz.utils.SystemUtils
 
-class TrueFalseQuestionFragment : Fragment() {
+class InfoQuestionFragment : Fragment() {
     companion object {
-        val TAG = TrueFalseQuestionFragment::class.qualifiedName
+        val TAG = InfoQuestionFragment::class.qualifiedName
     }
 
-    val args: TrueFalseQuestionFragmentArgs by navArgs()
+    val args: InfoQuestionFragmentArgs by navArgs()
 
-    private lateinit var answerAdapter: BooleanAnswerAdapter
-    private lateinit var answerRecyclerView: RecyclerView
     private lateinit var descriptionText: MarkdownEditText
     private lateinit var draftHelper: QuestionDraftHelper
     private lateinit var progressBar: ProgressBar
@@ -50,17 +46,7 @@ class TrueFalseQuestionFragment : Fragment() {
 
     private var gameId: String? = null
     private var playerId: String? = null
-    private var currentAnswers: MutableList<QuizQuestion.Answer> = mutableListOf()
-
-    private val onEditAnswer = { position: Int ->
-        val onUpdate =
-            { updatedAnswer: QuizQuestion.Answer ->
-                currentAnswers[position] = updatedAnswer
-                refreshAnswers()
-            }
-        val dialog = AnswerDialog(currentAnswers[position], onUpdate, /* canEditText= */false)
-        activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
-    }
+    private var questionId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,12 +56,7 @@ class TrueFalseQuestionFragment : Fragment() {
         )!!
         gameId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
-        answerAdapter =
-            BooleanAnswerAdapter(
-                listOf(),
-                this,
-                onEditAnswer
-            )
+        questionId = args.questionId
         setHasOptionsMenu(true)
     }
 
@@ -84,14 +65,9 @@ class TrueFalseQuestionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setupToolbar()
-        val view = inflater.inflate(R.layout.fragment_quiz_question_multi_answer, container, false)
+        val view = inflater.inflate(R.layout.fragment_quiz_question_info, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
-        answerRecyclerView = view.findViewById(R.id.item_list)
-        answerRecyclerView.layoutManager = LinearLayoutManager(context)
-        answerRecyclerView.adapter = answerAdapter
-
         descriptionText.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() -> {
@@ -102,6 +78,8 @@ class TrueFalseQuestionFragment : Fragment() {
                 }
             }
         }
+
+        setupToolbar()
         setupDraftHelper()
         return view
     }
@@ -119,26 +97,26 @@ class TrueFalseQuestionFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroyView() {
+        SystemUtils.hideKeyboard(requireView())
+        super.onDestroyView()
+    }
+
     override fun onPause() {
         super.onPause()
         SystemUtils.hideKeyboard(requireView())
     }
 
-    override fun onResume() {
-        super.onResume()
-        descriptionText.clearFocus()
-    }
-
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            toolbar.title = requireContext().getString(R.string.quiz_true_false_question_title)
+            toolbar.title = requireContext().getString(R.string.quiz_info_question_title)
         }
     }
 
     private fun setupDraftHelper() {
         draftHelper =
-            QuestionDraftHelper(requireContext(), findNavController(), gameId!!, args.questionId)
+            QuestionDraftHelper(requireContext(), findNavController(), gameId!!, questionId)
         draftHelper.setDisableActions {
             disableActions()
         }
@@ -147,33 +125,18 @@ class TrueFalseQuestionFragment : Fragment() {
         }
         draftHelper.setProgressBar(progressBar)
         draftHelper.initializeDraft(
-            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE,
+            CrossClientConstants.QUIZ_TYPE_INFO,
             args.nextAvailableIndex,
             { draft -> initUI(draft) })
-        if (args.questionId == null) {
-            val trueAnswer = QuizQuestion.Answer()
-            trueAnswer.order = CrossClientConstants.QUIZ_BLANK_ORDER
-            trueAnswer.isCorrect = true
-            trueAnswer.text = "True"
-            val falseAnswer = QuizQuestion.Answer()
-            falseAnswer.order = CrossClientConstants.QUIZ_BLANK_ORDER
-            falseAnswer.isCorrect = false
-            falseAnswer.text = "False"
-            currentAnswers = mutableListOf(trueAnswer, falseAnswer)
-            refreshAnswers()
-        }
     }
 
     private fun initUI(draft: QuizQuestion) {
         descriptionText.setText(draft.text)
-        currentAnswers = draft.answers.toMutableList()
-        refreshAnswers()
     }
 
     private fun saveChanges() {
         val info = descriptionText.text.toString()
         draftHelper.questionDraft.text = info
-        draftHelper.setAnswers(currentAnswers)
         draftHelper.persistDraftToServer()
     }
 
@@ -192,11 +155,5 @@ class TrueFalseQuestionFragment : Fragment() {
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 255
         menuItem.isEnabled = true
-    }
-
-    private fun refreshAnswers() {
-        currentAnswers = currentAnswers.sortedBy { answer -> answer.order }.toMutableList()
-        answerAdapter.setData(currentAnswers)
-        answerAdapter.notifyDataSetChanged()
     }
 }

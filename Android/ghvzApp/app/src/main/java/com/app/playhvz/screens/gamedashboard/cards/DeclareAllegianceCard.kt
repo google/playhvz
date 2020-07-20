@@ -109,7 +109,7 @@ class DeclareAllegianceCard(
             }
             declareButton.setText(R.string.declare_allegiance_card_button)
             declareButton.setOnClickListener {
-                NavigationUtil.navigateToDeclareAllegiance(findNavController(fragment))
+                NavigationUtil.navigateToTakeQuizFragment(findNavController(fragment))
             }
             declareAllegianceCard.visibility = View.VISIBLE
         }
