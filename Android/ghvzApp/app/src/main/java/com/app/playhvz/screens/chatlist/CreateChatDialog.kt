@@ -108,7 +108,7 @@ class CreateChatDialog(val gameId: String, val playerId: String) : DialogFragmen
         val onSuccess = {
             progressBar.visibility = View.INVISIBLE
             dismiss()
-            SystemUtils.hideKeyboard(context!!)
+            SystemUtils.hideKeyboard(requireView())
             // TODO: open newly created chat room
         }
         val onFailure = {

@@ -672,7 +672,15 @@
   </string>
 
   <string name="quiz_order_question_title" definition="Title for the order question type.">
-    Ordering
+    Order the answers
+  </string>
+
+  <string name="quiz_true_false_question_title" definition="Title for the true false question type.">
+    True/False
+  </string>
+
+  <string name="quiz_multiple_choice_question_title" definition="Title for the multiple question type.">
+    Multiple choice
   </string>
 
   <string name="quiz_question_multi_answer_description" definition="Description telling the admin more info about answers.">
@@ -789,6 +797,26 @@
 
   <string name="sign_out_button" definition="Sign out button.">
     Sign out
+  </string>
+
+  <string name="take_quiz_check_button" definition="Button to verify answers.">
+    Check answers
+  </string>
+
+  <string name="take_quiz_rules_button" definition="Button to show rules.">
+    Help
+  </string>
+
+  <string name="take_quiz_title" definition="App bar title for the take quiz screen.">
+    Quick quiz
+  </string>
+
+  <string name="take_quiz_answer_error" definition="Error notice when answers aren't correct.">
+    Error, not all answers are correct. Edit your answers and try again.
+  </string>
+
+  <string name="take_quiz_answer_success" definition="Success notice when answers are correct.">
+    Nice! All correct, you can move on to the next question now
   </string>
 
 

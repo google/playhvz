@@ -86,12 +86,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_mission_settings_fragment,
         R.id.nav_quiz_dashboard_fragment,
         R.id.nav_quiz_question_info_fragment,
-        R.id.nav_quiz_question_order_fragment,
+        R.id.nav_quiz_question_multi_answer_fragment,
+        R.id.nav_quiz_question_true_false_fragment,
         R.id.nav_redeem_lifecode_fragment,
         R.id.nav_redeem_reward_fragment,
         R.id.nav_reward_dashboard_fragment,
         R.id.nav_reward_settings_fragment,
-        R.id.nav_rules_fragment
+        R.id.nav_rules_fragment,
+        R.id.nav_take_quiz_fragment
     )
 
     private var fragmentsWithoutBackNavigation = setOf(

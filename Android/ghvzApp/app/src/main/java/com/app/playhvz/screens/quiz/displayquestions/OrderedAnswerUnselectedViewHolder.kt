@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 Google Inc.
  *
@@ -15,27 +14,14 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext.kotlin_version = '1.3.41'
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
-        classpath 'com.google.gms:google-services:4.3.3'
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.2.2"
-    }
-}
+package com.app.playhvz.screens.quiz.displayquestions
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
+import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+class OrderedAnswerUnselectedViewHolder(
+    val view: View
+) : RecyclerView.ViewHolder(view) {
+
+    fun onBind() {}
 }

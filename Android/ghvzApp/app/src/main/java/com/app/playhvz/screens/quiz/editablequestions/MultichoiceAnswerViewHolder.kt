@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.questions
+package com.app.playhvz.screens.quiz.editablequestions
 
 import android.content.Context
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -50,6 +49,9 @@ class MultichoiceAnswerViewHolder(
             if (menuItemId == R.id.delete_option) {
                 onDelete.invoke(adapterPosition)
                 true
+            } else if (menuItemId == R.id.edit_option) {
+                onEdit.invoke(adapterPosition)
+                true
             }
             false
         }
@@ -57,7 +59,7 @@ class MultichoiceAnswerViewHolder(
     init {
         orderingController = OrderingController(
             overflowButton,
-            R.menu.menu_edit_answer,
+            R.menu.menu_edit_quiz_answer,
             /* canRemoveOrder= */ true,
             onChangeOrder,
             onOtherOptionSelected

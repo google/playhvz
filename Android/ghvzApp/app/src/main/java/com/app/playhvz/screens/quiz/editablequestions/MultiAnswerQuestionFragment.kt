@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.questions
+package com.app.playhvz.screens.quiz.editablequestions
 
 import android.os.Bundle
 import android.view.*
@@ -35,12 +35,17 @@ import com.app.playhvz.firebase.classmodels.QuizQuestion
 import com.app.playhvz.screens.quiz.OrderingController.OrderModification
 import com.app.playhvz.utils.SystemUtils
 
-class OrderQuestionFragment : Fragment() {
+class MultiAnswerQuestionFragment : Fragment() {
     companion object {
-        val TAG = OrderQuestionFragment::class.qualifiedName
+        val TAG = MultiAnswerQuestionFragment::class.qualifiedName
     }
 
-    val args: OrderQuestionFragmentArgs by navArgs()
+    enum class FragmentType {
+        ORDER,
+        MULTIPLE_CHOICE
+    }
+
+    val args: MultiAnswerQuestionFragmentArgs by navArgs()
 
     private lateinit var answerAdapter: MultichoiceAnswerAdapter
     private lateinit var answerRecyclerView: RecyclerView
@@ -140,7 +145,7 @@ class OrderQuestionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_quiz_question_order, container, false)
+        val view = inflater.inflate(R.layout.fragment_quiz_question_multi_answer, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
         descriptionText = view.findViewById(R.id.description_text)
         answerRecyclerView = view.findViewById(R.id.item_list)
@@ -177,7 +182,7 @@ class OrderQuestionFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
     }
 
     override fun onResume() {
@@ -188,7 +193,11 @@ class OrderQuestionFragment : Fragment() {
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
-            toolbar.title = requireContext().getString(R.string.quiz_order_question_title)
+            if (args.fragmentType == FragmentType.ORDER)
+                toolbar.title = requireContext().getString(R.string.quiz_order_question_title)
+            else
+                toolbar.title =
+                    requireContext().getString(R.string.quiz_multiple_choice_question_title)
         }
     }
 
@@ -202,8 +211,13 @@ class OrderQuestionFragment : Fragment() {
             enableActions()
         }
         draftHelper.setProgressBar(progressBar)
+        val questionType = if (args.fragmentType == FragmentType.ORDER) {
+            CrossClientConstants.QUIZ_TYPE_ORDER
+        } else {
+            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE
+        }
         draftHelper.initializeDraft(
-            CrossClientConstants.QUIZ_TYPE_ORDER,
+            questionType,
             args.nextAvailableIndex,
             { draft -> initUI(draft) })
     }
@@ -222,7 +236,7 @@ class OrderQuestionFragment : Fragment() {
     }
 
     private fun disableActions() {
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 130
         menuItem.isEnabled = false

@@ -156,7 +156,7 @@ class RewardSettingsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
         super.onDestroyView()
     }
 
@@ -184,6 +184,11 @@ class RewardSettingsFragment : Fragment() {
             submitReward()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        SystemUtils.hideKeyboard(requireView())
     }
 
     private fun setupObservers() {
@@ -298,7 +303,7 @@ class RewardSettingsFragment : Fragment() {
     }
 
     private fun disableActions() {
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
         val menuItem = toolbarMenu.findItem(R.id.save_option)
         menuItem.icon.mutate().alpha = 130
         menuItem.isEnabled = false
@@ -306,7 +311,7 @@ class RewardSettingsFragment : Fragment() {
     }
 
     private fun enableActions() {
-        if (view == null) {
+        if (view == null || toolbarMenu.findItem(R.id.save_option) == null) {
             // Fragment was killed
             return
         }

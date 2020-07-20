@@ -24,6 +24,7 @@ import com.app.playhvz.screens.chatlist.ChatListFragmentDirections
 import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
 import com.app.playhvz.screens.chatroom.chatinfo.ChatInfoFragmentDirections
 import com.app.playhvz.screens.declareallegiance.DeclareAllegianceFragmentDirections
+import com.app.playhvz.screens.declareallegiance.TakeQuizFragmentDirections
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
@@ -31,8 +32,10 @@ import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
 import com.app.playhvz.screens.quiz.QuizDashboardFragmentDirections
-import com.app.playhvz.screens.quiz.questions.InfoQuestionFragmentDirections
-import com.app.playhvz.screens.quiz.questions.OrderQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.editablequestions.InfoQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.editablequestions.MultiAnswerQuestionFragment
+import com.app.playhvz.screens.quiz.editablequestions.MultiAnswerQuestionFragmentDirections
+import com.app.playhvz.screens.quiz.editablequestions.TrueFalseQuestionFragmentDirections
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragment
 import com.app.playhvz.screens.redeemcode.RedeemCodeFragmentDirections
 import com.app.playhvz.screens.rewards.RewardDashboardFragmentDirections
@@ -229,7 +232,39 @@ class NavigationUtil {
             nextIndex: Int
         ) {
             navController.navigate(
-                OrderQuestionFragmentDirections.actionGlobalNavQuizQuestionOrderFragment(
+                MultiAnswerQuestionFragmentDirections.actionGlobalNavQuizQuestionMultiAnswerFragment(
+                    MultiAnswerQuestionFragment.FragmentType.ORDER,
+                    questionId,
+                    nextIndex
+                )
+            )
+        }
+
+        /**
+         * Opens quiz multiple choice question.
+         */
+        fun navigateToQuizMultipleChoiceQuestion(
+            navController: NavController, questionId: String?,
+            nextIndex: Int
+        ) {
+            navController.navigate(
+                MultiAnswerQuestionFragmentDirections.actionGlobalNavQuizQuestionMultiAnswerFragment(
+                    MultiAnswerQuestionFragment.FragmentType.MULTIPLE_CHOICE,
+                    questionId,
+                    nextIndex
+                )
+            )
+        }
+
+        /**
+         * Opens quiz true/false question.
+         */
+        fun navigateToQuizTrueFalseQuestion(
+            navController: NavController, questionId: String?,
+            nextIndex: Int
+        ) {
+            navController.navigate(
+                TrueFalseQuestionFragmentDirections.actionGlobalNavQuizQuestionTrueFalseFragment(
                     questionId,
                     nextIndex
                 )
@@ -267,5 +302,16 @@ class NavigationUtil {
                 )
             )
         }
+
+        /**
+         * Opens the fragment for taking the quiz.
+         */
+        fun navigateToTakeQuizFragment(navController: NavController) {
+            navController.navigate(
+                TakeQuizFragmentDirections.actionGlobalNavTakeQuizFragment()
+            )
+        }
+
+
     }
 }

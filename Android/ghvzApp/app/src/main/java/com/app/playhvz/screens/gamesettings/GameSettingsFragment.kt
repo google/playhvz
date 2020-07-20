@@ -184,6 +184,11 @@ class GameSettingsFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onPause() {
+        super.onPause()
+        SystemUtils.hideKeyboard(requireView())
+    }
+
     fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
@@ -432,7 +437,7 @@ class GameSettingsFragment : Fragment() {
         if (toolbarMenu == null) {
             return
         }
-        SystemUtils.hideKeyboard(requireContext())
+        SystemUtils.hideKeyboard(requireView())
         val menuItem = toolbarMenu?.findItem(R.id.save_option)
         menuItem?.icon?.mutate()?.alpha = 130
         menuItem?.isEnabled = false

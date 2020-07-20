@@ -26,7 +26,6 @@ import android.widget.RadioGroup
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.app.playhvz.R
-import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.material.button.MaterialButton
 
@@ -74,18 +73,24 @@ class QuestionTypeSelectorDialog(
     private fun triggerActionFromTypeSelection() {
         val selected = typeSelectorGroup.checkedRadioButtonId
         if (selected == R.id.radio_multiple_choice) {
-            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE
+            NavigationUtil.navigateToQuizMultipleChoiceQuestion(
+                findNavController(),
+                /* questionId= */ null,
+                nextIndex
+            )
         } else if (selected == R.id.radio_true_false) {
-            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE
+            NavigationUtil.navigateToQuizTrueFalseQuestion(
+                findNavController(),
+                /* questionId= */ null,
+                nextIndex
+            )
         } else if (selected == R.id.radio_order) {
-            CrossClientConstants.QUIZ_TYPE_ORDER
             NavigationUtil.navigateToQuizOrderQuestion(
                 findNavController(),
                 /* questionId= */ null,
                 nextIndex
             )
         } else {
-            CrossClientConstants.QUIZ_TYPE_INFO
             NavigationUtil.navigateToQuizInfoQuestion(
                 findNavController(),
                 /* questionId= */ null,

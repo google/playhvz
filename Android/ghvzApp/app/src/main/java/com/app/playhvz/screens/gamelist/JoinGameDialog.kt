@@ -155,7 +155,7 @@ class JoinGameDialog(private val callingFragment: Fragment) : DialogFragment() {
         val onSuccess = { gameId: String ->
             progressBar.visibility = View.INVISIBLE
             dismiss()
-            SystemUtils.hideKeyboard(context!!)
+            SystemUtils.hideKeyboard(requireView())
             SystemUtils.showToast(context, getString(R.string.join_game_success_message))
             GameUtils.openGameDashboard(callingFragment, gameId)
         }

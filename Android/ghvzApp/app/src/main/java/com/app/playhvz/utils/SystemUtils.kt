@@ -18,6 +18,7 @@ package com.app.playhvz.utils
 
 import android.app.Activity
 import android.content.Context
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.content.pm.PackageInfoCompat
@@ -37,11 +38,13 @@ class SystemUtils {
             return PackageInfoCompat.getLongVersionCode(packageInfo)
         }
 
-        fun hideKeyboard(context: Context) {
+        /** Hides the keyboard, but only if it was open. */
+        fun hideKeyboard(view: View) {
             val inputManager =
-                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputManager.hideSoftInputFromWindow(view.windowToken, 0)
         }
+
 
         fun showToast(context: Context?, message: String) {
             Toast.makeText(

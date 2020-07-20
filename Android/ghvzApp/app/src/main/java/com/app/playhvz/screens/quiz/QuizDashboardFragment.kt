@@ -167,31 +167,6 @@ class QuizDashboardFragment : Fragment() {
         activity?.supportFragmentManager?.let { dialog.show(it, TAG) }
     }
 
-    private fun navigateToQuestionFragment(type: String, questionId: String?, index: Int) {
-        when (type) {
-            CrossClientConstants.QUIZ_TYPE_MULTIPLE_CHOICE -> {
-
-            }
-            CrossClientConstants.QUIZ_TYPE_TRUE_FALSE -> {
-
-            }
-            CrossClientConstants.QUIZ_TYPE_ORDER -> {
-                NavigationUtil.navigateToQuizOrderQuestion(
-                    findNavController(),
-                    questionId,
-                    index
-                )
-            }
-            else -> {
-                NavigationUtil.navigateToQuizInfoQuestion(
-                    findNavController(),
-                    questionId,
-                    index
-                )
-            }
-        }
-    }
-
     private fun swapQuestions(currentPostion: Int, endingOrder: Int) {
         for ((index, value) in questions.withIndex()) {
             if (value.index == endingOrder) {
