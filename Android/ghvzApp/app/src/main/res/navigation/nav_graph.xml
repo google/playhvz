@@ -382,7 +382,7 @@
   <single_instance_fragment
     android:id="@+id/nav_take_quiz_fragment"
     android:name="com.app.playhvz.screens.declareallegiance.TakeQuizFragment"
-    android:label="@string/take_quiz_rules_title"
+    android:label="@string/take_quiz_title"
     tools:layout="@layout/fragment_take_allegiance_quiz" />
 
 </navigation>

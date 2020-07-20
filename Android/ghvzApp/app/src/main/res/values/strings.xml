@@ -807,8 +807,16 @@
     Help
   </string>
 
-  <string name="take_quiz_rules_title" definition="App bar title for the take quiz screen.">
+  <string name="take_quiz_title" definition="App bar title for the take quiz screen.">
     Quick quiz
+  </string>
+
+  <string name="take_quiz_answer_error" definition="Error notice when answers aren't correct.">
+    Error, not all answers are correct. Edit your answers and try again.
+  </string>
+
+  <string name="take_quiz_answer_success" definition="Success notice when answers are correct.">
+    Nice! All correct, you can move on to the next question now
   </string>
 
 

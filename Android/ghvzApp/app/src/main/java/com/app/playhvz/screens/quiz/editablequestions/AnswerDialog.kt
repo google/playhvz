@@ -28,7 +28,6 @@ import androidx.emoji.widget.EmojiEditText
 import androidx.fragment.app.DialogFragment
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.QuizQuestion
-import com.app.playhvz.screens.quiz.displayquestions.AnswerDialog
 import com.google.android.material.button.MaterialButton
 
 class AnswerDialog(

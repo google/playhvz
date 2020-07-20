@@ -31,7 +31,6 @@ import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.ui.MarkdownEditText
 import com.app.playhvz.firebase.classmodels.QuizQuestion
-import com.app.playhvz.screens.quiz.displayquestions.AnswerDialog
 import com.app.playhvz.utils.SystemUtils
 
 class TrueFalseQuestionFragment : Fragment() {

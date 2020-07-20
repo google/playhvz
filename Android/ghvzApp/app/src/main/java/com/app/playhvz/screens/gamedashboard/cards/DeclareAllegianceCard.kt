@@ -18,20 +18,16 @@ package com.app.playhvz.screens.gamedashboard.cards
 
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.app.playhvz.R
-import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.firebase.classmodels.Player
-import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import kotlinx.coroutines.runBlocking
 
 class DeclareAllegianceCard(
     val fragment: GameDashboardFragment,
@@ -84,24 +80,7 @@ class DeclareAllegianceCard(
         }
         if (player?.allegiance != CrossClientConstants.UNDECLARED) {
             // Allegiance is declared already.
-            if (!DebugFlags.isDevEnvironment) {
-                declareAllegianceCard.visibility = View.GONE
-            } else {
-                cardHeaderIcon.visibility = View.VISIBLE
-                declareButton.setText(R.string.declare_allegiance_card_button_undeclare)
-                declareButton.setOnClickListener {
-                    runBlocking {
-                        EspressoIdlingResource.increment()
-                        PlayerDatabaseOperations.setPlayerAllegiance(
-                            gameId,
-                            playerId,
-                            CrossClientConstants.UNDECLARED,
-                            {},
-                            {})
-                        EspressoIdlingResource.decrement()
-                    }
-                }
-            }
+            declareAllegianceCard.visibility = View.GONE
         } else {
             // Allegiance isn't declared.
             if (DebugFlags.isDevEnvironment) {

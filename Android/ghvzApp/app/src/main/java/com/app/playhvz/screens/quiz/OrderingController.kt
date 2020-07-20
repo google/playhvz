@@ -28,7 +28,8 @@ class OrderingController(
     val menuLayout: Int,
     val canRemoveOrder: Boolean,
     val onChangeOrder: (position: Int, modification: OrderModification) -> Unit?,
-    val onOtherItemSelected: (adapterPosition: Int, menuItemId: Int) -> Boolean
+    val onOtherItemSelected: (adapterPosition: Int, menuItemId: Int) -> Boolean,
+    val useAdapterPosition: Boolean = false
 ) {
 
     enum class OrderModification {
@@ -49,7 +50,11 @@ class OrderingController(
 
     fun onBind(adapterPosition: Int, currentOrder: Int, isLast: Boolean) {
         this.adapterPosition = adapterPosition
-        this.currentOrder = currentOrder
+        if (useAdapterPosition) {
+            this.currentOrder = adapterPosition
+        } else {
+            this.currentOrder = currentOrder
+        }
         this.isLast = isLast
     }
 

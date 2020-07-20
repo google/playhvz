@@ -16,45 +16,49 @@
 
 package com.app.playhvz.screens.quiz.displayquestions
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.QuizQuestion
 
 
-class BooleanAnswerAdapter(
-    private var items: List<QuizQuestion.Answer>,
-    val fragment: Fragment,
-    val onEdit: (position: Int) -> Unit?
+class CorrectnessAnswerAdapter(
+    private var context: Context,
+    private var items: List<QuizQuestion.Answer>
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
-        private val TAG = BooleanAnswerAdapter::class.qualifiedName
+        private val TAG = CorrectnessAnswerAdapter::class.qualifiedName
+    }
+
+    private val selectedAnswers = BooleanArray(items.size, { i -> false })
+
+    private val selectAnswer = { adapterPosition: Int ->
+        selectedAnswers[adapterPosition] = !selectedAnswers[adapterPosition]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return BooleanAnswerViewHolder(
-            fragment.requireContext(),
-            LayoutInflater.from(fragment.context).inflate(
-                R.layout.list_item_quiz_answer,
+        return CorrectnessAnswerViewHolder(
+            LayoutInflater.from(context).inflate(
+                R.layout.list_item_quiz_answer_checkable,
                 parent,
                 false
             ),
-            onEdit
+            selectAnswer
         )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as BooleanAnswerViewHolder).onBind(position, items[position])
+        (holder as CorrectnessAnswerViewHolder).onBind(position, items[position])
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun setData(sections: List<QuizQuestion.Answer>) {
-        items = sections
+    fun getSelectedAnswers(): BooleanArray {
+        return selectedAnswers
     }
 }

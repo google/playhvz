@@ -16,6 +16,7 @@
 
 package com.app.playhvz.screens.declareallegiance
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -81,6 +82,18 @@ class DeclareAllegianceFragment : Fragment() {
         setupToolbar()
         return view
     }
+
+    /*override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is TakeQuizFragment.OnFragmentInteractionListener) {
+            mListener = context as TakeQuizFragment.OnFragmentInteractionListener
+        } else {
+            throw RuntimeException(
+                context.toString()
+                    .toString() + " must implement OnFragmentInteractionListener"
+            )
+        }
+    }*/
 
     private fun setupToolbar() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
