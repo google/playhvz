@@ -59,7 +59,7 @@ import kotlinx.coroutines.runBlocking
 /** Fragment for showing a list of Games the user is registered for.*/
 class ProfileFragment : Fragment() {
     companion object {
-        private val TAG = ProfileFragment::class.qualifiedName
+        internal val TAG = ProfileFragment::class.qualifiedName
     }
 
     val args: ProfileFragmentArgs by navArgs()
@@ -109,7 +109,7 @@ class ProfileFragment : Fragment() {
         }
         rewardViewModel = PlayerRewardViewModel()
         lifeCodeAdapter = LifeCodeAdapter(listOf(), requireContext())
-        rewardAdapter = RewardAdapter(requireContext())
+        rewardAdapter = RewardAdapter(requireContext(), requireActivity().supportFragmentManager)
     }
 
     override fun onCreateView(
