@@ -28,6 +28,7 @@ import com.app.playhvz.screens.declareallegiance.TakeQuizFragmentDirections
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
+import com.app.playhvz.screens.leaderboard.LeaderboardFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
 import com.app.playhvz.screens.player.ProfileFragmentDirections
@@ -293,6 +294,16 @@ class NavigationUtil {
         }
 
         /**
+         * Opens the Leaderboard.
+         */
+        fun navigateToLeaderboard(navController: NavController) {
+            navController.navigate(
+                LeaderboardFragmentDirections.actionGlobalNavLeaderboardFragment()
+            )
+        }
+
+
+        /**
          * Opens the lifecode redemption (aka infection) view.
          */
         fun navigateToInfectPlayer(navController: NavController) {
@@ -311,7 +322,5 @@ class NavigationUtil {
                 TakeQuizFragmentDirections.actionGlobalNavTakeQuizFragment()
             )
         }
-
-
     }
 }

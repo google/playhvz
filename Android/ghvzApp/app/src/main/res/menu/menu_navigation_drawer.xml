@@ -57,6 +57,11 @@
       android:title="@string/navigation_drawer_infect_player" />
 
     <item
+      android:id="@id/nav_leaderboard_fragment"
+      android:icon="@drawable/ic_achievement"
+      android:title="@string/navigation_drawer_leaderboard" />
+
+    <item
       android:id="@id/nav_find_player"
       android:icon="@drawable/ic_person_search"
       android:title="@string/navigation_drawer_player_search" />

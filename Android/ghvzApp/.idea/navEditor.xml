@@ -113,6 +113,11 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_global_nav_take_quiz_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="nav_admin_chat_list_fragment">
                     <value>
                       <LayoutPositions>
@@ -232,6 +237,18 @@
                     </value>
                   </entry>
                   <entry key="nav_game_settings_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="nav_lea_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
@@ -387,7 +404,7 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="nav_ta_fragment">
+                  <entry key="nav_take_quiz_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
