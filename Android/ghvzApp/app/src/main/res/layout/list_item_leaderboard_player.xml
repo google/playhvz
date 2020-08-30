@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Google Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_marginVertical="12dp"
+  android:gravity="center_vertical"
+  android:minHeight="48dp"
+  android:orientation="horizontal">
+
+  <include
+    android:id="@+id/player_avatar_container"
+    layout="@layout/player_avatar"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.emoji.widget.EmojiTextView
+    android:id="@+id/player_name"
+    style="@style/TextAppearance.MaterialComponents.Headline5"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_weight="1"
+    android:textColor="@color/app_primary_text"
+    app:layout_constraintBottom_toTopOf="@id/player_allegiance"
+    app:layout_constraintStart_toEndOf="@id/player_avatar_container"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:ignore="RtlSymmetry"
+    tools:text="LeslieKnope" />
+
+  <TextView
+    android:id="@+id/player_allegiance"
+    style="@style/TextAppearance.MaterialComponents.Caption"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:paddingTop="2dp"
+    android:textAllCaps="true"
+    android:textColor="@color/app_secondary_text"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="@id/player_name"
+    app:layout_constraintTop_toBottomOf="@id/player_name"
+    tools:ignore="RtlSymmetry"
+    tools:text="Human" />
+
+  <TextView
+    android:id="@+id/player_points"
+    style="@style/TextAppearance.MaterialComponents.Headline5"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:paddingTop="4dp"
+    android:paddingEnd="@dimen/screen_margin_horizontal"
+    android:textAllCaps="true"
+    android:textColor="@color/app_primary_text"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:ignore="RtlSymmetry"
+    tools:text="4390" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

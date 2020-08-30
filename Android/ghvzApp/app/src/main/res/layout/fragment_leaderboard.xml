@@ -15,7 +15,6 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
@@ -29,8 +28,7 @@
     android:layout_height="@dimen/horizontal_progress_bar_height"
     android:indeterminate="true"
     android:paddingStart="@dimen/screen_margin_horizontal"
-    android:paddingEnd="@dimen/screen_margin_horizontal"
-    android:visibility="gone" />
+    android:paddingEnd="@dimen/screen_margin_horizontal" />
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/card_content"
@@ -38,6 +36,10 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp">
 
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/player_list"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
