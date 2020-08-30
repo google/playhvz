@@ -267,6 +267,10 @@
     Horde
   </string>
 
+  <string name="allegiance_all_button" definition="Menu option declaring no allegiance filter.">
+    All
+  </string>
+
   <string name="error_whitespace" definition="Error text for input containing whitespace.">
     No spaces allowed
   </string>

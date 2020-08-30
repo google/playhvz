@@ -21,11 +21,16 @@ import android.view.*
 import android.widget.ProgressBar
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.app.HvzData
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
@@ -48,6 +53,8 @@ class LeaderboardFragment : Fragment() {
     private lateinit var toolbar: ActionBar
     private lateinit var toolbarMenu: Menu
 
+    private val allegianceFilter: HvzData<String?> = HvzData(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         toolbar = (activity as AppCompatActivity).supportActionBar!!
@@ -68,7 +75,6 @@ class LeaderboardFragment : Fragment() {
             { playerId -> PlayerUtils.viewPlayerProfile(playerId, gameId, findNavController()) }
         )
         setupToolbar()
-        setupObservers()
     }
 
     override fun onCreateView(
@@ -82,6 +88,7 @@ class LeaderboardFragment : Fragment() {
         val layoutManager = LinearLayoutManager(context)
         memberRecyclerView.layoutManager = layoutManager
         memberRecyclerView.adapter = memberAdapter
+        setupObservers()
         return view
     }
 
@@ -92,7 +99,8 @@ class LeaderboardFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.filter_option) {
-            // TODO: filter view
+            val anchor = requireActivity().findViewById<ActionMenuItemView>(R.id.filter_option)
+            showPopupMenu(anchor!!)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -106,7 +114,7 @@ class LeaderboardFragment : Fragment() {
         if (gameId.isNullOrEmpty()) {
             return
         }
-        leaderboardViewModel.getLeaderboard(gameId!!, null).observe(
+        leaderboardViewModel.getLeaderboard(gameId!!, allegianceFilter, viewLifecycleOwner).observe(
             this, androidx.lifecycle.Observer { playerList ->
                 if (playerList.isNotEmpty()) {
                     progressBar.visibility = View.GONE
@@ -114,9 +122,34 @@ class LeaderboardFragment : Fragment() {
                 onPlayerListUpdated(playerList)
             }
         )
+        // We need to trigger the leaderboard's observer on the livedata so set it to something blank
+        allegianceFilter.value = ""
     }
 
     private fun onPlayerListUpdated(serverPlayerList: List<Player?>) {
         memberAdapter.setData(serverPlayerList)
+    }
+
+    private fun showPopupMenu(anchor: View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.menu_leaderboard_filter, popup.getMenu())
+        popup.setOnMenuItemClickListener { item: MenuItem? ->
+            if (item == null) {
+                return@setOnMenuItemClickListener false
+            }
+            when (item.itemId) {
+                R.id.human_option -> {
+                    allegianceFilter.value = HUMAN
+                }
+                R.id.zombie_option -> {
+                    allegianceFilter.value = ZOMBIE
+                }
+                else -> {
+                    allegianceFilter.value = null
+                }
+            }
+            return@setOnMenuItemClickListener true
+        }
+        popup.show()
     }
 }
