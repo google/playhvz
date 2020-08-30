@@ -77,6 +77,7 @@ class ProfileFragment : Fragment() {
     private lateinit var lifeCodeRecyclerView: RecyclerView
     private lateinit var lifeCodeAdapter: LifeCodeAdapter
     private lateinit var progressBar: ProgressBar
+    private lateinit var pointTextView: TextView
     private lateinit var adminOptionsContainer: ConstraintLayout
     private lateinit var rewardRecyclerView: RecyclerView
     private lateinit var rewardAdapter: RewardAdapter
@@ -124,6 +125,7 @@ class ProfileFragment : Fragment() {
         avatarView = view.findViewById(R.id.player_avatar)
         avatarEditIcon = view.findViewById(R.id.player_avatar_edit_icon)
         allegianceView = view.findViewById(R.id.player_allegiance)
+        pointTextView = view.findViewById(R.id.player_points_text)
         lifeCodeIcon = view.findViewById(R.id.player_life_code_icon)
         lifeCodeRecyclerView = view.findViewById(R.id.player_life_code_list)
         lifeCodeRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -210,6 +212,13 @@ class ProfileFragment : Fragment() {
         nameView.setText(serverPlayer.name)
         userAvatarPresenter.renderAvatar(serverPlayer)
         allegianceView.setText(serverPlayer.allegiance)
+        pointTextView.setText(
+            requireContext().resources.getQuantityString(
+                R.plurals.reward_card_label_points,
+                serverPlayer.points,
+                serverPlayer.points
+            )
+        )
 
         if (serverPlayer.allegiance == HUMAN && isViewingMyOwnProfile) {
             // Only show lifecodes if we're viewing our own profile

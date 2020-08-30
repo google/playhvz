@@ -1038,6 +1038,85 @@ exports.createReward = functions.https.onCall(async (data, context) => {
     .add(reward)
 });
 
+exports.updateReward = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId;
+  const rewardId = data.rewardId;
+  const longName = data.longName;
+  const description = data.description;
+  const imageUrl = data.imageUrl;
+  const points = data.points;
+
+  if (!(typeof gameId === 'string')
+      || !(typeof rewardId === 'string')
+      || !(typeof longName === 'string')
+      || !(typeof description === 'string')
+      || !(typeof imageUrl === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  if (!(typeof points === 'number')) {
+        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type Number.");
+  }
+  if (gameId.length === 0
+      || rewardId.length === 0
+      || points < 0) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'a valid gameId and valid reward args.');
+  }
+
+  const rewardDocSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .doc(rewardId)
+    .get()
+
+  const rewardData = rewardDocSnapshot.data()
+  if (rewardData === undefined) {
+    return
+  }
+  const oldPointValue = rewardData.points
+
+  await rewardDocSnapshot.ref.update({
+      [Reward.FIELD__LONG_NAME]: longName,
+      [Reward.FIELD__DESCRIPTION]: description,
+      [Reward.FIELD__IMAGE_URL]: imageUrl,
+      [Reward.FIELD__POINTS]: points
+    })
+
+  // If point value was updated, recalculate player points
+  if (oldPointValue === points) {
+      return
+  }
+  const pointDiff = points - oldPointValue
+  const usedCodesQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .doc(rewardId)
+    .collection(ClaimCode.COLLECTION_PATH)
+    .where(ClaimCode.FIELD__REDEEMER, ">", Defaults.EMPTY_REWARD_REDEEMER)
+    .get();
+
+  usedCodesQuerySnapshot.forEach(async (claimCodeDoc: any) => {
+    const claimData = claimCodeDoc.data()
+    if (claimData === undefined) {
+      return // "continue" in a forEach
+    }
+    const playerId = claimData[ClaimCode.FIELD__REDEEMER]
+    const playerDocRef = db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Player.COLLECTION_PATH)
+      .doc(playerId)
+    await playerDocRef.update({
+      [Player.FIELD__POINTS]: admin.firestore.FieldValue.increment(pointDiff)
+    })
+  });
+});
+
 exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
       // Throwing an HttpsError so that the client gets the error details.
@@ -1260,6 +1339,10 @@ exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
     .doc(gameId)
     .collection(Player.COLLECTION_PATH)
     .doc(playerId)
+  const rewardData = rewardDocSnapshot.data()
+  if (rewardData == undefined) {
+        return
+  }
   const rewardInfoPath = Player.FIELD__REWARDS + "." + rewardDocSnapshot.id
 
   // Redeem claim code!
@@ -1267,7 +1350,8 @@ exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
     [ClaimCode.FIELD__REDEEMER]: playerId
   })
   await playerDocRef.update({
-    [rewardInfoPath]: admin.firestore.FieldValue.increment(1)
+    [rewardInfoPath]: admin.firestore.FieldValue.increment(1),
+    [Player.FIELD__POINTS]: admin.firestore.FieldValue.increment(rewardData.points)
   })
 });
 
@@ -1311,7 +1395,6 @@ exports.getRewardsByName = functions.https.onCall(async (data, context) => {
       "rewards": JSON.stringify([...rewardMap])
     }
 });
-
 
 
 /*******************************************************

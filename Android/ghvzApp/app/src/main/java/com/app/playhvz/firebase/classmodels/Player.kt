@@ -28,6 +28,7 @@ class Player {
         const val FIELD__CHAT_MEMBERSHIP_IS_VISIBLE = "isVisible"
         const val FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS = "allowNotifications"
         const val FIELD__AVATAR_URL = "avatarUrl"
+        const val FIELD__POINTS = "points"
     }
 
     var id: String? = null
@@ -40,6 +41,8 @@ class Player {
 
     // Url of the player's avatar image
     var avatarUrl: String = ""
+
+    var points: Int = 0
 
     // Current faction the player is fighting for
     var allegiance: String = ""

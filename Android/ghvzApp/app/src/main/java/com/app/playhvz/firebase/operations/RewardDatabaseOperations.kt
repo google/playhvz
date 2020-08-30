@@ -98,14 +98,25 @@ class RewardDatabaseOperations {
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            RewardPath.REWARD_DOCUMENT_REFERENCE(gameId, rewardId).set(
-                Reward.createFirebaseObject(rewardDraft)
-            ).addOnSuccessListener {
-                successListener.invoke()
-            }.addOnFailureListener {
-                Log.e(TAG, "Failed to update reward: " + it)
-                failureListener.invoke()
-            }
+            val data = hashMapOf(
+                "gameId" to gameId,
+                "rewardId" to rewardDraft.id,
+                "longName" to rewardDraft.longName,
+                "description" to rewardDraft.description,
+                "imageUrl" to rewardDraft.imageUrl,
+                "points" to rewardDraft.points
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("updateReward")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to update reward: " + task.exception)
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
         }
 
         /** Generate claim codes for the reward. */
