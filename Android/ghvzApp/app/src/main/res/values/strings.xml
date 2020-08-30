@@ -547,6 +547,10 @@
     Infect player
   </string>
 
+  <string name="navigation_drawer_leaderboard" definition="Navigation drawer menu item for showing the Leaderboard.">
+    Leaderboard
+  </string>
+
   <string name="navigation_drawer_rewards" definition="Navigation drawer menu item for opening the reward dashboard for the game.">
     Rewards
   </string>
@@ -778,6 +782,10 @@
 
   <string name="set_allegiance_positive_button" definition="Button for selecting the player's allegiance.">
     Update
+  </string>
+
+  <string name="settings_filter" definition="Menu option to filter a list.">
+    Filter the list
   </string>
 
   <string name="set_allegiance_warning" definition="Warning text about changing a player's allegiance.">

@@ -34,6 +34,7 @@ export const FIELD__USER_ID = Universal.FIELD__USER_ID;
 export const FIELD__NAME = "name";
 export const FIELD__AVATAR_URL = "avatarUrl";
 export const FIELD__ALLEGIANCE = "allegiance";
+export const FIELD__POINTS = "points";
 export const FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships";
 export const FIELD__CHAT_VISIBILITY = "isVisible";
 export const FIELD__CHAT_NOTIFICATIONS = "allowNotifications";
@@ -48,6 +49,7 @@ export function create(userId: string, name: string): { [key: string]: any; } {
     [FIELD__USER_ID]: userId,
     [FIELD__NAME]: name,
     [FIELD__AVATAR_URL]: getDefaultProfilePic(name),
+    [FIELD__POINTS]: 0,
     [FIELD__ALLEGIANCE]: Defaults.allegiance,
     [FIELD__CHAT_MEMBERSHIPS]: {},
     [FIELD__LIVES]: {}

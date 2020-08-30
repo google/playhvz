@@ -148,6 +148,29 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="@id/player_life_code_icon" />
 
+    <ImageView
+      android:id="@+id/player_points_icon"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_marginTop="24dp"
+      android:importantForAccessibility="no"
+      android:src="@drawable/ic_trophy"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/player_life_code_list"
+      app:tint="@color/grey700" />
+
+    <TextView
+      android:id="@+id/player_points_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="40dp"
+      android:textAllCaps="true"
+      android:textColor="@color/grey800"
+      android:textSize="20sp"
+      app:layout_constraintTop_toBottomOf="@id/player_points_icon"
+      app:layout_constraintTop_toTopOf="@id/player_points_icon"
+      tools:text="45 pts" />
+
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/player_reward_list"
       android:layout_width="match_parent"
@@ -156,7 +179,7 @@
       android:layout_marginTop="16dp"
       android:layout_marginBottom="16dp"
       android:overScrollMode="ifContentScrolls"
-      app:layout_constraintTop_toBottomOf="@id/player_life_code_list" />
+      app:layout_constraintTop_toBottomOf="@id/player_points_text" />
 
     <Space
       android:layout_width="match_parent"

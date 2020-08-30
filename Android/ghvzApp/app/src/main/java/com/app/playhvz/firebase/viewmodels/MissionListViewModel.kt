@@ -38,6 +38,7 @@ class MissionListViewModel : ViewModel() {
     private var associatedGroupIdList: HvzData<List<String>> = HvzData(listOf())
     private var groupIdsPlayerIsInList: HvzData<List<String>> = HvzData(listOf())
     private var missionList: HvzData<Map<String, Mission?>> = HvzData(mapOf())
+    private var lastObserver: LifecycleOwner? = null
 
     /** Clears all saved state. */
     fun reset() {
@@ -51,10 +52,7 @@ class MissionListViewModel : ViewModel() {
         lifecycleOwner: LifecycleOwner,
         gameId: String
     ): LiveData<Map<String, Mission?>> {
-        if (associatedGroupIdList.hasObservers()) {
-            // We've already started observing
-            return missionList
-        }
+       resetAssociatedGroupIdList(lifecycleOwner)
         associatedGroupIdList.observe(
             lifecycleOwner,
             androidx.lifecycle.Observer { updatedGroupsAssociatedWithMissions ->
@@ -75,10 +73,7 @@ class MissionListViewModel : ViewModel() {
         gameId: String,
         playerId: String
     ): LiveData<Map<String, Mission?>> {
-        if (associatedGroupIdList.hasObservers()) {
-            // We've already started observing
-            return missionList
-        }
+        resetAssociatedGroupIdList(lifecycleOwner)
         associatedGroupIdList.observe(
             lifecycleOwner,
             androidx.lifecycle.Observer { updatedGroupsAssociatedWithMissions ->
@@ -104,10 +99,7 @@ class MissionListViewModel : ViewModel() {
         gameId: String,
         playerId: String
     ): LiveData<Map<String, Mission?>> {
-        if (associatedGroupIdList.hasObservers()) {
-            // We've already started observing
-            return missionList
-        }
+        resetAssociatedGroupIdList(lifecycleOwner)
         associatedGroupIdList.observe(
             lifecycleOwner,
             androidx.lifecycle.Observer { updatedGroupsAssociatedWithMissions ->
@@ -280,5 +272,12 @@ class MissionListViewModel : ViewModel() {
             missionList.docIdListeners[removedId]?.remove()
             missionList.docIdListeners.remove(removedId)
         }
+    }
+
+    private fun resetAssociatedGroupIdList(lifecycleOwner: LifecycleOwner) {
+        if (lastObserver != null) {
+            associatedGroupIdList.removeObservers(lastObserver!!)
+        }
+        lastObserver = lifecycleOwner
     }
 }

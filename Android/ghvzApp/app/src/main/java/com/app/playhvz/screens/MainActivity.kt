@@ -83,6 +83,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_declare_allegiance_fragment,
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
+        R.id.nav_leaderboard_fragment,
         R.id.nav_mission_settings_fragment,
         R.id.nav_quiz_dashboard_fragment,
         R.id.nav_quiz_question_info_fragment,
@@ -180,6 +181,36 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 )
             }
             // Player navigation options
+            R.id.nav_redeem_lifecode_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToInfectPlayer(
+                    navController
+                )
+            }
+            R.id.nav_redeem_reward_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToRedeemReward(
+                    navController
+                )
+            }
+            R.id.nav_leaderboard_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToLeaderboard(
+                    navController
+                )
+            }
+            R.id.nav_find_player -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                val onPlayerSelected = { playerId: String ->
+                    NavigationUtil.navigateToPlayerProfile(
+                        navController,
+                        gameId!!,
+                        playerId
+                    )
+                }
+                val playerSearchDialog = GlobalPlayerSearchDialog(gameId!!, onPlayerSelected)
+                playerSearchDialog.show(supportFragmentManager, TAG)
+            }
             R.id.nav_rules_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToRules(
@@ -207,30 +238,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 NavigationUtil.navigateToCreateGame(
                     navController
                 )
-            }
-            R.id.nav_redeem_lifecode_fragment -> {
-                drawer_layout.closeDrawer(GravityCompat.START)
-                NavigationUtil.navigateToInfectPlayer(
-                    navController
-                )
-            }
-            R.id.nav_redeem_reward_fragment -> {
-                drawer_layout.closeDrawer(GravityCompat.START)
-                NavigationUtil.navigateToRedeemReward(
-                    navController
-                )
-            }
-            R.id.nav_find_player -> {
-                drawer_layout.closeDrawer(GravityCompat.START)
-                val onPlayerSelected = { playerId: String ->
-                    NavigationUtil.navigateToPlayerProfile(
-                        navController,
-                        gameId!!,
-                        playerId
-                    )
-                }
-                val playerSearchDialog = GlobalPlayerSearchDialog(gameId!!, onPlayerSelected)
-                playerSearchDialog.show(supportFragmentManager, TAG)
             }
             R.id.nav_sign_out -> {
                 drawer_layout.closeDrawer(GravityCompat.START)

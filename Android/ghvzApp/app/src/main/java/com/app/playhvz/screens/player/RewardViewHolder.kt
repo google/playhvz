@@ -16,15 +16,16 @@
 
 package com.app.playhvz.screens.player
 
-import android.content.Context
 import android.view.View
 import android.widget.ImageView
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.utils.ImageDownloaderUtils
 
-class RewardViewHolder(val context: Context, val view: View) : RecyclerView.ViewHolder(view) {
+class RewardViewHolder(private val fragmentManager: FragmentManager, val view: View) :
+    RecyclerView.ViewHolder(view) {
 
     private val rewardImage = view.findViewById<ImageView>(R.id.reward_badge_image)!!
 
@@ -33,6 +34,16 @@ class RewardViewHolder(val context: Context, val view: View) : RecyclerView.View
             rewardImage.setBackgroundResource(R.color.grey200)
         } else {
             ImageDownloaderUtils.downloadSquareImage(rewardImage, reward.imageUrl!!)
+        }
+
+        view.setOnClickListener {
+            val rewardDetailsDialog = RewardDetailsDialog(reward)
+            fragmentManager.let {
+                rewardDetailsDialog.show(
+                    it,
+                    ProfileFragment.TAG
+                )
+            }
         }
     }
 }

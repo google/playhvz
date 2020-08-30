@@ -19,12 +19,14 @@ package com.app.playhvz.screens.player
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.firebase.classmodels.Reward
 
 class RewardAdapter(
-    val context: Context
+    val context: Context,
+    private val fragmentManager: FragmentManager
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -32,7 +34,7 @@ class RewardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return RewardViewHolder(
-            context,
+            fragmentManager,
             LayoutInflater.from(context).inflate(
                 R.layout.list_item_player_reward,
                 parent,

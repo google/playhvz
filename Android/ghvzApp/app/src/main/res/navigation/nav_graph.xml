@@ -129,8 +129,7 @@
 
   <action
     android:id="@+id/action_global_nav_reward_settings_fragment"
-    app:destination="@id/nav_reward_settings_fragment"
-    app:popUpTo="@+id/nav_reward_dashboard_fragment" />
+    app:destination="@id/nav_reward_settings_fragment" />
 
   <action
     android:id="@+id/action_global_nav_quiz_dashboard_fragment"
@@ -156,6 +155,10 @@
   <action
     android:id="@+id/action_global_nav_take_quiz_fragment"
     app:destination="@id/nav_take_quiz_fragment" />
+
+  <action
+    android:id="@+id/action_global_nav_leaderboard_fragment"
+    app:destination="@id/nav_leaderboard_fragment" />
 
   <single_instance_fragment
     android:id="@+id/nav_game_dashboard_fragment"
@@ -384,5 +387,12 @@
     android:name="com.app.playhvz.screens.declareallegiance.TakeQuizFragment"
     android:label="@string/take_quiz_title"
     tools:layout="@layout/fragment_take_allegiance_quiz" />
+
+  <single_instance_fragment
+    android:id="@+id/nav_leaderboard_fragment"
+    android:name="com.app.playhvz.screens.leaderboard.LeaderboardFragment"
+    android:label="@string/navigation_drawer_leaderboard"
+    tools:layout="@layout/fragment_leaderboard" />
+
 
 </navigation>
