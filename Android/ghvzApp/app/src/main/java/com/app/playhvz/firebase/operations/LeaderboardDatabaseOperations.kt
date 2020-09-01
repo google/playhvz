@@ -24,7 +24,7 @@ class LeaderboardDatabaseOperations {
     companion object {
         private val TAG = LeaderboardDatabaseOperations::class.qualifiedName
 
-        private val PAGINATION_LIMIT: Long = 40
+        val PAGINATION_LIMIT: Long = 40
 
         /** Returns a Query listing all players in the given game ordered by score. */
         fun getPlayersByScoreQuery(gameId: String): Query? {
@@ -34,11 +34,11 @@ class LeaderboardDatabaseOperations {
         }
 
         /** Returns a Query listing all players of allegiance in the given game ordered by score. */
-        fun getPlayersByAllegianceAndScoreQuery(gameId: String, allegiance: String): Query? {
+        fun getPlayersByAllegianceAndScoreQuery(gameId: String, allegiance: String, pageLimit: Long = PAGINATION_LIMIT): Query? {
             return PlayerPath.PLAYERS_COLLECTION(gameId)
                 .whereEqualTo(Player.FIELD__ALLEGIANCE, allegiance)
                 .orderBy(Player.FIELD__POINTS, Query.Direction.DESCENDING)
-                .limit(PAGINATION_LIMIT)
+                .limit(pageLimit)
         }
     }
 }

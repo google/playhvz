@@ -322,7 +322,10 @@ class GameSettingsFragment : Fragment() {
             onCallPlayerLayout.visibility = View.GONE
             return
         }
-        playerViewModel.getPlayer(gameId!!, onCallAdminPlayerId!!)
+        val onFailure = {
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
+        }
+        playerViewModel.getPlayer(gameId!!, onCallAdminPlayerId!!, onFailure)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer: Player? ->
                 if (serverPlayer == null) {
                     onCallPlayerLayout.visibility = View.GONE

@@ -115,14 +115,14 @@ class LeaderboardFragment : Fragment() {
             return
         }
         leaderboardViewModel.getLeaderboard(gameId!!, allegianceFilter, viewLifecycleOwner).observe(
-            this, androidx.lifecycle.Observer { playerList ->
+            viewLifecycleOwner, androidx.lifecycle.Observer { playerList ->
                 if (playerList.isNotEmpty()) {
                     progressBar.visibility = View.GONE
                 }
                 onPlayerListUpdated(playerList)
             }
         )
-        // We need to trigger the leaderboard's observer on the livedata so set it to something blank
+        // We need to trigger the leaderboard's observer on the livedata so set it to blank
         allegianceFilter.value = ""
     }
 

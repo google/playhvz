@@ -23,6 +23,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Player
+import com.app.playhvz.firebase.operations.LeaderboardDatabaseOperations.Companion.PAGINATION_LIMIT
 import com.app.playhvz.firebase.operations.LeaderboardDatabaseOperations.Companion.getPlayersByAllegianceAndScoreQuery
 import com.app.playhvz.firebase.operations.LeaderboardDatabaseOperations.Companion.getPlayersByScoreQuery
 import com.app.playhvz.firebase.utils.DataConverterUtil
@@ -40,7 +41,8 @@ class LeaderboardViewModel : ViewModel() {
     fun getLeaderboard(
         gameId: String,
         allegianceFilter: LiveData<String?>,
-        lifecycleOwner: LifecycleOwner
+        lifecycleOwner: LifecycleOwner,
+        pageLimit: Long = PAGINATION_LIMIT
     ): LiveData<List<Player?>> {
         playerList.value = listOf()
 
@@ -52,7 +54,7 @@ class LeaderboardViewModel : ViewModel() {
             query = if (allegianceFilter.value.isNullOrBlank()) {
                 getPlayersByScoreQuery(gameId)
             } else {
-                getPlayersByAllegianceAndScoreQuery(gameId, allegianceFilter.value!!)
+                getPlayersByAllegianceAndScoreQuery(gameId, allegianceFilter.value!!, pageLimit)
             }
 
             playerList.docIdListeners[gameId] = query!!.addSnapshotListener { querySnapshot, e ->

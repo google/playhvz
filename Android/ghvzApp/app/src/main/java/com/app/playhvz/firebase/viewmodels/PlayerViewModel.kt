@@ -35,12 +35,17 @@ class PlayerViewModel : ViewModel() {
     private var player: HvzData<Player> = HvzData()
 
     /** Returns a Player LiveData object for the given id. */
-    fun getPlayer(gameId: String, playerId: String): LiveData<Player> {
+    fun getPlayer(
+        gameId: String,
+        playerId: String,
+        onFailureListener: () -> Unit
+    ): LiveData<Player> {
         player.value = Player()
         player.docIdListeners[playerId] = PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
+                    onFailureListener.invoke()
                     return@addSnapshotListener
                 }
                 if (snapshot != null && snapshot.exists()) {

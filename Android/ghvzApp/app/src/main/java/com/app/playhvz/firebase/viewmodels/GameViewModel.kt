@@ -69,7 +69,9 @@ class GameViewModel() : ViewModel() {
     /** Returns a LiveData object for the given id, includes admin info. */
     fun getGameAndAdminObserver(
         lifecycleOwner: LifecycleOwner,
-        gameId: String, playerId: String, onFailureListener: () -> Unit
+        gameId: String,
+        playerId: String,
+        onFailureListener: () -> Unit
     ): LiveData<GameWithAdminStatus> {
         game.observe(lifecycleOwner, androidx.lifecycle.Observer { updatedGame ->
             if (updatedGame == null) {

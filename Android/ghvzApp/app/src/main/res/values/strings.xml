@@ -399,6 +399,10 @@
     You joined the game!
   </string>
 
+  <string name="leaderboard_card_title" definition="Card title for the leaderboard widget.">
+    %1$s leaderboard
+  </string>
+
   <string name="life_code_card_title" definition="Card title for the life code widget.">
     Life Code
   </string>

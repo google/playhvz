@@ -109,11 +109,11 @@ class MissionDashboardFragment : Fragment() {
                 findNavController(),
                 requireActivity()
             )
-        }.observe(this, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
         PlayerUtils.getPlayer(gameId!!, playerId!!)
-            .observe(this, androidx.lifecycle.Observer { serverPlayer ->
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
             })
     }

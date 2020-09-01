@@ -21,6 +21,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
@@ -344,6 +345,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private fun listenToGameUpdates(gameId: String?) {
         if (FirebaseProvider.getFirebaseAuth().currentUser == null) {
             // The user signed out and the game id was cleared. Do nothing with game navigation.
+            Log.d(TAG, "User was signed out, doing nothing with game navigation.")
             return
         }
         if (gameId.isNullOrEmpty() || getCurrentPlayerId() == null) {

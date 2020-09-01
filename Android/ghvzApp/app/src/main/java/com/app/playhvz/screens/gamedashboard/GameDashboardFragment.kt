@@ -31,10 +31,7 @@ import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.screens.gamedashboard.cards.DeclareAllegianceCard
-import com.app.playhvz.screens.gamedashboard.cards.InfectCard
-import com.app.playhvz.screens.gamedashboard.cards.LifeCodeCard
-import com.app.playhvz.screens.gamedashboard.cards.MissionCard
+import com.app.playhvz.screens.gamedashboard.cards.*
 import com.app.playhvz.utils.PlayerUtils
 import com.app.playhvz.utils.SystemUtils
 
@@ -48,6 +45,7 @@ class GameDashboardFragment : Fragment() {
     private lateinit var missionViewModel: MissionListViewModel
     private lateinit var declareAllegianceCard: DeclareAllegianceCard
     private lateinit var infectCard: InfectCard
+    private lateinit var leaderboardCard: LeaderboardCard
     private lateinit var lifeCodeCard: LifeCodeCard
     private lateinit var missionCard: MissionCard
 
@@ -85,6 +83,7 @@ class GameDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
         declareAllegianceCard.onCreateView(view)
         infectCard.onCreateView(view)
+        leaderboardCard.onCreateView(view)
         lifeCodeCard.onCreateView(view)
         missionCard.onCreateView(view)
         setupToolbar()
@@ -136,6 +135,7 @@ class GameDashboardFragment : Fragment() {
     private fun setupCards() {
         declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
         infectCard = InfectCard(this, gameId!!, playerId!!)
+        leaderboardCard = LeaderboardCard(this, gameId!!, playerId!!)
         lifeCodeCard = LifeCodeCard(this, gameId!!, playerId!!)
         missionCard = MissionCard(this, findNavController(), gameId!!, playerId!!)
     }
@@ -151,6 +151,7 @@ class GameDashboardFragment : Fragment() {
         }
         declareAllegianceCard.onPlayerUpdated(serverPlayer!!)
         infectCard.onPlayerUpdated(serverPlayer)
+        leaderboardCard.onPlayerUpdated(serverPlayer)
         lifeCodeCard.onPlayerUpdated(serverPlayer)
     }
 }

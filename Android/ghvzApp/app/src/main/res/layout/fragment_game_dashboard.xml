@@ -38,5 +38,9 @@
     <include
       android:id="@+id/mission_card"
       layout="@layout/card_mission" />
+
+    <include
+      android:id="@+id/leaderboard_card"
+      layout="@layout/card_leaderboard" />
   </LinearLayout>
 </ScrollView>
