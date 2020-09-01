@@ -57,8 +57,7 @@ class GameDashboardFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firestoreViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
-        missionViewModel =
-            ViewModelProvider(requireActivity()).get(MissionListViewModel::class.java)
+        missionViewModel = MissionListViewModel()
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
