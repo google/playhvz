@@ -39,6 +39,8 @@ class LeaderboardCard(
     val playerId: String
 ) : DashboardCardInterface {
 
+    private val NUM_PEOPLE_TO_SHOW: Long = 3
+
     private lateinit var leaderboardCard: MaterialCardView
     private lateinit var leaderboardRecyclerView: RecyclerView
     private lateinit var leaderboardAdapter: MemberAdapter
@@ -109,7 +111,7 @@ class LeaderboardCard(
             updatedPlayer.allegiance,
             fragment.viewLifecycleOwner,
             onPlayerListUpdated,
-            /* maxListSize= */ 3
+            NUM_PEOPLE_TO_SHOW
         )
     }
 

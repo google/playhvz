@@ -29,7 +29,6 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
-import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.screens.gamedashboard.cards.*
 import com.app.playhvz.utils.PlayerUtils
@@ -42,7 +41,6 @@ class GameDashboardFragment : Fragment() {
     }
 
     private lateinit var firestoreViewModel: GameViewModel
-    private lateinit var missionViewModel: MissionListViewModel
     private lateinit var declareAllegianceCard: DeclareAllegianceCard
     private lateinit var infectCard: InfectCard
     private lateinit var leaderboardCard: LeaderboardCard
@@ -57,7 +55,6 @@ class GameDashboardFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firestoreViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
-        missionViewModel = MissionListViewModel()
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -109,16 +106,6 @@ class GameDashboardFragment : Fragment() {
         PlayerUtils.getPlayer(gameId!!, playerId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
-            })
-        missionViewModel.getLatestMissionPlayerIsIn(this, gameId!!, playerId!!)
-            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { missionMap ->
-                if (missionMap.isEmpty()) {
-                    missionCard.hide()
-                    return@Observer
-                }
-                missionCard.show()
-                // Always hide the admin options on the game dashboard fragment.
-                missionCard.onBind(missionMap.values.first()!!, /* isAdmin= */false)
             })
     }
 
