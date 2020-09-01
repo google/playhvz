@@ -21,7 +21,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
@@ -242,8 +241,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_sign_out -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 prefs!!.unregisterOnSharedPreferenceChangeListener(gameIdPreferenceListener)
-                Log.d(TAG, "lizard signed user out")
-                startActivity(SignInActivity.getLaunchIntent(this, /* signOut= */true))
+                startActivity(SignInActivity.getLaunchIntent(this, /* signOut= */ true))
             }
         }
         return true
