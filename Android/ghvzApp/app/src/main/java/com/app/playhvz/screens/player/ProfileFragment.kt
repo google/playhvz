@@ -30,7 +30,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,7 +47,6 @@ import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerRewardViewModel
 import com.app.playhvz.firebase.viewmodels.PlayerViewModel
-import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -191,17 +189,13 @@ class ProfileFragment : Fragment() {
         }
 
         // Monitor if the current user is an admin.
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, currentUserPlayerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverUpdate ->
-            if (serverUpdate != null) {
-                isAdmin = serverUpdate.isAdmin
-                setupAdminUi()
-            }
-        })
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, currentUserPlayerId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverUpdate ->
+                if (serverUpdate != null) {
+                    isAdmin = serverUpdate.isAdmin
+                    setupAdminUi()
+                }
+            })
     }
 
     private fun updatePlayer(serverPlayer: Player?) {

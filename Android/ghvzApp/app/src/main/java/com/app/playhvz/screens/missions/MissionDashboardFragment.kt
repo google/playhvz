@@ -104,14 +104,10 @@ class MissionDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
-            updateGame(serverGameAndAdminStatus)
-        })
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+                updateGame(serverGameAndAdminStatus)
+            })
         PlayerUtils.getPlayer(gameId!!, playerId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)

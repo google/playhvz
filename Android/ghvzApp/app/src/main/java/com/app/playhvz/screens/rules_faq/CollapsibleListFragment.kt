@@ -144,10 +144,7 @@ class CollapsibleListFragment : Fragment() {
             return
         }
 
-        val onFailure = {
-            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-        }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!, onFailure)
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
             .observe(
                 viewLifecycleOwner,
                 androidx.lifecycle.Observer { serverUpdate: GameViewModel.GameWithAdminStatus ->

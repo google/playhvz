@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
-import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
@@ -125,14 +124,10 @@ class QuizDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
-            updateGame(serverGameAndAdminStatus)
-        })
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+                updateGame(serverGameAndAdminStatus)
+            })
         questionViewModel.getGameQuizQuestions(gameId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { questionList ->
                 updateQuestionList(questionList)

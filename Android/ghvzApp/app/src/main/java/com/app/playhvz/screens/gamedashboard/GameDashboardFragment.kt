@@ -103,16 +103,7 @@ class GameDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        val failureListener = {
-            try {
-                NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-            } catch (e: IllegalStateException) {
-                // This means the user signed out and we can't find the nav controller because the
-                // main activity died and we're showing the sign-in activity instead.
-                // Do nothing because the right activity is already showing.
-            }
-        }
-        firestoreViewModel.getGame(gameId!!, failureListener)
+        firestoreViewModel.getGame(this, gameId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
                 updateGame(serverGame)
             })

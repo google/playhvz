@@ -17,18 +17,22 @@
 package com.app.playhvz.firebase.viewmodels
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.constants.GamePath
 import com.app.playhvz.firebase.constants.GroupPath
-import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.DataConverterUtil
+import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.SystemUtils
+import com.google.firebase.firestore.FirebaseFirestoreException
 
 class GameViewModel() : ViewModel() {
     companion object {
@@ -46,16 +50,11 @@ class GameViewModel() : ViewModel() {
     private var isAdmin: HvzData<Boolean> = HvzData()
 
     /** Returns a Game LiveData object for the given id. */
-    fun getGame(gameId: String, onFailureListener: () -> Unit): LiveData<Game> {
+    fun getGame(fragment: Fragment, gameId: String): LiveData<Game> {
         game.docIdListeners[gameId] = GamePath.GAMES_COLLECTION.document(gameId)
             .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e)
-                    onFailureListener.invoke()
-                    return@addSnapshotListener
-                }
-                if (snapshot == null || !snapshot.exists()) {
-                    onFailureListener.invoke()
+                if (e != null || snapshot == null || !snapshot.exists()) {
+                    handleError(e, fragment)
                     return@addSnapshotListener
                 }
                 game.value = DataConverterUtil.convertSnapshotToGame(snapshot)
@@ -70,30 +69,54 @@ class GameViewModel() : ViewModel() {
 
     /** Returns a LiveData object for the given id, includes admin info. */
     fun getGameAndAdminObserver(
-        lifecycleOwner: LifecycleOwner,
+        fragment: Fragment,
         gameId: String,
-        playerId: String,
-        onFailureListener: () -> Unit
+        playerId: String
     ): LiveData<GameWithAdminStatus> {
-        game.observe(lifecycleOwner, androidx.lifecycle.Observer { updatedGame ->
+        game.observe(fragment.viewLifecycleOwner, androidx.lifecycle.Observer { updatedGame ->
             if (updatedGame == null) {
                 return@Observer
             }
-            observeAdminGroup(gameId, updatedGame.adminGroupId!!, playerId)
+            observeAdminGroup(fragment, gameId, updatedGame.adminGroupId!!, playerId)
         })
+
         game.docIdListeners[gameId] = GamePath.GAMES_COLLECTION.document(gameId)
             .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e)
-                    if (SystemUtils.isUserSignedIn()) {
-                        onFailureListener.invoke()
-                    }
-                    // If the user signed out then do nothing on failure, we already redirected to
-                    // the sign in activity.
+                if (e != null || snapshot == null || !snapshot.exists()) {
+                    handleError(e, fragment)
                     return@addSnapshotListener
                 }
-                if (snapshot == null || !snapshot.exists()) {
-                    onFailureListener.invoke()
+                val update = GameWithAdminStatus()
+                update.isAdmin = if (gameWithAdminStatus.value != null) {
+                    gameWithAdminStatus.value!!.isAdmin
+                } else {
+                    false
+                }
+                update.game = DataConverterUtil.convertSnapshotToGame(snapshot)
+                game.value = update.game
+                gameWithAdminStatus.value = update
+            }
+        return gameWithAdminStatus
+    }
+
+    /** Returns a LiveData object for the given id, includes admin info. */
+    fun getGameAndAdminObserver(
+        activity: FragmentActivity,
+        navController: NavController,
+        gameId: String,
+        playerId: String
+    ): LiveData<GameWithAdminStatus> {
+        game.observe(activity, androidx.lifecycle.Observer { updatedGame ->
+            if (updatedGame == null) {
+                return@Observer
+            }
+            observeAdminGroup(activity, navController, gameId, updatedGame.adminGroupId!!, playerId)
+        })
+
+        game.docIdListeners[gameId] = GamePath.GAMES_COLLECTION.document(gameId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null || snapshot == null || !snapshot.exists()) {
+                    handleError(e, activity, navController)
                     return@addSnapshotListener
                 }
                 val update = GameWithAdminStatus()
@@ -110,6 +133,7 @@ class GameViewModel() : ViewModel() {
     }
 
     private fun observeAdminGroup(
+        fragment: Fragment,
         gameId: String,
         groupId: String,
         playerId: String
@@ -123,7 +147,41 @@ class GameViewModel() : ViewModel() {
         adminGroup.docIdListeners[groupId] =
             GroupPath.GROUP_DOCUMENT_REFERENCE(gameId, groupId).addSnapshotListener { snapshot, e ->
                 if (e != null) {
-                    Log.w(TAG, "Listen failed.", e)
+                    handleError(e, fragment)
+                    return@addSnapshotListener
+                }
+                if (snapshot == null || !snapshot.exists()) {
+                    return@addSnapshotListener
+                }
+                val updatedGroup = DataConverterUtil.convertSnapshotToGroup(snapshot)
+                val isAdmin = updatedGroup.members.contains(playerId)
+                if (gameWithAdminStatus.value != null && gameWithAdminStatus.value!!.isAdmin != isAdmin) {
+                    val update = GameWithAdminStatus()
+                    update.isAdmin = isAdmin
+                    update.game = gameWithAdminStatus.value!!.game
+                    gameWithAdminStatus.value = update
+                }
+            }
+        return adminGroup
+    }
+
+    private fun observeAdminGroup(
+        activity: FragmentActivity,
+        navController: NavController,
+        gameId: String,
+        groupId: String,
+        playerId: String
+    ): HvzData<Group> {
+        if (groupId in adminGroup.docIdListeners) {
+            // We're already listening to changes on this group id.
+            return adminGroup
+        } else {
+            stopListening()
+        }
+        adminGroup.docIdListeners[groupId] =
+            GroupPath.GROUP_DOCUMENT_REFERENCE(gameId, groupId).addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    handleError(e, activity, navController)
                     return@addSnapshotListener
                 }
                 if (snapshot == null || !snapshot.exists()) {
@@ -153,6 +211,36 @@ class GameViewModel() : ViewModel() {
         for (id in adminGroup.docIdListeners.keys) {
             adminGroup.docIdListeners[id]!!.remove()
             adminGroup.docIdListeners.remove(id)
+        }
+    }
+
+    private fun handleError(
+        e: FirebaseFirestoreException?,
+        activity: FragmentActivity,
+        navController: NavController
+    ) {
+        if (e != null) {
+            Log.w(TAG, "Listen failed.", e)
+        }
+        if (SystemUtils.isUserSignedIn()) {
+            // Only navigate to the game list if the user is still signed in. Otherwise, firebase
+            // failed because the user signed out. Don't invoke any failure listeners because the
+            // MainActivity is already destroyed and we're actually showing the sign-in activity. Do
+            // nothing because the right activity is already showing.
+            NavigationUtil.navigateToGameList(
+                navController,
+                activity
+            )
+        }
+    }
+
+    private fun handleError(e: FirebaseFirestoreException?, fragment: Fragment) {
+        try {
+            handleError(e, fragment.requireActivity(), fragment.findNavController())
+        } catch (e: IllegalStateException) {
+            // This means the user signed out and we can't find the nav controller because the
+            // main activity died and we're showing the sign-in activity instead.
+            // Do nothing because the right activity is already showing.
         }
     }
 }

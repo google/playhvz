@@ -97,7 +97,7 @@ class AdminChatListFragment : Fragment(), ChatListAdapter.IFragmentNavigator {
         }
 
         val gameViewModel = GameViewModel()
-        gameViewModel.getGame(gameId!!, {})
+        gameViewModel.getGame(this, gameId!!)
             .observe(this, androidx.lifecycle.Observer { game ->
                 if (game == null) {
                     return@Observer

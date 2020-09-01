@@ -106,7 +106,6 @@ class GameSettingsFragment : Fragment() {
         )!!
         playerViewModel = PlayerViewModel()
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
-        setupObservers()
     }
 
     override fun onCreateView(
@@ -166,6 +165,7 @@ class GameSettingsFragment : Fragment() {
 
         setupToolbar()
         initializeFields()
+        setupObservers()
         return view
     }
 
@@ -209,27 +209,23 @@ class GameSettingsFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
-            if (hasChanges.value!! && !isSaving) {
-                // Someone else updated the game, show an error and ignore pending changes.
-                errorLabel.visibility = View.VISIBLE
-                disableActions()
-                return@Observer
-            } else {
-                errorLabel.visibility = View.GONE
-            }
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverUpdate ->
+                if (hasChanges.value!! && !isSaving) {
+                    // Someone else updated the game, show an error and ignore pending changes.
+                    errorLabel.visibility = View.VISIBLE
+                    disableActions()
+                    return@Observer
+                } else {
+                    errorLabel.visibility = View.GONE
+                }
 
-            updateGame(serverUpdate)
-            if (serverUpdate != null) {
-                onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
-                listenToAdminOnCallPlayerUpdates()
-            }
-        })
+                updateGame(serverUpdate)
+                if (serverUpdate != null) {
+                    onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
+                    listenToAdminOnCallPlayerUpdates()
+                }
+            })
     }
 
     private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
