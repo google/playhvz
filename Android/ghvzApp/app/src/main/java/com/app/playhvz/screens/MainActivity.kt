@@ -42,7 +42,6 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRE
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
 import com.app.playhvz.common.playersearch.GlobalPlayerSearchDialog
-import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
@@ -241,7 +240,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
             R.id.nav_sign_out -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
-                startActivity(SignInActivity.getLaunchIntent(this, /* signOut= */true))
+                prefs!!.unregisterOnSharedPreferenceChangeListener(gameIdPreferenceListener)
+                startActivity(SignInActivity.getLaunchIntent(this, /* signOut= */ true))
             }
         }
         return true
@@ -342,10 +342,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun listenToGameUpdates(gameId: String?) {
-        if (FirebaseProvider.getFirebaseAuth().currentUser == null) {
-            // The user signed out and the game id was cleared. Do nothing with game navigation.
-            return
-        }
         if (gameId.isNullOrEmpty() || getCurrentPlayerId() == null) {
             if (isAdmin) {
                 isAdmin = false
@@ -354,15 +350,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             return
         }
         this.gameId = gameId
-        gameViewModel.getGameAndAdminObserver(this, gameId, getCurrentPlayerId()!!) {
-            NavigationUtil.navigateToGameList(navController, this)
-        }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
-            val newIsAdmin = serverUpdate.isAdmin
-            if (newIsAdmin != isAdmin) {
-                isAdmin = newIsAdmin
-                updateNavDrawerItems()
-            }
-        })
+        gameViewModel.getGameAndAdminObserver(this, navController, gameId, getCurrentPlayerId()!!)
+            .observe(this, androidx.lifecycle.Observer { serverUpdate ->
+                val newIsAdmin = serverUpdate.isAdmin
+                if (newIsAdmin != isAdmin) {
+                    isAdmin = newIsAdmin
+                    updateNavDrawerItems()
+                }
+            })
     }
 
     private fun updateNavDrawerItems() {

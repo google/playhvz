@@ -39,9 +39,8 @@ class OrderedAnswerViewHolder(
         { adapterPosition: Int, menuItemId: Int ->
             if (menuItemId == R.id.delete_option) {
                 deleteAnswer.invoke(adapterPosition)
-                true
             }
-            false
+            true
         }
 
     init {
@@ -55,7 +54,7 @@ class OrderedAnswerViewHolder(
         )
     }
 
-    fun onBind(position: Int, answer: QuizQuestion.Answer, isLastAnswer: Boolean) {
+    fun onBind(answer: QuizQuestion.Answer, isLastAnswer: Boolean) {
         this.answer = answer
         orderingController.onBind(adapterPosition, answer.order, isLastAnswer)
         answerText.text = answer.text

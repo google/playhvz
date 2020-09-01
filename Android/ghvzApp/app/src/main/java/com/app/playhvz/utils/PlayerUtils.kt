@@ -18,6 +18,7 @@ package com.app.playhvz.utils
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.navigation.NavController
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEAD_ALLEGIANCES
 import com.app.playhvz.firebase.classmodels.Group
@@ -25,6 +26,7 @@ import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.constants.GroupPath.Companion.GROUP_FIELD__SETTINGS_ALLEGIANCE_FILTER
 import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.utils.DataConverterUtil
+import com.app.playhvz.navigation.NavigationUtil
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.QuerySnapshot
@@ -37,6 +39,18 @@ class PlayerUtils {
         enum class AliveStatus { ALIVE, DEAD }
 
         private val PAGINATION_LIMIT: Long = 25
+
+        /** Navigates to the specified player's profile view. */
+        fun viewPlayerProfile(
+            playerToViewId: String,
+            gameId: String?,
+            navController: NavController
+        ) {
+            if (gameId.isNullOrBlank()) {
+                return
+            }
+            NavigationUtil.navigateToPlayerProfile(navController, gameId, playerToViewId)
+        }
 
         /** Returns whether the current player allegiance is considered Alive or Dead. */
         fun getAliveStatus(allegiance: String): AliveStatus {
@@ -133,8 +147,7 @@ class PlayerUtils {
         fun getPlayerListInGroup(
             liveData: HvzData<List<Player>>,
             gameId: String,
-            group: Group,
-            nameFilter: String?
+            group: Group
         ) {
             // Logic for filtering on start string is courtesy of:
             // https://firebase.google.com/docs/database/admin/retrieve-data#range-queries

@@ -39,7 +39,11 @@ class PlayerPath {
          */
         const val PLAYER_FIELD__NAME = "name"
 
+        const val PLAYER_FIELD__ALLEGIANCE = "name"
+
         const val PLAYER_FIELD__CHAT_MEMBERSHIPS = "chatRoomMemberships"
+
+        const val PLAYER_FIELD__POINTS = "points"
 
         const val PLAYER_FIELD__LIVES = "lives"
 

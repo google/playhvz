@@ -88,7 +88,7 @@ class MissionListViewModel : ViewModel() {
             androidx.lifecycle.Observer { missionGroupsPlayerIsIn ->
                 observeMissionsPlayerIsIn(gameId, missionGroupsPlayerIsIn, ALL_MISSIONS)
             })
-        listenToGroupPlayerIds(gameId, playerId)
+        listenToGroupPlayerIds(gameId)
         return missionList
     }
 
@@ -114,12 +114,12 @@ class MissionListViewModel : ViewModel() {
             androidx.lifecycle.Observer { missionGroupsPlayerIsIn ->
                 observeMissionsPlayerIsIn(gameId, missionGroupsPlayerIsIn, ONE_MISSION)
             })
-        listenToGroupPlayerIds(gameId, playerId)
+        listenToGroupPlayerIds(gameId)
         return missionList
     }
 
     /** Registers an event listener that watches for group membership changes. */
-    private fun listenToGroupPlayerIds(gameId: String, playerId: String) {
+    private fun listenToGroupPlayerIds(gameId: String) {
         extractListOfGroupIdsAssociatedWithMissions(gameId)
     }
 

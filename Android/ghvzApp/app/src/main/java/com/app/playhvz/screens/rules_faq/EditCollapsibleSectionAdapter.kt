@@ -64,11 +64,6 @@ class EditCollapsibleSectionAdapter(
             )
         }
 
-        val editableSectionLayout = LayoutInflater.from(fragment.context).inflate(
-            R.layout.list_item_collapsible_section_edit,
-            parent,
-            false
-        )
         return EditCollapsibleSectionViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 R.layout.list_item_collapsible_section_edit,

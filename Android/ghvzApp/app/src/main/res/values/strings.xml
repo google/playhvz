@@ -267,6 +267,10 @@
     Horde
   </string>
 
+  <string name="allegiance_all_button" definition="Menu option declaring no allegiance filter.">
+    All
+  </string>
+
   <string name="error_whitespace" definition="Error text for input containing whitespace.">
     No spaces allowed
   </string>
@@ -393,6 +397,10 @@
 
   <string name="join_game_success_message" definition="Toast for successful game join.">
     You joined the game!
+  </string>
+
+  <string name="leaderboard_card_title" definition="Card title for the leaderboard widget.">
+    %1$s leaderboard
   </string>
 
   <string name="life_code_card_title" definition="Card title for the life code widget.">

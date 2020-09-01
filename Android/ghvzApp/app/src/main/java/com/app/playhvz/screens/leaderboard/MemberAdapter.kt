@@ -14,51 +14,48 @@
  * limitations under the License.
  */
 
-package com.app.playhvz.screens.quiz.displayquestions
+package com.app.playhvz.screens.leaderboard
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.firebase.classmodels.QuizQuestion
+import com.app.playhvz.firebase.classmodels.Player
 
-
-class CorrectnessAnswerAdapter(
-    private var context: Context,
-    private var items: List<QuizQuestion.Answer>
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    companion object {
-        private val TAG = CorrectnessAnswerAdapter::class.qualifiedName
-    }
-
-    private val selectedAnswers = BooleanArray(items.size, { _ -> false })
-
-    private val selectAnswer = { adapterPosition: Int ->
-        selectedAnswers[adapterPosition] = !selectedAnswers[adapterPosition]
-    }
+class MemberAdapter(
+    private var items: List<Player>,
+    val context: Context,
+    private val viewProfile: ((playerId: String) -> Unit)?
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return CorrectnessAnswerViewHolder(
+        return MemberViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.list_item_quiz_answer_checkable,
+                R.layout.list_item_leaderboard_player,
                 parent,
                 false
             ),
-            selectAnswer
+            viewProfile
         )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as CorrectnessAnswerViewHolder).onBind(position, items[position])
+        (holder as MemberViewHolder).onBind(items[position])
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun getSelectedAnswers(): BooleanArray {
-        return selectedAnswers
+    fun setData(data: List<Player?>) {
+        val cleansedList = mutableListOf<Player>()
+        for (player in data) {
+            if (player != null) {
+                cleansedList.add(player)
+            }
+        }
+        items = cleansedList
+        notifyDataSetChanged()
     }
 }

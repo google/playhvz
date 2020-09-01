@@ -125,15 +125,11 @@ class TakeQuizFragment : Fragment(), OnUpdateNextButtonInterface {
         if (gameId == null || playerId == null) {
             return
         }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
-            updateGame(serverGameAndAdminStatus)
-        })
-        quizQuestionLiveData = questionViewModel.getGameQuizQuestions(viewLifecycleOwner, gameId!!)
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+                updateGame(serverGameAndAdminStatus)
+            })
+        quizQuestionLiveData = questionViewModel.getGameQuizQuestions(gameId!!)
         var allowedUpdates = 2
         quizQuestionLiveData.observe(
             viewLifecycleOwner,

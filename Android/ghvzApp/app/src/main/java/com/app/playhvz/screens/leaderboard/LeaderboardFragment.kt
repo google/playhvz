@@ -21,12 +21,21 @@ import android.view.*
 import android.widget.ProgressBar
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
+import com.app.playhvz.firebase.viewmodels.LeaderboardViewModel
 import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.utils.PlayerUtils
 
 class LeaderboardFragment : Fragment() {
     companion object {
@@ -36,9 +45,19 @@ class LeaderboardFragment : Fragment() {
     private var gameId: String? = null
 
     private lateinit var gameViewModel: GameViewModel
+    private lateinit var leaderboardViewModel: LeaderboardViewModel
+    private lateinit var memberRecyclerView: RecyclerView
+    private lateinit var memberAdapter: MemberAdapter
     private lateinit var progressBar: ProgressBar
     private lateinit var toolbar: ActionBar
     private lateinit var toolbarMenu: Menu
+
+    private val onPlayerListUpdated = { playerList: List<Player?> ->
+        if (playerList.isNotEmpty()) {
+            progressBar.visibility = View.GONE
+        }
+        onPlayerListUpdated(playerList)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +72,12 @@ class LeaderboardFragment : Fragment() {
         if (gameId == null) {
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
-
+        leaderboardViewModel = LeaderboardViewModel()
+        memberAdapter = MemberAdapter(
+            listOf(),
+            requireContext(),
+            { playerId -> PlayerUtils.viewPlayerProfile(playerId, gameId, findNavController()) }
+        )
         setupToolbar()
     }
 
@@ -64,12 +88,12 @@ class LeaderboardFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_leaderboard, container, false)
         progressBar = view.findViewById(R.id.progress_bar)
+        memberRecyclerView = view.findViewById(R.id.player_list)
+        val layoutManager = LinearLayoutManager(context)
+        memberRecyclerView.layoutManager = layoutManager
+        memberRecyclerView.adapter = memberAdapter
+        setupObservers()
         return view
-    }
-
-    fun setupToolbar() {
-        toolbar.title = getString(R.string.navigation_drawer_leaderboard)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -79,9 +103,64 @@ class LeaderboardFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.filter_option) {
-            // TODO: filter view
+            val anchor = requireActivity().findViewById<ActionMenuItemView>(R.id.filter_option)
+            showPopupMenu(anchor!!)
         }
         return super.onOptionsItemSelected(item)
     }
 
+    private fun setupToolbar() {
+        toolbar.title = getString(R.string.navigation_drawer_leaderboard)
+        setHasOptionsMenu(true)
+    }
+
+    private fun setupObservers() {
+        if (gameId.isNullOrEmpty()) {
+            return
+        }
+
+        leaderboardViewModel.getLeaderboard(gameId!!, null, viewLifecycleOwner, onPlayerListUpdated)
+    }
+
+    private fun onPlayerListUpdated(serverPlayerList: List<Player?>) {
+        memberAdapter.setData(serverPlayerList)
+    }
+
+    private fun showPopupMenu(anchor: View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.menu_leaderboard_filter, popup.getMenu())
+        popup.setOnMenuItemClickListener { item: MenuItem? ->
+            if (item == null) {
+                return@setOnMenuItemClickListener false
+            }
+            when (item.itemId) {
+                R.id.human_option -> {
+                    leaderboardViewModel.getLeaderboard(
+                        gameId!!,
+                        HUMAN,
+                        viewLifecycleOwner,
+                        onPlayerListUpdated
+                    )
+                }
+                R.id.zombie_option -> {
+                    leaderboardViewModel.getLeaderboard(
+                        gameId!!,
+                        ZOMBIE,
+                        viewLifecycleOwner,
+                        onPlayerListUpdated
+                    )
+                }
+                else -> {
+                    leaderboardViewModel.getLeaderboard(
+                        gameId!!,
+                        null,
+                        viewLifecycleOwner,
+                        onPlayerListUpdated
+                    )
+                }
+            }
+            return@setOnMenuItemClickListener true
+        }
+        popup.show()
+    }
 }

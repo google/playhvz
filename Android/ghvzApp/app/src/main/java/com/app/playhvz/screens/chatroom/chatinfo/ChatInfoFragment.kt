@@ -46,6 +46,7 @@ import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.ChatRoomViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.PlayerHelper
+import com.app.playhvz.utils.PlayerUtils
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlinx.coroutines.runBlocking
@@ -86,9 +87,11 @@ class ChatInfoFragment : Fragment() {
         memberAdapter =
             MemberAdapter(
                 listOf(),
-                requireContext(), /* onIconClicked= */
-                { player -> onRemovePlayerClicked(player) }, /* viewProfile= */
-                { playerId -> viewPlayerProfile(playerId) })
+                requireContext(),
+                /* onIconClicked= */
+                { player -> onRemovePlayerClicked(player) },
+                /* viewProfile= */
+                { playerId -> PlayerUtils.viewPlayerProfile(playerId, gameId, findNavController())})
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -141,7 +144,7 @@ class ChatInfoFragment : Fragment() {
         if (gameId.isNullOrEmpty() || playerId.isNullOrEmpty()) {
             return
         }
-        chatViewModel.getGroupObserver(this, gameId!!, chatRoomId)
+        chatViewModel.getGroupObserver(gameId!!, chatRoomId)
             .observe(this, androidx.lifecycle.Observer { serverGroup ->
                 onGroupUpdated(serverGroup)
             })
@@ -271,10 +274,5 @@ class ChatInfoFragment : Fragment() {
         return currentPlayer!!.chatRoomMemberships[chatRoomId]?.get(
             FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS
         ) ?: default
-    }
-
-    private fun viewPlayerProfile(playerToView: String) {
-        NavigationUtil.navigateToPlayerProfile(findNavController(), gameId, playerToView)
-
     }
 }

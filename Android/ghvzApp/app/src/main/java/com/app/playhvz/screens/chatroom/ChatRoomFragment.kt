@@ -94,7 +94,7 @@ class ChatRoomFragment : Fragment() {
         sendButton = view.findViewById(R.id.send_button)
         messageInputView = view.findViewById(R.id.message_input)
         messageInputView.requestFocus()
-        messageInputView.doOnTextChanged { text, start, count, after ->
+        messageInputView.doOnTextChanged { text, _, _, _ ->
             when {
                 text.isNullOrEmpty() || text.isBlank() -> {
                     sendButton.isEnabled = false
@@ -156,11 +156,11 @@ class ChatRoomFragment : Fragment() {
         if (gameId.isNullOrEmpty() || playerId.isNullOrEmpty()) {
             return
         }
-        chatViewModel.getChatRoomObserver(this, gameId!!, chatRoomId)
+        chatViewModel.getChatRoomObserver(gameId!!, chatRoomId)
             .observe(this, androidx.lifecycle.Observer { serverChatRoom ->
                 onChatRoomUpdated(serverChatRoom)
             })
-        chatViewModel.getMessagesObserver(this, gameId!!, chatRoomId)
+        chatViewModel.getMessagesObserver(gameId!!, chatRoomId)
             .observe(this, androidx.lifecycle.Observer { serverMessageList ->
                 onMessagesUpdated(serverMessageList)
             })
@@ -205,7 +205,7 @@ class ChatRoomFragment : Fragment() {
             ChatDatabaseOperations.sendChatMessage(
                 gameId!!,
                 chatRoomId,
-                playerId!!,
+                playerId,
                 message,
                 {
                     EspressoIdlingResource.decrement()

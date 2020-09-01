@@ -29,12 +29,8 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.GameViewModel
-import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.navigation.NavigationUtil
-import com.app.playhvz.screens.gamedashboard.cards.DeclareAllegianceCard
-import com.app.playhvz.screens.gamedashboard.cards.InfectCard
-import com.app.playhvz.screens.gamedashboard.cards.LifeCodeCard
-import com.app.playhvz.screens.gamedashboard.cards.MissionCard
+import com.app.playhvz.screens.gamedashboard.cards.*
 import com.app.playhvz.utils.PlayerUtils
 import com.app.playhvz.utils.SystemUtils
 
@@ -45,9 +41,9 @@ class GameDashboardFragment : Fragment() {
     }
 
     private lateinit var firestoreViewModel: GameViewModel
-    private lateinit var missionViewModel: MissionListViewModel
     private lateinit var declareAllegianceCard: DeclareAllegianceCard
     private lateinit var infectCard: InfectCard
+    private lateinit var leaderboardCard: LeaderboardCard
     private lateinit var lifeCodeCard: LifeCodeCard
     private lateinit var missionCard: MissionCard
 
@@ -59,8 +55,6 @@ class GameDashboardFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firestoreViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
-        missionViewModel =
-            ViewModelProvider(requireActivity()).get(MissionListViewModel::class.java)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
@@ -85,6 +79,7 @@ class GameDashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_game_dashboard, container, false)
         declareAllegianceCard.onCreateView(view)
         infectCard.onCreateView(view)
+        leaderboardCard.onCreateView(view)
         lifeCodeCard.onCreateView(view)
         missionCard.onCreateView(view)
         setupToolbar()
@@ -104,16 +99,7 @@ class GameDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        val failureListener = {
-            try {
-                NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-            } catch (e: IllegalStateException) {
-                // This means the user signed out and we can't find the nav controller because the
-                // main activity died and we're showing the sign-in activity instead.
-                // Do nothing because the right activity is already showing.
-            }
-        }
-        firestoreViewModel.getGame(gameId!!, failureListener)
+        firestoreViewModel.getGame(this, gameId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGame: Game ->
                 updateGame(serverGame)
             })
@@ -121,21 +107,12 @@ class GameDashboardFragment : Fragment() {
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                 updatePlayer(serverPlayer)
             })
-        missionViewModel.getLatestMissionPlayerIsIn(this, gameId!!, playerId!!)
-            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { missionMap ->
-                if (missionMap.isEmpty()) {
-                    missionCard.hide()
-                    return@Observer
-                }
-                missionCard.show()
-                // Always hide the admin options on the game dashboard fragment.
-                missionCard.onBind(missionMap.values.first()!!, /* isAdmin= */false)
-            })
     }
 
     private fun setupCards() {
         declareAllegianceCard = DeclareAllegianceCard(this, gameId!!, playerId!!)
         infectCard = InfectCard(this, gameId!!, playerId!!)
+        leaderboardCard = LeaderboardCard(this, gameId!!, playerId!!)
         lifeCodeCard = LifeCodeCard(this, gameId!!, playerId!!)
         missionCard = MissionCard(this, findNavController(), gameId!!, playerId!!)
     }
@@ -151,6 +128,7 @@ class GameDashboardFragment : Fragment() {
         }
         declareAllegianceCard.onPlayerUpdated(serverPlayer!!)
         infectCard.onPlayerUpdated(serverPlayer)
+        leaderboardCard.onPlayerUpdated(serverPlayer)
         lifeCodeCard.onPlayerUpdated(serverPlayer)
     }
 }

@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 import com.app.playhvz.R
 import com.app.playhvz.common.ui.MarkdownTextView
 import com.app.playhvz.firebase.classmodels.Mission
-import com.app.playhvz.navigation.NavigationUtil
+import com.app.playhvz.firebase.viewmodels.MissionListViewModel
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
 import com.app.playhvz.utils.TimeUtils
 import com.google.android.material.button.MaterialButton
@@ -38,14 +38,15 @@ class MissionCard(
     val playerId: String
 ) {
 
-    lateinit var missionCard: MaterialCardView
-    lateinit var cardTitle: EmojiTextView
-    lateinit var startTimeView: TextView
-    lateinit var endTimeView: TextView
-    lateinit var detailsView: MarkdownTextView
-    lateinit var cardHeader: LinearLayout
-    lateinit var cardHeaderIcon: MaterialButton
-    lateinit var cardContent: ConstraintLayout
+    private lateinit var missionCard: MaterialCardView
+    private lateinit var missionViewModel: MissionListViewModel
+    private lateinit var cardTitle: EmojiTextView
+    private lateinit var startTimeView: TextView
+    private lateinit var endTimeView: TextView
+    private lateinit var detailsView: MarkdownTextView
+    private lateinit var cardHeader: LinearLayout
+    private lateinit var cardHeaderIcon: MaterialButton
+    private lateinit var cardContent: ConstraintLayout
 
     private var mission: Mission? = null
 
@@ -59,7 +60,6 @@ class MissionCard(
         cardHeaderIcon = missionCard.findViewById(R.id.card_header_icon)
         cardContent = missionCard.findViewById(R.id.card_content)
 
-
         cardHeader.setOnClickListener {
             if (cardContent.visibility == View.VISIBLE) {
                 // Collapse the card content
@@ -69,26 +69,25 @@ class MissionCard(
                 cardContent.visibility = View.VISIBLE
             }
         }
+        setupObserver()
     }
 
-    fun hide() {
-        missionCard.visibility = View.GONE
+    private fun setupObserver() {
+        missionViewModel = MissionListViewModel()
+        missionViewModel.getLatestMissionPlayerIsIn(fragment.viewLifecycleOwner, gameId, playerId)
+            .observe(fragment.viewLifecycleOwner, androidx.lifecycle.Observer { missionMap ->
+                if (missionMap.isEmpty()) {
+                    missionCard.visibility = View.GONE
+                } else {
+                    missionCard.visibility = View.VISIBLE
+                    showFirstMission(missionMap)
+                }
+            })
     }
 
-    fun show() {
-        missionCard.visibility = View.VISIBLE
-    }
-
-    fun onBind(mission: Mission, isAdmin: Boolean) {
-        if (isAdmin) {
-            cardHeaderIcon.visibility = View.VISIBLE
-            cardHeaderIcon.setOnClickListener {
-                NavigationUtil.navigateToMissionSettings(navController, mission.id)
-            }
-        } else {
-            cardHeaderIcon.visibility = View.GONE
-        }
-
+    private fun showFirstMission(missionMap: Map<String, Mission?>) {
+        val mission = missionMap.values.first()!!
+        cardHeaderIcon.visibility = View.GONE
         cardTitle.text = mission.name
         startTimeView.text = TimeUtils.getFormattedTime(mission.startTime, true)
         endTimeView.text = TimeUtils.getFormattedTime(mission.endTime, true)

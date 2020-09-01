@@ -97,7 +97,6 @@ class OrderedAnswerAdapter(
             return
         }
         (holder as OrderedAnswerViewHolder).onBind(
-            position,
             items[position]!!,
             position == itemCount - 1
         )

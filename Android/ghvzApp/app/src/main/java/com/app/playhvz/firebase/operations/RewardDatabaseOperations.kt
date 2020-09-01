@@ -93,7 +93,6 @@ class RewardDatabaseOperations {
         /** Update Reward. */
         suspend fun asyncUpdateReward(
             gameId: String,
-            rewardId: String,
             rewardDraft: Reward,
             successListener: () -> Unit,
             failureListener: () -> Unit

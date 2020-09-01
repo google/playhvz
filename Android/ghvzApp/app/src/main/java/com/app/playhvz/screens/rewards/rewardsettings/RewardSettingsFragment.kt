@@ -115,7 +115,7 @@ class RewardSettingsFragment : Fragment() {
 
         pointText.setText(REWARD_POINT_VALUE.toString())
         imageContainer.setOnClickListener {
-            if (rewardDraft == null) {
+            if (rewardDraft.id.isNullOrBlank()) {
                 return@setOnClickListener
             }
             val photoUrl: String? = rewardDraft.imageUrl
@@ -251,7 +251,6 @@ class RewardSettingsFragment : Fragment() {
                 EspressoIdlingResource.increment()
                 RewardDatabaseOperations.asyncUpdateReward(
                     gameId!!,
-                    rewardId!!,
                     rewardDraft,
                     {
                         SystemUtils.showToast(context, "Updated reward!")

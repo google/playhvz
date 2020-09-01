@@ -29,6 +29,7 @@ class Player {
         const val FIELD__CHAT_MEMBERSHIP_ALLOW_NOTIFICATIONS = "allowNotifications"
         const val FIELD__AVATAR_URL = "avatarUrl"
         const val FIELD__POINTS = "points"
+        const val FIELD__ALLEGIANCE = "allegiance"
     }
 
     var id: String? = null

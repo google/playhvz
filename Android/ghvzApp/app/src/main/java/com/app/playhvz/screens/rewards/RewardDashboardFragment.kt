@@ -113,15 +113,11 @@ class RewardDashboardFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
-            updateGame(serverGameAndAdminStatus)
-        })
-        rewardViewModel.getAllRewardsInGame(this, gameId!!)
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
+                updateGame(serverGameAndAdminStatus)
+            })
+        rewardViewModel.getAllRewardsInGame(gameId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverRewardList ->
                 updateRewardList(serverRewardList)
             })
@@ -157,7 +153,12 @@ class RewardDashboardFragment : Fragment() {
                     gameId!!,
                     rewardId,
                     selectedNumber,
-                    { SystemUtils.showToast(requireContext(), "Created claim codes! Click the count to refresh it") },
+                    {
+                        SystemUtils.showToast(
+                            requireContext(),
+                            "Created claim codes! Click the count to refresh it"
+                        )
+                    },
                     { SystemUtils.showToast(requireContext(), "Claim code generation failed") })
                 EspressoIdlingResource.decrement()
             }

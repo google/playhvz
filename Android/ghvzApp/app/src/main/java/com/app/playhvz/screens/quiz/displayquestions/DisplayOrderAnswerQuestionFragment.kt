@@ -70,7 +70,7 @@ class DisplayOrderAnswerQuestionFragment(val question: QuizQuestion) : Fragment(
 
         orderedAdapter = OrderedAnswerAdapter(
             requireContext(),
-            Array(correctlyOrderedAnswers.size, { i -> null })
+            Array(correctlyOrderedAnswers.size, { _ -> null })
         )
         optionAdapter.setOrderedAdapter(orderedAdapter)
         orderedAdapter.setOptionalAnswerAdapter(optionAdapter)

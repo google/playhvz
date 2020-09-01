@@ -106,7 +106,6 @@ class GameSettingsFragment : Fragment() {
         )!!
         playerViewModel = PlayerViewModel()
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
-        setupObservers()
     }
 
     override fun onCreateView(
@@ -159,13 +158,14 @@ class GameSettingsFragment : Fragment() {
 
         if (DebugFlags.isDevEnvironment && gameId != null) {
             val deleteButton = view.findViewById<MaterialButton>(R.id.delete_button)
-            deleteButton.icon = resources.getDrawable(R.drawable.ic_debug)
+            deleteButton.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_debug)
             deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener { showDeleteDialog() }
         }
 
         setupToolbar()
         initializeFields()
+        setupObservers()
         return view
     }
 
@@ -209,27 +209,23 @@ class GameSettingsFragment : Fragment() {
         if (gameId == null || playerId == null) {
             return
         }
-        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!) {
-            NavigationUtil.navigateToGameList(
-                findNavController(),
-                requireActivity()
-            )
-        }.observe(this, androidx.lifecycle.Observer { serverUpdate ->
-            if (hasChanges.value!! && !isSaving) {
-                // Someone else updated the game, show an error and ignore pending changes.
-                errorLabel.visibility = View.VISIBLE
-                disableActions()
-                return@Observer
-            } else {
-                errorLabel.visibility = View.GONE
-            }
+        gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverUpdate ->
+                if (hasChanges.value!! && !isSaving) {
+                    // Someone else updated the game, show an error and ignore pending changes.
+                    errorLabel.visibility = View.VISIBLE
+                    disableActions()
+                    return@Observer
+                } else {
+                    errorLabel.visibility = View.GONE
+                }
 
-            updateGame(serverUpdate)
-            if (serverUpdate != null) {
-                onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
-                listenToAdminOnCallPlayerUpdates()
-            }
-        })
+                updateGame(serverUpdate)
+                if (serverUpdate != null) {
+                    onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
+                    listenToAdminOnCallPlayerUpdates()
+                }
+            })
     }
 
     private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
@@ -294,10 +290,10 @@ class GameSettingsFragment : Fragment() {
 
     private fun createGame() {
         val name = nameView.text
-        val gameCreatedListener = OnSuccessListener<String> { gameId ->
+        val gameCreatedListener = OnSuccessListener<String> { _ ->
             SystemUtils.showToast(context, getString(R.string.create_game_success_toast, name))
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-            haveAdminCreatePlayer(gameId, name.toString())
+            haveAdminCreatePlayer(name.toString())
         }
         val gameExistsListener = {
             SystemUtils.showToast(context, "$name already exists!")
@@ -339,7 +335,7 @@ class GameSettingsFragment : Fragment() {
         onCallPlayerNameView.text = updatedPlayer.name
     }
 
-    private fun haveAdminCreatePlayer(gameId: String, gameName: String) {
+    private fun haveAdminCreatePlayer(gameName: String) {
         val joinGameDialog = JoinGameDialog(this)
         joinGameDialog.setGameName(gameName)
         activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }
