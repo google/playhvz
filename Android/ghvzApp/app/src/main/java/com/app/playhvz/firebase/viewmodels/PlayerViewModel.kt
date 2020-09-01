@@ -37,15 +37,13 @@ class PlayerViewModel : ViewModel() {
     /** Returns a Player LiveData object for the given id. */
     fun getPlayer(
         gameId: String,
-        playerId: String,
-        onFailureListener: () -> Unit
+        playerId: String
     ): LiveData<Player> {
         player.value = Player()
         player.docIdListeners[playerId] = PlayerPath.PLAYERS_COLLECTION(gameId).document(playerId)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
-                    onFailureListener.invoke()
                     return@addSnapshotListener
                 }
                 if (snapshot != null && snapshot.exists()) {

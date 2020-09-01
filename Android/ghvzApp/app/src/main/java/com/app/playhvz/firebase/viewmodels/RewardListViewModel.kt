@@ -36,7 +36,6 @@ class RewardListViewModel : ViewModel() {
 
     /** Listens to all reward updates and returns a LiveData object. */
     fun getAllRewardsInGame(
-        lifecycleOwner: LifecycleOwner,
         gameId: String
     ): LiveData<List<Reward>> {
         rewardList.docIdListeners[gameId] =

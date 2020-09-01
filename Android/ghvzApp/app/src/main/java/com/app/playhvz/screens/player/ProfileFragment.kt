@@ -160,9 +160,6 @@ class ProfileFragment : Fragment() {
         if (gameId.isNullOrEmpty()) {
             return
         }
-        val onFailure = {
-            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-        }
         if (isViewingMyOwnProfile) {
             // Get current user's player for this game
             if (currentUserPlayerId == null) {
@@ -173,12 +170,12 @@ class ProfileFragment : Fragment() {
                 currentUserPlayerId =
                     sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
             }
-            playerViewModel.getPlayer(gameId!!, currentUserPlayerId!!, onFailure)
+            playerViewModel.getPlayer(gameId!!, currentUserPlayerId!!)
                 .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                     updatePlayer(serverPlayer)
                 })
         } else {
-            playerViewModel.getPlayer(gameId!!, playerId!!, onFailure)
+            playerViewModel.getPlayer(gameId!!, playerId!!)
                 .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer ->
                     updatePlayer(serverPlayer)
                 })

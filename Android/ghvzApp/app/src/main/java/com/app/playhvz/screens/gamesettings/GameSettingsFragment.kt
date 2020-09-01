@@ -159,7 +159,7 @@ class GameSettingsFragment : Fragment() {
 
         if (DebugFlags.isDevEnvironment && gameId != null) {
             val deleteButton = view.findViewById<MaterialButton>(R.id.delete_button)
-            deleteButton.icon = resources.getDrawable(R.drawable.ic_debug)
+            deleteButton.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_debug)
             deleteButton.visibility = View.VISIBLE
             deleteButton.setOnClickListener { showDeleteDialog() }
         }
@@ -294,10 +294,10 @@ class GameSettingsFragment : Fragment() {
 
     private fun createGame() {
         val name = nameView.text
-        val gameCreatedListener = OnSuccessListener<String> { gameId ->
+        val gameCreatedListener = OnSuccessListener<String> { _ ->
             SystemUtils.showToast(context, getString(R.string.create_game_success_toast, name))
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-            haveAdminCreatePlayer(gameId, name.toString())
+            haveAdminCreatePlayer(name.toString())
         }
         val gameExistsListener = {
             SystemUtils.showToast(context, "$name already exists!")
@@ -322,10 +322,7 @@ class GameSettingsFragment : Fragment() {
             onCallPlayerLayout.visibility = View.GONE
             return
         }
-        val onFailure = {
-            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-        }
-        playerViewModel.getPlayer(gameId!!, onCallAdminPlayerId!!, onFailure)
+        playerViewModel.getPlayer(gameId!!, onCallAdminPlayerId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverPlayer: Player? ->
                 if (serverPlayer == null) {
                     onCallPlayerLayout.visibility = View.GONE
@@ -342,7 +339,7 @@ class GameSettingsFragment : Fragment() {
         onCallPlayerNameView.text = updatedPlayer.name
     }
 
-    private fun haveAdminCreatePlayer(gameId: String, gameName: String) {
+    private fun haveAdminCreatePlayer(gameName: String) {
         val joinGameDialog = JoinGameDialog(this)
         joinGameDialog.setGameName(gameName)
         activity?.supportFragmentManager?.let { joinGameDialog.show(it, TAG) }

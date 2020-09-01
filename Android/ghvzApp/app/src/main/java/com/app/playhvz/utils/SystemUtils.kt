@@ -25,6 +25,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_GAME_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
+import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 
 /** Util for common system functions. */
 class SystemUtils {
@@ -59,6 +60,10 @@ class SystemUtils {
             editor.putString(CURRENT_GAME_ID, null)
             editor.putString(CURRENT_PLAYER_ID, null)
             editor.apply()
+        }
+
+        fun isUserSignedIn(): Boolean {
+            return FirebaseProvider.getFirebaseAuth().currentUser != null
         }
     }
 }

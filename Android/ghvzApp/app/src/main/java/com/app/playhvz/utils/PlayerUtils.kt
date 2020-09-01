@@ -147,8 +147,7 @@ class PlayerUtils {
         fun getPlayerListInGroup(
             liveData: HvzData<List<Player>>,
             gameId: String,
-            group: Group,
-            nameFilter: String?
+            group: Group
         ) {
             // Logic for filtering on start string is courtesy of:
             // https://firebase.google.com/docs/database/admin/retrieve-data#range-queries

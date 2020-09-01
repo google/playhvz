@@ -52,12 +52,11 @@ class QuizViewHolder(
     private lateinit var question: QuizQuestion
 
     private val onOtherOptionSelected: (adapterPosition: Int, menuItemId: Int) -> Boolean =
-        { adapterPosition: Int, menuItemId: Int ->
+        { _: Int, menuItemId: Int ->
             if (menuItemId == R.id.edit_option) {
                 navigateToQuestionSettings()
-                true
             }
-            false
+            true
         }
 
     init {

@@ -133,7 +133,7 @@ class TakeQuizFragment : Fragment(), OnUpdateNextButtonInterface {
         }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
-        quizQuestionLiveData = questionViewModel.getGameQuizQuestions(viewLifecycleOwner, gameId!!)
+        quizQuestionLiveData = questionViewModel.getGameQuizQuestions(gameId!!)
         var allowedUpdates = 2
         quizQuestionLiveData.observe(
             viewLifecycleOwner,

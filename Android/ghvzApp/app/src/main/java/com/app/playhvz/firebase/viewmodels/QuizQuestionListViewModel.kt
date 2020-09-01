@@ -33,7 +33,6 @@ class QuizQuestionListViewModel : ViewModel() {
 
     /** Listens to all question updates and returns a LiveData object. */
     fun getGameQuizQuestions(
-        lifecycleOwner: LifecycleOwner,
         gameId: String
     ): HvzData<List<QuizQuestion>> {
         questionList.docIdListeners[gameId] =

@@ -53,7 +53,6 @@ class ChatRoomViewModel : ViewModel() {
 
     /** Listens to a chat room's updates and returns a LiveData object of the chat room. */
     fun getChatRoomObserver(
-        lifecycleOwner: LifecycleOwner,
         gameId: String,
         chatRoomId: String
     ): LiveData<ChatRoom> {
@@ -74,7 +73,6 @@ class ChatRoomViewModel : ViewModel() {
 
     /** Listens to a chat room's messages and returns a LiveData object listing them. */
     fun getMessagesObserver(
-        lifecycleOwner: LifecycleOwner,
         gameId: String,
         chatRoomId: String
     ): LiveData<List<Message>> {
@@ -102,7 +100,6 @@ class ChatRoomViewModel : ViewModel() {
 
     /** Listens to a chat room's members and returns a LiveData object listing them. */
     fun getGroupObserver(
-        lifecycleOwner: LifecycleOwner,
         gameId: String,
         chatRoomId: String
     ): LiveData<Group> {

@@ -116,7 +116,7 @@ class PlayerSearchWithinGroupDialog(val gameId: String, val group: Group?, val o
             return
         }
         latestQueryFilter = nameFilter
-        PlayerUtils.getPlayerListInGroup(playerListLiveData, gameId, group, nameFilter)
+        PlayerUtils.getPlayerListInGroup(playerListLiveData, gameId, group)
     }
 
     private fun onPlayerListUpdated(updatedList: List<Player>) {

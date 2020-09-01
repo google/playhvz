@@ -99,7 +99,7 @@ class RewardSelectorDialog(
         }
         positiveButton.visibility = View.GONE
         val negativeButton = customView.findViewById<MaterialButton>(R.id.negative_button)
-        negativeButton.setText(cancelResId!!)
+        negativeButton.setText(cancelResId)
         negativeButton.setOnClickListener {
             dialog?.dismiss()
         }

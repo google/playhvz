@@ -133,7 +133,7 @@ class QuizDashboardFragment : Fragment() {
         }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
-        questionViewModel.getGameQuizQuestions(this, gameId!!)
+        questionViewModel.getGameQuizQuestions(gameId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { questionList ->
                 updateQuestionList(questionList)
             })

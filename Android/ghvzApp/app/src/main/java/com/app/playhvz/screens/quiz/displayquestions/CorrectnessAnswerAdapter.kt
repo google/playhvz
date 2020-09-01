@@ -33,7 +33,7 @@ class CorrectnessAnswerAdapter(
         private val TAG = CorrectnessAnswerAdapter::class.qualifiedName
     }
 
-    private val selectedAnswers = BooleanArray(items.size, { i -> false })
+    private val selectedAnswers = BooleanArray(items.size, { _ -> false })
 
     private val selectAnswer = { adapterPosition: Int ->
         selectedAnswers[adapterPosition] = !selectedAnswers[adapterPosition]

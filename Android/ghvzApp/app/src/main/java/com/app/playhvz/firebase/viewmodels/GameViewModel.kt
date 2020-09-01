@@ -26,7 +26,9 @@ import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Group
 import com.app.playhvz.firebase.constants.GamePath
 import com.app.playhvz.firebase.constants.GroupPath
+import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.DataConverterUtil
+import com.app.playhvz.utils.SystemUtils
 
 class GameViewModel() : ViewModel() {
     companion object {
@@ -83,7 +85,11 @@ class GameViewModel() : ViewModel() {
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
-                    onFailureListener.invoke()
+                    if (SystemUtils.isUserSignedIn()) {
+                        onFailureListener.invoke()
+                    }
+                    // If the user signed out then do nothing on failure, we already redirected to
+                    // the sign in activity.
                     return@addSnapshotListener
                 }
                 if (snapshot == null || !snapshot.exists()) {

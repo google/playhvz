@@ -48,12 +48,10 @@ class MultichoiceAnswerViewHolder(
         { adapterPosition: Int, menuItemId: Int ->
             if (menuItemId == R.id.delete_option) {
                 onDelete.invoke(adapterPosition)
-                true
             } else if (menuItemId == R.id.edit_option) {
                 onEdit.invoke(adapterPosition)
-                true
             }
-            false
+            true
         }
 
     init {

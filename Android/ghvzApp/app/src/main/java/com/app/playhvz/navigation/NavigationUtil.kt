@@ -46,6 +46,10 @@ import com.app.playhvz.screens.rules_faq.CollapsibleListFragmentDirections
 
 class NavigationUtil {
     companion object {
+        fun navigateToSignIn() {
+
+        }
+
         /**
          * Opens the home page for the game. This does NOT overwrite the saved game id in shared
          * preferences.

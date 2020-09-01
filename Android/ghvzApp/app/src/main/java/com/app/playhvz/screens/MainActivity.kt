@@ -43,7 +43,6 @@ import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRE
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.CURRENT_PLAYER_ID
 import com.app.playhvz.common.globals.SharedPreferencesConstants.Companion.PREFS_FILENAME
 import com.app.playhvz.common.playersearch.GlobalPlayerSearchDialog
-import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.operations.ChatDatabaseOperations
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
 import com.app.playhvz.firebase.viewmodels.GameViewModel
@@ -242,6 +241,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
             R.id.nav_sign_out -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
+                prefs!!.unregisterOnSharedPreferenceChangeListener(gameIdPreferenceListener)
+                Log.d(TAG, "lizard signed user out")
                 startActivity(SignInActivity.getLaunchIntent(this, /* signOut= */true))
             }
         }
@@ -343,11 +344,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun listenToGameUpdates(gameId: String?) {
-        if (FirebaseProvider.getFirebaseAuth().currentUser == null) {
-            // The user signed out and the game id was cleared. Do nothing with game navigation.
-            Log.d(TAG, "User was signed out, doing nothing with game navigation.")
-            return
-        }
         if (gameId.isNullOrEmpty() || getCurrentPlayerId() == null) {
             if (isAdmin) {
                 isAdmin = false

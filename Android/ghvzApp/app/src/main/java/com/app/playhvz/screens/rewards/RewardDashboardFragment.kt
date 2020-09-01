@@ -121,7 +121,7 @@ class RewardDashboardFragment : Fragment() {
         }.observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGameAndAdminStatus ->
             updateGame(serverGameAndAdminStatus)
         })
-        rewardViewModel.getAllRewardsInGame(this, gameId!!)
+        rewardViewModel.getAllRewardsInGame(gameId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverRewardList ->
                 updateRewardList(serverRewardList)
             })

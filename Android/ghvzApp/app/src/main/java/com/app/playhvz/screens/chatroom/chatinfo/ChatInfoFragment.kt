@@ -144,7 +144,7 @@ class ChatInfoFragment : Fragment() {
         if (gameId.isNullOrEmpty() || playerId.isNullOrEmpty()) {
             return
         }
-        chatViewModel.getGroupObserver(this, gameId!!, chatRoomId)
+        chatViewModel.getGroupObserver(gameId!!, chatRoomId)
             .observe(this, androidx.lifecycle.Observer { serverGroup ->
                 onGroupUpdated(serverGroup)
             })

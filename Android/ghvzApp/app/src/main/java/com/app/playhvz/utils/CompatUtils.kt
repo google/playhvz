@@ -31,6 +31,7 @@ import com.app.playhvz.R
 class CompatUtils {
 
     // All static methods or variables go inside this companion object.
+    @Suppress("DEPRECATION")
     companion object {
         private val TAG = CompatUtils::class.qualifiedName
 
