@@ -28,7 +28,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.app.HvzData
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
@@ -53,7 +52,12 @@ class LeaderboardFragment : Fragment() {
     private lateinit var toolbar: ActionBar
     private lateinit var toolbarMenu: Menu
 
-    private val allegianceFilter: HvzData<String?> = HvzData(null)
+    private val onPlayerListUpdated = { playerList: List<Player?> ->
+        if (playerList.isNotEmpty()) {
+            progressBar.visibility = View.GONE
+        }
+        onPlayerListUpdated(playerList)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,16 +118,8 @@ class LeaderboardFragment : Fragment() {
         if (gameId.isNullOrEmpty()) {
             return
         }
-        leaderboardViewModel.getLeaderboard(gameId!!, allegianceFilter, viewLifecycleOwner).observe(
-            viewLifecycleOwner, androidx.lifecycle.Observer { playerList ->
-                if (playerList.isNotEmpty()) {
-                    progressBar.visibility = View.GONE
-                }
-                onPlayerListUpdated(playerList)
-            }
-        )
-        // We need to trigger the leaderboard's observer on the livedata so set it to blank
-        allegianceFilter.value = ""
+
+        leaderboardViewModel.getLeaderboard(gameId!!, null, viewLifecycleOwner, onPlayerListUpdated)
     }
 
     private fun onPlayerListUpdated(serverPlayerList: List<Player?>) {
@@ -139,13 +135,28 @@ class LeaderboardFragment : Fragment() {
             }
             when (item.itemId) {
                 R.id.human_option -> {
-                    allegianceFilter.value = HUMAN
+                    leaderboardViewModel.getLeaderboard(
+                        gameId!!,
+                        HUMAN,
+                        viewLifecycleOwner,
+                        onPlayerListUpdated
+                    )
                 }
                 R.id.zombie_option -> {
-                    allegianceFilter.value = ZOMBIE
+                    leaderboardViewModel.getLeaderboard(
+                        gameId!!,
+                        ZOMBIE,
+                        viewLifecycleOwner,
+                        onPlayerListUpdated
+                    )
                 }
                 else -> {
-                    allegianceFilter.value = null
+                    leaderboardViewModel.getLeaderboard(
+                        gameId!!,
+                        null,
+                        viewLifecycleOwner,
+                        onPlayerListUpdated
+                    )
                 }
             }
             return@setOnMenuItemClickListener true

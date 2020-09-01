@@ -24,7 +24,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
-import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.viewmodels.LeaderboardViewModel
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragment
@@ -32,6 +31,7 @@ import com.app.playhvz.screens.leaderboard.MemberAdapter
 import com.app.playhvz.utils.PlayerUtils
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import java.util.*
 
 class LeaderboardCard(
     val fragment: GameDashboardFragment,
@@ -49,7 +49,6 @@ class LeaderboardCard(
     private lateinit var cardContent: ConstraintLayout
 
     private var player: Player? = null
-    private val allegianceFilter: HvzData<String?> = HvzData(null)
 
     override fun onCreateView(view: View) {
         leaderboardViewModel = LeaderboardViewModel()
@@ -70,6 +69,7 @@ class LeaderboardCard(
                     fragment.findNavController()
                 )
             })
+
         val layoutManager = LinearLayoutManager(fragment.requireContext())
         leaderboardRecyclerView.layoutManager = layoutManager
         leaderboardRecyclerView.adapter = leaderboardAdapter
@@ -83,28 +83,15 @@ class LeaderboardCard(
                 cardContent.visibility = View.VISIBLE
             }
         }
-
-        leaderboardViewModel.getLeaderboard(
-            gameId,
-            allegianceFilter,
-            fragment.viewLifecycleOwner,
-            /* pageLimit= */ 3
-        ).observe(
-            fragment.viewLifecycleOwner, androidx.lifecycle.Observer { playerList ->
-                onPlayerListUpdated(playerList)
-            }
-        )
-        // We need to trigger the leaderboard's observer on the livedata so set it to blank
-        allegianceFilter.value = ""
     }
 
     override fun onPlayerUpdated(updatedPlayer: Player) {
         player = updatedPlayer
-        allegianceFilter.value = updatedPlayer.allegiance
         var allegiance = updatedPlayer.allegiance
         if (allegiance.isNotEmpty()) {
             allegiance =
-                allegiance.substring(0, 1).toUpperCase() + allegiance.substring(1).toLowerCase()
+                allegiance.substring(0, 1)
+                    .toUpperCase(Locale.getDefault()) + allegiance.substring(1)
             cardTitle.setText(
                 fragment.resources.getString(
                     R.string.leaderboard_card_title,
@@ -112,6 +99,18 @@ class LeaderboardCard(
                 )
             )
         }
+
+        val onPlayerListUpdated = { playerList: List<Player?> ->
+            onPlayerListUpdated(playerList)
+        }
+
+        leaderboardViewModel.getLeaderboard(
+            gameId,
+            updatedPlayer.allegiance,
+            fragment.viewLifecycleOwner,
+            onPlayerListUpdated,
+            /* maxListSize= */ 3
+        )
     }
 
     private fun onPlayerListUpdated(serverPlayerList: List<Player?>) {

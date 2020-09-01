@@ -19,15 +19,15 @@ package com.app.playhvz.firebase.viewmodels
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.observe
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.LeaderboardDatabaseOperations.Companion.PAGINATION_LIMIT
 import com.app.playhvz.firebase.operations.LeaderboardDatabaseOperations.Companion.getPlayersByAllegianceAndScoreQuery
 import com.app.playhvz.firebase.operations.LeaderboardDatabaseOperations.Companion.getPlayersByScoreQuery
 import com.app.playhvz.firebase.utils.DataConverterUtil
-import com.google.firebase.firestore.Query
+import kotlin.collections.set
 
 class LeaderboardViewModel : ViewModel() {
     companion object {
@@ -35,43 +35,42 @@ class LeaderboardViewModel : ViewModel() {
     }
 
     private var playerList: HvzData<List<Player?>> = HvzData()
-    private var query: Query? = null
 
-    /** Returns a LiveData ordered list of players. */
+    /** Returns a LiveData ordered list of players. Safe to call this multiple times. */
     fun getLeaderboard(
         gameId: String,
-        allegianceFilter: LiveData<String?>,
+        allegianceFilter: String?,
         lifecycleOwner: LifecycleOwner,
-        pageLimit: Long = PAGINATION_LIMIT
+        onPlayerListUpdated: (list: List<Player?>) -> Unit,
+        maxListSize: Long = PAGINATION_LIMIT
     ): LiveData<List<Player?>> {
+        playerList.removeObservers(lifecycleOwner)
+        if (playerList.docIdListeners[gameId] != null) {
+            playerList.docIdListeners[gameId]!!.remove()
+        }
         playerList.value = listOf()
+        playerList.observe(lifecycleOwner, onPlayerListUpdated)
 
-        allegianceFilter.observe(lifecycleOwner, Observer {
-            if (query != null) {
-                playerList.docIdListeners[gameId]!!.remove()
-            }
+        val query = if (allegianceFilter.isNullOrBlank()) {
+            getPlayersByScoreQuery(gameId)
+        } else {
+            getPlayersByAllegianceAndScoreQuery(gameId, allegianceFilter, maxListSize)
+        }
 
-            query = if (allegianceFilter.value.isNullOrBlank()) {
-                getPlayersByScoreQuery(gameId)
-            } else {
-                getPlayersByAllegianceAndScoreQuery(gameId, allegianceFilter.value!!, pageLimit)
+        playerList.docIdListeners[gameId] = query!!.addSnapshotListener { querySnapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed ", e)
+                return@addSnapshotListener
             }
-
-            playerList.docIdListeners[gameId] = query!!.addSnapshotListener { querySnapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Listen failed ", e)
-                    return@addSnapshotListener
-                }
-                if (querySnapshot == null || querySnapshot.isEmpty) {
-                    playerList.value = listOf()
-                }
-                val players: MutableList<Player> = mutableListOf()
-                for (doc in querySnapshot!!) {
-                    players.add(DataConverterUtil.convertSnapshotToPlayer(doc))
-                }
-                playerList.value = players
+            if (querySnapshot == null || querySnapshot.isEmpty) {
+                playerList.value = listOf()
             }
-        })
+            val players: MutableList<Player> = mutableListOf()
+            for (doc in querySnapshot!!) {
+                players.add(DataConverterUtil.convertSnapshotToPlayer(doc))
+            }
+            playerList.value = players
+        }
         return playerList
     }
 
