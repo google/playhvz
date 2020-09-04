@@ -38,6 +38,7 @@ import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.app.HvzData
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.ConfirmationDialog
+import com.app.playhvz.common.DateTimePickerDialog
 import com.app.playhvz.common.UserAvatarPresenter
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.common.playersearch.ChatPlayerSearchDialog
@@ -55,6 +56,7 @@ import com.app.playhvz.screens.chatroom.chatinfo.MemberAdapter
 import com.app.playhvz.screens.gamelist.JoinGameDialog
 import com.app.playhvz.utils.PlayerHelper
 import com.app.playhvz.utils.SystemUtils
+import com.app.playhvz.utils.TimeUtils
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
@@ -69,25 +71,27 @@ class GameSettingsFragment : Fragment() {
     private lateinit var adminRecyclerView: RecyclerView
     private lateinit var addAdminButton: MaterialButton
     private lateinit var adminAdapter: MemberAdapter
-    private lateinit var gameViewModel: GameViewModel
+    private lateinit var endTime: TextView
     private lateinit var errorLabel: TextView
-    private lateinit var groupViewModel: GroupViewModel
-    private lateinit var playerViewModel: PlayerViewModel
-    private lateinit var nameView: EmojiEditText
-    private lateinit var submitButton: Button
+    private lateinit var gameDraft: Game
     private lateinit var gameNameErrorLabel: TextView
-    private lateinit var progressBar: ProgressBar
+    private lateinit var gameViewModel: GameViewModel
+    private lateinit var groupViewModel: GroupViewModel
     private lateinit var itemsToHideDuringCreation: LinearLayout
+    private lateinit var nameView: EmojiEditText
     private lateinit var onCallPlayerLayout: LinearLayout
     private lateinit var onCallPlayerAvatarView: ConstraintLayout
     private lateinit var onCallPlayerNameView: TextView
     private lateinit var onCallPlayerIconView: MaterialButton
+    private lateinit var playerViewModel: PlayerViewModel
+    private lateinit var progressBar: ProgressBar
+    private lateinit var startTime: TextView
+    private lateinit var submitButton: Button
 
     private val args: GameSettingsFragmentArgs by navArgs()
     private var adminGroup: Group? = null
     private var gameId: String? = null
     private var playerId: String? = null
-    private var game: Game? = null
     private var hasChanges = HvzData<Boolean>(false)
     private var isSaving = false
     private var onCallAdminPlayerId: String? = null
@@ -98,13 +102,14 @@ class GameSettingsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         gameId = args.gameId
+        gameDraft = Game()
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        playerViewModel = PlayerViewModel()
         groupViewModel = GroupViewModel()
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,
             0
         )!!
-        playerViewModel = PlayerViewModel()
         playerId = sharedPrefs.getString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
     }
 
@@ -124,6 +129,8 @@ class GameSettingsFragment : Fragment() {
         onCallPlayerAvatarView = onCallPlayerLayout.findViewById(R.id.player_avatar_container)!!
         onCallPlayerNameView = onCallPlayerLayout.findViewById(R.id.player_name)!!
         onCallPlayerIconView = onCallPlayerLayout.findViewById(R.id.additional_icon)!!
+        startTime = view.findViewById(R.id.start_time)
+        endTime = view.findViewById(R.id.end_time)
         addAdminButton = view.findViewById(R.id.add_admin_button)
         adminRecyclerView = view.findViewById(R.id.admin_list)
         adminRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -149,11 +156,14 @@ class GameSettingsFragment : Fragment() {
         }
 
         submitButton.setOnClickListener { _ ->
-            if (gameId == null) {
-                createGame()
-            } else {
-                saveChanges()
-            }
+            saveChanges()
+        }
+
+        startTime.setOnClickListener { v ->
+            openTimePicker(v as TextView)
+        }
+        endTime.setOnClickListener { v ->
+            openTimePicker(v as TextView)
         }
 
         if (DebugFlags.isDevEnvironment && gameId != null) {
@@ -164,7 +174,6 @@ class GameSettingsFragment : Fragment() {
         }
 
         setupToolbar()
-        initializeFields()
         setupObservers()
         return view
     }
@@ -172,6 +181,7 @@ class GameSettingsFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_save_settings, menu)
         toolbarMenu = menu
+        disableActions()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -193,22 +203,49 @@ class GameSettingsFragment : Fragment() {
         val toolbar = (activity as AppCompatActivity).supportActionBar
         if (toolbar != null) {
             toolbar.title =
-                if (game == null || game?.name.isNullOrEmpty()) requireContext().getString(R.string.game_settings_create_game_toolbar_title)
-                else game?.name
+                if (gameDraft.name.isNullOrEmpty()) {
+                    requireContext().getString(
+                        R.string.game_settings_create_game_toolbar_title
+                    )
+                } else {
+                    gameDraft.name
+                }
         }
     }
 
     private fun setupObservers() {
-        hasChanges.observe(this, androidx.lifecycle.Observer { updatedHasChanges ->
-            if (updatedHasChanges) {
+        if (gameId == null || playerId == null) {
+            progressBar.visibility = View.GONE
+            itemsToHideDuringCreation.visibility = View.GONE
+            hasChanges.value = true
+
+            nameView.doOnTextChanged { text, _, _, _ ->
+                gameDraft.name = text.toString()
+                when {
+                    text.isNullOrEmpty() -> {
+                        disableActions()
+                    }
+                    text.contains(Regex("\\s")) -> {
+                        disableActions()
+                        gameNameErrorLabel.setText(R.string.error_whitespace)
+                        gameNameErrorLabel.visibility = View.VISIBLE
+                        return@doOnTextChanged
+                    }
+                    else -> {
+                        enableActions()
+                    }
+                }
+                gameNameErrorLabel.visibility = View.GONE
+            }
+            return
+        }
+        hasChanges.observe(viewLifecycleOwner, androidx.lifecycle.Observer { nowHasChanges ->
+            if (nowHasChanges) {
                 enableActions()
             } else {
                 disableActions()
             }
         })
-        if (gameId == null || playerId == null) {
-            return
-        }
         gameViewModel.getGameAndAdminObserver(this, gameId!!, playerId!!)
             .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverUpdate ->
                 if (hasChanges.value!! && !isSaving) {
@@ -219,8 +256,7 @@ class GameSettingsFragment : Fragment() {
                 } else {
                     errorLabel.visibility = View.GONE
                 }
-
-                updateGame(serverUpdate)
+                onGameUpdated(serverUpdate)
                 if (serverUpdate != null) {
                     onCallAdminPlayerId = serverUpdate.game?.adminOnCallPlayerId
                     listenToAdminOnCallPlayerUpdates()
@@ -228,22 +264,20 @@ class GameSettingsFragment : Fragment() {
             })
     }
 
-    private fun updateGame(serverUpdate: GameViewModel.GameWithAdminStatus?) {
+    private fun onGameUpdated(serverUpdate: GameViewModel.GameWithAdminStatus?) {
         if (serverUpdate == null || serverUpdate.game == null) {
             NavigationUtil.navigateToGameList(findNavController(), requireActivity())
         }
-        game = serverUpdate!!.game
-
-        groupViewModel.getGroup(gameId!!, game!!.adminGroupId!!)
-            .observe(this, androidx.lifecycle.Observer { serverGroup: Group? ->
-                updateAdminGroup(serverGroup)
+        gameDraft = serverUpdate!!.game!!
+        groupViewModel.getGroup(gameId!!, gameDraft.adminGroupId!!)
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { serverGroup: Group? ->
+                onAdminGroupUpdated(serverGroup)
             })
-
         setupToolbar()
         initializeFields()
     }
 
-    private fun updateAdminGroup(serverGroup: Group?) {
+    private fun onAdminGroupUpdated(serverGroup: Group?) {
         if (serverGroup == null) {
             return
         }
@@ -252,65 +286,22 @@ class GameSettingsFragment : Fragment() {
         adminAdapter.setGroupOwnerPlayerId(serverGroup.owners)
         adminAdapter.setCanRemovePlayer(serverGroup.settings.canRemoveOthers)
         playerHelper.getListOfPlayers(gameId!!, members)
-            .observe(this, androidx.lifecycle.Observer { playerMap ->
+            .observe(viewLifecycleOwner, androidx.lifecycle.Observer { playerMap ->
                 adminAdapter.setData(playerMap)
                 adminAdapter.notifyDataSetChanged()
             })
     }
 
     private fun initializeFields() {
-        if (gameId != null) {
-            // Disable changing name of already created game
-            nameView.setText(game?.name)
-            nameView.isEnabled = false
-            nameView.isFocusable = false
-            disableActions()
-        } else {
-            // Setup UI for creating a new game
-            itemsToHideDuringCreation.visibility = View.GONE
-            nameView.doOnTextChanged { text, _, _, _ ->
-                when {
-                    text.isNullOrEmpty() -> {
-                        submitButton.isEnabled = false
-                    }
-                    text.contains(Regex("\\s")) -> {
-                        submitButton.isEnabled = false
-                        gameNameErrorLabel.setText(R.string.error_whitespace)
-                        gameNameErrorLabel.visibility = View.VISIBLE
-                        return@doOnTextChanged
-                    }
-                    else -> {
-                        submitButton.setEnabled(true)
-                    }
-                }
-                gameNameErrorLabel.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun createGame() {
-        val name = nameView.text
-        val gameCreatedListener = OnSuccessListener<String> { _ ->
-            SystemUtils.showToast(context, getString(R.string.create_game_success_toast, name))
-            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
-            haveAdminCreatePlayer(name.toString())
-        }
-        val gameExistsListener = {
-            SystemUtils.showToast(context, "$name already exists!")
-            progressBar.visibility = View.INVISIBLE
-            gameNameErrorLabel.setText(resources.getString(R.string.create_game_error_exists, name))
-            gameNameErrorLabel.visibility = View.VISIBLE
-        }
-        runBlocking {
-            EspressoIdlingResource.increment()
-            progressBar.visibility = View.VISIBLE
-            GameDatabaseOperations.asyncTryToCreateGame(
-                name.toString(),
-                gameCreatedListener,
-                gameExistsListener
-            )
-            EspressoIdlingResource.decrement()
-        }
+        disableActions()
+        // Disable changing name of already created game
+        nameView.setText(gameDraft.name)
+        nameView.isEnabled = false
+        nameView.isFocusable = false
+        startTime.text =
+            TimeUtils.getFormattedTime(gameDraft.startTime, /* singleLine= */ false)
+        endTime.text =
+            TimeUtils.getFormattedTime(gameDraft.endTime, /* singleLine= */ false)
     }
 
     private fun listenToAdminOnCallPlayerUpdates() {
@@ -355,20 +346,26 @@ class GameSettingsFragment : Fragment() {
     }
 
     private fun saveChanges() {
-        if (!hasChanges.value!! || errorLabel.visibility == View.VISIBLE || game == null) {
-            return
-        }
+        progressBar.visibility = View.VISIBLE
         isSaving = true
         disableActions()
-        progressBar.visibility = View.VISIBLE
+
+        if (gameId == null) {
+            createGame()
+            return
+        }
+        if (!hasChanges.value!! || errorLabel.visibility == View.VISIBLE) {
+            return
+        }
+
         val onSuccess = {
             NavigationUtil.navigateToGameDashboard(findNavController(), gameId)
         }
-        game?.adminOnCallPlayerId = onCallAdminPlayerId
+        gameDraft.adminOnCallPlayerId = onCallAdminPlayerId
         runBlocking {
             EspressoIdlingResource.increment()
             GameDatabaseOperations.asyncUpdateGame(
-                game!!,
+                gameDraft,
                 onSuccess,
                 {
                     isSaving = false
@@ -380,9 +377,36 @@ class GameSettingsFragment : Fragment() {
         }
     }
 
+    private fun createGame() {
+        gameDraft.name = nameView.text.toString()
+        val name = nameView.text
+        val onSuccess = OnSuccessListener<String> { _ ->
+            SystemUtils.showToast(context, getString(R.string.create_game_success_toast, name))
+            NavigationUtil.navigateToGameList(findNavController(), requireActivity())
+            haveAdminCreatePlayer(name.toString())
+        }
+        val onError = {
+            SystemUtils.showToast(context, "$name already exists!")
+            progressBar.visibility = View.GONE
+            gameNameErrorLabel.setText(resources.getString(R.string.create_game_error_exists, name))
+            gameNameErrorLabel.visibility = View.VISIBLE
+            enableActions()
+        }
+        runBlocking {
+            EspressoIdlingResource.increment()
+            progressBar.visibility = View.VISIBLE
+            GameDatabaseOperations.asyncTryToCreateGame(
+                gameDraft,
+                onSuccess,
+                onError
+            )
+            EspressoIdlingResource.decrement()
+        }
+    }
+
     private fun showDeleteDialog() {
         val deleteDialog = ConfirmationDialog(
-            getString(R.string.game_settings_delete_dialog_title, game?.name),
+            getString(R.string.game_settings_delete_dialog_title, gameDraft.name),
             R.string.game_settings_delete_dialog_description,
             R.string.game_settings_delete_dialog_confirmation,
             R.string.game_settings_delete_dialog_cancel
@@ -418,7 +442,7 @@ class GameSettingsFragment : Fragment() {
                 GroupDatabaseOperations.asyncRemovePlayerFromGroup(
                     gameId!!,
                     player.id!!,
-                    game!!.adminGroupId!!,
+                    gameDraft.adminGroupId!!,
                     {
                         SystemUtils.showToast(requireContext(), "Successfully removed player")
                     },
@@ -441,7 +465,7 @@ class GameSettingsFragment : Fragment() {
     }
 
     private fun enableActions() {
-        if (toolbarMenu == null) {
+        if (toolbarMenu == null || gameDraft.name.isNullOrBlank()) {
             return
         }
         progressBar.visibility = View.GONE
@@ -451,4 +475,26 @@ class GameSettingsFragment : Fragment() {
         submitButton.isEnabled = true
     }
 
+    private fun openTimePicker(clickedView: TextView) {
+        val dateTimeDialog = DateTimePickerDialog { timestamp ->
+            clickedView.text = TimeUtils.getFormattedTime(timestamp, /* singleLine= */ false)
+            if (clickedView.tag == getString(R.string.settings_start_time_tag)) {
+                gameDraft.startTime = timestamp
+            } else {
+                gameDraft.endTime = timestamp
+            }
+            hasChanges.value = true
+        }
+        // Initialize the picker time. If time isn't set then will auto fill to current date.
+        if (clickedView.tag == getString(R.string.settings_start_time_tag)) {
+            if (gameDraft.startTime != Game.EMPTY_TIMESTAMP) {
+                dateTimeDialog.setDateTime(gameDraft.startTime)
+            }
+        } else {
+            if (gameDraft.endTime != Game.EMPTY_TIMESTAMP) {
+                dateTimeDialog.setDateTime(gameDraft.endTime)
+            }
+        }
+        activity?.supportFragmentManager?.let { dateTimeDialog.show(it, TAG) }
+    }
 }

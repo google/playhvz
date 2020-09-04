@@ -14,148 +14,160 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  android:paddingStart="@dimen/screen_margin_horizontal"
-  android:paddingEnd="@dimen/screen_margin_horizontal">
+  android:layout_height="match_parent">
 
-  <ProgressBar
-    android:id="@+id/progress_bar"
-    style="?android:attr/progressBarStyleHorizontal"
+  <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/horizontal_progress_bar_height"
-    android:indeterminate="true"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingStart="@dimen/screen_margin_horizontal"
-    android:paddingEnd="@dimen/screen_margin_horizontal"
-    android:visibility="invisible" />
+    android:paddingEnd="@dimen/screen_margin_horizontal">
 
-  <TextView
-    android:id="@+id/error_label"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/change_conflict_error_label"
-    android:textColor="@color/red"
-    android:visibility="gone" />
+    <ProgressBar
+      android:id="@+id/progress_bar"
+      style="?android:attr/progressBarStyleHorizontal"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/horizontal_progress_bar_height"
+      android:indeterminate="true"
+      android:paddingStart="@dimen/screen_margin_horizontal"
+      android:paddingEnd="@dimen/screen_margin_horizontal"
+      android:visibility="invisible" />
 
-  <TextView
-    style="@style/TextInputLabel"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/game_settings_game_name_label" />
-
-  <androidx.emoji.widget.EmojiEditText
-    android:id="@+id/game_name"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="@string/game_settings_game_name_hint_text"
-    android:inputType="textCapSentences|textNoSuggestions"
-    android:maxLength="40"
-    android:maxLines="1" />
-
-  <TextView
-    android:id="@+id/game_name_error_label"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textColor="@color/red"
-    android:visibility="gone" />
-
-  <TextView
-    style="@style/TextInputSubLabel"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/game_settings_game_name_sublabel" />
-
-  <LinearLayout
-    android:id="@+id/items_to_hide_during_creation"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <RelativeLayout
+    <TextView
+      android:id="@+id/error_label"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:minHeight="@dimen/tap_target_min">
+      android:text="@string/change_conflict_error_label"
+      android:textColor="@color/red"
+      android:visibility="gone" />
 
-      <TextView
-        android:id="@+id/admin_on_call_title"
-        style="@style/TextInputLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="@string/game_settings_admin_on_call_title" />
-
-      <include
-        android:id="@+id/on_call_player"
-        layout="@layout/list_item_player"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/admin_on_call_title"
-        app:layout_constraintStart_toStartOf="parent" />
-
-      <TextView
-        android:id="@+id/admin_on_call_description"
-        style="@style/TextInputSubLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/on_call_player"
-        android:text="@string/game_settings_admin_on_call_description" />
-    </RelativeLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+      style="@style/TextInputLabel"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:paddingTop="12dp"
-      android:paddingBottom="12dp">
+      android:text="@string/game_settings_game_name_label" />
 
-      <TextView
-        android:id="@+id/admin_list_label"
-        style="@style/TextInputLabel"
+    <androidx.emoji.widget.EmojiEditText
+      android:id="@+id/game_name"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="@string/game_settings_game_name_hint_text"
+      android:inputType="textCapSentences|textNoSuggestions"
+      android:maxLength="40"
+      android:maxLines="1" />
+
+    <TextView
+      android:id="@+id/game_name_error_label"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:textColor="@color/red"
+      android:visibility="gone" />
+
+    <TextView
+      style="@style/TextInputSubLabel"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/game_settings_game_name_sublabel" />
+
+    <TextView
+      style="@style/TextInputLabel"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/mission_settings_time" />
+
+    <include layout="@layout/time_range_widget" />
+
+    <LinearLayout
+      android:id="@+id/items_to_hide_during_creation"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/game_settings_admin_list_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:minHeight="@dimen/tap_target_min">
 
-      <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/admin_list"
+        <TextView
+          android:id="@+id/admin_on_call_title"
+          style="@style/TextInputLabel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentTop="true"
+          android:text="@string/game_settings_admin_on_call_title" />
+
+        <include
+          android:id="@+id/on_call_player"
+          layout="@layout/list_item_player"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/admin_on_call_title"
+          app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+          android:id="@+id/admin_on_call_description"
+          style="@style/TextInputSubLabel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/on_call_player"
+          android:text="@string/game_settings_admin_on_call_description" />
+      </RelativeLayout>
+
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintHeight_max="200dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/admin_list_label" />
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/add_admin_button"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/game_settings_add_admin_button"
-        app:icon="@drawable/ic_plus"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/admin_list" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+          android:id="@+id/admin_list_label"
+          style="@style/TextInputLabel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/game_settings_admin_list_title"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/admin_list"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:layout_constrainedHeight="true"
+          app:layout_constraintHeight_max="200dp"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/admin_list_label" />
+
+        <com.google.android.material.button.MaterialButton
+          android:id="@+id/add_admin_button"
+          style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:text="@string/game_settings_add_admin_button"
+          app:icon="@drawable/ic_plus"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/admin_list" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+
+    <Button
+      android:id="@+id/submit_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:enabled="false"
+      android:text="@string/button_submit" />
+
+    <Button
+      android:id="@+id/delete_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:text="Delete game"
+      android:visibility="gone" />
+
   </LinearLayout>
-
-
-  <Button
-    android:id="@+id/submit_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:enabled="false"
-    android:text="@string/button_submit" />
-
-  <Button
-    android:id="@+id/delete_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text="Delete game"
-    android:visibility="gone" />
-
-</LinearLayout>
+</ScrollView>

@@ -17,9 +17,25 @@
 
 export const COLLECTION_PATH = "games";
 export const FIELD__NAME = "name";
+export const FIELD__START_TIME = "startTime";
+export const FIELD__END_TIME = "endTime";
 export const FIELD__CREATOR_USER_ID = "creatorUserId";
 export const FIELD__RULES = "rules";
 export const FIELD__FAQ = "faq";
 export const FIELD__ADMIN_GROUP_ID = "adminGroupId";
 export const FIELD__ADMIN_ON_CALL_PLAYER_ID = "adminOnCallPlayerId";
 export const FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT = "figureheadAdminPlayerAccount";
+
+export function create(
+  creatorUserId: string,
+  name: string,
+  startTime: number,
+  endTime: number
+): { [key: string]: any; } {
+  return {
+    [FIELD__CREATOR_USER_ID]: creatorUserId,
+    [FIELD__NAME]: name,
+    [FIELD__START_TIME]: startTime,
+    [FIELD__END_TIME]: endTime
+  };
+}

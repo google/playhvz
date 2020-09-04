@@ -96,8 +96,8 @@ class MissionSettingsFragment : Fragment() {
         nameText = view.findViewById(R.id.mission_name)
         detailText = view.findViewById(R.id.mission_details)
         submitButton = view.findViewById(R.id.submit_button)
-        startTime = view.findViewById(R.id.mission_start_time)
-        endTime = view.findViewById(R.id.mission_end_time)
+        startTime = view.findViewById(R.id.start_time)
+        endTime = view.findViewById(R.id.end_time)
         allegianceRadioGroup = view.findViewById(R.id.radio_button_group)
 
         submitButton.setOnClickListener {
@@ -255,13 +255,13 @@ class MissionSettingsFragment : Fragment() {
     private fun openTimePicker(clickedView: TextView) {
         val dateTimeDialog = DateTimePickerDialog { timestamp ->
             clickedView.text = TimeUtils.getFormattedTime(timestamp, /* singleLine= */ false)
-            if (clickedView.tag == getString(R.string.mission_settings_start_time_tag)) {
+            if (clickedView.tag == getString(R.string.settings_start_time_tag)) {
                 missionDraft.startTime = timestamp
             } else {
                 missionDraft.endTime = timestamp
             }
         }
-        if (clickedView.tag == getString(R.string.mission_settings_start_time_tag)) {
+        if (clickedView.tag == getString(R.string.settings_start_time_tag)) {
             if (missionDraft.startTime != Mission.EMPTY_TIMESTAMP) {
                 dateTimeDialog.setDateTime(missionDraft.startTime)
             }

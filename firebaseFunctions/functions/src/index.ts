@@ -72,7 +72,9 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   }
 
   const name = trimmedString(data.name);
-  if (name.length === 0) {
+  const startTime = data.startTime
+  const endTime = data.endTime
+  if (name.length === 0 || startTime < 0 || endTime < 0) {
       // Throwing an HttpsError so that the client gets the error details.
       throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
           'one argument "name" containing the game name to create.');
@@ -83,10 +85,7 @@ exports.createGame = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('already-exists', 'A game with the given name already exists');
   }
 
-  const gameData = {
-    [Game.FIELD__NAME]: name,
-    [Game.FIELD__CREATOR_USER_ID]: context.auth.uid,
-  }
+  const gameData = Game.create(context.auth.uid, name, startTime, endTime)
 
   const gameRef = await db.collection(Game.COLLECTION_PATH).add(gameData)
   const gameId = gameRef.id
@@ -121,6 +120,40 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   return gameId;
 });
 
+exports.updateGame = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
+          'while authenticated.');
+  }
+
+  const gameId = data.gameId
+  const onCallAdminId = data.adminOnCallPlayerId
+  const startTime = data.startTime
+  const endTime = data.endTime
+
+  if (!(typeof onCallAdminId === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+
+  if (!(typeof startTime === 'number') || !(typeof endTime === 'number')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
+  }
+
+  if (onCallAdminId.length === 0 || startTime < 0 || endTime < 0) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+          'an oncall admin id, start time, and end time.');
+   }
+
+  const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
+
+  await gameRef.update({
+      [Game.FIELD__ADMIN_ON_CALL_PLAYER_ID]: onCallAdminId,
+      [Game.FIELD__START_TIME]: startTime,
+      [Game.FIELD__END_TIME]: endTime
+    });
+});
 
 exports.checkGameExists = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
