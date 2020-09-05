@@ -43,11 +43,7 @@ const db = admin.firestore();
 ********************************************************/
 
 exports.registerDevice = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-   }
+  GeneralUtils.verifySignedIn(context)
 
   const deviceToken = data.deviceToken;
   if (!(typeof deviceToken === 'string') || deviceToken.length === 0) {
@@ -67,11 +63,7 @@ exports.registerDevice = functions.https.onCall(async (data, context) => {
 ********************************************************/
 
 exports.createGame = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const name = trimmedString(data.name);
   const startTime = data.startTime
@@ -123,11 +115,7 @@ exports.createGame = functions.https.onCall(async (data, context) => {
 });
 
 exports.updateGame = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId
   const onCallAdminId = data.adminOnCallPlayerId
@@ -158,11 +146,7 @@ exports.updateGame = functions.https.onCall(async (data, context) => {
 });
 
 exports.checkGameExists = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   let name = data.name;
   if (!(typeof name === 'string')) {
@@ -182,11 +166,7 @@ exports.checkGameExists = functions.https.onCall(async (data, context) => {
 
 
 exports.joinGame = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const uid = context.auth.uid;
   let gameName = data.gameName;
   let playerName = data.playerName;
@@ -268,11 +248,7 @@ exports.deleteGame = functions.runWith({
 ********************************************************/
 
 exports.changePlayerAllegiance = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId;
   const newAllegiance = data.allegiance;
@@ -289,11 +265,7 @@ exports.changePlayerAllegiance = functions.https.onCall(async (data, context) =>
 
 
 exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   let lifeCode = data.lifeCode;
   const infectorPlayerId = data.infectorPlayerId
@@ -355,11 +327,7 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
 ********************************************************/
 
 exports.addPlayersToGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const groupId = data.groupId;
@@ -384,11 +352,7 @@ exports.addPlayersToGroup = functions.https.onCall(async (data, context) => {
 });
 
 exports.removePlayerFromGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const playerId = data.playerId;
@@ -421,11 +385,7 @@ exports.removePlayerFromGroup = functions.https.onCall(async (data, context) => 
 ********************************************************/
 
 exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const groupId = data.groupId;
@@ -451,11 +411,7 @@ exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
 });
 
 exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const playerId = data.playerId;
@@ -506,11 +462,7 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
 // DEPRECATED: We switched to sending chats directly because it's way faster. Keeping this
 // around for historical knowledge... will delete once we're sure we don't want this.
 /* exports.sendChatMessage = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const chatRoomId = data.chatRoomId;
   const senderId = data.senderId;
@@ -560,11 +512,7 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
 // Creates a chat room
 // TODO: make this happen as a single transaction
 exports.createChatRoom = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const ownerId = data.ownerId;
   const chatName = data.chatName;
@@ -599,11 +547,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
 // Creates a chat room
 // TODO: make this happen as a single transaction
 exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId;
 
@@ -806,11 +750,7 @@ exports.triggerChatNotification = functions.firestore
 ********************************************************/
 
 exports.createMission = functions.https.onCall(async (data, context) => {
-if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const missionName = data.name;
   const startTime = data.startTime;
@@ -857,11 +797,7 @@ if (!context.auth) {
 
 // TODO: run this as a transaction
 exports.updateMission = functions.https.onCall(async (data, context) => {
-if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const missionId = data.missionId;
   const missionName = data.name;
@@ -923,11 +859,7 @@ if (!context.auth) {
 })
 
 exports.deleteMission = functions.https.onCall(async (data, context) => {
-if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const missionId = data.missionId;
 
@@ -981,6 +913,9 @@ function trimmedString(rawText: any): string {
 
 // Normalizes the life code to lowercase and replaces spaces with dashes.
 function normalizeLifeCode(rawText: any): string {
+  if (!(typeof rawText === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
   let processedCode = rawText.trim()
   processedCode = processedCode.toLowerCase()
   processedCode = processedCode.split(' ').join('-')
@@ -1019,11 +954,7 @@ async function deleteDocument(documentRef: any) {
 ********************************************************/
 
 exports.createReward = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   let shortName = data.shortName;
@@ -1074,11 +1005,7 @@ exports.createReward = functions.https.onCall(async (data, context) => {
 });
 
 exports.updateReward = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const rewardId = data.rewardId;
@@ -1153,11 +1080,7 @@ exports.updateReward = functions.https.onCall(async (data, context) => {
 });
 
 exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const rewardId = data.rewardId;
@@ -1222,11 +1145,7 @@ exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
 
 
 exports.getRewardClaimedStats = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const rewardId = data.rewardId;
@@ -1267,11 +1186,7 @@ exports.getRewardClaimedStats = functions.https.onCall(async (data, context) => 
 
 
 exports.getAvailableClaimCodes = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
 
   const gameId = data.gameId;
   const rewardId = data.rewardId;
@@ -1315,79 +1230,12 @@ exports.getAvailableClaimCodes = functions.https.onCall(async (data, context) =>
 
 
 exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId
-  let claimCode = data.claimCode;
-
-  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof claimCode === 'string')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  claimCode = normalizeLifeCode(claimCode);
-  if (gameId.length === 0 || playerId.length === 0 || claimCode.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'a valid gameId, playerId, and claimCode.');
-  }
-
-  // Check if claim code is associated with valid reward.
-  const shortName = RewardUtils.extractShortNameFromCode(claimCode)
-  const rewardQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .where(Reward.FIELD__SHORT_NAME, "==", shortName)
-    .get()
-  if (rewardQuerySnapshot.empty || rewardQuerySnapshot.docs.length > 1) {
-     throw new functions.https.HttpsError('failed-precondition', 'No valid reward exists.');
-  }
-  const rewardDocSnapshot = rewardQuerySnapshot.docs[0];
-
-  // If the middle code matches the player id then this is a reward we're granting them. Let it be so.
-  const secondCode = RewardUtils.extractPlayerIdFromCode(claimCode)
-  if (secondCode === playerId.toLowerCase()) {
-    await db.collection(Game.COLLECTION_PATH)
-          .doc(gameId)
-          .collection(Reward.COLLECTION_PATH)
-          .doc(rewardDocSnapshot.id)
-          .collection(ClaimCode.COLLECTION_PATH)
-          .add(ClaimCode.create(claimCode))
-  }
-
-  // Check if reward code is valid.
-  const claimCodeQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Reward.COLLECTION_PATH)
-      .doc(rewardDocSnapshot.id)
-      .collection(ClaimCode.COLLECTION_PATH)
-      .where(ClaimCode.FIELD__CODE, "==", claimCode)
-      .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
-      .get()
-  if (claimCodeQuerySnapshot.empty || claimCodeQuerySnapshot.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'No valid claim code exists.');
-  }
-  const claimCodeDocSnapshot = claimCodeQuerySnapshot.docs[0];
-
-  const playerDocRef = db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Player.COLLECTION_PATH)
-    .doc(playerId)
-  const rewardData = rewardDocSnapshot.data()
-  if (rewardData == undefined) {
-        return
-  }
-  const rewardInfoPath = Player.FIELD__REWARDS + "." + rewardDocSnapshot.id
-
-  // Redeem claim code!
-  await claimCodeDocSnapshot.ref.update({
-    [ClaimCode.FIELD__REDEEMER]: playerId
-  })
-  await playerDocRef.update({
-    [rewardInfoPath]: admin.firestore.FieldValue.increment(1),
-    [Player.FIELD__POINTS]: admin.firestore.FieldValue.increment(rewardData.points)
-  })
+  const claimCode = normalizeLifeCode(data.claimCode);
+  GeneralUtils.verifyStringArgs([gameId, playerId, claimCode])
+  await RewardImpl.redeemRewardCode(db, gameId, playerId, claimCode)
 });
 
 

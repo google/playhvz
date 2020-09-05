@@ -13,10 +13,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 
+import * as ClaimCode from '../data/claimcode';
+import * as Defaults from '../data/defaults';
 import * as Game from '../data/game';
+import * as Player from '../data/player';
 import * as Reward from '../data/reward';
+import * as RewardUtils from '../utils/rewardutils';
+
+
+/**
+ * Function to claim a reward code.
+ */
+export async function redeemRewardCode (
+  db: any,
+  gameId: string,
+  playerId: string,
+  claimCode: string
+) {
+  // Check if claim code is associated with valid reward.
+  const shortName = RewardUtils.extractShortNameFromCode(claimCode)
+  const rewardQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .where(Reward.FIELD__SHORT_NAME, "==", shortName)
+    .get()
+  if (rewardQuerySnapshot.empty || rewardQuerySnapshot.docs.length > 1) {
+     throw new functions.https.HttpsError('failed-precondition', 'No valid reward exists.');
+  }
+  const rewardDocSnapshot = rewardQuerySnapshot.docs[0];
+
+  // If the middle code matches the player id then this is a reward we're granting them. Let it be so.
+  const secondCode = RewardUtils.extractPlayerIdFromCode(claimCode)
+  if (secondCode === playerId.toLowerCase()) {
+    await db.collection(Game.COLLECTION_PATH)
+          .doc(gameId)
+          .collection(Reward.COLLECTION_PATH)
+          .doc(rewardDocSnapshot.id)
+          .collection(ClaimCode.COLLECTION_PATH)
+          .add(ClaimCode.create(claimCode))
+  }
+
+  // Check if reward code is valid.
+  const claimCodeQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Reward.COLLECTION_PATH)
+      .doc(rewardDocSnapshot.id)
+      .collection(ClaimCode.COLLECTION_PATH)
+      .where(ClaimCode.FIELD__CODE, "==", claimCode)
+      .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
+      .get()
+  if (claimCodeQuerySnapshot.empty || claimCodeQuerySnapshot.docs.length > 1) {
+    throw new functions.https.HttpsError('failed-precondition', 'No valid claim code exists.');
+  }
+  const claimCodeDocSnapshot = claimCodeQuerySnapshot.docs[0];
+
+  const playerDocRef = db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Player.COLLECTION_PATH)
+    .doc(playerId)
+  const rewardData = rewardDocSnapshot.data()
+  if (rewardData == undefined) {
+        return
+  }
+  const rewardInfoPath = Player.FIELD__REWARDS + "." + rewardDocSnapshot.id
+
+  // Redeem claim code!
+  await claimCodeDocSnapshot.ref.update({
+    [ClaimCode.FIELD__REDEEMER]: playerId
+  })
+  await playerDocRef.update({
+    [rewardInfoPath]: admin.firestore.FieldValue.increment(1),
+    [Player.FIELD__POINTS]: admin.firestore.FieldValue.increment(rewardData.points)
+  })
+}
+
 
 /**
  * Function to get all the rewards in the given game id.
