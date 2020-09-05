@@ -38,6 +38,7 @@ import com.app.playhvz.common.globals.CrossClientConstants.Companion.REWARD_POIN
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.UploadService
 import com.app.playhvz.firebase.UploadService.Companion.getRewardImageName
+import com.app.playhvz.firebase.UploadService.Companion.parseRewardImageNameFromExistingFirebaseUrl
 import com.app.playhvz.firebase.classmodels.Reward
 import com.app.playhvz.firebase.operations.MissionDatabaseOperations
 import com.app.playhvz.firebase.operations.RewardDatabaseOperations
@@ -86,6 +87,10 @@ class RewardSettingsFragment : Fragment() {
                 rewardId!!,
                 OnSuccessListener { document ->
                     rewardDraft = DataConverterUtil.convertSnapshotToReward(document)
+                    if (!rewardDraft.imageUrl.isNullOrEmpty()) {
+                        rewardImageUploadName =
+                            parseRewardImageNameFromExistingFirebaseUrl(rewardDraft.imageUrl!!)
+                    }
                     initializeData()
                     enableActions()
                 })
@@ -115,9 +120,6 @@ class RewardSettingsFragment : Fragment() {
 
         pointText.setText(REWARD_POINT_VALUE.toString())
         imageContainer.setOnClickListener {
-            if (rewardDraft.id.isNullOrBlank()) {
-                return@setOnClickListener
-            }
             val photoUrl: String? = rewardDraft.imageUrl
             val photoUploadDialog =
                 PhotoUploadDialog(rewardImageUploadName, photoUrl) { uri: Uri? ->
