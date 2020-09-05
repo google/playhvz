@@ -30,6 +30,7 @@ import * as Message from './data/message';
 import * as Mission from './data/mission';
 import * as QuizQuestion from './data/quizquestion';
 import * as RewardImpl from './impl/rewardimpl';
+import * as RewardUtils from './utils/rewardutils';
 import * as User from './data/user';
 
 admin.initializeApp();
@@ -71,7 +72,10 @@ exports.createGame = functions.https.onCall(async (data, context) => {
 
   const gameRef = await db.collection(Game.COLLECTION_PATH).add(gameData)
   const gameId = gameRef.id
+
+  // Create managed properties
   await GroupUtils.createManagedGroups(db, context.auth!.uid, gameId);
+  await RewardUtils.createManagedRewards(db, gameId)
 
   const adminGroupQuery = await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
@@ -217,7 +221,7 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
   GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const infectorPlayerId = data.infectorPlayerId
-  const lifeCode = normalizeLifeCode(data.lifeCode);
+  const lifeCode = GeneralUtils.normalizeLifeCode(data.lifeCode);
   GeneralUtils.verifyStringArgs([gameId, infectorPlayerId, lifeCode])
 
   // Check if life code is associated with valid human player.
@@ -237,12 +241,17 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
     return
   }
 
+  // TODO: handle player infecting themselves.
+
   // Use up the life code and infect the player if they are out of lives
   if (infectedPlayerData[Player.FIELD__ALLEGIANCE] === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+    // TODO: make this a transaction.
+    await RewardUtils.giveRewardForInfecting(db, gameId, infectorPlayerId)
     // Mark life code as used, aka deactivated
     await infectedPlayerSnapshot.ref.update({
       [lifeCodeStatusField]: false
     })
+
     const lives = infectedPlayerData[Player.FIELD__LIVES]
     if (lives === undefined) {
       return
@@ -729,17 +738,6 @@ function trimAndEnforceNoEmoji(rawText: any): string {
   return trimmed;
 }
 
-// Normalizes the life code to lowercase and replaces spaces with dashes.
-function normalizeLifeCode(rawText: any): string {
-  if (!(typeof rawText === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  let processedCode = rawText.trim()
-  processedCode = processedCode.toLowerCase()
-  processedCode = processedCode.split(' ').join('-')
-  return processedCode
-}
-
 async function deleteCollection(collection: any) {
   const collectionRef = db.collection(collection.path)
   await collectionRef.listDocuments().then((docRefs: any) => {
@@ -779,8 +777,8 @@ exports.createReward = functions.https.onCall(async (data, context) => {
   const description = data.description;
   const imageUrl = data.imageUrl;
   const points = data.points;
-  GeneralUtils.verifyStringArgs([gameId, shortName, longName])
-  GeneralUtils.verifyOptionalStringArgs([description, imageUrl])
+  GeneralUtils.verifyStringArgs([gameId, shortName])
+  GeneralUtils.verifyOptionalStringArgs([longName, description, imageUrl])
   GeneralUtils.verifyNumberArgs([points])
   await RewardImpl.createReward(db, gameId, shortName, longName, description, imageUrl, points)
 });
@@ -798,6 +796,8 @@ exports.updateReward = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifyNumberArgs([points])
   await RewardImpl.updateReward(db, gameId, rewardId, longName, description, imageUrl, points)
 });
+
+// TODO: Add delete reward (from game & from player), recalc points on delete
 
 exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
@@ -832,7 +832,7 @@ exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId
-  const claimCode = normalizeLifeCode(data.claimCode);
+  const claimCode = GeneralUtils.normalizeLifeCode(data.claimCode);
   GeneralUtils.verifyStringArgs([gameId, playerId, claimCode])
   await RewardImpl.redeemRewardCode(db, gameId, playerId, claimCode)
 });

@@ -29,6 +29,7 @@ import * as Universal from './universal';
 
 export const COLLECTION_PATH = "rewards";
 export const FIELD__ID = Universal.FIELD__USER_ID;
+export const FIELD__MANAGED = "managed";
 export const FIELD__SHORT_NAME = "shortName";
 export const FIELD__LONG_NAME = "longName";
 export const FIELD__DESCRIPTION = "description";
@@ -47,6 +48,24 @@ export function create(
     [FIELD__LONG_NAME]: longName,
     [FIELD__DESCRIPTION]: description,
     [FIELD__IMAGE_URL]: imageUrl,
-    [FIELD__POINTS]: points
+    [FIELD__POINTS]: points,
+    [FIELD__MANAGED]: false
+  };
+}
+
+export function createManagedReward(
+  shortName: string,
+  longName: string,
+  description: string,
+  imageUrl: string,
+  points: number
+): { [key: string]: any; } {
+  return {
+    [FIELD__SHORT_NAME]: shortName,
+    [FIELD__LONG_NAME]: longName,
+    [FIELD__DESCRIPTION]: description,
+    [FIELD__IMAGE_URL]: imageUrl,
+    [FIELD__POINTS]: points,
+    [FIELD__MANAGED]: true
   };
 }

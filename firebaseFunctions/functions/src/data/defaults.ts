@@ -28,3 +28,14 @@ export const allegiance = "undeclared";
 
 export const FIGUREHEAD_ADMIN_NAME = "HvZ CDC";
 
+export const INFECT_REWARD_SHORT_NAME = "infect";
+export const INFECT_REWARD_LONG_NAME = "BraaAAaAAAAaains!";
+export const INFECT_REWARD_DESCRIPTION = "Spread the zombie ideals and welcomed a new member to the Horde!";
+export const INFECT_REWARD_IMAGE_URL = "";
+export const INFECT_REWARD_POINTS = 50;
+
+export const DECLARE_REWARD_SHORT_NAME = "declare";
+export const DECLARE_REWARD_LONG_NAME = "By jolly, I declare";
+export const DECLARE_REWARD_DESCRIPTION = "I'm a great player, I play by the rules";
+export const DECLARE_REWARD_IMAGE_URL = "";
+export const DECLARE_REWARD_POINTS = 10;

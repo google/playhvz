@@ -61,33 +61,44 @@ export function verifyIsGameOwner(context: any) {
 
 // Verifies that the provided args are type "string" and are not empty.
 export function verifyStringArgs(args: any []) {
-  for (const arg of args) {
+  args.forEach((arg, index) => {
     if (!(typeof arg === 'string')) {
       throw new functions.https.HttpsError('invalid-argument', "Expected value to be type string.");
     }
     if (arg.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-empty string arg.");
+      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-empty string arg at position " + index + ".");
     }
-  }
+  })
 }
 
-// Verifies that the provided args are type "string" only.
+// Only verifies that the provided args are type "string".
 export function verifyOptionalStringArgs(args: any []) {
-  for (const arg of args) {
+  args.forEach((arg, index) => {
     if (!(typeof arg === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type string.");
+      throw new functions.https.HttpsError('invalid-argument', "Expected optional value at position " + index + " to be type string.");
     }
-  }
+  })
 }
 
 // Verifies that the provided args are type "number" and are not less than 0.
 export function verifyNumberArgs(args: any []) {
-  for (const arg of args) {
+  args.forEach((arg, index) => {
     if (!(typeof arg === 'number')) {
       throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
     }
     if (arg < 0) {
-      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-negative number arg.");
+      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-negative number arg at position " + index + ".");
     }
+  })
+}
+
+// Normalizes the life code to lowercase and replaces spaces with dashes.
+export function normalizeLifeCode(rawText: any): string {
+  if (!(typeof rawText === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
   }
+  let processedCode = rawText.trim()
+  processedCode = processedCode.toLowerCase()
+  processedCode = processedCode.split(' ').join('-')
+  return processedCode
 }

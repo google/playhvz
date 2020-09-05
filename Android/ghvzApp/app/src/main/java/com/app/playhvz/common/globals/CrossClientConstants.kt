@@ -34,5 +34,13 @@ class CrossClientConstants {
         const val QUIZ_TYPE_ORDER = "order"
         const val QUIZ_TYPE_INFO = "info"
         const val QUIZ_BLANK_ORDER = -1
+
+        fun getDeclareQuizRewardCode(playerId: String): String {
+            return getPlayerSpecificRewardCode("declare", playerId)
+        }
+
+        fun getPlayerSpecificRewardCode(rewardShortName: String, playerId: String): String {
+            return rewardShortName + "-" + playerId + "-" + System.currentTimeMillis()
+        }
     }
 }

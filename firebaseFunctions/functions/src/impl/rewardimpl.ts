@@ -290,7 +290,8 @@ export async function redeemRewardCode (
 
   // Redeem claim code!
   await claimCodeDocSnapshot.ref.update({
-    [ClaimCode.FIELD__REDEEMER]: playerId
+    [ClaimCode.FIELD__REDEEMER]: playerId,
+    [ClaimCode.FIELD__TIMESTAMP]: Date.now()
   })
   await playerDocRef.update({
     [rewardInfoPath]: admin.firestore.FieldValue.increment(1),

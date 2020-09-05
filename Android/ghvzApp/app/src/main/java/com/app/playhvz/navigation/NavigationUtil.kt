@@ -17,8 +17,10 @@
 package com.app.playhvz.navigation
 
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.screens.chatlist.AdminChatListFragmentDirections
 import com.app.playhvz.screens.chatlist.ChatListFragmentDirections
 import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
@@ -92,6 +94,7 @@ class NavigationUtil {
             editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
             editor.putString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
             editor.apply()
+            ViewModelProvider(activity).get(GameViewModel::class.java).reset()
             navController.navigate(GameListFragmentDirections.actionGlobalNavGameListFragment())
         }
 

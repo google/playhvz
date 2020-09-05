@@ -32,6 +32,7 @@ export const COLLECTION_PATH = "claimCodes";
 export const FIELD__ID = Universal.FIELD__USER_ID;
 export const FIELD__CODE = "code";
 export const FIELD__REDEEMER = "redeemer";
+export const FIELD__TIMESTAMP = "timestamp";
 
 export function create(code: string): { [key: string]: any; } {
   return {

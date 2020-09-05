@@ -36,7 +36,6 @@ import com.app.playhvz.common.ConfirmationDialog
 import com.app.playhvz.common.PhotoUploadDialog
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.REWARD_POINT_VALUE
 import com.app.playhvz.common.globals.SharedPreferencesConstants
-import com.app.playhvz.firebase.UploadService
 import com.app.playhvz.firebase.UploadService.Companion.getRewardImageName
 import com.app.playhvz.firebase.UploadService.Companion.parseRewardImageNameFromExistingFirebaseUrl
 import com.app.playhvz.firebase.classmodels.Reward
@@ -203,7 +202,7 @@ class RewardSettingsFragment : Fragment() {
         if (!rewardDraft.imageUrl.isNullOrBlank()) {
             val url = rewardDraft.imageUrl.toString()
             ImageDownloaderUtils.downloadSquareImage(imageView, url)
-            rewardImageUploadName = UploadService.parseRewardImageNameFromExistingFirebaseUrl(url)
+            rewardImageUploadName = parseRewardImageNameFromExistingFirebaseUrl(url)
         }
         rewardDraft.points?.let { pointText.setText(it.toString()) }
         shortNameText.setText(rewardDraft.shortName)
@@ -211,9 +210,13 @@ class RewardSettingsFragment : Fragment() {
         shortNameText.isFocusable = false
         longNameText.setText(rewardDraft.longName)
         descriptionText.setText(rewardDraft.description)
-        button.text = getString(R.string.reward_settings_label_delete_button)
-        button.setOnClickListener {
-            showDeleteDialog()
+        if (rewardDraft.managed) {
+            button.visibility = View.GONE
+        } else {
+            button.text = getString(R.string.reward_settings_label_delete_button)
+            button.setOnClickListener {
+                showDeleteDialog()
+            }
         }
     }
 

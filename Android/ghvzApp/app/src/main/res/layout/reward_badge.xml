@@ -14,13 +14,23 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/reward_badge_image_container"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
-  android:background="@drawable/border_diamond">
+  android:background="@drawable/border_diamond"
+  android:minWidth="@dimen/avatar_large"
+  android:minHeight="@dimen/avatar_large">
+
+<!--  <View-->
+<!--    android:layout_width="0dp"-->
+<!--    android:layout_height="0dp"-->
+<!--    android:background="@color/colorAccent"-->
+<!--    app:layout_constraintBottom_toBottomOf="@id/reward_badge_image"-->
+<!--    app:layout_constraintEnd_toEndOf="@id/reward_badge_image"-->
+<!--    app:layout_constraintStart_toStartOf="@id/reward_badge_image"-->
+<!--    app:layout_constraintTop_toTopOf="@id/reward_badge_image" />-->
 
   <ImageView
     android:id="@+id/reward_badge_image"

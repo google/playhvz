@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.getPlayerSpecificRewardCode
 import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.utils.SystemUtils
 import com.google.android.material.button.MaterialButton
@@ -60,7 +61,7 @@ class RewardSelectorDialog(
                 return@Unit
             }
             loadingSpinner.visibility = View.VISIBLE
-            val claimCode = shortName + "-" + playerId + "-" + System.currentTimeMillis()
+            val claimCode = getPlayerSpecificRewardCode(shortName, playerId)
             runBlocking {
                 EspressoIdlingResource.increment()
                 RewardDatabaseOperations.redeemClaimCode(
