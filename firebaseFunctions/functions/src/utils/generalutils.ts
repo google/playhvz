@@ -44,14 +44,50 @@ export function verifySignedIn(context: any) {
   }
 }
 
+export function verifyIsAdmin(context: any) {
+  if (!context.auth) {
+    /* TODO: only allow for admins once we launch game (&& context.auth.token && context.auth.token.admin) */
+    throw new functions.https.HttpsError('permission-denied', 'Must be an administrative user to initiate delete.');
+  }
+}
+
+export function verifyIsGameOwner(context: any) {
+  if (!context.auth) {
+    /* TODO: only allow the game creator to do this once we launch game (&& context.auth.token && context.auth.token.admin) */
+    throw new functions.https.HttpsError('permission-denied', 'Must be an administrative user to initiate delete.');
+  }
+}
+
+
 // Verifies that the provided args are type "string" and are not empty.
 export function verifyStringArgs(args: any []) {
   for (const arg of args) {
     if (!(typeof arg === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type string.");
     }
     if (arg.length === 0) {
       throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-empty string arg.");
+    }
+  }
+}
+
+// Verifies that the provided args are type "string" only.
+export function verifyOptionalStringArgs(args: any []) {
+  for (const arg of args) {
+    if (!(typeof arg === 'string')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type string.");
+    }
+  }
+}
+
+// Verifies that the provided args are type "number" and are not less than 0.
+export function verifyNumberArgs(args: any []) {
+  for (const arg of args) {
+    if (!(typeof arg === 'number')) {
+      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
+    }
+    if (arg < 0) {
+      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-negative number arg.");
     }
   }
 }
