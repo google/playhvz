@@ -22,6 +22,7 @@ import * as ChatUtils from './utils/chatutils';
 import * as ClaimCode from './data/claimcode';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
+import * as GeneralUtils from './utils/generalutils';
 import * as Group from './data/group';
 import * as GroupUtils from './utils/grouputils';
 import * as Player from './data/player';
@@ -30,6 +31,7 @@ import * as Message from './data/message';
 import * as Mission from './data/mission';
 import * as QuizQuestion from './data/quizquestion';
 import * as Reward from './data/reward';
+import * as RewardImpl from './impl/rewardimpl';
 import * as RewardUtils from './utils/rewardutils';
 import * as User from './data/user';
 
@@ -1390,43 +1392,10 @@ exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
 
 
 exports.getRewardsByName = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
-
-  if (!(typeof gameId === 'string')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'a valid gameId.');
-  }
-
-  const allRewardsQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .get()
-  if (allRewardsQuerySnapshot.empty) {
-    return {
-        "rewards": JSON.stringify([...new Map()])
-    }
-  }
-
-  const rewardMap = new Map();
-  allRewardsQuerySnapshot.forEach((rewardDoc: any) => {
-    const rewardData = rewardDoc.data()
-    if (rewardData === undefined) {
-      return // "continue" in a forEach
-    }
-    rewardMap.set(rewardData[Reward.FIELD__SHORT_NAME], rewardDoc.id)
-  });
-
-    return {
-      "rewards": JSON.stringify([...rewardMap])
-    }
+  GeneralUtils.verifyStringArgs([gameId])
+  return await RewardImpl.getRewardsByName(db, gameId)
 });
 
 
