@@ -18,11 +18,20 @@ package com.app.playhvz.firebase.classmodels
 
 /** Android data model representing Firebase Game documents. */
 class Game {
+    companion object {
+        const val EMPTY_TIMESTAMP = 0L
+        const val FIELD__RULES = "rules"
+        const val FIELD__FAQ = "faq"
+    }
+
     // Game Id
     var id: String? = null
 
     // Name of the game
     var name: String? = null
+
+    var startTime: Long = EMPTY_TIMESTAMP
+    var endTime: Long = EMPTY_TIMESTAMP
 
     // Creator of the game
     var creatorUserId: String? = null

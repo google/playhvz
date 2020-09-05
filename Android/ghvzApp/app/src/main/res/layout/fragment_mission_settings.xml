@@ -55,46 +55,7 @@
       android:layout_height="wrap_content"
       android:text="@string/mission_settings_time" />
 
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:gravity="center_vertical"
-      android:minHeight="48dp"
-      android:orientation="horizontal">
-
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/mission_start_time"
-        style="@style/MissionTime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:minWidth="48dp"
-        android:minHeight="48dp"
-        android:tag="@string/mission_settings_start_time_tag"
-        android:text="@string/mission_settings_time_hint_text" />
-
-      <TextView
-        style="@style/TextInputLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="@string/mission_time_separator" />
-
-      <com.google.android.material.button.MaterialButton
-        android:id="@+id/mission_end_time"
-        style="@style/MissionTime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:minWidth="48dp"
-        android:minHeight="48dp"
-        android:tag="@string/mission_settings_end_time_tag"
-        android:text="@string/mission_settings_time_hint_text" />
-    </LinearLayout>
+    <include layout="@layout/time_range_widget" />
 
     <TextView
       style="@style/TextInputLabel"

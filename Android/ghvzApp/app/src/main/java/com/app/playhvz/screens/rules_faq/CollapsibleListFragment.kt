@@ -292,7 +292,8 @@ class CollapsibleListFragment : Fragment() {
         }
         runBlocking {
             EspressoIdlingResource.increment()
-            GameDatabaseOperations.asyncUpdateGame(
+            GameDatabaseOperations.asyncUpdateRulesOrFaq(
+                fragmentType,
                 game!!,
                 onSuccess,
                 {

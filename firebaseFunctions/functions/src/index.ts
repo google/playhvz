@@ -19,9 +19,9 @@ import * as functions from 'firebase-functions';
 
 import * as Chat from './data/chat';
 import * as ChatUtils from './utils/chatutils';
-import * as ClaimCode from './data/claimcode';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
+import * as GeneralUtils from './utils/generalutils';
 import * as Group from './data/group';
 import * as GroupUtils from './utils/grouputils';
 import * as Player from './data/player';
@@ -29,8 +29,7 @@ import * as PlayerUtils from './utils/playerutils';
 import * as Message from './data/message';
 import * as Mission from './data/mission';
 import * as QuizQuestion from './data/quizquestion';
-import * as Reward from './data/reward';
-import * as RewardUtils from './utils/rewardutils';
+import * as RewardImpl from './impl/rewardimpl';
 import * as User from './data/user';
 
 admin.initializeApp();
@@ -41,21 +40,12 @@ const db = admin.firestore();
 ********************************************************/
 
 exports.registerDevice = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-   }
-
+  GeneralUtils.verifySignedIn(context)
   const deviceToken = data.deviceToken;
-  if (!(typeof deviceToken === 'string') || deviceToken.length === 0) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'one argument "deviceToken" containing the deviceToken to set.');
-    }
+  GeneralUtils.verifyStringArgs([deviceToken])
 
   const updatedData = {'deviceToken': deviceToken};
-  return await db.collection(User.COLLECTION_PATH).doc(context.auth.uid).set(updatedData);
+  return await db.collection(User.COLLECTION_PATH).doc(context.auth!.uid).set(updatedData);
 });
 
 
@@ -65,32 +55,23 @@ exports.registerDevice = functions.https.onCall(async (data, context) => {
 ********************************************************/
 
 exports.createGame = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const name = trimmedString(data.name);
-  if (name.length === 0) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'one argument "name" containing the game name to create.');
-   }
+  const startTime = data.startTime
+  const endTime = data.endTime
+  GeneralUtils.verifyStringArgs([name])
+  GeneralUtils.verifyNumberArgs([startTime, endTime])
 
   const gameQuery = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", name).get();
   if (!gameQuery.empty) {
     throw new functions.https.HttpsError('already-exists', 'A game with the given name already exists');
   }
 
-  const gameData = {
-    [Game.FIELD__NAME]: name,
-    [Game.FIELD__CREATOR_USER_ID]: context.auth.uid,
-  }
+  const gameData = Game.create(context.auth!.uid, name, startTime, endTime)
 
   const gameRef = await db.collection(Game.COLLECTION_PATH).add(gameData)
   const gameId = gameRef.id
-  await GroupUtils.createManagedGroups(db, context.auth.uid, gameId);
+  await GroupUtils.createManagedGroups(db, context.auth!.uid, gameId);
 
   const adminGroupQuery = await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
@@ -121,23 +102,28 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   return gameId;
 });
 
+exports.updateGame = functions.https.onCall(async (data, context) => {
+  GeneralUtils.verifySignedIn(context)
+  const gameId = data.gameId
+  const adminOnCallPlayerId = data.adminOnCallPlayerId
+  const startTime = data.startTime
+  const endTime = data.endTime
+  GeneralUtils.verifyStringArgs([gameId, adminOnCallPlayerId])
+  GeneralUtils.verifyNumberArgs([startTime, endTime])
+
+  const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
+
+  await gameRef.update({
+      [Game.FIELD__ADMIN_ON_CALL_PLAYER_ID]: adminOnCallPlayerId,
+      [Game.FIELD__START_TIME]: startTime,
+      [Game.FIELD__END_TIME]: endTime
+    });
+});
 
 exports.checkGameExists = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
-  let name = data.name;
-  if (!(typeof name === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  name = trimmedString(name);
-  if (name.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'one argument "name" containing the game name to create.');
-   }
+  GeneralUtils.verifySignedIn(context)
+  let name = trimmedString(data.name);
+  GeneralUtils.verifyStringArgs([name])
 
   const querySnapshot = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", name).get();
   if (querySnapshot.empty || querySnapshot.docs.length > 1) {
@@ -147,23 +133,11 @@ exports.checkGameExists = functions.https.onCall(async (data, context) => {
 
 
 exports.joinGame = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-  const uid = context.auth.uid;
-  let gameName = data.gameName;
-  let playerName = data.playerName;
-  if (!(typeof gameName === 'string') || !(typeof playerName === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  gameName = trimmedString(gameName);
-  playerName = trimmedString(playerName);
-  if (gameName.length === 0 || playerName.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'one argument "gameName" containing the game name to create and "playerName".');
-  }
+  GeneralUtils.verifySignedIn(context)
+  const uid = context.auth!.uid;
+  const gameName = trimmedString(data.gameName);
+  const playerName = trimmedString(data.playerName);
+  GeneralUtils.verifyStringArgs([gameName, playerName])
 
   const gameQuerySnapshot = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", gameName).get();
   if (gameQuerySnapshot.empty || gameQuerySnapshot.docs.length > 1) {
@@ -207,15 +181,12 @@ exports.deleteGame = functions.runWith({
     timeoutSeconds: 540,
     memory: '2GB'
 }).https.onCall(async (data, context) => {
-    // Only allow admin users to execute this function.
-    if (!(context.auth)) {
-    /* TODO: only allow for admins once we launch game (&& context.auth.token && context.auth.token.admin) */
-      throw new functions.https.HttpsError('permission-denied', 'Must be an administrative user to initiate delete.');
-    }
-
+    GeneralUtils.verifyIsGameOwner(context)
     const gameId = data.gameId;
+    GeneralUtils.verifyStringArgs([gameId])
+
     console.log(
-      `User ${context.auth.uid} has requested to delete game ${gameId}`
+      `User ${context.auth!.uid} has requested to delete game ${gameId}`
     );
 
     // Run a recursive delete on the game document path.
@@ -233,44 +204,21 @@ exports.deleteGame = functions.runWith({
 ********************************************************/
 
 exports.changePlayerAllegiance = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId;
   const newAllegiance = data.allegiance;
-  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof newAllegiance === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0 || playerId.length === 0 || newAllegiance.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId, playerId, and allegiance.');
-  }
-
+  GeneralUtils.verifyStringArgs([gameId, playerId, newAllegiance])
   await PlayerUtils.internallyChangePlayerAllegiance(db, gameId, playerId, newAllegiance)
 });
 
 
 exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
-  let lifeCode = data.lifeCode;
   const infectorPlayerId = data.infectorPlayerId
-
-  if (!(typeof gameId === 'string') || !(typeof infectorPlayerId === 'string') || !(typeof lifeCode === 'string')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  lifeCode = normalizeLifeCode(lifeCode);
-  if (gameId.length === 0 || infectorPlayerId.length === 0 || lifeCode.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'a valid gameId, playerId, and lifeCode.');
-  }
+  const lifeCode = normalizeLifeCode(data.lifeCode);
+  GeneralUtils.verifyStringArgs([gameId, infectorPlayerId, lifeCode])
 
   // Check if life code is associated with valid human player.
   const lifeCodeStatusField = Player.FIELD__LIVES + "." + lifeCode + "." + Player.FIELD__LIFE_CODE_STATUS
@@ -320,22 +268,12 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
 ********************************************************/
 
 exports.addPlayersToGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const groupId = data.groupId;
   const playerIdList = data.playerIdList
-  if (!(typeof gameId === 'string') || !(typeof groupId === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0 || groupId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId and groupId and chatRoomId.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, groupId])
+  // TODO: verify player id list
 
   const groupSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -349,22 +287,11 @@ exports.addPlayersToGroup = functions.https.onCall(async (data, context) => {
 });
 
 exports.removePlayerFromGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId;
   const groupId = data.groupId;
-  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof groupId === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0 || playerId.length === 0 || groupId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId, playerId, and chatRoomId.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, playerId, groupId])
 
   const playerSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -386,23 +313,13 @@ exports.removePlayerFromGroup = functions.https.onCall(async (data, context) => 
 ********************************************************/
 
 exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const groupId = data.groupId;
   const chatRoomId = data.chatRoomId;
   const playerIdList = data.playerIdList
-  if (!(typeof gameId === 'string') || !(typeof groupId === 'string') || !(typeof chatRoomId === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0 || groupId.length === 0 || chatRoomId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId and groupId and chatRoomId.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, groupId, chatRoomId])
+  // TODO: verify player id list
 
   const groupDocSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -416,22 +333,11 @@ exports.addPlayersToChat = functions.https.onCall(async (data, context) => {
 });
 
 exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId;
   const chatRoomId = data.chatRoomId;
-  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof chatRoomId === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0 || playerId.length === 0 || chatRoomId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId, playerId, and chatRoomId.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, playerId, chatRoomId])
 
   const playerSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -467,87 +373,15 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
   await ChatUtils.removePlayerFromChat(db, gameId, playerSnapshot, group, chatRoomId)
 });
 
-// Sends a chat message
-// DEPRECATED: We switched to sending chats directly because it's way faster. Keeping this
-// around for historical knowledge... will delete once we're sure we don't want this.
-/* exports.sendChatMessage = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-  const gameId = data.gameId;
-  const chatRoomId = data.chatRoomId;
-  const senderId = data.senderId;
-  const message = data.message;
-  if (!(typeof gameId === 'string')
-        || !(typeof chatRoomId === 'string')
-        || !(typeof senderId === 'string')
-        || !(typeof message === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String and not empty.");
-  }
-  if (gameId.length === 0 || chatRoomId.length === 0 || senderId.length === 0) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            '4 arguments.');
-  }
-  if (message.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'Message was empty, not sending it.');
-  }
-
-  // Make sure player is still a member of chat room
-  const chatRoom = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Chat.COLLECTION_PATH)
-    .doc(chatRoomId)
-    .get()
-  const group = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Group.COLLECTION_PATH)
-    .doc(chatRoom.get(Chat.FIELD__GROUP_ID))
-    .get()
-  if (group.get(Group.FIELD__MEMBERS).indexOf(senderId) < 0) {
-    throw new functions.https.HttpsError('failed-precondition', 'Player is not a member of chat.');
-  }
-
-  const messageDocument = Message.create(
-    senderId,
-    GeneralUtils.getTimestamp(),
-    message
-  );
-  await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Chat.COLLECTION_PATH)
-    .doc(chatRoomId)
-    .collection(Message.COLLECTION_PATH)
-    .add(messageDocument)
-}) */
-
 // Creates a chat room
 // TODO: make this happen as a single transaction
 exports.createChatRoom = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const ownerId = data.ownerId;
   const chatName = data.chatName;
   const allegianceFilter = data.allegianceFilter
-
-  if (!(typeof gameId === 'string')
-        || !(typeof ownerId === 'string')
-        || !(typeof chatName === 'string')
-        || !(typeof allegianceFilter === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String and not empty.");
-  }
-  if (gameId.length === 0 || ownerId.length === 0 || chatName.length === 0) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            '4 arguments.');
-  }
-  if (allegianceFilter.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'AllegianceFilter was empty, should be ${Defaults.EMPTY_ALLEGIANCE_FILTER} or race.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, ownerId, chatName, allegianceFilter])
 
   const settings = Group.createSettings(
     /* addSelf= */ true,
@@ -558,27 +392,16 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
-    await GroupUtils.createGroupAndChat(db, context.auth.uid, gameId, ownerId, chatName, settings);
+    await GroupUtils.createGroupAndChat(db, context.auth!.uid, gameId, ownerId, chatName, settings);
 })
 
 // Creates a chat room
 // TODO: make this happen as a single transaction
 exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId;
-
-  if (!(typeof gameId === 'string') || !(typeof playerId === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String and not empty.");
-  }
-  if (gameId.length === 0 || playerId.length === 0) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            '2 arguments.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, playerId])
 
   const playerSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -636,7 +459,7 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
     /* autoRemove= */ false,
     Defaults.EMPTY_ALLEGIANCE_FILTER);
 
-  const createdChatId = await GroupUtils.createGroupAndChat(db, context.auth.uid, gameId, playerId, chatName, settings);
+  const createdChatId = await GroupUtils.createGroupAndChat(db, context.auth!.uid, gameId, playerId, chatName, settings);
   const chatSnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Chat.COLLECTION_PATH)
@@ -771,33 +594,16 @@ exports.triggerChatNotification = functions.firestore
 ********************************************************/
 
 exports.createMission = functions.https.onCall(async (data, context) => {
-if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const missionName = data.name;
   const startTime = data.startTime;
   const endTime = data.endTime;
   const details = data.details;
   const allegianceFilter = data.allegianceFilter
-
-  if (!(typeof gameId === 'string')
-        || !(typeof missionName === 'string')
-        || !(typeof details === 'string')
-        || !(typeof allegianceFilter === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-
-  if (!(typeof startTime === 'number') || !(typeof endTime === 'number')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
-  }
-
-  if (gameId.length === 0 || missionName.length === 0 || allegianceFilter.length === 0) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'valid string arguments.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, missionName, allegianceFilter])
+  GeneralUtils.verifyOptionalStringArgs([details])
+  GeneralUtils.verifyNumberArgs([startTime, endTime])
 
   const settings = Group.createSettings(
     /* addSelf= */ false,
@@ -822,11 +628,7 @@ if (!context.auth) {
 
 // TODO: run this as a transaction
 exports.updateMission = functions.https.onCall(async (data, context) => {
-if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const missionId = data.missionId;
   const missionName = data.name;
@@ -834,26 +636,9 @@ if (!context.auth) {
   const endTime = data.endTime;
   const details = data.details;
   const allegianceFilter = data.allegianceFilter
-
-  if (!(typeof gameId === 'string')
-        || !(typeof missionId === 'string')
-        || !(typeof missionName === 'string')
-        || !(typeof details === 'string')
-        || !(typeof allegianceFilter === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-
-  if (!(typeof startTime === 'number') || !(typeof endTime === 'number')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
-  }
-
-  if (gameId.length === 0
-      || missionId.length === 0
-      || missionName.length === 0
-      || allegianceFilter.length === 0) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'valid string arguments.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, missionId, missionName, allegianceFilter])
+  GeneralUtils.verifyOptionalStringArgs([details])
+  GeneralUtils.verifyNumberArgs([startTime, endTime])
 
   const missionRef = db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -888,22 +673,10 @@ if (!context.auth) {
 })
 
 exports.deleteMission = functions.https.onCall(async (data, context) => {
-if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const missionId = data.missionId;
-
-  if (!(typeof gameId === 'string') || !(typeof missionId === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-
-  if (gameId.length === 0 || missionId.length === 0) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'valid id arguments.');
-  }
+  GeneralUtils.verifyStringArgs([gameId, missionId])
 
   // Delete the mission document recursively
   const missionRef = db.collection(Game.COLLECTION_PATH)
@@ -941,11 +714,26 @@ if (!context.auth) {
 ********************************************************/
 
 function trimmedString(rawText: any): string {
+  if (!(typeof rawText === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
   return rawText.trim();
+}
+
+function trimAndEnforceNoEmoji(rawText: any): string {
+  if (!(typeof rawText === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
+  let trimmed = rawText.trim()
+  trimmed = trimmed.replace(/\W/g, '') // remove all non alphanumeric chars
+  return trimmed;
 }
 
 // Normalizes the life code to lowercase and replaces spaces with dashes.
 function normalizeLifeCode(rawText: any): string {
+  if (!(typeof rawText === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
+  }
   let processedCode = rawText.trim()
   processedCode = processedCode.toLowerCase()
   processedCode = processedCode.split(' ').join('-')
@@ -984,416 +772,77 @@ async function deleteDocument(documentRef: any) {
 ********************************************************/
 
 exports.createReward = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
-  let shortName = data.shortName;
+  const shortName = trimAndEnforceNoEmoji(data.shortName);
   const longName = data.longName;
   const description = data.description;
   const imageUrl = data.imageUrl;
   const points = data.points;
-
-  if (!(typeof gameId === 'string')
-      || !(typeof shortName === 'string')
-      || !(typeof longName === 'string')
-      || !(typeof description === 'string')
-      || !(typeof imageUrl === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (!(typeof points === 'number')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type Number.");
-  }
-  if (gameId.length === 0
-      || shortName.length === 0
-      || longName.length === 0
-      || description.length === 0
-      || imageUrl.length === 0
-      || points < 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId and valid reward args.');
-  }
-
-  shortName = shortName.trim()
-  shortName = shortName.replace(/\W/g, '') // remove all non alphanumeric chars
-
-  // Verify shortName isn't already used.
-  const rewardQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .where(Reward.FIELD__SHORT_NAME, "==", shortName)
-    .get()
-  if (!rewardQuerySnapshot.empty) {
-    throw new functions.https.HttpsError('failed-precondition', 'Reward with that name already exists.');
-  }
-
-  const reward = Reward.create(shortName, longName, description, imageUrl, points)
-
-  await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .add(reward)
+  GeneralUtils.verifyStringArgs([gameId, shortName, longName])
+  GeneralUtils.verifyOptionalStringArgs([description, imageUrl])
+  GeneralUtils.verifyNumberArgs([points])
+  await RewardImpl.createReward(db, gameId, shortName, longName, description, imageUrl, points)
 });
 
 exports.updateReward = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const rewardId = data.rewardId;
   const longName = data.longName;
   const description = data.description;
   const imageUrl = data.imageUrl;
   const points = data.points;
-
-  if (!(typeof gameId === 'string')
-      || !(typeof rewardId === 'string')
-      || !(typeof longName === 'string')
-      || !(typeof description === 'string')
-      || !(typeof imageUrl === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (!(typeof points === 'number')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type Number.");
-  }
-  if (gameId.length === 0
-      || rewardId.length === 0
-      || points < 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId and valid reward args.');
-  }
-
-  const rewardDocSnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .doc(rewardId)
-    .get()
-
-  const rewardData = rewardDocSnapshot.data()
-  if (rewardData === undefined) {
-    return
-  }
-  const oldPointValue = rewardData.points
-
-  await rewardDocSnapshot.ref.update({
-      [Reward.FIELD__LONG_NAME]: longName,
-      [Reward.FIELD__DESCRIPTION]: description,
-      [Reward.FIELD__IMAGE_URL]: imageUrl,
-      [Reward.FIELD__POINTS]: points
-    })
-
-  // If point value was updated, recalculate player points
-  if (oldPointValue === points) {
-      return
-  }
-  const pointDiff = points - oldPointValue
-  const usedCodesQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .doc(rewardId)
-    .collection(ClaimCode.COLLECTION_PATH)
-    .where(ClaimCode.FIELD__REDEEMER, ">", Defaults.EMPTY_REWARD_REDEEMER)
-    .get();
-
-  usedCodesQuerySnapshot.forEach(async (claimCodeDoc: any) => {
-    const claimData = claimCodeDoc.data()
-    if (claimData === undefined) {
-      return // "continue" in a forEach
-    }
-    const playerId = claimData[ClaimCode.FIELD__REDEEMER]
-    const playerDocRef = db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Player.COLLECTION_PATH)
-      .doc(playerId)
-    await playerDocRef.update({
-      [Player.FIELD__POINTS]: admin.firestore.FieldValue.increment(pointDiff)
-    })
-  });
+  GeneralUtils.verifyStringArgs([gameId, rewardId])
+  GeneralUtils.verifyOptionalStringArgs([longName, description, imageUrl])
+  GeneralUtils.verifyNumberArgs([points])
+  await RewardImpl.updateReward(db, gameId, rewardId, longName, description, imageUrl, points)
 });
 
 exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const rewardId = data.rewardId;
   const numCodes = data.numCodes;
-
-  if (!(typeof gameId === 'string') || !(typeof rewardId === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (!(typeof numCodes === 'number')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type Number.");
-  }
-  if (gameId.length === 0 || rewardId.length === 0 || numCodes < 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId and rewardId and numCodes.');
-  }
-
-  const rewardDocSnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .doc(rewardId)
-    .get()
-
-  const rewardData = await rewardDocSnapshot.data()
-  if (rewardData === undefined) {
-    return
-  }
-
-  // Get existing claim codes
-  const claimCodeQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .doc(rewardId)
-    .collection(ClaimCode.COLLECTION_PATH)
-    .get();
-
-  const existingCodeArray = new Array();
-  if (!claimCodeQuerySnapshot.empty) {
-    claimCodeQuerySnapshot.forEach((claimCodeDoc: any) => {
-      existingCodeArray.push(claimCodeDoc.id)
-    });
-  }
-
-  const generatedCodes: string[] = RewardUtils.generateClaimCode(
-    db,
-    gameId,
-    rewardData,
-    existingCodeArray,
-    numCodes)
-
-  for (let i = 0; i < numCodes; i++) {
-    // Create a new Claim Code document for each code we just generated.
-    const claimCode = ClaimCode.create(generatedCodes[i])
-    await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Reward.COLLECTION_PATH)
-      .doc(rewardId)
-      .collection(ClaimCode.COLLECTION_PATH)
-      .add(claimCode)
-  }
-  console.log("Generated " + numCodes + " for reward: " + rewardId)
+  GeneralUtils.verifyStringArgs([gameId, rewardId])
+  GeneralUtils.verifyNumberArgs([numCodes])
+  await RewardImpl.generateClaimCodes(db, gameId, rewardId, numCodes)
 });
 
 
 exports.getRewardClaimedStats = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const rewardId = data.rewardId;
-
-  if (!(typeof gameId === 'string') || !(typeof rewardId === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0 || rewardId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId and rewardId.');
-  }
-
-  // Get unused claim codes
-  const unusedCodesQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .doc(rewardId)
-    .collection(ClaimCode.COLLECTION_PATH)
-    .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
-    .get();
-
-  // Get used claim codes
-  const usedCodesQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .doc(rewardId)
-    .collection(ClaimCode.COLLECTION_PATH)
-    .where(ClaimCode.FIELD__REDEEMER, ">", Defaults.EMPTY_REWARD_REDEEMER)
-    .get();
-
-  const unusedCount = unusedCodesQuerySnapshot.empty ? 0 : unusedCodesQuerySnapshot.docs.length
-  const usedCount = usedCodesQuerySnapshot.empty ? 0 : usedCodesQuerySnapshot.docs.length
-  return {
-    "unusedCount": unusedCount,
-    "usedCount": usedCount
-  }
+  GeneralUtils.verifyStringArgs([gameId, rewardId])
+  return await RewardImpl.getRewardClaimedStats(db, gameId, rewardId)
 });
 
 
 exports.getAvailableClaimCodes = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
-
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const rewardId = data.rewardId;
-
-  if (!(typeof gameId === 'string') || !(typeof rewardId === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0 || rewardId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-          'a valid gameId and rewardId.');
-  }
-
-  // Get unused claim codes
-  const unusedCodesQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .doc(rewardId)
-    .collection(ClaimCode.COLLECTION_PATH)
-    .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
-    .get();
-
-  if (unusedCodesQuerySnapshot.empty) {
-    return {
-        "claimCodes": []
-      }
-  }
-
-  const codeArray = new Array();
-  unusedCodesQuerySnapshot.forEach((claimCodeDoc: any) => {
-    const claimData = claimCodeDoc.data()
-    if (claimData === undefined) {
-      return // "continue" in a forEach
-    }
-    codeArray.push(claimData[ClaimCode.FIELD__CODE])
-  });
-
-  return {
-    "claimCodes": JSON.stringify(codeArray)
-  }
+  GeneralUtils.verifyStringArgs([gameId, rewardId])
+  return await RewardImpl.getAvailableClaimCodes(db, gameId, rewardId)
 });
 
 
 exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId
-  let claimCode = data.claimCode;
-
-  if (!(typeof gameId === 'string') || !(typeof playerId === 'string') || !(typeof claimCode === 'string')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  claimCode = normalizeLifeCode(claimCode);
-  if (gameId.length === 0 || playerId.length === 0 || claimCode.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'a valid gameId, playerId, and claimCode.');
-  }
-
-  // Check if claim code is associated with valid reward.
-  const shortName = RewardUtils.extractShortNameFromCode(claimCode)
-  const rewardQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .where(Reward.FIELD__SHORT_NAME, "==", shortName)
-    .get()
-  if (rewardQuerySnapshot.empty || rewardQuerySnapshot.docs.length > 1) {
-     throw new functions.https.HttpsError('failed-precondition', 'No valid reward exists.');
-  }
-  const rewardDocSnapshot = rewardQuerySnapshot.docs[0];
-
-  // If the middle code matches the player id then this is a reward we're granting them. Let it be so.
-  const secondCode = RewardUtils.extractPlayerIdFromCode(claimCode)
-  if (secondCode === playerId.toLowerCase()) {
-    await db.collection(Game.COLLECTION_PATH)
-          .doc(gameId)
-          .collection(Reward.COLLECTION_PATH)
-          .doc(rewardDocSnapshot.id)
-          .collection(ClaimCode.COLLECTION_PATH)
-          .add(ClaimCode.create(claimCode))
-  }
-
-  // Check if reward code is valid.
-  const claimCodeQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Reward.COLLECTION_PATH)
-      .doc(rewardDocSnapshot.id)
-      .collection(ClaimCode.COLLECTION_PATH)
-      .where(ClaimCode.FIELD__CODE, "==", claimCode)
-      .where(ClaimCode.FIELD__REDEEMER, "==", Defaults.EMPTY_REWARD_REDEEMER)
-      .get()
-  if (claimCodeQuerySnapshot.empty || claimCodeQuerySnapshot.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'No valid claim code exists.');
-  }
-  const claimCodeDocSnapshot = claimCodeQuerySnapshot.docs[0];
-
-  const playerDocRef = db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Player.COLLECTION_PATH)
-    .doc(playerId)
-  const rewardData = rewardDocSnapshot.data()
-  if (rewardData == undefined) {
-        return
-  }
-  const rewardInfoPath = Player.FIELD__REWARDS + "." + rewardDocSnapshot.id
-
-  // Redeem claim code!
-  await claimCodeDocSnapshot.ref.update({
-    [ClaimCode.FIELD__REDEEMER]: playerId
-  })
-  await playerDocRef.update({
-    [rewardInfoPath]: admin.firestore.FieldValue.increment(1),
-    [Player.FIELD__POINTS]: admin.firestore.FieldValue.increment(rewardData.points)
-  })
+  const claimCode = normalizeLifeCode(data.claimCode);
+  GeneralUtils.verifyStringArgs([gameId, playerId, claimCode])
+  await RewardImpl.redeemRewardCode(db, gameId, playerId, claimCode)
 });
 
 
 exports.getRewardsByName = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError('unauthenticated', 'The function must be called ' +
-          'while authenticated.');
-  }
+  GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
-
-  if (!(typeof gameId === 'string')) {
-        throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  if (gameId.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
-            'a valid gameId.');
-  }
-
-  const allRewardsQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Reward.COLLECTION_PATH)
-    .get()
-  if (allRewardsQuerySnapshot.empty) {
-    return {
-        "rewards": JSON.stringify([...new Map()])
-    }
-  }
-
-  const rewardMap = new Map();
-  allRewardsQuerySnapshot.forEach((rewardDoc: any) => {
-    const rewardData = rewardDoc.data()
-    if (rewardData === undefined) {
-      return // "continue" in a forEach
-    }
-    rewardMap.set(rewardData[Reward.FIELD__SHORT_NAME], rewardDoc.id)
-  });
-
-    return {
-      "rewards": JSON.stringify([...rewardMap])
-    }
+  GeneralUtils.verifyStringArgs([gameId])
+  return await RewardImpl.getRewardsByName(db, gameId)
 });
 
 
@@ -1416,16 +865,11 @@ exports.deleteQuizQuestion = functions.runWith({
     timeoutSeconds: 540,
     memory: '2GB'
 }).https.onCall(async (data, context) => {
-    // Only allow admin users to execute this function.
-    if (!(context.auth)) {
-    /* TODO: only allow for admins once we launch game (&& context.auth.token && context.auth.token.admin) */
-      throw new functions.https.HttpsError('permission-denied', 'Must be an administrative user to initiate delete.');
-    }
-
+    GeneralUtils.verifyIsAdmin(context)
     const gameId = data.gameId;
     const questionId = data.questionId;
     console.log(
-      `User ${context.auth.uid} has requested to delete question ${questionId}`
+      `User ${context.auth!.uid} has requested to delete question ${questionId}`
     );
 
     // Run a recursive delete on the quiz document path.
@@ -1440,4 +884,3 @@ exports.deleteQuizQuestion = functions.runWith({
       await questionRef.delete()
     });
 });
-

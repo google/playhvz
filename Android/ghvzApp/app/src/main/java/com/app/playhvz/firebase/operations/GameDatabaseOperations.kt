@@ -27,7 +27,7 @@ import com.app.playhvz.firebase.constants.PlayerPath
 import com.app.playhvz.firebase.constants.UniversalConstants.Companion.UNIVERSAL_FIELD__USER_ID
 import com.app.playhvz.firebase.firebaseprovider.FirebaseProvider
 import com.app.playhvz.firebase.utils.FirebaseDatabaseUtil
-import com.app.playhvz.utils.GameUtils
+import com.app.playhvz.screens.rules_faq.CollapsibleListFragment
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
@@ -89,12 +89,14 @@ class GameDatabaseOperations {
 
         /** Calls the firebase endpoint for creating a game or handling errors if the game exists. */
         suspend fun asyncTryToCreateGame(
-            name: String,
+            gameDraft: Game,
             successListener: OnSuccessListener<String>,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
             val data = hashMapOf(
-                "name" to name
+                "name" to gameDraft.name,
+                "startTime" to gameDraft.startTime,
+                "endTime" to gameDraft.endTime
             )
 
             FirebaseProvider.getFirebaseFunctions()
@@ -102,7 +104,7 @@ class GameDatabaseOperations {
                 .call(data)
                 .continueWith { task ->
                     if (!task.isSuccessful) {
-                        Log.e(TAG, "Failed to create game $name " + task.exception)
+                        Log.e(TAG, "Failed to create game ${gameDraft.name} " + task.exception)
                         failureListener.invoke()
                         return@continueWith
                     }
@@ -133,17 +135,54 @@ class GameDatabaseOperations {
                     }
             }
 
-        /** Updates the game object. */
+        /** Updates the game object except for rules & faq. */
         suspend fun asyncUpdateGame(
-            game: Game,
+            gameDraft: Game,
             successListener: () -> Unit,
             failureListener: () -> Unit
         ) = withContext(Dispatchers.Default) {
-            if (game.id == null) {
+            if (gameDraft.id == null) {
                 return@withContext
             }
-            // TODO: should this be set or update?
-            GAMES_COLLECTION.document(game.id!!).set(game).addOnSuccessListener {
+            val data = hashMapOf(
+                "gameId" to gameDraft.id,
+                "adminOnCallPlayerId" to gameDraft.adminOnCallPlayerId,
+                "startTime" to gameDraft.startTime,
+                "endTime" to gameDraft.endTime
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("updateGame")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        Log.e(TAG, "Failed to update game, " + task.exception)
+                        return@continueWith
+                    }
+                    successListener.invoke()
+                }
+        }
+
+        /** Updates the game object. */
+        suspend fun asyncUpdateRulesOrFaq(
+            type: CollapsibleListFragment.CollapsibleFragmentType,
+            gameDraft: Game,
+            successListener: () -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            if (gameDraft.id == null) {
+                return@withContext
+            }
+            lateinit var field: String
+            lateinit var value: List<Game.CollapsibleSection>
+            if (type == CollapsibleListFragment.CollapsibleFragmentType.RULES) {
+                field = Game.FIELD__RULES
+                value = gameDraft.rules
+            } else {
+                field = Game.FIELD__FAQ
+                value = gameDraft.faq
+            }
+
+            GAMES_COLLECTION.document(gameDraft.id!!).update(field, value).addOnSuccessListener {
                 successListener.invoke()
             }.addOnFailureListener {
                 Log.e(TAG, "Failed to update game: " + it)

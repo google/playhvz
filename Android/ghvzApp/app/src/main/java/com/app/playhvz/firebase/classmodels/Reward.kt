@@ -43,7 +43,7 @@ class Reward {
     var id: String? = null
     var shortName: String? = null
     var longName: String? = null
-    var description: String? = null
+    var description: String = ""
     var points: Int? = null
-    var imageUrl: String? = null
+    var imageUrl: String = ""
 }

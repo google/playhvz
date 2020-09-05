@@ -208,7 +208,7 @@ class RewardDatabaseOperations {
                 }
         }
 
-        /** Gets available claim codes for the reward. */
+        /** Gets available rewards by name. */
         suspend fun asyncGetRewardsByName(
             gameId: String,
             successListener: (rewards: Map<String, String>) -> Unit,
