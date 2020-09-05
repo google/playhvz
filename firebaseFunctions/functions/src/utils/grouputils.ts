@@ -25,7 +25,7 @@ import * as Mission from '../data/mission';
 import * as Player from '../data/player';
 
 // Creates a group
-export async function createManagedGroups(db: any, uid: any, gameId: string) {
+export async function createManagedGroups(db: any, gameId: string) {
   const globalAllegiances = [
     [Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.globalChatName],
     [Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.gameAdminChatName],

@@ -102,3 +102,30 @@ export function normalizeLifeCode(rawText: any): string {
   processedCode = processedCode.split(' ').join('-')
   return processedCode
 }
+
+export async function deleteCollection(db: any, collection: any) {
+  const collectionRef = db.collection(collection.path)
+  await collectionRef.listDocuments().then((docRefs: any) => {
+    return db.getAll(...docRefs)
+  }).then(async (documentSnapshots: any) => {
+    for (const documentSnapshot of documentSnapshots) {
+       if (documentSnapshot.exists) {
+          console.log(`Found document with data: ${documentSnapshot.id}`);
+       } else {
+          console.log(`Found missing document: ${documentSnapshot.id}`);
+       }
+       await deleteDocument(db, documentSnapshot.ref)
+    }
+  })
+}
+
+async function deleteDocument(db: any, documentRef: any) {
+  await documentRef.listCollections().then(async (collections: any) => {
+        for (const collection of collections) {
+          console.log(`Found subcollection with id: ${collection.id}`);
+          await deleteCollection(db, collection)
+        }
+        // Done deleting all children, can delete this doc now.
+        await documentRef.delete()
+  })
+}

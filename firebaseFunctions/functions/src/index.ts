@@ -21,6 +21,7 @@ import * as Chat from './data/chat';
 import * as ChatUtils from './utils/chatutils';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
+import * as GameImpl from './impl/gameimpl';
 import * as GeneralUtils from './utils/generalutils';
 import * as Group from './data/group';
 import * as GroupUtils from './utils/grouputils';
@@ -62,48 +63,7 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   const endTime = data.endTime
   GeneralUtils.verifyStringArgs([name])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
-
-  const gameQuery = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", name).get();
-  if (!gameQuery.empty) {
-    throw new functions.https.HttpsError('already-exists', 'A game with the given name already exists');
-  }
-
-  const gameData = Game.create(context.auth!.uid, name, startTime, endTime)
-
-  const gameRef = await db.collection(Game.COLLECTION_PATH).add(gameData)
-  const gameId = gameRef.id
-
-  // Create managed properties
-  await GroupUtils.createManagedGroups(db, context.auth!.uid, gameId);
-  await RewardUtils.createManagedRewards(db, gameId)
-
-  const adminGroupQuery = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .where(Group.FIELD__MANAGED, "==", true)
-      .where(Group.FIELD__NAME, "==", Defaults.gameAdminChatName)
-      .get()
-
-  if (!adminGroupQuery.empty && adminGroupQuery.docs.length === 1) {
-    const adminGroupId = adminGroupQuery.docs[0].id
-    await gameRef.update({
-      [Game.FIELD__ADMIN_GROUP_ID]: adminGroupId
-    })
-  }
-
-  // Create admin on call player
-  const player = Player.create("", Defaults.FIGUREHEAD_ADMIN_NAME);
-  const playerDocRef = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Player.COLLECTION_PATH)
-      .add(player);
-
-  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef, /* ignoreAllegiance= */ true)
-  await gameRef.update({
-    [Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]: playerDocRef.id
-  })
-
-  return gameId;
+  return await GameImpl.createGame(db, context.auth!.uid, name, startTime, endTime)
 });
 
 exports.updateGame = functions.https.onCall(async (data, context) => {
@@ -114,93 +74,33 @@ exports.updateGame = functions.https.onCall(async (data, context) => {
   const endTime = data.endTime
   GeneralUtils.verifyStringArgs([gameId, adminOnCallPlayerId])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
-
-  const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
-
-  await gameRef.update({
-      [Game.FIELD__ADMIN_ON_CALL_PLAYER_ID]: adminOnCallPlayerId,
-      [Game.FIELD__START_TIME]: startTime,
-      [Game.FIELD__END_TIME]: endTime
-    });
+  await GameImpl.updateGame(db, gameId, adminOnCallPlayerId, startTime, endTime)
 });
 
 exports.checkGameExists = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
-  let name = trimmedString(data.name);
+  const name = trimmedString(data.name);
   GeneralUtils.verifyStringArgs([name])
-
-  const querySnapshot = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", name).get();
-  if (querySnapshot.empty || querySnapshot.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'No game with given name exists.');
-  }
+  await GameImpl.checkGameExists(db, name)
 });
 
 
 exports.joinGame = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
-  const uid = context.auth!.uid;
   const gameName = trimmedString(data.gameName);
   const playerName = trimmedString(data.playerName);
   GeneralUtils.verifyStringArgs([gameName, playerName])
-
-  const gameQuerySnapshot = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", gameName).get();
-  if (gameQuerySnapshot.empty || gameQuerySnapshot.docs.length > 1) {
-     throw new functions.https.HttpsError('failed-precondition', 'No game with given name exists.');
-  }
-  const game = gameQuerySnapshot.docs[0];
-  const gameId = game.id;
-  const userPlayerQuerySnapshot = await PlayerUtils.getUsersPlayersQuery(db, uid, gameId).get();
-  if (!userPlayerQuerySnapshot.empty) {
-    throw new functions.https.HttpsError('failed-precondition', 'User is already a player in this game.');
-  }
-
-  const playerNameQuerySnapshot = await PlayerUtils.getPlayersWithNameQuery(db, gameId, playerName).get();
-  if (!playerNameQuerySnapshot.empty) {
-      throw new functions.https.HttpsError('failed-precondition', 'Player name already taken.');
-  }
-
-  const player = Player.create(uid, playerName);
-  const playerDocRef = (await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Player.COLLECTION_PATH)
-    .add(player));
-
-  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef, /* ignoreAllegiance= */ false)
-  return gameId
+  return await GameImpl.joinGame(db, context.auth!.uid, gameName, playerName)
 });
 
-
-/**
- * Initiate a recursive delete of documents at a given path.
- *
- * The calling user must be authenticated and have the custom "admin" attribute
- * set to true on the auth token.
- *
- * This delete is NOT an atomic operation and it's possible
- * that it may fail after only deleting some documents.
- *
- * @param {string} data.path the document or collection path to delete.
- */
 exports.deleteGame = functions.runWith({
     timeoutSeconds: 540,
     memory: '2GB'
 }).https.onCall(async (data, context) => {
-    GeneralUtils.verifyIsGameOwner(context)
-    const gameId = data.gameId;
-    GeneralUtils.verifyStringArgs([gameId])
-
-    console.log(
-      `User ${context.auth!.uid} has requested to delete game ${gameId}`
-    );
-
-    // Run a recursive delete on the game document path.
-    const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
-    await gameRef.listCollections().then(async (collections: any) => {
-      for (const collection of collections) {
-        await deleteCollection(collection)
-      }
-      await gameRef.delete()
-    });
+  GeneralUtils.verifyIsGameOwner(context)
+  const gameId = data.gameId;
+  GeneralUtils.verifyStringArgs([gameId])
+  await GameImpl.deleteGame(db, context.auth!.uid, gameId)
 });
 
 /*******************************************************
@@ -699,7 +599,7 @@ exports.deleteMission = functions.https.onCall(async (data, context) => {
   const associatedGroupId = missionData[Mission.FIELD__GROUP_ID]
   await missionRef.listCollections().then(async (collections: any) => {
     for (const collection of collections) {
-      await deleteCollection(collection)
+      await GeneralUtils.deleteCollection(db, collection)
     }
     await missionRef.delete()
   });
@@ -712,7 +612,7 @@ exports.deleteMission = functions.https.onCall(async (data, context) => {
     .doc(associatedGroupId);
   await groupRef.listCollections().then(async (collections: any) => {
     for (const collection of collections) {
-      await deleteCollection(collection)
+      await GeneralUtils.deleteCollection(db, collection)
     }
     await groupRef.delete()
   });
@@ -736,33 +636,6 @@ function trimAndEnforceNoEmoji(rawText: any): string {
   let trimmed = rawText.trim()
   trimmed = trimmed.replace(/\W/g, '') // remove all non alphanumeric chars
   return trimmed;
-}
-
-async function deleteCollection(collection: any) {
-  const collectionRef = db.collection(collection.path)
-  await collectionRef.listDocuments().then((docRefs: any) => {
-    return db.getAll(...docRefs)
-  }).then(async (documentSnapshots: any) => {
-    for (const documentSnapshot of documentSnapshots) {
-       if (documentSnapshot.exists) {
-          console.log(`Found document with data: ${documentSnapshot.id}`);
-       } else {
-          console.log(`Found missing document: ${documentSnapshot.id}`);
-       }
-       await deleteDocument(documentSnapshot.ref)
-    }
-  })
-}
-
-async function deleteDocument(documentRef: any) {
-  await documentRef.listCollections().then(async (collections: any) => {
-        for (const collection of collections) {
-          console.log(`Found subcollection with id: ${collection.id}`);
-          await deleteCollection(collection)
-        }
-        // Done deleting all children, can delete this doc now.
-        await documentRef.delete()
-  })
 }
 
 /*******************************************************
@@ -879,7 +752,7 @@ exports.deleteQuizQuestion = functions.runWith({
       .doc(questionId);
     await questionRef.listCollections().then(async (collections: any) => {
       for (const collection of collections) {
-        await deleteCollection(collection)
+        await GeneralUtils.deleteCollection(db, collection)
       }
       await questionRef.delete()
     });
