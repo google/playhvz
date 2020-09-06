@@ -75,9 +75,11 @@ class SingleInstanceNavigator(
 
         val fragment = manager.findFragmentByTag(destinationTag)
         if (fragment == null) {
-            // We're creating the fragment for the first time so use the super class method so that
-            // back navigation, animations, action bar titles, etc are done correctly.
-            tr.commitNow() // pop old fragment if necessary, otherwise no-op
+            if (initialNavigate) {
+                // We're creating the fragment for the first time so use the super class method so that
+                // back navigation, animations, action bar titles, etc are done correctly.
+                tr.commitNow() // pop old fragment if necessary, otherwise no-op
+            }
             return super.navigate(destination, args, navOptions, navigatorExtras)
         } else {
             tr.attach(fragment)

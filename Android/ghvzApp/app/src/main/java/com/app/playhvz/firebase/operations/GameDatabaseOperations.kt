@@ -21,6 +21,13 @@ import android.util.Log
 import com.app.playhvz.app.debug.DebugFlags
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
+import com.app.playhvz.firebase.classmodels.Stat
+import com.app.playhvz.firebase.classmodels.Stat.Companion.FIELD__CURRENT_HUMAN_COUNT
+import com.app.playhvz.firebase.classmodels.Stat.Companion.FIELD__CURRENT_ZOMBIE_COUNT
+import com.app.playhvz.firebase.classmodels.Stat.Companion.FIELD__OVER_TIME_INFECTION_COUNT
+import com.app.playhvz.firebase.classmodels.Stat.Companion.FIELD__OVER_TIME_TIMESTAMP
+import com.app.playhvz.firebase.classmodels.Stat.Companion.FIELD__STARTER_ZOMBIE_COUNT
+import com.app.playhvz.firebase.classmodels.Stat.Companion.FIELD__STATS_OVER_TIME
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAMES_COLLECTION
 import com.app.playhvz.firebase.constants.GamePath.Companion.GAME_FIELD__CREATOR_ID
 import com.app.playhvz.firebase.constants.PlayerPath
@@ -33,6 +40,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 
 class GameDatabaseOperations {
     companion object {
@@ -188,6 +196,48 @@ class GameDatabaseOperations {
                 Log.e(TAG, "Failed to update game: " + it)
                 failureListener.invoke()
             }
+        }
+
+
+        /** Check if game exists and tries to add player to game if so. */
+        suspend fun asyncGetGameStats(
+            gameId: String,
+            successListener: (stats: Stat) -> Unit,
+            failureListener: () -> Unit
+        ) = withContext(Dispatchers.Default) {
+            val data = hashMapOf(
+                "gameId" to gameId
+            )
+            FirebaseProvider.getFirebaseFunctions()
+                .getHttpsCallable("getGameStats")
+                .call(data)
+                .continueWith { task ->
+                    if (!task.isSuccessful) {
+                        failureListener.invoke()
+                        return@continueWith
+                    }
+                    // Game Stat object is returned.
+                    if (task.result != null) {
+                        val stat = Stat()
+                        try {
+                            val resultMap = task.result!!.data as Map<*, *>
+                            stat.currentHumanCount = resultMap[FIELD__CURRENT_HUMAN_COUNT] as Int
+                            stat.currentZombieCount = resultMap[FIELD__CURRENT_ZOMBIE_COUNT] as Int
+                            stat.starterZombieCount = resultMap[FIELD__STARTER_ZOMBIE_COUNT] as Int
+                            val asHashMapArray = resultMap[FIELD__STATS_OVER_TIME] as ArrayList<HashMap<String, Any>>
+                            val asStatTypeArray: MutableList<Stat.StatOverTime> = mutableListOf()
+                            for (item in asHashMapArray) {
+                                val statType = Stat.StatOverTime()
+                                statType.interval = item[FIELD__OVER_TIME_TIMESTAMP] as Long
+                                statType.infectionCount = item[FIELD__OVER_TIME_INFECTION_COUNT] as Int
+                                asStatTypeArray.add(statType)
+                            }
+                            stat.statsOverTime = asStatTypeArray
+                        } finally {
+                            successListener.invoke(stat)
+                        }
+                    }
+                }
         }
 
         /** Returns a Query listing all Games created by the current user. */

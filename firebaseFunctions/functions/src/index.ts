@@ -32,6 +32,7 @@ import * as Mission from './data/mission';
 import * as QuizQuestion from './data/quizquestion';
 import * as RewardImpl from './impl/rewardimpl';
 import * as RewardUtils from './utils/rewardutils';
+import * as StatUtils from './utils/statutils';
 import * as User from './data/user';
 
 admin.initializeApp();
@@ -103,6 +104,13 @@ exports.deleteGame = functions.runWith({
   await GameImpl.deleteGame(db, context.auth!.uid, gameId)
 });
 
+exports.getGameStats = functions.https.onCall(async (data, context) => {
+  GeneralUtils.verifySignedIn(context)
+  const gameId = data.gameId;
+  GeneralUtils.verifyStringArgs([gameId])
+  return await GameImpl.getGameStats(db, gameId)
+});
+
 /*******************************************************
 * PLAYER functions
 ********************************************************/
@@ -147,6 +155,8 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
   if (infectedPlayerData[Player.FIELD__ALLEGIANCE] === Defaults.HUMAN_ALLEGIANCE_FILTER) {
     // TODO: make this a transaction.
     await RewardUtils.giveRewardForInfecting(db, gameId, infectorPlayerId)
+    // TODO: Make sure we're invalidating game stats at the right time
+    await StatUtils.invalidateGameStats(db, gameId)
     // Mark life code as used, aka deactivated
     await infectedPlayerSnapshot.ref.update({
       [lifeCodeStatusField]: false

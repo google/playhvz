@@ -355,6 +355,10 @@
     HvZ
   </string>
 
+  <string name="game_stats_error_label" definition="Error label when showing game stats failed">
+    Error: can\'t show stats, try again.
+  </string>
+
   <string name="generic_success_toast" definition="Toast shown when a user action successfully finished.">
     Success!
   </string>
@@ -537,6 +541,10 @@
 
   <string name="navigation_drawer_game_settings" definition="Navigation drawer menu item for opening settings for the current game.">
     Game settings
+  </string>
+
+  <string name="navigation_drawer_game_stats" definition="Game stats nav drawer label.">
+    Game stats
   </string>
 
   <string name="navigation_drawer_admin_chat_list" definition="Navigation drawer menu item for opening list of chats admin is in for the current game.">

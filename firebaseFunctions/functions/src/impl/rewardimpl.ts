@@ -283,7 +283,7 @@ export async function redeemRewardCode (
     .collection(Player.COLLECTION_PATH)
     .doc(playerId)
   const rewardData = rewardDocSnapshot.data()
-  if (rewardData == undefined) {
+  if (rewardData === undefined) {
         return
   }
   const rewardInfoPath = Player.FIELD__REWARDS + "." + rewardDocSnapshot.id

@@ -30,6 +30,7 @@ import com.app.playhvz.screens.declareallegiance.TakeQuizFragmentDirections
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
+import com.app.playhvz.screens.gamestats.GameStatsFragmentDirections
 import com.app.playhvz.screens.leaderboard.LeaderboardFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
@@ -84,6 +85,15 @@ class NavigationUtil {
         fun navigateToGameSettings(navController: NavController, gameId: String?) {
             navController.navigate(
                 GameSettingsFragmentDirections.actionGlobalNavGameSettingsFragment(gameId)
+            )
+        }
+
+        /**
+         * Opens the Game Stats screen.
+         */
+        fun navigateToGameStats(navController: NavController) {
+            navController.navigate(
+                GameStatsFragmentDirections.actionGlobalNavGameStatsFragment()
             )
         }
 
@@ -304,7 +314,6 @@ class NavigationUtil {
                 LeaderboardFragmentDirections.actionGlobalNavLeaderboardFragment()
             )
         }
-
 
         /**
          * Opens the lifecode redemption (aka infection) view.

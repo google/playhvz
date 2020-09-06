@@ -39,3 +39,6 @@ export const DECLARE_REWARD_LONG_NAME = "By jolly, I declare";
 export const DECLARE_REWARD_DESCRIPTION = "I'm a great player, I play by the rules";
 export const DECLARE_REWARD_IMAGE_URL = "";
 export const DECLARE_REWARD_POINTS = 10;
+
+export const GAME_STATS_DIVIDEND = 5; // Splits game stats into 5 equal sections of game play
+export const GAME_STATS_NO_DATA = -1;

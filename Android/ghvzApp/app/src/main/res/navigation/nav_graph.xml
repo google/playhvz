@@ -160,6 +160,11 @@
     android:id="@+id/action_global_nav_leaderboard_fragment"
     app:destination="@id/nav_leaderboard_fragment" />
 
+  <action
+    android:id="@+id/action_global_nav_game_stats_fragment"
+    app:destination="@id/nav_game_stats_fragment" />
+
+
   <single_instance_fragment
     android:id="@+id/nav_game_dashboard_fragment"
     android:name="com.app.playhvz.screens.gamedashboard.GameDashboardFragment"
@@ -394,5 +399,9 @@
     android:label="@string/navigation_drawer_leaderboard"
     tools:layout="@layout/fragment_leaderboard" />
 
-
+  <single_instance_fragment
+    android:id="@+id/nav_game_stats_fragment"
+    android:name="com.app.playhvz.screens.gamestats.GameStatsFragment"
+    android:label="@string/navigation_drawer_game_stats"
+    tools:layout="@layout/fragment_game_stats" />
 </navigation>

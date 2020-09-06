@@ -23,6 +23,9 @@ import * as GroupUtils from '../utils/grouputils';
 import * as Player from '../data/player';
 import * as PlayerUtils from '../utils/playerutils';
 import * as RewardUtils from '../utils/rewardutils';
+import * as Stat from '../data/stat';
+import * as StatUtils from '../utils/statutils';
+
 
 /**
  * Function to create a new game and all the internals required.
@@ -34,7 +37,7 @@ export async function createGame(
   startTime: number,
   endTime: number
 ): Promise<string> {
-  const gameQuery = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", name).get();
+  const gameQuery = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", gameName).get();
   if (!gameQuery.empty) {
     throw new functions.https.HttpsError('already-exists', 'A game with the given name already exists');
   }
@@ -167,4 +170,42 @@ export async function deleteGame(
       }
       await gameRef.delete()
     });
+}
+
+
+/**
+ * Function that returns the latest game stats to the player. If stats are out of date then they
+ * will be freshly calculated.
+ *
+ * @returns The game's stats as a JSON
+ */
+export async function getGameStats(
+  db: any,
+  gameId: string
+): Promise<{ [key: string]: any; }> {
+  const gameSnapshot = await db.collection(Game.COLLECTION_PATH).doc(gameId).get()
+  const gameData = gameSnapshot.data()
+  if (gameData === undefined) {
+    throw new functions.https.HttpsError('failed-precondition', 'Error getting game data.');
+  }
+
+  if (!gameData[Game.FIELD__STAT_ID]) {
+    // Stat object doesn't exist yet, create it.
+    return StatUtils.createGameStats(db, gameId, gameData)
+  }
+  const statId = gameData[Game.FIELD__STAT_ID]
+  const statSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Stat.COLLECTION_PATH)
+    .doc(statId)
+    .get()
+  const statData = statSnapshot.data()
+  if (statData === undefined) {
+    throw new functions.https.HttpsError('failed-precondition', 'Error getting game stats.');
+  }
+  if (statData[Stat.FIELD__IS_OUT_OF_DATE]) {
+    // Stats are out of date, recalculate them.
+    return StatUtils.updateGameStats(db, gameId, gameData)
+  }
+  return Stat.formattedForReturn(statData)
 }

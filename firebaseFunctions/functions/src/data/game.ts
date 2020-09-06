@@ -26,6 +26,7 @@ export const FIELD__ADMIN_GROUP_ID = "adminGroupId";
 export const FIELD__ADMIN_ON_CALL_PLAYER_ID = "adminOnCallPlayerId";
 export const FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT = "figureheadAdminPlayerAccount";
 export const FIELD__INFECT_REWARD_ID = "infectRewardId";
+export const FIELD__STAT_ID = "statId";
 
 export function create(
   creatorUserId: string,
