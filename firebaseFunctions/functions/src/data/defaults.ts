@@ -41,4 +41,4 @@ export const DECLARE_REWARD_IMAGE_URL = "";
 export const DECLARE_REWARD_POINTS = 10;
 
 export const GAME_STATS_DIVIDEND = 5; // Splits game stats into 5 equal sections of game play
-export const GAME_STATS_NO_DATA = -1;
+export const GAME_STATS_NO_DATA = 0;

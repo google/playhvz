@@ -16,7 +16,10 @@
 
 package com.app.playhvz.common.globals
 
+import android.content.Context
 import android.graphics.Color
+import androidx.core.content.ContextCompat
+import androidx.core.content.contentValuesOf
 
 class CrossClientConstants {
     companion object {
@@ -25,8 +28,6 @@ class CrossClientConstants {
         const val UNDECLARED = "undeclared"
         const val BLANK_ALLEGIANCE_FILTER = "none"
         val DEAD_ALLEGIANCES = arrayOf(ZOMBIE)
-        const val ALIVE_COLOR: Int = Color.MAGENTA
-        const val DEAD_COLOR: Int = Color.GREEN
         const val REWARD_POINT_VALUE = 20
 
         const val QUIZ_TYPE_MULTIPLE_CHOICE = "multipleChoice"
@@ -34,6 +35,14 @@ class CrossClientConstants {
         const val QUIZ_TYPE_ORDER = "order"
         const val QUIZ_TYPE_INFO = "info"
         const val QUIZ_BLANK_ORDER = -1
+
+        fun getAliveColor(context: Context): Int {
+            return ContextCompat.getColor(context, com.app.playhvz.R.color.aliveColor)
+        }
+
+        fun getDeadColor(context: Context): Int {
+            return ContextCompat.getColor(context, com.app.playhvz.R.color.deadColor)
+        }
 
         fun getDeclareQuizRewardCode(playerId: String): String {
             return getPlayerSpecificRewardCode("declare", playerId)

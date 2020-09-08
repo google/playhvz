@@ -103,6 +103,15 @@ export function normalizeLifeCode(rawText: any): string {
   return processedCode
 }
 
+export function verifyStartEndTime(startTime: number, endTime: number) {
+  if (startTime === 0 && endTime === 0) {
+    return
+  }
+  if (endTime < startTime) {
+    throw new functions.https.HttpsError('failed-precondition', 'Error, start must be less than end.');
+  }
+}
+
 export async function deleteCollection(db: any, collection: any) {
   const collectionRef = db.collection(collection.path)
   await collectionRef.listDocuments().then((docRefs: any) => {

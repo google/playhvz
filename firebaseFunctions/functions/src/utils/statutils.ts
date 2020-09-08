@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as functions from 'firebase-functions';
-
 import * as ClaimCode from '../data/claimcode';
 import * as Defaults from '../data/defaults';
 import * as Game from '../data/game';
@@ -94,7 +92,6 @@ export async function updateGameStats(
     // Bucket infections based on time of infection.
     const gameStartTime = gameData[Game.FIELD__START_TIME]
     const gameEndTime = gameData[Game.FIELD__END_TIME]
-    // TODO: Add error checking that start time is always < end time
     const interval = (gameEndTime - gameStartTime) / Defaults.GAME_STATS_DIVIDEND
     const statsOverTimeArray = new Array();
     for (let i = gameStartTime; i <= gameEndTime; i += interval) {
@@ -112,12 +109,13 @@ export async function updateGameStats(
         [Stat.FIELD__IS_OUT_OF_DATE]: false,
         [Stat.FIELD__STATS_OVER_TIME]: statsOverTimeArray
     })
-    const updatedData = (await statRef.get()).data()
-    if (updatedData === undefined) {
-      throw new functions.https.HttpsError('failed-precondition', 'Error getting updated game stats.');
-    } else {
-      return Stat.formattedForReturn(updatedData)
-    }
+    const updatedData = Stat.create(
+      currentHumanCount,
+      currentZombieCount,
+      starterZombieCount,
+      statsOverTimeArray
+    )
+    return updatedData
 }
 
 async function getCurrentHumanCount(

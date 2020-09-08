@@ -40,4 +40,6 @@
   <dimen name="chat_message_padding_bottom">6dp</dimen>
   <dimen name="chat_message_text_size">18sp</dimen>
 
+  <dimen name="game_stats_chart_height">300dp</dimen>
+
 </resources>

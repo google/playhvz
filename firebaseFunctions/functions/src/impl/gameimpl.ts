@@ -41,6 +41,7 @@ export async function createGame(
   if (!gameQuery.empty) {
     throw new functions.https.HttpsError('already-exists', 'A game with the given name already exists');
   }
+  GeneralUtils.verifyStartEndTime(startTime, endTime)
   const gameData = Game.create(uid, gameName, startTime, endTime)
   const gameRef = await db.collection(Game.COLLECTION_PATH).add(gameData)
   const gameId = gameRef.id
@@ -86,7 +87,12 @@ export async function updateGame(
   startTime: number,
   endTime: number
 ) {
+  GeneralUtils.verifyStartEndTime(startTime, endTime)
   const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
+  const gameData = (await gameRef.get()).data()
+  if (gameData[Game.FIELD__START_TIME] !== startTime || gameData[Game.FIELD__END_TIME] !== endTime) {
+    await StatUtils.invalidateGameStats(db, gameId)
+  }
   await gameRef.update({
       [Game.FIELD__ADMIN_ON_CALL_PLAYER_ID]: adminOnCallPlayerId,
       [Game.FIELD__START_TIME]: startTime,

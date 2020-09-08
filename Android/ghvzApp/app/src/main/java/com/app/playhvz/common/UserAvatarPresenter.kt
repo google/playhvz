@@ -20,10 +20,8 @@ import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.lifecycle.LiveData
 import com.app.playhvz.R
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.ALIVE_COLOR
-import com.app.playhvz.common.globals.CrossClientConstants.Companion.DEAD_COLOR
+import com.app.playhvz.common.globals.CrossClientConstants
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.utils.ImageDownloaderUtils
 import com.app.playhvz.utils.PlayerUtils
@@ -56,13 +54,12 @@ class UserAvatarPresenter(avatarView: View, sizeDimenRes: Int) {
             AppCompatResources.getDrawable(avatarBorderView.context, R.drawable.border_circle)
         val wrappedDrawable =
             DrawableCompat.wrap(unwrappedDrawable!!)
-        DrawableCompat.setTint(
-            wrappedDrawable, if (aliveStatus == AliveStatus.ALIVE) {
-                ALIVE_COLOR
-            } else {
-                DEAD_COLOR
-            }
-        )
+        val ringColor = if (aliveStatus == AliveStatus.ALIVE) {
+            CrossClientConstants.getAliveColor(avatarBorderView.context)
+        } else {
+            CrossClientConstants.getDeadColor(avatarBorderView.context)
+        }
+        DrawableCompat.setTint(wrappedDrawable, ringColor)
         avatarBorderView.background = wrappedDrawable
 
         avatarBorderView.contentDescription = avatarBorderView.resources.getString(

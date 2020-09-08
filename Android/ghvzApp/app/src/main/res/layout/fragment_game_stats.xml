@@ -14,28 +14,25 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  tools:context=".screens.redeemcode.RedeemCodeFragment">
+  android:layout_height="match_parent">
 
-  <ProgressBar
-    android:id="@+id/progress_bar"
-    style="?android:attr/progressBarStyleHorizontal"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/horizontal_progress_bar_height"
-    android:indeterminate="true"
-    android:paddingStart="@dimen/screen_margin_horizontal"
-    android:paddingEnd="@dimen/screen_margin_horizontal"
-    android:visibility="gone" />
-
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:orientation="vertical">
+
+    <ProgressBar
+      android:id="@+id/progress_bar"
+      style="?android:attr/progressBarStyleHorizontal"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/horizontal_progress_bar_height"
+      android:indeterminate="true"
+      android:paddingStart="@dimen/screen_margin_horizontal"
+      android:paddingEnd="@dimen/screen_margin_horizontal"
+      android:visibility="gone" />
 
     <TextView
       android:id="@+id/error_label"
@@ -43,17 +40,52 @@
       android:layout_height="wrap_content"
       android:text="@string/game_stats_error_label"
       android:textColor="@color/red"
-      android:visibility="gone"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
+      android:visibility="gone" />
 
-    <TextView
-      android:id="@+id/debug_text"
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/chart_container"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="@dimen/screen_margin_horizontal"
-      app:layout_constraintTop_toTopOf="parent" />
-  </androidx.constraintlayout.widget.ConstraintLayout>
+      android:layout_height="0dp"
+      android:layout_margin="8dp"
+      android:layout_weight="1">
 
-</LinearLayout>
+      <TextView
+        android:id="@+id/current_population_label"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/game_stats_current_population_label"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/current_population_chart"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/game_stats_chart_height"
+        android:layout_margin="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/current_population_label" />
+
+      <TextView
+        android:id="@+id/population_over_time_label"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/game_stats_population_over_time_label"
+        app:layout_constraintTop_toBottomOf="@id/current_population_chart" />
+
+      <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/population_over_time_chart"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/game_stats_chart_height"
+        android:layout_margin="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/population_over_time_label" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+  </LinearLayout>
+</ScrollView>

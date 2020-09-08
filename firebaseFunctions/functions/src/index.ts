@@ -155,8 +155,6 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
   if (infectedPlayerData[Player.FIELD__ALLEGIANCE] === Defaults.HUMAN_ALLEGIANCE_FILTER) {
     // TODO: make this a transaction.
     await RewardUtils.giveRewardForInfecting(db, gameId, infectorPlayerId)
-    // TODO: Make sure we're invalidating game stats at the right time
-    await StatUtils.invalidateGameStats(db, gameId)
     // Mark life code as used, aka deactivated
     await infectedPlayerSnapshot.ref.update({
       [lifeCodeStatusField]: false
@@ -524,6 +522,7 @@ exports.createMission = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifyOptionalStringArgs([details])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
 
+  GeneralUtils.verifyStartEndTime(startTime, endTime)
   const settings = Group.createSettings(
     /* addSelf= */ false,
     /* addOthers= */ false,
@@ -559,6 +558,7 @@ exports.updateMission = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifyOptionalStringArgs([details])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
 
+  GeneralUtils.verifyStartEndTime(startTime, endTime)
   const missionRef = db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Mission.COLLECTION_PATH)

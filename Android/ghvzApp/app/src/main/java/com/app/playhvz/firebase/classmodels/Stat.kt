@@ -28,14 +28,11 @@ class Stat {
     }
 
     var id: String? = null
-    var currentHumanCount: Int = -1
-    var currentZombieCount: Int = -1
-    var starterZombieCount: Int = -1
+    var currentHumanCount: Int = 0
+    var currentZombieCount: Int = 0
+    var starterZombieCount: Int = 0
     var isOutOfData = false
     var statsOverTime: List<StatOverTime> = listOf()
 
-    class StatOverTime {
-        var interval: Long = 0
-        var infectionCount: Int = -1
-    }
+    class StatOverTime(var interval: Long = 0, var infectionCount: Int = 0) {}
 }

@@ -359,6 +359,14 @@
     Error: can\'t show stats, try again.
   </string>
 
+  <string name="game_stats_current_population_label" definition="Label for the pie chart showing the current population.">
+    Current Population
+  </string>
+
+  <string name="game_stats_population_over_time_label" definition="Label for the line chart showing the population over time.">
+    Population Over Time
+  </string>
+
   <string name="generic_success_toast" definition="Toast shown when a user action successfully finished.">
     Success!
   </string>
