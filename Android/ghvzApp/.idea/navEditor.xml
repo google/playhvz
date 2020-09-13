@@ -53,6 +53,16 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_global_nav_game_stats_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
+                  <entry key="action_global_nav_leaderboard_fragment">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="action_global_nav_mission_dashboard_fragment">
                     <value>
                       <LayoutPositions />
@@ -224,6 +234,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="nav_game_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="nav_game_list_fragment">
                     <value>
                       <LayoutPositions>
@@ -248,7 +270,7 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="nav_lea_fragment">
+                  <entry key="nav_leaderboard_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">

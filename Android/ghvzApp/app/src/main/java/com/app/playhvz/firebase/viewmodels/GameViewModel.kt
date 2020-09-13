@@ -205,6 +205,7 @@ class GameViewModel() : ViewModel() {
         gameWithAdminStatus = HvzData()
         adminGroup = HvzData()
         isAdmin = HvzData()
+        stopListening()
     }
 
     private fun stopListening() {

@@ -17,8 +17,10 @@
 package com.app.playhvz.navigation
 
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.app.playhvz.common.globals.SharedPreferencesConstants
+import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.screens.chatlist.AdminChatListFragmentDirections
 import com.app.playhvz.screens.chatlist.ChatListFragmentDirections
 import com.app.playhvz.screens.chatroom.ChatRoomFragmentDirections
@@ -28,6 +30,7 @@ import com.app.playhvz.screens.declareallegiance.TakeQuizFragmentDirections
 import com.app.playhvz.screens.gamedashboard.GameDashboardFragmentDirections
 import com.app.playhvz.screens.gamelist.GameListFragmentDirections
 import com.app.playhvz.screens.gamesettings.GameSettingsFragmentDirections
+import com.app.playhvz.screens.gamestats.GameStatsFragmentDirections
 import com.app.playhvz.screens.leaderboard.LeaderboardFragmentDirections
 import com.app.playhvz.screens.missions.MissionDashboardFragmentDirections
 import com.app.playhvz.screens.missions.missionsettings.MissionSettingsFragmentDirections
@@ -85,6 +88,15 @@ class NavigationUtil {
             )
         }
 
+        /**
+         * Opens the Game Stats screen.
+         */
+        fun navigateToGameStats(navController: NavController) {
+            navController.navigate(
+                GameStatsFragmentDirections.actionGlobalNavGameStatsFragment()
+            )
+        }
+
         /** Clears the saved game id and opens the game list. */
         fun navigateToGameList(navController: NavController, activity: FragmentActivity) {
             val editor =
@@ -92,6 +104,7 @@ class NavigationUtil {
             editor.putString(SharedPreferencesConstants.CURRENT_GAME_ID, null)
             editor.putString(SharedPreferencesConstants.CURRENT_PLAYER_ID, null)
             editor.apply()
+            ViewModelProvider(activity).get(GameViewModel::class.java).reset()
             navController.navigate(GameListFragmentDirections.actionGlobalNavGameListFragment())
         }
 
@@ -301,7 +314,6 @@ class NavigationUtil {
                 LeaderboardFragmentDirections.actionGlobalNavLeaderboardFragment()
             )
         }
-
 
         /**
          * Opens the lifecode redemption (aka infection) view.

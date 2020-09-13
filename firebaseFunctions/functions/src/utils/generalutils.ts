@@ -17,14 +17,14 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 export function hashString(hashableString: string): number {
-    let hash: number = 0;
-    if (hashableString.length === 0) return hash;
-    for (let i= 0; i < hashableString.length; i++) {
-        const char = hashableString.charCodeAt(i);
-        hash = ((hash<<5)-hash)+char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash;
+  let hash: number = 0;
+  if (hashableString.length === 0) return hash;
+  for (let i = 0; i < hashableString.length; i++) {
+    const char = hashableString.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
 };
 
 export function getTimestamp(): any {
@@ -33,14 +33,14 @@ export function getTimestamp(): any {
 
 /* There's a javascript bug with %, use our own function so negatives mod correctly. */
 export function mod(randValue: number, maxValue: number): number {
-    return ((randValue % maxValue) + maxValue) % maxValue;
+  return ((randValue % maxValue) + maxValue) % maxValue;
 }
 
 export function verifySignedIn(context: any) {
   if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError(
-        'unauthenticated', 'The function must be called while authenticated.');
+    // Throwing an HttpsError so that the client gets the error details.
+    throw new functions.https.HttpsError(
+      'unauthenticated', 'The function must be called while authenticated.');
   }
 }
 
@@ -60,34 +60,75 @@ export function verifyIsGameOwner(context: any) {
 
 
 // Verifies that the provided args are type "string" and are not empty.
-export function verifyStringArgs(args: any []) {
-  for (const arg of args) {
+export function verifyStringArgs(args: any[]) {
+  args.forEach((arg, index) => {
     if (!(typeof arg === 'string')) {
       throw new functions.https.HttpsError('invalid-argument', "Expected value to be type string.");
     }
     if (arg.length === 0) {
-      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-empty string arg.");
+      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-empty string arg at position " + index + ".");
     }
-  }
+  })
 }
 
-// Verifies that the provided args are type "string" only.
-export function verifyOptionalStringArgs(args: any []) {
-  for (const arg of args) {
+// Only verifies that the provided args are type "string".
+export function verifyOptionalStringArgs(args: any[]) {
+  args.forEach((arg, index) => {
     if (!(typeof arg === 'string')) {
-      throw new functions.https.HttpsError('invalid-argument', "Expected value to be type string.");
+      throw new functions.https.HttpsError('invalid-argument', "Expected optional value at position " + index + " to be type string.");
     }
-  }
+  })
 }
 
 // Verifies that the provided args are type "number" and are not less than 0.
-export function verifyNumberArgs(args: any []) {
-  for (const arg of args) {
+export function verifyNumberArgs(args: any[]) {
+  args.forEach((arg, index) => {
     if (!(typeof arg === 'number')) {
       throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
     }
     if (arg < 0) {
-      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-negative number arg.");
+      throw new functions.https.HttpsError('invalid-argument', "The function must be called with a non-negative number arg at position " + index + ".");
     }
+  })
+}
+
+// Normalizes the life code to lowercase and replaces spaces with dashes.
+export function normalizeLifeCode(rawText: any): string {
+  if (!(typeof rawText === 'string')) {
+    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
   }
+  let processedCode = rawText.trim()
+  processedCode = processedCode.toLowerCase()
+  processedCode = processedCode.split(' ').join('-')
+  return processedCode
+}
+
+export function verifyStartEndTime(startTime: number, endTime: number) {
+  if (startTime === 0 && endTime === 0) {
+    return
+  }
+  if (endTime < startTime) {
+    throw new functions.https.HttpsError('failed-precondition', 'Error, start must be less than end.');
+  }
+}
+
+export async function deleteCollection(db: any, collection: any) {
+  const collectionRef = db.collection(collection.path)
+  await collectionRef.listDocuments().then((docRefs: any) => {
+    return db.getAll(...docRefs)
+  }).then(async (documentSnapshots: any) => {
+    for (const documentSnapshot of documentSnapshots) {
+      await deleteDocument(db, documentSnapshot.ref)
+    }
+  })
+}
+
+export async function deleteDocument(db: any, documentRef: any) {
+  await documentRef.listCollections().then(async (collections: any) => {
+    for (const collection of collections) {
+      await deleteCollection(db, collection)
+    }
+    // Done deleting all children, can delete this doc now.
+    await documentRef.delete()
+  })
 }

@@ -20,6 +20,7 @@ import * as GroupUtils from '../utils/grouputils';
 import * as Player from '../data/player';
 import * as PlayerUtils from '../utils/playerutils';
 import * as RandomWords from '../data/wordlist';
+import * as StatUtils from '../utils/statutils';
 import * as Universal from '../data/universal';
 
 const NUM_LIFE_CODE_WORDS = 3
@@ -93,7 +94,7 @@ export async function internallyChangePlayerAllegiance(db: any, gameId: string, 
     console.log("Not changing allegiance, it's already set to " + newAllegiance)
     return
   }
-
+  await StatUtils.invalidateGameStats(db, gameId)
   // Update player allegiance
   await playerDocSnapshot.ref.update({
     [Player.FIELD__ALLEGIANCE]: newAllegiance

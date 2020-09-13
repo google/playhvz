@@ -41,6 +41,7 @@ class Game {
     var adminOnCallPlayerId: String? = null
 
     var figureheadAdminPlayerAccount: String? = null
+    var infectRewardId: String? = null
 
     var admins: List<String> = listOf()
 

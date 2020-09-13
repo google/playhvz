@@ -28,6 +28,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.app.playhvz.R
@@ -68,7 +69,7 @@ class RedeemCodeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         fragmentType = args.fragmentType
         toolbar = (activity as AppCompatActivity).supportActionBar!!
-        gameViewModel = GameViewModel()
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
         val sharedPrefs = activity?.getSharedPreferences(
             SharedPreferencesConstants.PREFS_FILENAME,

@@ -23,9 +23,10 @@ import * as Game from '../data/game';
 import * as Group from '../data/group';
 import * as Mission from '../data/mission';
 import * as Player from '../data/player';
+import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 // Creates a group
-export async function createManagedGroups(db: any, uid: any, gameId: string) {
+export async function createManagedGroups(db: any, gameId: string) {
   const globalAllegiances = [
     [Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.globalChatName],
     [Defaults.EMPTY_ALLEGIANCE_FILTER, Defaults.gameAdminChatName],
@@ -41,7 +42,7 @@ export async function createManagedGroups(db: any, uid: any, gameId: string) {
     const groupData = Group.createManagedGroup(
       chatName,
       settings,
-     )
+    )
     const createdGroup = await db.collection(Game.COLLECTION_PATH)
       .doc(gameId)
       .collection(Group.COLLECTION_PATH)
@@ -165,7 +166,7 @@ export async function addPlayerToManagedGroups(db: any, gameId: string, playerDo
 }
 
 /** Adds player to group and updates chat memberships if there is a chat room associated with the group. */
-export async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: any, playerId: string) {
+export async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: DocumentSnapshot, playerId: string) {
   // Check if group is associated with Chat
   const querySnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -186,7 +187,7 @@ export async function addPlayerToGroup(db: any, gameId: string, groupSnapshot: a
 }
 
 /** Removes player from group and updates chat memberships if there is a chat room associated with the group. */
-export async function removePlayerFromGroup(db: any, gameId: string, groupSnapshot: any, playerDocSnapshot: any) {
+export async function removePlayerFromGroup(db: any, gameId: string, groupSnapshot: DocumentSnapshot, playerDocSnapshot: DocumentSnapshot) {
   // Check if group is associated with Chat
   const querySnapshot = await db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
@@ -209,10 +210,10 @@ export async function removePlayerFromGroup(db: any, gameId: string, groupSnapsh
 // Handles Auto-adding and Auto-removing members
 export async function updateMissionMembership(db: any, gameId: string, groupId: string) {
   const group = await db.collection(Game.COLLECTION_PATH)
-          .doc(gameId)
-          .collection(Group.COLLECTION_PATH)
-          .doc(groupId)
-          .get()
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(groupId)
+    .get()
   await autoUpdateMembers(db, gameId, group)
 }
 
@@ -223,7 +224,7 @@ async function autoUpdateMembers(db: any, gameId: string, group: any) {
     return
   }
   if (groupData[Group.FIELD__MANAGED] !== true
-      && groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_ADD] !== true) {
+    && groupData[Group.FIELD__SETTINGS][Group.FIELD__SETTINGS_AUTO_ADD] !== true) {
     return
   }
 
@@ -255,8 +256,8 @@ async function autoUpdateMembers(db: any, gameId: string, group: any) {
   });
   if (playerIdArray.length > 0) {
     await group.ref.update({
-        [Group.FIELD__MEMBERS]: playerIdArray
-      })
+      [Group.FIELD__MEMBERS]: playerIdArray
+    })
   }
 }
 

@@ -82,6 +82,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         R.id.nav_declare_allegiance_fragment,
         R.id.nav_game_list_fragment,
         R.id.nav_game_settings_fragment,
+        R.id.nav_game_stats_fragment,
         R.id.nav_leaderboard_fragment,
         R.id.nav_mission_settings_fragment,
         R.id.nav_quiz_dashboard_fragment,
@@ -195,6 +196,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_leaderboard_fragment -> {
                 drawer_layout.closeDrawer(GravityCompat.START)
                 NavigationUtil.navigateToLeaderboard(
+                    navController
+                )
+            }
+            R.id.nav_game_stats_fragment -> {
+                drawer_layout.closeDrawer(GravityCompat.START)
+                NavigationUtil.navigateToGameStats(
                     navController
                 )
             }
@@ -343,10 +350,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun listenToGameUpdates(gameId: String?) {
         if (gameId.isNullOrEmpty() || getCurrentPlayerId() == null) {
-            if (isAdmin) {
-                isAdmin = false
-                updateNavDrawerItems()
-            }
+            isAdmin = false
+            this.gameId = null
+            updateNavDrawerItems()
             return
         }
         this.gameId = gameId

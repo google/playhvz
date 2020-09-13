@@ -16,7 +16,6 @@
 
 package com.app.playhvz.screens.declareallegiance
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,10 +28,12 @@ import com.app.playhvz.R
 import com.app.playhvz.app.EspressoIdlingResource
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.HUMAN
 import com.app.playhvz.common.globals.CrossClientConstants.Companion.ZOMBIE
+import com.app.playhvz.common.globals.CrossClientConstants.Companion.getDeclareQuizRewardCode
 import com.app.playhvz.common.globals.SharedPreferencesConstants
 import com.app.playhvz.firebase.classmodels.Game
 import com.app.playhvz.firebase.classmodels.Player
 import com.app.playhvz.firebase.operations.PlayerDatabaseOperations
+import com.app.playhvz.firebase.operations.RewardDatabaseOperations
 import com.app.playhvz.firebase.viewmodels.GameViewModel
 import com.app.playhvz.navigation.NavigationUtil
 import com.app.playhvz.utils.PlayerUtils
@@ -49,7 +50,6 @@ class DeclareAllegianceFragment : Fragment() {
 
     var gameId: String? = null
     var playerId: String? = null
-    var game: Game? = null
     var player: Player? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +115,12 @@ class DeclareAllegianceFragment : Fragment() {
     private fun setAllegiance(allegiance: String) {
         runBlocking {
             EspressoIdlingResource.increment()
+            RewardDatabaseOperations.redeemClaimCode(
+                gameId!!,
+                playerId!!,
+                getDeclareQuizRewardCode(playerId!!),
+                {},
+                {})
             PlayerDatabaseOperations.setPlayerAllegiance(gameId!!, playerId!!, allegiance, {}, {})
             EspressoIdlingResource.decrement()
         }

@@ -21,6 +21,7 @@ import * as Chat from './data/chat';
 import * as ChatUtils from './utils/chatutils';
 import * as Defaults from './data/defaults';
 import * as Game from './data/game';
+import * as GameImpl from './impl/gameimpl';
 import * as GeneralUtils from './utils/generalutils';
 import * as Group from './data/group';
 import * as GroupUtils from './utils/grouputils';
@@ -30,9 +31,14 @@ import * as Message from './data/message';
 import * as Mission from './data/mission';
 import * as QuizQuestion from './data/quizquestion';
 import * as RewardImpl from './impl/rewardimpl';
+import * as RewardUtils from './utils/rewardutils';
 import * as User from './data/user';
+import * as UserImpl from './impl/userimpl';
 
-admin.initializeApp();
+if (admin.apps.length === 0) {
+  // We aren't running tests, so initialize the default instance.
+  admin.initializeApp();
+}
 const db = admin.firestore();
 
 /*******************************************************
@@ -43,12 +49,8 @@ exports.registerDevice = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
   const deviceToken = data.deviceToken;
   GeneralUtils.verifyStringArgs([deviceToken])
-
-  const updatedData = {'deviceToken': deviceToken};
-  return await db.collection(User.COLLECTION_PATH).doc(context.auth!.uid).set(updatedData);
+  return UserImpl.registerDevice(db, context.auth!.uid, deviceToken)
 });
-
-
 
 /*******************************************************
 * GAME functions
@@ -61,45 +63,7 @@ exports.createGame = functions.https.onCall(async (data, context) => {
   const endTime = data.endTime
   GeneralUtils.verifyStringArgs([name])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
-
-  const gameQuery = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", name).get();
-  if (!gameQuery.empty) {
-    throw new functions.https.HttpsError('already-exists', 'A game with the given name already exists');
-  }
-
-  const gameData = Game.create(context.auth!.uid, name, startTime, endTime)
-
-  const gameRef = await db.collection(Game.COLLECTION_PATH).add(gameData)
-  const gameId = gameRef.id
-  await GroupUtils.createManagedGroups(db, context.auth!.uid, gameId);
-
-  const adminGroupQuery = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .where(Group.FIELD__MANAGED, "==", true)
-      .where(Group.FIELD__NAME, "==", Defaults.gameAdminChatName)
-      .get()
-
-  if (!adminGroupQuery.empty && adminGroupQuery.docs.length === 1) {
-    const adminGroupId = adminGroupQuery.docs[0].id
-    await gameRef.update({
-      [Game.FIELD__ADMIN_GROUP_ID]: adminGroupId
-    })
-  }
-
-  // Create admin on call player
-  const player = Player.create("", Defaults.FIGUREHEAD_ADMIN_NAME);
-  const playerDocRef = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Player.COLLECTION_PATH)
-      .add(player);
-
-  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef, /* ignoreAllegiance= */ true)
-  await gameRef.update({
-    [Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]: playerDocRef.id
-  })
-
-  return gameId;
+  return await GameImpl.createGame(db, context.auth!.uid, name, startTime, endTime)
 });
 
 exports.updateGame = functions.https.onCall(async (data, context) => {
@@ -110,93 +74,40 @@ exports.updateGame = functions.https.onCall(async (data, context) => {
   const endTime = data.endTime
   GeneralUtils.verifyStringArgs([gameId, adminOnCallPlayerId])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
-
-  const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
-
-  await gameRef.update({
-      [Game.FIELD__ADMIN_ON_CALL_PLAYER_ID]: adminOnCallPlayerId,
-      [Game.FIELD__START_TIME]: startTime,
-      [Game.FIELD__END_TIME]: endTime
-    });
+  await GameImpl.updateGame(db, gameId, adminOnCallPlayerId, startTime, endTime)
 });
 
 exports.checkGameExists = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
-  let name = trimmedString(data.name);
+  const name = trimmedString(data.name);
   GeneralUtils.verifyStringArgs([name])
-
-  const querySnapshot = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", name).get();
-  if (querySnapshot.empty || querySnapshot.docs.length > 1) {
-    throw new functions.https.HttpsError('failed-precondition', 'No game with given name exists.');
-  }
+  await GameImpl.checkGameExists(db, name)
 });
 
 
 exports.joinGame = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
-  const uid = context.auth!.uid;
   const gameName = trimmedString(data.gameName);
   const playerName = trimmedString(data.playerName);
   GeneralUtils.verifyStringArgs([gameName, playerName])
-
-  const gameQuerySnapshot = await db.collection(Game.COLLECTION_PATH).where(Game.FIELD__NAME, "==", gameName).get();
-  if (gameQuerySnapshot.empty || gameQuerySnapshot.docs.length > 1) {
-     throw new functions.https.HttpsError('failed-precondition', 'No game with given name exists.');
-  }
-  const game = gameQuerySnapshot.docs[0];
-  const gameId = game.id;
-  const userPlayerQuerySnapshot = await PlayerUtils.getUsersPlayersQuery(db, uid, gameId).get();
-  if (!userPlayerQuerySnapshot.empty) {
-    throw new functions.https.HttpsError('failed-precondition', 'User is already a player in this game.');
-  }
-
-  const playerNameQuerySnapshot = await PlayerUtils.getPlayersWithNameQuery(db, gameId, playerName).get();
-  if (!playerNameQuerySnapshot.empty) {
-      throw new functions.https.HttpsError('failed-precondition', 'Player name already taken.');
-  }
-
-  const player = Player.create(uid, playerName);
-  const playerDocRef = (await db.collection(Game.COLLECTION_PATH)
-    .doc(gameId)
-    .collection(Player.COLLECTION_PATH)
-    .add(player));
-
-  await GroupUtils.addPlayerToManagedGroups(db, gameId, playerDocRef, /* ignoreAllegiance= */ false)
-  return gameId
+  return await GameImpl.joinGame(db, context.auth!.uid, gameName, playerName)
 });
 
-
-/**
- * Initiate a recursive delete of documents at a given path.
- *
- * The calling user must be authenticated and have the custom "admin" attribute
- * set to true on the auth token.
- *
- * This delete is NOT an atomic operation and it's possible
- * that it may fail after only deleting some documents.
- *
- * @param {string} data.path the document or collection path to delete.
- */
 exports.deleteGame = functions.runWith({
-    timeoutSeconds: 540,
-    memory: '2GB'
+  timeoutSeconds: 540,
+  memory: '2GB'
 }).https.onCall(async (data, context) => {
-    GeneralUtils.verifyIsGameOwner(context)
-    const gameId = data.gameId;
-    GeneralUtils.verifyStringArgs([gameId])
+  GeneralUtils.verifyIsGameOwner(context)
+  const gameId = data.gameId;
+  GeneralUtils.verifyStringArgs([gameId])
+  await GameImpl.deleteGame(db, context.auth!.uid, gameId)
+});
 
-    console.log(
-      `User ${context.auth!.uid} has requested to delete game ${gameId}`
-    );
-
-    // Run a recursive delete on the game document path.
-    const gameRef = db.collection(Game.COLLECTION_PATH).doc(gameId);
-    await gameRef.listCollections().then(async (collections: any) => {
-      for (const collection of collections) {
-        await deleteCollection(collection)
-      }
-      await gameRef.delete()
-    });
+exports.getGameStats = functions.https.onCall(async (data, context) => {
+  GeneralUtils.verifySignedIn(context)
+  const gameId = data.gameId;
+  GeneralUtils.verifyStringArgs([gameId])
+  return await GameImpl.getGameStats(db, gameId)
 });
 
 /*******************************************************
@@ -217,7 +128,7 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
   GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const infectorPlayerId = data.infectorPlayerId
-  const lifeCode = normalizeLifeCode(data.lifeCode);
+  const lifeCode = GeneralUtils.normalizeLifeCode(data.lifeCode);
   GeneralUtils.verifyStringArgs([gameId, infectorPlayerId, lifeCode])
 
   // Check if life code is associated with valid human player.
@@ -229,7 +140,7 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
     .get()
 
   if (infectedPlayerQuerySnapshot.empty || infectedPlayerQuerySnapshot.docs.length > 1) {
-     throw new functions.https.HttpsError('failed-precondition', 'No valid player with given life code exists.');
+    throw new functions.https.HttpsError('failed-precondition', 'No valid player with given life code exists.');
   }
   const infectedPlayerSnapshot = infectedPlayerQuerySnapshot.docs[0];
   const infectedPlayerData = await infectedPlayerSnapshot.data()
@@ -237,12 +148,17 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
     return
   }
 
+  // TODO: handle player infecting themselves.
+
   // Use up the life code and infect the player if they are out of lives
   if (infectedPlayerData[Player.FIELD__ALLEGIANCE] === Defaults.HUMAN_ALLEGIANCE_FILTER) {
+    // TODO: make this a transaction.
+    await RewardUtils.giveRewardForInfecting(db, gameId, infectorPlayerId)
     // Mark life code as used, aka deactivated
     await infectedPlayerSnapshot.ref.update({
       [lifeCodeStatusField]: false
     })
+
     const lives = infectedPlayerData[Player.FIELD__LIVES]
     if (lives === undefined) {
       return
@@ -253,7 +169,7 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
         continue
       }
       if (metadata[Player.FIELD__LIFE_CODE_STATUS] === true
-          && metadata[Player.FIELD__LIFE_CODE] !== lifeCode) {
+        && metadata[Player.FIELD__LIFE_CODE] !== lifeCode) {
         // Player still has some lives left, don't turn them into a zombie.
         console.log("Not turning player to zombie, they still have life codes active.")
         return
@@ -300,10 +216,10 @@ exports.removePlayerFromGroup = functions.https.onCall(async (data, context) => 
     .get()
 
   const groupSnapshot = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .doc(groupId)
-      .get()
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(groupId)
+    .get()
   await GroupUtils.removePlayerFromGroup(db, gameId, groupSnapshot, playerSnapshot)
 });
 
@@ -346,21 +262,21 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
     .get()
 
   const chatRoomData = (await db.collection(Game.COLLECTION_PATH)
-     .doc(gameId)
-     .collection(Chat.COLLECTION_PATH)
-     .doc(chatRoomId)
-     .get())
-     .data();
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .doc(chatRoomId)
+    .get())
+    .data();
   if (chatRoomData === undefined) {
     console.log("Chat room was undefined, not removing player.")
     return
   }
 
   const group = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .doc(chatRoomData[Chat.FIELD__GROUP_ID])
-      .get()
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(chatRoomData[Chat.FIELD__GROUP_ID])
+    .get()
 
   if (chatRoomData[Chat.FIELD__WITH_ADMINS]) {
     const visibilityField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId + "." + Player.FIELD__CHAT_VISIBILITY
@@ -392,7 +308,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
-    await GroupUtils.createGroupAndChat(db, context.auth!.uid, gameId, ownerId, chatName, settings);
+  await GroupUtils.createGroupAndChat(db, context.auth!.uid, gameId, ownerId, chatName, settings);
 })
 
 // Creates a chat room
@@ -439,10 +355,10 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
       return adminChatSnapshot.id
     }
     await ChatUtils.addPlayerToChat(db,
-                gameId,
-                adminPlayerId,
-                db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).doc(adminChatData[Chat.FIELD__GROUP_ID]),
-                adminChatSnapshot.id,
+      gameId,
+      adminPlayerId,
+      db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).doc(adminChatData[Chat.FIELD__GROUP_ID]),
+      adminChatSnapshot.id,
                 /* isDocRef= */ true)
     return adminChatSnapshot.id
   }
@@ -490,104 +406,104 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
 exports.triggerChatNotification = functions.firestore
   .document(Game.COLLECTION_PATH + "/{gameId}/" + Chat.COLLECTION_PATH + "/{chatId}/" + Message.COLLECTION_PATH + "/{messageId}")
   .onCreate(async (messageSnapshot, context) => {
-      const gameId = context.params.gameId;
-      const chatId = context.params.chatId;
-      const messageData = await messageSnapshot.data()
-      if (messageData === undefined) {
-        return
-      }
-      const senderId = messageData[Message.FIELD__SENDER_ID]
+    const gameId = context.params.gameId;
+    const chatId = context.params.chatId;
+    const messageData = await messageSnapshot.data()
+    if (messageData === undefined) {
+      return
+    }
+    const senderId = messageData[Message.FIELD__SENDER_ID]
 
-      // Query for all the players in this chat that are allowing notifications.
-      const chatMembershipQueryField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId + "." + Player.FIELD__CHAT_NOTIFICATIONS
-      const playersToNotifyQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    // Query for all the players in this chat that are allowing notifications.
+    const chatMembershipQueryField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId + "." + Player.FIELD__CHAT_NOTIFICATIONS
+    const playersToNotifyQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Player.COLLECTION_PATH)
+      .where(chatMembershipQueryField, "==", true)
+      .get()
+
+    if (playersToNotifyQuerySnapshot.empty) {
+      // No one to notify
+      return
+    }
+
+    // Build notification contents
+    const senderData = await (
+      await db.collection(Game.COLLECTION_PATH)
         .doc(gameId)
         .collection(Player.COLLECTION_PATH)
-        .where(chatMembershipQueryField, "==", true)
+        .doc(senderId)
         .get()
-
-      if (playersToNotifyQuerySnapshot.empty) {
-        // No one to notify
-        return
+    ).data()
+    const chatRoomData = await (
+      await db.collection(Game.COLLECTION_PATH)
+        .doc(gameId)
+        .collection(Chat.COLLECTION_PATH)
+        .doc(chatId)
+        .get()
+    ).data()
+    if (senderData === undefined || chatRoomData === undefined) {
+      return
+    }
+    const notificationPayload = {
+      notification: {
+        title: `${senderData[Player.FIELD__NAME]} — ${chatRoomData[Chat.FIELD__NAME]}`,
+        body: `${messageData[Message.FIELD__MESSAGE]}`,
       }
+    }
 
-      // Build notification contents
-      const senderData = await (
-        await db.collection(Game.COLLECTION_PATH)
+    const gameData = await (await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .get())
+      .data()
+    if (gameData === undefined) {
+      return
+    }
+
+    const playerIdArray = new Array();
+    for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
+      playerIdArray.push(playerSnapshot.id)
+    }
+
+    // Get player device tokens and send notification.
+    for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
+      if (playerSnapshot.id === senderId) {
+        // Don't notify the user that sent the message.
+        continue
+      }
+      // If player is the admin player then notify the admin on-call player instead.
+      let playerData: any = playerSnapshot.data()
+      if (playerSnapshot.id === gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]) {
+        if (playerIdArray.includes(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])) {
+          // Admin on call player is already getting notified about this message.
+          continue
+        }
+        playerData = (await db.collection(Game.COLLECTION_PATH)
           .doc(gameId)
           .collection(Player.COLLECTION_PATH)
-          .doc(senderId)
-          .get()
+          .doc(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])
+          .get())
+          .data()
+      }
+      if (playerData === undefined) {
+        continue
+      }
+      // Get player's device token to notify
+      const userData = await (await db
+        .collection(User.COLLECTION_PATH)
+        .doc(playerData[Player.FIELD__USER_ID])
+        .get()
       ).data()
-      const chatRoomData = await (
-        await db.collection(Game.COLLECTION_PATH)
-          .doc(gameId)
-          .collection(Chat.COLLECTION_PATH)
-          .doc(chatId)
-          .get()
-      ).data()
-      if (senderData === undefined || chatRoomData === undefined) {
-        return
+      if (userData === undefined) {
+        continue
       }
-      const notificationPayload = {
-        notification: {
-          title: `${senderData[Player.FIELD__NAME]} — ${chatRoomData[Chat.FIELD__NAME]}`,
-          body: `${messageData[Message.FIELD__MESSAGE]}`,
-        }
+      const deviceToken = userData[User.FIELD__DEVICE_TOKEN]
+      if (deviceToken.length > 0) {
+        // Notify device
+        await admin.messaging().sendToDevice(deviceToken, notificationPayload)
       }
-
-      const gameData = await (await db.collection(Game.COLLECTION_PATH)
-        .doc(gameId)
-        .get())
-        .data()
-      if (gameData === undefined) {
-        return
-      }
-
-      const playerIdArray = new Array();
-      for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
-        playerIdArray.push(playerSnapshot.id)
-      }
-
-      // Get player device tokens and send notification.
-      for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
-        if (playerSnapshot.id === senderId) {
-          // Don't notify the user that sent the message.
-          continue
-        }
-        // If player is the admin player then notify the admin on-call player instead.
-        let playerData: any = playerSnapshot.data()
-        if (playerSnapshot.id === gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]) {
-          if (playerIdArray.includes(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])) {
-            // Admin on call player is already getting notified about this message.
-            continue
-          }
-          playerData = (await db.collection(Game.COLLECTION_PATH)
-            .doc(gameId)
-            .collection(Player.COLLECTION_PATH)
-            .doc(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])
-            .get())
-            .data()
-        }
-        if (playerData === undefined) {
-          continue
-        }
-        // Get player's device token to notify
-        const userData = await (await db
-            .collection(User.COLLECTION_PATH)
-            .doc(playerData[Player.FIELD__USER_ID])
-            .get()
-          ).data()
-        if (userData === undefined) {
-          continue
-        }
-        const deviceToken = userData[User.FIELD__DEVICE_TOKEN]
-        if (deviceToken.length > 0) {
-          // Notify device
-          await admin.messaging().sendToDevice(deviceToken, notificationPayload)
-        }
-      }
-});
+    }
+  });
 
 /*******************************************************
 * MISSION functions
@@ -605,6 +521,7 @@ exports.createMission = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifyOptionalStringArgs([details])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
 
+  GeneralUtils.verifyStartEndTime(startTime, endTime)
   const settings = Group.createSettings(
     /* addSelf= */ false,
     /* addOthers= */ false,
@@ -614,16 +531,16 @@ exports.createMission = functions.https.onCall(async (data, context) => {
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
-    await GroupUtils.createGroupAndMission(
-      db,
-      gameId,
-      settings,
-      missionName,
-      startTime,
-      endTime,
-      details,
-      allegianceFilter
-    )
+  await GroupUtils.createGroupAndMission(
+    db,
+    gameId,
+    settings,
+    missionName,
+    startTime,
+    endTime,
+    details,
+    allegianceFilter
+  )
 })
 
 // TODO: run this as a transaction
@@ -640,6 +557,7 @@ exports.updateMission = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifyOptionalStringArgs([details])
   GeneralUtils.verifyNumberArgs([startTime, endTime])
 
+  GeneralUtils.verifyStartEndTime(startTime, endTime)
   const missionRef = db.collection(Game.COLLECTION_PATH)
     .doc(gameId)
     .collection(Mission.COLLECTION_PATH)
@@ -660,9 +578,9 @@ exports.updateMission = functions.https.onCall(async (data, context) => {
   });
 
   const groupRef = db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .doc(associatedGroupId);
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(associatedGroupId);
   // We have to use dot-notation or firebase will overwrite the entire field.
   const allegianceField = Group.FIELD__SETTINGS + "." + Group.FIELD__SETTINGS_ALLEGIANCE_FILTER
   await groupRef.update({
@@ -690,7 +608,7 @@ exports.deleteMission = functions.https.onCall(async (data, context) => {
   const associatedGroupId = missionData[Mission.FIELD__GROUP_ID]
   await missionRef.listCollections().then(async (collections: any) => {
     for (const collection of collections) {
-      await deleteCollection(collection)
+      await GeneralUtils.deleteCollection(db, collection)
     }
     await missionRef.delete()
   });
@@ -703,7 +621,7 @@ exports.deleteMission = functions.https.onCall(async (data, context) => {
     .doc(associatedGroupId);
   await groupRef.listCollections().then(async (collections: any) => {
     for (const collection of collections) {
-      await deleteCollection(collection)
+      await GeneralUtils.deleteCollection(db, collection)
     }
     await groupRef.delete()
   });
@@ -729,44 +647,6 @@ function trimAndEnforceNoEmoji(rawText: any): string {
   return trimmed;
 }
 
-// Normalizes the life code to lowercase and replaces spaces with dashes.
-function normalizeLifeCode(rawText: any): string {
-  if (!(typeof rawText === 'string')) {
-    throw new functions.https.HttpsError('invalid-argument', "Expected value to be type String.");
-  }
-  let processedCode = rawText.trim()
-  processedCode = processedCode.toLowerCase()
-  processedCode = processedCode.split(' ').join('-')
-  return processedCode
-}
-
-async function deleteCollection(collection: any) {
-  const collectionRef = db.collection(collection.path)
-  await collectionRef.listDocuments().then((docRefs: any) => {
-    return db.getAll(...docRefs)
-  }).then(async (documentSnapshots: any) => {
-    for (const documentSnapshot of documentSnapshots) {
-       if (documentSnapshot.exists) {
-          console.log(`Found document with data: ${documentSnapshot.id}`);
-       } else {
-          console.log(`Found missing document: ${documentSnapshot.id}`);
-       }
-       await deleteDocument(documentSnapshot.ref)
-    }
-  })
-}
-
-async function deleteDocument(documentRef: any) {
-  await documentRef.listCollections().then(async (collections: any) => {
-        for (const collection of collections) {
-          console.log(`Found subcollection with id: ${collection.id}`);
-          await deleteCollection(collection)
-        }
-        // Done deleting all children, can delete this doc now.
-        await documentRef.delete()
-  })
-}
-
 /*******************************************************
 * REWARD functions
 ********************************************************/
@@ -779,8 +659,8 @@ exports.createReward = functions.https.onCall(async (data, context) => {
   const description = data.description;
   const imageUrl = data.imageUrl;
   const points = data.points;
-  GeneralUtils.verifyStringArgs([gameId, shortName, longName])
-  GeneralUtils.verifyOptionalStringArgs([description, imageUrl])
+  GeneralUtils.verifyStringArgs([gameId, shortName])
+  GeneralUtils.verifyOptionalStringArgs([longName, description, imageUrl])
   GeneralUtils.verifyNumberArgs([points])
   await RewardImpl.createReward(db, gameId, shortName, longName, description, imageUrl, points)
 });
@@ -798,6 +678,8 @@ exports.updateReward = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifyNumberArgs([points])
   await RewardImpl.updateReward(db, gameId, rewardId, longName, description, imageUrl, points)
 });
+
+// TODO: Add delete reward (from game & from player), recalc points on delete
 
 exports.generateClaimCodes = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
@@ -832,7 +714,7 @@ exports.redeemRewardCode = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
   const gameId = data.gameId;
   const playerId = data.playerId
-  const claimCode = normalizeLifeCode(data.claimCode);
+  const claimCode = GeneralUtils.normalizeLifeCode(data.claimCode);
   GeneralUtils.verifyStringArgs([gameId, playerId, claimCode])
   await RewardImpl.redeemRewardCode(db, gameId, playerId, claimCode)
 });
@@ -862,25 +744,25 @@ exports.getRewardsByName = functions.https.onCall(async (data, context) => {
  * @param {string} data.path the document or collection path to delete.
  */
 exports.deleteQuizQuestion = functions.runWith({
-    timeoutSeconds: 540,
-    memory: '2GB'
+  timeoutSeconds: 540,
+  memory: '2GB'
 }).https.onCall(async (data, context) => {
-    GeneralUtils.verifyIsAdmin(context)
-    const gameId = data.gameId;
-    const questionId = data.questionId;
-    console.log(
-      `User ${context.auth!.uid} has requested to delete question ${questionId}`
-    );
+  GeneralUtils.verifyIsAdmin(context)
+  const gameId = data.gameId;
+  const questionId = data.questionId;
+  console.log(
+    `User ${context.auth!.uid} has requested to delete question ${questionId}`
+  );
 
-    // Run a recursive delete on the quiz document path.
-    const questionRef = db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(QuizQuestion.COLLECTION_PATH)
-      .doc(questionId);
-    await questionRef.listCollections().then(async (collections: any) => {
-      for (const collection of collections) {
-        await deleteCollection(collection)
-      }
-      await questionRef.delete()
-    });
+  // Run a recursive delete on the quiz document path.
+  const questionRef = db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(QuizQuestion.COLLECTION_PATH)
+    .doc(questionId);
+  await questionRef.listCollections().then(async (collections: any) => {
+    for (const collection of collections) {
+      await GeneralUtils.deleteCollection(db, collection)
+    }
+    await questionRef.delete()
+  });
 });

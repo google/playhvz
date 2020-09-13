@@ -283,14 +283,15 @@ export async function redeemRewardCode (
     .collection(Player.COLLECTION_PATH)
     .doc(playerId)
   const rewardData = rewardDocSnapshot.data()
-  if (rewardData == undefined) {
+  if (rewardData === undefined) {
         return
   }
   const rewardInfoPath = Player.FIELD__REWARDS + "." + rewardDocSnapshot.id
 
   // Redeem claim code!
   await claimCodeDocSnapshot.ref.update({
-    [ClaimCode.FIELD__REDEEMER]: playerId
+    [ClaimCode.FIELD__REDEEMER]: playerId,
+    [ClaimCode.FIELD__TIMESTAMP]: Date.now()
   })
   await playerDocRef.update({
     [rewardInfoPath]: admin.firestore.FieldValue.increment(1),

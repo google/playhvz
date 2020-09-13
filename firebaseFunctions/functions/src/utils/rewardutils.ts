@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as Defaults from '../data/defaults';
+import * as Game from '../data/game';
 import * as GeneralUtils from '../utils/generalutils';
 import * as RandomWords from '../data/wordlist';
 import * as Reward from '../data/reward';
+import * as RewardImpl from '../impl/rewardimpl';
 
 const NUM_REWARD_CODE_WORDS = 2
 
@@ -26,7 +29,6 @@ export function extractShortNameFromCode(claimCode: string): string {
 export function extractPlayerIdFromCode(claimCode: string): string {
   return claimCode.split("-", 2)[1]
 }
-
 
 export function generateClaimCode(
   db: any,
@@ -60,6 +62,45 @@ export function generateClaimCode(
   return generatedCodes
 }
 
+// Creates rewards that are managed and should exist for every game.
+export async function createManagedRewards(db: any, gameId: string) {
+  const infectRewardData = Reward.createManagedReward(
+    Defaults.INFECT_REWARD_SHORT_NAME,
+    Defaults.INFECT_REWARD_LONG_NAME,
+    Defaults.INFECT_REWARD_DESCRIPTION,
+    Defaults.INFECT_REWARD_IMAGE_URL,
+    Defaults.INFECT_REWARD_POINTS
+  )
+  const declareRewardData = Reward.createManagedReward(
+    Defaults.DECLARE_REWARD_SHORT_NAME,
+    Defaults.DECLARE_REWARD_LONG_NAME,
+    Defaults.DECLARE_REWARD_DESCRIPTION,
+    Defaults.DECLARE_REWARD_IMAGE_URL,
+    Defaults.DECLARE_REWARD_POINTS
+  )
+  const infectRewardSnapshot = await db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(Reward.COLLECTION_PATH)
+    .add(infectRewardData);
+  await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Reward.COLLECTION_PATH)
+      .add(declareRewardData);
+  await db.collection(Game.COLLECTION_PATH).doc(gameId).update({
+    [Game.FIELD__INFECT_REWARD_ID]: infectRewardSnapshot.id
+  })
+}
+
+export async function giveRewardForInfecting(
+  db: any,
+  gameId: string,
+  infectorId: string
+) {
+  let infectRewardCode = generateInfectClaimCode(infectorId)
+  infectRewardCode = GeneralUtils.normalizeLifeCode(infectRewardCode)
+  await RewardImpl.redeemRewardCode(db, gameId, infectorId, infectRewardCode)
+}
+
 function getRandomWords(seed: string, numWords: number): string[] {
   const selectedWords: string[] = new Array(numWords)
   for (let i = 0; i < numWords; i++) {
@@ -69,3 +110,6 @@ function getRandomWords(seed: string, numWords: number): string[] {
   return selectedWords
 }
 
+function generateInfectClaimCode(playerId: string): string {
+  return Defaults.INFECT_REWARD_SHORT_NAME + "-" + playerId + "-" + Date.now()
+}
