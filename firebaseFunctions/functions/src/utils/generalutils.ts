@@ -17,14 +17,14 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 export function hashString(hashableString: string): number {
-    let hash: number = 0;
-    if (hashableString.length === 0) return hash;
-    for (let i= 0; i < hashableString.length; i++) {
-        const char = hashableString.charCodeAt(i);
-        hash = ((hash<<5)-hash)+char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash;
+  let hash: number = 0;
+  if (hashableString.length === 0) return hash;
+  for (let i = 0; i < hashableString.length; i++) {
+    const char = hashableString.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
 };
 
 export function getTimestamp(): any {
@@ -33,14 +33,14 @@ export function getTimestamp(): any {
 
 /* There's a javascript bug with %, use our own function so negatives mod correctly. */
 export function mod(randValue: number, maxValue: number): number {
-    return ((randValue % maxValue) + maxValue) % maxValue;
+  return ((randValue % maxValue) + maxValue) % maxValue;
 }
 
 export function verifySignedIn(context: any) {
   if (!context.auth) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError(
-        'unauthenticated', 'The function must be called while authenticated.');
+    // Throwing an HttpsError so that the client gets the error details.
+    throw new functions.https.HttpsError(
+      'unauthenticated', 'The function must be called while authenticated.');
   }
 }
 
@@ -60,7 +60,7 @@ export function verifyIsGameOwner(context: any) {
 
 
 // Verifies that the provided args are type "string" and are not empty.
-export function verifyStringArgs(args: any []) {
+export function verifyStringArgs(args: any[]) {
   args.forEach((arg, index) => {
     if (!(typeof arg === 'string')) {
       throw new functions.https.HttpsError('invalid-argument', "Expected value to be type string.");
@@ -72,7 +72,7 @@ export function verifyStringArgs(args: any []) {
 }
 
 // Only verifies that the provided args are type "string".
-export function verifyOptionalStringArgs(args: any []) {
+export function verifyOptionalStringArgs(args: any[]) {
   args.forEach((arg, index) => {
     if (!(typeof arg === 'string')) {
       throw new functions.https.HttpsError('invalid-argument', "Expected optional value at position " + index + " to be type string.");
@@ -81,7 +81,7 @@ export function verifyOptionalStringArgs(args: any []) {
 }
 
 // Verifies that the provided args are type "number" and are not less than 0.
-export function verifyNumberArgs(args: any []) {
+export function verifyNumberArgs(args: any[]) {
   args.forEach((arg, index) => {
     if (!(typeof arg === 'number')) {
       throw new functions.https.HttpsError('invalid-argument', "Expected value to be type number.");
@@ -118,23 +118,17 @@ export async function deleteCollection(db: any, collection: any) {
     return db.getAll(...docRefs)
   }).then(async (documentSnapshots: any) => {
     for (const documentSnapshot of documentSnapshots) {
-       if (documentSnapshot.exists) {
-          console.log(`Found document with data: ${documentSnapshot.id}`);
-       } else {
-          console.log(`Found missing document: ${documentSnapshot.id}`);
-       }
-       await deleteDocument(db, documentSnapshot.ref)
+      await deleteDocument(db, documentSnapshot.ref)
     }
   })
 }
 
-async function deleteDocument(db: any, documentRef: any) {
+export async function deleteDocument(db: any, documentRef: any) {
   await documentRef.listCollections().then(async (collections: any) => {
-        for (const collection of collections) {
-          console.log(`Found subcollection with id: ${collection.id}`);
-          await deleteCollection(db, collection)
-        }
-        // Done deleting all children, can delete this doc now.
-        await documentRef.delete()
+    for (const collection of collections) {
+      await deleteCollection(db, collection)
+    }
+    // Done deleting all children, can delete this doc now.
+    await documentRef.delete()
   })
 }

@@ -32,10 +32,13 @@ import * as Mission from './data/mission';
 import * as QuizQuestion from './data/quizquestion';
 import * as RewardImpl from './impl/rewardimpl';
 import * as RewardUtils from './utils/rewardutils';
-import * as StatUtils from './utils/statutils';
 import * as User from './data/user';
+import * as UserImpl from './impl/userimpl';
 
-admin.initializeApp();
+if (admin.apps.length === 0) {
+  // We aren't running tests, so initialize the default instance.
+  admin.initializeApp();
+}
 const db = admin.firestore();
 
 /*******************************************************
@@ -46,12 +49,8 @@ exports.registerDevice = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
   const deviceToken = data.deviceToken;
   GeneralUtils.verifyStringArgs([deviceToken])
-
-  const updatedData = {'deviceToken': deviceToken};
-  return await db.collection(User.COLLECTION_PATH).doc(context.auth!.uid).set(updatedData);
+  return UserImpl.registerDevice(db, context.auth!.uid, deviceToken)
 });
-
-
 
 /*******************************************************
 * GAME functions
@@ -95,8 +94,8 @@ exports.joinGame = functions.https.onCall(async (data, context) => {
 });
 
 exports.deleteGame = functions.runWith({
-    timeoutSeconds: 540,
-    memory: '2GB'
+  timeoutSeconds: 540,
+  memory: '2GB'
 }).https.onCall(async (data, context) => {
   GeneralUtils.verifyIsGameOwner(context)
   const gameId = data.gameId;
@@ -141,7 +140,7 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
     .get()
 
   if (infectedPlayerQuerySnapshot.empty || infectedPlayerQuerySnapshot.docs.length > 1) {
-     throw new functions.https.HttpsError('failed-precondition', 'No valid player with given life code exists.');
+    throw new functions.https.HttpsError('failed-precondition', 'No valid player with given life code exists.');
   }
   const infectedPlayerSnapshot = infectedPlayerQuerySnapshot.docs[0];
   const infectedPlayerData = await infectedPlayerSnapshot.data()
@@ -170,7 +169,7 @@ exports.infectPlayerByLifeCode = functions.https.onCall(async (data, context) =>
         continue
       }
       if (metadata[Player.FIELD__LIFE_CODE_STATUS] === true
-          && metadata[Player.FIELD__LIFE_CODE] !== lifeCode) {
+        && metadata[Player.FIELD__LIFE_CODE] !== lifeCode) {
         // Player still has some lives left, don't turn them into a zombie.
         console.log("Not turning player to zombie, they still have life codes active.")
         return
@@ -217,10 +216,10 @@ exports.removePlayerFromGroup = functions.https.onCall(async (data, context) => 
     .get()
 
   const groupSnapshot = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .doc(groupId)
-      .get()
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(groupId)
+    .get()
   await GroupUtils.removePlayerFromGroup(db, gameId, groupSnapshot, playerSnapshot)
 });
 
@@ -263,21 +262,21 @@ exports.removePlayerFromChat = functions.https.onCall(async (data, context) => {
     .get()
 
   const chatRoomData = (await db.collection(Game.COLLECTION_PATH)
-     .doc(gameId)
-     .collection(Chat.COLLECTION_PATH)
-     .doc(chatRoomId)
-     .get())
-     .data();
+    .doc(gameId)
+    .collection(Chat.COLLECTION_PATH)
+    .doc(chatRoomId)
+    .get())
+    .data();
   if (chatRoomData === undefined) {
     console.log("Chat room was undefined, not removing player.")
     return
   }
 
   const group = await db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .doc(chatRoomData[Chat.FIELD__GROUP_ID])
-      .get()
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(chatRoomData[Chat.FIELD__GROUP_ID])
+    .get()
 
   if (chatRoomData[Chat.FIELD__WITH_ADMINS]) {
     const visibilityField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatRoomId + "." + Player.FIELD__CHAT_VISIBILITY
@@ -309,7 +308,7 @@ exports.createChatRoom = functions.https.onCall(async (data, context) => {
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
-    await GroupUtils.createGroupAndChat(db, context.auth!.uid, gameId, ownerId, chatName, settings);
+  await GroupUtils.createGroupAndChat(db, context.auth!.uid, gameId, ownerId, chatName, settings);
 })
 
 // Creates a chat room
@@ -356,10 +355,10 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
       return adminChatSnapshot.id
     }
     await ChatUtils.addPlayerToChat(db,
-                gameId,
-                adminPlayerId,
-                db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).doc(adminChatData[Chat.FIELD__GROUP_ID]),
-                adminChatSnapshot.id,
+      gameId,
+      adminPlayerId,
+      db.collection(Game.COLLECTION_PATH).doc(gameId).collection(Group.COLLECTION_PATH).doc(adminChatData[Chat.FIELD__GROUP_ID]),
+      adminChatSnapshot.id,
                 /* isDocRef= */ true)
     return adminChatSnapshot.id
   }
@@ -407,104 +406,104 @@ exports.createOrGetChatWithAdmin = functions.https.onCall(async (data, context) 
 exports.triggerChatNotification = functions.firestore
   .document(Game.COLLECTION_PATH + "/{gameId}/" + Chat.COLLECTION_PATH + "/{chatId}/" + Message.COLLECTION_PATH + "/{messageId}")
   .onCreate(async (messageSnapshot, context) => {
-      const gameId = context.params.gameId;
-      const chatId = context.params.chatId;
-      const messageData = await messageSnapshot.data()
-      if (messageData === undefined) {
-        return
-      }
-      const senderId = messageData[Message.FIELD__SENDER_ID]
+    const gameId = context.params.gameId;
+    const chatId = context.params.chatId;
+    const messageData = await messageSnapshot.data()
+    if (messageData === undefined) {
+      return
+    }
+    const senderId = messageData[Message.FIELD__SENDER_ID]
 
-      // Query for all the players in this chat that are allowing notifications.
-      const chatMembershipQueryField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId + "." + Player.FIELD__CHAT_NOTIFICATIONS
-      const playersToNotifyQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+    // Query for all the players in this chat that are allowing notifications.
+    const chatMembershipQueryField = Player.FIELD__CHAT_MEMBERSHIPS + "." + chatId + "." + Player.FIELD__CHAT_NOTIFICATIONS
+    const playersToNotifyQuerySnapshot = await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .collection(Player.COLLECTION_PATH)
+      .where(chatMembershipQueryField, "==", true)
+      .get()
+
+    if (playersToNotifyQuerySnapshot.empty) {
+      // No one to notify
+      return
+    }
+
+    // Build notification contents
+    const senderData = await (
+      await db.collection(Game.COLLECTION_PATH)
         .doc(gameId)
         .collection(Player.COLLECTION_PATH)
-        .where(chatMembershipQueryField, "==", true)
+        .doc(senderId)
         .get()
-
-      if (playersToNotifyQuerySnapshot.empty) {
-        // No one to notify
-        return
+    ).data()
+    const chatRoomData = await (
+      await db.collection(Game.COLLECTION_PATH)
+        .doc(gameId)
+        .collection(Chat.COLLECTION_PATH)
+        .doc(chatId)
+        .get()
+    ).data()
+    if (senderData === undefined || chatRoomData === undefined) {
+      return
+    }
+    const notificationPayload = {
+      notification: {
+        title: `${senderData[Player.FIELD__NAME]} — ${chatRoomData[Chat.FIELD__NAME]}`,
+        body: `${messageData[Message.FIELD__MESSAGE]}`,
       }
+    }
 
-      // Build notification contents
-      const senderData = await (
-        await db.collection(Game.COLLECTION_PATH)
+    const gameData = await (await db.collection(Game.COLLECTION_PATH)
+      .doc(gameId)
+      .get())
+      .data()
+    if (gameData === undefined) {
+      return
+    }
+
+    const playerIdArray = new Array();
+    for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
+      playerIdArray.push(playerSnapshot.id)
+    }
+
+    // Get player device tokens and send notification.
+    for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
+      if (playerSnapshot.id === senderId) {
+        // Don't notify the user that sent the message.
+        continue
+      }
+      // If player is the admin player then notify the admin on-call player instead.
+      let playerData: any = playerSnapshot.data()
+      if (playerSnapshot.id === gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]) {
+        if (playerIdArray.includes(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])) {
+          // Admin on call player is already getting notified about this message.
+          continue
+        }
+        playerData = (await db.collection(Game.COLLECTION_PATH)
           .doc(gameId)
           .collection(Player.COLLECTION_PATH)
-          .doc(senderId)
-          .get()
+          .doc(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])
+          .get())
+          .data()
+      }
+      if (playerData === undefined) {
+        continue
+      }
+      // Get player's device token to notify
+      const userData = await (await db
+        .collection(User.COLLECTION_PATH)
+        .doc(playerData[Player.FIELD__USER_ID])
+        .get()
       ).data()
-      const chatRoomData = await (
-        await db.collection(Game.COLLECTION_PATH)
-          .doc(gameId)
-          .collection(Chat.COLLECTION_PATH)
-          .doc(chatId)
-          .get()
-      ).data()
-      if (senderData === undefined || chatRoomData === undefined) {
-        return
+      if (userData === undefined) {
+        continue
       }
-      const notificationPayload = {
-        notification: {
-          title: `${senderData[Player.FIELD__NAME]} — ${chatRoomData[Chat.FIELD__NAME]}`,
-          body: `${messageData[Message.FIELD__MESSAGE]}`,
-        }
+      const deviceToken = userData[User.FIELD__DEVICE_TOKEN]
+      if (deviceToken.length > 0) {
+        // Notify device
+        await admin.messaging().sendToDevice(deviceToken, notificationPayload)
       }
-
-      const gameData = await (await db.collection(Game.COLLECTION_PATH)
-        .doc(gameId)
-        .get())
-        .data()
-      if (gameData === undefined) {
-        return
-      }
-
-      const playerIdArray = new Array();
-      for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
-        playerIdArray.push(playerSnapshot.id)
-      }
-
-      // Get player device tokens and send notification.
-      for (const playerSnapshot of playersToNotifyQuerySnapshot.docs) {
-        if (playerSnapshot.id === senderId) {
-          // Don't notify the user that sent the message.
-          continue
-        }
-        // If player is the admin player then notify the admin on-call player instead.
-        let playerData: any = playerSnapshot.data()
-        if (playerSnapshot.id === gameData[Game.FIELD__FIGUREHEAD_ADMIN_PLAYER_ACCOUNT]) {
-          if (playerIdArray.includes(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])) {
-            // Admin on call player is already getting notified about this message.
-            continue
-          }
-          playerData = (await db.collection(Game.COLLECTION_PATH)
-            .doc(gameId)
-            .collection(Player.COLLECTION_PATH)
-            .doc(gameData[Game.FIELD__ADMIN_ON_CALL_PLAYER_ID])
-            .get())
-            .data()
-        }
-        if (playerData === undefined) {
-          continue
-        }
-        // Get player's device token to notify
-        const userData = await (await db
-            .collection(User.COLLECTION_PATH)
-            .doc(playerData[Player.FIELD__USER_ID])
-            .get()
-          ).data()
-        if (userData === undefined) {
-          continue
-        }
-        const deviceToken = userData[User.FIELD__DEVICE_TOKEN]
-        if (deviceToken.length > 0) {
-          // Notify device
-          await admin.messaging().sendToDevice(deviceToken, notificationPayload)
-        }
-      }
-});
+    }
+  });
 
 /*******************************************************
 * MISSION functions
@@ -532,16 +531,16 @@ exports.createMission = functions.https.onCall(async (data, context) => {
     /* autoRemove= */ allegianceFilter !== Defaults.EMPTY_ALLEGIANCE_FILTER,
     allegianceFilter);
 
-    await GroupUtils.createGroupAndMission(
-      db,
-      gameId,
-      settings,
-      missionName,
-      startTime,
-      endTime,
-      details,
-      allegianceFilter
-    )
+  await GroupUtils.createGroupAndMission(
+    db,
+    gameId,
+    settings,
+    missionName,
+    startTime,
+    endTime,
+    details,
+    allegianceFilter
+  )
 })
 
 // TODO: run this as a transaction
@@ -579,9 +578,9 @@ exports.updateMission = functions.https.onCall(async (data, context) => {
   });
 
   const groupRef = db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(Group.COLLECTION_PATH)
-      .doc(associatedGroupId);
+    .doc(gameId)
+    .collection(Group.COLLECTION_PATH)
+    .doc(associatedGroupId);
   // We have to use dot-notation or firebase will overwrite the entire field.
   const allegianceField = Group.FIELD__SETTINGS + "." + Group.FIELD__SETTINGS_ALLEGIANCE_FILTER
   await groupRef.update({
@@ -745,25 +744,25 @@ exports.getRewardsByName = functions.https.onCall(async (data, context) => {
  * @param {string} data.path the document or collection path to delete.
  */
 exports.deleteQuizQuestion = functions.runWith({
-    timeoutSeconds: 540,
-    memory: '2GB'
+  timeoutSeconds: 540,
+  memory: '2GB'
 }).https.onCall(async (data, context) => {
-    GeneralUtils.verifyIsAdmin(context)
-    const gameId = data.gameId;
-    const questionId = data.questionId;
-    console.log(
-      `User ${context.auth!.uid} has requested to delete question ${questionId}`
-    );
+  GeneralUtils.verifyIsAdmin(context)
+  const gameId = data.gameId;
+  const questionId = data.questionId;
+  console.log(
+    `User ${context.auth!.uid} has requested to delete question ${questionId}`
+  );
 
-    // Run a recursive delete on the quiz document path.
-    const questionRef = db.collection(Game.COLLECTION_PATH)
-      .doc(gameId)
-      .collection(QuizQuestion.COLLECTION_PATH)
-      .doc(questionId);
-    await questionRef.listCollections().then(async (collections: any) => {
-      for (const collection of collections) {
-        await GeneralUtils.deleteCollection(db, collection)
-      }
-      await questionRef.delete()
-    });
+  // Run a recursive delete on the quiz document path.
+  const questionRef = db.collection(Game.COLLECTION_PATH)
+    .doc(gameId)
+    .collection(QuizQuestion.COLLECTION_PATH)
+    .doc(questionId);
+  await questionRef.listCollections().then(async (collections: any) => {
+    for (const collection of collections) {
+      await GeneralUtils.deleteCollection(db, collection)
+    }
+    await questionRef.delete()
+  });
 });
