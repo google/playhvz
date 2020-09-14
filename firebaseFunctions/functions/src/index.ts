@@ -81,7 +81,7 @@ exports.checkGameExists = functions.https.onCall(async (data, context) => {
   GeneralUtils.verifySignedIn(context)
   const name = trimmedString(data.name);
   GeneralUtils.verifyStringArgs([name])
-  await GameImpl.checkGameExists(db, name)
+  return await GameImpl.checkGameExists(db, name)
 });
 
 
