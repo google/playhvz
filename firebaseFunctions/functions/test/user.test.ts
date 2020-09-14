@@ -16,6 +16,7 @@
 
 const chai = require('chai');
 const assert = chai.assert;
+import * as GeneralUtils from '../src/utils/generalutils';
 import * as TestEnv from './testsetup';
 
 const db = TestEnv.db;
@@ -24,12 +25,7 @@ const FAKE_UID = TestEnv.FAKE_UID
 const FAKE_DEVICE_TOKEN = "fakeDeviceToken"
 
 describe('User Collection Tests', () => {
-    beforeEach(async () => {
-        await TestEnv.clearFirestoreData()
-    });
-
     after(async () => {
-        await TestEnv.clearFirestoreData()
         TestEnv.after();
     });
 
@@ -47,8 +43,9 @@ describe('User Collection Tests', () => {
         await wrappedRegisterDevice(data, TestEnv.context)
 
         // Verify result state
-        const afterData = (await db.collection("users").doc(FAKE_UID).get()).data()
+        const afterData = (await fakeUserRef.get()).data()
         assert.equal(afterData!["deviceToken"], FAKE_DEVICE_TOKEN)
+        await GeneralUtils.deleteDocument(db, fakeUserRef)
     });
 
     it('registerDevice updates deviceToken', async () => {
@@ -62,7 +59,8 @@ describe('User Collection Tests', () => {
         await wrappedRegisterDevice(data, TestEnv.context)
 
         // Verify result state
-        const afterData = (await db.collection("users").doc(FAKE_UID).get()).data()
+        const afterData = (await fakeUserRef.get()).data()
         assert.equal(afterData!["deviceToken"], FAKE_DEVICE_TOKEN)
+        await GeneralUtils.deleteDocument(db, fakeUserRef)
     });
 });

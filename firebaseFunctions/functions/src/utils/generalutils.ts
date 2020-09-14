@@ -112,7 +112,7 @@ export function verifyStartEndTime(startTime: number, endTime: number) {
   }
 }
 
-export async function deleteCollection(db: any, collection: any) {
+export async function deleteCollection(db: any, collection: FirebaseFirestore.CollectionReference) {
   const collectionRef = db.collection(collection.path)
   await collectionRef.listDocuments().then((docRefs: any) => {
     return db.getAll(...docRefs)
@@ -123,7 +123,7 @@ export async function deleteCollection(db: any, collection: any) {
   })
 }
 
-export async function deleteDocument(db: any, documentRef: any) {
+export async function deleteDocument(db: any, documentRef: FirebaseFirestore.DocumentReference) {
   await documentRef.listCollections().then(async (collections: any) => {
     for (const collection of collections) {
       await deleteCollection(db, collection)

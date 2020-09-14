@@ -19,7 +19,6 @@
  * Not sure how to pause and inspect that, so use this to connect to the real thing for debugging...
  */
 
-import * as firebase from '@firebase/testing';
 import * as admin from 'firebase-admin';
 const projectId = "hvz-dev-af10d";
 
@@ -44,10 +43,6 @@ export const context = {
     auth: {
         uid: FAKE_UID
     },
-}
-
-export async function clearFirestoreData() {
-    firebase.clearFirestoreData({ projectId });
 }
 
 export function wrap(fun: any) {
