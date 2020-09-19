@@ -15,193 +15,211 @@
 -->
 
 <dom-module id="ghvz-card">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-card',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-card',
 
-      properties: {
-        fullscreenPage: {
-          type: String,
-          value: null,
+        properties: {
+          fullscreenPage: {
+            type: String,
+            value: null,
+          },
+
+          withMenu: {
+            type: Boolean,
+            value: false,
+          },
+
+          withBack: {
+            type: Boolean,
+            value: false,
+          },
         },
-        
-        withMenu: {
-          type: Boolean,
-          value: false,
+
+        listeners: {
+          'ghvz-add-toolbar-button': 'addToolbarButton_',
+          'ghvz-set-card-header-text': 'setCardHeaderText_',
+          'ghvz-set-card-header': 'setCardHeader_',
         },
 
-        withBack: {
-          type: Boolean,
-          value: false,
+        addToolbarButton_: function (event) {
+          this.$.buttons.appendChild(event.detail.button);
+          event.stopPropagation();
         },
-      },
 
-      listeners: {
-        'ghvz-add-toolbar-button': 'addToolbarButton_',
-        'ghvz-set-card-header-text': 'setCardHeaderText_',
-        'ghvz-set-card-header': 'setCardHeader_',
-      },
+        deleteHeaders_() {
+          while (this.$.headerElement.firstElementChild) {
+            this.$.headerElement.removeChild(this.$.headerElement.firstElementChild);
+          }
+          this.$.headerText.innerText = "";
+          while (this.$.headerContent.firstElementChild) {
+            this.$.headerContent.removeChild(this.$.headerContent.firstElementChild);
+          }
+        },
 
-      addToolbarButton_: function(event) {
-        this.$.buttons.appendChild(event.detail.button);
-        event.stopPropagation();
-      },
+        setCardHeaderText_: function (event) {
+          this.deleteHeaders_();
+          this.$.headerText.innerText = event.detail.headerText;
+          event.stopPropagation();
+        },
 
-      deleteHeaders_() {
-        while (this.$.headerElement.firstElementChild) {
-          this.$.headerElement.removeChild(this.$.headerElement.firstElementChild);
-        }
-        this.$.headerText.innerText = "";
-        while (this.$.headerContent.firstElementChild) {
-          this.$.headerContent.removeChild(this.$.headerContent.firstElementChild);
-        }
-      },
+        setCardHeader_: function (event) {
+          this.deleteHeaders_();
+          this.$.headerElement.appendChild(event.detail.headerElement);
+          event.stopPropagation();
+        },
 
-      setCardHeaderText_: function(event) {
-        this.deleteHeaders_();
-        this.$.headerText.innerText = event.detail.headerText;
-        event.stopPropagation();
-      },
+        openFullscreen_() {
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: this.fullscreenPage.split('/'),
+            replace: false,
+          });
+        },
 
-      setCardHeader_: function(event) {
-        this.deleteHeaders_();
-        this.$.headerElement.appendChild(event.detail.headerElement);
-        event.stopPropagation();
-      },
+        back_() {
+          window.history.back();
+        },
 
-      openFullscreen_() {
-        this.fire('ghvz-set-path', {
-          inGame: true,
-          path: this.fullscreenPage.split('/'),
-          replace: false,
-        });
-      },
-
-      back_() {
-        window.history.back();
-      },
-
-      openDrawer_(e) {
-        this.fire('ghvz-open-drawer');
-      },
+        openDrawer_(e) {
+          this.fire('ghvz-open-drawer');
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-  }
-  paper-material {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-  }
-  paper-material #contents {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
-  :host([spaced]) {
-    padding: 8px;
-  }
-  .header {
-    background-color: #03A9F4;
-    color: white;
-    display: flex;
-    align-items: center;
-    height: 48px;
-    padding-right: 4px;
-    flex-shrink: 0;
-  }
-  :host([mobile]) .header {
-    height: initial;
-    padding-top:8px;
-    padding-bottom: 8px;
-  }
-  .menu {
-    order: 1;
-    flex-shrink: 0;
-  }
-  :host([admin]) .header {
-    background-color: #9C27B0;
-  }
-  #buttons {
-    flex-grow: 0;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: row-reverse;
-    order: 2;
-  }
-  .header > .text {
-    font-size: 13pt;
-    font-weight: bold;
-    flex-grow: 1;
-    order: 2;
-  }
-  .header > .text[pad-left] {
-    padding-left: 16px;
-  }
-  :host([mobile]) .header > .text[pad-left] {
-    padding-left: 8px;
-  }
-  #contents {
-    /* height: 100%; Taken out. When in, mobile safari hides entire contents. */
-    overflow: hidden;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  :host([scrolling]) #contents {
-    overflow-y: auto;
-    max-height: 400px;
-  }
-  :host([padded]) #contents {
-    padding: 8px;
-  }
-  :host([padded][mobile]) #contents {
-    padding: 8px;
-  }
-</style>
-<template>
+  </script>
+  <style>
+    :host {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
 
-  <paper-material>
-    <div class="header">
+    paper-material {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+    }
 
-      <template is="dom-if" if="[[withBack]]">
-        <paper-icon-button name="backButton" class="menu" icon="icons:arrow-back" raised on-tap="back_">
-        </paper-icon-button>
-      </template>
-      <template is="dom-if" if="[[withMenu]]">
-        <paper-icon-button name="drawerButton" class="menu" icon="icons:menu" raised on-tap="openDrawer_">
-        </paper-icon-button>
-      </template>
-      <div id="header" class="text" pad-left$="[[!withBack]]">
-        <div id="headerText"></div>
-        <div id="headerContent"><content select=".header"></div>
-        <div id="headerElement"></div>
-      </div>
-      <!-- <paper-icon-button class="button" icon="icons:chevron-left"></paper-icon-button>
+    paper-material #contents {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    :host([spaced]) {
+      padding: 8px;
+    }
+
+    .header {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+      display: flex;
+      align-items: center;
+      height: 48px;
+      padding-right: 4px;
+      flex-shrink: 0;
+    }
+
+    :host([mobile]) .header {
+      height: initial;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .menu {
+      order: 1;
+      flex-shrink: 0;
+    }
+
+    :host([admin]) .header {
+      background-color: var(--admin_color_primary);
+    }
+
+    #buttons {
+      flex-grow: 0;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: row-reverse;
+      order: 2;
+    }
+
+    .header>.text {
+      font-size: 13pt;
+      font-weight: bold;
+      flex-grow: 1;
+      order: 2;
+    }
+
+    .header>.text[pad-left] {
+      padding-left: 16px;
+    }
+
+    :host([mobile]) .header>.text[pad-left] {
+      padding-left: 8px;
+    }
+
+    #contents {
+      /* height: 100%; Taken out. When in, mobile safari hides entire contents. */
+      overflow: hidden;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    :host([scrolling]) #contents {
+      overflow-y: auto;
+      max-height: 400px;
+    }
+
+    :host([padded]) #contents {
+      padding: 8px;
+    }
+
+    :host([padded][mobile]) #contents {
+      padding: 8px;
+    }
+  </style>
+  <template>
+
+    <paper-material>
+      <div class="header">
+
+        <template is="dom-if" if="[[withBack]]">
+          <paper-icon-button name="backButton" class="menu" icon="icons:arrow-back" raised on-tap="back_">
+          </paper-icon-button>
+        </template>
+        <template is="dom-if" if="[[withMenu]]">
+          <paper-icon-button name="drawerButton" class="menu" icon="icons:menu" raised on-tap="openDrawer_">
+          </paper-icon-button>
+        </template>
+        <div id="header" class="text" pad-left$="[[!withBack]]">
+          <div id="headerText"></div>
+          <div id="headerContent">
+            <content select=".header">
+          </div>
+          <div id="headerElement"></div>
+        </div>
+        <!-- <paper-icon-button class="button" icon="icons:chevron-left"></paper-icon-button>
       <paper-icon-button class="button" icon="icons:chevron-right"></paper-icon-button> -->
-      <!-- <paper-icon-button class="header-button" icon="icons:refresh">
+        <!-- <paper-icon-button class="header-button" icon="icons:refresh">
       </paper-icon-button> -->
-      <div id="buttons">
-        <content select=".header-button">
-        <paper-icon-button hidden$="[[!fullscreenPage]]" class="button" icon="icons:fullscreen" on-tap="openFullscreen_"></paper-icon-button>
-      </div>
-      
-      <!-- <paper-icon-button class="button" icon="icons:more-vert">
-      </paper-icon-button> -->
-    </div>
-    <div id="contents" style="position: relative;">
-      <content/>
-    </div>
-  </paper-material>
+        <div id="buttons">
+          <content select=".header-button">
+            <paper-icon-button hidden$="[[!fullscreenPage]]" class="button" icon="icons:fullscreen"
+              on-tap="openFullscreen_"></paper-icon-button>
+        </div>
 
-</template>
+        <!-- <paper-icon-button class="button" icon="icons:more-vert">
+      </paper-icon-button> -->
+      </div>
+      <div id="contents" style="position: relative;">
+        <content />
+      </div>
+    </paper-material>
+
+  </template>
 </dom-module>

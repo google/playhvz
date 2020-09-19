@@ -44,26 +44,26 @@
           }
         },
 
-        ready: function() {
+        ready: function () {
           this.target = this.$.lifeCodeInput;
         },
 
-        computeButtonEnabled_: function(lifeCode, requesting) {
+        computeButtonEnabled_: function (lifeCode, requesting) {
           return !!lifeCode && !requesting;
         },
 
-        computeIsHuman_: function(player) {
+        computeIsHuman_: function (player) {
           return player.allegiance == 'resistance';
         },
 
-        reset_: function() {
+        reset_: function () {
           this.lifeCode = "";
           this.requesting = false;
           this.infectedPlayer = null;
           this.infectedSelf = false;
         },
 
-        infect_: function() {
+        infect_: function () {
           if (this.player) {
             this.requesting = true;
             this.bridge.infect({
@@ -73,18 +73,18 @@
               victimLifeCode: this.lifeCode,
               victimPlayerId: null,
             })
-            .then((victimPlayerId) => {
-              if (victimPlayerId == "self-infection") {
-                this.infectedSelf = true;
-                this.infectedPlayer = this.player;
-              } else {
-                this.infectedPlayer = this.game.playersById[victimPlayerId];
-              }
-              this.requesting = false;
-            },
-            (error) => {
-              this.reset_();
-            });
+              .then((victimPlayerId) => {
+                if (victimPlayerId == "self-infection") {
+                  this.infectedSelf = true;
+                  this.infectedPlayer = this.player;
+                } else {
+                  this.infectedPlayer = this.game.playersById[victimPlayerId];
+                }
+                this.requesting = false;
+              },
+                (error) => {
+                  this.reset_();
+                });
           }
         },
 
@@ -97,32 +97,42 @@
       :host {
         display: block;
       }
+
       paper-input {
         padding: 8px;
       }
+
       paper-button {
-        background-color: #03A9F4;
-        color: white;
+        background-color: var(--app_color_primary);
+        color: var(--app_color_text_on_primary_background);
         font-weight: bold;
         display: block;
         text-align: center;
         margin: 0;
       }
+
       #infecting,
       #infected {
         display: flex;
       }
+
       #infecting paper-input,
-      #infectedMessage, #selfInfectedMessage {
+      #infectedMessage,
+      #selfInfectedMessage {
         flex: 1;
       }
-      #infectedMessage, #selfInfectedMessage{
+
+      #infectedMessage,
+      #selfInfectedMessage {
         margin: 16px;
       }
-      #instructions, #codeInput {
-        margin:10px;
+
+      #instructions,
+      #codeInput {
+        margin: 10px;
         width: 100%;
       }
+
       #infectContainer,
       #doneContainer {
         flex: 0;
@@ -130,32 +140,25 @@
         align-items: center;
         margin: 8px 16px 8px 0;
       }
+
       span[name=victimName] {
         font-weight: bold;
       }
     </style>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
-                on-keys-pressed="infect_"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="infect_"></iron-a11y-keys>
     <div id="instructions" hidden$="[[!computeIsHuman_(player)]]">
-        <div><b>Possessed humans</b>: Enter your victim's life code. This will also turn you into a zombie.</div>
-        <br/>
-        <div><b>Humans</b>: Enter your own life code to self-infect. Only do this when you have been turned, but the zombie has not yet entered your life code.</div>
-      </div>
+      <div><b>Possessed humans</b>: Enter your victim's life code. This will also turn you into a zombie.</div>
+      <br />
+      <div><b>Humans</b>: Enter your own life code to self-infect. Only do this when you have been turned, but the
+        zombie has not yet entered your life code.</div>
+    </div>
     <div id="infecting" hidden$="[[infectedPlayer]]">
       <div id="codeInput">
-        <paper-input
-            id="lifeCodeInput"
-            label="Human's life code"
-            value="{{lifeCode}}"
-            no-label-float>
+        <paper-input id="lifeCodeInput" label="Human's life code" value="{{lifeCode}}" no-label-float>
         </paper-input>
       </div>
       <div id="infectContainer">
-        <paper-button
-            id="infect"
-            raised
-            disabled="[[!computeButtonEnabled_(lifeCode, requesting)]]"
-            on-tap="infect_">
+        <paper-button id="infect" raised disabled="[[!computeButtonEnabled_(lifeCode, requesting)]]" on-tap="infect_">
           Infect!
         </paper-button>
       </div>
@@ -172,12 +175,9 @@
           Congratulations, <b>[[player.name]]</b>, you are now a zombie. Welcome to the horde!
         </div>
       </div>
-      <br/>
+      <br />
       <div id="doneContainer">
-        <paper-button
-            id="done"
-            raised
-            on-tap="reset_">
+        <paper-button id="done" raised on-tap="reset_">
           Done
         </paper-button>
       </div>

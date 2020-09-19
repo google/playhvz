@@ -19,10 +19,10 @@
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
-    	Polymer({
-    		is: 'ghvz-chat-room-input',
+      Polymer({
+        is: 'ghvz-chat-room-input',
 
-    		properties: {
+        properties: {
           bridge: Object,
           game: Object,
           currentPlayer: Object,
@@ -53,7 +53,7 @@
           return senderId === myId ? 'message-from-me' : 'message-from-other';
         },
 
-        onSendClicked_: function() {
+        onSendClicked_: function () {
           if (!this.$.messageInput.value) {
             return;
           }
@@ -63,18 +63,18 @@
             this.parseAndSendNotifications_(message);
           }
           catch (e) {
-            this.fire('ghvz-alert', {message: e});
+            this.fire('ghvz-alert', { message: e });
             return;
           }
 
           this.bridge.sendChatMessage({
             gameId: this.game.id,
-            messageId: this.bridge.newMessageId(), 
-            chatRoomId: this.chatRoom.id, 
-            playerId: this.currentPlayer.id, 
+            messageId: this.bridge.newMessageId(),
+            chatRoomId: this.chatRoom.id,
+            playerId: this.currentPlayer.id,
             message: message,
           }).catch((e) => {
-            this.fire('ghvz-alert', {message: e});
+            this.fire('ghvz-alert', { message: e });
           });
           this.$.messageInput.value = "";
         },
@@ -83,8 +83,8 @@
         * Submit text on 'enter', allow shift+enter to insert a new line in
         * the text field.
         */
-        checkForEnter_: function(e) {
-         if (e.keyCode === 13 && !e.shiftKey) {
+        checkForEnter_: function (e) {
+          if (e.keyCode === 13 && !e.shiftKey) {
             e.preventDefault();
             this.$.messageSend.click();
           }
@@ -94,7 +94,7 @@
           let notificationPlayerIds = [];
           let ackRequestPlayerIds = [];
           let textRequestPlayerIds = [];
-            
+
           while (true) {
             let ackRequestRegex = /@(\?|!)?(\w+)\b\s*/;
             let messageMatch = message.match(ackRequestRegex);
@@ -102,7 +102,7 @@
               break;
             }
             message = message.replace(messageMatch[0], "");
-                  
+
             let newTargetPlayerIds = [];
             let playerName = messageMatch[2];
             if (playerName == 'all') {
@@ -135,7 +135,7 @@
           let senderPlayerId = this.currentPlayer.id;
           let group = this.game.groupsById[chatRoom.accessGroupId];
           let [strippedMessage, notificationPlayerIds, ackRequestPlayerIds, textRequestPlayerIds] =
-              this.getMessageTargets_(message, group, senderPlayerId);
+            this.getMessageTargets_(message, group, senderPlayerId);
 
           let sound = 'ping.wav';
           if (ackRequestPlayerIds.length && textRequestPlayerIds.length)
@@ -211,19 +211,21 @@
       flex-shrink: 0;
       padding: 4px 8px 8px 8px;
     }
+
     paper-button.send {
-      background-color: rgba(135, 206, 250, .5);
-      color: darkslategrey;
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
       font-size: small;
       font-weight: bold;
     }
+
     .multimedia-option {
       color: dodgerblue;
       flex-grow: 0;
     }
-    .text-input {
-      
-    }
+
+    .text-input {}
+
     .text-input-field {
       flex-grow: 1;
       position: relative;
@@ -233,40 +235,20 @@
   </style>
   <template>
     <div class="text-input-field">
-      <paper-textarea 
-        id="messageInput"
-        name$="input-[[chatRoom.name]]" 
-        autocorrect
-        multiline
-        max-rows=3
-        label="message"
-        no-label-float
-        on-keydown="checkForEnter_">
+      <paper-textarea id="messageInput" name$="input-[[chatRoom.name]]" autocorrect multiline max-rows=3 label="message"
+        no-label-float on-keydown="checkForEnter_">
       </paper-textarea>
     </div>
     <template is="dom-if" if="[[imageUploadEnabled]]">
-      <paper-icon-button
-        class="multimedia-option"
-        icon="image:photo"
-        title="Send image"
-        on-click="sendImage_">
+      <paper-icon-button class="multimedia-option" icon="image:photo" title="Send image" on-click="sendImage_">
       </paper-icon-button>
     </template>
     <template is="dom-if" if="[[locationUploadEnabled_(isMobile, locationUploadEnabled)]]">
-      <ghvz-chat-location
-        class="multimedia-option"
-        bridge="[[bridge]]"
-        game="[[game]]"
-        player="[[currentPlayer]]"
+      <ghvz-chat-location class="multimedia-option" bridge="[[bridge]]" game="[[game]]" player="[[currentPlayer]]"
         chat-room-id="[[chatRoom.id]]">
       </ghvz-chat-location>
     </template>
-    <paper-button 
-      class="send"
-      name$="submit-[[chatRoom.name]]"
-      id="messageSend" 
-      raised
-      on-click="onSendClicked_">
+    <paper-button class="send" name$="submit-[[chatRoom.name]]" id="messageSend" raised on-click="onSendClicked_">
       SEND
     </paper-button>
   </template>

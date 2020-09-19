@@ -19,10 +19,10 @@
     // Something about polymer initialization order.
     // I think we're not supposed to need this.
     HTMLImports.whenReady(() => {
-    	Polymer({
-    		is: 'ghvz-chat-room',
+      Polymer({
+        is: 'ghvz-chat-room',
 
-    		properties: {
+        properties: {
           bridge: Object,
           game: Object,
           currentPlayer: Object,
@@ -69,7 +69,7 @@
           'onMessageReceived_(chatRoom.messages.*)',
         ],
 
-        attached: function() {
+        attached: function () {
           this.isAttached = true;
           this.fire('ghvz-add-toolbar-button', { button: this.$.info });
           this.trackScrolling_();
@@ -82,18 +82,18 @@
           this.pendingLastSeenTime = null;
         },
 
-        onChatRoomNameChange_: function() {
+        onChatRoomNameChange_: function () {
           this.async(() => {
             this.fire('ghvz-set-card-header-text', { headerText: this.chatRoom.name });
           });
         },
 
-        onChatRoomMembershipChange_: function() {
+        onChatRoomMembershipChange_: function () {
           let membership = this.currentPlayer.private.chatRoomMembershipsById[this.chatRoomId];
           this.isMemberOfChatRoom = membership ? true : false;
         },
 
-        onMessageReceived_() { 
+        onMessageReceived_() {
           let scrollTop = this.$.conversationContainer.scrollTop;
           let offsetHeight = this.$.conversationContainer.offsetHeight;
           let scrollHeight = this.$.conversationContainer.scrollHeight;
@@ -106,7 +106,7 @@
               // of the new message.
               this.$.renderedMessages.render();
               this.$.conversationContainer.scrollTop =
-                  this.$.conversationContainer.scrollHeight;
+                this.$.conversationContainer.scrollHeight;
 
               this.maybeUpdateLastSeenTime_();
             });
@@ -114,7 +114,7 @@
         },
 
         trackScrolling_() {
-          this.$.conversationContainer.addEventListener('scroll', function(e) {
+          this.$.conversationContainer.addEventListener('scroll', function (e) {
             let ticking;
             lastKnownScrollPosition = this.$.conversationContainer.scrollTop;
             if (!ticking) {
@@ -164,7 +164,7 @@
           let elementOffsetTop = element.offsetTop; // distance from the top of the container
           let elementOffsetBottom = elementOffsetTop + element.offsetHeight; // + height of element
           let isVisibleInContainer =
-              (elementOffsetTop <= containerVisibleBottom) && (elementOffsetBottom >= containerScrollTop);
+            (elementOffsetTop <= containerVisibleBottom) && (elementOffsetBottom >= containerScrollTop);
           if (!isVisibleInContainer)
             return false;
           // Element is visible in container, see if it's also visible on the screen (like on dashboard)
@@ -197,8 +197,8 @@
 
         getName_(playerId) {
           let player = this.game.playersById[playerId];
-         /* this.$.playerSelector.select(
-                this.game.players.find(player => player.id == playerId)); */
+          /* this.$.playerSelector.select(
+                 this.game.players.find(player => player.id == playerId)); */
           return player && player.name;
         },
 
@@ -223,14 +223,14 @@
         * Returns the date in format: Day 00:00
         */
         getTime_(time) {
-          var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
           var date = new Date(time);
-          return days[date.getDay()] + " " + 
-          ("0" + date.getHours()).slice(-2) + ":" + 
-          ("0" + date.getMinutes()).slice(-2);
+          return days[date.getDay()] + " " +
+            ("0" + date.getHours()).slice(-2) + ":" +
+            ("0" + date.getMinutes()).slice(-2);
         },
 
-        toggleChatInfo_: function() {
+        toggleChatInfo_: function () {
           this.chatInfoVisible ? this.hideChatInfo() : this.showChatInfo();
         },
 
@@ -274,10 +274,10 @@
         },
 
         isReceiveUnreadRequest_(request, response, currentPlayerId) {
-          return (request.playerId == currentPlayerId) && (request.response ==null);
+          return (request.playerId == currentPlayerId) && (request.response == null);
         },
 
-        countRespondPlayer_(requests){
+        countRespondPlayer_(requests) {
           return requests.filter(request => request.response != null).length;
         },
 
@@ -289,22 +289,22 @@
           return this.countRespondPlayer_(requests) < this.countTotalRequests_(senderId, requests);
         },
 
-        getNoRespondPlayer_(senderId, requests){
+        getNoRespondPlayer_(senderId, requests) {
           return requests
-              .filter(request => request.response == null && request.playerId != senderId)
-              .map(request => this.game.playersById[request.playerId].name)
-              .join(", ");
+            .filter(request => request.response == null && request.playerId != senderId)
+            .map(request => this.game.playersById[request.playerId].name)
+            .join(", ");
         },
 
-        isRequestAck_(requestCategoryType){
-          return requestCategoryType=="ack";
+        isRequestAck_(requestCategoryType) {
+          return requestCategoryType == "ack";
         },
 
-        isResponseNull_(response){
-          return response==null;
+        isResponseNull_(response) {
+          return response == null;
         },
 
-        acknowledge: function(e){
+        acknowledge: function (e) {
           this.bridge.addResponse({
             gameId: this.game.id,
             requestId: e.model.request.id,
@@ -312,7 +312,7 @@
           });
         },
 
-        sendAckText: function(e){
+        sendAckText: function (e) {
           this.bridge.addResponse({
             gameId: this.game.id,
             requestId: e.model.request.id,
@@ -320,7 +320,7 @@
           });
         },
 
-        deleteAck: function(e){
+        deleteAck: function (e) {
           this.bridge.updateRequestCategory({
             gameId: this.game.id,
             requestCategoryId: e.model.requestCategory.id,
@@ -332,8 +332,8 @@
         * Submit text on 'enter', allow shift+enter to insert a new line in
         * the text field.
         */
-        checkForEnterTextRequest_: function(e) {
-         if (e.keyCode === 13 && !e.shiftKey) {
+        checkForEnterTextRequest_: function (e) {
+          if (e.keyCode === 13 && !e.shiftKey) {
             e.preventDefault();
             e.target.parentNode.parentNode.parentNode.parentNode.nextElementSibling.click();
           }
@@ -356,85 +356,109 @@
       flex-direction: column;
       flex-grow: 1;
     }
+
     :host[small] {
       height: 400px;
     }
+
     .conversation-container {
       flex-grow: 1;
       overflow-y: scroll;
       padding: 8px;
       position: relative;
     }
+
     .ack-container {
       flex-grow: 0;
     }
+
     .drawer-content {
       overflow: auto;
     }
+
     .drawer-panel {
       pointer-events: none;
     }
+
     .message-from-other {
       display: flex;
       justify-content: flex-start;
       position: relative;
     }
+
     paper-button.request {
-      background-color: #03A9F4;
-      color: white;
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
     }
+
     .message-from-me {
       display: flex;
       justify-content: flex-end;
       position: relative;
     }
+
     .player-name {
       padding-top: 8px;
       font-size: 10px;
       opacity: .6;
     }
+
     .message-from-me .player-name {
       align-self: flex-end;
     }
+
     .message-from-other .player-name {
       align-self: flex-start;
     }
+
     .display-avatar {
       position: absolute;
       top: 14px;
     }
+
     .display-sender {}
+
     .hide-sender {}
+
     .message-from-me .display-avatar {
       order: 3;
     }
+
     .message-from-other .display-avatar {
       order: 1;
     }
+
     .display-sender .player-name {
       visibility: visible;
     }
+
     .display-sender .display-avatar {
       visibility: visible;
     }
+
     .hide-sender .player-name {
       display: none;
     }
+
     .hide-sender .display-avatar {
       display: none;
     }
+
     .display-message {
       align-self: center;
       order: 2;
     }
+
     .message-from-me .display-message {
       padding-right: 8px;
       margin-right: 28px;
     }
+
     .message-from-other .display-message {
       padding-left: 8px;
       margin-left: 28px;
     }
+
     .profile-pic {
       width: 28px;
       height: 28px;
@@ -443,6 +467,7 @@
       background-position: center center;
       border: 2px solid green;
     }
+
     .message-bubble {
       border-radius: 16px;
       margin-bottom: 4px;
@@ -454,56 +479,73 @@
       word-wrap: break-word;
       word-break: break-word;
     }
+
     .message-text-container {
       display: flex;
       justify-content: flex-end;
     }
+
     .message-from-me .message-text-container {
       flex-direction: row;
     }
+
     .message-from-other .message-text-container {
       flex-direction: row-reverse;
     }
+
     .message-from-me .message-bubble {
       align-self: flex-end;
       background-color: rgba(135, 206, 250, .4);
     }
+
     .message-from-other .message-bubble {
       align-self: flex-start;
       background-color: lightgrey;
     }
+
     .request-category {
       padding: 8px;
       margin: 8px 8px 0 8px;
-      background-color: #e3f2fd;
+      background-color: var(--app_color_accent);
       display: flex;
       align-items: center;
       flex-wrap: nowrap;
     }
+
     .request-category-with-answer {
       flex-wrap: wrap;
     }
+
     .request-category-text-column {
       flex-grow: 1;
       align-items: center;
     }
-    #forWebdriver { height: 1px; }
+
+    #forWebdriver {
+      height: 1px;
+    }
+
     .request-input {
       padding: 8px;
     }
+
     .request-message {
       flex-grow: 1;
       display: inline-block;
     }
+
     .request-input-container {
       display: flex;
     }
+
     .request-input {
       flex-grow: 1;
     }
+
     .request-button {
       flex-shrink: 0;
     }
+
     .warning {
       background-color: beige;
       color: darkslategrey;
@@ -512,15 +554,11 @@
     }
   </style>
   <template>
-  <!-- -->
+    <!-- -->
     <array-selector id="chatRoomSelector" items="[[game.chatRooms]]" selected="{{chatRoom}}"></array-selector>
     <array-selector id="playerSelector" items="[[game.players]]" multi selected="{{selectedPlayers}}"></array-selector>
 
-    <paper-icon-button 
-      id="info" 
-      icon="icons:info-outline" 
-      on-tap="toggleChatInfo_"
-      name$="chat-info-[[chatRoom.name]]">
+    <paper-icon-button id="info" icon="icons:info-outline" on-tap="toggleChatInfo_" name$="chat-info-[[chatRoom.name]]">
     </paper-icon-button>
 
     <!-- For webdrivers -->
@@ -534,18 +572,20 @@
               <div class="request-category-text-column">
                 <div class="request-message">
                   [[requestCategory.text]]
-                  ([[countRespondPlayer_(requestCategory.requests, requestCategory.requests.*)]]/[[countTotalRequests_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*)]])
+                  ([[countRespondPlayer_(requestCategory.requests,
+                  requestCategory.requests.*)]]/[[countTotalRequests_(requestCategory.playerId,
+                  requestCategory.requests, requestCategory.requests.*)]])
                 </div>
-                <template is="dom-if" if="[[notEveryPlayerRespond_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
-                  waiting on: <b name="not-responded">[[getNoRespondPlayer_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*)]]</b>
+                <template is="dom-if"
+                  if="[[notEveryPlayerRespond_(requestCategory.playerId, requestCategory.requests, requestCategory.requests.*, requestCategory.requests.*)]]">
+                  waiting on: <b name="not-responded">[[getNoRespondPlayer_(requestCategory.playerId,
+                    requestCategory.requests, requestCategory.requests.*)]]</b>
                 </template>
                 <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
                   <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
                     <template is="dom-if" if="[[request.response]]">
                       <div class="request-container" name$="request-response-[[request.response.text]]">
-                        <ghvz-player-label
-                            game="[[game]]"
-                            player-id="[[request.playerId]]">
+                        <ghvz-player-label game="[[game]]" player-id="[[request.playerId]]">
                         </ghvz-player-label>:&#160;
                         [[request.response.text]]
                       </div>
@@ -559,133 +599,105 @@
           <template is="dom-if" if="[[!isSenderCurrentPlayer_(requestCategory.playerId, currentPlayer.id)]]">
             <template is="dom-repeat" items="[[requestCategory.requests]]" as="request">
               <template is="dom-if" if="[[isReceiveUnreadRequest_(request, request.response, currentPlayer.id)]]">
-                  <template is="dom-if" if="[[isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category request-container" name$="received-ack-[[requestCategory.text]]">
-                      <div class="request-category-text-column">
-                        <ghvz-player-label
-                            game="[[game]]"
-                            player-id="[[requestCategory.playerId]]">
-                        </ghvz-player-label>:&#160;
-                        <div class="request-message">
-                          [[requestCategory.text]]
-                        </div>
-                        <span hidden>[[request.time]]</span>
-                      </div> <!-- .request-category-text-column -->
-                      <paper-button raised name="ack-button" class="request request-button" on-click="acknowledge">
-                        Ack
-                      </paper-button>
-                    </paper-material>
-                  </template>
-                  <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
-                    <paper-material class="request-category request-category-with-answer" name$="received-request-ack-[[requestCategory.text]]">
-                      <div class="request-category-text-column">
-                        <p hidden>[[request.time]]</p>
-                        <ghvz-player-label
-                            game="[[game]]"
-                            player-id="[[requestCategory.playerId]]">
-                        </ghvz-player-label>:&#160;
-                        <div class="request-message">
-                          [[requestCategory.text]]
-                        </div>
-                      </div> <!-- .request-category-text-column -->  
-                      <div class="request-category-text-column">
-                        <div class="request-input-container">
-                          <paper-input
-                              no-label-float
-                              class="request-input"
-                              on-keydown="checkForEnterTextRequest_"
-                              type="string"
-                              label="Answer">
-                          </paper-input>
-                          <paper-button
-                              raised
-                              class="request"
-                              id="textRequestSend"
-                              on-click="sendAckText">
-                            Send
-                          </paper-button>
-                        </div> <!-- .request-input-container -->
-                      </div> <!-- .request-category-text-column -->  
-                    </paper-material>
-                  </template>
-                </div>
-              </template>
+                <template is="dom-if" if="[[isRequestAck_(requestCategory.type)]]">
+                  <paper-material class="request-category request-container"
+                    name$="received-ack-[[requestCategory.text]]">
+                    <div class="request-category-text-column">
+                      <ghvz-player-label game="[[game]]" player-id="[[requestCategory.playerId]]">
+                      </ghvz-player-label>:&#160;
+                      <div class="request-message">
+                        [[requestCategory.text]]
+                      </div>
+                      <span hidden>[[request.time]]</span>
+                    </div> <!-- .request-category-text-column -->
+                    <paper-button raised name="ack-button" class="request request-button" on-click="acknowledge">
+                      Ack
+                    </paper-button>
+                  </paper-material>
+                </template>
+                <template is="dom-if" if="[[!isRequestAck_(requestCategory.type)]]">
+                  <paper-material class="request-category request-category-with-answer"
+                    name$="received-request-ack-[[requestCategory.text]]">
+                    <div class="request-category-text-column">
+                      <p hidden>[[request.time]]</p>
+                      <ghvz-player-label game="[[game]]" player-id="[[requestCategory.playerId]]">
+                      </ghvz-player-label>:&#160;
+                      <div class="request-message">
+                        [[requestCategory.text]]
+                      </div>
+                    </div> <!-- .request-category-text-column -->
+                    <div class="request-category-text-column">
+                      <div class="request-input-container">
+                        <paper-input no-label-float class="request-input" on-keydown="checkForEnterTextRequest_"
+                          type="string" label="Answer">
+                        </paper-input>
+                        <paper-button raised class="request" id="textRequestSend" on-click="sendAckText">
+                          Send
+                        </paper-button>
+                      </div> <!-- .request-input-container -->
+                    </div> <!-- .request-category-text-column -->
+                  </paper-material>
+                </template>
+    </div>
+  </template>
+  </template>
+  </template>
+  </template>
+  </template>
+  </div>
+
+  <div id="conversationContainer" name$="conversationContainer: [[chatRoom.name]]" class="conversation-container">
+    <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
+      <div id$="[[item.id]]" name$="message-[[chatRoom.name]]-[[item.message]]"
+        class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item)]]">
+        <div class="display-message">
+          <div class="player-name">
+            [[getName_(item.playerId, game.players.length)]]
+          </div>
+          <div class="message-text-container">
+            <template is="dom-if" if="[[item.message]]">
+              <div class="message-bubble">[[item.message]]</div>
             </template>
-          </template>
-        </template>
-      </template>
-    </div>
-
-    <div id="conversationContainer" name$="conversationContainer: [[chatRoom.name]]" class="conversation-container">
-      <template id="renderedMessages" is="dom-repeat" items="[[chatRoom.messages]]">
-        <div id$="[[item.id]]" name$="message-[[chatRoom.name]]-[[item.message]]"
-          class$="[[computeMessageDisplayClass_(item.playerId, currentPlayer.id)]] [[displaySenderInfo(item)]]">
-          <div class="display-message">
-            <div class="player-name">
-              [[getName_(item.playerId, game.players.length)]]
-            </div>
-            <div class="message-text-container">
-              <template is="dom-if" if="[[item.message]]">
-                <div class="message-bubble">[[item.message]]</div>
-              </template>
-              <template is="dom-if" if="[[item.location]]">
-                <ghvz-static-map 
-                  class="message-bubble"
-                  latitude="[[item.location.latitude]]"
-                  longitude="[[item.location.longitude]]">
-                </ghvz-static-map>
-              </template>
-              <paper-tooltip position="top" animation-delay="0">
-                [[getTime_(item.time)]]
-              </paper-tooltip>
-            </div>
+            <template is="dom-if" if="[[item.location]]">
+              <ghvz-static-map class="message-bubble" latitude="[[item.location.latitude]]"
+                longitude="[[item.location.longitude]]">
+              </ghvz-static-map>
+            </template>
+            <paper-tooltip position="top" animation-delay="0">
+              [[getTime_(item.time)]]
+            </paper-tooltip>
           </div>
-          <div class="display-avatar">
-            <ghvz-player-avatar 
-              small game="[[game]]" 
-              player-id="[[item.playerId]]"
-              name$="avatar-[[chatRoom.name]]-[[item.message]]"></ghvz-player-avatar>
-          </div>
-        </div> 
-      </template>
-    </div>
-
-    <template is="dom-if" if="[[!isMemberOfChatRoom]]">
-      <div class="warning">Become a member of this group to send messages</div>
+        </div>
+        <div class="display-avatar">
+          <ghvz-player-avatar small game="[[game]]" player-id="[[item.playerId]]"
+            name$="avatar-[[chatRoom.name]]-[[item.message]]"></ghvz-player-avatar>
+        </div>
+      </div>
     </template>
-    <template is="dom-if" if="[[isMemberOfChatRoom]]">
-      <ghvz-chat-room-input
-        bridge="[[bridge]]"
-        game="[[game]]"
-        current-player="[[currentPlayer]]"
-        chat-room="[[chatRoom]]"
-        is-mobile="[[isMobile]]"
-        is-admin="[[isAdmin]]">
-      </ghvz-chat-room-input>
-    </template>
+  </div>
 
-    <div on-tap="captureTap_">
-      <paper-drawer-panel id="drawer" class="drawer-panel" right-drawer disable-swipe force-narrow>
-        <paper-material drawer class="drawer-content">
-          <ghvz-chat-info-drawer
-              bridge="[[bridge]]"
-              game="[[game]]"
-              is-admin="[[isAdmin]]"
-              chat-room-id="[[chatRoomId]]"
-              current-player="[[currentPlayer]]">
-          </ghvz-chat-info-drawer>
-        </paper-material>
-        <div main></div>
-      </paper-drawer-panel>
-    </div>
+  <template is="dom-if" if="[[!isMemberOfChatRoom]]">
+    <div class="warning">Become a member of this group to send messages</div>
+  </template>
+  <template is="dom-if" if="[[isMemberOfChatRoom]]">
+    <ghvz-chat-room-input bridge="[[bridge]]" game="[[game]]" current-player="[[currentPlayer]]"
+      chat-room="[[chatRoom]]" is-mobile="[[isMobile]]" is-admin="[[isAdmin]]">
+    </ghvz-chat-room-input>
+  </template>
 
-    <ghvz-chat-info-actions
-      id="actions"
-      bridge="[[bridge]]"
-      game="[[game]]"
-      player-id="[[currentPlayer.id]]"
-      is-admin="[[isAdmin]]"
-      chat-room="[[chatRoom]]">
-    </ghvz-chat-info-actions>
+  <div on-tap="captureTap_">
+    <paper-drawer-panel id="drawer" class="drawer-panel" right-drawer disable-swipe force-narrow>
+      <paper-material drawer class="drawer-content">
+        <ghvz-chat-info-drawer bridge="[[bridge]]" game="[[game]]" is-admin="[[isAdmin]]" chat-room-id="[[chatRoomId]]"
+          current-player="[[currentPlayer]]">
+        </ghvz-chat-info-drawer>
+      </paper-material>
+      <div main></div>
+    </paper-drawer-panel>
+  </div>
+
+  <ghvz-chat-info-actions id="actions" bridge="[[bridge]]" game="[[game]]" player-id="[[currentPlayer.id]]"
+    is-admin="[[isAdmin]]" chat-room="[[chatRoom]]">
+  </ghvz-chat-info-actions>
   </template>
 </dom-module>

@@ -15,96 +15,94 @@
 -->
 
 <dom-module id="ghvz-rsvp">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-rsvp',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-rsvp',
 
-      properties: {
-        bridge: Object,
-        game: Object,
-        player: Object,
-        missionId: String,
-        mission: Object,
-        rsvpersGroup: Object,
-        inGroup: {
-          type: Boolean,
-          notify: true,
-          computed: "computeInGroup_(mission.rsvpersGroupId, player, rsvpersGroup.players.*)",
-        }
-      },
+        properties: {
+          bridge: Object,
+          game: Object,
+          player: Object,
+          missionId: String,
+          mission: Object,
+          rsvpersGroup: Object,
+          inGroup: {
+            type: Boolean,
+            notify: true,
+            computed: "computeInGroup_(mission.rsvpersGroupId, player, rsvpersGroup.players.*)",
+          }
+        },
 
-      observers: [
-        "onMissionIdChanged_(game, missionId)",
-        "onRsvpersGroupIdChanged_(mission.rsvpersGroupId)",
-      ],
+        observers: [
+          "onMissionIdChanged_(game, missionId)",
+          "onRsvpersGroupIdChanged_(mission.rsvpersGroupId)",
+        ],
 
-      onRsvpersGroupIdChanged_(rsvpersGroupId) {
-        this.$.rsvpersGroupSelector.select(this.game.groupsById[rsvpersGroupId]);
-      },
+        onRsvpersGroupIdChanged_(rsvpersGroupId) {
+          this.$.rsvpersGroupSelector.select(this.game.groupsById[rsvpersGroupId]);
+        },
 
-      onMissionIdChanged_: function() {
-        let mission = this.game.missionsById[this.missionId];
-        this.$.missionSelector.select(mission);
-      },
+        onMissionIdChanged_: function () {
+          let mission = this.game.missionsById[this.missionId];
+          this.$.missionSelector.select(mission);
+        },
 
-      computeInGroup_() {
-        if (!this.mission)
-          return false;
-        return this.rsvpersGroup.players.includes(this.player.id);
-      },
+        computeInGroup_() {
+          if (!this.mission)
+            return false;
+          return this.rsvpersGroup.players.includes(this.player.id);
+        },
 
-      rsvp_() {
-        this.bridge.addPlayerToGroup({
-          gameId: this.game.id,
-          groupId: this.mission.rsvpersGroupId,
-          playerToAddId: this.player.id,
-          actingPlayerId: this.player.id,
-        });
-      },
+        rsvp_() {
+          this.bridge.addPlayerToGroup({
+            gameId: this.game.id,
+            groupId: this.mission.rsvpersGroupId,
+            playerToAddId: this.player.id,
+            actingPlayerId: this.player.id,
+          });
+        },
 
-      unrsvp_() {
-        this.bridge.removePlayerFromGroup({
-          gameId: this.game.id,
-          groupId: this.mission.rsvpersGroupId,
-          playerToRemoveId: this.player.id,
-          actingPlayerId: this.player.id,
-        });
-      },
+        unrsvp_() {
+          this.bridge.removePlayerFromGroup({
+            gameId: this.game.id,
+            groupId: this.mission.rsvpersGroupId,
+            playerToRemoveId: this.player.id,
+            actingPlayerId: this.player.id,
+          });
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: block;
-  }
-  #comingSoon {
-    margin: 16px;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-  }
-</style>
-<template>
-  <array-selector id="missionSelector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
-  <array-selector id="rsvpersGroupSelector" items="[[game.groups]]" selected="{{rsvpersGroup}}"></array-selector>
-  <template is="dom-if" if="[[!inGroup]]">
-    <paper-button
-        raised
-        on-tap="rsvp_">
-      RSVP
-    </paper-button>
+  </script>
+  <style>
+    :host {
+      display: block;
+    }
+
+    #comingSoon {
+      margin: 16px;
+    }
+
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+    }
+  </style>
+  <template>
+    <array-selector id="missionSelector" items="[[game.missions]]" selected="{{mission}}"></array-selector>
+    <array-selector id="rsvpersGroupSelector" items="[[game.groups]]" selected="{{rsvpersGroup}}"></array-selector>
+    <template is="dom-if" if="[[!inGroup]]">
+      <paper-button raised on-tap="rsvp_">
+        RSVP
+      </paper-button>
+    </template>
+    <template is="dom-if" if="[[inGroup]]">
+      <paper-button raised on-tap="unrsvp_">
+        Un-RSVP
+      </paper-button>
+    </template>
   </template>
-  <template is="dom-if" if="[[inGroup]]">
-    <paper-button
-        raised
-        on-tap="unrsvp_">
-      Un-RSVP
-    </paper-button>
-  </template>
-</template>
 </dom-module>

@@ -14,33 +14,33 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-create-populated-game">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-create-populated-game',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-create-populated-game',
 
-      properties: {
-        bridge: Object,
-        userId: String,
-      },
+        properties: {
+          bridge: Object,
+          userId: String,
+        },
 
-      makeFormBlueprint_: function() {
-        return {
-          fields: [
-            {
-              property: "id",
-              label: "Id",
-              description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
-            },
-          ],
-        };
-      },
+        makeFormBlueprint_: function () {
+          return {
+            fields: [
+              {
+                property: "id",
+                label: "Id",
+                description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
+              },
+            ],
+          };
+        },
 
-      addGame_: function() {
-        this.$.gameForm.openForAdding({})
+        addGame_: function () {
+          this.$.gameForm.openForAdding({})
             .then((properties) => {
               let gameId = properties.id;
               if (!gameId.startsWith('game-'))
@@ -54,27 +54,24 @@
                 replace: false,
               });
             });
-      },
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: flex;
-  }
-  paper-button {
-    background-color: #9C27B0;
-    color: white;
-  }
-</style>
-<template>
-  <paper-button id="createPopulatedGame" raised on-tap="addGame_">Create Populated Game</paper-button>
-  <ghvz-super-form
-      id="gameForm"
-      type-name="Game"
-      is-mobile="[[isMobile]]"
-      blueprint="[[makeFormBlueprint_()]]"
+  </script>
+  <style>
+    :host {
+      display: flex;
+    }
+
+    paper-button {
+      background-color: var(--admin_color_primary);
+      color: var(--admin_color_text_on_primary_background);
+    }
+  </style>
+  <template>
+    <paper-button id="createPopulatedGame" raised on-tap="addGame_">Create Populated Game</paper-button>
+    <ghvz-super-form id="gameForm" type-name="Game" is-mobile="[[isMobile]]" blueprint="[[makeFormBlueprint_()]]"
       submit-on-enter>
-  </ghvz-super-form>
-</template>
+    </ghvz-super-form>
+  </template>
 </dom-module>

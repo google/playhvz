@@ -15,170 +15,164 @@
 -->
 
 <dom-module id="ghvz-mobile-main-page">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-mobile-main-page',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-mobile-main-page',
 
-      properties: {
-        bridge: Object,
-        database: Object,
-        user: Object,
-        game: Object,
-        player: Object,
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: Object,
+          game: Object,
+          player: Object,
 
-        isAdmin: {
-          type: Boolean,
-          computed: 'computeIsAdmin_(user, game, game.adminUsers.*)',
+          isAdmin: {
+            type: Boolean,
+            computed: 'computeIsAdmin_(user, game, game.adminUsers.*)',
+          },
+
+          isPlayer: {
+            type: Boolean,
+            computed: 'computeIsPlayer_(player)',
+          },
+
+          canRegister: {
+            type: Boolean,
+            computed: 'computeCanRegister_(game, player)',
+          },
+
+          canDeclare: {
+            type: Boolean,
+            computed: 'computeCanDeclare_(player.allegiance)',
+          },
+
+          canSelfInfect: {
+            type: Boolean,
+            computed: 'computeCanSelfInfect_(player.allegiance)',
+          },
+
+          isZombie: {
+            type: Boolean,
+            computed: 'computeIsZombie_(player.allegiance)',
+          },
         },
 
-        isPlayer: {
-          type: Boolean,
-          computed: 'computeIsPlayer_(player)',
+        computeIsAdmin_: function (user, game) {
+          let admin = game.adminUsers.find((admin) => admin.userId == user.id);
+          return !!admin;
         },
 
-        canRegister: {
-          type: Boolean,
-          computed: 'computeCanRegister_(game, player)',
+        computeCanDeclare_(allegiance) {
+          return allegiance == 'undeclared';
         },
 
-        canDeclare: {
-          type: Boolean,
-          computed: 'computeCanDeclare_(player.allegiance)',
+        computeCanRegister_(game, player) {
+          return game && !player;
         },
 
-        canSelfInfect: {
-          type: Boolean,
-          computed: 'computeCanSelfInfect_(player.allegiance)',
+        computeIsPlayer_(player) {
+          return !!player;
         },
 
-        isZombie: {
-          type: Boolean,
-          computed: 'computeIsZombie_(player.allegiance)',
+        computeCanSelfInfect_: function (allegiance) {
+          return allegiance == 'resistance';
         },
-      },
 
-      computeIsAdmin_: function(user, game) {
-        let admin = game.adminUsers.find((admin) => admin.userId == user.id);
-        return !!admin;
-      },
+        computeIsZombie_(allegiance) {
+          return allegiance == 'horde';
+        },
 
-      computeCanDeclare_(allegiance) {
-        return allegiance == 'undeclared';
-      },
-
-      computeCanRegister_(game, player) {
-        return game && !player;
-      },
-
-      computeIsPlayer_(player) {
-        return !!player;
-      },
-
-      computeCanSelfInfect_: function(allegiance) {
-        return allegiance == 'resistance';
-      },
-
-      computeIsZombie_(allegiance) {
-        return allegiance == 'horde';
-      },
-      
-      joinGame_() {
-        this.fire('ghvz-set-path', {
-          inGame: true,
-          path: ['joinGame'],
-          replace: false,
-        });
-      },
+        joinGame_() {
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['joinGame'],
+            replace: false,
+          });
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: block;
-    position: relative;
-    width: 100%;
-    flex-grow: 1;
-    flex-direction: column;
-  }
-  .paper-header {
-    background-color: #03a9f4;
-    color: white;
-    font-size: 18px;
-    line-height: 48px;
-    font-weight: bold;
-  }
-  ghvz-card {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-  }
-</style>
-<template>
-  <ghvz-card full with-menu>
-    <div class="header">Humans vs Zombies</div>
-    
-    <template is="dom-if" if="[[canRegister]]">
-      <ghvz-card spaced full padded mobile>
-        <div class="header">Join Game!</div>
-        <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
-      </ghvz-card>
-    </template>
+  </script>
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      width: 100%;
+      flex-grow: 1;
+      flex-direction: column;
+    }
 
-    <template is="dom-if" if="[[canDeclare]]">
-      <ghvz-card spaced left padded mobile name="declare-box">
-        <div class="header">Declare Allegiance!</div>
-        <ghvz-declare-dashlet></ghvz-declare-dashlet>
-      </ghvz-card>
-    </template>
+    .paper-header {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+      font-size: 18px;
+      line-height: 48px;
+      font-weight: bold;
+    }
 
-    <template is="dom-if" if="[[isPlayer]]">
-      <template is="dom-if" if="[[isZombie]]">
-        <ghvz-card name="infect-box" spaced mobile>
-          <div class="header">Infect</div>
-          <ghvz-infect
-              bridge="[[bridge]]"
-              game="[[game]]"
-              player="[[player]]">
-          </ghvz-infect>
+    ghvz-card {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+    }
+  </style>
+  <template>
+    <ghvz-card full with-menu>
+      <div class="header">Humans vs Zombies</div>
+
+      <template is="dom-if" if="[[canRegister]]">
+        <ghvz-card spaced full padded mobile>
+          <div class="header">Join Game!</div>
+          <paper-button name="joinGame" raised on-tap="joinGame_">Join Game!</paper-button>
         </ghvz-card>
       </template>
 
-      <template is="dom-if" if="[[isZombie]]">
-        <ghvz-card spaced left padded mobile name="stuntimer-box">
-          <div class="header">Stun Timer</div>
-          <ghvz-stun-timer
-              game="[[game]]">
-          </ghvz-stun-timer>
+      <template is="dom-if" if="[[canDeclare]]">
+        <ghvz-card spaced left padded mobile name="declare-box">
+          <div class="header">Declare Allegiance!</div>
+          <ghvz-declare-dashlet></ghvz-declare-dashlet>
         </ghvz-card>
       </template>
 
-      <ghvz-card spaced left padded mobile name="summary-box">
-        <div class="header">Game Summary</div>
-        <ghvz-game-summary
-            is-mobile="[[isMobile]]"
-            game="[[game]]">
-        </ghvz-game-summary>
-      </ghvz-card>
+      <template is="dom-if" if="[[isPlayer]]">
+        <template is="dom-if" if="[[isZombie]]">
+          <ghvz-card name="infect-box" spaced mobile>
+            <div class="header">Infect</div>
+            <ghvz-infect bridge="[[bridge]]" game="[[game]]" player="[[player]]">
+            </ghvz-infect>
+          </ghvz-card>
+        </template>
 
-      <ghvz-card spaced padded mobile name="next-mission-box" >
-        <div class="header">Next Mission</div>
-        <ghvz-next-mission
-            bridge="[[bridge]]"
-            game="[[game]]"
-            player="[[player]]">
-        </ghvz-next-mission>
-      </ghvz-card>
+        <template is="dom-if" if="[[isZombie]]">
+          <ghvz-card spaced left padded mobile name="stuntimer-box">
+            <div class="header">Stun Timer</div>
+            <ghvz-stun-timer game="[[game]]">
+            </ghvz-stun-timer>
+          </ghvz-card>
+        </template>
 
-      <ghvz-help-page name="help-box" right></ghvz-help-page>
-    </template>
-  </ghvz-card>
-</template>
+        <ghvz-card spaced left padded mobile name="summary-box">
+          <div class="header">Game Summary</div>
+          <ghvz-game-summary is-mobile="[[isMobile]]" game="[[game]]">
+          </ghvz-game-summary>
+        </ghvz-card>
+
+        <ghvz-card spaced padded mobile name="next-mission-box">
+          <div class="header">Next Mission</div>
+          <ghvz-next-mission bridge="[[bridge]]" game="[[game]]" player="[[player]]">
+          </ghvz-next-mission>
+        </ghvz-card>
+
+        <ghvz-help-page name="help-box" right></ghvz-help-page>
+      </template>
+    </ghvz-card>
+  </template>
 </dom-module>

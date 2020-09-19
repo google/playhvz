@@ -14,69 +14,70 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-declare-dashlet">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-declare-dashlet',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-declare-dashlet',
 
-      properties: {
-        bridge: Object,
-      },
+        properties: {
+          bridge: Object,
+        },
 
-      declare_() {
-        this.fire('ghvz-set-path', {
-          inGame: true,
-          path: ['declare'],
-          replace: false,
-        });
-      },
+        declare_() {
+          this.fire('ghvz-set-path', {
+            inGame: true,
+            path: ['declare'],
+            replace: false,
+          });
+        },
+      });
     });
-  });
-</script>
-<style>
-  p {
-    margin: 0;
-  }
-  p + p {
-    margin: 16px 0;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-  }
-</style>
-<template>
-  <p>
-    Welcome to the dashboard! Right now you can see the <b>rules</b>, and the <b>global chat</b>.
-  </p>
-  <p>
-    Once you declare an allegiance, you'll be able to see the <b>next mission</b> for your side, and your <b>faction chat</b>.
-  </p>
-  <p>
-    Once the game starts, you'll also be able to see the <b>leaderboard</b>, <b>game stats</b>, <b>claim reward</b>, and <b>infect</b> modules.
-  </p>
-  <p>
-    Your next step into the apocalypse is to choose a side!
-  </p>
-  <p>
-    Every player will have been both human and zombie by the end, but you get to choose which faction you start with.
-  </p>
-  <p>
-    Will you join the Resistance, to resist the zombie menace?
-  </p>
-  <p>
-    Or will you join the Horde, and hit the ground running as a zombie?
-  </p>
-  <p>
-    ...or will you be the third, more sinister option?
-  </p>
-  <paper-button
-      name="declareAllegiance"
-      on-tap="declare_"
-      raised
-      on-tap="declareAllegiance_">Declare Allegiance!</paper-button>
-</template>
+  </script>
+  <style>
+    p {
+      margin: 0;
+    }
+
+    p+p {
+      margin: 16px 0;
+    }
+
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+    }
+  </style>
+  <template>
+    <p>
+      Welcome to the dashboard! Right now you can see the <b>rules</b>, and the <b>global chat</b>.
+    </p>
+    <p>
+      Once you declare an allegiance, you'll be able to see the <b>next mission</b> for your side, and your <b>faction
+        chat</b>.
+    </p>
+    <p>
+      Once the game starts, you'll also be able to see the <b>leaderboard</b>, <b>game stats</b>, <b>claim reward</b>,
+      and <b>infect</b> modules.
+    </p>
+    <p>
+      Your next step into the apocalypse is to choose a side!
+    </p>
+    <p>
+      Every player will have been both human and zombie by the end, but you get to choose which faction you start with.
+    </p>
+    <p>
+      Will you join the Resistance, to resist the zombie menace?
+    </p>
+    <p>
+      Or will you join the Horde, and hit the ground running as a zombie?
+    </p>
+    <p>
+      ...or will you be the third, more sinister option?
+    </p>
+    <paper-button name="declareAllegiance" on-tap="declare_" raised on-tap="declareAllegiance_">Declare Allegiance!
+    </paper-button>
+  </template>
 </dom-module>

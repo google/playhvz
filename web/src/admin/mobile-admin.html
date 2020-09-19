@@ -15,58 +15,55 @@
 -->
 
 <dom-module id="ghvz-mobile-admin-page">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-mobile-admin-page',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-mobile-admin-page',
 
-      properties: {
-        bridge: Object,
-        database: Object,
-        isMobile: Boolean,
-        user: String,
-        game: Object,
-      },
+        properties: {
+          bridge: Object,
+          database: Object,
+          isMobile: Boolean,
+          user: String,
+          game: Object,
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: block;
-    position: relative;
-    width: 100%;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-  }
-</style>
-<template>
+  </script>
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      width: 100%;
+    }
 
-  <ghvz-card full with-back with-menu>
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+    }
+  </style>
+  <template>
 
-    <ghvz-card spaced fullscreen-page="stats">
-      <div class="header">Game Stats</div>
-      <ghvz-game-stat-summary game="[[game]]">
-      </ghvz-game-stat-summary>
+    <ghvz-card full with-back with-menu>
+
+      <ghvz-card spaced fullscreen-page="stats">
+        <div class="header">Game Stats</div>
+        <ghvz-game-stat-summary game="[[game]]">
+        </ghvz-game-stat-summary>
+      </ghvz-card>
+
+      <ghvz-card spaced scrolling>
+        <div class="header">Notifications</div>
+        <ghvz-notifications bridge="[[bridge]]" game="[[game]]" is-mobile="[[isMobile]]"
+          players-by-id="[[game.playersById]]" queued-notifications="[[game.queuedNotifications]]"
+          queued-notifications-by-id="[[game.queuedNotificationsById]]">
+        </ghvz-notifications>
+      </ghvz-card>
+
     </ghvz-card>
 
-  	<ghvz-card spaced scrolling>
-  	  <div class="header">Notifications</div>
-  	  <ghvz-notifications
-  	      bridge="[[bridge]]"
-  	      game="[[game]]"
-          is-mobile="[[isMobile]]"
-  	      players-by-id="[[game.playersById]]"
-  	      queued-notifications="[[game.queuedNotifications]]"
-  	      queued-notifications-by-id="[[game.queuedNotificationsById]]">
-  	  </ghvz-notifications>
-  	</ghvz-card>
-
-  </ghvz-card>
-
-</template>
+  </template>
 </dom-module>

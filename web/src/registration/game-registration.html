@@ -14,389 +14,412 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-game-registration">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-game-registration',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-game-registration',
 
-      properties: {
-        bridge: Object,
-        game: Object,
-        player: {
-          type: Object,
-          observer: 'onPlayerChanged_',
+        properties: {
+          bridge: Object,
+          game: Object,
+          player: {
+            type: Object,
+            observer: 'onPlayerChanged_',
+          },
+          userId: String,
+          email: String,
+          newPlayerArgs: {
+            type: Object,
+            value: () => ({}),
+          },
+
+          pageNumber: {
+            type: Number,
+            value: 0,
+          },
+
+          progressPercent: {
+            type: Number,
+            computed: 'computeProgressPercent_(pageNumber)',
+          },
+
+          submitEnabled: {
+            type: Boolean,
+            value: true,
+          },
         },
-        userId: String,
-        email: String,
-        newPlayerArgs: {
-          type: Object,
-          value: () => ({}),
+
+        onPlayerChanged_(newPlayer, oldPlayer) {
+          if (newPlayer && !oldPlayer) {
+            this.fire('ghvz-set-path', {
+              inGame: true,
+              path: ['main'],
+              replace: true,
+            });
+          }
         },
 
-        pageNumber: {
-          type: Number,
-          value: 0,
+        computeProgressPercent_(pageNumber) {
+          let total = Array.from(this.querySelectorAll('neon-animatable')).length;
+          return pageNumber * 100 / total;
         },
 
-        progressPercent: {
-          type: Number,
-          computed: 'computeProgressPercent_(pageNumber)',
-        },
-
-        submitEnabled: {
-          type: Boolean,
-          value: true,
-        },
-      },
-
-      onPlayerChanged_(newPlayer, oldPlayer) {
-        if (newPlayer && !oldPlayer) {
-          this.fire('ghvz-set-path', {
-            inGame: true,
-            path: ['main'],
-            replace: true,
-          });
-        }
-      },
-
-      computeProgressPercent_(pageNumber) {
-        let total = Array.from(this.querySelectorAll('neon-animatable')).length;
-        return pageNumber * 100 / total;
-      },
-
-      done_() {
-        this.newPlayerArgs.profileImageUrl = PlayerUtils.getDefaultProfilePic(this.newPlayerArgs.name || "");
-        this.newPlayerArgs.beInPhotos = true;
-        this.newPlayerArgs.volunteer = {
-          advertising: false,
-          logistics: false,
-          communications: false,
-          moderator: false,
-          cleric: false,
-          sorcerer: false,
-          admin: false,
-          photographer: false,
-          chronicler: false,
-          server: false,
-          client: false,
-          android: false,
-          ios: false,
-        };
-        this.submitEnabled = false;
-        this.bridge.createPlayer(
+        done_() {
+          this.newPlayerArgs.profileImageUrl = PlayerUtils.getDefaultProfilePic(this.newPlayerArgs.name || "");
+          this.newPlayerArgs.beInPhotos = true;
+          this.newPlayerArgs.volunteer = {
+            advertising: false,
+            logistics: false,
+            communications: false,
+            moderator: false,
+            cleric: false,
+            sorcerer: false,
+            admin: false,
+            photographer: false,
+            chronicler: false,
+            server: false,
+            client: false,
+            android: false,
+            ios: false,
+          };
+          this.submitEnabled = false;
+          this.bridge.createPlayer(
             Utils.merge(
-                {
-                  playerId: this.bridge.newPublicPlayerId(),
-                  privatePlayerId: this.bridge.newPrivatePlayerId(),
-                  userId: this.userId,
-                  gameId: this.game.id,
-                  isActive: true,
-                  canInfect: false,
-                  profileImageUrl: "",
-                  wantToBeSecretZombie: false,
-                  gotEquipment: false,
-                  notes: '',
-                  notificationSettings: {
-                    sound: true,
-                    vibrate: true,
-                  },
+              {
+                playerId: this.bridge.newPublicPlayerId(),
+                privatePlayerId: this.bridge.newPrivatePlayerId(),
+                userId: this.userId,
+                gameId: this.game.id,
+                isActive: true,
+                canInfect: false,
+                profileImageUrl: "",
+                wantToBeSecretZombie: false,
+                gotEquipment: false,
+                notes: '',
+                notificationSettings: {
+                  sound: true,
+                  vibrate: true,
                 },
-                this.newPlayerArgs));
-        // We observe player changing above, and when it does, we go to the dashboard
-      },
+              },
+              this.newPlayerArgs));
+          // We observe player changing above, and when it does, we go to the dashboard
+        },
 
-      isMultipleChoice(type) {
-        return type == 'multipleChoice';
-      },
+        isMultipleChoice(type) {
+          return type == 'multipleChoice';
+        },
 
-      isOrderQuestion(type) {
-        return type == 'order';
-      },
+        isOrderQuestion(type) {
+          return type == 'order';
+        },
 
-      handleNamePageDone_(e) {
-        let name = e.detail.value;
-        if (/\s/.test(e.detail.value)) {
-          this.fire('ghvz-alert', {message: "Your name cannot include spaces!"});
-          return;
-        }
-        if (/[@!?]/.test(e.detail.value)) {
-          this.fire('ghvz-alert', {message: "Your name cannot include: @, ?, !"});
-          return;
-        }
-//        if(/^[\u0000-\u007f]+$/.test(e.detail.value)){ // FAILS
-        if ([...e.detail.value].some(char => (char.charCodeAt(0) < 0x21 || char.charCodeAt(0) > 0x7E))) {
-          this.fire('ghvz-alert', {message: "Your name must be limited to visible ASCII characters!"});
-          return;
-        }
-        if (name == "all") {
-          this.fire('ghvz-alert', {message: "This name is reserved for Benedict Cumberbatch!"});
-          return;
-        }
-        this.newPlayerArgs.name = name;
-        this.pageNumber++;
-      },
-
-      handleGunPageDone_(e) {
-        let haveGun = e.detail.value;
-        this.newPlayerArgs.needGun = !haveGun;
-        if (haveGun) {
-          this.pageNumber += 2;
-        } else {
+        handleNamePageDone_(e) {
+          let name = e.detail.value;
+          if (/\s/.test(e.detail.value)) {
+            this.fire('ghvz-alert', { message: "Your name cannot include spaces!" });
+            return;
+          }
+          if (/[@!?]/.test(e.detail.value)) {
+            this.fire('ghvz-alert', { message: "Your name cannot include: @, ?, !" });
+            return;
+          }
+          //        if(/^[\u0000-\u007f]+$/.test(e.detail.value)){ // FAILS
+          if ([...e.detail.value].some(char => (char.charCodeAt(0) < 0x21 || char.charCodeAt(0) > 0x7E))) {
+            this.fire('ghvz-alert', { message: "Your name must be limited to visible ASCII characters!" });
+            return;
+          }
+          if (name == "all") {
+            this.fire('ghvz-alert', { message: "This name is reserved for Benedict Cumberbatch!" });
+            return;
+          }
+          this.newPlayerArgs.name = name;
           this.pageNumber++;
-        }
-      },
+        },
 
-      handleBandPageDone_(e) {
-        let haveBand = e.detail.value;
-        if (haveBand) {
-          this.pageNumber += 2;
-        } else {
+        handleGunPageDone_(e) {
+          let haveGun = e.detail.value;
+          this.newPlayerArgs.needGun = !haveGun;
+          if (haveGun) {
+            this.pageNumber += 2;
+          } else {
+            this.pageNumber++;
+          }
+        },
+
+        handleBandPageDone_(e) {
+          let haveBand = e.detail.value;
+          if (haveBand) {
+            this.pageNumber += 2;
+          } else {
+            this.pageNumber++;
+          }
+        },
+
+        // handleVolunteerPageDone_(e) {
+        //   if (e.detail.value) {
+        //     this.pageNumber++;
+        //   } else {
+        //     this.pageNumber += 2;
+        //   }
+        // },
+
+        // handleVolunteerPositionsPageDone_(e) {
+        //   this.newPlayerArgs.volunteer = e.detail.values;
+        //   this.pageNumber++;
+        // },
+
+        nextPage_(e) {
           this.pageNumber++;
-        }
-      },
+        },
 
-      // handleVolunteerPageDone_(e) {
-      //   if (e.detail.value) {
-      //     this.pageNumber++;
-      //   } else {
-      //     this.pageNumber += 2;
-      //   }
-      // },
+        makeNerfGunOptions() {
+          return [
+            { value: true, buttonLabel: "Yes!", text: "I've got a nerf gun!" },
+            { value: false, buttonLabel: "No...", text: "Tell me where I can borrow or buy a nerf gun!" },
+          ];
+        },
 
-      // handleVolunteerPositionsPageDone_(e) {
-      //   this.newPlayerArgs.volunteer = e.detail.values;
-      //   this.pageNumber++;
-      // },
+        makeBandOptions() {
+          return [
+            { value: true, buttonLabel: "Yes!", text: "I've picked up my band!" },
+            { value: false, buttonLabel: "No...", text: "Tell me where I can pick up my band!" },
+          ];
+        },
 
-      nextPage_(e) {
-        this.pageNumber++;
-      },
-
-      makeNerfGunOptions() {
-        return [
-          {value: true, buttonLabel: "Yes!", text: "I've got a nerf gun!"},
-          {value: false, buttonLabel: "No...", text: "Tell me where I can borrow or buy a nerf gun!"},
-        ];
-      },
-
-      makeBandOptions() {
-        return [
-          {value: true, buttonLabel: "Yes!", text: "I've picked up my band!"},
-          {value: false, buttonLabel: "No...", text: "Tell me where I can pick up my band!"},
-        ];
-      },
-
-      makeTakePhotoOptions() {
-        return [
+        makeTakePhotoOptions() {
+          return [
             {
-                value: true, buttonLabel: "Yes!",
-                text: "I'm good with pictures of me being used for promotional content of the game and/or a public gallery of highlights."
+              value: true, buttonLabel: "Yes!",
+              text: "I'm good with pictures of me being used for promotional content of the game and/or a public gallery of highlights."
             },
             {
-                value: false, buttonLabel: "No",
-                text: "Sorry, nada!"
+              value: false, buttonLabel: "No",
+              text: "Sorry, nada!"
             },
-        ];
-      },
+          ];
+        },
 
-      makeBeAVolunteerOptions() {
-        return [
-          {value: true, buttonLabel: "Yes!", text: "Yeah! I'm awesome :^D"},
-          {value: true, buttonLabel: "What?", text: "I'm interested! Details please?"},
-          {value: false, buttonLabel: "No...", text: "Sorry, nope!"},
-        ];
-      },
+        makeBeAVolunteerOptions() {
+          return [
+            { value: true, buttonLabel: "Yes!", text: "Yeah! I'm awesome :^D" },
+            { value: true, buttonLabel: "What?", text: "I'm interested! Details please?" },
+            { value: false, buttonLabel: "No...", text: "Sorry, nope!" },
+          ];
+        },
 
-      makeVolunteerPositionsOptions() {
-        return [
-          {value: "advertising", text: "Advertising", subText: "Help us spread the word and show why HvZ is awesome!"},
-          {value: "logistics", text: "Logistics", subText: "Help acquire, assemble, and distribute guns, bandannas and other things!"},
-          {value: "communications", text: "Player Communication Operations", subText: "Message players before and during the games. Must be available during the week for three hours (of your choice)"},
-          {value: "moderator", text: "Moderation", subText: "Keep the game safe and make sure people are following the rules!"},
-          {value: "cleric", text: "First Aid", subText: "Be identifiable as someone trained in first aid!"},
-          {value: "sorcerer", text: "Mission Sorcerers", subText: "Both plan a mission and execute them!"},
-          {value: "admin", text: "Admins", subText: "Manage the entire game, lead the sorcerers, and direct missions!"},
-          {value: "photographer", text: "Photographer", subText: "Help take photos during the event!"},
-          {value: "chronicler", text: "Chronicler", subText: "Assemble stories and highlights about the game from the players!"},
-          {value: "server", text: "Server Dev", subText: "Help create our backend server to make the game as awesome as possible!"},
-          {value: "client", text: "Client Dev", subText: "Help create our website so everyone can stay connected!"},
-          {value: "android", text: "Android Dev", subText: "Help create our Android app!"},
-          {value: "ios", text: "iOS Dev", subText: "Help create our iOS app!"},
-        ];
-      },
+        makeVolunteerPositionsOptions() {
+          return [
+            { value: "advertising", text: "Advertising", subText: "Help us spread the word and show why HvZ is awesome!" },
+            { value: "logistics", text: "Logistics", subText: "Help acquire, assemble, and distribute guns, bandannas and other things!" },
+            { value: "communications", text: "Player Communication Operations", subText: "Message players before and during the games. Must be available during the week for three hours (of your choice)" },
+            { value: "moderator", text: "Moderation", subText: "Keep the game safe and make sure people are following the rules!" },
+            { value: "cleric", text: "First Aid", subText: "Be identifiable as someone trained in first aid!" },
+            { value: "sorcerer", text: "Mission Sorcerers", subText: "Both plan a mission and execute them!" },
+            { value: "admin", text: "Admins", subText: "Manage the entire game, lead the sorcerers, and direct missions!" },
+            { value: "photographer", text: "Photographer", subText: "Help take photos during the event!" },
+            { value: "chronicler", text: "Chronicler", subText: "Assemble stories and highlights about the game from the players!" },
+            { value: "server", text: "Server Dev", subText: "Help create our backend server to make the game as awesome as possible!" },
+            { value: "client", text: "Client Dev", subText: "Help create our website so everyone can stay connected!" },
+            { value: "android", text: "Android Dev", subText: "Help create our Android app!" },
+            { value: "ios", text: "iOS Dev", subText: "Help create our iOS app!" },
+          ];
+        },
 
-      computeQuestionNumber_(question) {
-        return this.game.quizQuestions.indexOf(question);
-      },
+        computeQuestionNumber_(question) {
+          return this.game.quizQuestions.indexOf(question);
+        },
 
-      displayEmailWarning_(email) {
-        return !email.includes("@gmail.com");
-      },
+        displayEmailWarning_(email) {
+          return !email.includes("@gmail.com");
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: flex;
-    width: 100%;
-    flex-grow: 1;
-    flex-direction: column;
-  }
-  neon-animated-pages {
-    display: block;
-    flex-grow: 1;
-  }
-  neon-animatable {
-    background-color: white;
-    width: 100%;
-    height: 100%;
-    display: block;
-    overflow-y: auto;
-  }
-  .page {
-    box-sizing: border-box;
-    padding: 16px;
-  }
-  p {
-    margin: 16px 0;
-  }
-  .intro {
-    margin-bottom: 16px;
-  }
-  .maintext {
-    margin-bottom: 16px;
-    font-weight: bold;
-  }
-  .subtext {
-    margin-bottom: 16px;
-    color: grey;
-  }
-  .section {
-    margin: 32px 0;
-  }
-  .section:first-child {
-    margin-top: 0;
-  }
-  p:first-child {
-    margin-top: 0;
-  }
-  .radio-style {
-    display: block;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-  paper-input {
-    margin-top: -20px;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-  }
-  paper-progress {
-    width: auto;
-  }
-  #email {
-    border: 1px solid rgba(255, 0, 0, .2);
-    background-color: rgba(255, 0, 0, .1);
-    padding: 2px;
-  }
-  #warning {
-    margin-bottom: 16px;
-  }
-  #gunOptions li {
-    margin: 8px 0;
-  }
-  paper-spinner {
-    z-index: 1;
-    transform: translate3d(0px, 0px, 0px);
-    position: relative;
-  }
-</style>
-<template>
-  <paper-progress value="[[progressPercent]]"></paper-progress>
-  <neon-animated-pages id="pages" class="flex" selected="[[pageNumber]]" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
-    <neon-animatable>
-      <div class="page">
-        <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
-        <template is="dom-if" if="[[displayEmailWarning_(email)]]">
-          <div id="warning">
-            <b>Heads up!</b> You're using <span id="email">[[email]]</span>, which is not a gmail account. <b>Make sure you can sign in to this account on the phone you'll use during missions!</b> You can't change accounts later, so make sure this is the account you want to register with.
-          </div>
-        </template>
-        <paper-button raised name="joinGameIntroNext" on-tap="nextPage_">Next</paper-button>
-      </div>
-    </neon-animatable>
+  </script>
+  <style>
+    :host {
+      display: flex;
+      width: 100%;
+      flex-grow: 1;
+      flex-direction: column;
+    }
 
-    <neon-animatable>
-      <div class="page">
-        <p>Have you registered with <a href="http://go/gfit">go/gfit</a>?</p>
-        <p>Every player is required to register on their site.</p>
-        <ul>
-          <li>Click on "CLICK HERE TO REGISTER"</li>
-          <li>Scroll down the page and click on the "REGISTER HERE" link</li>
-          <li>On the next page, sign in with your corp account.</li>
-          <li>When you get to the Exos page, you're done!</li>
-        </ul>
-        <paper-button raised name="joinGameGfitNext" on-tap="nextPage_">Next</paper-button>
-      </div>
-    </neon-animatable>
+    neon-animated-pages {
+      display: block;
+      flex-grow: 1;
+    }
 
-    <neon-animatable>
-      <ghvz-interview-string-page
-          name="joinGameNamePage"
-          placeholder="who be u?"
-          on-ghvz-interview-page-done="handleNamePageDone_">
-        <div class="maintext">What user name would you like?</div>
-        <div class="subtext">
-          To strike terror in the hearts of your victims. e.g. JohnSmith, TheDestroyer, KingSpigglewiggetTheFlamscrankle. People will see this on the leaderboard, and in the chat rooms.
-          <b>This name cannot include spaces!</b>
+    neon-animatable {
+      background-color: white;
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow-y: auto;
+    }
+
+    .page {
+      box-sizing: border-box;
+      padding: 16px;
+    }
+
+    p {
+      margin: 16px 0;
+    }
+
+    .intro {
+      margin-bottom: 16px;
+    }
+
+    .maintext {
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+
+    .subtext {
+      margin-bottom: 16px;
+      color: grey;
+    }
+
+    .section {
+      margin: 32px 0;
+    }
+
+    .section:first-child {
+      margin-top: 0;
+    }
+
+    p:first-child {
+      margin-top: 0;
+    }
+
+    .radio-style {
+      display: block;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    paper-input {
+      margin-top: -20px;
+    }
+
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+    }
+
+    paper-progress {
+      width: auto;
+    }
+
+    #email {
+      border: 1px solid rgba(255, 0, 0, .2);
+      background-color: rgba(255, 0, 0, .1);
+      padding: 2px;
+    }
+
+    #warning {
+      margin-bottom: 16px;
+    }
+
+    #gunOptions li {
+      margin: 8px 0;
+    }
+
+    paper-spinner {
+      z-index: 1;
+      transform: translate3d(0px, 0px, 0px);
+      position: relative;
+    }
+  </style>
+  <template>
+    <paper-progress value="[[progressPercent]]"></paper-progress>
+    <neon-animated-pages id="pages" class="flex" selected="[[pageNumber]]" entry-animation="slide-from-right-animation"
+      exit-animation="slide-left-animation">
+      <neon-animatable>
+        <div class="page">
+          <div class="intro">Welcome to the apocalypse! Let's get you set up.</div>
+          <template is="dom-if" if="[[displayEmailWarning_(email)]]">
+            <div id="warning">
+              <b>Heads up!</b> You're using <span id="email">[[email]]</span>, which is not a gmail account. <b>Make
+                sure you can sign in to this account on the phone you'll use during missions!</b> You can't change
+              accounts later, so make sure this is the account you want to register with.
+            </div>
+          </template>
+          <paper-button raised name="joinGameIntroNext" on-tap="nextPage_">Next</paper-button>
         </div>
-      </ghvz-interview-string-page>
-    </neon-animatable>
+      </neon-animatable>
 
-    <neon-animatable>
-      <ghvz-interview-option-page
-          name="joinGameBandPage"
-          options="[[makeBandOptions()]]"
+      <neon-animatable>
+        <div class="page">
+          <p>Have you registered with <a href="http://go/gfit">go/gfit</a>?</p>
+          <p>Every player is required to register on their site.</p>
+          <ul>
+            <li>Click on "CLICK HERE TO REGISTER"</li>
+            <li>Scroll down the page and click on the "REGISTER HERE" link</li>
+            <li>On the next page, sign in with your corp account.</li>
+            <li>When you get to the Exos page, you're done!</li>
+          </ul>
+          <paper-button raised name="joinGameGfitNext" on-tap="nextPage_">Next</paper-button>
+        </div>
+      </neon-animatable>
+
+      <neon-animatable>
+        <ghvz-interview-string-page name="joinGameNamePage" placeholder="who be u?"
+          on-ghvz-interview-page-done="handleNamePageDone_">
+          <div class="maintext">What user name would you like?</div>
+          <div class="subtext">
+            To strike terror in the hearts of your victims. e.g. JohnSmith, TheDestroyer,
+            KingSpigglewiggetTheFlamscrankle. People will see this on the leaderboard, and in the chat rooms.
+            <b>This name cannot include spaces!</b>
+          </div>
+        </ghvz-interview-string-page>
+      </neon-animatable>
+
+      <neon-animatable>
+        <ghvz-interview-option-page name="joinGameBandPage" options="[[makeBandOptions()]]"
           on-ghvz-interview-page-done="handleBandPageDone_">
-        <div class="maintext">Do you have your band yet?</div>
-        <div class="subtext">Every player needs their armband/headband to play.</div>
-      </ghvz-interview-option-page>
-    </neon-animatable>
+          <div class="maintext">Do you have your band yet?</div>
+          <div class="subtext">Every player needs their armband/headband to play.</div>
+        </ghvz-interview-option-page>
+      </neon-animatable>
 
-    <neon-animatable>
-      <div class="page">
-        <p>You can pick up your band at any of the places and times on <a href="https://calendar.google.com/calendar/embed?src=google.com_gv3kv7ed6q42mufforn6aem86g%40group.calendar.google.com&ctz=America/Los_Angeles">this calendar</a>!</p>
-        <paper-button raised name="joinGameBandInfoPageNext" on-tap="nextPage_">Next</paper-button>
-      </div>
-    </neon-animatable>
+      <neon-animatable>
+        <div class="page">
+          <p>You can pick up your band at any of the places and times on <a
+              href="https://calendar.google.com/calendar/embed?src=google.com_gv3kv7ed6q42mufforn6aem86g%40group.calendar.google.com&ctz=America/Los_Angeles">this
+              calendar</a>!</p>
+          <paper-button raised name="joinGameBandInfoPageNext" on-tap="nextPage_">Next</paper-button>
+        </div>
+      </neon-animatable>
 
-    <neon-animatable>
-      <ghvz-interview-option-page
-          name="joinGameBlasterPage"
-          options="[[makeNerfGunOptions()]]"
+      <neon-animatable>
+        <ghvz-interview-option-page name="joinGameBlasterPage" options="[[makeNerfGunOptions()]]"
           on-ghvz-interview-page-done="handleGunPageDone_">
-        <div class="maintext">Do you have a nerf gun?</div>
-        <div class="subtext">We have way more players than we have nerf guns to lend out, so please try to bring your own!</div>
-      </ghvz-interview-option-page>
-    </neon-animatable>
+          <div class="maintext">Do you have a nerf gun?</div>
+          <div class="subtext">We have way more players than we have nerf guns to lend out, so please try to bring your
+            own!</div>
+        </ghvz-interview-option-page>
+      </neon-animatable>
 
-    <neon-animatable>
-      <div class="page">
-        <div class="maintext">You have options!</div>
-        <ul id="gunOptions">
-          <li>Borrow a nerf gun. We might have some left! <a href="https://calendar.google.com/calendar/embed?src=google.com_gv3kv7ed6q42mufforn6aem86g%40group.calendar.google.com&ctz=America/Los_Angeles">See this calendar</a> for times you can swing by!</li>
-          <li>Buy one! We recommend the <a href="https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050" target="_blank">Disruptor</a> tried-and-true and only $12, most players will have them.</li>
-          <li>If you're aiming to start as a zombie, you don't need a blaster! (and you get revived halfway through, at which time there will probably be blasters available!)</li>
-        </ul>
-        <paper-button raised name="joinGameBlasterInfoPageNext" on-tap="nextPage_">Next</paper-button>
-      </div>
-    </neon-animatable>
+      <neon-animatable>
+        <div class="page">
+          <div class="maintext">You have options!</div>
+          <ul id="gunOptions">
+            <li>Borrow a nerf gun. We might have some left! <a
+                href="https://calendar.google.com/calendar/embed?src=google.com_gv3kv7ed6q42mufforn6aem86g%40group.calendar.google.com&ctz=America/Los_Angeles">See
+                this calendar</a> for times you can swing by!</li>
+            <li>Buy one! We recommend the <a href="https://www.walmart.com/ip/Nerf-N-Strike-Elite-Disruptor/55187050"
+                target="_blank">Disruptor</a> tried-and-true and only $12, most players will have them.</li>
+            <li>If you're aiming to start as a zombie, you don't need a blaster! (and you get revived halfway through,
+              at which time there will probably be blasters available!)</li>
+          </ul>
+          <paper-button raised name="joinGameBlasterInfoPageNext" on-tap="nextPage_">Next</paper-button>
+        </div>
+      </neon-animatable>
 
-    <!--<neon-animatable>
+      <!--<neon-animatable>
       <ghvz-interview-option-page
           name="joinGameBeVolunteerPage"
           options="[[makeBeAVolunteerOptions()]]"
@@ -416,19 +439,20 @@
       </ghvz-interview-multi-choice-page>
     </neon-animatable>-->
 
-    <neon-animatable>
-      <div class="page">
-        <div class="section">
-          You're ready! Hit the Submit button to join the game!
+      <neon-animatable>
+        <div class="page">
+          <div class="section">
+            You're ready! Hit the Submit button to join the game!
+          </div>
+          <div class="section">
+            <paper-button disabled="[[!submitEnabled]]" id="submit" raised name="submitJoinGame" raised
+              on-click="done_">
+              Submit
+            </paper-button>
+            <div hidden$="[[submitEnabled]]">Creating player...</div>
+          </div>
         </div>
-        <div class="section">
-          <paper-button disabled="[[!submitEnabled]]" id="submit" raised name="submitJoinGame" raised on-click="done_">
-            Submit
-          </paper-button>
-          <div hidden$="[[submitEnabled]]">Creating player...</div>
-        </div>
-      </div>
-    </neon-animatable>
-  </neon-animated-pages>
-</template>
+      </neon-animatable>
+    </neon-animated-pages>
+  </template>
 </dom-module>

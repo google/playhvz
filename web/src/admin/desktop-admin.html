@@ -15,129 +15,94 @@
 -->
 
 <dom-module id="ghvz-desktop-admin-page">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-desktop-admin-page',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-desktop-admin-page',
 
-      properties: {
-        bridge: Object,
-        database: Object,
-        user: String,
-        game: String,
-        isMobile: Boolean,
-      },
+        properties: {
+          bridge: Object,
+          database: Object,
+          user: String,
+          game: String,
+          isMobile: Boolean,
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: block;
-    position: relative;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-  }
-</style>
-<template>
-  <ghvz-dashboard>
+  </script>
+  <style>
+    :host {
+      display: block;
+      position: relative;
+    }
 
-    <ghvz-card spaced admin left padded>
-      <div class="header">Game</div>
-      <ghvz-game-details
-          modify
-          bridge="[[bridge]]"
-          is-mobile="[[isMobile]]"
-          game="[[game]]"
-          user-id="[[userId]]">
-      </ghvz-game-details>
-    </ghvz-card>
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+    }
+  </style>
+  <template>
+    <ghvz-dashboard>
 
-    <ghvz-card spaced admin left>
-      <div class="header" name="Rules">Rules</div>
-      <ghvz-rules
-          name="admin-page"
-          is-admin
-          is-mobile="[[isMobile]]"
-          bridge="[[bridge]]"
-          game="[[game]]">
-      </ghvz-rules>
-    </ghvz-card>
+      <ghvz-card spaced admin left padded>
+        <div class="header">Game</div>
+        <ghvz-game-details modify bridge="[[bridge]]" is-mobile="[[isMobile]]" game="[[game]]" user-id="[[userId]]">
+        </ghvz-game-details>
+      </ghvz-card>
 
-    <ghvz-card spaced admin left padded>
-      <div class="header">FAQ</div>
-      <ghvz-game-faq
-          is-admin
-          is-mobile="[[isMobile]]"
-          bridge="[[bridge]]"
-          game="[[game]]">
-      </ghvz-game-faq>
-    </ghvz-card>
+      <ghvz-card spaced admin left>
+        <div class="header" name="Rules">Rules</div>
+        <ghvz-rules name="admin-page" is-admin is-mobile="[[isMobile]]" bridge="[[bridge]]" game="[[game]]">
+        </ghvz-rules>
+      </ghvz-card>
 
-    <ghvz-card spaced admin left>
-      <div class="header">Game Summary</div>
-      <ghvz-game-summary
-          is-admin
-          bridge="[[bridge]]"
-          is-mobile="[[isMobile]]"
-          game="[[game]]">
-      </ghvz-game-summary>
-    </ghvz-card>
+      <ghvz-card spaced admin left padded>
+        <div class="header">FAQ</div>
+        <ghvz-game-faq is-admin is-mobile="[[isMobile]]" bridge="[[bridge]]" game="[[game]]">
+        </ghvz-game-faq>
+      </ghvz-card>
 
-    <ghvz-card spaced admin full>
-      <div class="header">Missions</div>
-      <ghvz-missions
-          is-mobile="[[isMobile]]"
-          bridge="[[bridge]]"
-          player="[[player]]"
-          game="[[game]]">
-      </ghvz-missions>
-    </ghvz-card>
+      <ghvz-card spaced admin left>
+        <div class="header">Game Summary</div>
+        <ghvz-game-summary is-admin bridge="[[bridge]]" is-mobile="[[isMobile]]" game="[[game]]">
+        </ghvz-game-summary>
+      </ghvz-card>
 
-    <ghvz-card spaced scrolling admin full>
-      <div class="header">Players</div>
-      <ghvz-player-table
-          id="playerTableModule"
-          game="[[game]]"
-          bridge="[[bridge]]"
-          is-mobile="[[isMobile]]"
-          reward-categories-by-id="[[game.rewardCategoriesById]]"
-          players="[[game.players]]"
+      <ghvz-card spaced admin full>
+        <div class="header">Missions</div>
+        <ghvz-missions is-mobile="[[isMobile]]" bridge="[[bridge]]" player="[[player]]" game="[[game]]">
+        </ghvz-missions>
+      </ghvz-card>
+
+      <ghvz-card spaced scrolling admin full>
+        <div class="header">Players</div>
+        <ghvz-player-table id="playerTableModule" game="[[game]]" bridge="[[bridge]]" is-mobile="[[isMobile]]"
+          reward-categories-by-id="[[game.rewardCategoriesById]]" players="[[game.players]]"
           players-by-id="[[game.playersById]]">
-      </ghv-player-table>
-    </ghvz-card>
+          </ghv-player-table>
+      </ghvz-card>
 
-    <ghvz-card spaced scrolling admin right>
-      <div class="header">Guns</div>
-      <ghvz-guns
-          is-mobile="[[isMobile]]"
-          bridge="[[bridge]]"
-          game="[[game]]">
-      </ghvz-guns>
-    </ghvz-card>
+      <ghvz-card spaced scrolling admin right>
+        <div class="header">Guns</div>
+        <ghvz-guns is-mobile="[[isMobile]]" bridge="[[bridge]]" game="[[game]]">
+        </ghvz-guns>
+      </ghvz-card>
 
-    <ghvz-card spaced scrolling admin right>
-      <div class="header">Rewards</div>
-      <ghvz-rewards
-          bridge="[[bridge]]"
-          game="[[game]]"
-          is-mobile="[[isMobile]]">
-      </ghvz-rewards>
-    </ghvz-card>
+      <ghvz-card spaced scrolling admin right>
+        <div class="header">Rewards</div>
+        <ghvz-rewards bridge="[[bridge]]" game="[[game]]" is-mobile="[[isMobile]]">
+        </ghvz-rewards>
+      </ghvz-card>
 
-    <ghvz-card spaced scrolling admin right>
-      <div class="header">Notifications</div>
-      <ghvz-notifications
-          bridge="[[bridge]]"
-          is-mobile="[[isMobile]]"
-          game="[[game]]">
-      </ghvz-notifications>
-    </ghvz-card>
+      <ghvz-card spaced scrolling admin right>
+        <div class="header">Notifications</div>
+        <ghvz-notifications bridge="[[bridge]]" is-mobile="[[isMobile]]" game="[[game]]">
+        </ghvz-notifications>
+      </ghvz-card>
 
-  </ghvz-dashboard>
-</template>
+    </ghvz-dashboard>
+  </template>
 </dom-module>

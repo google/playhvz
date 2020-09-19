@@ -26,7 +26,7 @@
           placeholder: String,
         },
 
-        submit_: function(event) {
+        submit_: function (event) {
           this.$.form.submit();
         },
 
@@ -44,23 +44,26 @@
       padding: 16px;
       box-sizing: border-box;
     }
+
     .buttons {
       margin-top: 16px;
     }
+
     paper-input {
       transform: translate3d(0px, 0px, 0px);
       margin-top: -20px;
     }
+
     paper-button {
-      background-color: #03A9F4;
-      color: white;
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
       margin: 0;
     }
   </style>
   <template>
     <form is="iron-form" id="form" on-iron-form-submit="onSubmit_">
       <div>
-        <content/>
+        <content />
       </div>
       <paper-input name="value" label="[[placeholder]]" required></paper-input>
       <div class="buttons">
