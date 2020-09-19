@@ -14,100 +14,102 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-interview-option-page">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-interview-option-page',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-interview-option-page',
 
-      properties: {
-        options: {
-          type: Array,
-          observer: 'onOptionsChanged_',
-        }
-      },
-
-      onOptionsChanged_(newOptions) {
-        for (let option of newOptions) {
-          if (!('enabled' in newOptions)) {
-            option.enabled = true;
+        properties: {
+          options: {
+            type: Array,
+            observer: 'onOptionsChanged_',
           }
-        }
-      },
+        },
 
-      choose_(e) {
-        let index = e.target.dataset.optionIndex;
-        let value = this.options[index].value;
-        this.fire('ghvz-interview-page-done', {
-          value: value,
-        });
-      },
+        onOptionsChanged_(newOptions) {
+          for (let option of newOptions) {
+            if (!('enabled' in newOptions)) {
+              option.enabled = true;
+            }
+          }
+        },
 
-      computeOptionIndex_(option) {
-        return this.options.indexOf(option);
-      },
+        choose_(e) {
+          let index = e.target.dataset.optionIndex;
+          let value = this.options[index].value;
+          this.fire('ghvz-interview-page-done', {
+            value: value,
+          });
+        },
+
+        computeOptionIndex_(option) {
+          return this.options.indexOf(option);
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: block;
-    padding: 16px;
-    box-sizing: border-box;
-  }
-  .maintext {
-    padding-bottom: 16px;
-    font-weight: bold;
-  }
-  .subtext {
-    padding-bottom: 16px;
-    color: grey;
-  }
-  .option {
-    display: flex;
-    margin: 8px 0;
-  }
-  .button-container {
-    flex-shrink: 0;
-  }
-  .text {
-    flex-grow: 1;
-    align-items: center;
-    display: flex;
-    padding-left: 8px;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-    margin: 0;
-    /* This works around a mysterious polymer bug which causes buttons to disappear */
-    transform: translate3d(0px, 0px, 0px);
-  }
-</style>
-<template>
-  <div>
-    <content/>
-  </div>
-  <div id="options">
-    <template is="dom-repeat" items="[[options]]" as="option">
-      <div class="option">
-        <div class="button-container">
-          <paper-button
-              raised
-              data-option-index$="[[computeOptionIndex_(option)]]"
-              name$="option[[computeOptionIndex_(option)]]"
-              disabled="[[!option.enabled]]"
-              on-tap="choose_">
-            [[option.buttonLabel]]
-          </paper-button>
+  </script>
+  <style>
+    :host {
+      display: block;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .maintext {
+      padding-bottom: 16px;
+      font-weight: bold;
+    }
+
+    .subtext {
+      padding-bottom: 16px;
+      color: grey;
+    }
+
+    .option {
+      display: flex;
+      margin: 8px 0;
+    }
+
+    .button-container {
+      flex-shrink: 0;
+    }
+
+    .text {
+      flex-grow: 1;
+      align-items: center;
+      display: flex;
+      padding-left: 8px;
+    }
+
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+      margin: 0;
+      /* This works around a mysterious polymer bug which causes buttons to disappear */
+      transform: translate3d(0px, 0px, 0px);
+    }
+  </style>
+  <template>
+    <div>
+      <content />
+    </div>
+    <div id="options">
+      <template is="dom-repeat" items="[[options]]" as="option">
+        <div class="option">
+          <div class="button-container">
+            <paper-button raised data-option-index$="[[computeOptionIndex_(option)]]"
+              name$="option[[computeOptionIndex_(option)]]" disabled="[[!option.enabled]]" on-tap="choose_">
+              [[option.buttonLabel]]
+            </paper-button>
+          </div>
+          <div class="text">
+            <div>[[option.text]]</div>
+          </div>
         </div>
-        <div class="text">
-          <div>[[option.text]]</div>
-        </div>
-      </div>
-    </template>
-  </div>
-</template>
+      </template>
+    </div>
+  </template>
 </dom-module>

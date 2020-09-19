@@ -27,6 +27,11 @@
     "paper-radio-group": "^1.2.1",
     "paper-spinner": "^1.2.1",
     "paper-toggle-button": "^1.3.0",
-    "paper-tooltip": "^1.1.3"
+    "paper-tooltip": "^1.1.3",
+    "polymer": "1.12.0"
+  },
+  "resolutions": {
+    "webcomponentsjs": "^0.7.24",
+    "polymer": "1.11.2"
   }
 }

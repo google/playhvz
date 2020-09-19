@@ -14,103 +14,103 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-create-game">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-create-game',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-create-game',
 
-      properties: {
-        bridge: Object,
-        userId: String,
-        game: {
-          type: Object,
-          value: null,
-        }
-      },
+        properties: {
+          bridge: Object,
+          userId: String,
+          game: {
+            type: Object,
+            value: null,
+          }
+        },
 
-      makeFormBlueprint_: function() {
-        return {
-          fields: [
-            {
-              property: "id",
-              label: "Id",
-              description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
-              width: "half",
-            },
-            {
-              property: "name",
-              label: "Name",
-              width: "half",
-              description: "Full name for the game.",
-            },
-            {
-              property: "stunTimer",
-              label: "Stun timer (in seconds)",
-              description: "Stun timer, in seconds.",
-              type: 'number',
-              width: "half",
-            },
-            {
-              property: "infectPoints",
-              label: "Infection Points",
-              description: "Points a zombie gets per infection.",
-              type: 'number',
-              width: "half",
-            },
-            {
-              name:"reg-end-time",
-              property: "registrationEndTime",
-              label: "Registration End Time",
-              description: "Registration End Time",
-              type: 'timestamp',
-              width: "half",
-              description: "Registration end time",
-            },
-            {
-              name:"start-time",
-              property: "startTime",
-              label: "Game Start Time",
-              description: "Game Start Time",
-              type: 'timestamp',
-              width: "third",
-              description: "Game start time",
-            },
-            {
-              name:"end-time",
-              property: "endTime",
-              label: "Game End Time",
-              description: "Game End Time",
-              type: 'timestamp',
-              width: "third",
-              description: "Game end time",
-            },
-            {
-              name:"declare-resistance-end-time",
-              property: "declareResistanceEndTime",
-              label: "Declare Resistance End Time",
-              description: "Declare Resistance End Time",
-              type: 'timestamp',
-              width: "half",
-              description: "Declaring resistance end time",
-            },
-            {
-              name:"declare-horde-end-time",
-              property: "declareHordeEndTime",
-              label: "Declare Horde End Time",
-              description: "Declare Horde End Time",
-              type: 'timestamp',
-              width: "half",
-              description: "Declaring horde end time",
-            },
-          ],
-        };
-      },
+        makeFormBlueprint_: function () {
+          return {
+            fields: [
+              {
+                property: "id",
+                label: "Id",
+                description: "Will appear in the url, keep it short. 'game-' will be automatically prepended. Example '2017m' will become 'game-2017m'.",
+                width: "half",
+              },
+              {
+                property: "name",
+                label: "Name",
+                width: "half",
+                description: "Full name for the game.",
+              },
+              {
+                property: "stunTimer",
+                label: "Stun timer (in seconds)",
+                description: "Stun timer, in seconds.",
+                type: 'number',
+                width: "half",
+              },
+              {
+                property: "infectPoints",
+                label: "Infection Points",
+                description: "Points a zombie gets per infection.",
+                type: 'number',
+                width: "half",
+              },
+              {
+                name: "reg-end-time",
+                property: "registrationEndTime",
+                label: "Registration End Time",
+                description: "Registration End Time",
+                type: 'timestamp',
+                width: "half",
+                description: "Registration end time",
+              },
+              {
+                name: "start-time",
+                property: "startTime",
+                label: "Game Start Time",
+                description: "Game Start Time",
+                type: 'timestamp',
+                width: "third",
+                description: "Game start time",
+              },
+              {
+                name: "end-time",
+                property: "endTime",
+                label: "Game End Time",
+                description: "Game End Time",
+                type: 'timestamp',
+                width: "third",
+                description: "Game end time",
+              },
+              {
+                name: "declare-resistance-end-time",
+                property: "declareResistanceEndTime",
+                label: "Declare Resistance End Time",
+                description: "Declare Resistance End Time",
+                type: 'timestamp',
+                width: "half",
+                description: "Declaring resistance end time",
+              },
+              {
+                name: "declare-horde-end-time",
+                property: "declareHordeEndTime",
+                label: "Declare Horde End Time",
+                description: "Declare Horde End Time",
+                type: 'timestamp',
+                width: "half",
+                description: "Declaring horde end time",
+              },
+            ],
+          };
+        },
 
-      addGame_: function() {
-        this.$.gameForm.openForAdding({})
+        addGame_: function () {
+          this.$.gameForm.openForAdding({})
             .then((properties) => {
               let gameId = properties.id;
               if (!gameId.startsWith('game-'))
@@ -215,26 +215,23 @@
                 replace: false,
               });
             });
-      },
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: flex;
-  }
-  paper-button {
-    background-color: #9C27B0;
-    color: white;
-  }
-</style>
-<template>
-  <paper-button id="createGame" raised on-tap="addGame_">Create Game</paper-button>
-  <ghvz-super-form
-      id="gameForm"
-      type-name="Game"
-      is-mobile="[[isMobile]]"
-      blueprint="[[makeFormBlueprint_()]]">
-  </ghvz-super-form>
-</template>
+  </script>
+  <style>
+    :host {
+      display: flex;
+    }
+
+    paper-button {
+      background-color: var(--admin_color_primary);
+      color: var(--admin_color_text_on_primary_background);
+    }
+  </style>
+  <template>
+    <paper-button id="createGame" raised on-tap="addGame_">Create Game</paper-button>
+    <ghvz-super-form id="gameForm" type-name="Game" is-mobile="[[isMobile]]" blueprint="[[makeFormBlueprint_()]]">
+    </ghvz-super-form>
+  </template>
 </dom-module>

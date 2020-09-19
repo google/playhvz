@@ -14,72 +14,76 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-multiple-choice">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-multiple-choice',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-multiple-choice',
 
-      properties: {
-        question: Object,
-      },
+        properties: {
+          question: Object,
+        },
 
-      onAnswerTapped_(e) {
-        if (e.model.answer.isCorrect) {
-          this.fire('ghvz-quiz-done');
-        } else {
-          this.fire('ghvz-alert', {message: "Nope, please try again!"});
+        onAnswerTapped_(e) {
+          if (e.model.answer.isCorrect) {
+            this.fire('ghvz-quiz-done');
+          } else {
+            this.fire('ghvz-alert', { message: "Nope, please try again!" });
+          }
+        },
+
+        sort_(a, b) {
+          return a.number - b.number;
         }
-      },
-
-      sort_(a, b) {
-        return a.number - b.number;
-      }
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    padding: 16px;
-    box-sizing: border-box;
-  }
-  .answer {
-    padding: 8px;
-    display: flex;
-  }
-  .answer-text {
-    flex-grow: 1;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-    flex-shrink: 0;
-  }
-  * {
-    /* This works around a mysterious polymer bug which causes buttons to disappear */
-    /* ...and also a weird bug that makes elements float over to the left of where they should be... */
-    transform: translate3d(0px, 0px, 0px);
-  }
-</style>
-<template>
-  <div>
-    [[question.text]]
-  </div>
-  <template id="repeater" is="dom-repeat" items="[[question.answers]]" as="answer">
-    <iron-collapse opened>
-      <paper-material class="answer">
-        <div class="answer-text">[[answer.text]]</div>
-        <div class="answer-choose">
-          <paper-button raised name$="answer[[answer.number]]" on-tap="onAnswerTapped_">Choose</paper-button>
-        </div>
-      </paper-material>
-    </iron-collapse>
+  </script>
+  <style>
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .answer {
+      padding: 8px;
+      display: flex;
+    }
+
+    .answer-text {
+      flex-grow: 1;
+    }
+
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+      flex-shrink: 0;
+    }
+
+    * {
+      /* This works around a mysterious polymer bug which causes buttons to disappear */
+      /* ...and also a weird bug that makes elements float over to the left of where they should be... */
+      transform: translate3d(0px, 0px, 0px);
+    }
+  </style>
+  <template>
+    <div>
+      [[question.text]]
+    </div>
+    <template id="repeater" is="dom-repeat" items="[[question.answers]]" as="answer">
+      <iron-collapse opened>
+        <paper-material class="answer">
+          <div class="answer-text">[[answer.text]]</div>
+          <div class="answer-choose">
+            <paper-button raised name$="answer[[answer.number]]" on-tap="onAnswerTapped_">Choose</paper-button>
+          </div>
+        </paper-material>
+      </iron-collapse>
+    </template>
   </template>
-</template>
 </dom-module>

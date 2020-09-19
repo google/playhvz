@@ -14,200 +14,183 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-group-field">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-group-field',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-group-field',
 
-      properties: {
-        game: Object,
+        properties: {
+          game: Object,
 
-        // A group ID or null
-        value: {
-          type: String,
-          value: null,
-          notify: true,
+          // A group ID or null
+          value: {
+            type: String,
+            value: null,
+            notify: true,
+          },
+
+          group: {
+            type: Object,
+            computed: 'computeGroup_(game, value)',
+          },
+
+          groupName: {
+            type: String,
+          },
+
+          text: {
+            type: String,
+            value: "",
+          },
+
+          showMenu: {
+            type: Boolean,
+            value: false,
+          },
         },
 
-        group: {
-          type: Object,
-          computed: 'computeGroup_(game, value)',
+        observers: [
+          'updateGroupName_(value)',
+          'updateGroupName_(group)',
+          'updateGroupName_(group.name)',
+          'textChanged_(text)',
+        ],
+
+        computeGroup_(game, groupId) {
+          return this.game.groupsById[groupId];
         },
 
-        groupName: {
-          type: String,
+        updateGroupName_() {
+          this.groupName = this.group ? this.group.name : "(none)";
         },
 
-        text: {
-          type: String,
-          value: "",
+        filter_(group) {
+          return group.name.toLowerCase().includes(this.text.toLowerCase());
         },
 
-        showMenu: {
-          type: Boolean,
-          value: false,
+        sort_(groupA, groupB) {
+          return groupB.players.length - groupA.players.length;
         },
-      },
 
-      observers: [
-        'updateGroupName_(value)',
-        'updateGroupName_(group)',
-        'updateGroupName_(group.name)',
-        'textChanged_(text)',
-      ],
+        computeGroupText_(group, groupId, groupName) {
+          return group ? group.name : "(none)";
+        },
 
-      computeGroup_(game, groupId) {
-        return this.game.groupsById[groupId];
-      },
+        onItemClicked_(e) {
+          let group = e.model.group;
+          this.text = group.name;
+          this.value = group.id;
+          this.$.dialog.close();
+        },
 
-      updateGroupName_() {
-        this.groupName = this.group ? this.group.name : "(none)";
-      },
+        onNullItemClicked_() {
+          this.text = "";
+          this.value = null;
+          this.$.dialog.close();
+        },
 
-      filter_(group) {
-        return group.name.toLowerCase().includes(this.text.toLowerCase());
-      },
+        textChanged_() {
+          this.$.repeater.filter = this.filter_.bind(this);
+          this.$.repeater.render();
+        },
 
-      sort_(groupA, groupB) {
-        return groupB.players.length - groupA.players.length;
-      },
-
-      computeGroupText_(group, groupId, groupName) {
-        return group ? group.name : "(none)";
-      },
-
-      onItemClicked_(e) {
-        let group = e.model.group;
-        this.text = group.name;
-        this.value = group.id;
-        this.$.dialog.close();
-      },
-
-      onNullItemClicked_() {
-        this.text = "";
-        this.value = null;
-        this.$.dialog.close();
-      },
-
-      textChanged_() {
-        this.$.repeater.filter = this.filter_.bind(this);
-        this.$.repeater.render();
-      },
-
-      open_() {
-        this.$.repeater.filter = null;
-        this.$.dialog.open();
-      },
+        open_() {
+          this.$.repeater.filter = null;
+          this.$.dialog.open();
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: block;
-  }
-  #name {
-    padding: 8px 0;
-  }
-  #name:hover {
-    background-color: #F0F0F0;
-    cursor: pointer;
-  }
-  #dialog {
-    display: flex;
-    flex-direction: column;
-    width: 320px;
-  }
-  form {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 0;
-    padding-top: 0;
-  }
-  .button-container {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    margin: 8px;
-  }
-  paper-button {
-    background-color: #9C27B0;
-    color: white;
-  }
-  #title {
-    margin-top: 0;
-    color: white;
-    background-color: #9C27B0;
-    font-size: 13pt;
-    padding: 16px;
-    font-weight: bold;
-  }
+  </script>
+  <style>
+    :host {
+      display: block;
+    }
 
-  #contents {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
+    #name {
+      padding: 8px 0;
+    }
 
-  #list {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
+    #name:hover {
+      background-color: #F0F0F0;
+      cursor: pointer;
+    }
 
-</style>
-<template>
-  <div id="name" on-tap="open_">
-    [[groupName]]
-  </div>
+    #dialog {
+      display: flex;
+      flex-direction: column;
+      width: 320px;
+    }
 
-  <paper-dialog id="dialog" with-backdrop>
-    <div id="title">Choose Group</div>
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 0;
+      padding-top: 0;
+    }
 
-    <paper-input
-        id="input"
-        tabindex="0"
-        value="{{text}}"
-        no-label-float
-        on-keyup="textChanged_">
-    </paper-input>
+    .button-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      margin: 8px;
+    }
 
-    <paper-listbox
-        id="list"
-        tabindex="0"
-        visible$="[[showMenu]]">
-      <paper-item
-          tabindex="0"
-          class="group"
-          name="null-group"
-          on-tap="onNullItemClicked_">
-        (none)
-      </paper-item>
-      <template
-          is="dom-repeat"
-          id="repeater"
-          items="[[game.groups]]"
-          sort="sort_"
-          filter="filter_"
-          as="group">
-        <paper-item
-            tabindex="0"
-            class="group"
-            name$="group-name-[[computeGroupText_(group, group.id, group.name)]]"
-            on-tap="onItemClicked_">
-          [[computeGroupText_(group, group.id, group.name)]]
-        </paper-item>
-      </template>
-    </paper-listbox>
+    paper-button {
+      background-color: var(--admin_color_primary);
+      color: var(--admin_color_text_on_primary_background);
+    }
 
-    <div class="buttons">
-      <paper-button id="cancel" dialog-dismiss>Cancel</paper-button>
-      <paper-button id="done">Set</paper-button>
+    #title {
+      margin-top: 0;
+      color: var(--admin_color_text_on_primary_background);
+      background-color: var(--admin_color_primary);
+      font-size: 13pt;
+      padding: 16px;
+      font-weight: bold;
+    }
+
+    #contents {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    #list {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+  </style>
+  <template>
+    <div id="name" on-tap="open_">
+      [[groupName]]
     </div>
-  </paper-dialog>
+
+    <paper-dialog id="dialog" with-backdrop>
+      <div id="title">Choose Group</div>
+
+      <paper-input id="input" tabindex="0" value="{{text}}" no-label-float on-keyup="textChanged_">
+      </paper-input>
+
+      <paper-listbox id="list" tabindex="0" visible$="[[showMenu]]">
+        <paper-item tabindex="0" class="group" name="null-group" on-tap="onNullItemClicked_">
+          (none)
+        </paper-item>
+        <template is="dom-repeat" id="repeater" items="[[game.groups]]" sort="sort_" filter="filter_" as="group">
+          <paper-item tabindex="0" class="group" name$="group-name-[[computeGroupText_(group, group.id, group.name)]]"
+            on-tap="onItemClicked_">
+            [[computeGroupText_(group, group.id, group.name)]]
+          </paper-item>
+        </template>
+      </paper-listbox>
+
+      <div class="buttons">
+        <paper-button id="cancel" dialog-dismiss>Cancel</paper-button>
+        <paper-button id="done">Set</paper-button>
+      </div>
+    </paper-dialog>
 
 
-</template>
+  </template>
 </dom-module>
-
-

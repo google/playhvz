@@ -14,91 +14,86 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-stun-timer">
-<script>
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-stun-timer',
-      properties: {
-        game: {
-          type: Object,
-          value: null,
+  <script>
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-stun-timer',
+        properties: {
+          game: {
+            type: Object,
+            value: null,
+          },
+          counting: {
+            type: Boolean,
+            value: false,
+          },
+          doneMessage: {
+            type: Boolean,
+            value: false,
+          },
+          time: Number,
         },
-        counting: {
-          type: Boolean,
-          value: false,
+
+        attached() {
+          this.time = this.game.stunTimer
         },
-        doneMessage: {
-          type: Boolean,
-          value: false,
+
+        reset_() {
+          this.doneMessage = false;
+          this.time = this.game.stunTimer;
         },
-        time: Number,
-      },
 
-      attached() {
-        this.time = this.game.stunTimer
-      },
+        startStop_() {
+          this.counting = !this.counting;
+          this.countDown_(this.time)
+        },
 
-      reset_() {
-        this.doneMessage = false;
-        this.time = this.game.stunTimer;
-      },
+        computeStartStopText_(counting) {
+          return counting ? "Stop" : "Start";
+        },
 
-      startStop_() {
-        this.counting = ! this.counting;
-        this.countDown_(this.time)
-      },
-
-      computeStartStopText_(counting) {
-        return counting ? "Stop" : "Start";
-      },
-
-      countDown_() {
-        if (this.counting) {
-          if (this.time == 0) {
-            this.counting = false;
-            this.doneMessage = true;
-          } else {
-            setTimeout(() => {
-              this.time = this.time - 1;
-              this.countDown_();
-            }, 1000)
+        countDown_() {
+          if (this.counting) {
+            if (this.time == 0) {
+              this.counting = false;
+              this.doneMessage = true;
+            } else {
+              setTimeout(() => {
+                this.time = this.time - 1;
+                this.countDown_();
+              }, 1000)
+            }
+          }
         }
-        }
-      }
-      
+
+      });
     });
-  });
-</script>
-<style>
-  paper-button {
-      background-color: #03A9F4;
-      color: white;
+  </script>
+  <style>
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
       font-weight: bold;
       text-align: center;
       margin: 5px;
     }
-  #timer-text {
-    font-size: 200%;
-    margin: 5px;
-  }
-</style>
 
-<template>
-  <div id="timer-text">
-    <div name="times-up" hidden="[[!doneMessage]]">Time's up! Go get brains!</div>
-    <div name="time-counter" hidden="[[doneMessage]]" time="[[time]]">[[time]] sec</div>
-  </div>
-  <paper-button
-      name="timer-reset"
-      raised
-      on-tap="reset_">
+    #timer-text {
+      font-size: 200%;
+      margin: 5px;
+    }
+  </style>
+
+  <template>
+    <div id="timer-text">
+      <div name="times-up" hidden="[[!doneMessage]]">Time's up! Go get brains!</div>
+      <div name="time-counter" hidden="[[doneMessage]]" time="[[time]]">[[time]] sec</div>
+    </div>
+    <paper-button name="timer-reset" raised on-tap="reset_">
       Reset
-  </paper-button>
-  <paper-button
-      name="timer-startstop"
-      raised
-      on-tap="startStop_">
-    [[computeStartStopText_(counting)]]
-  </paper-button>
-</template>
+    </paper-button>
+    <paper-button name="timer-startstop" raised on-tap="startStop_">
+      [[computeStartStopText_(counting)]]
+    </paper-button>
+  </template>
 </dom-module>

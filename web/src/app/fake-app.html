@@ -14,272 +14,273 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-fake-app">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-fake-app',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-fake-app',
 
-      properties: {
-        env: String,
+        properties: {
+          env: String,
 
-        bridge: {
-          type: Object,
+          bridge: {
+            type: Object,
+          },
+
+          userOptions: Array,
+
+          alreadyReadUrl: {
+            type: Boolean,
+            value: false,
+          },
+
+          appsByUserId: {
+            type: Object,
+            value: () => ({}),
+          },
+
+          focusedUserId: {
+            type: String,
+            value: undefined,
+          },
+
+          isAttached: Boolean,
+
+          config: {
+            type: Object,
+            value: undefined,
+          },
         },
 
-        userOptions: Array,
-
-        alreadyReadUrl: {
-          type: Boolean,
-          value: false,
+        listeners: {
+          'ghvz-replace-url': 'replaceUrl_',
+          'ghvz-push-url': 'pushUrl_',
         },
 
-        appsByUserId: {
-          type: Object,
-          value: () => ({}),
+        observers: [
+          'onReady(isAttached, config)',
+        ],
+
+        pushUrl_(e) {
+          this.setUrl_(false);
         },
 
-        focusedUserId: {
-          type: String,
-          value: undefined,
+        replaceUrl_(e) {
+          this.setUrl_(true);
         },
 
-        isAttached: Boolean,
+        setUrl_(replace) {
+          let currentPage = this.appsByUserId[this.focusedUserId];
 
-        config: {
-          type: Object,
-          value: undefined,
+          let queryParams = Utils.getUrlQueryParameters();
+          // Update user in url to be correct
+          let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == this.focusedUserId);
+          queryParams.user = this.userOptions[focusedOptionIndex].name;
+
+          // Assemble new URL
+          let newUrl = '/' + currentPage.path.join('/');
+          let queryString = '';
+          for (let key in queryParams) {
+            queryString += (queryString ? '&' : '?');
+            queryString += key + '=' + queryParams[key];
+          }
+          newUrl += queryString;
+
+          if (replace)
+            window.history.replaceState({}, "", newUrl);
+          else
+            window.history.pushState({}, "", newUrl);
         },
-      },
 
-      listeners: {
-        'ghvz-replace-url': 'replaceUrl_',
-        'ghvz-push-url': 'pushUrl_',
-      },
+        getQueryString_() {
+          let queryStringMatch = /\?(.*)/.exec(window.location.href);
+          if (queryStringMatch)
+            return queryStringMatch[1];
+          return null;
+        },
 
-      observers: [
-        'onReady(isAttached, config)',
-      ],
+        attached() {
+          this.isAttached = true;
+        },
 
-      pushUrl_(e) {
-        this.setUrl_(false);
-      },
+        onReady() {
+          window.onpopstate = this.handlePopState_.bind(this);
 
-      replaceUrl_(e) {
-        this.setUrl_(true);
-      },
+          let idGenerator = new FakeIdGenerator();
 
-      setUrl_(replace) {
-        let currentPage = this.appsByUserId[this.focusedUserId];
+          this.userOptions = [
+            { loaded: false, focused: false, url: '', name: 'reggie', userId: 'user-' + this.config.fakeUserIds.reggie, description: 'Registered, not admin, not joined' },
+            { loaded: false, focused: false, url: '', name: 'minny', userId: 'user-' + this.config.fakeUserIds.minny, description: 'Registered, admin, not joined' },
+            { loaded: false, focused: false, url: '', name: 'zella', userId: 'user-' + this.config.fakeUserIds.zella, description: 'Registered, admin, joined, human' },
+            { loaded: false, focused: false, url: '', name: 'deckerd', userId: 'user-' + this.config.fakeUserIds.deckerd, description: 'Registered, admin, joined, undeclared' },
+            { loaded: false, focused: false, url: '', name: 'moldavi', userId: 'user-' + this.config.fakeUserIds.moldavi, description: 'Registered, admin, joined, human, is keeper of the owls' },
+            { loaded: false, focused: false, url: '', name: 'drake', userId: 'user-' + this.config.fakeUserIds.drake, description: 'Registered, not admin, joined, zombie' },
+            { loaded: false, focused: false, url: '', name: 'zeke', userId: 'user-' + this.config.fakeUserIds.zeke, description: 'Registered, not admin, joined, zombie' },
+            { loaded: false, focused: false, url: '', name: 'jack', userId: 'user-' + this.config.fakeUserIds.jack, description: 'Registered, not admin, joined, human' },
+          ];
 
-        let queryParams = Utils.getUrlQueryParameters();
-        // Update user in url to be correct
-        let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == this.focusedUserId);
-        queryParams.user = this.userOptions[focusedOptionIndex].name;
-
-        // Assemble new URL
-        let newUrl = '/' + currentPage.path.join('/');
-        let queryString = '';
-        for (let key in queryParams) {
-          queryString += (queryString ? '&' : '?');
-          queryString += key + '=' + queryParams[key];
-        }
-        newUrl += queryString;
-
-        if (replace)
-          window.history.replaceState({}, "", newUrl);
-        else
-          window.history.pushState({}, "", newUrl);
-      },
-
-      getQueryString_() {
-        let queryStringMatch = /\?(.*)/.exec(window.location.href);
-        if (queryStringMatch)
-          return queryStringMatch[1];
-        return null;
-      },
-
-      attached() {
-        this.isAttached = true;
-      },
-
-      onReady() {
-        window.onpopstate = this.handlePopState_.bind(this);
-
-        let idGenerator = new FakeIdGenerator();
-
-        this.userOptions = [
-          {loaded: false, focused: false, url: '', name: 'reggie', userId: 'user-' + this.config.fakeUserIds.reggie, description: 'Registered, not admin, not joined'},
-          {loaded: false, focused: false, url: '', name: 'minny', userId: 'user-' + this.config.fakeUserIds.minny, description: 'Registered, admin, not joined'},
-          {loaded: false, focused: false, url: '', name: 'zella', userId: 'user-' + this.config.fakeUserIds.zella, description: 'Registered, admin, joined, human'},
-          {loaded: false, focused: false, url: '', name: 'deckerd', userId: 'user-' + this.config.fakeUserIds.deckerd, description: 'Registered, admin, joined, undeclared'},
-          {loaded: false, focused: false, url: '', name: 'moldavi', userId: 'user-' + this.config.fakeUserIds.moldavi, description: 'Registered, admin, joined, human, is keeper of the owls'},
-          {loaded: false, focused: false, url: '', name: 'drake', userId: 'user-' + this.config.fakeUserIds.drake, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, focused: false, url: '', name: 'zeke', userId: 'user-' + this.config.fakeUserIds.zeke, description: 'Registered, not admin, joined, zombie'},
-          {loaded: false, focused: false, url: '', name: 'jack', userId: 'user-' + this.config.fakeUserIds.jack, description: 'Registered, not admin, joined, human'},
-        ];
-
-        this.bridge =
+          this.bridge =
             new Bridge(
-                idGenerator,
-                new FakeBridge(idGenerator, (e) => this.fire('ghvz-alert', {message: e})));
+              idGenerator,
+              new FakeBridge(idGenerator, (e) => this.fire('ghvz-alert', { message: e })));
 
-        let populate = Utils.getParameterByName('populate', 'light');
-        assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
-        if (populate != 'none') {
-          populateUsers(this.bridge, this.config);
-          populateGame(
+          let populate = Utils.getParameterByName('populate', 'light');
+          assert(populate == 'light' || populate == 'heavy' || populate == 'none', "populate must be light, heavy, or none");
+          if (populate != 'none') {
+            populateUsers(this.bridge, this.config);
+            populateGame(
               this.bridge,
               this.bridge.idGenerator.newGameId("poptest"), // Makes "poptest-1"
               this.config,
               populate == 'heavy');
-        }
+          }
 
-        this.navigateFromUrl_();
-      },
+          this.navigateFromUrl_();
+        },
 
-      handlePopState_(e) {
-        this.navigateFromUrl_();
-      },
+        handlePopState_(e) {
+          this.navigateFromUrl_();
+        },
 
-      navigateFromUrl_() {
-        let userName = Utils.getParameterByName('user', 'zella');
-        let userOption = this.userOptions.find((option) => option.name == userName);
-        if (userOption) {
-          let pathString = window.location.pathname;
-          // Strip any slash at beginning or end
-          pathString = pathString.startsWith('/') ? pathString.slice(1) : pathString;
-          pathString = pathString.endsWith('/') ? pathString.slice(0, pathString.length - 1) : pathString;
-          let path = pathString ? pathString.split('/') : [];
-          this.loadUser_(userOption.userId, path);
-        }
-      },
+        navigateFromUrl_() {
+          let userName = Utils.getParameterByName('user', 'zella');
+          let userOption = this.userOptions.find((option) => option.name == userName);
+          if (userOption) {
+            let pathString = window.location.pathname;
+            // Strip any slash at beginning or end
+            pathString = pathString.startsWith('/') ? pathString.slice(1) : pathString;
+            pathString = pathString.endsWith('/') ? pathString.slice(0, pathString.length - 1) : pathString;
+            let path = pathString ? pathString.split('/') : [];
+            this.loadUser_(userOption.userId, path);
+          }
+        },
 
-      loadUserTapped_(e) {
-        this.loadUser_(e.model.option.userId, ['game', 'poptest-1']);
-      },
+        loadUserTapped_(e) {
+          this.loadUser_(e.model.option.userId, ['game', 'poptest-1']);
+        },
 
-      loadUser_(userId, path) {
-        let optionIndex = this.userOptions.findIndex((option) => option.userId == userId);
-        let option = this.userOptions[optionIndex];
+        loadUser_(userId, path) {
+          let optionIndex = this.userOptions.findIndex((option) => option.userId == userId);
+          let option = this.userOptions[optionIndex];
 
-        if (option.focused) {
-          this.appsByUserId[this.focusedUserId].setPath_(path, true);
-          return;
-        }
+          if (option.focused) {
+            this.appsByUserId[this.focusedUserId].setPath_(path, true);
+            return;
+          }
 
-        if (this.focusedUserId != null) {
-          let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == this.focusedUserId);
-          this.set('userOptions.' + focusedOptionIndex + '.focused', false);
-          this.appsByUserId[this.focusedUserId].style.display = 'none';
-        }
-        if (!option.loaded) {
-          let app = document.createElement('ghvz-app');
-          app.config = this.config;
-          app.path = path;
-          app.userId = userId;
-          app.bridge = this.bridge;
-          app.id = option.name + "App";
-          this.appsByUserId[userId] = app;
-          this.$.apps.appendChild(app);
-        }
-        this.appsByUserId[userId].style.display = '';
+          if (this.focusedUserId != null) {
+            let focusedOptionIndex = this.userOptions.findIndex((option) => option.userId == this.focusedUserId);
+            this.set('userOptions.' + focusedOptionIndex + '.focused', false);
+            this.appsByUserId[this.focusedUserId].style.display = 'none';
+          }
+          if (!option.loaded) {
+            let app = document.createElement('ghvz-app');
+            app.config = this.config;
+            app.path = path;
+            app.userId = userId;
+            app.bridge = this.bridge;
+            app.id = option.name + "App";
+            this.appsByUserId[userId] = app;
+            this.$.apps.appendChild(app);
+          }
+          this.appsByUserId[userId].style.display = '';
 
-        if (option.loaded) {        
-          this.appsByUserId[this.focusedUserId].setPath_(path, true);
-        }
-        this.set('userOptions.' + optionIndex + '.loaded', true);
-        this.set('userOptions.' + optionIndex + '.focused', true);
-        this.focusedUserId = userId;
+          if (option.loaded) {
+            this.appsByUserId[this.focusedUserId].setPath_(path, true);
+          }
+          this.set('userOptions.' + optionIndex + '.loaded', true);
+          this.set('userOptions.' + optionIndex + '.focused', true);
+          this.focusedUserId = userId;
 
-        this.setUrl_(true);
-      },
+          this.setUrl_(true);
+        },
 
-      unloadUserTapped_(e) {
-        let option = e.model.option;
-        let userId = option.userId;
-        let optionIndex = this.userOptions.indexOf(option);
+        unloadUserTapped_(e) {
+          let option = e.model.option;
+          let userId = option.userId;
+          let optionIndex = this.userOptions.indexOf(option);
 
-        if (this.focusedUserId == userId) {
-          this.focusedUserId = null;
-        }
+          if (this.focusedUserId == userId) {
+            this.focusedUserId = null;
+          }
 
-        this.appsByUserId[userId].remove();
-        delete this.appsByUserId[userId];
-        this.set('userOptions.' + optionIndex + '.focused', false);
-        this.set('userOptions.' + optionIndex + '.loaded', false);
-      },
+          this.appsByUserId[userId].remove();
+          delete this.appsByUserId[userId];
+          this.set('userOptions.' + optionIndex + '.focused', false);
+          this.set('userOptions.' + optionIndex + '.loaded', false);
+        },
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    display: flex;
-    flex-direction: column;
-  }
-  #options {
-    display: flex;
-    padding: 2px;
-    position: relative;
-    background-color: #add8e6;
-    flex-wrap: wrap;
-  }
-  .option {
-    height: 24px;
-    display: flex;
-    align-items: center;
-  }
-  paper-button {
-    background-color: #03A9F4;
-    color: white;
-    padding: 0;
-  }
-  .option[focused] paper-button {
-    background-color: black;
-  }
-  paper-icon-button {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    margin-right: 8px;
-  }
-  #apps {
-    flex-grow: 1;
-    position: relative;
-    display: flex;
-  }
-  ghvz-app {
-    flex-grow: 1;
-  }
-</style>
-<template>
-  <div id="apps"></div>
-  <div id="options">
-    <template is="dom-repeat" items="[[userOptions]]" as="option">
-      <div>
-        <div class="option" focused$="[[option.focused]]">
-          <paper-button
-              raised
-              id$="[[option.name]]Button"
-              on-tap="loadUserTapped_">
-            [[option.name]]
-          </paper-button>
+  </script>
+  <style>
+    :host {
+      display: flex;
+      flex-direction: column;
+    }
 
-          <paper-icon-button
-              hidden$="[[!option.loaded]]"
-              icon="icons:close"
-              on-tap="unloadUserTapped_">
-          </paper-icon-button>
-        </div>
-        <!--
+    #options {
+      display: flex;
+      padding: 2px;
+      position: relative;
+      background-color: var(--app_color_accent);
+      flex-wrap: wrap;
+    }
+
+    .option {
+      height: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    paper-button {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+      padding: 0;
+    }
+
+    .option[focused] paper-button {
+      background-color: black;
+    }
+
+    paper-icon-button {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      margin-right: 8px;
+    }
+
+    #apps {
+      flex-grow: 1;
+      position: relative;
+      display: flex;
+    }
+
+    ghvz-app {
+      flex-grow: 1;
+    }
+  </style>
+  <template>
+    <div id="apps"></div>
+    <div id="options">
+      <template is="dom-repeat" items="[[userOptions]]" as="option">
+        <div>
+          <div class="option" focused$="[[option.focused]]">
+            <paper-button raised id$="[[option.name]]Button" on-tap="loadUserTapped_">
+              [[option.name]]
+            </paper-button>
+
+            <paper-icon-button hidden$="[[!option.loaded]]" icon="icons:close" on-tap="unloadUserTapped_">
+            </paper-icon-button>
+          </div>
+          <!--
         These tooltips seem to interfere with webdrivers...
         <paper-tooltip fit-to-visible-bounds position="top">
           [[option.description]]
         </paper-tooltip> -->
-      </div>
-    </template>
-  </div>
-</template>
+        </div>
+      </template>
+    </div>
+  </template>
 </dom-module>

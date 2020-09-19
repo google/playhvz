@@ -125,6 +125,7 @@
       :host {
         display: block;
       }
+
       form {
         display: flex;
         flex-wrap: wrap;
@@ -132,35 +133,35 @@
         padding-top: 0;
         overflow-y: auto;
       }
+
       .button-container {
         display: flex;
         align-items: flex-end;
         justify-content: flex-end;
         margin: 8px;
       }
+
       paper-button {
-        background-color: #9C27B0;
-        color: white;
+        background-color: var(--admin_color_primary);
+        color: var(--admin_color_text_on_primary_background);
       }
+
       #title {
         margin-top: 0;
-        color: white;
-        background-color: #9C27B0;
+        color: var(--admin_color_text_on_primary_background);
+        background-color: var(--admin_color_primary);
         font-size: 13pt;
         padding: 16px;
         font-weight: bold;
       }
+
       #dialog {
         display: flex;
         flex-direction: column;
       }
     </style>
 
-    <paper-dialog
-        id="dialog"
-        modal
-        on-iron-overlay-opened="opened_"
-        on-iron-overlay-closed="closed_">
+    <paper-dialog id="dialog" modal on-iron-overlay-opened="opened_" on-iron-overlay-closed="closed_">
       <template is="dom-if" if="[[title]]">
         <div id="title">
           [[title]]

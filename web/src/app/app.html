@@ -14,264 +14,259 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-app">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-app',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-app',
 
-      properties: {
-        config: Object,
-        
-        bridge: {
-          type: Object,
-          value: undefined,
+        properties: {
+          config: Object,
+
+          bridge: {
+            type: Object,
+            value: undefined,
+          },
+
+          game: Object,
+
+          url: String,
+          userId: String,
+          email: String,
+
+          gameId: {
+            type: String,
+            value: null,
+          },
+
+          playerId: {
+            type: String,
+            value: null,
+            // observer: 'onPlayerIdChanged_',
+          },
+
+          player: Object,
+
+          path: {
+            type: Array,
+          },
+
+          isMobile: {
+            type: Boolean,
+            value: () => Utils.isMobile() || Utils.getParameterByName('layout') == 'mobile',
+          },
+
+          isAdmin: {
+            type: Boolean,
+            computed: 'computeIsAdmin_(userId, game.adminUsers.length)',
+          },
+
+          showGameIdHint: {
+            type: Boolean,
+            value: false,
+          },
+
+          showLoadingSpinner: {
+            type: Boolean,
+            value: false,
+          },
+
+          showSignInButton: {
+            type: Boolean,
+            value: true,
+          },
         },
 
-        game: Object,
+        observers: [
+          'onBridgeSet_(bridge, userId)',
+          'loadGameInPath_(bridge, path, userId)',
+          'selectPlayer_(bridge, userId, game.players.length)',
+          'navigateGameToDashboard_(bridge, path)',
+        ],
 
-        url: String,
-        userId: String,
-        email: String,
-
-        gameId: {
-          type: String,
-          value: null,
+        listeners: {
+          'ghvz-set-path': 'handleSetPath_',
+          'ghvz-sign-out': 'signOut_',
+          //   'ghvz-select-game': 'handleSelectGame_',
         },
 
-        playerId: {
-          type: String,
-          value: null,
-          // observer: 'onPlayerIdChanged_',
-        },
-
-        player: Object,
-
-        path: {
-          type: Array,
-        },
-
-        isMobile: {
-          type: Boolean,
-          value: () => Utils.isMobile() || Utils.getParameterByName('layout') == 'mobile',
-        },
-
-        isAdmin: {
-          type: Boolean,
-          computed: 'computeIsAdmin_(userId, game.adminUsers.length)',
-        },
-
-        showGameIdHint: {
-          type: Boolean,
-          value: false,
-        },
-
-        showLoadingSpinner: {
-          type: Boolean,
-          value: false,
-        },
-
-        showSignInButton: {
-          type: Boolean,
-          value: true,
-        },
-      },
-
-      observers: [
-        'onBridgeSet_(bridge, userId)',
-        'loadGameInPath_(bridge, path, userId)',
-        'selectPlayer_(bridge, userId, game.players.length)',
-        'navigateGameToDashboard_(bridge, path)',
-      ],
-
-      listeners: {
-        'ghvz-set-path': 'handleSetPath_',
-        'ghvz-sign-out': 'signOut_',
-      //   'ghvz-select-game': 'handleSelectGame_',
-      },
-
-      onBridgeSet_() {
-        this.bridge.getSignedInPromise({userId: this.userId})
-            .then(({userId, email}) => {
+        onBridgeSet_() {
+          this.bridge.getSignedInPromise({ userId: this.userId })
+            .then(({ userId, email }) => {
               this.showSignInButton = false;
               this.showGameIdHint = true;
               this.userId = userId;
               this.email = email;
             });
-      },
+        },
 
-      signOut_() {
-        new Promise((resolve, reject) => {
-          this.bridge.signOut()
-              .then((result) => this.fire('ghvz-alert', {message: "Signed out!", callback: resolve}))
-        })
+        signOut_() {
+          new Promise((resolve, reject) => {
+            this.bridge.signOut()
+              .then((result) => this.fire('ghvz-alert', { message: "Signed out!", callback: resolve }))
+          })
             .then(() => window.location.reload())
             .catch((error) => {
               return this.alertHandler("Error signing out! " + error);
               console.error(error);
             });
-      },
+        },
 
-      navigateGameToDashboard_() {
-        if (this.path.length == 2 && this.path[0] == 'game') {
-          this.setPath_(this.path.slice().concat(['main']), true);
-        }
-      },
-
-      detached() {
-        this.bridgeListenCanceler();
-      },
-
-      setPath_(path, replace) {
-        assert(replace !== undefined);
-        // Async because sometimes we set the path in reaction to a path change
-        // and polymer doesn't like changing something we're reacting to
-        // (it just chooses to not fire observers/listeners for the second set)
-        this.async(() => {
-          assert(path instanceof Array);
-          if (!Utils.arrayShallowEquals(path, this.path)) {
-            this.path = path;
-            if (replace)
-              this.fire('ghvz-replace-url');
-            else
-              this.fire('ghvz-push-url');
+        navigateGameToDashboard_() {
+          if (this.path.length == 2 && this.path[0] == 'game') {
+            this.setPath_(this.path.slice().concat(['main']), true);
           }
-        });
-      },
+        },
 
-      loadGameInPath_() {
-        // If we have no game ID, but there's one in the path, load it.
-        if (this.userId && !this.gameId && this.path.length >= 2 && this.path[0] == 'game') {
-          let trimmedGameId = this.path[1];
-          this.gameId = 'game-' + trimmedGameId;
+        detached() {
+          this.bridgeListenCanceler();
+        },
 
-          let temporaryGameObjectWriter = new SimpleWriter(null);
-          let teeWriter = new TeeWriter(temporaryGameObjectWriter);
-          let [foundGamePromise, doneLoadingGamePromise] =
+        setPath_(path, replace) {
+          assert(replace !== undefined);
+          // Async because sometimes we set the path in reaction to a path change
+          // and polymer doesn't like changing something we're reacting to
+          // (it just chooses to not fire observers/listeners for the second set)
+          this.async(() => {
+            assert(path instanceof Array);
+            if (!Utils.arrayShallowEquals(path, this.path)) {
+              this.path = path;
+              if (replace)
+                this.fire('ghvz-replace-url');
+              else
+                this.fire('ghvz-push-url');
+            }
+          });
+        },
+
+        loadGameInPath_() {
+          // If we have no game ID, but there's one in the path, load it.
+          if (this.userId && !this.gameId && this.path.length >= 2 && this.path[0] == 'game') {
+            let trimmedGameId = this.path[1];
+            this.gameId = 'game-' + trimmedGameId;
+
+            let temporaryGameObjectWriter = new SimpleWriter(null);
+            let teeWriter = new TeeWriter(temporaryGameObjectWriter);
+            let [foundGamePromise, doneLoadingGamePromise] =
               this.bridge.listenToGame(this.userId, this.gameId, teeWriter);
-          foundGamePromise.then(() => {
-            this.showGameIdHint = false;
-            this.showLoadingSpinner = true;
-          });
-          doneLoadingGamePromise.then(() => {
-            this.showLoadingSpinner = false;
-            teeWriter.removeDestination(temporaryGameObjectWriter);
-            this.set('game', temporaryGameObjectWriter.destination);
-            teeWriter.addDestination(new BatchedPolymerWriter(this, 'game'));
-          });
-        }
-      },
-
-      selectPlayer_() {
-        if (this.userId && this.game && !this.playerId) {
-          let player = this.game.players.find(player => player.userId == this.userId);
-          if (player) {
-            this.playerId = player.id;
-            // Async so we dont accidentally cause calls into firebaselistener
-            // while we're already reacting to something from it.
-            this.async(() => {
-              // This also causes player to be set, via the player-selector.
-              this.$.playerSelector.select(this.game.playersById[this.playerId]);
+            foundGamePromise.then(() => {
+              this.showGameIdHint = false;
+              this.showLoadingSpinner = true;
+            });
+            doneLoadingGamePromise.then(() => {
+              this.showLoadingSpinner = false;
+              teeWriter.removeDestination(temporaryGameObjectWriter);
+              this.set('game', temporaryGameObjectWriter.destination);
+              teeWriter.addDestination(new BatchedPolymerWriter(this, 'game'));
             });
           }
-        }
-      },
+        },
 
-      computeIsAdmin_: function() {
-        let admin = this.game.adminUsers.find((admin) => admin.userId == this.userId);
-        return !!admin;
-      },
+        selectPlayer_() {
+          if (this.userId && this.game && !this.playerId) {
+            let player = this.game.players.find(player => player.userId == this.userId);
+            if (player) {
+              this.playerId = player.id;
+              // Async so we dont accidentally cause calls into firebaselistener
+              // while we're already reacting to something from it.
+              this.async(() => {
+                // This also causes player to be set, via the player-selector.
+                this.$.playerSelector.select(this.game.playersById[this.playerId]);
+              });
+            }
+          }
+        },
 
-      signIn_: function() {
-        this.bridge.signIn({userId: this.userId});
-      },
+        computeIsAdmin_: function () {
+          let admin = this.game.adminUsers.find((admin) => admin.userId == this.userId);
+          return !!admin;
+        },
 
-      handleSetPath_(e) {
-        assert('inGame' in e.detail);
-        if (e.detail.inGame) {
-          if (this.path[0] == 'game') {
-            this.setPath_(
+        signIn_: function () {
+          this.bridge.signIn({ userId: this.userId });
+        },
+
+        handleSetPath_(e) {
+          assert('inGame' in e.detail);
+          if (e.detail.inGame) {
+            if (this.path[0] == 'game') {
+              this.setPath_(
                 [this.path[0], this.path[1]].concat(e.detail.path),
                 e.detail.replace);
+            } else {
+              throwError('Cant navigate to game page, not in a game');
+            }
           } else {
-            throwError('Cant navigate to game page, not in a game');
+            this.setPath_(e.detail.path, e.detail.replace);
           }
-        } else {
-          this.setPath_(e.detail.path, e.detail.replace);
+        },
+
+        showGameIdHint(userId, gameId) {
+          return userId && !gameId;
         }
-      },
-
-      showGameIdHint(userId, gameId) {
-        return userId && !gameId;
-      }
+      });
     });
-  });
-</script>
-<style>
-  :host {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  paper-spinner {
-    width: 32px;
-    height: 32px;
-    margin-left: -16px;
-    margin-top: -16px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-  }
-  #gameIdHint {
-    text-align: center;
-  }
-  ghvz-display-page {
-    flex-grow: 1;
-  }
+  </script>
+  <style>
+    :host {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-  paper-button[name="signIn"] {
-    background-color: #03A9F4;
-    color: white;
-    margin: 3px 0;
-  }
-</style>
-<template>
-  <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
+    paper-spinner {
+      width: 32px;
+      height: 32px;
+      margin-left: -16px;
+      margin-top: -16px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+    }
 
-  <!--<ghvz-active active="{{userActive}}"></ghvz-active>
+    #gameIdHint {
+      text-align: center;
+    }
+
+    ghvz-display-page {
+      flex-grow: 1;
+    }
+
+    paper-button[name="signIn"] {
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
+      margin: 3px 0;
+    }
+  </style>
+  <template>
+    <array-selector id="playerSelector" items="[[game.players]]" selected="{{player}}"></array-selector>
+
+    <!--<ghvz-active active="{{userActive}}"></ghvz-active>
   <ghvz-inactive-dialog
       bridge="[[bridge]]"
       game="[[game]]"
       player="[[player]]"
       active="[[userActive]]">
   </ghvz-inactive-dialog>-->
-  <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
-  <template is="dom-if" if="[[showSignInButton]]">
-    <paper-button raised name="signIn" on-tap="signIn_" hidden$="[[!showSignInButton]]">
-      Sign In With Google
-    </paper-button>
-  </template>
+    <paper-spinner active hidden$="[[!showLoadingSpinner]]"></paper-spinner>
+    <template is="dom-if" if="[[showSignInButton]]">
+      <paper-button raised name="signIn" on-tap="signIn_" hidden$="[[!showSignInButton]]">
+        Sign In With Google
+      </paper-button>
+    </template>
 
-  <div id="gameIdHint" hidden$="[[!showGameIdHint]]">
-    Specify a valid game ID in the url, for example http://playhvz.com/game/myCoolGame
-  </div>
+    <div id="gameIdHint" hidden$="[[!showGameIdHint]]">
+      Specify a valid game ID in the url, for example http://playhvz.com/game/myCoolGame
+    </div>
 
-  <template is="dom-if" if="[[userId]]">
-    <ghvz-display-page
-        config="[[config]]"
-        bridge="[[bridge]]"
-        email="[[email]]"
-        path="[[path]]"
-        game="[[game]]"
-        player="[[player]]"
-        user-id="[[userId]]"
-        is-mobile="[[isMobile]]"
-        is-admin="[[isAdmin]]">
-    </ghvz-display-page>
+    <template is="dom-if" if="[[userId]]">
+      <ghvz-display-page config="[[config]]" bridge="[[bridge]]" email="[[email]]" path="[[path]]" game="[[game]]"
+        player="[[player]]" user-id="[[userId]]" is-mobile="[[isMobile]]" is-admin="[[isAdmin]]">
+      </ghvz-display-page>
+    </template>
   </template>
-</template>
 </dom-module>

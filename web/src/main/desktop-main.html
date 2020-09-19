@@ -71,7 +71,7 @@
           return allegiance == 'resistance' || allegiance == 'horde';
         },
 
-        computeCanSelfInfect_: function(allegiance) {
+        computeCanSelfInfect_: function (allegiance) {
           return allegiance == 'resistance';
         },
 
@@ -106,32 +106,39 @@
       display: block;
       position: relative;
     }
+
     .content {
       margin: 16px;
     }
+
     #viewControls paper-checkbox {
       margin-left: 16px;
     }
+
     #topControls {
       display: flex;
       justify-content: space-between;
       padding: 0 16px;
       align-items: center;
     }
+
     #info {
       display: flex;
       justify-content: flex-end;
       padding: 0 16px;
       align-items: center;
     }
+
     .info {
       margin-left: 32px;
       text-align: center;
     }
+
     paper-button {
-      background-color: #03A9F4;
-      color: white;
+      background-color: var(--app_color_primary);
+      color: var(--app_color_text_on_primary_background);
     }
+
     #welcome {
       margin-bottom: 8px;
     }
@@ -163,38 +170,28 @@
         <template is="dom-if" if="[[isZombie]]">
           <ghvz-card name="infect-box" spaced left>
             <div class="header">Infect</div>
-            <ghvz-infect
-                bridge="[[bridge]]"
-                game="[[game]]"
-                player="[[player]]"">
+            <ghvz-infect bridge="[[bridge]]" game="[[game]]" player="[[player]]"">
             </ghvz-infect>
           </ghvz-card>
         </template>
 
-        <template is="dom-if" if="[[isDeclared]]">
-          <ghvz-card spaced left padded name="next-mission-box">
-            <div class="header">Next Mission</div>
-            <ghvz-next-mission
-                bridge="[[bridge]]"
-                game="[[game]]"
-                player="[[player]]">
-            </ghvz-next-mission>
-          </ghvz-card>
+        <template is=" dom-if" if="[[isDeclared]]">
+              <ghvz-card spaced left padded name="next-mission-box">
+                <div class="header">Next Mission</div>
+                <ghvz-next-mission bridge="[[bridge]]" game="[[game]]" player="[[player]]">
+                </ghvz-next-mission>
+              </ghvz-card>
         </template>
 
         <ghvz-card spaced left padded name="summary-box">
-            <div class="header">Game Summary</div>
-            <ghvz-game-summary
-                is-mobile="[[isMobile]]"
-                game="[[game]]">
-            </ghvz-game-summary>
+          <div class="header">Game Summary</div>
+          <ghvz-game-summary is-mobile="[[isMobile]]" game="[[game]]">
+          </ghvz-game-summary>
         </ghvz-card>
 
         <ghvz-card spaced scrolling left name="leaderboard-box">
           <div class="header">Leaderboard</div>
-          <ghvz-leaderboard-summary
-              game="[[game]]"
-              limit="3">
+          <ghvz-leaderboard-summary game="[[game]]" limit="3">
           </ghvz-leaderboard-summary>
         </ghvz-card>
 
@@ -209,10 +206,7 @@
         <template is="dom-if" if="[[isDeclared]]">
           <ghvz-card name="rewards-box" spaced left>
             <div class="header">Rewards</div>
-            <ghvz-claim-reward
-                bridge="[[bridge]]"
-                game="[[game]]"
-                player="[[player]]">
+            <ghvz-claim-reward bridge="[[bridge]]" game="[[game]]" player="[[player]]">
             </ghvz-claim-reward>
           </ghvz-card>
         </template>
@@ -221,13 +215,8 @@
           <div right>
             <template is="dom-if" if="[[chatIsVisible_(membership, membership.lastHiddenTime)]]">
               <ghvz-card spaced>
-                <ghvz-chat-room
-                    small
-                    bridge="[[bridge]]"
-                    game="[[game]]"
-                    is-admin="[[isAdmin]]"
-                    current-player="[[player]]"
-                    chat-room-id="[[membership.chatRoomId]]">
+                <ghvz-chat-room small bridge="[[bridge]]" game="[[game]]" is-admin="[[isAdmin]]"
+                  current-player="[[player]]" chat-room-id="[[membership.chatRoomId]]">
                 </ghvz-chat-room>
               </ghvz-card>
             </template>

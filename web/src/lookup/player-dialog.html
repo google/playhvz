@@ -14,160 +14,141 @@
   limitations under the License.
 -->
 <dom-module id="ghvz-player-dialog">
-<script>
-  // Not sure why this HTMLImports.whenReady is really needed.
-  // Something about polymer initialization order.
-  // I think we're not supposed to need this.
-  HTMLImports.whenReady(() => {
-    Polymer({
-      is: 'ghvz-player-dialog',
+  <script>
+    // Not sure why this HTMLImports.whenReady is really needed.
+    // Something about polymer initialization order.
+    // I think we're not supposed to need this.
+    HTMLImports.whenReady(() => {
+      Polymer({
+        is: 'ghvz-player-dialog',
 
-      properties: {
-        game: Object,
+        properties: {
+          game: Object,
 
-        donePromise: {
-          type: Object,
-          value: null,
+          donePromise: {
+            type: Object,
+            value: null,
+          },
         },
-      },
 
-      open() {
-        return new Promise((resolve, reject) => {
-          this.donePromiseResolve = resolve;
-          this.$.input.value = "";
-          this.$.repeater.filter = null;
-          this.$.dialog.open();
-        });
-      },
+        open() {
+          return new Promise((resolve, reject) => {
+            this.donePromiseResolve = resolve;
+            this.$.input.value = "";
+            this.$.repeater.filter = null;
+            this.$.dialog.open();
+          });
+        },
 
-      sort_(playerA, playerB) {
-        return playerA.name.localeCompare(playerB.name);
-      },
+        sort_(playerA, playerB) {
+          return playerA.name.localeCompare(playerB.name);
+        },
 
-      onTextChanged_() {
-        this.$.repeater.filter = this.filter_.bind(this);
-        this.$.repeater.render();
-      },
+        onTextChanged_() {
+          this.$.repeater.filter = this.filter_.bind(this);
+          this.$.repeater.render();
+        },
 
-      filter_(player) {
-        return player.name.toLowerCase().includes(this.$.input.value.toLowerCase());
-      },
+        filter_(player) {
+          return player.name.toLowerCase().includes(this.$.input.value.toLowerCase());
+        },
 
-      computePlayerText_(player, playerId, playerName) {
-        return player ? player.name : "(none)";
-      },
+        computePlayerText_(player, playerId, playerName) {
+          return player ? player.name : "(none)";
+        },
 
-      onKeyUp_(e) {
-        if (e.keyCode == 13) {
-          let matches = this.game.players.filter(player => player.name.toLowerCase().includes(this.$.input.value.toLowerCase()));
-          if (matches.length == 1) {
-            this.$.dialog.close();
-            this.donePromiseResolve(matches[0].id);
+        onKeyUp_(e) {
+          if (e.keyCode == 13) {
+            let matches = this.game.players.filter(player => player.name.toLowerCase().includes(this.$.input.value.toLowerCase()));
+            if (matches.length == 1) {
+              this.$.dialog.close();
+              this.donePromiseResolve(matches[0].id);
+            }
           }
-        }
-      },
+        },
 
-      onItemClicked_(e) {
-        let player = e.model.player;
-        this.$.dialog.close();
-        this.donePromiseResolve(player.id);
-      },
+        onItemClicked_(e) {
+          let player = e.model.player;
+          this.$.dialog.close();
+          this.donePromiseResolve(player.id);
+        },
 
-      onNullItemClicked_() {
-        this.$.dialog.close();
-        this.donePromiseResolve(null);
-      },
+        onNullItemClicked_() {
+          this.$.dialog.close();
+          this.donePromiseResolve(null);
+        },
 
+      });
     });
-  });
-</script>
-<style>
-  #dialog {
-    display: flex;
-    flex-direction: column;
-    width: 320px;
-  }
-  form {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 0;
-    padding-top: 0;
-  }
-  .button-container {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    margin: 8px;
-  }
-  paper-button {
-    background-color: #9C27B0;
-    color: white;
-  }
-  #title {
-    margin-top: 0;
-    color: white;
-    background-color: #9C27B0;
-    font-size: 13pt;
-    padding: 16px;
-    font-weight: bold;
-  }
+  </script>
+  <style>
+    #dialog {
+      display: flex;
+      flex-direction: column;
+      width: 320px;
+    }
 
-  #contents {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 0;
+      padding-top: 0;
+    }
 
-  #list {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
+    .button-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      margin: 8px;
+    }
 
-</style>
-<template>
-  <paper-dialog id="dialog" with-backdrop>
-    <div id="title">Choose Player</div>
+    paper-button {
+      background-color: var(--admin_color_primary);
+      color: var(--admin_color_text_on_primary_background);
+    }
 
-    <paper-input
-        id="input"
-        tabindex="0"
-        no-label-float
-        on-value-changed="onTextChanged_"
-        on-keyup="onKeyUp_">
-    </paper-input>
+    #title {
+      margin-top: 0;
+      color: var(--admin_color_text_on_primary_background);
+      background-color: var(--admin_color_primary);
+      font-size: 13pt;
+      padding: 16px;
+      font-weight: bold;
+    }
 
-    <paper-listbox
-        id="list"
-        tabindex="0">
-      <paper-item
-          tabindex="0"
-          class="player"
-          name="null-player"
-          on-tap="onNullItemClicked_">
-        (none)
-      </paper-item>
-      <template
-          is="dom-repeat"
-          id="repeater"
-          items="[[game.players]]"
-          sort="sort_"
-          filter="filter_"
-          as="player">
-        <paper-item
-            tabindex="0"
-            class="player"
-            name$="player-name-[[computePlayerText_(player, player.id, player.name)]]"
-            on-tap="onItemClicked_">
-          [[computePlayerText_(player, player.id, player.name)]]
+    #contents {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    #list {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+  </style>
+  <template>
+    <paper-dialog id="dialog" with-backdrop>
+      <div id="title">Choose Player</div>
+
+      <paper-input id="input" tabindex="0" no-label-float on-value-changed="onTextChanged_" on-keyup="onKeyUp_">
+      </paper-input>
+
+      <paper-listbox id="list" tabindex="0">
+        <paper-item tabindex="0" class="player" name="null-player" on-tap="onNullItemClicked_">
+          (none)
         </paper-item>
-      </template>
-    </paper-listbox>
+        <template is="dom-repeat" id="repeater" items="[[game.players]]" sort="sort_" filter="filter_" as="player">
+          <paper-item tabindex="0" class="player"
+            name$="player-name-[[computePlayerText_(player, player.id, player.name)]]" on-tap="onItemClicked_">
+            [[computePlayerText_(player, player.id, player.name)]]
+          </paper-item>
+        </template>
+      </paper-listbox>
 
-    <div class="buttons">
-      <paper-button id="cancel" dialog-dismiss>Cancel</paper-button>
-      <paper-button id="done">Set</paper-button>
-    </div>
-  </paper-dialog>
-</template>
+      <div class="buttons">
+        <paper-button id="cancel" dialog-dismiss>Cancel</paper-button>
+        <paper-button id="done">Set</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
 </dom-module>
-
-
