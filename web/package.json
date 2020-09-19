@@ -16,10 +16,10 @@
     "type": "git",
     "url": "git+https://github.com/google/playhvz.git"
   },
-  "license": "",
+  "license": "Apache-2.0",
   "homepage": "https://github.com/google/playhvz",
   "devDependencies": {
     "bower": "^1.8.0",
-    "firebase-tools": "^3.7.0"
+    "firebase-tools": "^8.10.0"
   }
 }
