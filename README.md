@@ -2,7 +2,7 @@ Copyright 2017 Google Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+You may obtain a copy of the License at:
 
      http://www.apache.org/licenses/LICENSE-2.0
 
@@ -15,7 +15,7 @@ Copyright 2017 Google Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+You may obtain a copy of the License at:
 
      http://www.apache.org/licenses/LICENSE-2.0
 
@@ -41,7 +41,7 @@ You may run against the fake JS server (do nothing), run against production, or 
 
 ### Quick Start
 
-Clone this project and follow the setup section if you are missing any dependencies
+Clone this project and follow the setup section if you are missing any dependencies:
 
 ```bash
 cd web
@@ -52,7 +52,7 @@ bower install
 ```
 If the last line fails with an "Invalid project selection" error, then run ./node_modules/firebase-tools/bin/firebase login to make sure you are logged in using the right account.
 
-Copy the first relevant part of web/config_.json to web/config.json (i.e., remove the underscore)
+Copy the first relevant part of web/config_.json to web/config.json .(i.e., remove the underscore)
 
 ```
 npm start
@@ -63,28 +63,28 @@ Visit [`localhost:5000`](localhost:5000)
 Stop your webserver via Ctrl-C to abort
 
 ### Installing a Polymer component
-Run `bower install paper-button` under web directory
+Run `bower install paper-button` under web directory.
 
 ### Running against prod
-1. Copy the first relevant part of web/config_.json to web/config.json (i.e., remove the underscore)
-1. Restart your web server
-1. Go to [`localhost:5000/?bridge=remote`](localhost:5000/?bridge=remote)
+1. Copy the first relevant part of web/config_.json to web/config.json. (i.e., remove the underscore)
+1. Restart your web server.
+1. Go to. [`localhost:5000/?bridge=remote`](localhost:5000/?bridge=remote)
 
 ### Your own Firebase project and backend
-These are one time firebase setup instructions along with backend configuration
+These are one time firebase setup instructions along with backend configuration.
 
 #### Front End (/web)
-1. Change config.json's backendUrl to be "http://localhost:8080/"
-1. [Create a firebase project](https://console.firebase.google.com/?pli=1)
+1. Change config.json's backendUrl to be "http://localhost:8080/".
+1. [Create a firebase project](https://console.firebase.google.com/?pli=1).
 1. Open authentication using the left hand pane and enable (1) Google and (2) Email/Password
-1. Open the users tab, create 8 users listed below
+1. Open the users tab, create 8 users listed below.
 
    Use the same password (**write it down**, you'll need it if you want to run webdrivers)
 1. Hit the copy button next to zella's name and put that into your config.py and config.json
 
    Repeat for the remaining seven fake users.
-1. In Firebase, open the web config and have these values ready to copy into the config.json file
-1. In your project make a new web/config.json file, similar to the examples in web/config_.json and copy over the values
+1. In Firebase, open the web config and have these values ready to copy into the config.json file.
+1. In your project make a new web/config.json file, similar to the examples in web/config_.json and copy over the values.
 1. Run `./node_modules/firebase-tools/bin/firebase use --add ` ...your project...
 
 (If this command fails with an "Invalid project selection" error, then run ./node_modules/firebase-tools/bin/firebase login to make sure you are logged in using the right account.)
