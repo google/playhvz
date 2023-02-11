@@ -20,6 +20,6 @@
   "homepage": "https://github.com/google/playhvz",
   "devDependencies": {
     "bower": "^1.8.0",
-    "firebase-tools": "^8.10.0"
+    "firebase-tools": "^11.22.0"
   }
 }
